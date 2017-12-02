@@ -1,0 +1,4 @@
+---
+Checks: '*,-llvm-header-guard,-cppcoreguidelines-pro-type-reinterpret-cast'
+AnalyzeTemporaryDtors: true
+...
