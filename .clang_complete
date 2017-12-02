@@ -1,0 +1,6 @@
+-Iinclude
+-Iunit_tests
+-Ilibrary
+-Iexternal/GSL/include
+-Iexternal/PEGTL/include
+-Iexternal/Catch/include

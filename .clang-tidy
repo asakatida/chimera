@@ -1,0 +1,185 @@
+---
+Checks: 'clang-diagnostic-*,clang-analyzer-*,*,-clang-diagnostic-date-time,-llvm-header-guard'
+AnalyzeTemporaryDtors: true
+CheckOptions:
+  - key: cert-dcl59-cpp.HeaderFileExtensions
+    value: hpp
+  - key: cert-err09-cpp.CheckThrowTemporaries
+    value: '1'
+  - key: cert-err61-cpp.CheckThrowTemporaries
+    value: '1'
+  - key: cppcoreguidelines-pro-bounds-constant-array-index.IncludeStyle
+    value: '1'
+  - key: cppcoreguidelines-pro-type-member-init.IgnoreArrays
+    value: '1'
+  - key: google-build-namespaces.HeaderFileExtensions
+    value: hpp
+  - key: google-global-names-in-headers.HeaderFileExtensions
+    value: hpp
+  - key: llvm-namespace-comment.SpacesBeforeComments
+    value: '2'
+  - key: misc-assert-side-effect.CheckFunctionCalls
+    value: '1'
+  - key: misc-dangling-handle.HandleClasses
+    value: 'std::basic_string_view;std::experimental::basic_string_view'
+  - key: misc-definitions-in-headers.HeaderFileExtensions
+    value: 'hpp'
+  - key: misc-definitions-in-headers.UseHeaderFileExtension
+    value: '1'
+  - key: misc-misplaced-widening-cast.CheckImplicitCasts
+    value: '1'
+  - key: misc-move-constructor-init.IncludeStyle
+    value: llvm
+  - key: misc-sizeof-expression.WarnOnSizeOfCompareToConstant
+    value: '1'
+  - key: misc-sizeof-expression.WarnOnSizeOfConstant
+    value: '1'
+  - key: misc-sizeof-expression.WarnOnSizeOfThis
+    value: '1'
+  - key: misc-string-constructor.WarnOnLargeLength
+    value: '1'
+  - key: misc-suspicious-enum-usage.StrictMode
+    value: '1'
+  - key: misc-suspicious-missing-comma.MaxConcatenatedTokens
+    value: '5'
+  - key: misc-suspicious-missing-comma.RatioThreshold
+    value: '0.200000'
+  - key: misc-suspicious-missing-comma.SizeThreshold
+    value: '5'
+  - key: misc-suspicious-string-compare.StringCompareLikeFunctions
+    value: ''
+  - key: misc-suspicious-string-compare.WarnOnImplicitComparison
+    value: '1'
+  - key: misc-suspicious-string-compare.WarnOnLogicalNotComparison
+    value: '1'
+  - key: misc-throw-by-value-catch-by-reference.CheckThrowTemporaries
+    value: '1'
+  - key: modernize-loop-convert.MaxCopySize
+    value: '16'
+  - key: modernize-loop-convert.MinConfidence
+    value: reasonable
+  - key: modernize-loop-convert.NamingStyle
+    value: CamelCase
+  - key: modernize-pass-by-value.IncludeStyle
+    value: llvm
+  - key: modernize-pass-by-value.ValuesOnly
+    value: '1'
+  - key: modernize-replace-auto-ptr.IncludeStyle
+    value: llvm
+  - key: modernize-use-auto.RemoveStars
+    value: '1'
+  - key: modernize-use-default-member-init.UseAssignment
+    value: '1'
+  - key: modernize-use-emplace.ContainersWithPushBack
+    value: '::std::vector;::std::list;::std::deque'
+  - key: modernize-use-emplace.SmartPointers
+    value: '::std::shared_ptr;::std::unique_ptr;::std::auto_ptr;::std::weak_ptr'
+  - key: modernize-use-nullptr.NullMacros
+    value: 'NULL'
+  - key: modernize-use-transparent-functors.SafeMode
+    value: '1'
+  - key: performance-faster-string-find.StringLikeClasses
+    value: 'std::basic_string'
+  - key: performance-for-range-copy.WarnOnAllAutoCopies
+    value: '1'
+  - key: performance-inefficient-string-concatenation.StrictMode
+    value: '1'
+  - key: performance-type-promotion-in-math-fn.IncludeStyle
+    value: llvm
+  - key: performance-unnecessary-value-param.IncludeStyle
+    value: llvm
+  - key: readability-braces-around-statements.ShortStatementLines
+    value: '1'
+  - key: readability-identifier-naming.AbstractClassCase
+    value: CamelCase
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  - key: readability-identifier-naming.ClassConstantCase
+    value: CamelCase
+  - key: readability-identifier-naming.ClassMemberCase
+    value: lower_case
+  - key: readability-identifier-naming.ClassMethodCase
+    value: lower_case
+  - key: readability-identifier-naming.ConstantCase
+    value: CamelCase
+  - key: readability-identifier-naming.ConstantMemberCase
+    value: lower_case
+  - key: readability-identifier-naming.ConstantParameterCase
+    value: camelBack
+  - key: readability-identifier-naming.ConstexprFunctionCase
+    value: lower_case
+  - key: readability-identifier-naming.ConstexprMethodCase
+    value: lower_case
+  - key: readability-identifier-naming.ConstexprVariableCase
+    value: camelBack
+  - key: readability-identifier-naming.EnumCase
+    value: CamelCase
+  - key: readability-identifier-naming.EnumConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.FunctionCase
+    value: lower_case
+  - key: readability-identifier-naming.GlobalConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.GlobalFunctionCase
+    value: lower_case
+  - key: readability-identifier-naming.GlobalVariableCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.InlineNamespaceCase
+    value: lower_case
+  - key: readability-identifier-naming.LocalConstantCase
+    value: camelBack
+  - key: readability-identifier-naming.LocalVariableCase
+    value: camelBack
+  - key: readability-identifier-naming.MacroDefinitionCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.MemberCase
+    value: lower_case
+  - key: readability-identifier-naming.MethodCase
+    value: lower_case
+  - key: readability-identifier-naming.NamespaceCase
+    value: lower_case
+  - key: readability-identifier-naming.ParameterCase
+    value: camelBack
+  - key: readability-identifier-naming.ParameterPackCase
+    value: camelBack
+  - key: readability-identifier-naming.PrivateMemberCase
+    value: camelBack
+  - key: readability-identifier-naming.PrivateMethodCase
+    value: lower_case
+  - key: readability-identifier-naming.ProtectedMemberCase
+    value: camelBack
+  - key: readability-identifier-naming.ProtectedMethodCase
+    value: lower_case
+  - key: readability-identifier-naming.PublicMemberCase
+    value: lower_case
+  - key: readability-identifier-naming.PublicMethodCase
+    value: lower_case
+  - key: readability-identifier-naming.StaticConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.StaticVariableCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.StructCase
+    value: CamelCase
+  - key: readability-identifier-naming.TemplateParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.TemplateTemplateParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.TypeAliasCase
+    value: CamelCase
+  - key: readability-identifier-naming.TypeTemplateParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.TypedefCase
+    value: CamelCase
+  - key: readability-identifier-naming.UnionCase
+    value: CamelCase
+  - key: readability-identifier-naming.ValueTemplateParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.VariableCase
+    value: camelBack
+  - key: readability-identifier-naming.VirtualMethodCase
+    value: lower_case
+  - key: readability-simplify-boolean-expr.ChainedConditionalAssignment
+    value: '1'
+  - key: readability-simplify-boolean-expr.ChainedConditionalReturn
+    value: '1'
+...

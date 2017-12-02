@@ -1,0 +1,1 @@
+Github is a core part of the project workflow.  Pull requests to these documentation files are used to facilitate proposals and discussion of changes.  Tooling that depends on Github infrastructure is welcome.

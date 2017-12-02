@@ -1,0 +1,4 @@
+---
+Checks: '*,-cert-err58-cpp,-hicpp-no-assembler,-llvm-header-guard'
+AnalyzeTemporaryDtors: true
+...
