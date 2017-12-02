@@ -36,29 +36,52 @@ namespace chimera {
     namespace object {
 
       namespace number {
-        Number operator+(const std::uint64_t & /*left*/,
-                         const Base & /*right*/) {
-          return Number{};
+        Number operator+(const std::uint64_t &left, const Base &right) {
+          auto value = sum(left, right.value);
+          if (std::get<1>(value) == std::uint64_t(0)) {
+            return Number{Base{std::get<0>(value)}};
+          }
+          return Number{Natural{std::vector<std::uint64_t>{
+              std::get<0>(value), std::get<1>(value)}}};
         }
 
-        Number operator+(const std::uint64_t & /*left*/,
-                         const Natural & /*right*/) {
-          return Number{};
+        Number operator+(const std::uint64_t &left, const Natural &right) {
+          if (left == 0) {
+            return Number{right};
+          }
+          auto value = right;
+          Carryover carryover{0, left};
+          for (auto &&i : value.value) {
+            carryover = sum(i, std::get<1>(carryover));
+            i = std::get<0>(carryover);
+            if (std::get<1>(carryover) != std::uint64_t(0)) {
+              break;
+            }
+          }
+          return Number{value};
         }
 
-        Number operator+(const std::uint64_t & /*left*/,
-                         const Integer & /*right*/) {
-          return Number{};
+        Number operator+(const std::uint64_t &left, const Integer &right) {
+          if (right.sign) {
+            return left - (+right);
+          }
+          return std::visit([left](auto &&value) { return left + value; },
+                            right.value);
         }
 
-        Number operator+(const std::uint64_t & /*left*/,
-                         const Rational & /*right*/) {
-          return Number{};
+        Number operator+(const std::uint64_t &left, const Rational &right) {
+          return std::visit(
+              [left](auto &&rN, auto &&rD) { return (left * rD + rN) / rD; },
+              right.numerator, right.denominator);
         }
 
-        Number operator+(const Base & /*left*/,
-                         const std::uint64_t & /*right*/) {
-          return Number{};
+        Number operator+(const Base &left, const std::uint64_t &right) {
+          auto value = sum(left.value, right);
+          if (std::get<1>(value) == std::uint64_t(0)) {
+            return Number{Base{std::get<0>(value)}};
+          }
+          return Number{Natural{std::vector<std::uint64_t>{
+              std::get<0>(value), std::get<1>(value)}}};
         }
 
         Number operator+(const Base &left, const Base &right) {
@@ -70,25 +93,66 @@ namespace chimera {
               std::get<0>(value), std::get<1>(value)}}};
         }
 
-        Number operator+(const Base & /*left*/, const Natural & /*right*/) {
-          return Number{};
+        Number operator+(const Base &left, const Natural &right) {
+          if (left.value == 0) {
+            return Number{right};
+          }
+          auto value = right;
+          Carryover carryover{0, left.value};
+          for (auto &&i : value.value) {
+            carryover = sum(i, std::get<1>(carryover));
+            i = std::get<0>(carryover);
+            if (std::get<1>(carryover) != std::uint64_t(0)) {
+              break;
+            }
+          }
+          return Number{value};
         }
 
-        Number operator+(const Base & /*left*/, const Integer & /*right*/) {
-          return Number{};
+        Number operator+(const Base &left, const Integer &right) {
+          if (right.sign) {
+            return left - (+right);
+          }
+          return std::visit([left](auto &&value) { return left + value; },
+                            right.value);
         }
 
-        Number operator+(const Base & /*left*/, const Rational & /*right*/) {
-          return Number{};
+        Number operator+(const Base &left, const Rational &right) {
+          return std::visit(
+              [left](auto &&rN, auto &&rD) { return (left * rD + rN) / rD; },
+              right.numerator, right.denominator);
         }
 
-        Number operator+(const Natural & /*left*/,
-                         const std::uint64_t & /*right*/) {
-          return Number{};
+        Number operator+(const Natural &left, const std::uint64_t &right) {
+          if (right == 0) {
+            return Number{left};
+          }
+          auto value = left;
+          Carryover carryover{0, right};
+          for (auto &&i : value.value) {
+            carryover = sum(i, std::get<1>(carryover));
+            i = std::get<0>(carryover);
+            if (std::get<1>(carryover) != std::uint64_t(0)) {
+              break;
+            }
+          }
+          return Number{value};
         }
 
-        Number operator+(const Natural & /*left*/, const Base & /*right*/) {
-          return Number{};
+        Number operator+(const Natural &left, const Base &right) {
+          if (right.value == 0) {
+            return Number{left};
+          }
+          auto value = left;
+          Carryover carryover{0, right.value};
+          for (auto &&i : value.value) {
+            carryover = sum(i, std::get<1>(carryover));
+            i = std::get<0>(carryover);
+            if (std::get<1>(carryover) != std::uint64_t(0)) {
+              break;
+            }
+          }
+          return Number{value};
         }
 
         Number operator+(const Natural &left, const Natural &right) {
@@ -98,7 +162,7 @@ namespace chimera {
           auto end1 = left.value.end();
           auto it2 = right.value.begin();
           auto end2 = right.value.end();
-          std::tuple<std::uint64_t, std::uint64_t> carryover{};
+          Carryover carryover{};
           for (; it1 != end1 && it2 != end2; ++it1, ++it2) {
             auto l = sum(std::get<0>(carryover), *it1);
             auto r = sum(std::get<0>(l), *it2);
@@ -121,25 +185,42 @@ namespace chimera {
           return Number{Natural{output, left.bit && right.bit}};
         }
 
-        Number operator+(const Natural & /*left*/, const Integer & /*right*/) {
-          return Number{};
+        Number operator+(const Natural &left, const Integer &right) {
+          if (right.sign) {
+            return left - (+right);
+          }
+          return std::visit([left](auto &&value) { return left + value; },
+                            right.value);
         }
 
-        Number operator+(const Natural & /*left*/, const Rational & /*right*/) {
-          return Number{};
+        Number operator+(const Natural &left, const Rational &right) {
+          return std::visit(
+              [left](auto &&rN, auto &&rD) { return (left * rD + rN) / rD; },
+              right.numerator, right.denominator);
         }
 
-        Number operator+(const Integer & /*left*/,
-                         const std::uint64_t & /*right*/) {
-          return Number{};
+        Number operator+(const Integer &left, const std::uint64_t &right) {
+          if (left.sign) {
+            return right - (+left);
+          }
+          return std::visit([right](auto &&value) { return value + right; },
+                            left.value);
         }
 
-        Number operator+(const Integer & /*left*/, const Base & /*right*/) {
-          return Number{};
+        Number operator+(const Integer &left, const Base &right) {
+          if (left.sign) {
+            return right - (+left);
+          }
+          return std::visit([right](auto &&value) { return value + right; },
+                            left.value);
         }
 
-        Number operator+(const Integer & /*left*/, const Natural & /*right*/) {
-          return Number{};
+        Number operator+(const Integer &left, const Natural &right) {
+          if (left.sign) {
+            return right - (+left);
+          }
+          return std::visit([right](auto &&value) { return value + right; },
+                            left.value);
         }
 
         Number operator+(const Integer &left, const Integer &right) {
@@ -157,25 +238,34 @@ namespace chimera {
                             left.value, right.value);
         }
 
-        Number operator+(const Integer & /*left*/, const Rational & /*right*/) {
-          return Number{};
+        Number operator+(const Integer &left, const Rational &right) {
+          return std::visit(
+              [left](auto &&rN, auto &&rD) { return (left * rD + rN) / rD; },
+              right.numerator, right.denominator);
         }
 
-        Number operator+(const Rational & /*left*/,
-                         const std::uint64_t & /*right*/) {
-          return Number{};
+        Number operator+(const Rational &left, const std::uint64_t &right) {
+          return std::visit(
+              [right](auto &&lN, auto &&lD) { return (lN + right * lD) / lD; },
+              left.numerator, left.denominator);
         }
 
-        Number operator+(const Rational & /*left*/, const Base & /*right*/) {
-          return Number{};
+        Number operator+(const Rational &left, const Base &right) {
+          return std::visit(
+              [right](auto &&lN, auto &&lD) { return (lN + right * lD) / lD; },
+              left.numerator, left.denominator);
         }
 
-        Number operator+(const Rational & /*left*/, const Natural & /*right*/) {
-          return Number{};
+        Number operator+(const Rational &left, const Natural &right) {
+          return std::visit(
+              [right](auto &&lN, auto &&lD) { return (lN + right * lD) / lD; },
+              left.numerator, left.denominator);
         }
 
-        Number operator+(const Rational & /*left*/, const Integer & /*right*/) {
-          return Number{};
+        Number operator+(const Rational &left, const Integer &right) {
+          return std::visit(
+              [right](auto &&lN, auto &&lD) { return (lN + right * lD) / lD; },
+              left.numerator, left.denominator);
         }
 
         Number operator+(const Rational &left, const Rational &right) {

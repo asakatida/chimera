@@ -93,7 +93,7 @@ namespace chimera {
           auto end1 = left.value.end();
           auto it2 = right.value.begin();
           auto end2 = right.value.end();
-          std::tuple<std::uint64_t, std::uint64_t> carryover{};
+          Carryover carryover{};
           for (; it1 != end1 && it2 != end2; ++it1, ++it2) {
             auto l = sum(std::get<0>(carryover), *it1);
             auto r = sum(std::get<0>(l), *it2);
