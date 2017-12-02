@@ -30,8 +30,7 @@ namespace chimera {
     namespace object {
 
       namespace number {
-        std::tuple<std::uint64_t, std::uint64_t> sum(std::uint64_t left,
-                                                     std::uint64_t right) {
+        Carryover sum(std::uint64_t left, std::uint64_t right) {
           auto carryover = (left & 0xFFFFFFFF) + (right & 0xFFFFFFFF);
           auto lowField = carryover & 0xFFFFFFFF;
           carryover >>= 32;
@@ -41,8 +40,7 @@ namespace chimera {
                   {carryover >> 32}};
         }
 
-        std::tuple<std::uint64_t, std::uint64_t> sub(std::uint64_t left,
-                                                     std::uint64_t right) {
+        Carryover sub(std::uint64_t left, std::uint64_t right) {
           if (left < right) {
             return {
                 {std::numeric_limits<std::uint64_t>::max() - (right - left)},
@@ -51,8 +49,7 @@ namespace chimera {
           return {{left - right}, {0}};
         }
 
-        std::tuple<std::uint64_t, std::uint64_t> mult(std::uint64_t left,
-                                                      std::uint64_t right) {
+        Carryover mult(std::uint64_t left, std::uint64_t right) {
           auto carryover = (left & 0xFFFF) * (right & 0xFFFF);
           auto field0 = carryover & 0xFFFF;
           carryover >>= 16;

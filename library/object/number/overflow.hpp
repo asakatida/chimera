@@ -28,12 +28,11 @@ namespace chimera {
     namespace object {
 
       namespace number {
-        std::tuple<std::uint64_t, std::uint64_t> sum(std::uint64_t left,
-                                                     std::uint64_t right);
-        std::tuple<std::uint64_t, std::uint64_t> sub(std::uint64_t left,
-                                                     std::uint64_t right);
-        std::tuple<std::uint64_t, std::uint64_t> mult(std::uint64_t left,
-                                                      std::uint64_t right);
+        using Carryover = std::tuple<std::uint64_t, std::uint64_t>;
+
+        Carryover sum(std::uint64_t left, std::uint64_t right);
+        Carryover sub(std::uint64_t left, std::uint64_t right);
+        Carryover mult(std::uint64_t left, std::uint64_t right);
       } // namespace number
     }   // namespace object
   }     // namespace library

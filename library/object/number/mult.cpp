@@ -96,7 +96,7 @@ namespace chimera {
             std::vector<std::uint64_t> output;
             output.reserve(right.value.size() + integers.size() + 1);
             output.resize(integers.size());
-            std::tuple<std::uint64_t, std::uint64_t> carryover{};
+            Carryover carryover{};
             for (auto &&j : right.value) {
               auto result = mult(i, j);
               auto next = sum(std::get<0>(result), std::get<0>(carryover));
