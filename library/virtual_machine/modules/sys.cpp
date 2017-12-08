@@ -37,7 +37,7 @@ namespace chimera {
           argv.resize(static_cast<std::size_t>(
               std::distance(options.argv.begin(), options.argv.end())));
           std::transform(options.argv.begin(), options.argv.end(), argv.begin(),
-                         [module](auto &&arg) {
+                         [module](const auto &arg) {
                            return object::Object(
                                object::String(arg),
                                {{"__class__", module.get_attribute("str")}});

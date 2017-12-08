@@ -53,7 +53,7 @@ namespace chimera {
           if (!top_is<Type>()) {
             if (has_value()) {
               std::visit(
-                  [](auto &&t) {
+                  [](const auto &t) {
                     std::cout << "Wanted: " << typeid(Type).name()
                               << "\nFound: " << typeid(t).name() << '\n';
                   },
@@ -91,17 +91,18 @@ namespace chimera {
             typename Type = typename std::iterator_traits<OutputIt>::value_type,
             typename = decltype(std::get<Type>(ValueT{}))>
         void transform(OutputIt &&outputIt) {
-          std::transform(
-              stack.begin(), stack.end(), std::forward<OutputIt>(outputIt),
-              [](ValueT &value) {
-                if (!std::holds_alternative<Type>(value)) {
-                  std::visit(
-                      [](auto &&t) { std::cout << typeid(t).name() << '\n'; },
-                      value);
-                }
-                Ensures(std::holds_alternative<Type>(value));
-                return std::move(std::get<Type>(value));
-              });
+          std::transform(stack.begin(), stack.end(),
+                         std::forward<OutputIt>(outputIt), [](ValueT &value) {
+                           if (!std::holds_alternative<Type>(value)) {
+                             std::visit(
+                                 [](const auto &t) {
+                                   std::cout << typeid(t).name() << '\n';
+                                 },
+                                 value);
+                           }
+                           Ensures(std::holds_alternative<Type>(value));
+                           return std::move(std::get<Type>(value));
+                         });
           return stack.clear();
         }
         bool has_value() const { return !stack.empty(); }

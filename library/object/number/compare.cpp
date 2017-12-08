@@ -90,7 +90,7 @@ namespace chimera {
           return false;
         }
         bool operator==(const Integer &left, const Integer &right) {
-          return std::visit([](auto &&a, auto &&b) { return a == b; },
+          return std::visit([](const auto &a, const auto &b) { return a == b; },
                             left.value, right.value);
         }
         bool operator==(const Integer & /*left*/, const Rational & /*right*/) {
@@ -111,8 +111,8 @@ namespace chimera {
           return false;
         }
         bool operator==(const Rational &left, const Rational &right) {
-          return std::visit([](auto &&lN, auto &&lD, auto &&rN,
-                               auto &&rD) { return lN == rN && lD == rD; },
+          return std::visit([](const auto &lN, const auto &lD, const auto &rN,
+                               const auto &rD) { return lN == rN && lD == rD; },
                             left.numerator, left.denominator, right.numerator,
                             right.denominator);
         }
@@ -181,7 +181,7 @@ namespace chimera {
           return true;
         }
         bool operator!=(const Integer &left, const Integer &right) {
-          return std::visit([](auto &&a, auto &&b) { return a != b; },
+          return std::visit([](const auto &a, const auto &b) { return a != b; },
                             left.value, right.value);
         }
         bool operator!=(const Integer & /*left*/, const Rational & /*right*/) {
@@ -202,8 +202,8 @@ namespace chimera {
           return true;
         }
         bool operator!=(const Rational &left, const Rational &right) {
-          return std::visit([](auto &&lN, auto &&lD, auto &&rN,
-                               auto &&rD) { return lN != rN || lD != rD; },
+          return std::visit([](const auto &lN, const auto &lD, const auto &rN,
+                               const auto &rD) { return lN != rN || lD != rD; },
                             left.numerator, left.denominator, right.numerator,
                             right.denominator);
         }

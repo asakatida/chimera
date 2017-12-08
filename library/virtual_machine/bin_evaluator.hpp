@@ -37,91 +37,91 @@ namespace chimera {
         Iterator begin;
         Iterator end;
 
-        void operator()(Evaluator *evaluatorA);
+        void operator()(Evaluator *evaluatorA) const;
       };
       struct BinSubEvaluator {
         using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
         Iterator begin;
         Iterator end;
 
-        void operator()(Evaluator *evaluatorA);
+        void operator()(Evaluator *evaluatorA) const;
       };
       struct BinMultEvaluator {
         using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
         Iterator begin;
         Iterator end;
 
-        void operator()(Evaluator *evaluatorA);
+        void operator()(Evaluator *evaluatorA) const;
       };
       struct BinMatMultEvaluator {
         using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
         Iterator begin;
         Iterator end;
 
-        void operator()(Evaluator *evaluatorA);
+        void operator()(Evaluator *evaluatorA) const;
       };
       struct BinDivEvaluator {
         using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
         Iterator begin;
         Iterator end;
 
-        void operator()(Evaluator *evaluatorA);
+        void operator()(Evaluator *evaluatorA) const;
       };
       struct BinModEvaluator {
         using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
         Iterator begin;
         Iterator end;
 
-        void operator()(Evaluator *evaluatorA);
+        void operator()(Evaluator *evaluatorA) const;
       };
       struct BinPowEvaluator {
         using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
         Iterator begin;
         Iterator end;
 
-        void operator()(Evaluator *evaluatorA);
+        void operator()(Evaluator *evaluatorA) const;
       };
       struct BinLShiftEvaluator {
         using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
         Iterator begin;
         Iterator end;
 
-        void operator()(Evaluator *evaluatorA);
+        void operator()(Evaluator *evaluatorA) const;
       };
       struct BinRShiftEvaluator {
         using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
         Iterator begin;
         Iterator end;
 
-        void operator()(Evaluator *evaluatorA);
+        void operator()(Evaluator *evaluatorA) const;
       };
       struct BinBitOrEvaluator {
         using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
         Iterator begin;
         Iterator end;
 
-        void operator()(Evaluator *evaluatorA);
+        void operator()(Evaluator *evaluatorA) const;
       };
       struct BinBitXorEvaluator {
         using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
         Iterator begin;
         Iterator end;
 
-        void operator()(Evaluator *evaluatorA);
+        void operator()(Evaluator *evaluatorA) const;
       };
       struct BinBitAndEvaluator {
         using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
         Iterator begin;
         Iterator end;
 
-        void operator()(Evaluator *evaluatorA);
+        void operator()(Evaluator *evaluatorA) const;
       };
       struct BinFloorDivEvaluator {
         using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
         Iterator begin;
         Iterator end;
 
-        void operator()(Evaluator *evaluatorA);
+        void operator()(Evaluator *evaluatorA) const;
       };
     } // namespace virtual_machine
   }   // namespace library

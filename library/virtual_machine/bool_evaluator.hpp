@@ -37,7 +37,7 @@ namespace chimera {
         Iterator begin;
         Iterator end;
 
-        void operator()(Evaluator *evaluatorA);
+        void operator()(Evaluator *evaluatorA) const;
       };
 
       struct BoolOrEvaluator {
@@ -45,7 +45,7 @@ namespace chimera {
         Iterator begin;
         Iterator end;
 
-        void operator()(Evaluator *evaluatorA);
+        void operator()(Evaluator *evaluatorA) const;
       };
     } // namespace virtual_machine
   }   // namespace library
