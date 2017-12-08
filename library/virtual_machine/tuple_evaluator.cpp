@@ -28,7 +28,7 @@
 namespace chimera {
   namespace library {
     namespace virtual_machine {
-      void TupleEvaluator::operator()(Evaluator *evaluator) {
+      void TupleEvaluator::operator()(Evaluator *evaluator) const {
         object::Tuple tuple(evaluator->stack.size() - size);
         for (std::size_t i = 0; evaluator->stack.size() > size; ++i) {
           tuple[tuple.size() - 1 - i] = evaluator->stack.top();

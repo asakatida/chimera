@@ -28,10 +28,10 @@
 namespace chimera {
   namespace library {
     namespace virtual_machine {
-      void BinAddEvaluator::operator()(Evaluator *evaluatorA) {
+      void BinAddEvaluator::operator()(Evaluator *evaluatorA) const {
         if (begin != end) {
           auto &expr = *begin;
-          evaluatorA->push(BinAddEvaluator{++begin, end});
+          evaluatorA->push(BinAddEvaluator{begin + 1, end});
           evaluatorA->push([](Evaluator *evaluatorB) {
             evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
             evaluatorB->stack.pop();
@@ -43,10 +43,10 @@ namespace chimera {
           evaluatorA->evaluate_get(expr);
         }
       }
-      void BinSubEvaluator::operator()(Evaluator *evaluatorA) {
+      void BinSubEvaluator::operator()(Evaluator *evaluatorA) const {
         if (begin != end) {
           auto &expr = *begin;
-          evaluatorA->push(BinSubEvaluator{++begin, end});
+          evaluatorA->push(BinSubEvaluator{begin + 1, end});
           evaluatorA->push([](Evaluator *evaluatorB) {
             evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
             evaluatorB->stack.pop();
@@ -58,10 +58,10 @@ namespace chimera {
           evaluatorA->evaluate_get(expr);
         }
       }
-      void BinMultEvaluator::operator()(Evaluator *evaluatorA) {
+      void BinMultEvaluator::operator()(Evaluator *evaluatorA) const {
         if (begin != end) {
           auto &expr = *begin;
-          evaluatorA->push(BinMultEvaluator{++begin, end});
+          evaluatorA->push(BinMultEvaluator{begin + 1, end});
           evaluatorA->push([](Evaluator *evaluatorB) {
             evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
             evaluatorB->stack.pop();
@@ -73,10 +73,10 @@ namespace chimera {
           evaluatorA->evaluate_get(expr);
         }
       }
-      void BinMatMultEvaluator::operator()(Evaluator *evaluatorA) {
+      void BinMatMultEvaluator::operator()(Evaluator *evaluatorA) const {
         if (begin != end) {
           auto &expr = *begin;
-          evaluatorA->push(BinMatMultEvaluator{++begin, end});
+          evaluatorA->push(BinMatMultEvaluator{begin + 1, end});
           evaluatorA->push([](Evaluator *evaluatorB) {
             evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
             evaluatorB->stack.pop();
@@ -88,10 +88,10 @@ namespace chimera {
           evaluatorA->evaluate_get(expr);
         }
       }
-      void BinDivEvaluator::operator()(Evaluator *evaluatorA) {
+      void BinDivEvaluator::operator()(Evaluator *evaluatorA) const {
         if (begin != end) {
           auto &expr = *begin;
-          evaluatorA->push(BinDivEvaluator{++begin, end});
+          evaluatorA->push(BinDivEvaluator{begin + 1, end});
           evaluatorA->push([](Evaluator *evaluatorB) {
             evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
             evaluatorB->stack.pop();
@@ -103,10 +103,10 @@ namespace chimera {
           evaluatorA->evaluate_get(expr);
         }
       }
-      void BinModEvaluator::operator()(Evaluator *evaluatorA) {
+      void BinModEvaluator::operator()(Evaluator *evaluatorA) const {
         if (begin != end) {
           auto &expr = *begin;
-          evaluatorA->push(BinModEvaluator{++begin, end});
+          evaluatorA->push(BinModEvaluator{begin + 1, end});
           evaluatorA->push([](Evaluator *evaluatorB) {
             evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
             evaluatorB->stack.pop();
@@ -118,10 +118,10 @@ namespace chimera {
           evaluatorA->evaluate_get(expr);
         }
       }
-      void BinPowEvaluator::operator()(Evaluator *evaluatorA) {
+      void BinPowEvaluator::operator()(Evaluator *evaluatorA) const {
         if (begin != end) {
           auto &expr = *begin;
-          evaluatorA->push(BinPowEvaluator{++begin, end});
+          evaluatorA->push(BinPowEvaluator{begin + 1, end});
           evaluatorA->push([](Evaluator *evaluatorB) {
             evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
             evaluatorB->stack.pop();
@@ -133,10 +133,10 @@ namespace chimera {
           evaluatorA->evaluate_get(expr);
         }
       }
-      void BinLShiftEvaluator::operator()(Evaluator *evaluatorA) {
+      void BinLShiftEvaluator::operator()(Evaluator *evaluatorA) const {
         if (begin != end) {
           auto &expr = *begin;
-          evaluatorA->push(BinLShiftEvaluator{++begin, end});
+          evaluatorA->push(BinLShiftEvaluator{begin + 1, end});
           evaluatorA->push([](Evaluator *evaluatorB) {
             evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
             evaluatorB->stack.pop();
@@ -148,10 +148,10 @@ namespace chimera {
           evaluatorA->evaluate_get(expr);
         }
       }
-      void BinRShiftEvaluator::operator()(Evaluator *evaluatorA) {
+      void BinRShiftEvaluator::operator()(Evaluator *evaluatorA) const {
         if (begin != end) {
           auto &expr = *begin;
-          evaluatorA->push(BinRShiftEvaluator{++begin, end});
+          evaluatorA->push(BinRShiftEvaluator{begin + 1, end});
           evaluatorA->push([](Evaluator *evaluatorB) {
             evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
             evaluatorB->stack.pop();
@@ -163,10 +163,10 @@ namespace chimera {
           evaluatorA->evaluate_get(expr);
         }
       }
-      void BinBitOrEvaluator::operator()(Evaluator *evaluatorA) {
+      void BinBitOrEvaluator::operator()(Evaluator *evaluatorA) const {
         if (begin != end) {
           auto &expr = *begin;
-          evaluatorA->push(BinBitOrEvaluator{++begin, end});
+          evaluatorA->push(BinBitOrEvaluator{begin + 1, end});
           evaluatorA->push([](Evaluator *evaluatorB) {
             evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
             evaluatorB->stack.pop();
@@ -178,10 +178,10 @@ namespace chimera {
           evaluatorA->evaluate_get(expr);
         }
       }
-      void BinBitXorEvaluator::operator()(Evaluator *evaluatorA) {
+      void BinBitXorEvaluator::operator()(Evaluator *evaluatorA) const {
         if (begin != end) {
           auto &expr = *begin;
-          evaluatorA->push(BinBitXorEvaluator{++begin, end});
+          evaluatorA->push(BinBitXorEvaluator{begin + 1, end});
           evaluatorA->push([](Evaluator *evaluatorB) {
             evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
             evaluatorB->stack.pop();
@@ -193,10 +193,10 @@ namespace chimera {
           evaluatorA->evaluate_get(expr);
         }
       }
-      void BinBitAndEvaluator::operator()(Evaluator *evaluatorA) {
+      void BinBitAndEvaluator::operator()(Evaluator *evaluatorA) const {
         if (begin != end) {
           auto &expr = *begin;
-          evaluatorA->push(BinBitAndEvaluator{++begin, end});
+          evaluatorA->push(BinBitAndEvaluator{begin + 1, end});
           evaluatorA->push([](Evaluator *evaluatorB) {
             evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
             evaluatorB->stack.pop();
@@ -208,10 +208,10 @@ namespace chimera {
           evaluatorA->evaluate_get(expr);
         }
       }
-      void BinFloorDivEvaluator::operator()(Evaluator *evaluatorA) {
+      void BinFloorDivEvaluator::operator()(Evaluator *evaluatorA) const {
         if (begin != end) {
           auto &expr = *begin;
-          evaluatorA->push(BinFloorDivEvaluator{++begin, end});
+          evaluatorA->push(BinFloorDivEvaluator{begin + 1, end});
           evaluatorA->push([](Evaluator *evaluatorB) {
             evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
             evaluatorB->stack.pop();

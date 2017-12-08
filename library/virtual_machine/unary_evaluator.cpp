@@ -28,7 +28,7 @@
 namespace chimera {
   namespace library {
     namespace virtual_machine {
-      void UnaryBitNotEvaluator::operator()(Evaluator *evaluatorA) {
+      void UnaryBitNotEvaluator::operator()(Evaluator *evaluatorA) const {
         evaluatorA->push([](Evaluator *evaluator) {
           evaluator->push(CallEvaluator{evaluator->stack.top(), {}, {}});
           evaluator->stack.pop();
@@ -37,7 +37,7 @@ namespace chimera {
         evaluatorA->stack.pop();
       }
 
-      void UnaryNotEvaluator::operator()(Evaluator *evaluatorA) {
+      void UnaryNotEvaluator::operator()(Evaluator *evaluatorA) const {
         evaluatorA->push([](Evaluator *evaluatorB) {
           if (evaluatorB->stack.top().get_bool()) {
             evaluatorB->stack.top() =
@@ -51,7 +51,7 @@ namespace chimera {
         evaluatorA->stack.pop();
       }
 
-      void UnaryAddEvaluator::operator()(Evaluator *evaluatorA) {
+      void UnaryAddEvaluator::operator()(Evaluator *evaluatorA) const {
         evaluatorA->push([](Evaluator *evaluatorB) {
           evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
           evaluatorB->stack.pop();
@@ -60,7 +60,7 @@ namespace chimera {
         evaluatorA->stack.pop();
       }
 
-      void UnarySubEvaluator::operator()(Evaluator *evaluatorA) {
+      void UnarySubEvaluator::operator()(Evaluator *evaluatorA) const {
         evaluatorA->push([](Evaluator *evaluatorB) {
           evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
           evaluatorB->stack.pop();

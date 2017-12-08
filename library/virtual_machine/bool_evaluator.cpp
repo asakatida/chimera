@@ -28,14 +28,14 @@
 namespace chimera {
   namespace library {
     namespace virtual_machine {
-      void BoolAndEvaluator::operator()(Evaluator *evaluatorA) {
+      void BoolAndEvaluator::operator()(Evaluator *evaluatorA) const {
         if (begin != end) {
           auto object = std::move(evaluatorA->stack.top());
           evaluatorA->stack.pop();
           if (object.get_bool()) {
             evaluatorA->stack.pop();
             auto &expr = *begin;
-            evaluatorA->push(BoolAndEvaluator{++begin, end});
+            evaluatorA->push(BoolAndEvaluator{begin + 1, end});
             evaluatorA->push([](Evaluator *evaluatorB) {
               evaluatorB->push(ToBoolEvaluator{evaluatorB->stack.top()});
             });
@@ -44,14 +44,14 @@ namespace chimera {
         }
       }
 
-      void BoolOrEvaluator::operator()(Evaluator *evaluatorA) {
+      void BoolOrEvaluator::operator()(Evaluator *evaluatorA) const {
         if (begin != end) {
           auto object = std::move(evaluatorA->stack.top());
           evaluatorA->stack.pop();
           if (!object.get_bool()) {
             evaluatorA->stack.pop();
             auto &expr = *begin;
-            evaluatorA->push(BoolOrEvaluator{++begin, end});
+            evaluatorA->push(BoolOrEvaluator{begin + 1, end});
             evaluatorA->push([](Evaluator *evaluatorB) {
               evaluatorB->push(ToBoolEvaluator{evaluatorB->stack.top()});
             });

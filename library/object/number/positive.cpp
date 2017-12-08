@@ -32,12 +32,13 @@ namespace chimera {
         Number operator+(const Base &base) { return Number{base}; }
         Number operator+(const Natural &natural) { return Number{natural}; }
         Number operator+(const Integer &integer) {
-          return std::visit([](auto &&value) { return Number{value}; },
+          return std::visit([](const auto &value) { return Number{value}; },
                             integer.value);
         }
         Number operator+(const Rational &rational) {
-          return std::visit([](auto &&a, auto &&b) { return (+a) / (+b); },
-                            rational.numerator, rational.denominator);
+          return std::visit(
+              [](const auto &a, const auto &b) { return (+a) / (+b); },
+              rational.numerator, rational.denominator);
         }
       } // namespace number
     }   // namespace object

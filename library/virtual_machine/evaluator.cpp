@@ -83,36 +83,39 @@ namespace chimera {
 
       void Evaluator::extend(
           const std::vector<library::asdl::StmtImpl> &instructions) {
-        for (auto &&instruction : container::reverse(instructions)) {
+        for (const auto &instruction : container::reverse(instructions)) {
           evaluate(instruction);
         }
       }
 
       void Evaluator::extend(
           const std::vector<library::asdl::ExprImpl> &instructions) {
-        for (auto &&instruction : container::reverse(instructions)) {
+        for (const auto &instruction : container::reverse(instructions)) {
           evaluate_get(instruction);
         }
       }
 
       void Evaluator::evaluate(const library::asdl::StmtImpl &stmt) {
-        std::visit([this](auto &&value) { this->evaluate(value); },
+        std::visit([this](const auto &value) { this->evaluate(value); },
                    *stmt.value);
       }
 
       void Evaluator::evaluate_del(const library::asdl::ExprImpl &expr) {
-        std::visit([this](auto &&value) { DelEvaluator{this}.evaluate(value); },
-                   *expr.value);
+        std::visit(
+            [this](const auto &value) { DelEvaluator{this}.evaluate(value); },
+            *expr.value);
       }
 
       void Evaluator::evaluate_get(const library::asdl::ExprImpl &expr) {
-        std::visit([this](auto &&value) { GetEvaluator{this}.evaluate(value); },
-                   *expr.value);
+        std::visit(
+            [this](const auto &value) { GetEvaluator{this}.evaluate(value); },
+            *expr.value);
       }
 
       void Evaluator::evaluate_set(const library::asdl::ExprImpl &expr) {
-        std::visit([this](auto &&value) { SetEvaluator{this}.evaluate(value); },
-                   *expr.value);
+        std::visit(
+            [this](const auto &value) { SetEvaluator{this}.evaluate(value); },
+            *expr.value);
       }
 
       void Evaluator::get_attribute(const object::Object &object,
@@ -123,7 +126,7 @@ namespace chimera {
                                name);
         }
         auto mro = object.get_attribute("__class__").get_attribute("__mro__");
-        for (auto &&type : std::get<object::Tuple>(mro.value())) {
+        for (const auto &type : std::get<object::Tuple>(mro.value())) {
           if (type.has_attribute(getAttribute)) {
             return get_attribute(object, type.get_attribute(getAttribute),
                                  name);
@@ -140,7 +143,7 @@ namespace chimera {
                 builtins().get_attribute("KeyboardInterrupt")};
           }
           //! where all defered work gets done
-          scope.visit([this](auto &&value) { value(this); });
+          scope.visit([this](const auto &value) { value(this); });
         }
       }
 
@@ -169,7 +172,7 @@ namespace chimera {
           const library::asdl::AsyncFunctionDef & /*async_function_def*/) {}
       void Evaluator::evaluate(const library::asdl::ClassDef & /*class_def*/) {}
       void Evaluator::evaluate(const library::asdl::Delete &asdlDelete) {
-        for (auto &&target : container::reverse(asdlDelete.targets)) {
+        for (const auto &target : container::reverse(asdlDelete.targets)) {
           evaluate_del(target);
         }
       }
@@ -346,7 +349,7 @@ namespace chimera {
           }
         });
         if (auto exception = do_try(asdlTry.body, {}); exception) {
-          for (auto &&handler : container::reverse(asdlTry.handlers)) {
+          for (const auto &handler : container::reverse(asdlTry.handlers)) {
             std::visit([](auto &&) {}, handler);
           }
           if (exception = do_try(asdlTry.finalbody, exception); exception) {
@@ -459,7 +462,7 @@ namespace chimera {
               }
               auto mro =
                   object.get_attribute("__class__").get_attribute("__mro__");
-              for (auto &&type : std::get<object::Tuple>(mro.value())) {
+              for (const auto &type : std::get<object::Tuple>(mro.value())) {
                 if (type.has_attribute(name)) {
                   return push(PushStack{type.get_attribute(name)});
                 }
@@ -490,7 +493,7 @@ namespace chimera {
           return push(PushStack{object.get_attribute("__getattr__")});
         }
         auto mro = object.get_attribute("__class__").get_attribute("__mro__");
-        for (auto &&type : std::get<object::Tuple>(mro.value())) {
+        for (const auto &type : std::get<object::Tuple>(mro.value())) {
           if (type.has_attribute("__getattr__")) {
             return push(PushStack{type.get_attribute("__getattr__")});
           }

@@ -50,13 +50,15 @@ namespace chimera {
         }
 
         Number operator-(const std::uint64_t &left, const Integer &right) {
-          return std::visit([&left](auto &&value) { return left + value; },
+          return std::visit([&left](const auto &value) { return left + value; },
                             right.value);
         }
 
         Number operator-(const std::uint64_t &left, const Rational &right) {
           return std::visit(
-              [&left](auto &&rN, auto &&rD) { return (left * rD - rN) / rD; },
+              [&left](const auto &rN, const auto &rD) {
+                return (left * rD - rN) / rD;
+              },
               right.numerator, right.denominator);
         }
 
@@ -79,13 +81,15 @@ namespace chimera {
         }
 
         Number operator-(const Base &left, const Integer &right) {
-          return std::visit([&left](auto &&value) { return left + value; },
+          return std::visit([&left](const auto &value) { return left + value; },
                             right.value);
         }
 
         Number operator-(const Base &left, const Rational &right) {
           return std::visit(
-              [&left](auto &&rN, auto &&rD) { return (left * rD - rN) / rD; },
+              [&left](const auto &rN, const auto &rD) {
+                return (left * rD - rN) / rD;
+              },
               right.numerator, right.denominator);
         }
 
@@ -180,71 +184,85 @@ namespace chimera {
         }
 
         Number operator-(const Natural &left, const Integer &right) {
-          return std::visit([&left](auto &&value) { return left + value; },
+          return std::visit([&left](const auto &value) { return left + value; },
                             right.value);
         }
 
         Number operator-(const Natural &left, const Rational &right) {
           return std::visit(
-              [&left](auto &&rN, auto &&rD) { return (left * rD - rN) / rD; },
+              [&left](const auto &rN, const auto &rD) {
+                return (left * rD - rN) / rD;
+              },
               right.numerator, right.denominator);
         }
 
         Number operator-(const Integer &left, const std::uint64_t &right) {
-          return -std::visit([&right](auto &&value) { return value - right; },
-                             left.value);
+          return -std::visit(
+              [&right](const auto &value) { return value - right; },
+              left.value);
         }
 
         Number operator-(const Integer &left, const Base &right) {
-          return -std::visit([&right](auto &&value) { return value - right; },
-                             left.value);
+          return -std::visit(
+              [&right](const auto &value) { return value - right; },
+              left.value);
         }
 
         Number operator-(const Integer &left, const Natural &right) {
-          return -std::visit([&right](auto &&value) { return value - right; },
-                             left.value);
+          return -std::visit(
+              [&right](const auto &value) { return value - right; },
+              left.value);
         }
 
         Number operator-(const Integer &left, const Integer &right) {
-          return -std::visit([](auto &&a, auto &&b) { return a - b; },
+          return -std::visit([](const auto &a, const auto &b) { return a - b; },
                              left.value, right.value);
         }
 
         Number operator-(const Integer &left, const Rational &right) {
           return std::visit(
-              [&left](auto &&rN, auto &&rD) { return (left * rD - rN) / rD; },
+              [&left](const auto &rN, const auto &rD) {
+                return (left * rD - rN) / rD;
+              },
               right.numerator, right.denominator);
         }
 
         Number operator-(const Rational &left, const std::uint64_t &right) {
           return std::visit(
-              [&right](auto &&lN, auto &&lD) { return (lN - right * lD) / lD; },
+              [&right](const auto &lN, const auto &lD) {
+                return (lN - right * lD) / lD;
+              },
               left.numerator, left.denominator);
         }
 
         Number operator-(const Rational &left, const Base &right) {
           return std::visit(
-              [&right](auto &&lN, auto &&lD) { return (lN - right * lD) / lD; },
+              [&right](const auto &lN, const auto &lD) {
+                return (lN - right * lD) / lD;
+              },
               left.numerator, left.denominator);
         }
 
         Number operator-(const Rational &left, const Natural &right) {
           return std::visit(
-              [&right](auto &&lN, auto &&lD) { return (lN - right * lD) / lD; },
+              [&right](const auto &lN, const auto &lD) {
+                return (lN - right * lD) / lD;
+              },
               left.numerator, left.denominator);
         }
 
         Number operator-(const Rational &left, const Integer &right) {
           return std::visit(
-              [&right](auto &&lN, auto &&lD) { return (lN - right * lD) / lD; },
+              [&right](const auto &lN, const auto &lD) {
+                return (lN - right * lD) / lD;
+              },
               left.numerator, left.denominator);
         }
 
         Number operator-(const Rational &left, const Rational &right) {
           return std::visit(
-              [](auto &&lN, auto &&lD, auto &&rN, auto &&rD) {
-                return (lN * rD - rN * lD) / (lD * rD);
-              },
+              [](const auto &lN, const auto &lD, const auto &rN,
+                 const auto &rD) { return (lN * rD - rN * lD) / (lD * rD); },
               left.numerator, left.denominator, right.numerator,
               right.denominator);
         }

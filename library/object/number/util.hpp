@@ -45,223 +45,255 @@ namespace chimera {
       namespace number {
         template <typename Right>
         Number operator+(const Number &left, const Right &right) {
-          return std::visit([&right](auto &&value) { return value + right; },
-                            left.value);
+          return std::visit(
+              [&right](const auto &value) { return value + right; },
+              left.value);
         }
         template <typename Left>
         Number operator+(const Left &left, const Number &right) {
-          return std::visit([&left](auto &&value) { return left + value; },
+          return std::visit([&left](const auto &value) { return left + value; },
                             right.value);
         }
         template <typename Right>
         Number &operator+=(Number &left, const Right &right) {
-          left = std::visit([&right](auto &&value) { return value + right; },
-                            left.value);
+          left =
+              std::visit([&right](const auto &value) { return value + right; },
+                         left.value);
           return left;
         }
         template <typename Right>
         Number operator-(const Number &left, const Right &right) {
-          return std::visit([&right](auto &&value) { return value - right; },
-                            left.value);
+          return std::visit(
+              [&right](const auto &value) { return value - right; },
+              left.value);
         }
         template <typename Left>
         Number operator-(const Left &left, const Number &right) {
-          return std::visit([&left](auto &&value) { return left - value; },
+          return std::visit([&left](const auto &value) { return left - value; },
                             right.value);
         }
         template <typename Right>
         Number &operator-=(Number &left, const Right &right) {
-          left = std::visit([&right](auto &&value) { return value - right; },
-                            left.value);
+          left =
+              std::visit([&right](const auto &value) { return value - right; },
+                         left.value);
           return left;
         }
         template <typename Right>
         Number operator*(const Number &left, const Right &right) {
-          return std::visit([&right](auto &&value) { return value * right; },
-                            left.value);
+          return std::visit(
+              [&right](const auto &value) { return value * right; },
+              left.value);
         }
         template <typename Left>
         Number operator*(const Left &left, const Number &right) {
-          return std::visit([&left](auto &&value) { return left * value; },
+          return std::visit([&left](const auto &value) { return left * value; },
                             right.value);
         }
         template <typename Right>
         Number &operator*=(Number &left, const Right &right) {
-          left = std::visit([&right](auto &&value) { return value * right; },
-                            left.value);
+          left =
+              std::visit([&right](const auto &value) { return value * right; },
+                         left.value);
           return left;
         }
         template <typename Right>
         Number operator/(const Number &left, const Right &right) {
-          return std::visit([&right](auto &&value) { return value / right; },
-                            left.value);
+          return std::visit(
+              [&right](const auto &value) { return value / right; },
+              left.value);
         }
         template <typename Left>
         Number operator/(const Left &left, const Number &right) {
-          return std::visit([&left](auto &&value) { return left / value; },
+          return std::visit([&left](const auto &value) { return left / value; },
                             right.value);
         }
         template <typename Right>
         Number &operator/=(Number &left, const Right &right) {
-          left = std::visit([&right](auto &&value) { return value / right; },
-                            left.value);
+          left =
+              std::visit([&right](const auto &value) { return value / right; },
+                         left.value);
           return left;
         }
         template <typename Right>
         Number operator%(const Number &left, const Right &right) {
-          return std::visit([&right](auto &&value) { return value % right; },
-                            left.value);
+          return std::visit(
+              [&right](const auto &value) { return value % right; },
+              left.value);
         }
         template <typename Left>
         Number operator%(const Left &left, const Number &right) {
-          return std::visit([&left](auto &&value) { return left % value; },
+          return std::visit([&left](const auto &value) { return left % value; },
                             right.value);
         }
         template <typename Right>
         Number &operator%=(Number &left, const Right &right) {
-          left = std::visit([&right](auto &&value) { return value % right; },
-                            left.value);
+          left =
+              std::visit([&right](const auto &value) { return value % right; },
+                         left.value);
           return left;
         }
         template <typename Right>
         Number operator&(const Number &left, const Right &right) {
-          return std::visit([&right](auto &&value) { return value & right; },
-                            left.value);
+          return std::visit(
+              [&right](const auto &value) { return value & right; },
+              left.value);
         }
         template <typename Left>
         Number operator&(const Left &left, const Number &right) {
-          return std::visit([&left](auto &&value) { return left & value; },
+          return std::visit([&left](const auto &value) { return left & value; },
                             right.value);
         }
         template <typename Right>
         Number &operator&=(Number &left, const Right &right) {
-          left = std::visit([&right](auto &&value) { return value & right; },
-                            left.value);
+          left =
+              std::visit([&right](const auto &value) { return value & right; },
+                         left.value);
           return left;
         }
         template <typename Right>
         Number operator|(const Number &left, const Right &right) {
-          return std::visit([&right](auto &&value) { return value | right; },
-                            left.value);
+          return std::visit(
+              [&right](const auto &value) { return value | right; },
+              left.value);
         }
         template <typename Left>
         Number operator|(const Left &left, const Number &right) {
-          return std::visit([&left](auto &&value) { return left | value; },
+          return std::visit([&left](const auto &value) { return left | value; },
                             right.value);
         }
         template <typename Right>
         Number &operator|=(Number &left, const Right &right) {
-          left = std::visit([&right](auto &&value) { return value | right; },
-                            left.value);
+          left =
+              std::visit([&right](const auto &value) { return value | right; },
+                         left.value);
           return left;
         }
         template <typename Right>
         Number operator^(const Number &left, const Right &right) {
-          return std::visit([&right](auto &&value) { return value ^ right; },
-                            left.value);
+          return std::visit(
+              [&right](const auto &value) { return value ^ right; },
+              left.value);
         }
         template <typename Left>
         Number operator^(const Left &left, const Number &right) {
-          return std::visit([&left](auto &&value) { return left ^ value; },
+          return std::visit([&left](const auto &value) { return left ^ value; },
                             right.value);
         }
         template <typename Right>
         Number &operator^=(Number &left, const Right &right) {
-          left = std::visit([&right](auto &&value) { return value ^ right; },
-                            left.value);
+          left =
+              std::visit([&right](const auto &value) { return value ^ right; },
+                         left.value);
           return left;
         }
         template <typename Right>
         Number operator<<(const Number &left, const Right &right) {
-          return std::visit([&right](auto &&value) { return value << right; },
-                            left.value);
+          return std::visit(
+              [&right](const auto &value) { return value << right; },
+              left.value);
         }
         template <typename Left>
         Number operator<<(const Left &left, const Number &right) {
-          return std::visit([&left](auto &&value) { return left << value; },
-                            right.value);
+          return std::visit(
+              [&left](const auto &value) { return left << value; },
+              right.value);
         }
         template <typename Right>
         Number &operator<<=(Number &left, const Right &right) {
-          left = std::visit([&right](auto &&value) { return value << right; },
-                            left.value);
+          left =
+              std::visit([&right](const auto &value) { return value << right; },
+                         left.value);
           return left;
         }
         template <typename Right>
         Number operator>>(const Number &left, const Right &right) {
-          return std::visit([&right](auto &&value) { return value >> right; },
-                            left.value);
+          return std::visit(
+              [&right](const auto &value) { return value >> right; },
+              left.value);
         }
         template <typename Left>
         Number operator>>(const Left &left, const Number &right) {
-          return std::visit([&left](auto &&value) { return left >> value; },
-                            right.value);
+          return std::visit(
+              [&left](const auto &value) { return left >> value; },
+              right.value);
         }
         template <typename Right>
         Number &operator>>=(Number &left, const Right &right) {
-          left = std::visit([&right](auto &&value) { return value >> right; },
-                            left.value);
+          left =
+              std::visit([&right](const auto &value) { return value >> right; },
+                         left.value);
           return left;
         }
         template <typename Right>
         bool operator==(const Number &left, const Right &right) {
-          return std::visit([&right](auto &&value) { return value == right; },
-                            left.value);
+          return std::visit(
+              [&right](const auto &value) { return value == right; },
+              left.value);
         }
         template <typename Left>
         bool operator==(const Left &left, const Number &right) {
-          return std::visit([&left](auto &&value) { return left == value; },
-                            right.value);
+          return std::visit(
+              [&left](const auto &value) { return left == value; },
+              right.value);
         }
         template <typename Right>
         bool operator!=(const Number &left, const Right &right) {
-          return std::visit([&right](auto &&value) { return value != right; },
-                            left.value);
+          return std::visit(
+              [&right](const auto &value) { return value != right; },
+              left.value);
         }
         template <typename Left>
         bool operator!=(const Left &left, const Number &right) {
-          return std::visit([&left](auto &&value) { return left != value; },
-                            right.value);
+          return std::visit(
+              [&left](const auto &value) { return left != value; },
+              right.value);
         }
         template <typename Right>
         bool operator<(const Number &left, const Right &right) {
-          return std::visit([&right](auto &&value) { return value < right; },
-                            left.value);
+          return std::visit(
+              [&right](const auto &value) { return value < right; },
+              left.value);
         }
         template <typename Left>
         bool operator<(const Left &left, const Number &right) {
-          return std::visit([&left](auto &&value) { return left < value; },
+          return std::visit([&left](const auto &value) { return left < value; },
                             right.value);
         }
         template <typename Right>
         bool operator>(const Number &left, const Right &right) {
-          return std::visit([&right](auto &&value) { return value > right; },
-                            left.value);
+          return std::visit(
+              [&right](const auto &value) { return value > right; },
+              left.value);
         }
         template <typename Left>
         bool operator>(const Left &left, const Number &right) {
-          return std::visit([&left](auto &&value) { return left > value; },
+          return std::visit([&left](const auto &value) { return left > value; },
                             right.value);
         }
         template <typename Right>
         bool operator<=(const Number &left, const Right &right) {
-          return std::visit([&right](auto &&value) { return value <= right; },
-                            left.value);
+          return std::visit(
+              [&right](const auto &value) { return value <= right; },
+              left.value);
         }
         template <typename Left>
         bool operator<=(const Left &left, const Number &right) {
-          return std::visit([&left](auto &&value) { return left <= value; },
-                            right.value);
+          return std::visit(
+              [&left](const auto &value) { return left <= value; },
+              right.value);
         }
         template <typename Right>
         bool operator>=(const Number &left, const Right &right) {
-          return std::visit([&right](auto &&value) { return value >= right; },
-                            left.value);
+          return std::visit(
+              [&right](const auto &value) { return value >= right; },
+              left.value);
         }
         template <typename Left>
         bool operator>=(const Left &left, const Number &right) {
-          return std::visit([&left](auto &&value) { return left >= value; },
-                            right.value);
+          return std::visit(
+              [&left](const auto &value) { return left >= value; },
+              right.value);
         }
       } // namespace number
     }   // namespace object

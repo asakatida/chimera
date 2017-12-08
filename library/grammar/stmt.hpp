@@ -458,7 +458,8 @@ namespace chimera {
           identifiers.resize(size());
           transform(identifiers.begin());
           outer.push(std::reduce(identifiers.begin(), identifiers.end(),
-                                 asdl::Name{}, [](auto &&ida, auto &&idb) {
+                                 asdl::Name{},
+                                 [](const auto &ida, const auto &idb) {
                                    auto id = ida.value;
                                    id.reserve(id.size() + idb.value.size() + 1);
                                    if (!id.empty()) {

@@ -33,19 +33,19 @@ namespace chimera {
       struct Evaluator;
 
       struct UnaryBitNotEvaluator {
-        void operator()(Evaluator *evaluatorA);
+        void operator()(Evaluator *evaluatorA) const;
       };
 
       struct UnaryNotEvaluator {
-        void operator()(Evaluator *evaluatorA);
+        void operator()(Evaluator *evaluatorA) const;
       };
 
       struct UnaryAddEvaluator {
-        void operator()(Evaluator *evaluatorA);
+        void operator()(Evaluator *evaluatorA) const;
       };
 
       struct UnarySubEvaluator {
-        void operator()(Evaluator *evaluatorA);
+        void operator()(Evaluator *evaluatorA) const;
       };
     } // namespace virtual_machine
   }   // namespace library

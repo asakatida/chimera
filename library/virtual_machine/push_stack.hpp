@@ -32,7 +32,7 @@ namespace chimera {
       struct PushStack {
         object::Object object;
 
-        void operator()(Evaluator *evaluator);
+        void operator()(Evaluator *evaluator) const;
       };
     } // namespace virtual_machine
   }   // namespace library
