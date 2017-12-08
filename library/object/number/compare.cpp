@@ -20,14 +20,14 @@
 
 #include "object/number/compare.hpp"
 
+#include "object/number/less.hpp"
+
 namespace chimera {
   namespace library {
     namespace object {
-
       namespace number {
-        bool operator==(const std::uint64_t & /*left*/,
-                        const Base & /*right*/) {
-          return false;
+        bool operator==(const std::uint64_t &left, const Base &right) {
+          return left == right.value;
         }
         bool operator==(const std::uint64_t & /*left*/,
                         const Natural & /*right*/) {
@@ -42,12 +42,11 @@ namespace chimera {
           return false;
         }
 
-        bool operator==(const Base & /*left*/,
-                        const std::uint64_t & /*right*/) {
-          return false;
+        bool operator==(const Base &left, const std::uint64_t &right) {
+          return left.value == right;
         }
-        bool operator==(const Base & /*left*/, const Base & /*right*/) {
-          return false;
+        bool operator==(const Base &left, const Base &right) {
+          return left.value == right.value;
         }
         bool operator==(const Base & /*left*/, const Natural & /*right*/) {
           return false;
@@ -66,8 +65,12 @@ namespace chimera {
         bool operator==(const Natural & /*left*/, const Base & /*right*/) {
           return false;
         }
-        bool operator==(const Natural & /*left*/, const Natural & /*right*/) {
-          return false;
+        bool operator==(const Natural &left, const Natural &right) {
+          if (left.value.size() != right.value.size()) {
+            return false;
+          }
+          return std::equal(left.value.begin(), left.value.end(),
+                            right.value.begin());
         }
         bool operator==(const Natural & /*left*/, const Integer & /*right*/) {
           return false;
@@ -86,8 +89,9 @@ namespace chimera {
         bool operator==(const Integer & /*left*/, const Natural & /*right*/) {
           return false;
         }
-        bool operator==(const Integer & /*left*/, const Integer & /*right*/) {
-          return false;
+        bool operator==(const Integer &left, const Integer &right) {
+          return std::visit([](auto &&a, auto &&b) { return a == b; },
+                            left.value, right.value);
         }
         bool operator==(const Integer & /*left*/, const Rational & /*right*/) {
           return false;
@@ -106,346 +110,333 @@ namespace chimera {
         bool operator==(const Rational & /*left*/, const Integer & /*right*/) {
           return false;
         }
-        bool operator==(const Rational & /*left*/, const Rational & /*right*/) {
-          return false;
+        bool operator==(const Rational &left, const Rational &right) {
+          return std::visit([](auto &&lN, auto &&lD, auto &&rN,
+                               auto &&rD) { return lN == rN && lD == rD; },
+                            left.numerator, left.denominator, right.numerator,
+                            right.denominator);
         }
 
-        bool operator!=(const std::uint64_t & /*left*/,
-                        const Base & /*right*/) {
-          return false;
+        bool operator!=(const std::uint64_t &left, const Base &right) {
+          return left != right.value;
         }
         bool operator!=(const std::uint64_t & /*left*/,
                         const Natural & /*right*/) {
-          return false;
+          return true;
         }
         bool operator!=(const std::uint64_t & /*left*/,
                         const Integer & /*right*/) {
-          return false;
+          return true;
         }
         bool operator!=(const std::uint64_t & /*left*/,
                         const Rational & /*right*/) {
-          return false;
+          return true;
         }
 
-        bool operator!=(const Base & /*left*/,
-                        const std::uint64_t & /*right*/) {
-          return false;
+        bool operator!=(const Base &left, const std::uint64_t &right) {
+          return left.value != right;
         }
-        bool operator!=(const Base & /*left*/, const Base & /*right*/) {
-          return false;
+        bool operator!=(const Base &left, const Base &right) {
+          return left.value != right.value;
         }
         bool operator!=(const Base & /*left*/, const Natural & /*right*/) {
-          return false;
+          return true;
         }
         bool operator!=(const Base & /*left*/, const Integer & /*right*/) {
-          return false;
+          return true;
         }
         bool operator!=(const Base & /*left*/, const Rational & /*right*/) {
-          return false;
+          return true;
         }
 
         bool operator!=(const Natural & /*left*/,
                         const std::uint64_t & /*right*/) {
-          return false;
+          return true;
         }
         bool operator!=(const Natural & /*left*/, const Base & /*right*/) {
-          return false;
+          return true;
         }
-        bool operator!=(const Natural & /*left*/, const Natural & /*right*/) {
-          return false;
+        bool operator!=(const Natural &left, const Natural &right) {
+          if (left.value.size() != right.value.size()) {
+            return true;
+          }
+          return !std::equal(left.value.begin(), left.value.end(),
+                             right.value.begin());
         }
         bool operator!=(const Natural & /*left*/, const Integer & /*right*/) {
-          return false;
+          return true;
         }
         bool operator!=(const Natural & /*left*/, const Rational & /*right*/) {
-          return false;
+          return true;
         }
 
         bool operator!=(const Integer & /*left*/,
                         const std::uint64_t & /*right*/) {
-          return false;
+          return true;
         }
         bool operator!=(const Integer & /*left*/, const Base & /*right*/) {
-          return false;
+          return true;
         }
         bool operator!=(const Integer & /*left*/, const Natural & /*right*/) {
-          return false;
+          return true;
         }
-        bool operator!=(const Integer & /*left*/, const Integer & /*right*/) {
-          return false;
+        bool operator!=(const Integer &left, const Integer &right) {
+          return std::visit([](auto &&a, auto &&b) { return a != b; },
+                            left.value, right.value);
         }
         bool operator!=(const Integer & /*left*/, const Rational & /*right*/) {
-          return false;
+          return true;
         }
 
         bool operator!=(const Rational & /*left*/,
                         const std::uint64_t & /*right*/) {
-          return false;
+          return true;
         }
         bool operator!=(const Rational & /*left*/, const Base & /*right*/) {
-          return false;
+          return true;
         }
         bool operator!=(const Rational & /*left*/, const Natural & /*right*/) {
-          return false;
+          return true;
         }
         bool operator!=(const Rational & /*left*/, const Integer & /*right*/) {
-          return false;
+          return true;
         }
-        bool operator!=(const Rational & /*left*/, const Rational & /*right*/) {
-          return false;
-        }
-
-        bool operator>(const std::uint64_t & /*left*/, const Base & /*right*/) {
-          return false;
-        }
-        bool operator>(const std::uint64_t & /*left*/,
-                       const Natural & /*right*/) {
-          return false;
-        }
-        bool operator>(const std::uint64_t & /*left*/,
-                       const Integer & /*right*/) {
-          return false;
-        }
-        bool operator>(const std::uint64_t & /*left*/,
-                       const Rational & /*right*/) {
-          return false;
+        bool operator!=(const Rational &left, const Rational &right) {
+          return std::visit([](auto &&lN, auto &&lD, auto &&rN,
+                               auto &&rD) { return lN != rN || lD != rD; },
+                            left.numerator, left.denominator, right.numerator,
+                            right.denominator);
         }
 
-        bool operator>(const Base & /*left*/, const std::uint64_t & /*right*/) {
-          return false;
+        bool operator>(const std::uint64_t &left, const Base &right) {
+          return right < left;
         }
-        bool operator>(const Base & /*left*/, const Base & /*right*/) {
-          return false;
+        bool operator>(const std::uint64_t &left, const Natural &right) {
+          return right < left;
         }
-        bool operator>(const Base & /*left*/, const Natural & /*right*/) {
-          return false;
+        bool operator>(const std::uint64_t &left, const Integer &right) {
+          return right < left;
         }
-        bool operator>(const Base & /*left*/, const Integer & /*right*/) {
-          return false;
-        }
-        bool operator>(const Base & /*left*/, const Rational & /*right*/) {
-          return false;
+        bool operator>(const std::uint64_t &left, const Rational &right) {
+          return right < left;
         }
 
-        bool operator>(const Natural & /*left*/,
-                       const std::uint64_t & /*right*/) {
-          return false;
+        bool operator>(const Base &left, const std::uint64_t &right) {
+          return right < left;
         }
-        bool operator>(const Natural & /*left*/, const Base & /*right*/) {
-          return false;
+        bool operator>(const Base &left, const Base &right) {
+          return right < left;
         }
-        bool operator>(const Natural & /*left*/, const Natural & /*right*/) {
-          return false;
+        bool operator>(const Base &left, const Natural &right) {
+          return right < left;
         }
-        bool operator>(const Natural & /*left*/, const Integer & /*right*/) {
-          return false;
+        bool operator>(const Base &left, const Integer &right) {
+          return right < left;
         }
-        bool operator>(const Natural & /*left*/, const Rational & /*right*/) {
-          return false;
-        }
-
-        bool operator>(const Integer & /*left*/,
-                       const std::uint64_t & /*right*/) {
-          return false;
-        }
-        bool operator>(const Integer & /*left*/, const Base & /*right*/) {
-          return false;
-        }
-        bool operator>(const Integer & /*left*/, const Natural & /*right*/) {
-          return false;
-        }
-        bool operator>(const Integer & /*left*/, const Integer & /*right*/) {
-          return false;
-        }
-        bool operator>(const Integer & /*left*/, const Rational & /*right*/) {
-          return false;
+        bool operator>(const Base &left, const Rational &right) {
+          return right < left;
         }
 
-        bool operator>(const Rational & /*left*/,
-                       const std::uint64_t & /*right*/) {
-          return false;
+        bool operator>(const Natural &left, const std::uint64_t &right) {
+          return right < left;
         }
-        bool operator>(const Rational & /*left*/, const Base & /*right*/) {
-          return false;
+        bool operator>(const Natural &left, const Base &right) {
+          return right < left;
         }
-        bool operator>(const Rational & /*left*/, const Natural & /*right*/) {
-          return false;
+        bool operator>(const Natural &left, const Natural &right) {
+          return right < left;
         }
-        bool operator>(const Rational & /*left*/, const Integer & /*right*/) {
-          return false;
+        bool operator>(const Natural &left, const Integer &right) {
+          return right < left;
         }
-        bool operator>(const Rational & /*left*/, const Rational & /*right*/) {
-          return false;
-        }
-
-        bool operator>=(const std::uint64_t & /*left*/,
-                        const Base & /*right*/) {
-          return false;
-        }
-        bool operator>=(const std::uint64_t & /*left*/,
-                        const Natural & /*right*/) {
-          return false;
-        }
-        bool operator>=(const std::uint64_t & /*left*/,
-                        const Integer & /*right*/) {
-          return false;
-        }
-        bool operator>=(const std::uint64_t & /*left*/,
-                        const Rational & /*right*/) {
-          return false;
+        bool operator>(const Natural &left, const Rational &right) {
+          return right < left;
         }
 
-        bool operator>=(const Base & /*left*/,
-                        const std::uint64_t & /*right*/) {
-          return false;
+        bool operator>(const Integer &left, const std::uint64_t &right) {
+          return right < left;
         }
-        bool operator>=(const Base & /*left*/, const Base & /*right*/) {
-          return false;
+        bool operator>(const Integer &left, const Base &right) {
+          return right < left;
         }
-        bool operator>=(const Base & /*left*/, const Natural & /*right*/) {
-          return false;
+        bool operator>(const Integer &left, const Natural &right) {
+          return right < left;
         }
-        bool operator>=(const Base & /*left*/, const Integer & /*right*/) {
-          return false;
+        bool operator>(const Integer &left, const Integer &right) {
+          return right < left;
         }
-        bool operator>=(const Base & /*left*/, const Rational & /*right*/) {
-          return false;
-        }
-
-        bool operator>=(const Natural & /*left*/,
-                        const std::uint64_t & /*right*/) {
-          return false;
-        }
-        bool operator>=(const Natural & /*left*/, const Base & /*right*/) {
-          return false;
-        }
-        bool operator>=(const Natural & /*left*/, const Natural & /*right*/) {
-          return false;
-        }
-        bool operator>=(const Natural & /*left*/, const Integer & /*right*/) {
-          return false;
-        }
-        bool operator>=(const Natural & /*left*/, const Rational & /*right*/) {
-          return false;
+        bool operator>(const Integer &left, const Rational &right) {
+          return right < left;
         }
 
-        bool operator>=(const Integer & /*left*/,
-                        const std::uint64_t & /*right*/) {
-          return false;
+        bool operator>(const Rational &left, const std::uint64_t &right) {
+          return right < left;
         }
-        bool operator>=(const Integer & /*left*/, const Base & /*right*/) {
-          return false;
+        bool operator>(const Rational &left, const Base &right) {
+          return right < left;
         }
-        bool operator>=(const Integer & /*left*/, const Natural & /*right*/) {
-          return false;
+        bool operator>(const Rational &left, const Natural &right) {
+          return right < left;
         }
-        bool operator>=(const Integer & /*left*/, const Integer & /*right*/) {
-          return false;
+        bool operator>(const Rational &left, const Integer &right) {
+          return right < left;
         }
-        bool operator>=(const Integer & /*left*/, const Rational & /*right*/) {
-          return false;
-        }
-
-        bool operator>=(const Rational & /*left*/,
-                        const std::uint64_t & /*right*/) {
-          return false;
-        }
-        bool operator>=(const Rational & /*left*/, const Base & /*right*/) {
-          return false;
-        }
-        bool operator>=(const Rational & /*left*/, const Natural & /*right*/) {
-          return false;
-        }
-        bool operator>=(const Rational & /*left*/, const Integer & /*right*/) {
-          return false;
-        }
-        bool operator>=(const Rational & /*left*/, const Rational & /*right*/) {
-          return false;
+        bool operator>(const Rational &left, const Rational &right) {
+          return right < left;
         }
 
-        bool operator<=(const std::uint64_t & /*left*/,
-                        const Base & /*right*/) {
-          return false;
+        bool operator>=(const std::uint64_t &left, const Base &right) {
+          return !(left < right);
         }
-        bool operator<=(const std::uint64_t & /*left*/,
-                        const Natural & /*right*/) {
-          return false;
+        bool operator>=(const std::uint64_t &left, const Natural &right) {
+          return !(left < right);
         }
-        bool operator<=(const std::uint64_t & /*left*/,
-                        const Integer & /*right*/) {
-          return false;
+        bool operator>=(const std::uint64_t &left, const Integer &right) {
+          return !(left < right);
         }
-        bool operator<=(const std::uint64_t & /*left*/,
-                        const Rational & /*right*/) {
-          return false;
+        bool operator>=(const std::uint64_t &left, const Rational &right) {
+          return !(left < right);
         }
 
-        bool operator<=(const Base & /*left*/,
-                        const std::uint64_t & /*right*/) {
-          return false;
+        bool operator>=(const Base &left, const std::uint64_t &right) {
+          return !(left < right);
         }
-        bool operator<=(const Base & /*left*/, const Base & /*right*/) {
-          return false;
+        bool operator>=(const Base &left, const Base &right) {
+          return !(left < right);
         }
-        bool operator<=(const Base & /*left*/, const Natural & /*right*/) {
-          return false;
+        bool operator>=(const Base &left, const Natural &right) {
+          return !(left < right);
         }
-        bool operator<=(const Base & /*left*/, const Integer & /*right*/) {
-          return false;
+        bool operator>=(const Base &left, const Integer &right) {
+          return !(left < right);
         }
-        bool operator<=(const Base & /*left*/, const Rational & /*right*/) {
-          return false;
-        }
-
-        bool operator<=(const Natural & /*left*/,
-                        const std::uint64_t & /*right*/) {
-          return false;
-        }
-        bool operator<=(const Natural & /*left*/, const Base & /*right*/) {
-          return false;
-        }
-        bool operator<=(const Natural & /*left*/, const Natural & /*right*/) {
-          return false;
-        }
-        bool operator<=(const Natural & /*left*/, const Integer & /*right*/) {
-          return false;
-        }
-        bool operator<=(const Natural & /*left*/, const Rational & /*right*/) {
-          return false;
+        bool operator>=(const Base &left, const Rational &right) {
+          return !(left < right);
         }
 
-        bool operator<=(const Integer & /*left*/,
-                        const std::uint64_t & /*right*/) {
-          return false;
+        bool operator>=(const Natural &left, const std::uint64_t &right) {
+          return !(left < right);
         }
-        bool operator<=(const Integer & /*left*/, const Base & /*right*/) {
-          return false;
+        bool operator>=(const Natural &left, const Base &right) {
+          return !(left < right);
         }
-        bool operator<=(const Integer & /*left*/, const Natural & /*right*/) {
-          return false;
+        bool operator>=(const Natural &left, const Natural &right) {
+          return !(left < right);
         }
-        bool operator<=(const Integer & /*left*/, const Integer & /*right*/) {
-          return false;
+        bool operator>=(const Natural &left, const Integer &right) {
+          return !(left < right);
         }
-        bool operator<=(const Integer & /*left*/, const Rational & /*right*/) {
-          return false;
+        bool operator>=(const Natural &left, const Rational &right) {
+          return !(left < right);
         }
 
-        bool operator<=(const Rational & /*left*/,
-                        const std::uint64_t & /*right*/) {
-          return false;
+        bool operator>=(const Integer &left, const std::uint64_t &right) {
+          return !(left < right);
         }
-        bool operator<=(const Rational & /*left*/, const Base & /*right*/) {
-          return false;
+        bool operator>=(const Integer &left, const Base &right) {
+          return !(left < right);
         }
-        bool operator<=(const Rational & /*left*/, const Natural & /*right*/) {
-          return false;
+        bool operator>=(const Integer &left, const Natural &right) {
+          return !(left < right);
         }
-        bool operator<=(const Rational & /*left*/, const Integer & /*right*/) {
-          return false;
+        bool operator>=(const Integer &left, const Integer &right) {
+          return !(left < right);
         }
-        bool operator<=(const Rational & /*left*/, const Rational & /*right*/) {
-          return false;
+        bool operator>=(const Integer &left, const Rational &right) {
+          return !(left < right);
+        }
+
+        bool operator>=(const Rational &left, const std::uint64_t &right) {
+          return !(left < right);
+        }
+        bool operator>=(const Rational &left, const Base &right) {
+          return !(left < right);
+        }
+        bool operator>=(const Rational &left, const Natural &right) {
+          return !(left < right);
+        }
+        bool operator>=(const Rational &left, const Integer &right) {
+          return !(left < right);
+        }
+        bool operator>=(const Rational &left, const Rational &right) {
+          return !(left < right);
+        }
+
+        bool operator<=(const std::uint64_t &left, const Base &right) {
+          return !(right < left);
+        }
+        bool operator<=(const std::uint64_t &left, const Natural &right) {
+          return !(right < left);
+        }
+        bool operator<=(const std::uint64_t &left, const Integer &right) {
+          return !(right < left);
+        }
+        bool operator<=(const std::uint64_t &left, const Rational &right) {
+          return !(right < left);
+        }
+
+        bool operator<=(const Base &left, const std::uint64_t &right) {
+          return !(right < left);
+        }
+        bool operator<=(const Base &left, const Base &right) {
+          return !(right < left);
+        }
+        bool operator<=(const Base &left, const Natural &right) {
+          return !(right < left);
+        }
+        bool operator<=(const Base &left, const Integer &right) {
+          return !(right < left);
+        }
+        bool operator<=(const Base &left, const Rational &right) {
+          return !(right < left);
+        }
+
+        bool operator<=(const Natural &left, const std::uint64_t &right) {
+          return !(right < left);
+        }
+        bool operator<=(const Natural &left, const Base &right) {
+          return !(right < left);
+        }
+        bool operator<=(const Natural &left, const Natural &right) {
+          return !(right < left);
+        }
+        bool operator<=(const Natural &left, const Integer &right) {
+          return !(right < left);
+        }
+        bool operator<=(const Natural &left, const Rational &right) {
+          return !(right < left);
+        }
+
+        bool operator<=(const Integer &left, const std::uint64_t &right) {
+          return !(right < left);
+        }
+        bool operator<=(const Integer &left, const Base &right) {
+          return !(right < left);
+        }
+        bool operator<=(const Integer &left, const Natural &right) {
+          return !(right < left);
+        }
+        bool operator<=(const Integer &left, const Integer &right) {
+          return !(right < left);
+        }
+        bool operator<=(const Integer &left, const Rational &right) {
+          return !(right < left);
+        }
+
+        bool operator<=(const Rational &left, const std::uint64_t &right) {
+          return !(right < left);
+        }
+        bool operator<=(const Rational &left, const Base &right) {
+          return !(right < left);
+        }
+        bool operator<=(const Rational &left, const Natural &right) {
+          return !(right < left);
+        }
+        bool operator<=(const Rational &left, const Integer &right) {
+          return !(right < left);
+        }
+        bool operator<=(const Rational &left, const Rational &right) {
+          return !(right < left);
         }
       } // namespace number
     }   // namespace object

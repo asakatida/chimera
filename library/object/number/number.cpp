@@ -38,13 +38,11 @@
 #include "object/number/positive.hpp"
 #include "object/number/right_shift.hpp"
 #include "object/number/sub.hpp"
-#include "object/number/util.hpp"
 #include "object/number/xor.hpp"
 
 namespace chimera {
   namespace library {
     namespace object {
-
       namespace number {
         Number Number::operator+() const {
           return std::visit([](auto a) { return +a; }, value);
@@ -97,31 +95,32 @@ namespace chimera {
         }
         bool Number::operator==(const Number &right) const {
           return value.index() == right.value.index() &&
-                 std::visit(
-                     [](auto a, auto b) { return !((a < b) || (b < a)); },
-                     value, right.value);
+                 std::visit([](auto a, auto b) { return a == b; }, value,
+                            right.value);
         }
         bool Number::operator!=(const Number &right) const {
           return value.index() != right.value.index() ||
-                 std::visit([](auto a, auto b) { return (a < b) || (b < a); },
-                            value, right.value);
+                 std::visit([](auto a, auto b) { return a != b; }, value,
+                            right.value);
         }
         bool Number::operator<(const Number &right) const {
           return std::visit([](auto a, auto b) { return a < b; }, value,
                             right.value);
         }
         bool Number::operator>(const Number &right) const {
-          return std::visit([](auto a, auto b) { return b < a; }, value,
+          return std::visit([](auto a, auto b) { return a > b; }, value,
                             right.value);
         }
         bool Number::operator<=(const Number &right) const {
-          return std::visit([](auto a, auto b) { return !(b < a); }, value,
+          return std::visit([](auto a, auto b) { return a <= b; }, value,
                             right.value);
         }
         bool Number::operator>=(const Number &right) const {
-          return std::visit([](auto a, auto b) { return !(a < b); }, value,
+          return std::visit([](auto a, auto b) { return a >= b; }, value,
                             right.value);
         }
+
+        Number Number::floor_div(const Number &right) const { return right; }
 
         Number Number::pow(const Number &right) const { return right; }
         Number Number::pow(const Number &y, const Number & /*z*/) const {
