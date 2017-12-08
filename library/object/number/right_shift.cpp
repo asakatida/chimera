@@ -24,6 +24,7 @@
 
 #include <gsl/gsl>
 
+#include "container/reverse.hpp"
 #include "object/number/add.hpp"
 #include "object/number/mult.hpp"
 #include "object/number/overflow.hpp"
@@ -86,10 +87,9 @@ namespace chimera {
           }
           if (auto shift = right % 64; shift != 0) {
             Carryover carryover{};
-            for (auto it = value.value.rbegin(); it != value.value.rend();
-                 ++it) {
-              carryover = right_shift(*it & carryover.overflow, shift);
-              *it = carryover.result;
+            for (auto &&i : container::reverse(value.value)) {
+              carryover = right_shift(i & carryover.overflow, shift);
+              i = carryover.result;
             }
             while (value.value.back() == 0) {
               value.value.pop_back();
@@ -119,10 +119,9 @@ namespace chimera {
           }
           if (auto shift = right.value % 64; shift != 0) {
             Carryover carryover{};
-            for (auto it = value.value.rbegin(); it != value.value.rend();
-                 ++it) {
-              carryover = right_shift(*it & carryover.overflow, shift);
-              *it = carryover.result;
+            for (auto &&i : container::reverse(value.value)) {
+              carryover = right_shift(i & carryover.overflow, shift);
+              i = carryover.result;
             }
             while (value.value.back() == 0) {
               value.value.pop_back();

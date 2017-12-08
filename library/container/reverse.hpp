@@ -26,32 +26,30 @@
 
 namespace chimera {
   namespace library {
-    namespace virtual_machine {
-      namespace container {
-        template <typename Container>
-        auto reverse(Container &&container) {
-          struct Reverse {
-            auto begin() const noexcept { return container->rbegin(); }
+    namespace container {
+      template <typename Container>
+      auto reverse(Container &&container) {
+        struct Reverse {
+          auto begin() const noexcept { return container->rbegin(); }
 
-            auto cbegin() const noexcept { return container->crbegin(); }
+          auto cbegin() const noexcept { return container->crbegin(); }
 
-            auto rbegin() const noexcept { return container->begin(); }
+          auto rbegin() const noexcept { return container->begin(); }
 
-            auto crbegin() const noexcept { return container->cbegin(); }
+          auto crbegin() const noexcept { return container->cbegin(); }
 
-            auto end() const noexcept { return container->rend(); }
+          auto end() const noexcept { return container->rend(); }
 
-            auto cend() const noexcept { return container->crend(); }
+          auto cend() const noexcept { return container->crend(); }
 
-            auto rend() const noexcept { return container->end(); }
+          auto rend() const noexcept { return container->end(); }
 
-            auto crend() const noexcept { return container->cend(); }
+          auto crend() const noexcept { return container->cend(); }
 
-            decltype(&container) container;
-          };
-          return Reverse{&container};
-        }
-      } // namespace container
-    }   // namespace virtual_machine
-  }     // namespace library
+          decltype(&container) container;
+        };
+        return Reverse{&container};
+      }
+    } // namespace container
+  }   // namespace library
 } // namespace chimera

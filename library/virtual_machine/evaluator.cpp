@@ -35,8 +35,8 @@
 #include <gsl/gsl>
 
 #include "asdl/asdl.hpp" // for ExprImpl (ptr only), StmtImp...
+#include "container/reverse.hpp"
 #include "options.hpp"
-#include "reverse.hpp"
 #include "virtual_machine/del_evaluator.hpp"
 #include "virtual_machine/get_evaluator.hpp"
 #include "virtual_machine/set_evaluator.hpp"
@@ -174,11 +174,9 @@ namespace chimera {
         }
       }
       void Evaluator::evaluate(const library::asdl::Assign &assign) {
-        push([&assign](Evaluator *evaluator) {
-          evaluator->push(AssignEvaluator{evaluator->stack.top(),
-                                          assign.targets.rbegin(),
-                                          assign.targets.rend()});
-        });
+        for (const auto &expr : container::reverse(assign.targets)) {
+          evaluate_set(expr);
+        }
         evaluate_get(assign.value);
       }
       void
@@ -269,55 +267,51 @@ namespace chimera {
           } else {
           }
         });
-        std::for_each(with.items.rbegin(), with.items.rend(),
-                      [this](auto &&withItem) {
-                        this->evaluate_get(withItem.context_expr);
-                      });
+        for (const auto &withItem : container::reverse(with.items)) {
+          evaluate_get(withItem.context_expr);
+        }
       }
       void
       Evaluator::evaluate(const library::asdl::AsyncWith & /*async_with*/) {}
       void Evaluator::evaluate(const library::asdl::Import &import) {
-        std::for_each(
-            import.names.rbegin(), import.names.rend(), [this](auto &&alias) {
-              if (alias.asname) {
-                this->push([&alias](Evaluator *evaluator) {
-                  evaluator->self().set_attribute(
-                      alias.asname->value, std::move(evaluator->stack.top()));
-                  evaluator->stack.pop();
-                });
-              } else {
-                this->push([&alias](Evaluator *evaluator) {
-                  evaluator->self().set_attribute(
-                      alias.name.value, std::move(evaluator->stack.top()));
-                  evaluator->stack.pop();
-                });
-              }
-              this->push([&alias](Evaluator *evaluator) {
-                evaluator->push(PushStack{
-                    evaluator->thread_context.process_context.import_object(
-                        "module_name", alias.name.value)});
-              });
+        for (const auto &alias : container::reverse(import.names)) {
+          if (alias.asname) {
+            push([&alias](Evaluator *evaluator) {
+              evaluator->self().set_attribute(
+                  alias.asname->value, std::move(evaluator->stack.top()));
+              evaluator->stack.pop();
             });
+          } else {
+            push([&alias](Evaluator *evaluator) {
+              evaluator->self().set_attribute(
+                  alias.name.value, std::move(evaluator->stack.top()));
+              evaluator->stack.pop();
+            });
+          }
+          push([&alias](Evaluator *evaluator) {
+            evaluator->push(PushStack{
+                evaluator->thread_context.process_context.import_object(
+                    "module_name", alias.name.value)});
+          });
+        }
       }
       void Evaluator::evaluate(const library::asdl::ImportFrom &importFrom) {
         push([](Evaluator *evaluator) { evaluator->stack.pop(); });
-        std::for_each(
-            importFrom.names.rbegin(), importFrom.names.rend(),
-            [this](auto &&alias) {
-              if (alias.asname) {
-                this->push([&alias](Evaluator *evaluator) {
-                  evaluator->self().set_attribute(
-                      alias.asname->value,
-                      evaluator->stack.top().get_attribute(alias.name.value));
-                });
-              } else {
-                this->push([&alias](Evaluator *evaluator) {
-                  evaluator->self().set_attribute(
-                      alias.name.value,
-                      evaluator->stack.top().get_attribute(alias.name.value));
-                });
-              }
+        for (const auto &alias : container::reverse(importFrom.names)) {
+          if (alias.asname) {
+            push([&alias](Evaluator *evaluator) {
+              evaluator->self().set_attribute(
+                  alias.asname->value,
+                  evaluator->stack.top().get_attribute(alias.name.value));
             });
+          } else {
+            push([&alias](Evaluator *evaluator) {
+              evaluator->self().set_attribute(
+                  alias.name.value,
+                  evaluator->stack.top().get_attribute(alias.name.value));
+            });
+          }
+        }
         push([&importFrom](Evaluator *evaluator) {
           evaluator->push(
               PushStack{evaluator->thread_context.process_context.import_object(
