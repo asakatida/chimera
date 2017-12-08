@@ -14,6 +14,7 @@ add_library(
   libchimera
   library/asdl/asdl.hpp
   library/c-api/chimera.cpp
+  library/container/reverse.hpp
   library/grammar/control.hpp
   library/grammar/expr.hpp
   library/grammar/exprfwd.hpp
@@ -71,8 +72,6 @@ add_library(
   library/virtual_machine/modules/marshal.hpp
   library/virtual_machine/modules/sys.cpp
   library/virtual_machine/modules/sys.hpp
-  library/virtual_machine/assign_evaluator.cpp
-  library/virtual_machine/assign_evaluator.hpp
   library/virtual_machine/bin_evaluator.cpp
   library/virtual_machine/bin_evaluator.hpp
   library/virtual_machine/bool_evaluator.cpp
@@ -96,7 +95,6 @@ add_library(
   library/virtual_machine/process_context.hpp
   library/virtual_machine/push_stack.cpp
   library/virtual_machine/push_stack.hpp
-  library/virtual_machine/reverse.hpp
   library/virtual_machine/set_evaluator.cpp
   library/virtual_machine/set_evaluator.hpp
   library/virtual_machine/slice_evaluator.cpp

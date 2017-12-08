@@ -18,29 +18,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! handles expressions like
-//! a = b = c = ...
+//! helper to evaluate a std container in reverse
+//! used as
+//! for (auto &&elem : reverse(vector)) {}
 
 #pragma once
 
-#include <vector>
-
-#include "asdl/asdl.hpp"
-#include "object/object.hpp"
-
 namespace chimera {
   namespace library {
-    namespace virtual_machine {
-      struct Evaluator;
+    namespace container {
+      template <typename Container>
+      auto reverse(Container &&container) {
+        struct Reverse {
+          auto begin() const noexcept { return container->rbegin(); }
 
-      struct AssignEvaluator {
-        using Iterator = std::vector<asdl::ExprImpl>::const_reverse_iterator;
-        object::Object object;
-        Iterator begin;
-        Iterator end;
+          auto cbegin() const noexcept { return container->crbegin(); }
 
-        void operator()(Evaluator *evaluator);
-      };
-    } // namespace virtual_machine
+          auto rbegin() const noexcept { return container->begin(); }
+
+          auto crbegin() const noexcept { return container->cbegin(); }
+
+          auto end() const noexcept { return container->rend(); }
+
+          auto cend() const noexcept { return container->crend(); }
+
+          auto rend() const noexcept { return container->end(); }
+
+          auto crend() const noexcept { return container->cend(); }
+
+          decltype(&container) container;
+        };
+        return Reverse{&container};
+      }
+    } // namespace container
   }   // namespace library
 } // namespace chimera

@@ -26,6 +26,7 @@
 
 #include <gsl/gsl>
 
+#include "container/reverse.hpp"
 #include "object/number/add.hpp"
 #include "object/number/mult.hpp"
 #include "object/number/overflow.hpp"
@@ -49,10 +50,10 @@ namespace chimera {
         static RationalValue floor_div(const Natural &a, const Base &b) {
           auto value = a;
           Carryover carryover{};
-          for (auto it = value.value.rbegin(); it != value.value.rend(); ++it) {
-            carryover.result = *it;
+          for (auto &&i : container::reverse(value.value)) {
+            carryover.result = i;
             carryover = div(carryover, b.value);
-            *it = carryover.result;
+            i = carryover.result;
           }
           while (value.value.back() == 0) {
             value.value.pop_back();

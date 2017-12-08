@@ -27,7 +27,6 @@
 #include <variant> // for variant
 
 #include "asdl/asdl.hpp" // for ExprImpl (ptr only), StmtImp...
-#include "virtual_machine/assign_evaluator.hpp"
 #include "virtual_machine/bin_evaluator.hpp"
 #include "virtual_machine/bool_evaluator.hpp"
 #include "virtual_machine/call_evaluator.hpp"
@@ -85,15 +84,14 @@ namespace chimera {
           object::Object self;
           struct Body {
             using Step = std::variant<
-                AssignEvaluator, BinAddEvaluator, BinSubEvaluator,
-                BinMultEvaluator, BinMatMultEvaluator, BinDivEvaluator,
-                BinModEvaluator, BinPowEvaluator, BinLShiftEvaluator,
-                BinRShiftEvaluator, BinBitOrEvaluator, BinBitXorEvaluator,
-                BinBitAndEvaluator, BinFloorDivEvaluator, BoolAndEvaluator,
-                BoolOrEvaluator, CallEvaluator, PushStack, ToBoolEvaluator,
-                TupleEvaluator, UnaryBitNotEvaluator, UnaryNotEvaluator,
-                UnaryAddEvaluator, UnarySubEvaluator,
-                std::function<void(Evaluator *)>>;
+                BinAddEvaluator, BinSubEvaluator, BinMultEvaluator,
+                BinMatMultEvaluator, BinDivEvaluator, BinModEvaluator,
+                BinPowEvaluator, BinLShiftEvaluator, BinRShiftEvaluator,
+                BinBitOrEvaluator, BinBitXorEvaluator, BinBitAndEvaluator,
+                BinFloorDivEvaluator, BoolAndEvaluator, BoolOrEvaluator,
+                CallEvaluator, PushStack, ToBoolEvaluator, TupleEvaluator,
+                UnaryBitNotEvaluator, UnaryNotEvaluator, UnaryAddEvaluator,
+                UnarySubEvaluator, std::function<void(Evaluator *)>>;
             std::stack<Step> steps{};
           };
           std::stack<Body> bodies{};
