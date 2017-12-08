@@ -35,7 +35,7 @@ namespace chimera {
         object::Tuple args;
         object::Object kwargs;
 
-        void operator()(Evaluator *evaluatorA);
+        void operator()(Evaluator *evaluatorA) const;
       };
     } // namespace virtual_machine
   }   // namespace library

@@ -27,7 +27,7 @@
 namespace chimera {
   namespace library {
     namespace virtual_machine {
-      void PushStack::operator()(Evaluator *evaluator) {
+      void PushStack::operator()(Evaluator *evaluator) const {
         evaluator->stack.push(object);
       }
     } // namespace virtual_machine

@@ -39,7 +39,7 @@ namespace chimera {
         template <typename Left>
         auto mod(const Left &left, const Rational &right) {
           return std::visit(
-              [&left](auto &&rN, auto &&rD) {
+              [&left](const auto &rN, const auto &rD) {
                 return left - rN * (left * rD).floor_div(Number{rN}) / rD;
               },
               right.numerator, right.denominator);
@@ -47,7 +47,7 @@ namespace chimera {
         template <typename Right>
         auto mod(const Rational &left, const Right &right) {
           return std::visit(
-              [&left, &right](auto &&lN, auto &&lD) {
+              [&left, &right](const auto &lN, const auto &lD) {
                 return left - right * Number{lN}.floor_div(lD * right);
               },
               left.numerator, left.denominator);
@@ -62,7 +62,7 @@ namespace chimera {
         }
 
         Number operator%(const std::uint64_t &left, const Integer &right) {
-          return std::visit([&left](auto &&value) { return left % value; },
+          return std::visit([&left](const auto &value) { return left % value; },
                             right.value);
         }
 
@@ -83,7 +83,7 @@ namespace chimera {
         }
 
         Number operator%(const Base &left, const Integer &right) {
-          return std::visit([&left](auto &&value) { return left % value; },
+          return std::visit([&left](const auto &value) { return left % value; },
                             right.value);
         }
 
@@ -112,7 +112,7 @@ namespace chimera {
         }
 
         Number operator%(const Natural &left, const Integer &right) {
-          return std::visit([&left](auto &&value) { return left % value; },
+          return std::visit([&left](const auto &value) { return left % value; },
                             right.value);
         }
 
@@ -121,22 +121,25 @@ namespace chimera {
         }
 
         Number operator%(const Integer &left, const std::uint64_t &right) {
-          return -std::visit([&right](auto &&value) { return value % right; },
-                             left.value);
+          return -std::visit(
+              [&right](const auto &value) { return value % right; },
+              left.value);
         }
 
         Number operator%(const Integer &left, const Base &right) {
-          return -std::visit([&right](auto &&value) { return value % right; },
-                             left.value);
+          return -std::visit(
+              [&right](const auto &value) { return value % right; },
+              left.value);
         }
 
         Number operator%(const Integer &left, const Natural &right) {
-          return -std::visit([&right](auto &&value) { return value % right; },
-                             left.value);
+          return -std::visit(
+              [&right](const auto &value) { return value % right; },
+              left.value);
         }
 
         Number operator%(const Integer &left, const Integer &right) {
-          return std::visit([](auto &&a, auto &&b) { return a % b; },
+          return std::visit([](const auto &a, const auto &b) { return a % b; },
                             left.value, right.value);
         }
 
@@ -162,7 +165,8 @@ namespace chimera {
 
         Number operator%(const Rational &left, const Rational &right) {
           return std::visit(
-              [&left](auto &&lN, auto &&lD, auto &&rN, auto &&rD) {
+              [&left](const auto &lN, const auto &lD, const auto &rN,
+                      const auto &rD) {
                 return left - rN * (lN * rD).floor_div(lD * rN) / rD;
               },
               left.numerator, left.denominator, right.numerator,

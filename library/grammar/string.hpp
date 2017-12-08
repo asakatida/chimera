@@ -56,7 +56,7 @@ namespace chimera {
           }
           template <typename String>
           void apply(String &&in) {
-            for (auto &&byte : in) {
+            for (const auto &byte : in) {
               bytes.push_back(static_cast<std::uint8_t>(byte));
             }
           }

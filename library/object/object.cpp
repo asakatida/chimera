@@ -30,7 +30,8 @@ namespace chimera {
         std::shared_lock<std::shared_mutex> lock(object->mutex);
         std::vector<std::string> keys(object->attributes.size());
         std::transform(object->attributes.cbegin(), object->attributes.cend(),
-                       keys.begin(), [](auto &&pair) { return pair.first; });
+                       keys.begin(),
+                       [](const auto &pair) { return pair.first; });
         return keys;
       }
       const Object &Object::get_attribute(std::string &&key) const {

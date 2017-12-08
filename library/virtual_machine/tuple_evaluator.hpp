@@ -32,7 +32,7 @@ namespace chimera {
       struct TupleEvaluator {
         std::size_t size;
 
-        void operator()(Evaluator *evaluator);
+        void operator()(Evaluator *evaluator) const;
       };
     } // namespace virtual_machine
   }   // namespace library

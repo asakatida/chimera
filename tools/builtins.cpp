@@ -54,7 +54,7 @@ namespace chimera {
     struct Printer {
       Printer(const object::Object &object, const std::string &baseName) {
         printed.try_emplace(object.id(), baseName);
-        for (auto &&name : object.dir()) {
+        for (const auto &name : object.dir()) {
           wanted[object.get_attribute(name).id()].push_back(
               SetAttribute{baseName, name});
           work.push(Work{object.get_attribute(name), baseName, name});
@@ -66,7 +66,7 @@ namespace chimera {
       void operator()(const object::Bytes &bytes) {
         std::cout << "object::Bytes{";
         bool first = true;
-        for (auto &&byte : bytes) {
+        for (const auto &byte : bytes) {
           if (!first) {
             std::cout << ",";
           } else {
@@ -129,7 +129,7 @@ namespace chimera {
       void operator()(const object::Tuple &tuple) {
         std::cout << "object::Tuple{";
         bool first = true;
-        for (auto &&object : tuple) {
+        for (const auto &object : tuple) {
           if (!first) {
             std::cout << ",";
           } else {
@@ -187,7 +187,7 @@ namespace chimera {
         std::visit(*this, object.value());
         std::cout << ",{";
         bool first = true;
-        for (auto &&name : object.dir()) {
+        for (const auto &name : object.dir()) {
           if (!first) {
             std::cout << ",";
           } else {
@@ -206,7 +206,7 @@ namespace chimera {
         }
         std::cout << "});";
         printed.try_emplace(object.id(), baseName);
-        for (auto &&setAttribute : wanted[object.id()]) {
+        for (const auto &setAttribute : wanted[object.id()]) {
           std::cout << setAttribute.base_name << ".set_attribute("
                     << std::quoted(setAttribute.name) << "," << baseName
                     << ");";
@@ -228,11 +228,12 @@ namespace chimera {
       }
       template <typename Front, typename Object, typename Tuple>
       bool incomplete_tuple(Front &&front, Object &&object, Tuple &&tuple) {
-        if (!std::all_of(tuple.begin(), tuple.end(),
-                         [this](auto &&v) { return this->is_printed(v); })) {
+        if (!std::all_of(tuple.begin(), tuple.end(), [this](const auto &v) {
+              return this->is_printed(v);
+            })) {
           auto baseName =
               std::string(front.base_name).append("_").append(front.name);
-          for (auto &&o : tuple) {
+          for (const auto &o : tuple) {
             work.push(Work{object, baseName, std::to_string(o.id())});
           }
           work.push(front);

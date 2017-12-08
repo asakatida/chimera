@@ -46,8 +46,9 @@ namespace chimera {
         }
 
         Number operator>>(const std::uint64_t &left, const Integer &right) {
-          return std::visit([&left](auto &&value) { return left << value; },
-                            right.value);
+          return std::visit(
+              [&left](const auto &value) { return left << value; },
+              right.value);
         }
 
         Number operator>>(const std::uint64_t & /*left*/,
@@ -68,8 +69,9 @@ namespace chimera {
         }
 
         Number operator>>(const Base &left, const Integer &right) {
-          return std::visit([&left](auto &&value) { return left << value; },
-                            right.value);
+          return std::visit(
+              [&left](const auto &value) { return left << value; },
+              right.value);
         }
 
         Number operator>>(const Base & /*left*/, const Rational & /*right*/) {
@@ -142,8 +144,9 @@ namespace chimera {
         }
 
         Number operator>>(const Natural &left, const Integer &right) {
-          return std::visit([&left](auto &&value) { return left << value; },
-                            right.value);
+          return std::visit(
+              [&left](const auto &value) { return left << value; },
+              right.value);
         }
 
         Number operator>>(const Natural & /*left*/,
@@ -152,23 +155,27 @@ namespace chimera {
         }
 
         Number operator>>(const Integer &left, const std::uint64_t &right) {
-          return -std::visit([&right](auto &&value) { return value >> right; },
-                             left.value);
+          return -std::visit(
+              [&right](const auto &value) { return value >> right; },
+              left.value);
         }
 
         Number operator>>(const Integer &left, const Base &right) {
-          return -std::visit([&right](auto &&value) { return value >> right; },
-                             left.value);
+          return -std::visit(
+              [&right](const auto &value) { return value >> right; },
+              left.value);
         }
 
         Number operator>>(const Integer &left, const Natural &right) {
-          return -std::visit([&right](auto &&value) { return value >> right; },
-                             left.value);
+          return -std::visit(
+              [&right](const auto &value) { return value >> right; },
+              left.value);
         }
 
         Number operator>>(const Integer &left, const Integer &right) {
-          return -std::visit([](auto &&a, auto &&b) { return a << b; },
-                             left.value, right.value);
+          return -std::visit(
+              [](const auto &a, const auto &b) { return a << b; }, left.value,
+              right.value);
         }
 
         Number operator>>(const Integer & /*left*/,

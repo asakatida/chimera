@@ -20,14 +20,14 @@
 
 //! pushes either the python singleton True or False to the top of stack
 
-#include "virtual_machine/assign_evaluator.hpp"
+#include "virtual_machine/to_bool_evaluator.hpp"
 
 #include "virtual_machine/evaluator.hpp"
 
 namespace chimera {
   namespace library {
     namespace virtual_machine {
-      void ToBoolEvaluator::operator()(Evaluator *evaluatorA) {
+      void ToBoolEvaluator::operator()(Evaluator *evaluatorA) const {
         if (std::holds_alternative<object::False>(object.value()) ||
             std::holds_alternative<object::None>(object.value())) {
           evaluatorA->push(

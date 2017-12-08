@@ -35,7 +35,7 @@ namespace chimera {
         Number operator~(const Base &base) { return -(base + 1); }
         Number operator~(const Natural &natural) { return -(natural + 1); }
         Number operator~(const Integer &integer) {
-          return std::visit([](auto &&a) { return a - 1; }, integer.value);
+          return std::visit([](const auto &a) { return a - 1; }, integer.value);
         }
         Number operator~(const Rational & /*rational*/) { Ensures(false); }
       } // namespace number
