@@ -30,16 +30,14 @@
 namespace chimera {
   namespace library {
     namespace object {
-
       namespace number {
-        Number operator-(const Base &base) {
-          return Number{Integer{base, true}};
-        }
+        Number operator-(const Base &base) { return Number{Integer{base}}; }
         Number operator-(const Natural &natural) {
-          return Number{Integer{natural, true}};
+          return Number{Integer{natural}};
         }
         Number operator-(const Integer &integer) {
-          return Number{Integer{integer.value, !integer.sign}};
+          return std::visit([](auto &&value) { return Number{value}; },
+                            integer.value);
         }
         Number operator-(const Rational &rational) {
           return std::visit([](auto &&a, auto &&b) { return (-a) / b; },

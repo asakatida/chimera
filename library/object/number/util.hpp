@@ -20,7 +20,23 @@
 
 #pragma once
 
+#include "object/number/add.hpp"
+#include "object/number/and.hpp"
+#include "object/number/compare.hpp"
+#include "object/number/div.hpp"
+#include "object/number/invert.hpp"
+#include "object/number/left_shift.hpp"
+#include "object/number/less.hpp"
+#include "object/number/mod.hpp"
+#include "object/number/mult.hpp"
+#include "object/number/negative.hpp"
 #include "object/number/number.hpp"
+#include "object/number/or.hpp"
+#include "object/number/positive.hpp"
+#include "object/number/right_shift.hpp"
+#include "object/number/sub.hpp"
+#include "object/number/util.hpp"
+#include "object/number/xor.hpp"
 
 namespace chimera {
   namespace library {

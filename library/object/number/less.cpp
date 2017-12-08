@@ -35,15 +35,14 @@
 namespace chimera {
   namespace library {
     namespace object {
-
       namespace number {
-        bool operator<(const std::uint64_t & /*left*/, const Base & /*right*/) {
-          return false;
+        bool operator<(const std::uint64_t &left, const Base &right) {
+          return left < right.value;
         }
 
         bool operator<(const std::uint64_t & /*left*/,
                        const Natural & /*right*/) {
-          return false;
+          return true;
         }
 
         bool operator<(const std::uint64_t & /*left*/,
@@ -51,13 +50,14 @@ namespace chimera {
           return false;
         }
 
-        bool operator<(const std::uint64_t & /*left*/,
-                       const Rational & /*right*/) {
-          return false;
+        bool operator<(const std::uint64_t &left, const Rational &right) {
+          return std::visit(
+              [&left](auto &&rN, auto &&rD) { return (left * rD) < rN; },
+              right.numerator, right.denominator);
         }
 
-        bool operator<(const Base & /*left*/, const std::uint64_t & /*right*/) {
-          return false;
+        bool operator<(const Base &left, const std::uint64_t &right) {
+          return left.value < right;
         }
 
         bool operator<(const Base &left, const Base &right) {
@@ -65,15 +65,17 @@ namespace chimera {
         }
 
         bool operator<(const Base & /*left*/, const Natural & /*right*/) {
-          return false;
+          return true;
         }
 
         bool operator<(const Base & /*left*/, const Integer & /*right*/) {
           return false;
         }
 
-        bool operator<(const Base & /*left*/, const Rational & /*right*/) {
-          return false;
+        bool operator<(const Base &left, const Rational &right) {
+          return std::visit(
+              [&left](auto &&rN, auto &&rD) { return (left * rD) < rN; },
+              right.numerator, right.denominator);
         }
 
         bool operator<(const Natural & /*left*/,
@@ -86,70 +88,70 @@ namespace chimera {
         }
 
         bool operator<(const Natural &left, const Natural &right) {
-          if (left.bit == right.bit) {
-            if (left.value.size() == right.value.size()) {
-              return std::lexicographical_compare(
-                  left.value.begin(), left.value.end(), right.value.begin(),
-                  right.value.end());
-            }
-            return left.bit ? left.value.size() > right.value.size()
-                            : left.value.size() < right.value.size();
+          if (left.value.size() == right.value.size()) {
+            return std::lexicographical_compare(
+                left.value.begin(), left.value.end(), right.value.begin(),
+                right.value.end());
           }
-          return right.bit;
+          return left.value.size() < right.value.size();
         }
 
         bool operator<(const Natural & /*left*/, const Integer & /*right*/) {
           return false;
         }
 
-        bool operator<(const Natural & /*left*/, const Rational & /*right*/) {
-          return false;
+        bool operator<(const Natural &left, const Rational &right) {
+          return std::visit(
+              [&left](auto &&rN, auto &&rD) { return (left * rD) < rN; },
+              right.numerator, right.denominator);
         }
 
         bool operator<(const Integer & /*left*/,
                        const std::uint64_t & /*right*/) {
-          return false;
+          return true;
         }
 
         bool operator<(const Integer & /*left*/, const Base & /*right*/) {
-          return false;
+          return true;
         }
 
         bool operator<(const Integer & /*left*/, const Natural & /*right*/) {
-          return false;
+          return true;
         }
 
         bool operator<(const Integer &left, const Integer &right) {
-          if (left.sign == right.sign) {
-            if (left.sign) {
-              return std::visit([](auto &&a, auto &&b) { return a > b; },
-                                left.value, right.value);
-            }
-            return std::visit([](auto &&a, auto &&b) { return a < b; },
-                              left.value, right.value);
-          }
-          return left.sign;
+          return std::visit([](auto &&a, auto &&b) { return a > b; },
+                            left.value, right.value);
         }
 
-        bool operator<(const Integer & /*left*/, const Rational & /*right*/) {
-          return false;
+        bool operator<(const Integer &left, const Rational &right) {
+          return std::visit(
+              [&left](auto &&rN, auto &&rD) { return (left * rD) < rN; },
+              right.numerator, right.denominator);
         }
 
-        bool operator<(const Rational & /*left*/,
-                       const std::uint64_t & /*right*/) {
-          return false;
+        bool operator<(const Rational &left, const std::uint64_t &right) {
+          return std::visit(
+              [&right](auto &&lN, auto &&lD) { return lN < (lD * right); },
+              left.numerator, left.denominator);
         }
 
-        bool operator<(const Rational & /*left*/, const Base & /*right*/) {
-          return false;
+        bool operator<(const Rational &left, const Base &right) {
+          return std::visit(
+              [&right](auto &&lN, auto &&lD) { return lN < (lD * right); },
+              left.numerator, left.denominator);
         }
 
-        bool operator<(const Rational & /*left*/, const Natural & /*right*/) {
-          return false;
+        bool operator<(const Rational &left, const Natural &right) {
+          return std::visit(
+              [&right](auto &&lN, auto &&lD) { return lN < (lD * right); },
+              left.numerator, left.denominator);
         }
 
-        bool operator<(const Rational & /*left*/, const Integer & /*right*/) {
-          return false;
+        bool operator<(const Rational &left, const Integer &right) {
+          return std::visit(
+              [&right](auto &&lN, auto &&lD) { return lN < (lD * right); },
+              left.numerator, left.denominator);
         }
 
         bool operator<(const Rational &left, const Rational &right) {

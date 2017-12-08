@@ -24,21 +24,18 @@
 
 #include <gsl/gsl>
 
+#include "object/number/add.hpp"
+#include "object/number/negative.hpp"
+#include "object/number/sub.hpp"
+
 namespace chimera {
   namespace library {
     namespace object {
-
       namespace number {
-        Number operator~(const Base &base) { return Number{Base{~base.value}}; }
-        Number operator~(const Natural &natural) {
-          std::vector<std::uint64_t> output;
-          output.reserve(natural.value.size());
-          std::transform(natural.value.begin(), natural.value.end(),
-                         output.begin(), [](auto value) { return ~value; });
-          return Number{Natural{output, !natural.bit}};
-        }
+        Number operator~(const Base &base) { return -(base + 1); }
+        Number operator~(const Natural &natural) { return -(natural + 1); }
         Number operator~(const Integer &integer) {
-          return std::visit([](auto &&a) { return ~a; }, integer.value);
+          return std::visit([](auto &&a) { return a - 1; }, integer.value);
         }
         Number operator~(const Rational & /*rational*/) { Ensures(false); }
       } // namespace number
