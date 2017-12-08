@@ -21,18 +21,22 @@
 #pragma once
 
 #include <cstdint>
-#include <tuple>
 
 namespace chimera {
   namespace library {
     namespace object {
-
       namespace number {
-        using Carryover = std::tuple<std::uint64_t, std::uint64_t>;
+        struct Carryover {
+          std::uint64_t result;
+          std::uint64_t overflow;
+        };
 
-        Carryover sum(std::uint64_t left, std::uint64_t right);
-        Carryover sub(std::uint64_t left, std::uint64_t right);
+        Carryover div(const Carryover &left, std::uint64_t right);
+        Carryover left_shift(std::uint64_t left, std::uint64_t right);
         Carryover mult(std::uint64_t left, std::uint64_t right);
+        Carryover right_shift(std::uint64_t left, std::uint64_t right);
+        Carryover sub(std::uint64_t left, std::uint64_t right);
+        Carryover sum(std::uint64_t left, std::uint64_t right);
       } // namespace number
     }   // namespace object
   }     // namespace library

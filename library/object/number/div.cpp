@@ -20,6 +20,8 @@
 
 #include "object/number/div.hpp"
 
+#include <tuple>
+#include <type_traits>
 #include <vector>
 
 #include <gsl/gsl>
@@ -34,143 +36,224 @@
 namespace chimera {
   namespace library {
     namespace object {
-
       namespace number {
-        Number operator/(const std::uint64_t & /*left*/,
-                         const Base & /*right*/) {
-          return Number{};
+        static bool even(const std::uint64_t &i) { return (i & 1) == 0u; }
+        static bool even(const Base &i) { return even(i.value); }
+        static bool even(const Natural &i) { return even(i.value[0]); }
+        static bool even(const Integer & /*i*/) { Ensures(false); }
+        static bool even(const Rational & /*i*/) { Ensures(false); }
+        static bool even(const Number &i) {
+          return std::visit([](auto &&value) { return even(value); }, i.value);
         }
 
-        Number operator/(const std::uint64_t & /*left*/,
-                         const Natural & /*right*/) {
-          return Number{};
+        static RationalValue floor_div(const Natural &a, const Base &b) {
+          auto value = a;
+          Carryover carryover{};
+          for (auto it = value.value.rbegin(); it != value.value.rend(); ++it) {
+            carryover.result = *it;
+            carryover = div(carryover, b.value);
+            *it = carryover.result;
+          }
+          while (value.value.back() == 0) {
+            value.value.pop_back();
+            if (value.value.empty()) {
+              return Base{};
+            }
+          }
+          if (value.value.size() == 1) {
+            return Base{value.value[0]};
+          }
+          value.value.shrink_to_fit();
+          return value;
+        }
+        static RationalValue floor_div(const Natural &a, const Natural &b) {
+          return Base{a.value[0] / b.value[0]};
         }
 
-        Number operator/(const std::uint64_t & /*left*/,
-                         const Integer & /*right*/) {
-          return Number{};
+        static Number reduce(const Base &a, const Base &b, const Base &g) {
+          return Number{
+              Rational{Base{a.value / g.value}, Base{b.value / g.value}}};
+        }
+        static Number reduce(const Base &a, const Natural &b, const Base &g) {
+          return Number{Rational{Base{a.value / g.value}, floor_div(b, g)}};
+        }
+        static Number reduce(const Natural &a, const Base &b, const Base &g) {
+          return Number{Rational{floor_div(a, g), Base{b.value / g.value}}};
+        }
+        static Number reduce(const Natural &a, const Natural &b,
+                             const Base &g) {
+          return Number{Rational{floor_div(a, g), floor_div(b, g)}};
+        }
+        static Number reduce(const Natural &a, const Natural &b,
+                             const Natural &g) {
+          return Number{Rational{floor_div(a, g), floor_div(b, g)}};
         }
 
-        Number operator/(const std::uint64_t & /*left*/,
-                         const Rational & /*right*/) {
-          return Number{};
+        static Number reduce(const Base & /*a*/, const Base & /*b*/,
+                             const Natural & /*g*/) {
+          Ensures(false);
+        }
+        static Number reduce(const Base & /*a*/, const Natural & /*b*/,
+                             const Natural & /*g*/) {
+          Ensures(false);
+        }
+        static Number reduce(const Natural & /*a*/, const Base & /*b*/,
+                             const Natural & /*g*/) {
+          Ensures(false);
+        }
+        template <typename A, typename B, typename G>
+        std::enable_if_t<
+            std::disjunction_v<std::is_same<Integer, std::decay_t<A>>,
+                               std::is_same<Integer, std::decay_t<B>>,
+                               std::is_same<Integer, std::decay_t<G>>,
+                               std::is_same<Rational, std::decay_t<A>>,
+                               std::is_same<Rational, std::decay_t<B>>,
+                               std::is_same<Rational, std::decay_t<G>>>,
+            Number>
+        reduce(A && /*a*/, B && /*b*/, G && /*g*/) {
+          Ensures(false);
         }
 
-        Number operator/(const Base & /*left*/,
-                         const std::uint64_t & /*right*/) {
-          return Number{};
+        template <typename Left, typename Right>
+        Number reduce(Left &&left, Right &&right) {
+          Number a{left}, b{right};
+          while (even(a) && even(b)) {
+            a >>= 1u;
+            b >>= 1u;
+          }
+          auto aPrime = a, bPrime = b;
+          while (aPrime != bPrime) {
+            if (even(aPrime)) {
+              aPrime >>= 1u;
+            } else if (even(bPrime)) {
+              bPrime >>= 1u;
+            } else if (aPrime > bPrime) {
+              aPrime = (aPrime - bPrime) >> 1u;
+            } else {
+              bPrime = (bPrime - aPrime) >> 1u;
+            }
+          }
+          return std::visit([](auto &&aValue, auto &&bValue,
+                               auto &&g) { return reduce(aValue, bValue, g); },
+                            a.value, b.value, aPrime.value);
+        }
+
+        Number operator/(const std::uint64_t &left, const Base &right) {
+          if (left % right.value == 0) {
+            return Number{Base{left / right.value}};
+          }
+          return reduce(Base{left}, right);
+        }
+
+        Number operator/(const std::uint64_t &left, const Natural &right) {
+          return reduce(Base{left}, right);
+        }
+
+        Number operator/(const std::uint64_t &left, const Integer &right) {
+          return -std::visit([&left](auto &&r) { return left / r; },
+                             right.value);
+        }
+
+        Number operator/(const std::uint64_t &left, const Rational &right) {
+          return std::visit(
+              [&left](auto &&rN, auto &&rD) { return (left * rD) / rN; },
+              right.numerator, right.denominator);
+        }
+
+        Number operator/(const Base &left, const std::uint64_t &right) {
+          return reduce(left, Base{right});
         }
 
         Number operator/(const Base &left, const Base &right) {
-          return Number{Rational{left, right}};
+          return reduce(left, right);
         }
 
-        Number operator/(const Base & /*left*/, const Natural & /*right*/) {
-          return Number{};
+        Number operator/(const Base &left, const Natural &right) {
+          return reduce(left, right);
         }
 
-        Number operator/(const Base & /*left*/, const Integer & /*right*/) {
-          return Number{};
+        Number operator/(const Base &left, const Integer &right) {
+          return -std::visit([&left](auto &&r) { return left / r; },
+                             right.value);
         }
 
-        Number operator/(const Base & /*left*/, const Rational & /*right*/) {
-          return Number{};
+        Number operator/(const Base &left, const Rational &right) {
+          return std::visit(
+              [&left](auto &&rN, auto &&rD) { return (left * rD) / rN; },
+              right.numerator, right.denominator);
         }
 
-        Number operator/(const Natural & /*left*/,
-                         const std::uint64_t & /*right*/) {
-          return Number{};
+        Number operator/(const Natural &left, const std::uint64_t &right) {
+          return reduce(left, Base{right});
         }
 
-        Number operator/(const Natural & /*left*/, const Base & /*right*/) {
-          return Number{};
+        Number operator/(const Natural &left, const Base &right) {
+          return reduce(left, right);
         }
 
         Number operator/(const Natural &left, const Natural &right) {
-          std::vector<std::uint64_t> output;
-          output.reserve(std::max(left.value.size(), right.value.size()) + 1);
-          auto it1 = left.value.begin();
-          auto end1 = left.value.end();
-          auto it2 = right.value.begin();
-          auto end2 = right.value.end();
-          Carryover carryover{};
-          for (; it1 != end1 && it2 != end2; ++it1, ++it2) {
-            auto l = sum(std::get<0>(carryover), *it1);
-            auto r = sum(std::get<0>(l), *it2);
-            carryover = sum(std::get<1>(l), std::get<1>(r));
-            Ensures(std::get<1>(carryover) == std::uint64_t(0));
-            output.emplace_back(std::get<0>(r));
-          }
-          if (it1 == end1) {
-            it1 = it2;
-            end1 = end2;
-          }
-          for (; it1 != end1; ++it1) {
-            auto l = sum(std::get<0>(carryover), *it1);
-            output.emplace_back(std::get<0>(l));
-            carryover = {std::get<1>(l), 0};
-          }
-          if (std::get<0>(carryover) > 0) {
-            output.emplace_back(std::get<0>(carryover));
-          }
-          return Number{Natural{output, left.bit && right.bit}};
+          return reduce(left, right);
         }
 
-        Number operator/(const Natural & /*left*/, const Integer & /*right*/) {
-          return Number{};
+        Number operator/(const Natural &left, const Integer &right) {
+          return -std::visit([&left](auto &&r) { return left / r; },
+                             right.value);
         }
 
-        Number operator/(const Natural & /*left*/, const Rational & /*right*/) {
-          return Number{};
+        Number operator/(const Natural &left, const Rational &right) {
+          return std::visit(
+              [&left](auto &&rN, auto &&rD) { return (left * rD) / rN; },
+              right.numerator, right.denominator);
         }
 
-        Number operator/(const Integer & /*left*/,
-                         const std::uint64_t & /*right*/) {
-          return Number{};
+        Number operator/(const Integer &left, const std::uint64_t &right) {
+          return -std::visit([&right](auto &&l) { return l / right; },
+                             left.value);
         }
 
-        Number operator/(const Integer & /*left*/, const Base & /*right*/) {
-          return Number{};
+        Number operator/(const Integer &left, const Base &right) {
+          return -std::visit([&right](auto &&l) { return l / right; },
+                             left.value);
         }
 
-        Number operator/(const Integer & /*left*/, const Natural & /*right*/) {
-          return Number{};
+        Number operator/(const Integer &left, const Natural &right) {
+          return -std::visit([&right](auto &&l) { return l / right; },
+                             left.value);
         }
 
         Number operator/(const Integer &left, const Integer &right) {
-          if (left.sign != right.sign) {
-            if (left.sign) {
-              return right - (+left);
-            }
-            return left - (+right);
-          }
-          if (left.sign) {
-            return -std::visit([](auto &&l, auto &&r) { return l + r; },
-                               left.value, right.value);
-          }
-          return std::visit([](auto &&l, auto &&r) { return l + r; },
+          return std::visit([](auto &&l, auto &&r) { return l / r; },
                             left.value, right.value);
         }
 
-        Number operator/(const Integer & /*left*/, const Rational & /*right*/) {
-          return Number{};
+        Number operator/(const Integer &left, const Rational &right) {
+          return std::visit(
+              [&left](auto &&rN, auto &&rD) { return (left * rD) / rN; },
+              right.numerator, right.denominator);
         }
 
-        Number operator/(const Rational & /*left*/,
-                         const std::uint64_t & /*right*/) {
-          return Number{};
+        Number operator/(const Rational &left, const std::uint64_t &right) {
+          return std::visit(
+              [&right](auto &&lN, auto &&lD) { return lN / (lD * right); },
+              left.numerator, left.denominator);
         }
 
-        Number operator/(const Rational & /*left*/, const Base & /*right*/) {
-          return Number{};
+        Number operator/(const Rational &left, const Base &right) {
+          return std::visit(
+              [&right](auto &&lN, auto &&lD) { return lN / (lD * right); },
+              left.numerator, left.denominator);
         }
 
-        Number operator/(const Rational & /*left*/, const Natural & /*right*/) {
-          return Number{};
+        Number operator/(const Rational &left, const Natural &right) {
+          return std::visit(
+              [&right](auto &&lN, auto &&lD) { return lN / (lD * right); },
+              left.numerator, left.denominator);
         }
 
-        Number operator/(const Rational & /*left*/, const Integer & /*right*/) {
-          return Number{};
+        Number operator/(const Rational &left, const Integer &right) {
+          return std::visit(
+              [&right](auto &&lN, auto &&lD) { return lN / (lD * right); },
+              left.numerator, left.denominator);
         }
 
         Number operator/(const Rational &left, const Rational &right) {

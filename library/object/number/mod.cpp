@@ -35,56 +35,68 @@
 namespace chimera {
   namespace library {
     namespace object {
-
       namespace number {
-        Number operator%(const std::uint64_t & /*left*/,
-                         const Base & /*right*/) {
-          return Number{};
+        template <typename Left>
+        auto mod(const Left &left, const Rational &right) {
+          return std::visit(
+              [&left](auto &&rN, auto &&rD) {
+                return left - rN * (left * rD).floor_div(Number{rN}) / rD;
+              },
+              right.numerator, right.denominator);
+        }
+        template <typename Right>
+        auto mod(const Rational &left, const Right &right) {
+          return std::visit(
+              [&left, &right](auto &&lN, auto &&lD) {
+                return left - right * Number{lN}.floor_div(lD * right);
+              },
+              left.numerator, left.denominator);
         }
 
-        Number operator%(const std::uint64_t & /*left*/,
-                         const Natural & /*right*/) {
-          return Number{};
+        Number operator%(const std::uint64_t &left, const Base &right) {
+          return Number{Base{left % right.value}};
         }
 
-        Number operator%(const std::uint64_t & /*left*/,
-                         const Integer & /*right*/) {
-          return Number{};
+        Number operator%(const std::uint64_t &left, const Natural & /*right*/) {
+          return Number{Base{left}};
         }
 
-        Number operator%(const std::uint64_t & /*left*/,
-                         const Rational & /*right*/) {
-          return Number{};
+        Number operator%(const std::uint64_t &left, const Integer &right) {
+          return std::visit([&left](auto &&value) { return left % value; },
+                            right.value);
         }
 
-        Number operator%(const Base & /*left*/,
-                         const std::uint64_t & /*right*/) {
-          return Number{};
+        Number operator%(const std::uint64_t &left, const Rational &right) {
+          return mod(left, right);
+        }
+
+        Number operator%(const Base &left, const std::uint64_t &right) {
+          return Number{Base{left.value % right}};
         }
 
         Number operator%(const Base &left, const Base &right) {
           return Number{Base{left.value % right.value}};
         }
 
-        Number operator%(const Base & /*left*/, const Natural & /*right*/) {
-          return Number{};
+        Number operator%(const Base &left, const Natural & /*right*/) {
+          return Number{left};
         }
 
-        Number operator%(const Base & /*left*/, const Integer & /*right*/) {
-          return Number{};
+        Number operator%(const Base &left, const Integer &right) {
+          return std::visit([&left](auto &&value) { return left % value; },
+                            right.value);
         }
 
-        Number operator%(const Base & /*left*/, const Rational & /*right*/) {
-          return Number{};
+        Number operator%(const Base &left, const Rational &right) {
+          return mod(left, right);
         }
 
-        Number operator%(const Natural & /*left*/,
-                         const std::uint64_t & /*right*/) {
-          return Number{};
+        Number operator%(const Natural &left, const std::uint64_t &right) {
+          return Number{Base{left.value[0] % right}};
         }
 
-        Number operator%(const Natural & /*left*/, const Base & /*right*/) {
-          return Number{};
+        Number operator%(const Natural &left, const Base &right) {
+          return Number{Base{left.value[0] % right.value}};
         }
 
         Number operator%(const Natural &left, const Natural &right) {
@@ -99,62 +111,62 @@ namespace chimera {
           return Number{result};
         }
 
-        Number operator%(const Natural & /*left*/, const Integer & /*right*/) {
-          return Number{};
+        Number operator%(const Natural &left, const Integer &right) {
+          return std::visit([&left](auto &&value) { return left % value; },
+                            right.value);
         }
 
-        Number operator%(const Natural & /*left*/, const Rational & /*right*/) {
-          return Number{};
+        Number operator%(const Natural &left, const Rational &right) {
+          return mod(left, right);
         }
 
-        Number operator%(const Integer & /*left*/,
-                         const std::uint64_t & /*right*/) {
-          return Number{};
+        Number operator%(const Integer &left, const std::uint64_t &right) {
+          return -std::visit([&right](auto &&value) { return value % right; },
+                             left.value);
         }
 
-        Number operator%(const Integer & /*left*/, const Base & /*right*/) {
-          return Number{};
+        Number operator%(const Integer &left, const Base &right) {
+          return -std::visit([&right](auto &&value) { return value % right; },
+                             left.value);
         }
 
-        Number operator%(const Integer & /*left*/, const Natural & /*right*/) {
-          return Number{};
+        Number operator%(const Integer &left, const Natural &right) {
+          return -std::visit([&right](auto &&value) { return value % right; },
+                             left.value);
         }
 
         Number operator%(const Integer &left, const Integer &right) {
-          if (left.sign != right.sign) {
-            return -std::visit([](auto &&a, auto &&b) { return a % b; },
-                               left.value, right.value);
-          }
           return std::visit([](auto &&a, auto &&b) { return a % b; },
                             left.value, right.value);
         }
 
-        Number operator%(const Integer & /*left*/, const Rational & /*right*/) {
-          return Number{};
+        Number operator%(const Integer &left, const Rational &right) {
+          return mod(left, right);
         }
 
-        Number operator%(const Rational & /*left*/,
-                         const std::uint64_t & /*right*/) {
-          return Number{};
+        Number operator%(const Rational &left, const std::uint64_t &right) {
+          return mod(left, right);
         }
 
-        Number operator%(const Rational & /*left*/, const Base & /*right*/) {
-          return Number{};
+        Number operator%(const Rational &left, const Base &right) {
+          return mod(left, right);
         }
 
-        Number operator%(const Rational & /*left*/, const Natural & /*right*/) {
-          return Number{};
+        Number operator%(const Rational &left, const Natural &right) {
+          return mod(left, right);
         }
 
-        Number operator%(const Rational & /*left*/, const Integer & /*right*/) {
-          return Number{};
+        Number operator%(const Rational &left, const Integer &right) {
+          return mod(left, right);
         }
 
         Number operator%(const Rational &left, const Rational &right) {
-          return std::visit([](auto &&lN, auto &&lD, auto &&rN,
-                               auto &&rD) { return (lN * rD) / (lD * rN); },
-                            left.numerator, left.denominator, right.numerator,
-                            right.denominator);
+          return std::visit(
+              [&left](auto &&lN, auto &&lD, auto &&rN, auto &&rD) {
+                return left - rN * (lN * rD).floor_div(lD * rN) / rD;
+              },
+              left.numerator, left.denominator, right.numerator,
+              right.denominator);
         }
       } // namespace number
     }   // namespace object

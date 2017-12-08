@@ -20,25 +20,25 @@
 
 #include "object/number/and.hpp"
 
+#include <limits>
+
 #include <gsl/gsl>
 
 namespace chimera {
   namespace library {
     namespace object {
-
       namespace number {
         Number operator&(const std::uint64_t &left, const Base &right) {
           return Number{Base{left & right.value}};
         }
 
-        Number operator&(const std::uint64_t & /*left*/,
-                         const Natural & /*right*/) {
-          return Number{};
+        Number operator&(const std::uint64_t &left, const Natural &right) {
+          return Number{Base{left & right.value[0]}};
         }
 
-        Number operator&(const std::uint64_t & /*left*/,
-                         const Integer & /*right*/) {
-          return Number{};
+        Number operator&(const std::uint64_t &left, const Integer &right) {
+          return std::visit([&left](auto &&value) { return left & value; },
+                            right.value);
         }
 
         Number operator&(const std::uint64_t & /*left*/,
@@ -46,91 +46,81 @@ namespace chimera {
           Ensures(false);
         }
 
-        Number operator&(const Base & /*left*/,
-                         const std::uint64_t & /*right*/) {
-          return Number{};
+        Number operator&(const Base &left, const std::uint64_t &right) {
+          return Number{Base{left.value & right}};
         }
 
         Number operator&(const Base &left, const Base &right) {
           return Number{Base{left.value & right.value}};
         }
 
-        Number operator&(const Base & /*left*/, const Natural & /*right*/) {
-          return Number{};
+        Number operator&(const Base &left, const Natural &right) {
+          return Number{Base{left.value & right.value[0]}};
         }
 
-        Number operator&(const Base & /*left*/, const Integer & /*right*/) {
-          return Number{};
+        Number operator&(const Base &left, const Integer &right) {
+          return std::visit([&left](auto &&value) { return left & value; },
+                            right.value);
         }
 
         Number operator&(const Base & /*left*/, const Rational & /*right*/) {
           Ensures(false);
         }
 
-        Number operator&(const Natural & /*left*/,
-                         const std::uint64_t & /*right*/) {
-          return Number{};
+        Number operator&(const Natural &left, const std::uint64_t &right) {
+          return Number{Base{left.value[0] & right}};
         }
 
-        Number operator&(const Natural & /*left*/, const Base & /*right*/) {
-          return Number{};
+        Number operator&(const Natural &left, const Base &right) {
+          return Number{Base{left.value[0] & right.value}};
         }
 
         Number operator&(const Natural &left, const Natural &right) {
-          std::vector<std::uint64_t> output;
-          output.reserve(std::max(left.value.size(), right.value.size()));
-          auto it1 = left.value.begin();
-          auto end1 = left.value.end();
-          auto it2 = right.value.begin();
-          auto end2 = right.value.end();
-          for (; it1 != end1 && it2 != end2; ++it1, ++it2) {
-            output.emplace_back(*it1 & *it2);
-          }
-          bool bitMask = right.bit;
-          if (it1 == end1) {
-            it1 = it2;
-            end1 = end2;
-            bitMask = left.bit;
-          }
-          if (bitMask) {
-            output.insert(output.end(), it1, end1);
-          } else {
-            while ((!output.empty()) && output.back() == std::uint64_t(0)) {
-              output.pop_back();
+          auto value = left;
+          value.value.resize(std::min(value.value.size(), right.value.size()));
+          std::transform(value.value.begin(), value.value.end(),
+                         right.value.begin(), value.value.begin(),
+                         [](auto &&a, auto &&b) { return a & b; });
+          while (value.value.back() == 0) {
+            value.value.pop_back();
+            if (value.value.empty()) {
+              return Number{};
             }
-            output.shrink_to_fit();
           }
-          return Number{Natural{output, left.bit && right.bit}};
+          if (value.value.size() == 1) {
+            return Number{Base{value.value[0]}};
+          }
+          value.value.shrink_to_fit();
+          return Number{value};
         }
 
-        Number operator&(const Natural & /*left*/, const Integer & /*right*/) {
-          return Number{};
+        Number operator&(const Natural &left, const Integer &right) {
+          return std::visit([&left](auto &&value) { return left & value; },
+                            right.value);
         }
 
         Number operator&(const Natural & /*left*/, const Rational & /*right*/) {
           Ensures(false);
         }
 
-        Number operator&(const Integer & /*left*/,
-                         const std::uint64_t & /*right*/) {
-          return Number{};
+        Number operator&(const Integer &left, const std::uint64_t &right) {
+          return std::visit([&right](auto &&value) { return value & right; },
+                            left.value);
         }
 
-        Number operator&(const Integer & /*left*/, const Base & /*right*/) {
-          return Number{};
+        Number operator&(const Integer &left, const Base &right) {
+          return std::visit([&right](auto &&value) { return value & right; },
+                            left.value);
         }
 
-        Number operator&(const Integer & /*left*/, const Natural & /*right*/) {
-          return Number{};
+        Number operator&(const Integer &left, const Natural &right) {
+          return std::visit([&right](auto &&value) { return value & right; },
+                            left.value);
         }
 
         Number operator&(const Integer &left, const Integer &right) {
-          if (left.sign && right.sign) {
-            return -std::visit([](auto &&a, auto &&b) { return a & b; },
-                               left.value, right.value);
-          }
-          return std::visit([](auto &&a, auto &&b) { return a & b; },
-                            left.value, right.value);
+          return -std::visit([](auto &&a, auto &&b) { return a & b; },
+                             left.value, right.value);
         }
 
         Number operator&(const Integer & /*left*/, const Rational & /*right*/) {

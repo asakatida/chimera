@@ -24,4 +24,10 @@ TEST_CASE("number Number") {
       std::numeric_limits<std::uint64_t>::max());
   number = huge * huge;
   REQUIRE(number > huge);
+  auto massive = number * other;
+  REQUIRE(massive > number);
+  // massive = massive / number;
+  // REQUIRE(massive > huge);
+  // massive = massive / other;
+  // REQUIRE(massive == huge);
 }

@@ -34,12 +34,10 @@ namespace chimera {
         };
         struct Natural {
           std::vector<std::uint64_t> value;
-          bool bit = false;
         };
         using IntegerValue = std::variant<Base, Natural>;
         struct Integer {
           IntegerValue value;
-          bool sign = false;
         };
         using RationalValue = std::variant<Base, Natural, Integer>;
         struct Rational {

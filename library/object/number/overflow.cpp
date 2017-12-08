@@ -21,73 +21,43 @@
 #include "object/number/overflow.hpp"
 
 #include <cstdint>
-#include <tuple> // for tuple
-
-#include <gsl/gsl>
+#include <limits>
 
 namespace chimera {
   namespace library {
     namespace object {
-
       namespace number {
-        Carryover sum(std::uint64_t left, std::uint64_t right) {
-          auto carryover = (left & 0xFFFFFFFF) + (right & 0xFFFFFFFF);
-          auto lowField = carryover & 0xFFFFFFFF;
-          carryover >>= 32;
-          carryover +=
-              ((left >> 32) & 0xFFFFFFFF) + ((right >> 32) & 0xFFFFFFFF);
-          return {{lowField | ((carryover & 0xFFFFFFFF) << 32)},
-                  {carryover >> 32}};
+        Carryover div(const Carryover &left, std::uint64_t right) {
+          auto a = __uint128_t(left.overflow) << 64 & left.result;
+          return {std::uint64_t(a / right), std::uint64_t(a % right)};
+        }
+
+        Carryover left_shift(std::uint64_t left, std::uint64_t right) {
+          auto carryover = __uint128_t(left) << right;
+          return {std::uint64_t(carryover), std::uint64_t(carryover >> 64)};
+        }
+
+        Carryover mult(std::uint64_t left, std::uint64_t right) {
+          auto carryover = __uint128_t(left) * right;
+          return {std::uint64_t(carryover), std::uint64_t(carryover >> 64)};
+        }
+
+        Carryover right_shift(std::uint64_t left, std::uint64_t right) {
+          auto carryover = __uint128_t(left) << (64 - right);
+          return {std::uint64_t(carryover >> 64), std::uint64_t(carryover)};
         }
 
         Carryover sub(std::uint64_t left, std::uint64_t right) {
           if (left < right) {
-            return {
-                {std::numeric_limits<std::uint64_t>::max() - (right - left)},
-                {1}};
+            return {std::numeric_limits<std::uint64_t>::max() - (right - left),
+                    1};
           }
-          return {{left - right}, {0}};
+          return {left - right, 0};
         }
 
-        Carryover mult(std::uint64_t left, std::uint64_t right) {
-          auto carryover = (left & 0xFFFF) * (right & 0xFFFF);
-          auto field0 = carryover & 0xFFFF;
-          carryover >>= 16;
-
-          carryover += (left & 0xFFFF) * ((right >> 16) & 0xFFFF) +
-                       ((left >> 16) & 0xFFFF) * (right & 0xFFFF);
-          auto field16 = carryover & 0xFFFF;
-          carryover >>= 16;
-
-          carryover += (left & 0xFFFF) * ((right >> 32) & 0xFFFF) +
-                       ((left >> 16) & 0xFFFF) * ((right >> 16) & 0xFFFF) +
-                       ((left >> 32) & 0xFFFF) * (right & 0xFFFF);
-          auto field32 = carryover & 0xFFFF;
-          carryover >>= 16;
-
-          carryover += (left & 0xFFFF) * ((right >> 48) & 0xFFFF) +
-                       ((left >> 16) & 0xFFFF) * ((right >> 32) & 0xFFFF) +
-                       ((left >> 32) & 0xFFFF) * ((right >> 16) & 0xFFFF) +
-                       ((left >> 48) & 0xFFFF) * (right & 0xFFFF);
-          auto field48 = carryover & 0xFFFF;
-          carryover >>= 16;
-
-          carryover += ((left >> 16) & 0xFFFF) * ((right >> 48) & 0xFFFF) +
-                       ((left >> 32) & 0xFFFF) * ((right >> 32) & 0xFFFF) +
-                       ((left >> 48) & 0xFFFF) * ((right >> 16) & 0xFFFF);
-          auto field64 = carryover & 0xFFFF;
-          carryover >>= 16;
-
-          carryover += ((left >> 32) & 0xFFFF) * ((right >> 48) & 0xFFFF) +
-                       ((left >> 48) & 0xFFFF) * ((right >> 32) & 0xFFFF);
-          auto field80 = carryover & 0xFFFF;
-          carryover >>= 16;
-
-          carryover += ((left >> 48) & 0xFFFF) * ((right >> 48) & 0xFFFF);
-
-          return {
-              {field0 | (field16 << 16) | (field32 << 32) | (field48 << 48)},
-              {field64 | (field80 << 16) | (carryover << 32)}};
+        Carryover sum(std::uint64_t left, std::uint64_t right) {
+          auto carryover = __uint128_t(left) + right;
+          return {std::uint64_t(carryover), std::uint64_t(carryover >> 64)};
         }
       } // namespace number
     }   // namespace object
