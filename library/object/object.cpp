@@ -13,7 +13,7 @@ namespace chimera {
   namespace library {
     namespace object {
       Object::Object() : object(std::make_shared<Impl>()) {}
-      Object::Object(Data &&value, Attributes &&attributes) : Object() {
+      Object::Object(Value &&value, Attributes &&attributes) : Object() {
         object->value = std::move(value);
         object->attributes = std::move(attributes);
       }
@@ -62,10 +62,10 @@ namespace chimera {
         return std::hash<std::shared_ptr<Impl>>{}(
             object)&std::numeric_limits<std::uint64_t>::max();
       }
-      const Object::Data &Object::value() const noexcept {
+      const Object::Value &Object::value() const noexcept {
         return object->value;
       }
-      Object Object::copy(Data &&data) const {
+      Object Object::copy(Value &&data) const {
         std::shared_lock<std::shared_mutex> lock(object->mutex);
         return Object(std::move(data), Attributes(object->attributes));
       }
