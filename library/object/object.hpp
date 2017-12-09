@@ -49,7 +49,7 @@ namespace chimera {
       struct True {};
 
       struct Object {
-        using Data =
+        using Value =
             std::variant<Instance, Bytes, BytesMethod, False, Future, None,
                          NullFunction, Number, NumberMethod, ObjectMethod,
                          String, StringMethod, SysCall, True, Tuple,
@@ -58,7 +58,7 @@ namespace chimera {
         using Attributes = std::map<std::string, Object>;
 
         Object();
-        Object(Data &&value, Attributes &&attributes);
+        Object(Value &&value, Attributes &&attributes);
 
         Object(const Object &other) = default;
         Object(Object &&other) noexcept = default;
@@ -91,9 +91,9 @@ namespace chimera {
 
         std::uint64_t id() const noexcept;
 
-        const Data &value() const noexcept;
+        const Value &value() const noexcept;
 
-        Object copy(Data &&data) const;
+        Object copy(Value &&data) const;
 
         bool get_bool() const noexcept;
 
@@ -101,7 +101,7 @@ namespace chimera {
 
       private:
         struct Impl {
-          Data value;
+          Value value;
           Attributes attributes;
           std::shared_mutex mutex{}; //! only needs to guard attributes
         };
