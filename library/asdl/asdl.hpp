@@ -76,6 +76,9 @@ namespace chimera {
       struct ModuleName {
         std::string value;
       };
+      struct DocString {
+        Constant constant;
+      };
       struct Withitem {
         ExprImpl context_expr;
         std::optional<ExprImpl> optional_vars;
@@ -358,6 +361,7 @@ namespace chimera {
       };
       struct ClassDef {
         Name name;
+        DocString docString;
         std::vector<ExprImpl> bases;
         std::vector<Keyword> keywords;
         std::vector<StmtImpl> body;
@@ -365,6 +369,7 @@ namespace chimera {
       };
       struct AsyncFunctionDef {
         Name name;
+        DocString docString;
         Arguments args;
         std::vector<StmtImpl> body;
         std::vector<ExprImpl> decorator_list;
@@ -372,6 +377,7 @@ namespace chimera {
       };
       struct FunctionDef {
         Name name;
+        DocString docString;
         Arguments args;
         std::vector<StmtImpl> body;
         std::vector<ExprImpl> decorator_list;
@@ -379,6 +385,7 @@ namespace chimera {
       };
       struct Module {
         std::vector<StmtImpl> body;
+        DocString docString;
       };
       struct Interactive {
         std::vector<StmtImpl> body;

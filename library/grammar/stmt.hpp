@@ -36,6 +36,18 @@
 namespace chimera {
   namespace library {
     namespace grammar {
+      struct DocStringAction : Stack<asdl::ExprImpl> {
+        template <typename Outer>
+        void success(Outer &&outer) {
+          if (has_value()) {
+            outer.push(asdl::DocString{
+                std::get<asdl::Constant>(*pop<asdl::ExprImpl>().value)});
+          }
+        }
+      };
+      struct DocString : tao::pegtl::seq<STRING<false, false, false>> {};
+      template <>
+      struct Control<DocString> : ChangeState<DocString, DocStringAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct TFPDef
           : tao::pegtl::seq<
@@ -180,6 +192,9 @@ namespace chimera {
           : ParenOpt<Implicit, AsyncFlow, ScopeFlow, TypedArgsList> {};
       template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
                 bool ImportAll>
+      struct SuiteWithDoc;
+      template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
+                bool ImportAll>
       struct Suite;
       template <bool Implicit, bool AsyncFlow>
       struct FuncDef
@@ -188,25 +203,29 @@ namespace chimera {
                 Parameters<Implicit, false, false>,
                 tao::pegtl::opt<Arr<Implicit>,
                                 tao::pegtl::must<Test<Implicit, false, false>>>,
-                Suite<Implicit, AsyncFlow, false, true, false>> {};
+                SuiteWithDoc<Implicit, AsyncFlow, false, true, false>> {};
       struct FuncDefAction
-          : Stack<asdl::StmtImpl, asdl::ExprImpl, asdl::Arguments, asdl::Name> {
+          : Stack<asdl::DocString, asdl::StmtImpl, asdl::ExprImpl,
+                  asdl::Arguments, asdl::Name> {
         template <typename Outer>
         void success(Outer &&outer) {
-          asdl::FunctionDef functiondef;
-          functiondef.body.reserve(size());
+          asdl::FunctionDef functionDef;
+          functionDef.body.reserve(size());
           while (top_is<asdl::StmtImpl>()) {
-            functiondef.body.push_back(pop<asdl::StmtImpl>());
+            functionDef.body.push_back(pop<asdl::StmtImpl>());
           }
-          std::reverse(functiondef.body.begin(), functiondef.body.end());
+          std::reverse(functionDef.body.begin(), functionDef.body.end());
+          if (top_is<asdl::DocString>()) {
+            functionDef.docString = pop<asdl::DocString>();
+          }
           if (top_is<asdl::ExprImpl>()) {
-            functiondef.returns = pop<asdl::ExprImpl>();
+            functionDef.returns = pop<asdl::ExprImpl>();
           }
           if (top_is<asdl::Arguments>()) {
-            functiondef.args = pop<asdl::Arguments>();
+            functionDef.args = pop<asdl::Arguments>();
           }
-          functiondef.name = pop<asdl::Name>();
-          outer.push(asdl::StmtImpl{std::move(functiondef)});
+          functionDef.name = pop<asdl::Name>();
+          outer.push(asdl::StmtImpl{std::move(functionDef)});
         }
       };
       template <bool Implicit, bool AsyncFlow>
@@ -218,13 +237,13 @@ namespace chimera {
       struct AsyncFuncDefAction : Stack<asdl::StmtImpl> {
         template <typename Outer>
         void success(Outer &&outer) {
-          auto functiondef = std::get<asdl::FunctionDef>(
+          auto functionDef = std::get<asdl::FunctionDef>(
               std::move(*pop<asdl::StmtImpl>().value));
           outer.push(asdl::StmtImpl{asdl::AsyncFunctionDef{
-              std::move(functiondef.name), std::move(functiondef.args),
-              std::move(functiondef.body),
-              std::move(functiondef.decorator_list),
-              std::move(functiondef.returns)}});
+              std::move(functionDef.name), std::move(functionDef.docString),
+              std::move(functionDef.args), std::move(functionDef.body),
+              std::move(functionDef.decorator_list),
+              std::move(functionDef.returns)}});
         }
       };
       template <bool Implicit>
@@ -1060,15 +1079,18 @@ namespace chimera {
           : tao::pegtl::if_must<
                 Class<Implicit>, Name<Implicit>,
                 tao::pegtl::opt<ParenOpt<Implicit, false, false, ArgList>>,
-                Suite<Implicit, false, false, false, false>> {};
-      struct ClassDefAction
-          : Stack<asdl::StmtImpl, asdl::ExprImpl, asdl::Keyword, asdl::Name> {
+                SuiteWithDoc<Implicit, false, false, false, false>> {};
+      struct ClassDefAction : Stack<asdl::DocString, asdl::StmtImpl,
+                                    asdl::ExprImpl, asdl::Keyword, asdl::Name> {
         template <typename Outer>
         void success(Outer &&outer) {
           asdl::ClassDef classDef;
           classDef.body.reserve(size());
           while (top_is<asdl::StmtImpl>()) {
             classDef.body.push_back(pop<asdl::StmtImpl>());
+          }
+          if (top_is<asdl::DocString>()) {
+            classDef.docString = pop<asdl::DocString>();
           }
           classDef.keywords.reserve(size());
           classDef.bases.reserve(size());
@@ -1169,13 +1191,13 @@ namespace chimera {
         void success(Outer &&outer) {
           auto stmt = pop<asdl::StmtImpl>();
           if (std::holds_alternative<asdl::FunctionDef>(*stmt.value)) {
-            auto functiondef =
+            auto functionDef =
                 std::get<asdl::FunctionDef>(std::move(*stmt.value));
             outer.push(asdl::StmtImpl{asdl::AsyncFunctionDef{
-                std::move(functiondef.name), std::move(functiondef.args),
-                std::move(functiondef.body),
-                std::move(functiondef.decorator_list),
-                std::move(functiondef.returns)}});
+                std::move(functionDef.name), std::move(functionDef.docString),
+                std::move(functionDef.args), std::move(functionDef.body),
+                std::move(functionDef.decorator_list),
+                std::move(functionDef.returns)}});
           } else if (std::holds_alternative<asdl::With>(*stmt.value)) {
             auto with = std::get<asdl::With>(std::move(*stmt.value));
             outer.push(asdl::StmtImpl{
@@ -1214,6 +1236,20 @@ namespace chimera {
                                                  ScopeFlow, ImportAll>,
                                     SimpleStmt<Implicit, AsyncFlow, LoopFlow,
                                                ScopeFlow, ImportAll>> {};
+      template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
+                bool ImportAll>
+      struct SuiteWithDoc
+          : tao::pegtl::if_must<
+                Colon<Implicit>,
+                tao::pegtl::sor<
+                    DocString,
+                    SimpleStmt<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
+                               ImportAll>,
+                    tao::pegtl::if_must<
+                        INDENT, tao::pegtl::opt<DocString>,
+                        tao::pegtl::plus<Stmt<Implicit, AsyncFlow, LoopFlow,
+                                              ScopeFlow, ImportAll>>,
+                        DEDENT>>> {};
       template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
                 bool ImportAll>
       struct Suite

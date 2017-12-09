@@ -55,11 +55,17 @@ namespace chimera {
       struct Control<SingleInputImpl<>>
           : ChangeState<SingleInputImpl<>, SingleInputState> {};
       struct SingleInput : InputRule<SingleInputImpl<>> {};
-      struct FileInputState : Stack<asdl::StmtImpl> {
+      struct FileInputState : Stack<asdl::DocString, asdl::StmtImpl> {
         template <typename Top>
         void success(Top &&top) {
           top.body.resize(size());
-          transform(top.body.begin());
+          while (top_is<asdl::StmtImpl>()) {
+            top.body.push_back(pop<asdl::StmtImpl>());
+          }
+          std::reverse(top.body.begin(), top.body.end());
+          if (has_value()) {
+            top.docString = pop<asdl::DocString>();
+          }
         }
       };
       template <bool Implicit = false, bool AsyncFlow = false,
@@ -67,7 +73,7 @@ namespace chimera {
                 bool ImportAll = true>
       struct FileInputImpl
           : tao::pegtl::must<
-                tao::pegtl::opt<NEWLINE>,
+                tao::pegtl::opt<NEWLINE>, tao::pegtl::opt<DocString>,
                 tao::pegtl::until<tao::pegtl::eof,
                                   Stmt<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
                                        ImportAll>>> {};
