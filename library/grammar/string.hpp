@@ -444,7 +444,7 @@ namespace chimera {
                                      tao::pegtl::eof>,
                     Action, Control>(
                     in,
-                    library::grammar::Input<tao::pegtl::memory_input<>>(
+                    grammar::Input<tao::pegtl::memory_input<>>(
                         in.constants, top.string.c_str(), "<f_string>"),
                     top)) {
               return false;

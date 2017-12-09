@@ -53,8 +53,7 @@ namespace chimera {
             std::variant<Instance, Bytes, BytesMethod, False, Future, None,
                          NullFunction, Number, NumberMethod, ObjectMethod,
                          String, StringMethod, SysCall, True, Tuple,
-                         TupleMethod, library::asdl::StmtImpl,
-                         library::asdl::ExprImpl>;
+                         TupleMethod, asdl::StmtImpl, asdl::ExprImpl>;
         using Attributes = std::map<std::string, Object>;
 
         Object();
