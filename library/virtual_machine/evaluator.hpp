@@ -117,62 +117,62 @@ namespace chimera {
 
         void exit_scope();
 
-        void extend(const std::vector<library::asdl::StmtImpl> &instructions);
+        void extend(const std::vector<asdl::StmtImpl> &instructions);
 
-        void extend(const std::vector<library::asdl::ExprImpl> &instructions);
+        void extend(const std::vector<asdl::ExprImpl> &instructions);
 
         template <typename Instruction>
         void push(Instruction &&instruction) {
           scope.push(std::forward<Instruction>(instruction));
         }
 
-        void evaluate(const library::asdl::StmtImpl &stmt);
+        void evaluate(const asdl::StmtImpl &stmt);
 
-        void evaluate_del(const library::asdl::ExprImpl &expr);
+        void evaluate_del(const asdl::ExprImpl &expr);
 
-        void evaluate_get(const library::asdl::ExprImpl &expr);
+        void evaluate_get(const asdl::ExprImpl &expr);
 
-        void evaluate_set(const library::asdl::ExprImpl &expr);
+        void evaluate_set(const asdl::ExprImpl &expr);
 
         void get_attribute(const object::Object &object,
                            const std::string &name);
 
         void evaluate();
 
-        void evaluate(const library::asdl::Module &module);
+        void evaluate(const asdl::Module &module);
 
-        void evaluate(const library::asdl::Interactive &interactive);
+        void evaluate(const asdl::Interactive &interactive);
 
-        void evaluate(const library::asdl::Expression &expression);
+        void evaluate(const asdl::Expression &expression);
 
-        void evaluate(const library::asdl::FunctionDef &functionDef);
-        void evaluate(const library::asdl::AsyncFunctionDef &asyncFunctionDef);
-        void evaluate(const library::asdl::ClassDef &classDef);
-        void evaluate(const library::asdl::Delete &asdlDelete);
-        void evaluate(const library::asdl::Assign &assign);
-        void evaluate(const library::asdl::AugAssign &augAssign);
-        void evaluate(const library::asdl::AnnAssign &annAssign);
-        void evaluate(const library::asdl::For &asdlFor);
-        void evaluate(const library::asdl::AsyncFor &asyncFor);
-        void evaluate(const library::asdl::While &asdlWhile);
-        void evaluate(const library::asdl::If &asdlIf);
-        void evaluate(const library::asdl::With &with);
-        void evaluate(const library::asdl::AsyncWith &asyncWith);
-        void evaluate(const library::asdl::Import &import);
-        void evaluate(const library::asdl::ImportFrom &importFrom);
-        void evaluate(const library::asdl::Global &global);
-        void evaluate(const library::asdl::Nonlocal &nonlocal);
-        void evaluate(const library::asdl::Expr &expr);
-        void evaluate(const library::asdl::Raise &raise);
-        void evaluate(const library::asdl::Try &asdlTry);
-        void evaluate(const library::asdl::Assert &assert);
-        void evaluate(const library::asdl::Return &asdlReturn);
-        void evaluate(const library::asdl::Break &asdlBreak);
-        void evaluate(const library::asdl::Continue &asdlContinue);
+        void evaluate(const asdl::FunctionDef &functionDef);
+        void evaluate(const asdl::AsyncFunctionDef &asyncFunctionDef);
+        void evaluate(const asdl::ClassDef &classDef);
+        void evaluate(const asdl::Delete &asdlDelete);
+        void evaluate(const asdl::Assign &assign);
+        void evaluate(const asdl::AugAssign &augAssign);
+        void evaluate(const asdl::AnnAssign &annAssign);
+        void evaluate(const asdl::For &asdlFor);
+        void evaluate(const asdl::AsyncFor &asyncFor);
+        void evaluate(const asdl::While &asdlWhile);
+        void evaluate(const asdl::If &asdlIf);
+        void evaluate(const asdl::With &with);
+        void evaluate(const asdl::AsyncWith &asyncWith);
+        void evaluate(const asdl::Import &import);
+        void evaluate(const asdl::ImportFrom &importFrom);
+        void evaluate(const asdl::Global &global);
+        void evaluate(const asdl::Nonlocal &nonlocal);
+        void evaluate(const asdl::Expr &expr);
+        void evaluate(const asdl::Raise &raise);
+        void evaluate(const asdl::Try &asdlTry);
+        void evaluate(const asdl::Assert &assert);
+        void evaluate(const asdl::Return &asdlReturn);
+        void evaluate(const asdl::Break &asdlBreak);
+        void evaluate(const asdl::Continue &asdlContinue);
 
       private:
         std::optional<object::BaseException>
-        do_try(const std::vector<library::asdl::StmtImpl> &body,
+        do_try(const std::vector<asdl::StmtImpl> &body,
                const std::optional<object::BaseException> &context);
 
         void get_attribute(const object::Object &object,

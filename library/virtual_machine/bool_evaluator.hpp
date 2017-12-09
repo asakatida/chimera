@@ -33,7 +33,7 @@ namespace chimera {
       struct Evaluator;
 
       struct BoolAndEvaluator {
-        using Iterator = std::vector<library::asdl::ExprImpl>::const_iterator;
+        using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
         Iterator begin;
         Iterator end;
 
@@ -41,7 +41,7 @@ namespace chimera {
       };
 
       struct BoolOrEvaluator {
-        using Iterator = std::vector<library::asdl::ExprImpl>::const_iterator;
+        using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
         Iterator begin;
         Iterator end;
 

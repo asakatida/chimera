@@ -27,14 +27,13 @@
 namespace chimera {
   namespace library {
     namespace virtual_machine {
-      void SliceEvaluator::operator()(const library::asdl::Slice & /*slice*/) {
+      void SliceEvaluator::operator()(const asdl::Slice & /*slice*/) {
         evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
       }
-      void SliceEvaluator::
-      operator()(const library::asdl::ExtSlice & /*ext_slice*/) {
+      void SliceEvaluator::operator()(const asdl::ExtSlice & /*ext_slice*/) {
         evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
       }
-      void SliceEvaluator::operator()(const library::asdl::Index & /*index*/) {
+      void SliceEvaluator::operator()(const asdl::Index & /*index*/) {
         evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
       }
     } // namespace virtual_machine

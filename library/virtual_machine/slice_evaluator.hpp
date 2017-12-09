@@ -34,9 +34,9 @@ namespace chimera {
       struct SliceEvaluator {
         Evaluator *evaluator;
 
-        void operator()(const library::asdl::Slice &slice);
-        void operator()(const library::asdl::ExtSlice &extSlice);
-        void operator()(const library::asdl::Index &index);
+        void operator()(const asdl::Slice &slice);
+        void operator()(const asdl::ExtSlice &extSlice);
+        void operator()(const asdl::Index &index);
       };
     } // namespace virtual_machine
   }   // namespace library

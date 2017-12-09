@@ -27,23 +27,21 @@
 namespace chimera {
   namespace library {
     namespace virtual_machine {
-      void ThreadContext::evaluate(const library::asdl::Module &module) {
+      void ThreadContext::evaluate(const asdl::Module &module) {
         if (module.body.empty()) {
           return;
         }
         return Evaluator{*this}.evaluate(module);
       }
 
-      void
-      ThreadContext::evaluate(const library::asdl::Interactive &interactive) {
+      void ThreadContext::evaluate(const asdl::Interactive &interactive) {
         if (interactive.body.empty()) {
           return;
         }
         return Evaluator{*this}.evaluate(interactive);
       }
 
-      void
-      ThreadContext::evaluate(const library::asdl::Expression &expression) {
+      void ThreadContext::evaluate(const asdl::Expression &expression) {
         return Evaluator{*this}.evaluate(expression);
       }
     } // namespace virtual_machine

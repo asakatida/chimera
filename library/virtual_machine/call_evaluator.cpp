@@ -119,15 +119,13 @@ namespace chimera {
           Expects(false);
         }
 
-        [[noreturn]] void
-        evaluate(Evaluator * /*evaluator*/,
-                 const library::asdl::StmtImpl & /*stmtImpl*/) const {
+        [[noreturn]] void evaluate(Evaluator * /*evaluator*/,
+                                   const asdl::StmtImpl & /*stmtImpl*/) const {
           Expects(false);
         }
 
-        [[noreturn]] void
-        evaluate(Evaluator * /*evaluator*/,
-                 const library::asdl::ExprImpl & /*exprImpl*/) const {
+        [[noreturn]] void evaluate(Evaluator * /*evaluator*/,
+                                   const asdl::ExprImpl & /*exprImpl*/) const {
           Expects(false);
         }
 

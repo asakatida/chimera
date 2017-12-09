@@ -81,38 +81,36 @@ namespace chimera {
 
       void Evaluator::exit_scope() { scope.exit_scope(); }
 
-      void Evaluator::extend(
-          const std::vector<library::asdl::StmtImpl> &instructions) {
+      void Evaluator::extend(const std::vector<asdl::StmtImpl> &instructions) {
         for (const auto &instruction : container::reverse(instructions)) {
           evaluate(instruction);
         }
       }
 
-      void Evaluator::extend(
-          const std::vector<library::asdl::ExprImpl> &instructions) {
+      void Evaluator::extend(const std::vector<asdl::ExprImpl> &instructions) {
         for (const auto &instruction : container::reverse(instructions)) {
           evaluate_get(instruction);
         }
       }
 
-      void Evaluator::evaluate(const library::asdl::StmtImpl &stmt) {
+      void Evaluator::evaluate(const asdl::StmtImpl &stmt) {
         std::visit([this](const auto &value) { this->evaluate(value); },
                    *stmt.value);
       }
 
-      void Evaluator::evaluate_del(const library::asdl::ExprImpl &expr) {
+      void Evaluator::evaluate_del(const asdl::ExprImpl &expr) {
         std::visit(
             [this](const auto &value) { DelEvaluator{this}.evaluate(value); },
             *expr.value);
       }
 
-      void Evaluator::evaluate_get(const library::asdl::ExprImpl &expr) {
+      void Evaluator::evaluate_get(const asdl::ExprImpl &expr) {
         std::visit(
             [this](const auto &value) { GetEvaluator{this}.evaluate(value); },
             *expr.value);
       }
 
-      void Evaluator::evaluate_set(const library::asdl::ExprImpl &expr) {
+      void Evaluator::evaluate_set(const asdl::ExprImpl &expr) {
         std::visit(
             [this](const auto &value) { SetEvaluator{this}.evaluate(value); },
             *expr.value);
@@ -147,46 +145,89 @@ namespace chimera {
         }
       }
 
-      void Evaluator::evaluate(const library::asdl::Module &module) {
+      void Evaluator::evaluate(const asdl::Module &module) {
         enter_scope(thread_context.main);
         extend(module.body);
         return evaluate();
       }
 
-      void Evaluator::evaluate(const library::asdl::Interactive &interactive) {
+      void Evaluator::evaluate(const asdl::Interactive &interactive) {
         enter_scope(thread_context.main);
         extend(interactive.body);
         return evaluate();
       }
 
-      void Evaluator::evaluate(const library::asdl::Expression &expression) {
+      void Evaluator::evaluate(const asdl::Expression &expression) {
         enter_scope(thread_context.main);
         evaluate_get(expression.body);
         return evaluate();
       }
 
-      void
-      Evaluator::evaluate(const library::asdl::FunctionDef & /*function_def*/) {
+      void Evaluator::evaluate(const asdl::FunctionDef &functionDef) {
+        for (const auto &expr :
+             container::reverse(functionDef.decorator_list)) {
+          push([](Evaluator *evaluator) {
+            auto decorator = std::move(evaluator->stack.top());
+            evaluator->stack.pop();
+            evaluator->push(
+                CallEvaluator{decorator, {evaluator->stack.top()}, {}});
+          });
+          evaluate_get(expr);
+        }
+        if (functionDef.returns) {
+        }
+        for (const auto &arg : container::reverse(functionDef.args.args)) {
+          // arg.name;
+          if (arg.annotation) {
+          }
+          if (arg.arg_default) {
+          }
+        }
+        if (functionDef.args.vararg) {
+        }
+        for (const auto &kwarg :
+             container::reverse(functionDef.args.kwonlyargs)) {
+          // kwarg.name;
+          if (kwarg.annotation) {
+          }
+          if (kwarg.arg_default) {
+          }
+        }
+        if (functionDef.args.kwarg) {
+        }
+        push(PushStack{object::Object(
+            {}, {{"__doc__",
+                  thread_context
+                      .constants[functionDef.doc_string.constant.constant]},
+                 {"__name__",
+                  object::Object(object::String(functionDef.name.value), {})},
+                 {"__qualname__",
+                  object::Object(object::String(functionDef.name.value), {})},
+                 {"__module__", thread_context.main.get_attribute("__name__")},
+                 {"__defaults__", builtins().get_attribute("None")},
+                 {"__code__", object::Object({}, {})},
+                 {"__globals__", thread_context.main},
+                 {"__closure__", self()},
+                 {"__annotations__", {}},
+                 {"__kwdefaults__", {}}})});
       }
       void Evaluator::evaluate(
-          const library::asdl::AsyncFunctionDef & /*async_function_def*/) {}
-      void Evaluator::evaluate(const library::asdl::ClassDef & /*class_def*/) {}
-      void Evaluator::evaluate(const library::asdl::Delete &asdlDelete) {
+          const asdl::AsyncFunctionDef & /*async_function_def*/) {}
+      void Evaluator::evaluate(const asdl::ClassDef & /*class_def*/) {}
+      void Evaluator::evaluate(const asdl::Delete &asdlDelete) {
         for (const auto &target : container::reverse(asdlDelete.targets)) {
           evaluate_del(target);
         }
       }
-      void Evaluator::evaluate(const library::asdl::Assign &assign) {
+      void Evaluator::evaluate(const asdl::Assign &assign) {
         for (const auto &expr : container::reverse(assign.targets)) {
           evaluate_set(expr);
         }
         evaluate_get(assign.value);
       }
-      void
-      Evaluator::evaluate(const library::asdl::AugAssign & /*aug_assign*/) {}
-      void
-      Evaluator::evaluate(const library::asdl::AnnAssign & /*ann_assign*/) {}
-      void Evaluator::evaluate(const library::asdl::For &asdlFor) {
+      void Evaluator::evaluate(const asdl::AugAssign & /*aug_assign*/) {}
+      void Evaluator::evaluate(const asdl::AnnAssign & /*ann_assign*/) {}
+      void Evaluator::evaluate(const asdl::For &asdlFor) {
         push([&asdlFor](Evaluator *evaluatorA) {
           try {
             Evaluator evaluatorB{evaluatorA->thread_context};
@@ -226,8 +267,8 @@ namespace chimera {
         evaluate_get(asdlFor.iter);
         push([](Evaluator *evaluatorA) { evaluatorA->enter(); });
       }
-      void Evaluator::evaluate(const library::asdl::AsyncFor & /*async_for*/) {}
-      void Evaluator::evaluate(const library::asdl::While &asdlWhile) {
+      void Evaluator::evaluate(const asdl::AsyncFor & /*async_for*/) {}
+      void Evaluator::evaluate(const asdl::While &asdlWhile) {
         push([&asdlWhile](Evaluator *evaluatorA) {
           if (evaluatorA->stack.top().get_bool()) {
             evaluatorA->enter();
@@ -249,7 +290,7 @@ namespace chimera {
         evaluate_get(asdlWhile.test);
         push([](Evaluator *evaluatorA) { evaluatorA->enter(); });
       }
-      void Evaluator::evaluate(const library::asdl::If &asdlIf) {
+      void Evaluator::evaluate(const asdl::If &asdlIf) {
         push([&asdlIf](Evaluator *evaluator) {
           if (evaluator->stack.top().get_bool()) {
             evaluator->extend(asdlIf.body);
@@ -264,7 +305,7 @@ namespace chimera {
         });
         evaluate_get(asdlIf.test);
       }
-      void Evaluator::evaluate(const library::asdl::With &with) {
+      void Evaluator::evaluate(const asdl::With &with) {
         push([&with](Evaluator *evaluator) {
           if (auto exception = evaluator->do_try(with.body, {}); exception) {
           } else {
@@ -274,9 +315,8 @@ namespace chimera {
           evaluate_get(withItem.context_expr);
         }
       }
-      void
-      Evaluator::evaluate(const library::asdl::AsyncWith & /*async_with*/) {}
-      void Evaluator::evaluate(const library::asdl::Import &import) {
+      void Evaluator::evaluate(const asdl::AsyncWith & /*async_with*/) {}
+      void Evaluator::evaluate(const asdl::Import &import) {
         for (const auto &alias : container::reverse(import.names)) {
           if (alias.asname) {
             push([&alias](Evaluator *evaluator) {
@@ -298,7 +338,7 @@ namespace chimera {
           });
         }
       }
-      void Evaluator::evaluate(const library::asdl::ImportFrom &importFrom) {
+      void Evaluator::evaluate(const asdl::ImportFrom &importFrom) {
         push([](Evaluator *evaluator) { evaluator->stack.pop(); });
         for (const auto &alias : container::reverse(importFrom.names)) {
           if (alias.asname) {
@@ -321,13 +361,13 @@ namespace chimera {
                   "module_name", importFrom.module.value)});
         });
       }
-      void Evaluator::evaluate(const library::asdl::Global & /*global*/) {}
-      void Evaluator::evaluate(const library::asdl::Nonlocal & /*nonlocal*/) {}
-      void Evaluator::evaluate(const library::asdl::Expr &expr) {
+      void Evaluator::evaluate(const asdl::Global & /*global*/) {}
+      void Evaluator::evaluate(const asdl::Nonlocal & /*nonlocal*/) {}
+      void Evaluator::evaluate(const asdl::Expr &expr) {
         push([](Evaluator *evaluator) { evaluator->stack.pop(); });
         evaluate_get(expr.value);
       }
-      void Evaluator::evaluate(const library::asdl::Raise &raise) {
+      void Evaluator::evaluate(const asdl::Raise &raise) {
         if (raise.exc) {
           push([](Evaluator *evaluator) {
             throw object::BaseException{evaluator->stack.top()};
@@ -342,7 +382,7 @@ namespace chimera {
           evaluate_get(*raise.exc);
         }
       }
-      void Evaluator::evaluate(const library::asdl::Try &asdlTry) {
+      void Evaluator::evaluate(const asdl::Try &asdlTry) {
         push([](Evaluator *evaluator) {
           if (evaluator->thread_context.ret) {
             evaluator->exit_scope();
@@ -371,7 +411,7 @@ namespace chimera {
         }
         extend(asdlTry.finalbody);
       }
-      void Evaluator::evaluate(const library::asdl::Assert &assert) {
+      void Evaluator::evaluate(const asdl::Assert &assert) {
         if (builtins().get_attribute("__debug__").get_bool()) {
           push([&assert](Evaluator *evaluatorA) {
             if (!evaluatorA->stack.top().get_bool()) {
@@ -391,7 +431,7 @@ namespace chimera {
           evaluate_get(assert.test);
         }
       }
-      void Evaluator::evaluate(const library::asdl::Return &asdlReturn) {
+      void Evaluator::evaluate(const asdl::Return &asdlReturn) {
         if (asdlReturn.value) {
           push([](Evaluator *evaluator) {
             evaluator->thread_context.ret = std::move(evaluator->stack.top());
@@ -403,18 +443,18 @@ namespace chimera {
           exit_scope();
         }
       }
-      void Evaluator::evaluate(const library::asdl::Break & /*break*/) {
+      void Evaluator::evaluate(const asdl::Break & /*break*/) {
         push([](Evaluator *evaluator) {
           evaluator->exit();
           evaluator->exit();
         });
       }
-      void Evaluator::evaluate(const library::asdl::Continue & /*continue*/) {
+      void Evaluator::evaluate(const asdl::Continue & /*continue*/) {
         push([](Evaluator *evaluator) { evaluator->exit(); });
       }
 
       std::optional<object::BaseException>
-      Evaluator::do_try(const std::vector<library::asdl::StmtImpl> &body,
+      Evaluator::do_try(const std::vector<asdl::StmtImpl> &body,
                         const std::optional<object::BaseException> &context) {
         if (body.empty()) {
           return context;
@@ -473,8 +513,8 @@ namespace chimera {
         }
         push(CallEvaluator{
             getAttribute,
-            {object::Object{object::String(name),
-                            {{"__class__", builtins().get_attribute("str")}}}},
+            {object::Object(object::String(name),
+                            {{"__class__", builtins().get_attribute("str")}})},
             {}});
       }
 
@@ -483,9 +523,9 @@ namespace chimera {
         push([name](Evaluator *evaluator) {
           evaluator->push(CallEvaluator{
               evaluator->stack.top(),
-              {object::Object{
+              {object::Object(
                   object::String(name),
-                  {{"__class__", evaluator->builtins().get_attribute("str")}}}},
+                  {{"__class__", evaluator->builtins().get_attribute("str")}})},
               {}});
           evaluator->stack.pop();
         });
@@ -498,10 +538,9 @@ namespace chimera {
             return push(PushStack{type.get_attribute("__getattr__")});
           }
         }
-        throw object::BaseException{object::Object{
-            {},
-            {{"__class__", builtins().get_attribute("AttributeError")},
-             {"__class__", builtins().get_attribute("AttributeError")}}}};
+        throw object::BaseException{object::Object(
+            {}, {{"__class__", builtins().get_attribute("AttributeError")},
+                 {"__class__", builtins().get_attribute("AttributeError")}})};
       }
     } // namespace virtual_machine
   }   // namespace library

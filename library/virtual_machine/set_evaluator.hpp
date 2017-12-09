@@ -33,36 +33,33 @@ namespace chimera {
       struct SetEvaluator {
         Evaluator *evaluator;
 
-        [[noreturn]] void evaluate(const library::asdl::Bool &asdlBool);
-        [[noreturn]] void evaluate(const library::asdl::Bin &bin);
-        [[noreturn]] void evaluate(const library::asdl::Unary &unary);
-        [[noreturn]] void evaluate(const library::asdl::Lambda &lambda);
-        [[noreturn]] void evaluate(const library::asdl::IfExp &ifExp);
-        [[noreturn]] void evaluate(const library::asdl::ListComp &listComp);
-        [[noreturn]] void evaluate(const library::asdl::SetComp &setComp);
-        [[noreturn]] void evaluate(const library::asdl::DictComp &dictComp);
-        [[noreturn]] void
-        evaluate(const library::asdl::GeneratorExp &generatorExp);
-        [[noreturn]] void evaluate(const library::asdl::Await &await);
-        [[noreturn]] void evaluate(const library::asdl::Yield &yield);
-        [[noreturn]] void evaluate(const library::asdl::YieldFrom &yieldFrom);
-        [[noreturn]] void evaluate(const library::asdl::Compare &compare);
-        [[noreturn]] void evaluate(const library::asdl::Call &call);
-        void evaluate(const library::asdl::Attribute &attribute);
-        void evaluate(const library::asdl::Subscript &subscript);
-        [[noreturn]] void evaluate(const library::asdl::Starred &starred);
-        [[noreturn]] void
-        evaluate(const library::asdl::NameConstant &nameConstant);
-        [[noreturn]] void evaluate(const library::asdl::Ellipsis &ellipsis);
-        [[noreturn]] void
-        evaluate(const library::asdl::FormattedValue &formattedValue);
-        [[noreturn]] void evaluate(const library::asdl::JoinedStr &joinedStr);
-        void evaluate(const library::asdl::Name &name);
-        [[noreturn]] void evaluate(const library::asdl::Dict &dict);
-        [[noreturn]] void evaluate(const library::asdl::Set &set);
-        void evaluate(const library::asdl::List &list);
-        void evaluate(const library::asdl::Tuple &tuple);
-        [[noreturn]] void evaluate(const library::asdl::Constant &constant);
+        [[noreturn]] void evaluate(const asdl::Bool &asdlBool);
+        [[noreturn]] void evaluate(const asdl::Bin &bin);
+        [[noreturn]] void evaluate(const asdl::Unary &unary);
+        [[noreturn]] void evaluate(const asdl::Lambda &lambda);
+        [[noreturn]] void evaluate(const asdl::IfExp &ifExp);
+        [[noreturn]] void evaluate(const asdl::ListComp &listComp);
+        [[noreturn]] void evaluate(const asdl::SetComp &setComp);
+        [[noreturn]] void evaluate(const asdl::DictComp &dictComp);
+        [[noreturn]] void evaluate(const asdl::GeneratorExp &generatorExp);
+        [[noreturn]] void evaluate(const asdl::Await &await);
+        [[noreturn]] void evaluate(const asdl::Yield &yield);
+        [[noreturn]] void evaluate(const asdl::YieldFrom &yieldFrom);
+        [[noreturn]] void evaluate(const asdl::Compare &compare);
+        [[noreturn]] void evaluate(const asdl::Call &call);
+        void evaluate(const asdl::Attribute &attribute);
+        void evaluate(const asdl::Subscript &subscript);
+        [[noreturn]] void evaluate(const asdl::Starred &starred);
+        [[noreturn]] void evaluate(const asdl::NameConstant &nameConstant);
+        [[noreturn]] void evaluate(const asdl::Ellipsis &ellipsis);
+        [[noreturn]] void evaluate(const asdl::FormattedValue &formattedValue);
+        [[noreturn]] void evaluate(const asdl::JoinedStr &joinedStr);
+        void evaluate(const asdl::Name &name);
+        [[noreturn]] void evaluate(const asdl::Dict &dict);
+        [[noreturn]] void evaluate(const asdl::Set &set);
+        void evaluate(const asdl::List &list);
+        void evaluate(const asdl::Tuple &tuple);
+        [[noreturn]] void evaluate(const asdl::Constant &constant);
       };
     } // namespace virtual_machine
   }   // namespace library

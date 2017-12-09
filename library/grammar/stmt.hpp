@@ -216,7 +216,7 @@ namespace chimera {
           }
           std::reverse(functionDef.body.begin(), functionDef.body.end());
           if (top_is<asdl::DocString>()) {
-            functionDef.docString = pop<asdl::DocString>();
+            functionDef.doc_string = pop<asdl::DocString>();
           }
           if (top_is<asdl::ExprImpl>()) {
             functionDef.returns = pop<asdl::ExprImpl>();
@@ -240,7 +240,7 @@ namespace chimera {
           auto functionDef = std::get<asdl::FunctionDef>(
               std::move(*pop<asdl::StmtImpl>().value));
           outer.push(asdl::StmtImpl{asdl::AsyncFunctionDef{
-              std::move(functionDef.name), std::move(functionDef.docString),
+              std::move(functionDef.name), std::move(functionDef.doc_string),
               std::move(functionDef.args), std::move(functionDef.body),
               std::move(functionDef.decorator_list),
               std::move(functionDef.returns)}});
@@ -1090,7 +1090,7 @@ namespace chimera {
             classDef.body.push_back(pop<asdl::StmtImpl>());
           }
           if (top_is<asdl::DocString>()) {
-            classDef.docString = pop<asdl::DocString>();
+            classDef.doc_string = pop<asdl::DocString>();
           }
           classDef.keywords.reserve(size());
           classDef.bases.reserve(size());
@@ -1194,7 +1194,7 @@ namespace chimera {
             auto functionDef =
                 std::get<asdl::FunctionDef>(std::move(*stmt.value));
             outer.push(asdl::StmtImpl{asdl::AsyncFunctionDef{
-                std::move(functionDef.name), std::move(functionDef.docString),
+                std::move(functionDef.name), std::move(functionDef.doc_string),
                 std::move(functionDef.args), std::move(functionDef.body),
                 std::move(functionDef.decorator_list),
                 std::move(functionDef.returns)}});
