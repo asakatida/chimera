@@ -34,9 +34,9 @@ namespace chimera {
           tuple[tuple.size() - 1 - i] = evaluator->stack.top();
           evaluator->stack.pop();
         }
-        evaluator->push(PushStack{object::Object{
+        evaluator->push(PushStack{object::Object(
             tuple,
-            {{"__class__", evaluator->builtins().get_attribute("tuple")}}}});
+            {{"__class__", evaluator->builtins().get_attribute("tuple")}})});
       }
     } // namespace virtual_machine
   }   // namespace library

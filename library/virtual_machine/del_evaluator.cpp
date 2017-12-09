@@ -30,120 +30,113 @@
 namespace chimera {
   namespace library {
     namespace virtual_machine {
-      void DelEvaluator::evaluate(const library::asdl::Bool & /*asdlBool*/) {
+      void DelEvaluator::evaluate(const asdl::Bool & /*asdlBool*/) {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
       }
-      void DelEvaluator::evaluate(const library::asdl::Bin & /*bin*/) {
+      void DelEvaluator::evaluate(const asdl::Bin & /*bin*/) {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
       }
-      void DelEvaluator::evaluate(const library::asdl::Unary & /*unary*/) {
+      void DelEvaluator::evaluate(const asdl::Unary & /*unary*/) {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
       }
-      void DelEvaluator::evaluate(const library::asdl::Lambda & /*lambda*/) {
+      void DelEvaluator::evaluate(const asdl::Lambda & /*lambda*/) {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
       }
-      void DelEvaluator::evaluate(const library::asdl::IfExp & /*ifExp*/) {
+      void DelEvaluator::evaluate(const asdl::IfExp & /*ifExp*/) {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
       }
-      void
-      DelEvaluator::evaluate(const library::asdl::ListComp & /*list_comp*/) {
+      void DelEvaluator::evaluate(const asdl::ListComp & /*list_comp*/) {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
       }
-      void DelEvaluator::evaluate(const library::asdl::SetComp & /*set_comp*/) {
+      void DelEvaluator::evaluate(const asdl::SetComp & /*set_comp*/) {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
       }
-      void
-      DelEvaluator::evaluate(const library::asdl::DictComp & /*dict_comp*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void DelEvaluator::evaluate(
-          const library::asdl::GeneratorExp & /*generator_exp*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void DelEvaluator::evaluate(const library::asdl::Await & /*await*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void DelEvaluator::evaluate(const library::asdl::Yield & /*yield*/) {
+      void DelEvaluator::evaluate(const asdl::DictComp & /*dict_comp*/) {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
       }
       void
-      DelEvaluator::evaluate(const library::asdl::YieldFrom & /*yield_from*/) {
+      DelEvaluator::evaluate(const asdl::GeneratorExp & /*generator_exp*/) {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
       }
-      void DelEvaluator::evaluate(const library::asdl::Compare & /*compare*/) {
+      void DelEvaluator::evaluate(const asdl::Await & /*await*/) {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
       }
-      void DelEvaluator::evaluate(const library::asdl::Call & /*call*/) {
+      void DelEvaluator::evaluate(const asdl::Yield & /*yield*/) {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
       }
-      void DelEvaluator::evaluate(const library::asdl::Attribute &attribute) {
+      void DelEvaluator::evaluate(const asdl::YieldFrom & /*yield_from*/) {
+        throw object::BaseException{
+            evaluator->builtins().get_attribute("RuntimeError")};
+      }
+      void DelEvaluator::evaluate(const asdl::Compare & /*compare*/) {
+        throw object::BaseException{
+            evaluator->builtins().get_attribute("RuntimeError")};
+      }
+      void DelEvaluator::evaluate(const asdl::Call & /*call*/) {
+        throw object::BaseException{
+            evaluator->builtins().get_attribute("RuntimeError")};
+      }
+      void DelEvaluator::evaluate(const asdl::Attribute &attribute) {
         evaluator->push([&attribute](Evaluator *evaluatorA) {
           evaluatorA->stack.top().delete_attribute(attribute.attr.value);
           evaluatorA->stack.pop();
         });
         evaluator->evaluate_get(attribute.value);
       }
-      void DelEvaluator::evaluate(const library::asdl::Subscript &subscript) {
+      void DelEvaluator::evaluate(const asdl::Subscript &subscript) {
         evaluator->evaluate_get(subscript.value);
       }
-      void DelEvaluator::evaluate(const library::asdl::Starred &starred) {
+      void DelEvaluator::evaluate(const asdl::Starred &starred) {
         evaluator->evaluate_get(starred.value);
       }
-      void DelEvaluator::evaluate(
-          const library::asdl::NameConstant & /*nameConstant*/) {
+      void DelEvaluator::evaluate(const asdl::NameConstant & /*nameConstant*/) {
+        throw object::BaseException{
+            evaluator->builtins().get_attribute("RuntimeError")};
+      }
+      void DelEvaluator::evaluate(const asdl::Ellipsis & /*ellipsis*/) {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
       }
       void
-      DelEvaluator::evaluate(const library::asdl::Ellipsis & /*ellipsis*/) {
+      DelEvaluator::evaluate(const asdl::FormattedValue & /*formatted_value*/) {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
       }
-      void DelEvaluator::evaluate(
-          const library::asdl::FormattedValue & /*formatted_value*/) {
+      void DelEvaluator::evaluate(const asdl::JoinedStr & /*joined_str*/) {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
       }
-      void
-      DelEvaluator::evaluate(const library::asdl::JoinedStr & /*joined_str*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void DelEvaluator::evaluate(const library::asdl::Name &name) {
+      void DelEvaluator::evaluate(const asdl::Name &name) {
         evaluator->get_attribute(evaluator->self(), name.value);
       }
-      void DelEvaluator::evaluate(const library::asdl::Dict & /*dict*/) {
+      void DelEvaluator::evaluate(const asdl::Dict & /*dict*/) {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
       }
-      void DelEvaluator::evaluate(const library::asdl::Set & /*set*/) {
+      void DelEvaluator::evaluate(const asdl::Set & /*set*/) {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
       }
-      void DelEvaluator::evaluate(const library::asdl::List & /*list*/) {
+      void DelEvaluator::evaluate(const asdl::List & /*list*/) {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
       }
-      void DelEvaluator::evaluate(const library::asdl::Tuple & /*tuple*/) {
+      void DelEvaluator::evaluate(const asdl::Tuple & /*tuple*/) {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
       }
-      void
-      DelEvaluator::evaluate(const library::asdl::Constant & /*constant*/) {
+      void DelEvaluator::evaluate(const asdl::Constant & /*constant*/) {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
       }

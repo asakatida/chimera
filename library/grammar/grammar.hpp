@@ -64,7 +64,7 @@ namespace chimera {
           }
           std::reverse(top.body.begin(), top.body.end());
           if (has_value()) {
-            top.docString = pop<asdl::DocString>();
+            top.doc_string = pop<asdl::DocString>();
           }
         }
       };

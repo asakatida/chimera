@@ -56,8 +56,8 @@ namespace chimera {
         module.set_attribute("__builtins__", result.first->second);
         module.set_attribute(
             "__name__",
-            object::Object{object::String{name},
-                           {{"__class__", module.get_attribute("str")}}});
+            object::Object(object::String{name},
+                           {{"__class__", module.get_attribute("str")}}));
         return module;
       }
 
