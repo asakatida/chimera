@@ -38,14 +38,13 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   chimera::library::virtual_machine::ProcessContext processContext{
       globalContext};
   chimera::library::asdl::Module module;
-  std::vector<chimera::library::object::Object> constants;
   bool success = true;
   std::istringstream in(
       std::string{reinterpret_cast<const char *>(data), size});
   try {
     Ensures(tao::pegtl::parse<chimera::library::grammar::FileInput>(
         chimera::library::grammar::Input<tao::pegtl::istream_input<>>(
-            constants, in, size, "<fuzz>"),
+            processContext, in, size, "<fuzz>"),
         module));
   } catch (const tao::pegtl::parse_error &) {
     success = false;
@@ -54,8 +53,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     return 0;
   }
   chimera::library::virtual_machine::ThreadContext threadContext{
-      processContext, std::move(constants),
-      processContext.make_module("__main__")};
+      processContext, processContext.make_module("__main__")};
   try {
     threadContext.evaluate(module);
   } catch (const std::exception &) {

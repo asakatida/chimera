@@ -21,6 +21,8 @@ namespace chimera {
       using number::number;
       struct Object;
 
+      using Id = std::uint64_t;
+
       struct Instance {};
       using Bytes = std::vector<std::uint8_t>;
       enum class BytesMethod {};
@@ -88,7 +90,7 @@ namespace chimera {
           object->attributes.insert_or_assign(key, std::forward<Value>(value));
         }
 
-        std::uint64_t id() const noexcept;
+        Id id() const noexcept;
 
         const Value &value() const noexcept;
 

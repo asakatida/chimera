@@ -35,27 +35,27 @@
 namespace chimera {
   namespace library {
     namespace virtual_machine {
-      struct ImportModule {
-        asdl::Module module{};
-        std::vector<object::Object> constants{};
-      };
-
       struct ProcessContext {
-        std::optional<ImportModule> import_module(std::string &&module);
+        std::optional<asdl::Module> import_module(std::string &&module);
 
         object::Object &import_object(std::string_view &&name,
                                       std::string_view &&relativeModule);
 
         object::Object make_module(std::string_view &&name);
 
+        object::Id insert_constant(object::Bytes &&bytes);
+        object::Id insert_constant(object::Number &&string);
+        object::Id insert_constant(object::String &&string);
+
         const GlobalContext &global_context;
         GarbageCollector garbage_collector{};
+        std::map<object::Id, object::Object> constants{};
         std::map<std::string, object::Object> modules{};
 
       private:
         object::Object &import_object(std::string_view &&module);
 
-        std::optional<ImportModule> import_module(const std::string_view &path,
+        std::optional<asdl::Module> import_module(const std::string_view &path,
                                                   const std::string &module);
       };
     } // namespace virtual_machine

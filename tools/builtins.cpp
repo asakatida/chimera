@@ -117,7 +117,7 @@ namespace chimera {
         }
       }
       void operator()(const object::String &string) {
-        std::cout << "object::String{" << std::quoted(string) << "}";
+        std::cout << "object::String(" << std::quoted(string) << ")";
       }
       [[noreturn]] void operator()(const object::StringMethod &stringMethod) {
         std::cout << "object::StringMethod::";
@@ -272,13 +272,12 @@ namespace chimera {
           &SIG_INT};
       virtual_machine::ProcessContext processContext{globalContext};
       asdl::Module module;
-      std::vector<chimera::library::object::Object> constants;
       chimera::parse<chimera::library::grammar::FileInput>(
           globalContext.options,
           chimera::library::grammar::Input<tao::pegtl::istream_input<>>(
-              constants, std::cin, chimera::BUFFER_SIZE, "<input>"),
+              processContext, std::cin, chimera::BUFFER_SIZE, "<input>"),
           module);
-      virtual_machine::ThreadContext{processContext, std::move(constants),
+      virtual_machine::ThreadContext{processContext,
                                      processContext.make_module("builtins")}
           .evaluate(module);
       std::cout

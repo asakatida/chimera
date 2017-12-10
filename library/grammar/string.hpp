@@ -49,7 +49,7 @@ namespace chimera {
         struct Control : ControlBase<Rule> {};
         struct BytesHolder {
           object::Bytes bytes;
-          std::size_t object_ref = 0;
+          object::Id object_ref = 0;
           template <typename Stack>
           void success(Stack &&stack) {
             stack.push(asdl::ExprImpl{asdl::Constant{object_ref}});
@@ -63,7 +63,7 @@ namespace chimera {
         };
         struct StringHolder {
           std::string string;
-          std::size_t object_ref = 0;
+          object::Id object_ref = 0;
           template <typename Stack>
           void success(Stack &&stack) {
             stack.push(asdl::ExprImpl{asdl::Constant{object_ref}});
@@ -79,9 +79,8 @@ namespace chimera {
                     template <typename...> class Control, typename Input,
                     typename Top>
           static bool match(Input &&in, Top &&top) {
-            top.object_ref = in.constants.size();
-            in.constants.emplace_back(
-                object::Object(object::String(top.string), {}));
+            top.object_ref =
+                in.process_context.insert_constant(std::move(top.string));
             return true;
           }
         };
@@ -408,8 +407,8 @@ namespace chimera {
                     template <typename...> class Control, typename Input,
                     typename Top>
           static bool match(Input &&in, Top &&top) {
-            top.object_ref = in.constants.size();
-            in.constants.emplace_back(object::Object(std::move(top.bytes), {}));
+            top.object_ref =
+                in.process_context.insert_constant(std::move(top.bytes));
             return true;
           }
         };
@@ -445,7 +444,7 @@ namespace chimera {
                     Action, Control>(
                     in,
                     grammar::Input<tao::pegtl::memory_input<>>(
-                        in.constants, top.string.c_str(), "<f_string>"),
+                        in.process_context, top.string.c_str(), "<f_string>"),
                     top)) {
               return false;
             }
@@ -458,8 +457,8 @@ namespace chimera {
               top.transform(joinedStr.values.begin());
               top.push(asdl::ExprImpl{std::move(joinedStr)});
             } else {
-              top.push(asdl::ExprImpl{asdl::Constant{in.constants.size()}});
-              in.constants.emplace_back(object::Object(object::String{}, {}));
+              top.push(asdl::ExprImpl{asdl::Constant{
+                  in.process_context.insert_constant(object::String())}});
             }
             return true;
           }
