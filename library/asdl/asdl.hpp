@@ -68,7 +68,7 @@ namespace chimera {
           struct SetComp, struct Starred, struct Subscript, struct Tuple,
           struct Unary, struct Yield, struct YieldFrom>;
       struct Constant {
-        std::size_t constant;
+        std::uint64_t constant;
       };
       struct Name {
         std::string value;
@@ -361,7 +361,7 @@ namespace chimera {
       };
       struct ClassDef {
         Name name;
-        DocString doc_string;
+        std::optional<DocString> doc_string;
         std::vector<ExprImpl> bases;
         std::vector<Keyword> keywords;
         std::vector<StmtImpl> body;
@@ -369,7 +369,7 @@ namespace chimera {
       };
       struct AsyncFunctionDef {
         Name name;
-        DocString doc_string;
+        std::optional<DocString> doc_string;
         Arguments args;
         std::vector<StmtImpl> body;
         std::vector<ExprImpl> decorator_list;
@@ -377,7 +377,7 @@ namespace chimera {
       };
       struct FunctionDef {
         Name name;
-        DocString doc_string;
+        std::optional<DocString> doc_string;
         Arguments args;
         std::vector<StmtImpl> body;
         std::vector<ExprImpl> decorator_list;
@@ -385,7 +385,7 @@ namespace chimera {
       };
       struct Module {
         std::vector<StmtImpl> body;
-        DocString doc_string;
+        std::optional<DocString> doc_string;
       };
       struct Interactive {
         std::vector<StmtImpl> body;

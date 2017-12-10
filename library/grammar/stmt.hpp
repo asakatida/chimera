@@ -240,7 +240,7 @@ namespace chimera {
           auto functionDef = std::get<asdl::FunctionDef>(
               std::move(*pop<asdl::StmtImpl>().value));
           outer.push(asdl::StmtImpl{asdl::AsyncFunctionDef{
-              std::move(functionDef.name), std::move(functionDef.doc_string),
+              std::move(functionDef.name), functionDef.doc_string,
               std::move(functionDef.args), std::move(functionDef.body),
               std::move(functionDef.decorator_list),
               std::move(functionDef.returns)}});
@@ -1194,7 +1194,7 @@ namespace chimera {
             auto functionDef =
                 std::get<asdl::FunctionDef>(std::move(*stmt.value));
             outer.push(asdl::StmtImpl{asdl::AsyncFunctionDef{
-                std::move(functionDef.name), std::move(functionDef.doc_string),
+                std::move(functionDef.name), functionDef.doc_string,
                 std::move(functionDef.args), std::move(functionDef.body),
                 std::move(functionDef.decorator_list),
                 std::move(functionDef.returns)}});

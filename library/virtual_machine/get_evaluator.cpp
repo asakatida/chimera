@@ -218,8 +218,8 @@ namespace chimera {
         evaluator->extend(tuple.elts);
       }
       void GetEvaluator::evaluate(const asdl::Constant &constant) {
-        evaluator->push(
-            PushStack{evaluator->thread_context.constants[constant.constant]});
+        evaluator->push(PushStack{evaluator->thread_context.process_context
+                                      .constants[constant.constant]});
       }
     } // namespace virtual_machine
   }   // namespace library

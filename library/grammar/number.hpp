@@ -49,7 +49,7 @@ namespace chimera {
         }
         struct Holder {
           object::Number number = object::number::number(0);
-          std::size_t object_ref = 0;
+          object::Id object_ref = 0;
           template <typename Stack>
           void success(Stack &&stack) {
             stack.push(asdl::ExprImpl{asdl::Constant{object_ref}});
@@ -213,9 +213,8 @@ namespace chimera {
                     template <typename...> class Control, typename Input,
                     typename Top>
           static bool match(Input &&in, Top &&top) {
-            top.object_ref = in.constants.size();
-            in.constants.emplace_back(
-                object::Object(std::move(top.number), {}));
+            top.object_ref =
+                in.process_context.insert_constant(std::move(top.number));
             return true;
           }
         };

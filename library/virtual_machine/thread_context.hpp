@@ -37,7 +37,6 @@ namespace chimera {
         void evaluate(const asdl::Expression &expression);
 
         ProcessContext &process_context;
-        const std::vector<object::Object> constants;
         const object::Object main;
         std::optional<object::Object> ret{};
       };
