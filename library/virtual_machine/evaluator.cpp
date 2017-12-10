@@ -195,10 +195,16 @@ namespace chimera {
         }
         if (functionDef.args.kwarg) {
         }
+        if (functionDef.doc_string) {
+          push([&functionDef](Evaluator *evaluator) {
+            evaluator->stack.top().set_attribute(
+                "__doc__",
+                evaluator->thread_context.process_context
+                    .constants[functionDef.doc_string->constant.constant]);
+          });
+        }
         push(PushStack{object::Object(
-            {}, {{"__doc__",
-                  thread_context
-                      .constants[functionDef.doc_string.constant.constant]},
+            {}, {{"__doc__", builtins().get_attribute("None")},
                  {"__name__",
                   object::Object(object::String(functionDef.name.value), {})},
                  {"__qualname__",
@@ -479,7 +485,7 @@ namespace chimera {
               builtins().get_attribute("RuntimeError")};
         } catch (const std::exception &exc) {
           std::cerr << exc.what() << std::endl;
-          object::Object exception(object::String{exc.what()}, {});
+          object::Object exception(object::String(exc.what()), {});
           if (context) {
             exception.set_attribute("__context__", context->exception);
           }

@@ -40,8 +40,8 @@ namespace chimera {
 
         const Options options;
         const object::Object builtins;
-        const std::uint64_t method_id;
-        const std::uint64_t function_id;
+        const object::Id method_id;
+        const object::Id function_id;
         std::atomic_flag *sig_int;
       };
     } // namespace virtual_machine

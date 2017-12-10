@@ -56,12 +56,12 @@ namespace chimera {
         module.set_attribute("__builtins__", result.first->second);
         module.set_attribute(
             "__name__",
-            object::Object(object::String{name},
+            object::Object(object::String(name),
                            {{"__class__", module.get_attribute("str")}}));
         return module;
       }
 
-      std::optional<ImportModule>
+      std::optional<asdl::Module>
       ProcessContext::import_module(std::string &&module) {
         std::replace(module.begin(), module.end(), '.', '/');
         for (std::string_view::size_type
@@ -117,8 +117,7 @@ namespace chimera {
           }
           if (auto importModule = import_module(std::string{module});
               importModule) {
-            ThreadContext{*this, importModule->constants, result.first->second}
-                .evaluate(importModule->module);
+            ThreadContext{*this, result.first->second}.evaluate(*importModule);
           } else if (module == "marshal") {
             modules::marshal(global_context.options, result.first->second);
           } else if (module == "sys") {
@@ -131,29 +130,56 @@ namespace chimera {
         return result.first->second;
       }
 
-      std::optional<ImportModule>
+      std::optional<asdl::Module>
       ProcessContext::import_module(const std::string_view &path,
                                     const std::string &module) {
         if (global_context.options.verbose_init == VerboseInit::SEARCH) {
           std::cout << path << module << "\n";
         }
-        std::ifstream ifstream(std::string{path}.append(module),
-                               std::iostream::in | std::iostream::binary);
-        if (ifstream.is_open() && ifstream.good()) {
+        if (std::ifstream ifstream(std::string{path}.append(module),
+                                   std::iostream::in | std::iostream::binary);
+            ifstream.is_open() && ifstream.good()) {
           if (global_context.options.verbose_init == VerboseInit::LOAD) {
             std::cout << path << module << "\n";
           }
           std::cerr << path << module << "\n";
-          ImportModule importModule;
+          asdl::Module importModule;
           parse<grammar::FileInput>(global_context.options,
                                     grammar::Input<tao::pegtl::istream_input<>>(
-                                        importModule.constants, ifstream,
-                                        BUFFER_SIZE,
+                                        *this, ifstream, BUFFER_SIZE,
                                         std::string{path}.append(module)),
-                                    importModule.module);
+                                    importModule);
           return importModule;
         }
         return {};
+      }
+
+      object::Id ProcessContext::insert_constant(object::Bytes &&bytes) {
+        object::Object object(
+            std::move(bytes),
+            {{"__class__", global_context.builtins.get_attribute("bytes")}});
+        auto result = constants.try_emplace(object.id(), object);
+        Ensures(result.second);
+        return result.first->first;
+      }
+
+      object::Id ProcessContext::insert_constant(object::Number &&number) {
+        object::Object object(
+            std::move(number),
+            {{"__class__", global_context.builtins.get_attribute(
+                               number.is_int() ? "int" : "float")}});
+        auto result = constants.try_emplace(object.id(), object);
+        Ensures(result.second);
+        return result.first->first;
+      }
+
+      object::Id ProcessContext::insert_constant(object::String &&string) {
+        object::Object object(
+            std::move(string),
+            {{"__class__", global_context.builtins.get_attribute("str")}});
+        auto result = constants.try_emplace(object.id(), object);
+        Ensures(result.second);
+        return result.first->first;
       }
     } // namespace virtual_machine
   }   // namespace library

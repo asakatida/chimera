@@ -58,9 +58,9 @@ namespace chimera {
         std::shared_lock<std::shared_mutex> lock(object->mutex);
         return object->attributes.count(key) != 0;
       }
-      std::uint64_t Object::id() const noexcept {
+      Id Object::id() const noexcept {
         return std::hash<std::shared_ptr<Impl>>{}(
-            object)&std::numeric_limits<std::uint64_t>::max();
+            object)&std::numeric_limits<Id>::max();
       }
       const Object::Value &Object::value() const noexcept {
         return object->value;
