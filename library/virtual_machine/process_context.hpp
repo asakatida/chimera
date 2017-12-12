@@ -44,7 +44,7 @@ namespace chimera {
         object::Object make_module(std::string_view &&name);
 
         object::Id insert_constant(object::Bytes &&bytes);
-        object::Id insert_constant(object::Number &&string);
+        object::Id insert_constant(object::Number &&number);
         object::Id insert_constant(object::String &&string);
 
         const GlobalContext &global_context;
