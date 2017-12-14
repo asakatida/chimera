@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "asdl/asdl.hpp"
+#include "container/atomic_map.hpp"
 #include "object/number/number.hpp"
 
 namespace chimera {
@@ -56,10 +57,10 @@ namespace chimera {
                          NullFunction, Number, NumberMethod, ObjectMethod,
                          String, StringMethod, SysCall, True, Tuple,
                          TupleMethod, asdl::StmtImpl, asdl::ExprImpl>;
-        using Attributes = std::map<std::string, Object>;
+        using Attributes = container::AtomicMap<std::string, Object>;
 
         Object();
-        Object(Value &&value, Attributes &&attributes);
+        Object(Value &&value, std::map<std::string, Object> &&attributes);
 
         Object(const Object &other) = default;
         Object(Object &&other) noexcept = default;
@@ -74,19 +75,17 @@ namespace chimera {
         std::vector<std::string> dir() const;
         const Object &get_attribute(std::string &&key) const;
         const Object &get_attribute(const std::string &key) const;
-        Object &get_attribute(std::string &&key);
-        Object &get_attribute(const std::string &key);
+        Object get_attribute(std::string &&key);
+        Object get_attribute(const std::string &key);
         bool has_attribute(std::string &&key) const noexcept;
         bool has_attribute(const std::string &key) const noexcept;
         template <typename Value>
         void set_attribute(std::string &&key, Value &&value) {
-          std::unique_lock<std::shared_mutex> lock(object->mutex);
           object->attributes.insert_or_assign(std::move(key),
                                               std::forward<Value>(value));
         }
         template <typename Value>
         void set_attribute(const std::string &key, Value &&value) {
-          std::unique_lock<std::shared_mutex> lock(object->mutex);
           object->attributes.insert_or_assign(key, std::forward<Value>(value));
         }
 
@@ -104,7 +103,6 @@ namespace chimera {
         struct Impl {
           Value value;
           Attributes attributes;
-          std::shared_mutex mutex{}; //! only needs to guard attributes
         };
         std::shared_ptr<Impl> object;
       };

@@ -14,6 +14,8 @@ add_library(
   libchimera
   library/asdl/asdl.hpp
   library/c-api/chimera.cpp
+  library/container/atomic_container.hpp
+  library/container/atomic_map.hpp
   library/container/reverse.hpp
   library/grammar/control.hpp
   library/grammar/expr.hpp
