@@ -13,49 +13,39 @@ namespace chimera {
   namespace library {
     namespace object {
       Object::Object() : object(std::make_shared<Impl>()) {}
-      Object::Object(Value &&value, Attributes &&attributes) : Object() {
-        object->value = std::move(value);
-        object->attributes = std::move(attributes);
-      }
+      Object::Object(Value &&value, std::map<std::string, Object> &&attributes)
+          : object(std::make_shared<Impl>(
+                Impl{std::move(value), {std::move(attributes)}})) {}
 
       void Object::delete_attribute(std::string &&key) noexcept {
-        std::unique_lock<std::shared_mutex> lock(object->mutex);
         object->attributes.erase(key);
       }
       void Object::delete_attribute(const std::string &key) noexcept {
-        std::unique_lock<std::shared_mutex> lock(object->mutex);
         object->attributes.erase(key);
       }
       std::vector<std::string> Object::dir() const {
-        std::shared_lock<std::shared_mutex> lock(object->mutex);
-        std::vector<std::string> keys(object->attributes.size());
-        std::transform(object->attributes.cbegin(), object->attributes.cend(),
-                       keys.begin(),
+        auto read = object->attributes.read();
+        std::vector<std::string> keys(read.value.size());
+        std::transform(read.value.cbegin(), read.value.cend(), keys.begin(),
                        [](const auto &pair) { return pair.first; });
         return keys;
       }
       const Object &Object::get_attribute(std::string &&key) const {
-        std::shared_lock<std::shared_mutex> lock(object->mutex);
         return object->attributes.at(key);
       }
       const Object &Object::get_attribute(const std::string &key) const {
-        std::shared_lock<std::shared_mutex> lock(object->mutex);
         return object->attributes.at(key);
       }
-      Object &Object::get_attribute(std::string &&key) {
-        std::shared_lock<std::shared_mutex> lock(object->mutex);
+      Object Object::get_attribute(std::string &&key) {
         return object->attributes.at(key);
       }
-      Object &Object::get_attribute(const std::string &key) {
-        std::shared_lock<std::shared_mutex> lock(object->mutex);
+      Object Object::get_attribute(const std::string &key) {
         return object->attributes.at(key);
       }
       bool Object::has_attribute(std::string &&key) const noexcept {
-        std::shared_lock<std::shared_mutex> lock(object->mutex);
         return object->attributes.count(key) != 0;
       }
       bool Object::has_attribute(const std::string &key) const noexcept {
-        std::shared_lock<std::shared_mutex> lock(object->mutex);
         return object->attributes.count(key) != 0;
       }
       Id Object::id() const noexcept {
@@ -66,8 +56,9 @@ namespace chimera {
         return object->value;
       }
       Object Object::copy(Value &&data) const {
-        std::shared_lock<std::shared_mutex> lock(object->mutex);
-        return Object(std::move(data), Attributes(object->attributes));
+        auto read = object->attributes.read();
+        auto attributes = read.value;
+        return Object(std::move(data), std::move(attributes));
       }
       bool Object::get_bool() const noexcept {
         return std::holds_alternative<object::True>(object->value);

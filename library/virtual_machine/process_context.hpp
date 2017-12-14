@@ -28,6 +28,7 @@
 #include <string_view>
 
 #include "asdl/asdl.hpp"
+#include "container/atomic_map.hpp"
 #include "object/object.hpp"
 #include "virtual_machine/garbage.hpp"
 #include "virtual_machine/global_context.hpp"
@@ -49,8 +50,8 @@ namespace chimera {
 
         const GlobalContext &global_context;
         GarbageCollector garbage_collector{};
-        std::map<object::Id, object::Object> constants{};
-        std::map<std::string, object::Object> modules{};
+        container::AtomicMap<object::Id, object::Object> constants{};
+        container::AtomicMap<std::string, object::Object> modules{};
 
       private:
         object::Object &import_object(std::string_view &&module);
