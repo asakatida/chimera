@@ -33,9 +33,9 @@ namespace chimera {
   static const std::uint16_t BUFFER_SIZE =
       std::numeric_limits<std::uint16_t>::max();
 
-  template <typename Syntax, typename Input, typename Top>
-  void parse(const Options &options, Input &&input, Top &&top) {
-    Ensures(tao::pegtl::parse<Syntax>(input, top));
+  template <typename Syntax, typename... Args>
+  void parse(const Options &options, Args &&... args) {
+    Ensures(tao::pegtl::parse<Syntax>(std::forward<Args>(args)...));
     switch (options.optimize) {
       case Optimize::NONE:
         break;

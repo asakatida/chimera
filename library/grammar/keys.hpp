@@ -71,8 +71,9 @@ namespace chimera {
           : Key<Implicit, tao::pegtl::string<'F', 'a', 'l', 's', 'e'>> {};
       template <bool Implicit>
       struct Actions<False<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(
               asdl::ExprImpl{asdl::NameConstant{asdl::NameConstant::FALSE}});
         }
@@ -101,8 +102,9 @@ namespace chimera {
       struct InOp : tao::pegtl::seq<InImpl<Implicit>> {};
       template <bool Implicit>
       struct Actions<InOp<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::CompareExpr::Op::IN);
         }
       };
@@ -115,8 +117,9 @@ namespace chimera {
       struct None : Key<Implicit, tao::pegtl::string<'N', 'o', 'n', 'e'>> {};
       template <bool Implicit>
       struct Actions<None<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(
               asdl::ExprImpl{asdl::NameConstant{asdl::NameConstant::NONE}});
         }
@@ -131,8 +134,9 @@ namespace chimera {
       struct NotIn : tao::pegtl::seq<NotImpl<Implicit>, InImpl<Implicit>> {};
       template <bool Implicit>
       struct Actions<NotIn<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::CompareExpr::Op::NOT_IN);
         }
       };
@@ -141,8 +145,9 @@ namespace chimera {
                                   tao::pegtl::not_at<NotImpl<false>>> {};
       template <bool Implicit>
       struct Actions<Is<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::CompareExpr::Op::IS);
         }
       };
@@ -150,8 +155,9 @@ namespace chimera {
       struct IsNot : tao::pegtl::seq<IsImpl<Implicit>, NotImpl<Implicit>> {};
       template <bool Implicit>
       struct Actions<IsNot<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::CompareExpr::Op::IS_NOT);
         }
       };
@@ -172,8 +178,9 @@ namespace chimera {
       struct True : Key<Implicit, tao::pegtl::string<'T', 'r', 'u', 'e'>> {};
       template <bool Implicit>
       struct Actions<True<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(
               asdl::ExprImpl{asdl::NameConstant{asdl::NameConstant::TRUE}});
         }

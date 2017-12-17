@@ -54,8 +54,9 @@ namespace chimera {
       struct Add : OpSimple<Implicit, '+', '='> {};
       template <bool Implicit>
       struct Actions<Add<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::ADD);
         }
       };
@@ -69,8 +70,9 @@ namespace chimera {
       struct AugAdd : Op<Implicit, tao::pegtl::string<'+', '='>> {};
       template <bool Implicit>
       struct Actions<AugAdd<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::ADD);
         }
       };
@@ -78,8 +80,9 @@ namespace chimera {
       struct AugBitAnd : Op<Implicit, tao::pegtl::string<'&', '='>> {};
       template <bool Implicit>
       struct Actions<AugBitAnd<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::BIT_AND);
         }
       };
@@ -87,8 +90,9 @@ namespace chimera {
       struct AugBitOr : Op<Implicit, tao::pegtl::string<'|', '='>> {};
       template <bool Implicit>
       struct Actions<AugBitOr<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::BIT_OR);
         }
       };
@@ -96,8 +100,9 @@ namespace chimera {
       struct AugBitXor : Op<Implicit, tao::pegtl::string<'^', '='>> {};
       template <bool Implicit>
       struct Actions<AugBitXor<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::BIT_XOR);
         }
       };
@@ -105,8 +110,9 @@ namespace chimera {
       struct AugDiv : Op<Implicit, tao::pegtl::string<'/', '='>> {};
       template <bool Implicit>
       struct Actions<AugDiv<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::DIV);
         }
       };
@@ -114,8 +120,9 @@ namespace chimera {
       struct AugFloorDiv : Op<Implicit, tao::pegtl::string<'/', '/', '='>> {};
       template <bool Implicit>
       struct Actions<AugFloorDiv<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::FLOOR_DIV);
         }
       };
@@ -123,8 +130,9 @@ namespace chimera {
       struct AugLShift : Op<Implicit, tao::pegtl::string<'<', '<', '='>> {};
       template <bool Implicit>
       struct Actions<AugLShift<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::L_SHIFT);
         }
       };
@@ -132,8 +140,9 @@ namespace chimera {
       struct AugMatMult : Op<Implicit, tao::pegtl::string<'@', '='>> {};
       template <bool Implicit>
       struct Actions<AugMatMult<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::MAT_MULT);
         }
       };
@@ -141,8 +150,9 @@ namespace chimera {
       struct AugMod : Op<Implicit, tao::pegtl::string<'%', '='>> {};
       template <bool Implicit>
       struct Actions<AugMod<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::MOD);
         }
       };
@@ -150,8 +160,9 @@ namespace chimera {
       struct AugMult : Op<Implicit, tao::pegtl::string<'*', '='>> {};
       template <bool Implicit>
       struct Actions<AugMult<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::MULT);
         }
       };
@@ -159,8 +170,9 @@ namespace chimera {
       struct AugPow : Op<Implicit, tao::pegtl::string<'*', '*', '='>> {};
       template <bool Implicit>
       struct Actions<AugPow<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::POW);
         }
       };
@@ -168,8 +180,9 @@ namespace chimera {
       struct AugRShift : Op<Implicit, tao::pegtl::string<'>', '>', '='>> {};
       template <bool Implicit>
       struct Actions<AugRShift<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::R_SHIFT);
         }
       };
@@ -177,8 +190,9 @@ namespace chimera {
       struct AugSub : Op<Implicit, tao::pegtl::string<'-', '='>> {};
       template <bool Implicit>
       struct Actions<AugSub<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::SUB);
         }
       };
@@ -188,8 +202,9 @@ namespace chimera {
       struct BitNot : OpSimple<Implicit, '~'> {};
       template <bool Implicit>
       struct Actions<BitNot<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Unary::BIT_NOT);
         }
       };
@@ -205,8 +220,9 @@ namespace chimera {
       struct Div : OpSimple<Implicit, '/', '=', '/'> {};
       template <bool Implicit>
       struct Actions<Div<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::DIV);
         }
       };
@@ -214,8 +230,9 @@ namespace chimera {
       struct Ellipsis : Op<Implicit, tao::pegtl::ellipsis> {};
       template <bool Implicit>
       struct Actions<Ellipsis<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::ExprImpl{asdl::Ellipsis{}});
         }
       };
@@ -225,8 +242,9 @@ namespace chimera {
       struct EqEq : Op<Implicit, tao::pegtl::two<'='>> {};
       template <bool Implicit>
       struct Actions<EqEq<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::CompareExpr::Op::EQ);
         }
       };
@@ -234,8 +252,9 @@ namespace chimera {
       struct FloorDiv : Op<Implicit, tao::pegtl::two<'/'>, '='> {};
       template <bool Implicit>
       struct Actions<FloorDiv<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::FLOOR_DIV);
         }
       };
@@ -243,8 +262,9 @@ namespace chimera {
       struct Gt : OpSimple<Implicit, '>', '=', '>'> {};
       template <bool Implicit>
       struct Actions<Gt<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::CompareExpr::Op::GT);
         }
       };
@@ -252,8 +272,9 @@ namespace chimera {
       struct GtE : Op<Implicit, tao::pegtl::string<'>', '='>> {};
       template <bool Implicit>
       struct Actions<GtE<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::CompareExpr::Op::GT_E);
         }
       };
@@ -267,8 +288,9 @@ namespace chimera {
       struct LShift : Op<Implicit, tao::pegtl::two<'<'>, '='> {};
       template <bool Implicit>
       struct Actions<LShift<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::L_SHIFT);
         }
       };
@@ -276,8 +298,9 @@ namespace chimera {
       struct Lt : OpSimple<Implicit, '<', '=', '<', '>'> {};
       template <bool Implicit>
       struct Actions<Lt<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::CompareExpr::Op::LT);
         }
       };
@@ -285,8 +308,9 @@ namespace chimera {
       struct LtE : Op<Implicit, tao::pegtl::string<'<', '='>> {};
       template <bool Implicit>
       struct Actions<LtE<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::CompareExpr::Op::LT_E);
         }
       };
@@ -294,8 +318,9 @@ namespace chimera {
       struct MatMult : tao::pegtl::seq<AtImpl<Implicit>> {};
       template <bool Implicit>
       struct Actions<MatMult<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::MAT_MULT);
         }
       };
@@ -303,8 +328,9 @@ namespace chimera {
       struct Mod : OpSimple<Implicit, '%', '='> {};
       template <bool Implicit>
       struct Actions<Mod<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::MOD);
         }
       };
@@ -314,8 +340,9 @@ namespace chimera {
       struct Mult : tao::pegtl::seq<MultImpl<Implicit>> {};
       template <bool Implicit>
       struct Actions<Mult<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::MULT);
         }
       };
@@ -325,8 +352,9 @@ namespace chimera {
                                          tao::pegtl::string<'<', '>'>>> {};
       template <bool Implicit>
       struct Actions<NotEq<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::CompareExpr::Op::NOT_EQ);
         }
       };
@@ -341,8 +369,9 @@ namespace chimera {
       struct Pow : tao::pegtl::seq<PowImpl<Implicit>> {};
       template <bool Implicit>
       struct Actions<Pow<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::POW);
         }
       };
@@ -356,8 +385,9 @@ namespace chimera {
       struct RShift : Op<Implicit, tao::pegtl::two<'>'>, '='> {};
       template <bool Implicit>
       struct Actions<RShift<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::R_SHIFT);
         }
       };
@@ -371,8 +401,9 @@ namespace chimera {
       struct Sub : tao::pegtl::seq<SubImpl<Implicit>> {};
       template <bool Implicit>
       struct Actions<Sub<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Operator::SUB);
         }
       };
@@ -380,8 +411,9 @@ namespace chimera {
       struct UAdd : OpSimple<Implicit, '+', '='> {};
       template <bool Implicit>
       struct Actions<UAdd<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Unary::ADD);
         }
       };
@@ -389,8 +421,9 @@ namespace chimera {
       struct USub : tao::pegtl::seq<SubImpl<Implicit>> {};
       template <bool Implicit>
       struct Actions<USub<Implicit>> {
-        template <typename Stack>
-        static void apply0(Stack &&stack) {
+        template <typename ProcessContext, typename Stack>
+        static void apply0(ProcessContext && /*processContext*/,
+                           Stack &&stack) {
           stack.push(asdl::Unary::SUB);
         }
       };
