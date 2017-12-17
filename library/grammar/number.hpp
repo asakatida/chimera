@@ -27,7 +27,6 @@
 #include <vector>
 
 #include <tao/pegtl.hpp>
-#include <tao/pegtl/contrib/changes.hpp>
 
 #include "asdl/asdl.hpp"
 #include "grammar/control.hpp"
@@ -49,10 +48,10 @@ namespace chimera {
         }
         struct Holder {
           object::Number number = object::number::number(0);
-          object::Id object_ref = 0;
-          template <typename Stack>
-          void success(Stack &&stack) {
-            stack.push(asdl::ExprImpl{asdl::Constant{object_ref}});
+          template <typename ProcessContext, typename Outer>
+          void success(ProcessContext &&processContext, Outer &&outer) {
+            outer.push(asdl::ExprImpl{
+                processContext.insert_constant(std::move(number))});
           }
           template <std::uint8_t Base, typename Input>
           void apply(const Input &in) {
@@ -109,8 +108,9 @@ namespace chimera {
                               tao::pegtl::rep_opt<18, tao::pegtl::digit>> {};
         template <>
         struct Actions<Nonzerodigit> {
-          template <typename Input, typename Top>
-          static void apply(const Input &in, Top &&top) {
+          template <typename Input, typename ProcessContext, typename Top>
+          static void apply(const Input &in,
+                            ProcessContext && /*processContext*/, Top &&top) {
             top.template apply<10>(in);
           }
         };
@@ -119,8 +119,9 @@ namespace chimera {
                               tao::pegtl::rep_opt<18, tao::pegtl::digit>> {};
         template <>
         struct Actions<Digit> {
-          template <typename Input, typename Top>
-          static void apply(const Input &in, Top &&top) {
+          template <typename Input, typename ProcessContext, typename Top>
+          static void apply(const Input &in,
+                            ProcessContext && /*processContext*/, Top &&top) {
             top.template apply<10>(in);
           }
         };
@@ -130,8 +131,9 @@ namespace chimera {
                   tao::pegtl::rep_opt<63, tao::pegtl::range<'0', '1'>>> {};
         template <>
         struct Actions<Bindigit> {
-          template <typename Input, typename Top>
-          static void apply(const Input &in, Top &&top) {
+          template <typename Input, typename ProcessContext, typename Top>
+          static void apply(const Input &in,
+                            ProcessContext && /*processContext*/, Top &&top) {
             top.template apply<2>(in);
           }
         };
@@ -141,8 +143,9 @@ namespace chimera {
                   tao::pegtl::rep_opt<31, tao::pegtl::range<'0', '7'>>> {};
         template <>
         struct Actions<Octdigit> {
-          template <typename Input, typename Top>
-          static void apply(const Input &in, Top &&top) {
+          template <typename Input, typename ProcessContext, typename Top>
+          static void apply(const Input &in,
+                            ProcessContext && /*processContext*/, Top &&top) {
             top.template apply<8>(in);
           }
         };
@@ -151,8 +154,9 @@ namespace chimera {
                               tao::pegtl::rep_opt<15, tao::pegtl::xdigit>> {};
         template <>
         struct Actions<Hexdigit> {
-          template <typename Input, typename Top>
-          static void apply(const Input &in, Top &&top) {
+          template <typename Input, typename ProcessContext, typename Top>
+          static void apply(const Input &in,
+                            ProcessContext && /*processContext*/, Top &&top) {
             top.template apply<16>(in);
           }
         };
@@ -184,8 +188,8 @@ namespace chimera {
             : tao::pegtl::seq<tao::pegtl::one<'-'>, Digitpart> {};
         template <>
         struct Actions<ExponentNegative> {
-          template <typename Top>
-          static void apply0(Top &&top) {
+          template <typename ProcessContext, typename Top>
+          static void apply0(ProcessContext && /*processContext*/, Top &&top) {
             top.number = -top.number;
           }
         };
@@ -207,22 +211,11 @@ namespace chimera {
         template <>
         struct Control<Imagnumber> : ChangeState<Imagnumber, ImaginaryHolder> {
         };
-        struct NumberCreate : tao::pegtl::success {
-          template <tao::pegtl::apply_mode A, tao::pegtl::rewind_mode M,
-                    template <typename...> class Action,
-                    template <typename...> class Control, typename Input,
-                    typename Top>
-          static bool match(Input &&in, Top &&top) {
-            top.object_ref =
-                in.process_context.insert_constant(std::move(top.number));
-            return true;
-          }
-        };
         struct Numberliteral
-            : tao::pegtl::seq<tao::pegtl::sor<Imagnumber, Floatnumber, Integer>,
-                              NumberCreate> {};
+            : tao::pegtl::sor<Imagnumber, Floatnumber, Integer> {};
         template <>
-        struct Control<Numberliteral> : ChangeState<Numberliteral, Holder> {};
+        struct Control<Numberliteral>
+            : ChangeStateGlobal<Numberliteral, Holder> {};
       } // namespace number
       template <bool Implicit>
       struct NUMBER

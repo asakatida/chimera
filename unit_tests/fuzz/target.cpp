@@ -43,9 +43,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
       std::string{reinterpret_cast<const char *>(data), size});
   try {
     Ensures(tao::pegtl::parse<chimera::library::grammar::FileInput>(
-        chimera::library::grammar::Input<tao::pegtl::istream_input<>>(
-            processContext, in, size, "<fuzz>"),
-        module));
+        chimera::library::grammar::Input<tao::pegtl::istream_input<>>(in, size,
+                                                                      "<fuzz>"),
+        processContext, module));
   } catch (const tao::pegtl::parse_error &) {
     success = false;
   }

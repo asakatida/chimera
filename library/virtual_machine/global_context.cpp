@@ -49,13 +49,14 @@ namespace chimera {
                        "for more information.\n";
         }
         ProcessContext processContext{*this};
-        grammar::Input<tao::pegtl::istream_input<>> input(
-            processContext, std::cin, BUFFER_SIZE, "<string>");
+        grammar::Input<tao::pegtl::istream_input<>> input(std::cin, BUFFER_SIZE,
+                                                          "<string>");
         auto main = processContext.make_module("__main__");
         while (!std::cin.eof()) {
           std::cout << ">>> ";
           asdl::Interactive interactive;
-          parse<grammar::SingleInput>(options, input, interactive);
+          parse<grammar::SingleInput>(options, input, processContext,
+                                      interactive);
           ThreadContext{processContext, main}.evaluate(interactive);
         }
         return 0;
@@ -64,11 +65,10 @@ namespace chimera {
         std::ifstream input(options.script);
         asdl::Module module;
         ProcessContext processContext{*this};
-        parse<grammar::FileInput>(
-            options,
-            grammar::Input<tao::pegtl::istream_input<>>(
-                processContext, input, BUFFER_SIZE, options.script),
-            module);
+        parse<grammar::FileInput>(options,
+                                  grammar::Input<tao::pegtl::istream_input<>>(
+                                      input, BUFFER_SIZE, options.script),
+                                  processContext, module);
         ThreadContext{processContext, processContext.make_module("__main__")}
             .evaluate(module);
         return 0;
@@ -76,11 +76,10 @@ namespace chimera {
       int GlobalContext::execute_script_string() {
         asdl::Module module;
         ProcessContext processContext{*this};
-        parse<grammar::FileInput>(
-            options,
-            grammar::Input<tao::pegtl::memory_input<>>(
-                processContext, options.command, "<string>"),
-            module);
+        parse<grammar::FileInput>(options,
+                                  grammar::Input<tao::pegtl::memory_input<>>(
+                                      options.command, "<string>"),
+                                  processContext, module);
         ThreadContext{processContext, processContext.make_module("__main__")}
             .evaluate(module);
         return 0;
@@ -88,11 +87,10 @@ namespace chimera {
       int GlobalContext::execute_script_input() {
         asdl::Module module;
         ProcessContext processContext{*this};
-        parse<grammar::FileInput>(
-            options,
-            grammar::Input<tao::pegtl::istream_input<>>(
-                processContext, std::cin, BUFFER_SIZE, "<input>"),
-            module);
+        parse<grammar::FileInput>(options,
+                                  grammar::Input<tao::pegtl::istream_input<>>(
+                                      std::cin, BUFFER_SIZE, "<input>"),
+                                  processContext, module);
         ThreadContext{processContext, processContext.make_module("__main__")}
             .evaluate(module);
         return 0;

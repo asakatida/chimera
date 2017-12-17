@@ -39,7 +39,41 @@ namespace chimera {
       template <typename Rule>
       struct Control : ControlBase<Rule> {};
       template <typename Rule, typename State>
-      using ChangeState = tao::pegtl::change_state<Rule, State, ControlBase>;
+      struct ChangeState : public ControlBase<Rule> {
+        template <tao::pegtl::apply_mode A, tao::pegtl::rewind_mode M,
+                  template <typename...> class Action,
+                  template <typename...> class Control, typename Input,
+                  typename ProcessContext, typename Outer>
+        static bool match(Input &in, ProcessContext &&processContext,
+                          Outer &&outer) {
+          State state;
+
+          if (ControlBase<Rule>::template match<A, M, Action, Control>(
+                  in, processContext, state)) {
+            state.success(outer);
+            return true;
+          }
+          return false;
+        }
+      };
+      template <typename Rule, typename State>
+      struct ChangeStateGlobal : public ControlBase<Rule> {
+        template <tao::pegtl::apply_mode A, tao::pegtl::rewind_mode M,
+                  template <typename...> class Action,
+                  template <typename...> class Control, typename Input,
+                  typename ProcessContext, typename Outer>
+        static bool match(Input &in, ProcessContext &&processContext,
+                          Outer &&outer) {
+          State state;
+
+          if (ControlBase<Rule>::template match<A, M, Action, Control>(
+                  in, processContext, state)) {
+            state.success(processContext, outer);
+            return true;
+          }
+          return false;
+        }
+      };
       template <typename... Rules>
       using InputRule =
           tao::pegtl::control<Control, tao::pegtl::action<Actions, Rules...>>;

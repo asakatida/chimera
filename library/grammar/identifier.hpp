@@ -39,8 +39,9 @@ namespace chimera {
           : tao::pegtl::seq<XidStart, tao::pegtl::star<XidContinue>> {};
       template <>
       struct Actions<NameImpl> {
-        template <typename Input, typename Stack>
-        static void apply(const Input &in, Stack &&stack) {
+        template <typename Input, typename ProcessContext, typename Stack>
+        static void apply(const Input &in, ProcessContext && /*processContext*/,
+                          Stack &&stack) {
           stack.push(asdl::Name{in.string()});
         }
       };

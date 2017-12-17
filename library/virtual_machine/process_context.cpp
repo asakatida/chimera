@@ -144,42 +144,42 @@ namespace chimera {
           }
           std::cerr << path << module << "\n";
           asdl::Module importModule;
-          parse<grammar::FileInput>(global_context.options,
-                                    grammar::Input<tao::pegtl::istream_input<>>(
-                                        *this, ifstream, BUFFER_SIZE,
-                                        std::string{path}.append(module)),
-                                    importModule);
+          parse<grammar::FileInput>(
+              global_context.options,
+              grammar::Input<tao::pegtl::istream_input<>>(
+                  ifstream, BUFFER_SIZE, std::string{path}.append(module)),
+              *this, importModule);
           return importModule;
         }
         return {};
       }
 
-      object::Id ProcessContext::insert_constant(object::Bytes &&bytes) {
+      asdl::Constant ProcessContext::insert_constant(object::Bytes &&bytes) {
         object::Object object(
             std::move(bytes),
             {{"__class__", global_context.builtins.get_attribute("bytes")}});
         auto result = constants.try_emplace(object.id(), object);
         Ensures(result.second);
-        return result.first->first;
+        return asdl::Constant{result.first->first};
       }
 
-      object::Id ProcessContext::insert_constant(object::Number &&number) {
+      asdl::Constant ProcessContext::insert_constant(object::Number &&number) {
         object::Object object(
             std::move(number),
             {{"__class__", global_context.builtins.get_attribute(
                                number.is_int() ? "int" : "float")}});
         auto result = constants.try_emplace(object.id(), object);
         Ensures(result.second);
-        return result.first->first;
+        return asdl::Constant{result.first->first};
       }
 
-      object::Id ProcessContext::insert_constant(object::String &&string) {
+      asdl::Constant ProcessContext::insert_constant(object::String &&string) {
         object::Object object(
             std::move(string),
             {{"__class__", global_context.builtins.get_attribute("str")}});
         auto result = constants.try_emplace(object.id(), object);
         Ensures(result.second);
-        return result.first->first;
+        return asdl::Constant{result.first->first};
       }
     } // namespace virtual_machine
   }   // namespace library

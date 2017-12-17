@@ -28,16 +28,13 @@
 
 #include <tao/pegtl.hpp>
 
-#include "virtual_machine/process_context.hpp"
-
 namespace chimera {
   namespace library {
     namespace grammar {
       template <typename Base>
       struct Input : Base {
-        template <typename Globals, typename... Args>
-        explicit Input(Globals &&globals, Args &&... args)
-            : Base(std::forward<Args>(args)...), process_context(globals) {
+        template <typename... Args>
+        explicit Input(Args &&... args) : Base(std::forward<Args>(args)...) {
           indentStack.emplace();
         }
 
@@ -69,8 +66,6 @@ namespace chimera {
         bool is_newline() const {
           return Base::byte_in_line() == indentStack.top();
         }
-
-        virtual_machine::ProcessContext &process_context;
 
       private:
         std::stack<std::uintmax_t> indentStack{};

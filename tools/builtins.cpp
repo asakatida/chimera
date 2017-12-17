@@ -275,8 +275,8 @@ namespace chimera {
       chimera::parse<chimera::library::grammar::FileInput>(
           globalContext.options,
           chimera::library::grammar::Input<tao::pegtl::istream_input<>>(
-              processContext, std::cin, chimera::BUFFER_SIZE, "<input>"),
-          module);
+              std::cin, chimera::BUFFER_SIZE, "<input>"),
+          processContext, module);
       virtual_machine::ThreadContext{processContext,
                                      processContext.make_module("builtins")}
           .evaluate(module);

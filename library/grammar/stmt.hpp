@@ -36,18 +36,6 @@
 namespace chimera {
   namespace library {
     namespace grammar {
-      struct DocStringAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          if (has_value()) {
-            outer.push(asdl::DocString{
-                std::get<asdl::Constant>(*pop<asdl::ExprImpl>().value)});
-          }
-        }
-      };
-      struct DocString : tao::pegtl::seq<STRING<false, false, false>> {};
-      template <>
-      struct Control<DocString> : ChangeState<DocString, DocStringAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct TFPDef
           : tao::pegtl::seq<
@@ -1242,13 +1230,18 @@ namespace chimera {
           : tao::pegtl::if_must<
                 Colon<Implicit>,
                 tao::pegtl::sor<
-                    DocString,
+                    DocString<Implicit>,
                     SimpleStmt<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
                                ImportAll>,
                     tao::pegtl::if_must<
-                        INDENT, tao::pegtl::opt<DocString>,
-                        tao::pegtl::plus<Stmt<Implicit, AsyncFlow, LoopFlow,
-                                              ScopeFlow, ImportAll>>,
+                        INDENT,
+                        tao::pegtl::sor<
+                            tao::pegtl::seq<DocString<Implicit>,
+                                            tao::pegtl::star<Stmt<
+                                                Implicit, AsyncFlow, LoopFlow,
+                                                ScopeFlow, ImportAll>>>,
+                            tao::pegtl::plus<Stmt<Implicit, AsyncFlow, LoopFlow,
+                                                  ScopeFlow, ImportAll>>>,
                         DEDENT>>> {};
       template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
                 bool ImportAll>
