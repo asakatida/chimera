@@ -218,7 +218,7 @@ namespace chimera {
           void success(ProcessContext &&processContext, Outer &&outer) {
             using State = std::variant<std::string, asdl::JoinedStr>;
             struct Visitor {
-              ProcessContext &processContext;
+              ProcessContext &process_context;
               State operator()(std::string &&value,
                                const std::string &element) {
                 value.append(element);
@@ -229,13 +229,13 @@ namespace chimera {
                 auto &joinedStr = std::get<asdl::JoinedStr>(*element.value);
                 joinedStr.values.emplace(
                     joinedStr.values.begin(),
-                    processContext.insert_constant(object::String(value)));
+                    process_context.insert_constant(object::String(value)));
                 return State{std::move(joinedStr)};
               }
               State operator()(asdl::JoinedStr &&value,
                                const std::string &element) {
                 value.values.emplace_back(
-                    processContext.insert_constant(object::String(element)));
+                    process_context.insert_constant(object::String(element)));
                 return State{std::move(value)};
               }
               State operator()(asdl::JoinedStr &&value,
@@ -247,10 +247,10 @@ namespace chimera {
               }
             };
             struct Push {
-              ProcessContext &processContext;
+              ProcessContext &process_context;
               asdl::ExprImpl operator()(std::string &&value) {
                 return asdl::ExprImpl{
-                    processContext.insert_constant(object::String(value))};
+                    process_context.insert_constant(object::String(value))};
               }
               asdl::ExprImpl operator()(asdl::JoinedStr &&value) {
                 return asdl::ExprImpl{std::move(value)};
