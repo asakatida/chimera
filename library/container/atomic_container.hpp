@@ -31,9 +31,9 @@ namespace chimera {
       struct AtomicContainer {
         AtomicContainer() noexcept {}
 
-        AtomicContainer(const Value &v) : value(v) {}
+        explicit AtomicContainer(const Value &v) : value(v) {}
 
-        AtomicContainer(Value &&v) noexcept : value(std::move(v)) {}
+        explicit AtomicContainer(Value &&v) noexcept : value(std::move(v)) {}
 
         AtomicContainer(const AtomicContainer &other) {
           value = other.read().value;
