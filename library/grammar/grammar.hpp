@@ -73,7 +73,7 @@ namespace chimera {
                 bool ImportAll = true>
       struct FileInputImpl
           : tao::pegtl::must<
-                tao::pegtl::opt<NEWLINE>, tao::pegtl::opt<DocString>,
+                tao::pegtl::opt<NEWLINE>, tao::pegtl::opt<DocString<Implicit>>,
                 tao::pegtl::until<tao::pegtl::eof,
                                   Stmt<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
                                        ImportAll>>> {};

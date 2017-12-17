@@ -1,4 +1,4 @@
-git diff --stat @{2.days.ago} --name-only | \
+git diff --stat @{10.days.ago} --name-only | \
 grep -e '\.cpp' | \
 sort | uniq | \
 xargs -n1 -P1 \
