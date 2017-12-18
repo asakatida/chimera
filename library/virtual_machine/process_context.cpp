@@ -163,10 +163,9 @@ namespace chimera {
       }
 
       asdl::Constant ProcessContext::insert_constant(object::Number &&number) {
-        object::Object object(
-            std::move(number),
-            {{"__class__", global_context.builtins.get_attribute(
-                               number.is_int() ? "int" : "float")}});
+        auto cls = global_context.builtins.get_attribute(
+            number.is_int() ? "int" : "float");
+        object::Object object(std::move(number), {{"__class__", cls}});
         auto result = constants.try_emplace(object.id(), object);
         Ensures(result.second);
         return asdl::Constant{result.first->first};
