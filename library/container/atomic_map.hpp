@@ -34,7 +34,8 @@ namespace chimera {
         using Container = AtomicContainer<std::map<Key, Value>>;
 
         template <typename... Args>
-        AtomicMap(Args &&... args) : Container(std::forward<Args>(args)...) {}
+        AtomicMap(Args &&... args) // NOLINT
+            : Container(std::forward<Args>(args)...) {}
 
         template <typename... Args>
         auto &at(Args &&... args) const {
