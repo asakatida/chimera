@@ -29,7 +29,7 @@ namespace chimera {
     namespace container {
       template <typename Value>
       struct AtomicContainer {
-        AtomicContainer() noexcept {}
+        AtomicContainer() noexcept {} // NOLINT
 
         explicit AtomicContainer(const Value &v) : value(v) {}
 
@@ -71,7 +71,7 @@ namespace chimera {
 
         Read read() const {
           return Read{std::shared_lock<std::shared_mutex>(
-                          const_cast<std::shared_mutex &>(mutex)),
+                          const_cast<std::shared_mutex &>(mutex)), // NOLINT
                       value};
         }
 
