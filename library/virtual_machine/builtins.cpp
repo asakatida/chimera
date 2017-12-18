@@ -30,6 +30,7 @@ namespace chimera {
       namespace modules {
         void init(const object::Object &module) {
           auto builtins = module;
+          builtins.set_attribute("__builtins__", builtins);
           object::Object builtinsFalse(object::False{},
                                        {{"__class__", {/*set below*/}}});
           builtins.set_attribute("False", builtinsFalse);
@@ -358,7 +359,7 @@ namespace chimera {
                                          {"__itemsize__", builtinsNone},
                                          {"__le__", builtinsNone},
                                          {"__lt__", builtinsNone},
-                                         {"__module__", {/*set below*/}},
+                                         {"__module__", builtins},
                                          {"__mro__", builtinsNone},
                                          {"__name__", builtinsNone},
                                          {"__ne__", builtinsNone},
@@ -495,7 +496,7 @@ namespace chimera {
                                        {"__bases__", builtinsNone},
                                        {"__class__", {/*set below*/}},
                                        {"__doc__", builtinsNone},
-                                       {"__module__", {/*set below*/}},
+                                       {"__module__", builtins},
                                        {"__mro__", {/*set below*/}},
                                        {"__name__", builtinsNone},
                                        {"__qualname__", builtinsNone}});
@@ -521,7 +522,7 @@ namespace chimera {
                                    {"__init_subclass__", builtinsNone},
                                    {"__le__", builtinsNone},
                                    {"__lt__", builtinsNone},
-                                   {"__module__", {/*set below*/}},
+                                   {"__module__", builtins},
                                    {"__name__", builtinsNone},
                                    {"__ne__", builtinsNone},
                                    {"__new__", builtinsNone},
@@ -578,9 +579,6 @@ namespace chimera {
                {"__qualname__", builtinsNone}});
           builtinsObject.set_attribute("__getattribute__",
                                        builtinsObjectGetattribute);
-          builtinsObject.set_attribute("__module__", builtins);
-          builtinsType.set_attribute("__module__", builtins);
-          builtinsCompileClass.set_attribute("__module__", builtins);
           object::Object builtinsObjectSetattr(
               object::ObjectMethod::SETATTR,
               {{"__class__", builtinsCompileClass},
