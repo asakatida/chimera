@@ -53,7 +53,6 @@ namespace chimera {
       object::Object ProcessContext::make_module(std::string_view &&name) {
         auto result = modules.try_emplace("builtins", global_context.builtins);
         auto module = result.first->second.copy({});
-        module.set_attribute("__builtins__", result.first->second);
         module.set_attribute(
             "__name__",
             object::Object(object::String(name),
