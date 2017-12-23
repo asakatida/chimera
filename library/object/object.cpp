@@ -1,3 +1,23 @@
+// Copyright (c) 2017 Adam Grandquist <grandquista@gmail.com>
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 //! Python object as a c++ struct
 
 #include "object.hpp"
@@ -12,6 +32,10 @@
 namespace chimera {
   namespace library {
     namespace object {
+      String::String(const std::string &string) : value(string){};
+      String::String(std::string &&string) noexcept
+          : value(std::move(string)){};
+
       Object::Object() : object(std::make_shared<Impl>()) {}
       Object::Object(Value &&value, std::map<std::string, Object> &&attributes)
           : object(std::make_shared<Impl>(
@@ -25,22 +49,39 @@ namespace chimera {
       }
       std::vector<std::string> Object::dir() const {
         auto read = object->attributes.read();
-        std::vector<std::string> keys(read.value.size());
+        std::vector<std::string> keys;
+        keys.reserve(read.value.size());
         std::transform(read.value.cbegin(), read.value.cend(), keys.begin(),
                        [](const auto &pair) { return pair.first; });
         return keys;
       }
-      const Object &Object::get_attribute(std::string &&key) const {
-        return object->attributes.at(key);
+      Object Object::get_attribute(std::string &&key) const {
+        try {
+          return object->attributes.at(key);
+        } catch (...) {
+        }
+        return {};
       }
-      const Object &Object::get_attribute(const std::string &key) const {
-        return object->attributes.at(key);
+      Object Object::get_attribute(const std::string &key) const {
+        try {
+          return object->attributes.at(key);
+        } catch (...) {
+        }
+        return {};
       }
       Object Object::get_attribute(std::string &&key) {
-        return object->attributes.at(key);
+        try {
+          return object->attributes.at(key);
+        } catch (...) {
+        }
+        return {};
       }
       Object Object::get_attribute(const std::string &key) {
-        return object->attributes.at(key);
+        try {
+          return object->attributes.at(key);
+        } catch (...) {
+        }
+        return {};
       }
       bool Object::has_attribute(std::string &&key) const noexcept {
         return object->attributes.count(key) != 0;

@@ -33,6 +33,8 @@
 #include "version.hpp"
 #include "virtual_machine/virtual_machine.hpp" // for GlobalContext
 
+using namespace std::literals;
+
 static std::atomic_flag SIG_INT;
 
 extern "C" void interupt_handler(int signal);
@@ -131,8 +133,7 @@ namespace chimera {
               if (argLen == 6 && std::strncmp(*arg, "--help", 6) == 0) {
                 return print_help(args);
               }
-              throw std::runtime_error(std::string{"unrecognized option "}
-                                           .append(*arg)
+              throw std::runtime_error("unrecognized option "s.append(*arg)
                                            .append(" at position ")
                                            .append(std::to_string(std::distance(
                                                args.begin(), arg))));
@@ -275,8 +276,7 @@ namespace chimera {
                     break;
                   default:
                     throw std::runtime_error(
-                        std::string{"unrecognized option -"}
-                            .append(1, *argChar)
+                        "unrecognized option -"s.append(1, *argChar)
                             .append(" at position ")
                             .append(std::to_string(
                                 std::distance(args.begin(), arg))));

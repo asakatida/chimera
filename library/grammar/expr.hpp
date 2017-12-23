@@ -220,10 +220,10 @@ namespace chimera {
         template <typename Outer>
         void success(Outer &&outer) {
           if (size() > 1) {
-            asdl::IfExp ifExp{{}, {}, pop<asdl::ExprImpl>()};
-            ifExp.test = pop<asdl::ExprImpl>();
-            ifExp.body = pop<asdl::ExprImpl>();
-            outer.push(asdl::ExprImpl{std::move(ifExp)});
+            auto elif = pop<asdl::ExprImpl>();
+            auto test = pop<asdl::ExprImpl>();
+            auto body = pop<asdl::ExprImpl>();
+            outer.push(asdl::ExprImpl{asdl::IfExp{test, body, elif}});
           } else {
             outer.push(pop<asdl::ExprImpl>());
           }
@@ -304,8 +304,8 @@ namespace chimera {
         void success(Outer &&outer) {
           if (auto s = size(); s > 1) {
             asdl::Bool asdlBool{asdl::Bool::OR, {}};
-            asdlBool.values.resize(s);
-            transform(asdlBool.values.begin());
+            asdlBool.values.reserve(s);
+            transform<asdl::ExprImpl>(std::back_inserter(asdlBool.values));
             outer.push(asdl::ExprImpl{std::move(asdlBool)});
           } else {
             outer.push(pop<asdl::ExprImpl>());
@@ -327,8 +327,8 @@ namespace chimera {
         void success(Outer &&outer) {
           if (auto s = size(); s > 1) {
             asdl::Bool asdlBool{asdl::Bool::AND, {}};
-            asdlBool.values.resize(s);
-            transform(asdlBool.values.begin());
+            asdlBool.values.reserve(s);
+            transform<asdl::ExprImpl>(std::back_inserter(asdlBool.values));
             outer.push(asdl::ExprImpl{std::move(asdlBool)});
           } else {
             outer.push(pop<asdl::ExprImpl>());
@@ -375,17 +375,14 @@ namespace chimera {
         template <typename Outer>
         void success(Outer &&outer) {
           [this](auto &&expr) {
-            asdl::CompareExpr compareExpr{{},
-                                          this->template pop<asdl::ExprImpl>()};
-            compareExpr.op = this->template pop<asdl::CompareExpr::Op>();
             if (!std::holds_alternative<asdl::Compare>(*expr.value)) {
-              asdl::Compare compare;
-              using std::swap;
-              swap(expr, compare.left);
-              expr = std::move(compare);
+              expr = asdl::Compare{expr, {}};
             }
             std::get<asdl::Compare>(*expr.value)
-                .comparators.push_back(std::move(compareExpr));
+                .comparators.push_back(
+                    this->template reshape<asdl::CompareExpr,
+                                           asdl::CompareExpr::Op,
+                                           asdl::ExprImpl>());
           }(outer.template top<asdl::ExprImpl>());
         }
       };
@@ -423,8 +420,8 @@ namespace chimera {
         void success(Outer &&outer) {
           if (auto s = size(); s > 1) {
             asdl::Bin bin{asdl::Operator::BIT_OR, {}};
-            bin.values.resize(s);
-            transform(bin.values.begin());
+            bin.values.reserve(s);
+            transform<asdl::ExprImpl>(std::back_inserter(bin.values));
             outer.push(asdl::ExprImpl{std::move(bin)});
           } else {
             outer.push(pop<asdl::ExprImpl>());
@@ -445,8 +442,8 @@ namespace chimera {
         void success(Outer &&outer) {
           if (auto s = size(); s > 1) {
             asdl::Bin bin{asdl::Operator::BIT_XOR, {}};
-            bin.values.resize(s);
-            transform(bin.values.begin());
+            bin.values.reserve(s);
+            transform<asdl::ExprImpl>(std::back_inserter(bin.values));
             outer.push(asdl::ExprImpl{std::move(bin)});
           } else {
             outer.push(pop<asdl::ExprImpl>());
@@ -468,8 +465,8 @@ namespace chimera {
         void success(Outer &&outer) {
           if (auto s = size(); s > 1) {
             asdl::Bin bin{asdl::Operator::BIT_AND, {}};
-            bin.values.resize(s);
-            transform(bin.values.begin());
+            bin.values.reserve(s);
+            transform<asdl::ExprImpl>(std::back_inserter(bin.values));
             outer.push(asdl::ExprImpl{std::move(bin)});
           } else {
             outer.push(pop<asdl::ExprImpl>());
@@ -491,10 +488,10 @@ namespace chimera {
         template <typename Outer>
         void success(Outer &&outer) {
           asdl::Bin bin{};
-          bin.values.resize(2);
-          bin.values[1] = pop<asdl::ExprImpl>();
+          bin.values.reserve(2);
+          bin.values = {outer.template pop<asdl::ExprImpl>(),
+                        pop<asdl::ExprImpl>()};
           bin.op = pop<asdl::Operator>();
-          bin.values[0] = outer.template pop<asdl::ExprImpl>();
           outer.push(asdl::ExprImpl{std::move(bin)});
         }
       };
@@ -527,10 +524,10 @@ namespace chimera {
         template <typename Outer>
         void success(Outer &&outer) {
           asdl::Bin bin{};
-          bin.values.resize(2);
-          bin.values[1] = pop<asdl::ExprImpl>();
+          bin.values.reserve(2);
+          bin.values = {outer.template pop<asdl::ExprImpl>(),
+                        pop<asdl::ExprImpl>()};
           bin.op = pop<asdl::Operator>();
-          bin.values[0] = outer.template pop<asdl::ExprImpl>();
           outer.push(asdl::ExprImpl{std::move(bin)});
         }
       };
@@ -555,10 +552,10 @@ namespace chimera {
         template <typename Outer>
         void success(Outer &&outer) {
           asdl::Bin bin{};
-          bin.values.resize(2);
-          bin.values[1] = pop<asdl::ExprImpl>();
+          bin.values.reserve(2);
+          bin.values = {outer.template pop<asdl::ExprImpl>(),
+                        pop<asdl::ExprImpl>()};
           bin.op = pop<asdl::Operator>();
-          bin.values[0] = outer.template pop<asdl::ExprImpl>();
           outer.push(asdl::ExprImpl{std::move(bin)});
         }
       };
@@ -611,7 +608,7 @@ namespace chimera {
         void success(Outer &&outer) {
           if (size() > 1) {
             asdl::Bin bin{};
-            bin.values.resize(2);
+            bin.values.reserve(2);
             bin.values[1] = pop<asdl::ExprImpl>();
             bin.op = pop<asdl::Operator>();
             bin.values[0] = pop<asdl::ExprImpl>();
@@ -680,17 +677,17 @@ namespace chimera {
         template <typename Outer>
         void success(Outer &&outer) {
           if (top_is<asdl::Comprehension>()) {
-            asdl::GeneratorExp generatorExp;
-            generatorExp.generators.reserve(size() - 1);
+            std::vector<asdl::Comprehension> generators;
+            generators.reserve(size() - 1);
             while (size() > 1) {
-              generatorExp.generators.push_back(pop<asdl::Comprehension>());
+              generators.push_back(pop<asdl::Comprehension>());
             }
-            generatorExp.elt = pop<asdl::ExprImpl>();
-            outer.push(asdl::ExprImpl{std::move(generatorExp)});
+            outer.push(asdl::ExprImpl{asdl::GeneratorExp{
+                pop<asdl::ExprImpl>(), std::move(generators)}});
           } else {
             asdl::Tuple tuple;
-            tuple.elts.resize(size());
-            transform(tuple.elts.begin());
+            tuple.elts.reserve(size());
+            transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
             outer.push(asdl::ExprImpl{std::move(tuple)});
           }
         }
@@ -726,17 +723,17 @@ namespace chimera {
         template <typename Outer>
         void success(Outer &&outer) {
           if (top_is<asdl::Comprehension>()) {
-            asdl::ListComp listComp;
-            listComp.generators.reserve(size() - 1);
+            std::vector<asdl::Comprehension> generators;
+            generators.reserve(size() - 1);
             while (size() > 1) {
-              listComp.generators.push_back(pop<asdl::Comprehension>());
+              generators.push_back(pop<asdl::Comprehension>());
             }
-            listComp.elt = pop<asdl::ExprImpl>();
-            outer.push(asdl::ExprImpl{std::move(listComp)});
+            outer.push(asdl::ExprImpl{
+                asdl::ListComp{pop<asdl::ExprImpl>(), std::move(generators)}});
           } else {
             asdl::List list;
-            list.elts.resize(size());
-            transform(list.elts.begin());
+            list.elts.reserve(size());
+            transform<asdl::ExprImpl>(std::back_inserter(list.elts));
             outer.push(asdl::ExprImpl{std::move(list)});
           }
         }
@@ -871,8 +868,8 @@ namespace chimera {
         void success(Outer &&outer) {
           if (auto s = size(); s > 1) {
             asdl::ExtSlice extSlice;
-            extSlice.dims.resize(s);
-            transform(extSlice.dims.begin());
+            extSlice.dims.reserve(s);
+            transform<asdl::SliceImpl>(std::back_inserter(extSlice.dims));
             outer.push(asdl::SliceImpl{std::move(extSlice)});
           } else {
             outer.push(pop<asdl::SliceImpl>());
@@ -1051,8 +1048,8 @@ namespace chimera {
         void success(Outer &&outer) {
           if (auto s = size(); s > 0) {
             asdl::Tuple tuple;
-            tuple.elts.resize(s);
-            transform(tuple.elts.begin());
+            tuple.elts.reserve(s);
+            transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
             outer.push(asdl::ExprImpl{std::move(tuple)});
           } else {
             outer.push(pop<asdl::ExprImpl>());
@@ -1072,8 +1069,8 @@ namespace chimera {
         void success(Outer &&outer) {
           if (auto s = size(); s > 0) {
             asdl::Tuple tuple;
-            tuple.elts.resize(s);
-            transform(tuple.elts.begin());
+            tuple.elts.reserve(s);
+            transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
             outer.push(asdl::ExprImpl{std::move(tuple)});
           } else {
             outer.push(pop<asdl::ExprImpl>());
@@ -1091,17 +1088,17 @@ namespace chimera {
         template <typename Outer>
         void success(Outer &&outer) {
           if (top_is<asdl::Comprehension>()) {
-            asdl::SetComp setComp;
-            setComp.generators.reserve(size());
-            while (top_is<asdl::Comprehension>()) {
-              setComp.generators.push_back(pop<asdl::Comprehension>());
+            std::vector<asdl::Comprehension> generators;
+            generators.reserve(size() - 1);
+            while (size() > 1) {
+              generators.push_back(pop<asdl::Comprehension>());
             }
-            setComp.elt = pop<asdl::ExprImpl>();
-            outer.push(asdl::ExprImpl{std::move(setComp)});
+            outer.push(asdl::ExprImpl{
+                asdl::SetComp{pop<asdl::ExprImpl>(), std::move(generators)}});
           } else {
             asdl::Set set;
-            set.elts.resize(size());
-            transform(set.elts.begin());
+            set.elts.reserve(size());
+            transform<asdl::ExprImpl>(std::back_inserter(set.elts));
             outer.push(asdl::ExprImpl{std::move(set)});
           }
         }
@@ -1115,7 +1112,7 @@ namespace chimera {
       struct DictMakerUnpackAction {
         template <typename Outer>
         void success(Outer &&outer) {
-          outer.push(asdl::ExprImpl{});
+          outer.push(asdl::ExprImpl{asdl::UnpackDict{}});
         }
       };
       template <bool Implicit>
@@ -1128,7 +1125,7 @@ namespace chimera {
       struct DictMakerEltStartAction : Stack<asdl::ExprImpl> {
         template <typename Outer>
         void success(Outer &&outer) {
-          outer.push(pop<asdl::ExprImpl>());
+          std::visit(outer, pop());
         }
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
@@ -1150,14 +1147,15 @@ namespace chimera {
         template <typename Outer>
         void success(Outer &&outer) {
           if (top_is<asdl::Comprehension>()) {
-            asdl::DictComp dictComp;
-            dictComp.generators.reserve(size());
-            while (top_is<asdl::Comprehension>()) {
-              dictComp.generators.push_back(pop<asdl::Comprehension>());
+            std::vector<asdl::Comprehension> generators;
+            generators.reserve(size() - 1);
+            while (size() > 1) {
+              generators.push_back(pop<asdl::Comprehension>());
             }
-            dictComp.value = pop<asdl::ExprImpl>();
-            dictComp.key = pop<asdl::ExprImpl>();
-            outer.push(asdl::ExprImpl{std::move(dictComp)});
+            auto value = pop<asdl::ExprImpl>();
+            outer.push(asdl::ExprImpl{asdl::DictComp{pop<asdl::ExprImpl>(),
+                                                     std::move(value),
+                                                     std::move(generators)}});
           } else {
             asdl::Dict dict;
             auto s = size() / 2;
@@ -1192,13 +1190,13 @@ namespace chimera {
         template <typename Outer>
         void success(Outer &&outer) {
           if (auto s = size(); s > 1) {
-            asdl::GeneratorExp generatorExp;
-            generatorExp.generators.reserve(s - 1);
+            std::vector<asdl::Comprehension> generators;
+            generators.reserve(size() - 1);
             while (size() > 1) {
-              generatorExp.generators.push_back(pop<asdl::Comprehension>());
+              generators.push_back(pop<asdl::Comprehension>());
             }
-            generatorExp.elt = pop<asdl::ExprImpl>();
-            outer.push(asdl::ExprImpl{std::move(generatorExp)});
+            outer.push(asdl::ExprImpl{asdl::GeneratorExp{
+                pop<asdl::ExprImpl>(), std::move(generators)}});
           } else {
             outer.push(pop<asdl::ExprImpl>());
           }
@@ -1296,10 +1294,9 @@ namespace chimera {
       struct CompForAsyncAction : Stack<asdl::ExprImpl> {
         template <typename Outer>
         void success(Outer &&outer) {
-          asdl::Comprehension comprehension{
-              {}, pop<asdl::ExprImpl>(), {}, true};
-          comprehension.target = pop<asdl::ExprImpl>();
-          outer.push(std::move(comprehension));
+          auto iter = pop<asdl::ExprImpl>();
+          auto target = pop<asdl::ExprImpl>();
+          outer.push(asdl::Comprehension{target, iter, {}, true});
         }
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
@@ -1314,10 +1311,9 @@ namespace chimera {
       struct CompForSyncAction : Stack<asdl::ExprImpl> {
         template <typename Outer>
         void success(Outer &&outer) {
-          asdl::Comprehension comprehension{
-              {}, pop<asdl::ExprImpl>(), {}, false};
-          comprehension.target = pop<asdl::ExprImpl>();
-          outer.push(std::move(comprehension));
+          auto iter = pop<asdl::ExprImpl>();
+          auto target = pop<asdl::ExprImpl>();
+          outer.push(asdl::Comprehension{target, iter, {}, false});
         }
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
