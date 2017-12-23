@@ -193,16 +193,13 @@ namespace chimera {
                                 tao::pegtl::must<Test<Implicit, false, false>>>,
                 SuiteWithDoc<Implicit, AsyncFlow, false, true, false>> {};
       struct FuncDefAction
-          : Stack<asdl::DocString, asdl::StmtImpl, asdl::ExprImpl,
+          : Stack<asdl::DocString, std::vector<asdl::StmtImpl>, asdl::ExprImpl,
                   asdl::Arguments, asdl::Name> {
         template <typename Outer>
         void success(Outer &&outer) {
+          // TODO reshape
           asdl::FunctionDef functionDef;
-          functionDef.body.reserve(size());
-          while (top_is<asdl::StmtImpl>()) {
-            functionDef.body.push_back(pop<asdl::StmtImpl>());
-          }
-          std::reverse(functionDef.body.begin(), functionDef.body.end());
+          functionDef.body = pop<std::vector<asdl::StmtImpl>>();
           if (top_is<asdl::DocString>()) {
             functionDef.doc_string = pop<asdl::DocString>();
           }
@@ -246,8 +243,8 @@ namespace chimera {
         void success(Outer &&outer) {
           if (auto s = size(); s > 1) {
             asdl::Tuple tuple;
-            tuple.elts.resize(s);
-            transform(tuple.elts.begin());
+            tuple.elts.reserve(s);
+            transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
             outer.push(asdl::ExprImpl{std::move(tuple)});
           } else {
             outer.push(pop<asdl::ExprImpl>());
@@ -276,10 +273,8 @@ namespace chimera {
       struct ExprStmtAugAssignAction : Stack<asdl::ExprImpl, asdl::Operator> {
         template <typename Outer>
         void success(Outer &&outer) {
-          asdl::AugAssign augAssign{{}, {}, pop<asdl::ExprImpl>()};
-          augAssign.op = pop<asdl::Operator>();
-          augAssign.target = pop<asdl::ExprImpl>();
-          outer.push(asdl::StmtImpl{std::move(augAssign)});
+          outer.push(asdl::StmtImpl{reshape<asdl::AugAssign, asdl::ExprImpl,
+                                            asdl::Operator, asdl::ExprImpl>()});
         }
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
@@ -299,8 +294,8 @@ namespace chimera {
         template <typename Outer>
         void success(Outer &&outer) {
           asdl::Assign assign{{}, pop<asdl::ExprImpl>()};
-          assign.targets.resize(size());
-          transform(assign.targets.begin());
+          assign.targets.reserve(size());
+          transform<asdl::ExprImpl>(std::back_inserter(assign.targets));
           outer.push(asdl::StmtImpl{std::move(assign)});
         }
       };
@@ -320,13 +315,15 @@ namespace chimera {
       struct AnnAssignAction : Stack<asdl::ExprImpl> {
         template <typename Outer>
         void success(Outer &&outer) {
-          asdl::AnnAssign annAssign;
           if (size() > 2) {
-            annAssign.value = pop<asdl::ExprImpl>();
+            // TODO reshape
+            // outer.push(
+            //     asdl::StmtImpl{reshape<asdl::AnnAssign, asdl::ExprImpl,
+            //                            asdl::ExprImpl, asdl::ExprImpl>()});
+          } else {
+            outer.push(asdl::StmtImpl{
+                reshape<asdl::AnnAssign, asdl::ExprImpl, asdl::ExprImpl>()});
           }
-          annAssign.annotation = pop<asdl::ExprImpl>();
-          annAssign.target = pop<asdl::ExprImpl>();
-          outer.push(asdl::StmtImpl{std::move(annAssign)});
         }
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
@@ -361,8 +358,8 @@ namespace chimera {
         template <typename Outer>
         void success(Outer &&outer) {
           asdl::Delete asdlDelete;
-          asdlDelete.targets.resize(size());
-          transform(asdlDelete.targets.begin());
+          asdlDelete.targets.reserve(size());
+          transform<asdl::ExprImpl>(std::back_inserter(asdlDelete.targets));
           outer.push(asdl::StmtImpl{std::move(asdlDelete)});
         }
       };
@@ -462,15 +459,15 @@ namespace chimera {
         template <typename Outer>
         void success(Outer &&outer) {
           std::vector<asdl::Name> identifiers;
-          identifiers.resize(size());
-          transform(identifiers.begin());
+          identifiers.reserve(size());
+          transform<asdl::Name>(std::back_inserter(identifiers));
           outer.push(std::reduce(identifiers.begin(), identifiers.end(),
                                  asdl::Name{},
                                  [](const auto &ida, const auto &idb) {
                                    auto id = ida.value;
                                    id.reserve(id.size() + idb.value.size() + 1);
                                    if (!id.empty()) {
-                                     id.append(".");
+                                     id.append(1, '.');
                                    }
                                    id.append(idb.value);
                                    return asdl::Name{id};
@@ -508,8 +505,8 @@ namespace chimera {
         template <typename Outer>
         void success(Outer &&outer) {
           asdl::Import import;
-          import.names.resize(size());
-          transform(import.names.begin());
+          import.names.reserve(size());
+          transform<asdl::Alias>(std::back_inserter(import.names));
           outer.push(asdl::StmtImpl{std::move(import)});
         }
       };
@@ -570,8 +567,9 @@ namespace chimera {
         template <typename Outer>
         void success(Outer &&outer) {
           [this](auto &&importFrom) {
-            importFrom.names.resize(this->size());
-            this->transform(importFrom.names.begin());
+            importFrom.names.reserve(this->size());
+            this->template transform<asdl::Alias>(
+                std::back_inserter(importFrom.names));
           }(std::get<asdl::ImportFrom>(
               *outer.template top<asdl::StmtImpl>().value));
         }
@@ -612,8 +610,8 @@ namespace chimera {
         template <typename Outer>
         void success(Outer &&outer) {
           asdl::Global global;
-          global.names.resize(size());
-          transform(global.names.begin());
+          global.names.reserve(size());
+          transform<asdl::Name>(std::back_inserter(global.names));
           outer.push(asdl::StmtImpl{std::move(global)});
         }
       };
@@ -629,8 +627,8 @@ namespace chimera {
         template <typename Outer>
         void success(Outer &&outer) {
           asdl::Nonlocal nonlocal;
-          nonlocal.names.resize(size());
-          transform(nonlocal.names.begin());
+          nonlocal.names.reserve(size());
+          transform<asdl::Name>(std::back_inserter(nonlocal.names));
           outer.push(asdl::StmtImpl{std::move(nonlocal)});
         }
       };
@@ -646,12 +644,13 @@ namespace chimera {
       struct AssertStmtAction : Stack<asdl::ExprImpl> {
         template <typename Outer>
         void success(Outer &&outer) {
-          asdl::Assert assert;
           if (size() > 1) {
-            assert.msg = pop<asdl::ExprImpl>();
+            // TODO reshape
+            // outer.push(asdl::StmtImpl{
+            //     reshape<asdl::Assert, asdl::ExprImpl, asdl::ExprImpl>()});
+          } else {
+            outer.push(asdl::StmtImpl{reshape<asdl::Assert, asdl::ExprImpl>()});
           }
-          assert.test = pop<asdl::ExprImpl>();
-          outer.push(asdl::StmtImpl{std::move(assert)});
         }
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
@@ -660,106 +659,87 @@ namespace chimera {
                         AssertStmtAction> {};
       template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
                 bool ImportAll>
-      struct IfStmtIf
-          : tao::pegtl::if_must<
-                If<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>,
+      struct IfStmtBranch
+          : tao::pegtl::seq<
+                Test<Implicit, AsyncFlow, ScopeFlow>,
                 Suite<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>> {};
-      struct IfStmtIfAction : Stack<asdl::StmtImpl, asdl::ExprImpl> {
+      struct IfStmtBranchAction
+          : Stack<std::vector<asdl::StmtImpl>, asdl::ExprImpl> {
         template <typename Outer>
-        void success(Outer &&outer) {
-          asdl::If asdlIf;
-          asdlIf.body.reserve(size() - 1);
-          while (top_is<asdl::StmtImpl>()) {
-            asdlIf.body.push_back(pop<asdl::StmtImpl>());
-          }
-          std::reverse(asdlIf.body.begin(), asdlIf.body.end());
-          asdlIf.test = pop<asdl::ExprImpl>();
-          outer.push(asdl::StmtImpl{std::move(asdlIf)});
+        void success(Outer && /*outer*/) {
+          // TODO reshape
+          // outer.push(reshape<asdl::IfBranch, asdl::ExprImpl,
+          //                    std::vector<asdl::StmtImpl>>());
         }
       };
       template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
                 bool ImportAll>
       struct Control<
-          IfStmtIf<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>>
-          : ChangeState<
-                IfStmtIf<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>,
-                IfStmtIfAction> {};
+          IfStmtBranch<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>>
+          : ChangeState<IfStmtBranch<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
+                                     ImportAll>,
+                        IfStmtBranchAction> {};
+      template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
+                bool ImportAll>
+      struct IfStmtIf
+          : tao::pegtl::if_must<If<Implicit>,
+                                IfStmtBranch<Implicit, AsyncFlow, LoopFlow,
+                                             ScopeFlow, ImportAll>> {};
       template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
                 bool ImportAll>
       struct IfStmtElif
-          : tao::pegtl::if_must<
-                Elif<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>,
-                Suite<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>> {};
-      struct IfStmtElifAction : Stack<asdl::StmtImpl, asdl::ExprImpl> {
+          : tao::pegtl::if_must<Elif<Implicit>,
+                                IfStmtBranch<Implicit, AsyncFlow, LoopFlow,
+                                             ScopeFlow, ImportAll>> {};
+      struct IfStmtBranchesAction : Stack<asdl::IfBranch> {
         template <typename Outer>
         void success(Outer &&outer) {
-          asdl::If asdlIf;
-          asdlIf.body.reserve(size() - 1);
-          while (top_is<asdl::StmtImpl>()) {
-            asdlIf.body.push_back(pop<asdl::StmtImpl>());
-          }
-          std::reverse(asdlIf.body.begin(), asdlIf.body.end());
-          asdlIf.test = pop<asdl::ExprImpl>();
-          outer.push(asdl::StmtImpl{std::move(asdlIf)});
+          std::vector<asdl::IfBranch> branches;
+          branches.reserve(size());
+          transform<asdl::IfBranch>(std::back_inserter(branches));
+          outer.push(std::move(branches));
         }
       };
       template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
                 bool ImportAll>
+      struct IfStmtBranches
+          : tao::pegtl::seq<
+                IfStmtIf<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>,
+                tao::pegtl::star<IfStmtElif<Implicit, AsyncFlow, LoopFlow,
+                                            ScopeFlow, ImportAll>>> {};
+      template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
+                bool ImportAll>
       struct Control<
-          IfStmtElif<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>>
-          : ChangeState<
-                IfStmtElif<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>,
-                IfStmtElifAction> {};
+          IfStmtBranches<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>>
+          : ChangeState<IfStmtBranches<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
+                                       ImportAll>,
+                        IfStmtBranchesAction> {};
       template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
                 bool ImportAll>
       struct IfStmtElse
           : tao::pegtl::if_must<
                 Else<Implicit>,
                 Suite<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>> {};
-      struct IfStmtElseAction : Stack<asdl::StmtImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          asdl::If asdlIf;
-          asdlIf.body.resize(size());
-          transform(asdlIf.body.begin());
-          outer.push(asdl::StmtImpl{std::move(asdlIf)});
-        }
-      };
-      template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
-                bool ImportAll>
-      struct Control<
-          IfStmtElse<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>>
-          : ChangeState<
-                IfStmtElse<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>,
-                IfStmtElseAction> {};
       template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
                 bool ImportAll>
       struct IfStmt
           : tao::pegtl::seq<
-                IfStmtIf<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>,
-                tao::pegtl::star<IfStmtElif<Implicit, AsyncFlow, LoopFlow,
-                                            ScopeFlow, ImportAll>>,
+                IfStmtBranches<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
+                               ImportAll>,
                 tao::pegtl::opt<IfStmtElse<Implicit, AsyncFlow, LoopFlow,
                                            ScopeFlow, ImportAll>>> {};
-      struct IfStmtAction : Stack<asdl::StmtImpl> {
+      struct IfStmtAction
+          : Stack<std::vector<asdl::IfBranch>, std::vector<asdl::StmtImpl>> {
         template <typename Outer>
-        void success(Outer &&outer) {
+        void success(Outer && /*outer*/) {
+          // TODO reshape
           if (size() > 1) {
-            auto stmt = pop<asdl::StmtImpl>();
-            if (!std::get<asdl::If>(*stmt.value).test.value) {
-              auto next = pop<asdl::StmtImpl>();
-              std::get<asdl::If>(*next.value).orelse =
-                  std::move(std::get<asdl::If>(*stmt.value).body);
-              stmt = std::move(next);
-            }
-            while (has_value()) {
-              auto next = pop<asdl::StmtImpl>();
-              std::get<asdl::If>(*next.value).orelse.push_back(std::move(stmt));
-              stmt = std::move(next);
-            }
-            outer.push(std::move(stmt));
+            // outer.push(
+            //     asdl::StmtImpl{reshape<asdl::If, std::vector<asdl::IfBranch>,
+            //                            std::vector<asdl::StmtImpl>>()});
           } else {
-            outer.push(pop<asdl::StmtImpl>());
+            // outer.push(asdl::StmtImpl{
+            //     reshape<asdl::If, std::vector<asdl::IfBranch>>()});
           }
         }
       };
@@ -770,139 +750,87 @@ namespace chimera {
           : ChangeState<
                 IfStmt<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>,
                 IfStmtAction> {};
-      template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
-                bool ImportAll>
-      struct WhileStmtElse
-          : tao::pegtl::if_must<
-                Else<Implicit>,
-                Suite<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>> {};
-      struct WhileStmtElseAction : Stack<asdl::StmtImpl> {
+      struct WhileStmtAction
+          : Stack<std::vector<asdl::StmtImpl>, asdl::ExprImpl> {
         template <typename Outer>
-        void success(Outer &&outer) {
-          [this](auto &&asdlWhile) {
-            asdlWhile.orelse.resize(this->size());
-            this->transform(asdlWhile.orelse.begin());
-          }(std::get<asdl::While>(*outer.template top<asdl::StmtImpl>().value));
-        }
-      };
-      template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
-                bool ImportAll>
-      struct Control<
-          WhileStmtElse<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>>
-          : ChangeState<WhileStmtElse<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
-                                      ImportAll>,
-                        WhileStmtElseAction> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow, bool ImportAll>
-      struct WhileStmtWhile
-          : tao::pegtl::if_must<
-                While<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>,
-                Suite<Implicit, AsyncFlow, true, ScopeFlow, ImportAll>> {};
-      struct WhileStmtWhileAction : Stack<asdl::StmtImpl, asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          asdl::While asdlWhile;
-          asdlWhile.body.reserve(size() - 1);
-          while (size() > 1) {
-            asdlWhile.body.push_back(pop<asdl::StmtImpl>());
+        void success(Outer && /*outer*/) {
+          // TODO reshape
+          if (size() > 2) {
+            // outer.push(asdl::StmtImpl{reshape<asdl::While, asdl::ExprImpl,
+            //                                   std::vector<asdl::StmtImpl>,
+            //                                   std::vector<asdl::StmtImpl>>()});
+          } else {
+            // outer.push(asdl::StmtImpl{reshape<asdl::While, asdl::ExprImpl,
+            //                                   std::vector<asdl::StmtImpl>>()});
           }
-          std::reverse(asdlWhile.body.begin(), asdlWhile.body.end());
-          asdlWhile.test = pop<asdl::ExprImpl>();
-          outer.push(asdl::StmtImpl{std::move(asdlWhile)});
         }
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow, bool ImportAll>
-      struct Control<WhileStmtWhile<Implicit, AsyncFlow, ScopeFlow, ImportAll>>
-          : ChangeState<
-                WhileStmtWhile<Implicit, AsyncFlow, ScopeFlow, ImportAll>,
-                WhileStmtWhileAction> {};
       template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
                 bool ImportAll>
       struct WhileStmt
-          : tao::pegtl::seq<
-                WhileStmtWhile<Implicit, AsyncFlow, ScopeFlow, ImportAll>,
-                tao::pegtl::opt<WhileStmtElse<Implicit, AsyncFlow, LoopFlow,
-                                              ScopeFlow, ImportAll>>> {};
-      template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
-                bool ImportAll>
-      struct ForStmtElse
           : tao::pegtl::if_must<
-                Else<Implicit>,
-                Suite<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>> {};
-      struct ForStmtElseAction : Stack<asdl::StmtImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          [this](auto &&asdlFor) {
-            asdlFor.orelse.resize(this->size());
-            this->transform(asdlFor.orelse.begin());
-          }(std::get<asdl::For>(*outer.template top<asdl::StmtImpl>().value));
-        }
-      };
+                While<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>,
+                Suite<Implicit, AsyncFlow, true, ScopeFlow, ImportAll>,
+                tao::pegtl::opt<
+                    Else<Implicit>,
+                    tao::pegtl::must<Suite<Implicit, AsyncFlow, LoopFlow,
+                                           ScopeFlow, ImportAll>>>> {};
       template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
                 bool ImportAll>
       struct Control<
-          ForStmtElse<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>>
-          : ChangeState<ForStmtElse<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
-                                    ImportAll>,
-                        ForStmtElseAction> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow, bool ImportAll>
-      struct ForStmtFor
-          : tao::pegtl::if_must<
-                For<Implicit>, ExprList<Implicit, AsyncFlow, ScopeFlow>,
-                In<Implicit>, TestList<Implicit, AsyncFlow, ScopeFlow>,
-                Suite<Implicit, AsyncFlow, true, ScopeFlow, ImportAll>> {};
-      struct ForStmtForAction : Stack<asdl::StmtImpl, asdl::ExprImpl> {
+          WhileStmt<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>>
+          : ChangeState<
+                WhileStmt<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>,
+                WhileStmtAction> {};
+      struct ForStmtAction
+          : Stack<std::vector<asdl::StmtImpl>, asdl::ExprImpl> {
         template <typename Outer>
-        void success(Outer &&outer) {
-          asdl::For asdlFor;
-          asdlFor.body.reserve(size() - 2);
-          while (size() > 2) {
-            asdlFor.body.push_back(pop<asdl::StmtImpl>());
+        void success(Outer && /*outer*/) {
+          // TODO reshape
+          if (size() > 3) {
+            // outer.push(asdl::StmtImpl{
+            //     reshape<asdl::For, asdl::ExprImpl, asdl::ExprImpl,
+            //             std::vector<asdl::StmtImpl>,
+            //             std::vector<asdl::StmtImpl>>()});
+          } else {
+            // outer.push(asdl::StmtImpl{
+            //     reshape<asdl::For, asdl::ExprImpl, asdl::ExprImpl,
+            //             std::vector<asdl::StmtImpl>>()});
           }
-          asdlFor.iter = pop<asdl::ExprImpl>();
-          asdlFor.target = pop<asdl::ExprImpl>();
-          outer.push(asdl::StmtImpl{std::move(asdlFor)});
         }
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow, bool ImportAll>
-      struct Control<ForStmtFor<Implicit, AsyncFlow, ScopeFlow, ImportAll>>
-          : ChangeState<ForStmtFor<Implicit, AsyncFlow, ScopeFlow, ImportAll>,
-                        ForStmtForAction> {};
       template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
                 bool ImportAll>
       struct ForStmt
-          : tao::pegtl::seq<
-                ForStmtFor<Implicit, AsyncFlow, ScopeFlow, ImportAll>,
-                tao::pegtl::opt<ForStmtElse<Implicit, AsyncFlow, LoopFlow,
-                                            ScopeFlow, ImportAll>>> {};
+          : tao::pegtl::if_must<
+                For<Implicit>, ExprList<Implicit, AsyncFlow, ScopeFlow>,
+                In<Implicit>, TestList<Implicit, AsyncFlow, ScopeFlow>,
+                Suite<Implicit, AsyncFlow, true, ScopeFlow, ImportAll>,
+                tao::pegtl::opt<
+                    Else<Implicit>,
+                    tao::pegtl::must<Suite<Implicit, AsyncFlow, LoopFlow,
+                                           ScopeFlow, ImportAll>>>> {};
+      template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
+                bool ImportAll>
+      struct Control<
+          ForStmt<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>>
+          : ChangeState<
+                ForStmt<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>,
+                ForStmtAction> {};
       template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
                 bool ImportAll>
       struct TryStmtTry
           : tao::pegtl::if_must<
                 Try<Implicit>,
                 Suite<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>> {};
-      struct TryStmtTryAction : Stack<asdl::StmtImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          asdl::Try asdlTry;
-          asdlTry.body.resize(size());
-          transform(asdlTry.body.begin());
-          outer.push(asdl::StmtImpl{std::move(asdlTry)});
-        }
-      };
-      template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
-                bool ImportAll>
-      struct Control<
-          TryStmtTry<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>>
-          : ChangeState<
-                TryStmtTry<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>,
-                TryStmtTryAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct ExceptClause
           : tao::pegtl::seq<
                 Except<Implicit>,
                 tao::pegtl::opt<
                     Test<Implicit, AsyncFlow, ScopeFlow>,
-                    tao::pegtl::opt<As<Implicit>, Name<Implicit>>>> {};
+                    tao::pegtl::opt<As<Implicit>,
+                                    tao::pegtl::must<Name<Implicit>>>>> {};
       template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
                 bool ImportAll>
       struct TryStmtExcept
@@ -910,25 +838,27 @@ namespace chimera {
                 ExceptClause<Implicit, AsyncFlow, ScopeFlow>,
                 Suite<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>> {};
       struct TryStmtExceptAction
-          : Stack<asdl::StmtImpl, asdl::ExprImpl, asdl::Name> {
+          : Stack<std::vector<asdl::StmtImpl>, asdl::ExprImpl, asdl::Name> {
         template <typename Outer>
-        void success(Outer &&outer) {
-          [this](auto &&asdlTry) {
-            asdl::ExceptHandler exceptHandler;
-            exceptHandler.body.reserve(this->size());
-            while (this->template top_is<asdl::StmtImpl>()) {
-              exceptHandler.body.push_back(
-                  this->template pop<asdl::StmtImpl>());
-            }
-            std::reverse(exceptHandler.body.begin(), exceptHandler.body.end());
-            if (this->template top_is<asdl::Name>()) {
-              exceptHandler.name = this->template pop<asdl::Name>();
-            }
-            if (this->has_value()) {
-              exceptHandler.type = this->template pop<asdl::ExprImpl>();
-            }
-            asdlTry.handlers.push_back(std::move(exceptHandler));
-          }(std::get<asdl::Try>(*outer.template top<asdl::StmtImpl>().value));
+        void success(Outer && /*outer*/) {
+          // TODO reshape
+          switch (size()) {
+            // case 1:
+            //   outer.push(
+            //       reshape<asdl::ExceptHandler,
+            //       std::vector<asdl::StmtImpl>>());
+            //   break;
+            // case 2:
+            //   outer.push(reshape<asdl::ExceptHandler, asdl::ExprImpl,
+            //                      std::vector<asdl::StmtImpl>>());
+            //   break;
+            // case 3:
+            //   outer.push(reshape<asdl::ExceptHandler, asdl::ExprImpl,
+            //                      asdl::Name, std::vector<asdl::StmtImpl>>());
+            //   break;
+            default:
+              Ensures(false);
+          }
         }
       };
       template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
@@ -944,65 +874,58 @@ namespace chimera {
           : tao::pegtl::if_must<
                 Else<Implicit>,
                 Suite<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>> {};
-      struct TryStmtElseAction : Stack<asdl::StmtImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          [this](auto &&asdlTry) {
-            asdlTry.orelse.resize(this->size());
-            this->transform(asdlTry.orelse.begin());
-          }(std::get<asdl::Try>(*outer.template top<asdl::StmtImpl>().value));
-        }
-      };
-      template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
-                bool ImportAll>
-      struct Control<
-          TryStmtElse<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>>
-          : ChangeState<TryStmtElse<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
-                                    ImportAll>,
-                        TryStmtElseAction> {};
       template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
                 bool ImportAll>
       struct TryStmtFinally
           : tao::pegtl::if_must<
                 Finally<Implicit>,
                 Suite<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>> {};
-      struct TryStmtFinallyAction : Stack<asdl::StmtImpl> {
+      template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
+                bool ImportAll>
+      struct TryStmtExcepts
+          : tao::pegtl::plus<TryStmtExcept<Implicit, AsyncFlow, LoopFlow,
+                                           ScopeFlow, ImportAll>> {};
+      struct TryStmtExceptsAction : Stack<asdl::ExceptHandler> {
         template <typename Outer>
         void success(Outer &&outer) {
-          [this](auto &&asdlTry) {
-            asdlTry.finalbody.resize(this->size());
-            this->transform(asdlTry.finalbody.begin());
-          }(std::get<asdl::Try>(*outer.template top<asdl::StmtImpl>().value));
+          std::vector<asdl::Excepthandler> body;
+          body.reserve(size());
+          transform<asdl::ExceptHandler>(std::back_inserter(body));
+          outer.push(std::move(body));
         }
       };
       template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
                 bool ImportAll>
       struct Control<
-          TryStmtFinally<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>>
-          : ChangeState<TryStmtFinally<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
+          TryStmtExcepts<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>>
+          : ChangeState<TryStmtExcepts<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
                                        ImportAll>,
-                        TryStmtFinallyAction> {};
+                        TryStmtExceptsAction> {};
       template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
                 bool ImportAll>
       struct TryStmt
           : tao::pegtl::seq<
                 TryStmtTry<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>,
                 tao::pegtl::sor<
-                    tao::pegtl::seq<tao::pegtl::plus<TryStmtExcept<
-                                        Implicit, AsyncFlow, LoopFlow,
+                    tao::pegtl::seq<
+                        TryStmtExcepts<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
+                                       ImportAll>,
+                        tao::pegtl::opt<
+                            TryStmtElse<Implicit, AsyncFlow, LoopFlow,
                                         ScopeFlow, ImportAll>>,
-                                    tao::pegtl::opt<TryStmtElse<
-                                        Implicit, AsyncFlow, LoopFlow,
-                                        ScopeFlow, ImportAll>>,
-                                    tao::pegtl::opt<TryStmtFinally<
-                                        Implicit, AsyncFlow, LoopFlow,
-                                        ScopeFlow, ImportAll>>>,
+                        tao::pegtl::opt<
+                            TryStmtFinally<Implicit, AsyncFlow, LoopFlow,
+                                           ScopeFlow, ImportAll>>>,
                     TryStmtFinally<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
                                    ImportAll>>> {};
-      struct TryStmtAction : Stack<asdl::StmtImpl> {
+      struct TryStmtAction : Stack<std::vector<asdl::StmtImpl>,
+                                   std::vector<asdl::Excepthandler>> {
         template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(pop<asdl::StmtImpl>());
+        void success(Outer && /*outer*/) {
+          // TODO reshape
+          // outer.push(
+          //     asdl::StmtImpl{reshape<asdl::Try, std::vector<asdl::StmtImpl>,
+          //                            std::vector<asdl::Excepthandler>>()});
         }
       };
       template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
@@ -1021,12 +944,13 @@ namespace chimera {
       struct WithItemAction : Stack<asdl::ExprImpl> {
         template <typename Outer>
         void success(Outer &&outer) {
-          asdl::Withitem withItem;
           if (size() > 1) {
-            withItem.optional_vars = pop<asdl::ExprImpl>();
+            // TODO reshape
+            // outer.push(
+            //     reshape<asdl::Withitem, asdl::ExprImpl, asdl::ExprImpl>());
+          } else {
+            outer.push(reshape<asdl::Withitem, asdl::ExprImpl>());
           }
-          withItem.context_expr = pop<asdl::ExprImpl>();
-          outer.push(std::move(withItem));
         }
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
@@ -1041,17 +965,14 @@ namespace chimera {
                 tao::pegtl::list_must<WithItem<Implicit, AsyncFlow, ScopeFlow>,
                                       Comma<Implicit>>,
                 Suite<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>> {};
-      struct WithStmtAction : Stack<asdl::StmtImpl, asdl::Withitem> {
+      struct WithStmtAction
+          : Stack<std::vector<asdl::StmtImpl>, asdl::Withitem> {
         template <typename Outer>
         void success(Outer &&outer) {
           asdl::With with;
-          with.body.reserve(size());
-          while (top_is<asdl::StmtImpl>()) {
-            with.body.push_back(pop<asdl::StmtImpl>());
-          }
-          std::reverse(with.body.begin(), with.body.end());
-          with.items.resize(size());
-          transform(with.items.begin());
+          with.body = pop<std::vector<asdl::StmtImpl>>();
+          with.items.reserve(size());
+          transform<asdl::Withitem>(std::back_inserter(with.items));
           outer.push(asdl::StmtImpl{std::move(with)});
         }
       };
@@ -1068,15 +989,14 @@ namespace chimera {
                 Class<Implicit>, Name<Implicit>,
                 tao::pegtl::opt<ParenOpt<Implicit, false, false, ArgList>>,
                 SuiteWithDoc<Implicit, false, false, false, false>> {};
-      struct ClassDefAction : Stack<asdl::DocString, asdl::StmtImpl,
-                                    asdl::ExprImpl, asdl::Keyword, asdl::Name> {
+      struct ClassDefAction
+          : Stack<asdl::DocString, std::vector<asdl::StmtImpl>, asdl::ExprImpl,
+                  asdl::Keyword, asdl::Name> {
         template <typename Outer>
         void success(Outer &&outer) {
+          // TODO reshape
           asdl::ClassDef classDef;
-          classDef.body.reserve(size());
-          while (top_is<asdl::StmtImpl>()) {
-            classDef.body.push_back(pop<asdl::StmtImpl>());
-          }
+          classDef.body = pop<std::vector<asdl::StmtImpl>>();
           if (top_is<asdl::DocString>()) {
             classDef.doc_string = pop<asdl::DocString>();
           }
@@ -1142,8 +1062,9 @@ namespace chimera {
         template <typename Outer>
         void success(Outer &&outer) {
           auto action = [this](auto &&def) {
-            def.decorator_list.resize(this->size());
-            this->transform(def.decorator_list.begin());
+            def.decorator_list.reserve(this->size());
+            this->template transform<asdl::ExprImpl>(
+                std::back_inserter(def.decorator_list));
           };
           auto stmt = pop<asdl::StmtImpl>();
           if (std::holds_alternative<asdl::ClassDef>(*stmt.value)) {
@@ -1224,6 +1145,51 @@ namespace chimera {
                                                  ScopeFlow, ImportAll>,
                                     SimpleStmt<Implicit, AsyncFlow, LoopFlow,
                                                ScopeFlow, ImportAll>> {};
+      struct SuiteAction : Stack<asdl::StmtImpl> {
+        template <typename Outer>
+        void success(Outer &&outer) {
+          std::vector<asdl::StmtImpl> body;
+          body.reserve(size());
+          transform<asdl::StmtImpl>(std::back_inserter(body));
+          outer.push(std::move(body));
+        }
+      };
+      template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
+                bool ImportAll>
+      struct SuiteSimpleStmt
+          : tao::pegtl::seq<SimpleStmt<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
+                                       ImportAll>> {};
+      template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
+                bool ImportAll>
+      struct Control<
+          SuiteSimpleStmt<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>>
+          : ChangeState<SuiteSimpleStmt<Implicit, AsyncFlow, LoopFlow,
+                                        ScopeFlow, ImportAll>,
+                        SuiteAction> {};
+      template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
+                bool ImportAll>
+      struct SuiteSeqStmtPlus
+          : tao::pegtl::plus<
+                Stmt<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>> {};
+      template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
+                bool ImportAll>
+      struct Control<
+          SuiteSeqStmtPlus<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>>
+          : ChangeState<SuiteSeqStmtPlus<Implicit, AsyncFlow, LoopFlow,
+                                         ScopeFlow, ImportAll>,
+                        SuiteAction> {};
+      template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
+                bool ImportAll>
+      struct SuiteSeqStmtStar
+          : tao::pegtl::star<
+                Stmt<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>> {};
+      template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
+                bool ImportAll>
+      struct Control<
+          SuiteSeqStmtStar<Implicit, AsyncFlow, LoopFlow, ScopeFlow, ImportAll>>
+          : ChangeState<SuiteSeqStmtStar<Implicit, AsyncFlow, LoopFlow,
+                                         ScopeFlow, ImportAll>,
+                        SuiteAction> {};
       template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
                 bool ImportAll>
       struct SuiteWithDoc
@@ -1231,31 +1197,30 @@ namespace chimera {
                 Colon<Implicit>,
                 tao::pegtl::sor<
                     DocString<Implicit>,
-                    SimpleStmt<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
-                               ImportAll>,
+                    SuiteSimpleStmt<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
+                                    ImportAll>,
                     tao::pegtl::if_must<
                         INDENT,
                         tao::pegtl::sor<
-                            tao::pegtl::seq<DocString<Implicit>,
-                                            tao::pegtl::star<Stmt<
-                                                Implicit, AsyncFlow, LoopFlow,
-                                                ScopeFlow, ImportAll>>>,
-                            tao::pegtl::plus<Stmt<Implicit, AsyncFlow, LoopFlow,
-                                                  ScopeFlow, ImportAll>>>,
+                            tao::pegtl::seq<
+                                DocString<Implicit>,
+                                SuiteSeqStmtStar<Implicit, AsyncFlow, LoopFlow,
+                                                 ScopeFlow, ImportAll>>,
+                            SuiteSeqStmtPlus<Implicit, AsyncFlow, LoopFlow,
+                                             ScopeFlow, ImportAll>>,
                         DEDENT>>> {};
       template <bool Implicit, bool AsyncFlow, bool LoopFlow, bool ScopeFlow,
                 bool ImportAll>
-      struct Suite
-          : tao::pegtl::if_must<
-                Colon<Implicit>,
-                tao::pegtl::sor<
-                    SimpleStmt<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
-                               ImportAll>,
-                    tao::pegtl::if_must<
-                        INDENT,
-                        tao::pegtl::plus<Stmt<Implicit, AsyncFlow, LoopFlow,
-                                              ScopeFlow, ImportAll>>,
-                        DEDENT>>> {};
+      struct Suite : tao::pegtl::if_must<
+                         Colon<Implicit>,
+                         tao::pegtl::sor<
+                             SuiteSimpleStmt<Implicit, AsyncFlow, LoopFlow,
+                                             ScopeFlow, ImportAll>,
+                             tao::pegtl::if_must<
+                                 INDENT,
+                                 SuiteSeqStmtPlus<Implicit, AsyncFlow, LoopFlow,
+                                                  ScopeFlow, ImportAll>,
+                                 DEDENT>>> {};
     } // namespace grammar
   }   // namespace library
 } // namespace chimera

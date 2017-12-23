@@ -42,6 +42,8 @@ namespace chimera {
   namespace library {
     namespace grammar {
       namespace string {
+        using namespace std::literals;
+
         template <typename Rule>
         struct Actions : tao::pegtl::nothing<Rule> {};
         template <typename Rule>
@@ -175,7 +177,7 @@ namespace chimera {
         struct Actions<LeftFLiteral> {
           template <typename ProcessContext, typename Top>
           static void apply0(ProcessContext && /*processContext*/, Top &&top) {
-            top.apply(std::string_view("{", 1));
+            top.apply("{"sv);
           }
         };
         struct RightFLiteral : tao::pegtl::two<'}'> {};
@@ -183,7 +185,7 @@ namespace chimera {
         struct Actions<RightFLiteral> {
           template <typename ProcessContext, typename Top>
           static void apply0(ProcessContext && /*processContext*/, Top &&top) {
-            top.apply(std::string_view("}", 1));
+            top.apply("}"sv);
           }
         };
         struct FLiteral
@@ -203,8 +205,8 @@ namespace chimera {
           void success(Outer &&outer) {
             if (auto s = size(); s > 0) {
               asdl::JoinedStr joinedStr;
-              joinedStr.values.resize(s);
-              transform(joinedStr.values.begin());
+              joinedStr.values.reserve(s);
+              transform<asdl::ExprImpl>(std::back_inserter(joinedStr.values));
               outer.push(asdl::ExprImpl{std::move(joinedStr)});
             }
           }
@@ -321,25 +323,25 @@ namespace chimera {
                             ProcessContext && /*processContext*/, Top &&top) {
             switch (in.peek_char()) {
               case 'a':
-                top.apply(std::string_view("\a", 1));
+                top.apply("\a"sv);
                 break;
               case 'b':
-                top.apply(std::string_view("\b", 1));
+                top.apply("\b"sv);
                 break;
               case 'f':
-                top.apply(std::string_view("\f", 1));
+                top.apply("\f"sv);
                 break;
               case 'n':
-                top.apply(std::string_view("\n", 1));
+                top.apply("\n"sv);
                 break;
               case 'r':
-                top.apply(std::string_view("\r", 1));
+                top.apply("\r"sv);
                 break;
               case 't':
-                top.apply(std::string_view("\t", 1));
+                top.apply("\t"sv);
                 break;
               case 'v':
-                top.apply(std::string_view("\v", 1));
+                top.apply("\v"sv);
                 break;
               default:
                 Ensures(false);
@@ -353,7 +355,7 @@ namespace chimera {
           template <typename Input, typename ProcessContext, typename Top>
           static void apply(const Input &in,
                             ProcessContext && /*processContext*/, Top &&top) {
-            top.apply(std::string_view(R"(\)", 1));
+            top.apply(R"(\)"sv);
             top.apply(in.string());
           }
         };

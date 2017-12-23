@@ -44,7 +44,20 @@ namespace chimera {
                     Implicit, Utf8Space,
                     tao::pegtl::minus<Utf8Space,
                                       tao::pegtl::one<'\r', '\n'>>>>> {};
-      struct BlankLines
+      template <bool Discard>
+      struct BlankLines;
+      template <>
+      struct BlankLines<true>
+          : tao::pegtl::seq<
+                tao::pegtl::plus<Space<false>, tao::pegtl::eol,
+                                 tao::pegtl::discard>,
+                tao::pegtl::sor<tao::pegtl::plus<tao::pegtl::one<' '>>,
+                                tao::pegtl::star<tao::pegtl::one<'\t'>>>,
+                tao::pegtl::must<
+                    tao::pegtl::not_at<tao::pegtl::one<' ', '\t'>>>,
+                tao::pegtl::discard> {};
+      template <>
+      struct BlankLines<false>
           : tao::pegtl::seq<
                 tao::pegtl::plus<Space<false>, tao::pegtl::eol>,
                 tao::pegtl::sor<tao::pegtl::plus<tao::pegtl::one<' '>>,
@@ -57,8 +70,7 @@ namespace chimera {
           return in.indent();
         }
       };
-      struct INDENT
-          : tao::pegtl::seq<BlankLines, IndentCheck, tao::pegtl::discard> {};
+      struct INDENT : tao::pegtl::seq<BlankLines<true>, IndentCheck> {};
       struct DedentCheck : tao::pegtl::not_at<tao::pegtl::one<' ', '\t'>> {
         template <typename Input>
         static bool match(Input &&in) {
@@ -74,18 +86,16 @@ namespace chimera {
       struct DEDENT
           : tao::pegtl::sor<
                 tao::pegtl::seq<tao::pegtl::eof, DedentConsume>,
-                tao::pegtl::seq<tao::pegtl::at<BlankLines, DedentCheck>,
-                                tao::pegtl::opt<BlankLines, DedentConsume,
-                                                tao::pegtl::discard>>> {};
+                tao::pegtl::seq<
+                    tao::pegtl::at<BlankLines<false>, DedentCheck>,
+                    tao::pegtl::opt<BlankLines<false>, DedentConsume>>> {};
       struct NextIndentCheck : tao::pegtl::not_at<tao::pegtl::one<' ', '\t'>> {
         template <typename Input>
         static bool match(Input &&in) {
           return in.is_newline();
         }
       };
-      struct NEWLINE
-          : tao::pegtl::seq<BlankLines, NextIndentCheck, tao::pegtl::discard> {
-      };
+      struct NEWLINE : tao::pegtl::seq<BlankLines<true>, NextIndentCheck> {};
       template <bool Implicit, typename... Rules>
       using Token = tao::pegtl::seq<Rules..., Space<Implicit>>;
     } // namespace grammar

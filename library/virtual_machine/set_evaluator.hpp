@@ -40,6 +40,7 @@ namespace chimera {
         [[noreturn]] void evaluate(const asdl::IfExp &ifExp);
         [[noreturn]] void evaluate(const asdl::ListComp &listComp);
         [[noreturn]] void evaluate(const asdl::SetComp &setComp);
+        [[noreturn]] void evaluate(const asdl::UnpackDict &unpackDict);
         [[noreturn]] void evaluate(const asdl::DictComp &dictComp);
         [[noreturn]] void evaluate(const asdl::GeneratorExp &generatorExp);
         [[noreturn]] void evaluate(const asdl::Await &await);
@@ -60,6 +61,7 @@ namespace chimera {
         void evaluate(const asdl::List &list);
         void evaluate(const asdl::Tuple &tuple);
         [[noreturn]] void evaluate(const asdl::Constant &constant);
+        [[noreturn]] void evaluate(const object::Object &object);
       };
     } // namespace virtual_machine
   }   // namespace library
