@@ -82,6 +82,9 @@ namespace chimera {
       void Evaluator::exit_scope() { scope.exit_scope(); }
 
       void Evaluator::extend(const std::vector<asdl::StmtImpl> &instructions) {
+        if (instructions.empty()) {
+          return;
+        }
         for (const auto &instruction : container::reverse(instructions)) {
           evaluate(instruction);
         }
@@ -94,6 +97,9 @@ namespace chimera {
       }
 
       void Evaluator::evaluate(const asdl::StmtImpl &stmt) {
+        if (!stmt.value) {
+          return;
+        }
         std::visit([this](const auto &value) { this->evaluate(value); },
                    *stmt.value);
       }
@@ -147,6 +153,13 @@ namespace chimera {
 
       void Evaluator::evaluate(const asdl::Module &module) {
         enter_scope(thread_context.main);
+        if (module.doc_string) {
+          self().set_attribute(
+              "__doc__", thread_context.process_context
+                             .constants[module.doc_string->constant.constant]);
+        } else {
+          self().set_attribute("__doc__", builtins().get_attribute("None"));
+        }
         extend(module.body);
         return evaluate();
       }
@@ -296,20 +309,20 @@ namespace chimera {
         evaluate_get(asdlWhile.test);
         push([](Evaluator *evaluatorA) { evaluatorA->enter(); });
       }
-      void Evaluator::evaluate(const asdl::If &asdlIf) {
-        push([&asdlIf](Evaluator *evaluator) {
-          if (evaluator->stack.top().get_bool()) {
-            evaluator->extend(asdlIf.body);
-          } else {
-            evaluator->extend(asdlIf.orelse);
-          }
-          evaluator->stack.pop();
-        });
-        push([](Evaluator *evaluator) {
-          evaluator->push(ToBoolEvaluator{evaluator->stack.top()});
-          evaluator->stack.pop();
-        });
-        evaluate_get(asdlIf.test);
+      void Evaluator::evaluate(const asdl::If & /*asdlIf*/) {
+        // push([&asdlIf](Evaluator *evaluator) {
+        //   if (evaluator->stack.top().get_bool()) {
+        //     evaluator->extend(asdlIf.body);
+        //   } else {
+        //     evaluator->extend(asdlIf.orelse);
+        //   }
+        //   evaluator->stack.pop();
+        // });
+        // push([](Evaluator *evaluator) {
+        //   evaluator->push(ToBoolEvaluator{evaluator->stack.top()});
+        //   evaluator->stack.pop();
+        // });
+        // evaluate_get(asdlIf.test);
       }
       void Evaluator::evaluate(const asdl::With &with) {
         push([&with](Evaluator *evaluator) {
@@ -462,9 +475,6 @@ namespace chimera {
       std::optional<object::BaseException>
       Evaluator::do_try(const std::vector<asdl::StmtImpl> &body,
                         const std::optional<object::BaseException> &context) {
-        if (body.empty()) {
-          return context;
-        }
         try {
           Evaluator evaluator{thread_context};
           evaluator.enter_scope(self());

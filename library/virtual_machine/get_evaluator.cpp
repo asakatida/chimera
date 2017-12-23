@@ -128,6 +128,7 @@ namespace chimera {
       void GetEvaluator::evaluate(const asdl::SetComp & /*set_comp*/) {
         evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
       }
+      void GetEvaluator::evaluate(const asdl::UnpackDict & /*unpackDict*/) {}
       void GetEvaluator::evaluate(const asdl::DictComp & /*dict_comp*/) {
         evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
       }
@@ -220,6 +221,9 @@ namespace chimera {
       void GetEvaluator::evaluate(const asdl::Constant &constant) {
         evaluator->push(PushStack{evaluator->thread_context.process_context
                                       .constants[constant.constant]});
+      }
+      void GetEvaluator::evaluate(const object::Object &object) {
+        evaluator->push(PushStack{object});
       }
     } // namespace virtual_machine
   }   // namespace library

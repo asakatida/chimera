@@ -25,6 +25,7 @@
 #pragma once
 
 #include <algorithm>
+#include <tuple>
 #include <variant>
 #include <vector>
 
@@ -36,7 +37,7 @@ namespace chimera {
       template <typename... Types>
       struct Stack {
         using ValueT = std::variant<Types...>;
-        template <typename Type, typename = decltype(std::get<Type>(ValueT{}))>
+        template <typename Type>
         void push(Type &&type) {
           return stack.push_back(ValueT{std::forward<Type>(type)});
         }
@@ -48,7 +49,7 @@ namespace chimera {
           Expects(has_value());
           return stack.back();
         }
-        template <typename Type, typename = decltype(std::get<Type>(ValueT{}))>
+        template <typename Type>
         void print_debug() const {
           if (!top_is<Type>()) {
             if (has_value()) {
@@ -64,13 +65,13 @@ namespace chimera {
             }
           }
         }
-        template <typename Type, typename = decltype(std::get<Type>(ValueT{}))>
+        template <typename Type>
         const Type &top() const {
           print_debug<Type>();
           Ensures(top_is<Type>());
           return std::get<Type>(top());
         }
-        template <typename Type, typename = decltype(std::get<Type>(ValueT{}))>
+        template <typename Type>
         Type &top() {
           print_debug<Type>();
           Ensures(top_is<Type>());
@@ -80,19 +81,35 @@ namespace chimera {
           auto finally = gsl::finally([this] { this->stack.pop_back(); });
           return std::move(top());
         }
-        template <typename Type, typename = decltype(std::get<Type>(ValueT{}))>
+        template <typename Type>
         Type pop() {
           auto finally = gsl::finally([this] { this->stack.pop_back(); });
           return std::move(top<Type>());
         }
+        template <typename Type, typename... Args>
+        struct Reshape {
+          template <typename Iter, std::size_t... I>
+          static Type reshape(Iter &&it, std::index_sequence<I...> /*unused*/) {
+            return Type{std::get<Args>(*(it + I))...};
+          }
+        };
+        template <typename Type, typename... Args>
+        Type reshape() {
+          auto it = stack.begin();
+          return Reshape<Type, Args...>::reshape(
+              it, std::index_sequence_for<Args...>{});
+        }
         const std::vector<ValueT> &vector() const { return stack; }
-        template <
-            typename OutputIt,
-            typename Type = typename std::iterator_traits<OutputIt>::value_type,
-            typename = decltype(std::get<Type>(ValueT{}))>
+        template <typename OutputIt>
+        void transform(OutputIt &&outputIt) {
+          return transform<typename std::iterator_traits<OutputIt>::value_type>(
+              std::forward<OutputIt>(outputIt));
+        }
+        template <typename Type, typename OutputIt>
         void transform(OutputIt &&outputIt) {
           std::transform(stack.begin(), stack.end(),
-                         std::forward<OutputIt>(outputIt), [](ValueT &value) {
+                         std::forward<OutputIt>(outputIt),
+                         [](ValueT &value) -> Type {
                            if (!std::holds_alternative<Type>(value)) {
                              std::visit(
                                  [](const auto &t) {
@@ -106,12 +123,12 @@ namespace chimera {
           return stack.clear();
         }
         bool has_value() const { return !stack.empty(); }
-        template <typename Type, typename = decltype(std::get<Type>(ValueT{}))>
+        template <typename Type>
         bool top_is() const {
           return has_value() && std::holds_alternative<Type>(top());
         }
         std::size_t size() const { return stack.size(); }
-        template <typename Type, typename = decltype(std::get<Type>(ValueT{}))>
+        template <typename Type>
         void operator()(Type &&type) {
           return push(std::forward<Type>(type));
         }

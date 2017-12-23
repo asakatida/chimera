@@ -13,12 +13,6 @@
 #include "parse.hpp"
 #include "virtual_machine/virtual_machine.hpp"
 
-static std::atomic_flag SIG_INT;
-
-extern "C" void interupt_handler(int signal);
-
-extern "C" void interupt_handler(int /*signal*/) { SIG_INT.clear(); }
-
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
@@ -27,6 +21,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   options.script = "fuzzer.py";
   chimera::library::object::Object builtins;
   chimera::library::virtual_machine::modules::init(builtins);
+  std::atomic_flag SIG_INT{};
+  SIG_INT.test_and_set();
   chimera::library::virtual_machine::GlobalContext globalContext{
       options, builtins,
       builtins.get_attribute("type")
@@ -40,7 +36,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   chimera::library::asdl::Module module;
   bool success = true;
   std::istringstream in(
-      std::string{reinterpret_cast<const char *>(data), size});
+      std::string(reinterpret_cast<const char *>(data), size));
   try {
     Ensures(tao::pegtl::parse<chimera::library::grammar::FileInput>(
         chimera::library::grammar::Input<tao::pegtl::istream_input<>>(in, size,

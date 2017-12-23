@@ -36,8 +36,8 @@ namespace chimera {
       struct SingleInputState : Stack<asdl::StmtImpl> {
         template <typename Top>
         void success(Top &&top) {
-          top.body.resize(size());
-          transform(top.body.begin());
+          top.body.reserve(size());
+          transform<asdl::StmtImpl>(std::back_inserter(top.body));
         }
       };
       template <bool Implicit = false, bool AsyncFlow = false,
@@ -58,7 +58,7 @@ namespace chimera {
       struct FileInputState : Stack<asdl::DocString, asdl::StmtImpl> {
         template <typename Top>
         void success(Top &&top) {
-          top.body.resize(size());
+          top.body.reserve(size());
           while (top_is<asdl::StmtImpl>()) {
             top.body.push_back(pop<asdl::StmtImpl>());
           }
@@ -86,8 +86,8 @@ namespace chimera {
         void success(Top &&top) {
           if (auto s = size(); s > 1) {
             asdl::Tuple tuple;
-            tuple.elts.resize(s);
-            transform(tuple.elts.begin());
+            tuple.elts.reserve(s);
+            transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
             top.body = std::move(tuple);
           } else {
             top.body = pop<asdl::ExprImpl>();

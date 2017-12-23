@@ -30,14 +30,15 @@
 
 namespace chimera {
   namespace library {
+    namespace object {
+      struct Object;
+    } // namespace object
     namespace asdl {
       namespace detail {
         template <typename... Types>
         struct Impl {
           using ValueT = std::variant<Types...>;
           std::shared_ptr<ValueT> value;
-
-          Impl() noexcept = default;
 
           Impl(const Impl &impl) = default;
           Impl(Impl &&impl) noexcept = default;
@@ -64,9 +65,10 @@ namespace chimera {
           struct Compare, struct Constant, struct Dict, struct DictComp,
           struct Ellipsis, struct FormattedValue, struct GeneratorExp,
           struct IfExp, struct JoinedStr, struct Lambda, struct List,
-          struct ListComp, struct Name, struct NameConstant, struct Set,
-          struct SetComp, struct Starred, struct Subscript, struct Tuple,
-          struct Unary, struct Yield, struct YieldFrom>;
+          struct ListComp, struct Name, struct NameConstant, object::Object,
+          struct Set, struct SetComp, struct Starred, struct Subscript,
+          struct Tuple, struct Unary, struct UnpackDict, struct Yield,
+          struct YieldFrom>;
       struct Constant {
         std::uint64_t constant;
       };
@@ -81,32 +83,32 @@ namespace chimera {
       };
       struct Withitem {
         ExprImpl context_expr;
-        std::optional<ExprImpl> optional_vars;
+        std::optional<ExprImpl> optional_vars{};
       };
       struct Alias {
         Name name;
-        std::optional<Name> asname;
+        std::optional<Name> asname{};
       };
       struct Keyword {
-        std::optional<Name> arg;
+        std::optional<Name> arg{};
         ExprImpl value;
       };
       struct Arg {
         Name name;
-        std::optional<ExprImpl> annotation;
-        std::optional<ExprImpl> arg_default;
+        std::optional<ExprImpl> annotation{};
+        std::optional<ExprImpl> arg_default{};
       };
       struct Arguments {
-        std::vector<Arg> args;
-        std::optional<Arg> vararg;
-        std::vector<Arg> kwonlyargs;
-        std::optional<Arg> kwarg;
+        std::vector<Arg> args{};
+        std::optional<Arg> vararg{};
+        std::vector<Arg> kwonlyargs{};
+        std::optional<Arg> kwarg{};
       };
       struct Comprehension {
         ExprImpl target;
         ExprImpl iter;
-        std::vector<ExprImpl> ifs;
-        bool is_async;
+        std::vector<ExprImpl> ifs{};
+        bool is_async = false;
       };
       enum class Operator {
         ADD,
@@ -124,9 +126,9 @@ namespace chimera {
         FLOOR_DIV,
       };
       struct Slice {
-        std::optional<ExprImpl> lower;
-        std::optional<ExprImpl> upper;
-        std::optional<ExprImpl> step;
+        std::optional<ExprImpl> lower{};
+        std::optional<ExprImpl> upper{};
+        std::optional<ExprImpl> step{};
       };
       struct Index {
         ExprImpl value;
@@ -134,7 +136,7 @@ namespace chimera {
       struct ExtSlice;
       using SliceImpl = detail::Impl<ExtSlice, Index, Slice>;
       struct ExtSlice {
-        std::vector<SliceImpl> dims;
+        std::vector<SliceImpl> dims{};
       };
       struct Bool {
         enum Op {
@@ -142,11 +144,11 @@ namespace chimera {
           OR,
         };
         Op op;
-        std::vector<ExprImpl> values;
+        std::vector<ExprImpl> values{};
       };
       struct Bin {
         Operator op;
-        std::vector<ExprImpl> values;
+        std::vector<ExprImpl> values{};
       };
       struct Unary {
         enum Op {
@@ -167,35 +169,36 @@ namespace chimera {
         ExprImpl body;
         ExprImpl orelse;
       };
+      struct UnpackDict {};
       struct Dict {
-        std::vector<ExprImpl> keys;
-        std::vector<ExprImpl> values;
+        std::vector<ExprImpl> keys{};
+        std::vector<ExprImpl> values{};
       };
       struct Set {
-        std::vector<ExprImpl> elts;
+        std::vector<ExprImpl> elts{};
       };
       struct ListComp {
         ExprImpl elt;
-        std::vector<Comprehension> generators;
+        std::vector<Comprehension> generators{};
       };
       struct SetComp {
         ExprImpl elt;
-        std::vector<Comprehension> generators;
+        std::vector<Comprehension> generators{};
       };
       struct DictComp {
-        std::optional<ExprImpl> key;
+        ExprImpl key;
         ExprImpl value;
-        std::vector<Comprehension> generators;
+        std::vector<Comprehension> generators{};
       };
       struct GeneratorExp {
         ExprImpl elt;
-        std::vector<Comprehension> generators;
+        std::vector<Comprehension> generators{};
       };
       struct Await {
         ExprImpl value;
       };
       struct Yield {
-        std::optional<ExprImpl> value;
+        std::optional<ExprImpl> value{};
       };
       struct YieldFrom {
         ExprImpl value;
@@ -218,12 +221,12 @@ namespace chimera {
       };
       struct Compare {
         ExprImpl left;
-        std::vector<CompareExpr> comparators;
+        std::vector<CompareExpr> comparators{};
       };
       struct Call {
         ExprImpl func;
-        std::vector<ExprImpl> args;
-        std::vector<Keyword> keywords;
+        std::vector<ExprImpl> args{};
+        std::vector<Keyword> keywords{};
       };
       struct FormattedValue {
         ExprImpl value;
@@ -233,10 +236,10 @@ namespace chimera {
           STR,
         };
         Conversion conversion;
-        std::optional<ExprImpl> format_spec;
+        std::optional<ExprImpl> format_spec{};
       };
       struct JoinedStr {
-        std::vector<ExprImpl> values;
+        std::vector<ExprImpl> values{};
       };
       struct NameConstant {
         enum {
@@ -258,10 +261,10 @@ namespace chimera {
         ExprImpl value;
       };
       struct List {
-        std::vector<ExprImpl> elts;
+        std::vector<ExprImpl> elts{};
       };
       struct Tuple {
-        std::vector<ExprImpl> elts;
+        std::vector<ExprImpl> elts{};
       };
       using StmtImpl = detail::Impl<
           struct AnnAssign, struct Assert, struct Assign, struct AsyncFor,
@@ -276,67 +279,70 @@ namespace chimera {
         ExprImpl value;
       };
       struct Nonlocal {
-        std::vector<Name> names;
+        std::vector<Name> names{};
       };
       struct Global {
-        std::vector<Name> names;
+        std::vector<Name> names{};
       };
       struct ImportFrom {
         ModuleName module;
-        std::vector<Alias> names;
+        std::vector<Alias> names{};
       };
       struct Import {
-        std::vector<Alias> names;
+        std::vector<Alias> names{};
       };
       struct Assert {
         ExprImpl test;
-        std::optional<ExprImpl> msg;
+        std::optional<ExprImpl> msg{};
       };
       struct ExceptHandler {
-        std::optional<ExprImpl> type;
-        std::optional<Name> name;
-        std::vector<StmtImpl> body;
+        std::optional<ExprImpl> type{};
+        std::optional<Name> name{};
+        std::vector<StmtImpl> body{};
       };
       using Excepthandler = std::variant<ExceptHandler>;
       struct Try {
-        std::vector<StmtImpl> body;
-        std::vector<Excepthandler> handlers;
-        std::vector<StmtImpl> orelse;
-        std::vector<StmtImpl> finalbody;
+        std::vector<StmtImpl> body{};
+        std::vector<Excepthandler> handlers{};
+        std::vector<StmtImpl> orelse{};
+        std::vector<StmtImpl> finalbody{};
       };
       struct Raise {
-        std::optional<ExprImpl> exc;
-        std::optional<ExprImpl> cause;
+        std::optional<ExprImpl> exc{};
+        std::optional<ExprImpl> cause{};
       };
       struct AsyncWith {
-        std::vector<Withitem> items;
-        std::vector<StmtImpl> body;
+        std::vector<Withitem> items{};
+        std::vector<StmtImpl> body{};
       };
       struct With {
-        std::vector<Withitem> items;
-        std::vector<StmtImpl> body;
+        std::vector<Withitem> items{};
+        std::vector<StmtImpl> body{};
+      };
+      struct IfBranch {
+        ExprImpl test;
+        std::vector<StmtImpl> body{};
       };
       struct If {
-        ExprImpl test;
-        std::vector<StmtImpl> body;
-        std::vector<StmtImpl> orelse;
+        std::vector<IfBranch> body{};
+        std::vector<StmtImpl> orelse{};
       };
       struct While {
         ExprImpl test;
-        std::vector<StmtImpl> body;
-        std::vector<StmtImpl> orelse;
+        std::vector<StmtImpl> body{};
+        std::vector<StmtImpl> orelse{};
       };
       struct AsyncFor {
         ExprImpl target;
         ExprImpl iter;
-        std::vector<StmtImpl> body;
-        std::vector<StmtImpl> orelse;
+        std::vector<StmtImpl> body{};
+        std::vector<StmtImpl> orelse{};
       };
       struct For {
         ExprImpl target;
         ExprImpl iter;
-        std::vector<StmtImpl> body;
-        std::vector<StmtImpl> orelse;
+        std::vector<StmtImpl> body{};
+        std::vector<StmtImpl> orelse{};
       };
       struct AugAssign {
         ExprImpl target;
@@ -346,49 +352,49 @@ namespace chimera {
       struct AnnAssign {
         ExprImpl target;
         ExprImpl annotation;
-        std::optional<ExprImpl> value;
+        std::optional<ExprImpl> value{};
         int simple{};
       };
       struct Assign {
-        std::vector<ExprImpl> targets;
+        std::vector<ExprImpl> targets{};
         ExprImpl value;
       };
       struct Delete {
-        std::vector<ExprImpl> targets;
+        std::vector<ExprImpl> targets{};
       };
       struct Return {
-        std::optional<ExprImpl> value;
+        std::optional<ExprImpl> value{};
       };
       struct ClassDef {
         Name name;
-        std::optional<DocString> doc_string;
-        std::vector<ExprImpl> bases;
-        std::vector<Keyword> keywords;
-        std::vector<StmtImpl> body;
-        std::vector<ExprImpl> decorator_list;
+        std::optional<DocString> doc_string{};
+        std::vector<ExprImpl> bases{};
+        std::vector<Keyword> keywords{};
+        std::vector<StmtImpl> body{};
+        std::vector<ExprImpl> decorator_list{};
       };
       struct AsyncFunctionDef {
         Name name;
-        std::optional<DocString> doc_string;
+        std::optional<DocString> doc_string{};
         Arguments args;
-        std::vector<StmtImpl> body;
-        std::vector<ExprImpl> decorator_list;
-        std::optional<ExprImpl> returns;
+        std::vector<StmtImpl> body{};
+        std::vector<ExprImpl> decorator_list{};
+        std::optional<ExprImpl> returns{};
       };
       struct FunctionDef {
         Name name;
-        std::optional<DocString> doc_string;
+        std::optional<DocString> doc_string{};
         Arguments args;
-        std::vector<StmtImpl> body;
-        std::vector<ExprImpl> decorator_list;
-        std::optional<ExprImpl> returns;
+        std::vector<StmtImpl> body{};
+        std::vector<ExprImpl> decorator_list{};
+        std::optional<ExprImpl> returns{};
       };
       struct Module {
-        std::vector<StmtImpl> body;
-        std::optional<DocString> doc_string;
+        std::vector<StmtImpl> body{};
+        std::optional<DocString> doc_string{};
       };
       struct Interactive {
-        std::vector<StmtImpl> body;
+        std::vector<StmtImpl> body{};
       };
       struct Expression {
         ExprImpl body;

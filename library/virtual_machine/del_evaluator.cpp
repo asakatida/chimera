@@ -58,6 +58,10 @@ namespace chimera {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
       }
+      void DelEvaluator::evaluate(const asdl::UnpackDict & /*unpackDict*/) {
+        throw object::BaseException{
+            evaluator->builtins().get_attribute("RuntimeError")};
+      }
       void DelEvaluator::evaluate(const asdl::DictComp & /*dict_comp*/) {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
@@ -137,6 +141,10 @@ namespace chimera {
             evaluator->builtins().get_attribute("RuntimeError")};
       }
       void DelEvaluator::evaluate(const asdl::Constant & /*constant*/) {
+        throw object::BaseException{
+            evaluator->builtins().get_attribute("RuntimeError")};
+      }
+      void DelEvaluator::evaluate(const object::Object & /*object*/) {
         throw object::BaseException{
             evaluator->builtins().get_attribute("RuntimeError")};
       }

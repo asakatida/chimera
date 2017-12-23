@@ -21,6 +21,7 @@
 //! evaluates stdlib/_builtins.py to construct the builtin module.
 //! Then prints the module construction.
 
+#include <algorithm>
 #include <atomic> // for atomic_flag
 #include <iostream>
 #include <map>
@@ -34,233 +35,337 @@
 #include "parse.hpp"
 #include "virtual_machine/virtual_machine.hpp" // for VirtualMachine
 
-static std::atomic_flag SIG_INT;
-
-extern "C" void interupt_handler(int signal);
-
-extern "C" void interupt_handler(int /*signal*/) { SIG_INT.clear(); }
-
 namespace chimera {
   namespace library {
     struct SetAttribute {
       std::string base_name;
       std::string name;
     };
+
     struct Work {
-      const object::Object &object;
+      object::Object object;
       std::string base_name;
       std::string name;
     };
-    struct Printer {
-      Printer(const object::Object &object, const std::string &baseName) {
-        printed.try_emplace(object.id(), baseName);
-        for (const auto &name : object.dir()) {
-          wanted[object.get_attribute(name).id()].push_back(
-              SetAttribute{baseName, name});
-          work.push(Work{object.get_attribute(name), baseName, name});
-        }
-      }
-      void operator()(const object::Instance & /*instance*/) {
-        std::cout << "object::Instance{}";
-      }
-      void operator()(const object::Bytes &bytes) {
-        std::cout << "object::Bytes{";
-        bool first = true;
-        for (const auto &byte : bytes) {
-          if (!first) {
-            std::cout << ",";
-          } else {
-            first = false;
-          }
-          std::cout << byte;
-        }
-        std::cout << "}";
-      }
-      [[noreturn]] void operator()(const object::BytesMethod &bytesMethod) {
-        std::cout << "object::BytesMethod::";
-        switch (bytesMethod) {}
-      }
-      void operator()(const object::False & /*false*/) {
-        std::cout << "object::False{}";
-      }
-      [[noreturn]] void operator()(const object::Future & /*future*/) {
-        Ensures(false);
-      }
-      void operator()(const object::None & /*none*/) {
-        std::cout << "object::None{}";
-      }
-      void operator()(const object::NullFunction & /*nullFunction*/) {
-        std::cout << "object::NullFunction{}";
-      }
-      void operator()(const object::Number & /*number*/) {
-        std::cout << "object::Number{}";
-      }
-      [[noreturn]] void operator()(const object::NumberMethod &numberMethod) {
-        std::cout << "object::NumberMethod::";
-        switch (numberMethod) {}
-      }
-      void operator()(const object::ObjectMethod &typeMethod) {
-        std::cout << "object::ObjectMethod::";
-        switch (typeMethod) {
-          case object::ObjectMethod::DELATTR:
-            std::cout << "DELATTR";
-            break;
-          case object::ObjectMethod::DIR:
-            std::cout << "DIR";
-            break;
-          case object::ObjectMethod::GETATTRIBUTE:
-            std::cout << "GETATTRIBUTE";
-            break;
-          case object::ObjectMethod::SETATTR:
-            std::cout << "SETATTR";
-            break;
-        }
-      }
-      void operator()(const object::String &string) {
-        std::cout << "object::String(" << std::quoted(string) << ")";
-      }
-      [[noreturn]] void operator()(const object::StringMethod &stringMethod) {
-        std::cout << "object::StringMethod::";
-        switch (stringMethod) {}
-      }
-      void operator()(const object::True & /*true*/) {
-        std::cout << "object::True{}";
-      }
-      void operator()(const object::Tuple &tuple) {
-        std::cout << "object::Tuple{";
-        bool first = true;
-        for (const auto &object : tuple) {
-          if (!first) {
-            std::cout << ",";
-          } else {
-            first = false;
-          }
-          std::cout << printed[object.id()];
-        }
-        std::cout << "}";
-      }
-      [[noreturn]] void operator()(const object::TupleMethod &tupleMethod) {
-        std::cout << "object::TupleMethod::";
-        switch (tupleMethod) {}
-      }
-      void operator()(const object::SysCall &sysCall) {
-        std::cout << "object::SysCall::";
-        switch (sysCall) {
-          case object::SysCall::COMPILE:
-            std::cout << "COMPILE";
-            break;
-          case object::SysCall::EVAL:
-            std::cout << "EVAL";
-            break;
-          case object::SysCall::EXEC:
-            std::cout << "EXEC";
-            break;
-          case object::SysCall::GLOBALS:
-            std::cout << "GLOBALS";
-            break;
-          case object::SysCall::ID:
-            std::cout << "ID";
-            break;
-          case object::SysCall::INPUT:
-            std::cout << "INPUT";
-            break;
-          case object::SysCall::LOCALS:
-            std::cout << "LOCALS";
-            break;
-          case object::SysCall::PRINT:
-            std::cout << "PRINT";
-            break;
-          case object::SysCall::OPEN:
-            std::cout << "OPEN";
-            break;
-        }
-      }
-      void operator()(const library::asdl::StmtImpl &stmtImpl) {
-        std::cout << &stmtImpl;
-      }
-      void operator()(const library::asdl::ExprImpl &exprImpl) {
-        std::cout << &exprImpl;
-      }
-      void operator()(const object::Object &object,
-                      const std::string &baseName) {
-        std::cout << "object::Object " << baseName << "(";
-        std::visit(*this, object.value());
-        std::cout << ",{";
-        bool first = true;
-        for (const auto &name : object.dir()) {
-          if (!first) {
-            std::cout << ",";
-          } else {
-            first = false;
-          }
-          std::cout << "{" << std::quoted(name) << ",";
-          if (is_printed(object.get_attribute(name))) {
-            std::cout << printed[object.get_attribute(name).id()];
-          } else {
-            std::cout << "{/*set below*/}";
-            wanted[object.get_attribute(name).id()].push_back(
-                SetAttribute{baseName, name});
-            work.push(Work{object.get_attribute(name), baseName, name});
-          }
-          std::cout << "}";
-        }
-        std::cout << "});";
-        printed.try_emplace(object.id(), baseName);
-        for (const auto &setAttribute : wanted[object.id()]) {
-          std::cout << setAttribute.base_name << ".set_attribute("
-                    << std::quoted(setAttribute.name) << "," << baseName
-                    << ");";
-        }
-        wanted.erase(object.id());
-      }
-      template <typename Object>
-      bool is_printed(Object &&object) {
-        return printed.count(object.id()) != 0;
-      }
-      template <typename Front>
-      bool incomplete_tuple(Front &&front) {
-        if (std::holds_alternative<object::Tuple>(front.object.value())) {
-          return incomplete_tuple(
-              front, front.object,
-              std::get<object::Tuple>(front.object.value()));
-        }
-        return false;
-      }
-      template <typename Front, typename Object, typename Tuple>
-      bool incomplete_tuple(Front &&front, Object &&object, Tuple &&tuple) {
-        if (!std::all_of(tuple.begin(), tuple.end(), [this](const auto &v) {
-              return this->is_printed(v);
-            })) {
-          auto baseName =
-              std::string(front.base_name).append("_").append(front.name);
-          for (const auto &o : tuple) {
-            work.push(Work{object, baseName, std::to_string(o.id())});
-          }
-          work.push(front);
-          return true;
-        }
-        return false;
-      }
-      void operator()() {
-        while (!work.empty()) {
-          auto front = work.front();
-          work.pop();
-          if (is_printed(front.object)) {
-            continue;
-          }
-          if (incomplete_tuple(front)) {
-            continue;
-          }
-          (*this)(front.object, front.base_name.append("_").append(front.name));
-        }
-      }
-      std::map<std::uint64_t, std::string> printed;
-      std::map<std::uint64_t, std::vector<SetAttribute>> wanted;
-      std::queue<Work> work;
+
+    struct Compare {
+      bool operator()(const SetAttribute &a, const SetAttribute &b) const;
+      bool operator()(const Work &a, const Work &b) const;
     };
+
+    struct Printer {
+      std::map<object::Id, object::Id> remap;
+      std::map<object::Id, std::string> printed;
+      std::priority_queue<Work, std::vector<Work>, Compare> queue;
+      std::map<object::Id, std::vector<SetAttribute>> wanted;
+    };
+
+    static Printer *PRINTER;
+
+    static object::Id id(const object::Object &object) {
+      return PRINTER->remap.try_emplace(object.id(), object.id()).first->second;
+    }
+
+    static void remap(const object::Object &module,
+                      const object::Object &previous) {
+      if (!PRINTER->remap.try_emplace(previous.id(), module.id()).second) {
+        return;
+      }
+      for (const auto &name : module.dir()) {
+        if (previous.has_attribute(name)) {
+          remap(module.get_attribute(name), previous.get_attribute(name));
+        }
+      }
+      for (const auto &name : previous.dir()) {
+        if (module.has_attribute(name)) {
+          remap(module.get_attribute(name), previous.get_attribute(name));
+        }
+      }
+    }
+
+    static bool is_printed(const object::Object &object) {
+      return PRINTER->printed.count(id(object)) != 0;
+    }
+
+    bool Compare::operator()(const SetAttribute &a,
+                             const SetAttribute &b) const {
+      if (a.base_name == b.base_name) {
+        return a.name < b.name;
+      }
+      return a.base_name < b.base_name;
+    }
+
+    bool Compare::operator()(const Work &a, const Work &b) const {
+      if (is_printed(b.object) && !is_printed(a.object)) {
+        return true;
+      }
+      if (is_printed(a.object) && !is_printed(b.object)) {
+        return false;
+      }
+      if (a.base_name == b.base_name) {
+        return a.name > b.name;
+      }
+      return a.base_name > b.base_name;
+    }
+
+    struct IncompleteTuple {
+      std::optional<object::Object>
+      operator()(const object::Tuple &tuple) const {
+        for (const auto &object : tuple) {
+          if (!is_printed(object)) {
+            return {object};
+          }
+        }
+        return {};
+      }
+      template <typename Type>
+      std::optional<object::Object> operator()(Type && /*type*/) const {
+        return {};
+      }
+    };
+
+    template <typename CharT, typename Traits>
+    static std::basic_ostream<CharT, Traits> &
+    operator<<(std::basic_ostream<CharT, Traits> &os,
+               const object::Instance & /*instance*/) {
+      return os << "object::Instance{}";
+    }
+
+    template <typename CharT, typename Traits>
+    static std::basic_ostream<CharT, Traits> &
+    operator<<(std::basic_ostream<CharT, Traits> &os,
+               const object::Bytes &bytes) {
+      os << "object::Bytes{";
+      bool first = true;
+      for (const auto &byte : bytes) {
+        if (!first) {
+          os << ",";
+        } else {
+          first = false;
+        }
+        os << byte;
+      }
+      return os << "}";
+    }
+
+    template <typename CharT, typename Traits>
+    static std::basic_ostream<CharT, Traits> &
+    operator<<(std::basic_ostream<CharT, Traits> &os,
+               const object::BytesMethod &bytesMethod) {
+      os << "object::BytesMethod::";
+      switch (bytesMethod) {}
+      return os;
+    }
+
+    template <typename CharT, typename Traits>
+    static std::basic_ostream<CharT, Traits> &
+    operator<<(std::basic_ostream<CharT, Traits> &os,
+               const object::False & /*false*/) {
+      return os << "object::False{}";
+    }
+
+    template <typename CharT, typename Traits>
+    static std::basic_ostream<CharT, Traits> &
+    operator<<(std::basic_ostream<CharT, Traits> &os,
+               const object::Future & /*future*/) {
+      Ensures(false);
+      return os;
+    }
+
+    template <typename CharT, typename Traits>
+    static std::basic_ostream<CharT, Traits> &
+    operator<<(std::basic_ostream<CharT, Traits> &os,
+               const object::None & /*none*/) {
+      return os << "object::None{}";
+    }
+
+    template <typename CharT, typename Traits>
+    static std::basic_ostream<CharT, Traits> &
+    operator<<(std::basic_ostream<CharT, Traits> &os,
+               const object::NullFunction & /*nullFunction*/) {
+      return os << "object::NullFunction{}";
+    }
+
+    template <typename CharT, typename Traits>
+    static std::basic_ostream<CharT, Traits> &
+    operator<<(std::basic_ostream<CharT, Traits> &os,
+               const object::Number & /*number*/) {
+      return os << "object::Number{}";
+    }
+
+    template <typename CharT, typename Traits>
+    static std::basic_ostream<CharT, Traits> &
+    operator<<(std::basic_ostream<CharT, Traits> &os,
+               const object::NumberMethod &numberMethod) {
+      os << "object::NumberMethod::";
+      switch (numberMethod) {}
+      return os;
+    }
+
+    template <typename CharT, typename Traits>
+    static std::basic_ostream<CharT, Traits> &
+    operator<<(std::basic_ostream<CharT, Traits> &os,
+               const object::ObjectMethod &objectMethod) {
+      os << "object::ObjectMethod::";
+      switch (objectMethod) {
+        case object::ObjectMethod::DELATTR:
+          return os << "DELATTR";
+        case object::ObjectMethod::DIR:
+          return os << "DIR";
+        case object::ObjectMethod::GETATTRIBUTE:
+          return os << "GETATTRIBUTE";
+        case object::ObjectMethod::SETATTR:
+          return os << "SETATTR";
+      }
+      return os;
+    }
+
+    template <typename CharT, typename Traits>
+    static std::basic_ostream<CharT, Traits> &
+    operator<<(std::basic_ostream<CharT, Traits> &os,
+               const object::String &string) {
+      return os << "object::String(" << std::quoted(string.value) << "s)";
+    }
+
+    template <typename CharT, typename Traits>
+    static std::basic_ostream<CharT, Traits> &
+    operator<<(std::basic_ostream<CharT, Traits> &os,
+               const object::StringMethod &stringMethod) {
+      os << "object::StringMethod::";
+      switch (stringMethod) {}
+      return os;
+    }
+
+    template <typename CharT, typename Traits>
+    static std::basic_ostream<CharT, Traits> &
+    operator<<(std::basic_ostream<CharT, Traits> &os,
+               const object::True & /*true*/) {
+      return os << "object::True{}";
+    }
+
+    template <typename CharT, typename Traits>
+    static std::basic_ostream<CharT, Traits> &
+    operator<<(std::basic_ostream<CharT, Traits> &os,
+               const object::Tuple &tuple) {
+      os << "object::Tuple{";
+      bool first = true;
+      for (const auto &object : tuple) {
+        if (!first) {
+          os << ",";
+        } else {
+          first = false;
+        }
+        os << PRINTER->printed.at(id(object));
+      }
+      return os << "}";
+    }
+
+    template <typename CharT, typename Traits>
+    static std::basic_ostream<CharT, Traits> &
+    operator<<(std::basic_ostream<CharT, Traits> &os,
+               const object::TupleMethod &tupleMethod) {
+      os << "object::TupleMethod::";
+      switch (tupleMethod) {}
+      return os;
+    }
+
+    template <typename CharT, typename Traits>
+    static std::basic_ostream<CharT, Traits> &
+    operator<<(std::basic_ostream<CharT, Traits> &os,
+               const object::SysCall &sysCall) {
+      os << "object::SysCall::";
+      switch (sysCall) {
+        case object::SysCall::COMPILE:
+          return os << "COMPILE";
+        case object::SysCall::EVAL:
+          return os << "EVAL";
+        case object::SysCall::EXEC:
+          return os << "EXEC";
+        case object::SysCall::GLOBALS:
+          return os << "GLOBALS";
+        case object::SysCall::ID:
+          return os << "ID";
+        case object::SysCall::INPUT:
+          return os << "INPUT";
+        case object::SysCall::LOCALS:
+          return os << "LOCALS";
+        case object::SysCall::PRINT:
+          return os << "PRINT";
+        case object::SysCall::OPEN:
+          return os << "OPEN";
+      }
+      return os;
+    }
+
+    template <typename CharT, typename Traits>
+    static std::basic_ostream<CharT, Traits> &
+    operator<<(std::basic_ostream<CharT, Traits> &os,
+               const asdl::StmtImpl &stmtImpl) {
+      return os << &stmtImpl;
+    }
+
+    template <typename CharT, typename Traits>
+    static std::basic_ostream<CharT, Traits> &
+    operator<<(std::basic_ostream<CharT, Traits> &os,
+               const asdl::ExprImpl &exprImpl) {
+      return os << &exprImpl;
+    }
+
+    template <typename CharT, typename Traits>
+    static std::basic_ostream<CharT, Traits> &
+    operator<<(std::basic_ostream<CharT, Traits> &os, const Work &work) {
+      auto baseName = std::string(work.base_name).append("_").append(work.name);
+      auto object = std::visit(IncompleteTuple{}, work.object.value());
+      while (object) {
+        os << Work{*object, baseName, std::to_string(PRINTER->printed.size())};
+        object = std::visit(IncompleteTuple{}, work.object.value());
+      }
+      if (is_printed(work.object)) {
+        return os;
+      }
+      os << "object::Object " << baseName << "(";
+      std::visit([&os](const auto &value) { os << value; },
+                 work.object.value());
+      os << ",{";
+      bool first = true;
+      for (const auto &name : work.object.dir()) {
+        if (!first) {
+          os << ",";
+        } else {
+          first = false;
+        }
+        os << "{" << std::quoted(name) << "s,";
+        if (is_printed(work.object.get_attribute(name))) {
+          os << PRINTER->printed.at(id(work.object.get_attribute(name)));
+        } else {
+          os << "{/*set below*/}";
+          PRINTER->wanted[id(work.object.get_attribute(name))].push_back(
+              SetAttribute{baseName, name});
+          PRINTER->queue.push(
+              Work{work.object.get_attribute(name), baseName, name});
+        }
+        os << "}";
+      }
+      PRINTER->printed.try_emplace(id(work.object), baseName);
+      os << "});";
+      if (PRINTER->wanted.count(id(work.object)) != 0) {
+        auto setAttributes = std::move(PRINTER->wanted.at(id(work.object)));
+        PRINTER->wanted.erase(id(work.object));
+        std::sort(setAttributes.begin(), setAttributes.end(), Compare{});
+        for (const auto &setAttribute : setAttributes) {
+          os << setAttribute.base_name << ".set_attribute("
+             << std::quoted(setAttribute.name) << "s,"
+             << PRINTER->printed.at(id(work.object)) << ");";
+        }
+      }
+      return os;
+    }
+
     static void main() {
-      chimera::library::object::Object builtins;
+      object::Object builtins;
       virtual_machine::modules::init(builtins);
+      std::atomic_flag sigInt{};
+      sigInt.test_and_set();
       virtual_machine::GlobalContext globalContext{
           {},
           builtins,
@@ -269,26 +374,47 @@ namespace chimera {
               .get_attribute("__class__")
               .id(),
           builtins.get_attribute("compile").get_attribute("__class__").id(),
-          &SIG_INT};
+          &sigInt};
       virtual_machine::ProcessContext processContext{globalContext};
       asdl::Module module;
-      chimera::parse<chimera::library::grammar::FileInput>(
-          globalContext.options,
-          chimera::library::grammar::Input<tao::pegtl::istream_input<>>(
-              std::cin, chimera::BUFFER_SIZE, "<input>"),
-          processContext, module);
-      virtual_machine::ThreadContext{processContext,
-                                     processContext.make_module("builtins")}
-          .evaluate(module);
+      parse<grammar::FileInput>(globalContext.options,
+                                grammar::Input<tao::pegtl::istream_input<>>(
+                                    std::cin, BUFFER_SIZE, "<input>"),
+                                processContext, module);
+      virtual_machine::ThreadContext threadContext{
+          processContext, processContext.make_module("builtins")};
+      threadContext.evaluate(module);
       std::cout
           << "//! generated file see tools/builtins.cpp\n\n"
              "#include \"virtual_machine/builtins.hpp\"\n\n"
-             "#include \"asdl/asdl.hpp\"\n"
-             "#include \"object.hpp\"\n\n"
-             "namespace chimera {\nnamespace library {\nnamespace modules {\n"
+             "#include \"object/object.hpp\"\n\n"
+             "using namespace std::literals;\n\n"
+             "namespace chimera {\nnamespace library {\n"
+             "namespace virtual_machine {\nnamespace modules {\n"
              "void init(const object::Object &module) {auto builtins = module;";
-      Printer(builtins, "builtins")();
-      std::cout << "}\n}\n}\n}" << std::endl;
+      Printer mainPrinter{{}, {{id(threadContext.main), "builtins"}}, {}, {}};
+      PRINTER = &mainPrinter;
+      remap(threadContext.main,
+            threadContext.main.get_attribute("__builtins__"));
+      for (const auto &name : threadContext.main.dir()) {
+        if (is_printed(threadContext.main.get_attribute(name))) {
+          std::cout << "builtins.set_attribute(" << std::quoted(name) << "s,"
+                    << mainPrinter.printed.at(
+                           id(threadContext.main.get_attribute(name)))
+                    << ");";
+        } else {
+          mainPrinter.wanted[id(threadContext.main.get_attribute(name))]
+              .push_back(SetAttribute{"builtins", name});
+          mainPrinter.queue.push(
+              Work{threadContext.main.get_attribute(name), "builtins", name});
+        }
+      }
+      while (!mainPrinter.queue.empty()) {
+        auto work = mainPrinter.queue.top();
+        mainPrinter.queue.pop();
+        std::cout << work;
+      }
+      std::cout << "}\n}\n}\n}\n}" << std::endl;
     }
   } // namespace library
 } // namespace chimera
