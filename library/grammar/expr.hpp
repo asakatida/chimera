@@ -42,18 +42,15 @@ namespace chimera {
                 template <bool> typename Start,
                 template <bool, bool, bool> typename Content,
                 template <bool> typename End>
-      struct Group : tao::pegtl::if_must<Start<true>,
-                                         Content<true, AsyncFlow, ScopeFlow>,
-                                         End<Implicit>> {};
+      struct Group : IfMust<Start<true>, Content<true, AsyncFlow, ScopeFlow>,
+                            End<Implicit>> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow,
                 template <bool> typename Start,
                 template <bool, bool, bool> typename Content,
                 template <bool> typename End>
       struct GroupOpt
-          : tao::pegtl::if_must<
-                Start<true>,
-                tao::pegtl::opt<Content<true, AsyncFlow, ScopeFlow>>,
-                End<Implicit>> {};
+          : IfMust<Start<true>, Opt<Content<true, AsyncFlow, ScopeFlow>>,
+                   End<Implicit>> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow,
                 template <bool, bool, bool> typename Content>
       using Paren = Group<Implicit, AsyncFlow, ScopeFlow, LPar, Content, RPar>;
@@ -76,640 +73,507 @@ namespace chimera {
       struct CompFor;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow,
                 template <bool, bool, bool> typename Elt>
-      struct CompOrCommaList
-          : tao::pegtl::sor<
-                tao::pegtl::seq<Elt<Implicit, AsyncFlow, ScopeFlow>,
-                                CompFor<Implicit, AsyncFlow, ScopeFlow>>,
-                tao::pegtl::list_tail<Elt<Implicit, AsyncFlow, ScopeFlow>,
-                                      Comma<Implicit>>> {};
+      struct CompOrCommaList : Sor<Seq<Elt<Implicit, AsyncFlow, ScopeFlow>,
+                                       CompFor<Implicit, AsyncFlow, ScopeFlow>>,
+                                   ListTail<Elt<Implicit, AsyncFlow, ScopeFlow>,
+                                            Comma<Implicit>>> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct Test;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct VarargsListNameEqTest
-          : tao::pegtl::seq<
-                Name<Implicit>,
-                tao::pegtl::opt<Eq<Implicit>,
-                                Test<Implicit, AsyncFlow, ScopeFlow>>> {};
-      struct VarargsListNameEqTestAction : Stack<asdl::ExprImpl, asdl::Name> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          if (!outer.has_value()) {
-            outer.push(asdl::Arguments{});
-          }
-          [this](auto &&arguments) {
-            asdl::Arg arg;
-            if (this->template top_is<asdl::ExprImpl>()) {
-              arg.arg_default = this->template pop<asdl::ExprImpl>();
+          : Seq<Name<Implicit>,
+                Opt<Eq<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>>> {
+        struct Transform : rules::Stack<asdl::ExprImpl, asdl::Name> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            if (!outer.has_value()) {
+              outer.push(asdl::Arguments{});
             }
-            arg.name = this->template pop<asdl::Name>();
-            (arguments.vararg ? arguments.kwonlyargs : arguments.args)
-                .push_back(std::move(arg));
-          }(outer.template top<asdl::Arguments>());
-        }
-      };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<VarargsListNameEqTest<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<VarargsListNameEqTest<Implicit, AsyncFlow, ScopeFlow>,
-                        VarargsListNameEqTestAction> {};
-      template <bool Implicit>
-      struct VarargsListStarName
-          : tao::pegtl::seq<Star<Implicit>, tao::pegtl::opt<Name<Implicit>>> {};
-      struct VarargsListStarNameAction : Stack<asdl::Name> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          asdl::Arg arg;
-          if (has_value()) {
-            arg.name = pop<asdl::Name>();
+            [this](auto &&arguments) {
+              asdl::Arg arg;
+              if (this->template top_is<asdl::ExprImpl>()) {
+                arg.arg_default = this->template pop<asdl::ExprImpl>();
+              }
+              arg.name = this->template pop<asdl::Name>();
+              (arguments.vararg ? arguments.kwonlyargs : arguments.args)
+                  .push_back(std::move(arg));
+            }(outer.template top<asdl::Arguments>());
           }
-          if (outer.has_value()) {
-            outer.template top<asdl::Arguments>().vararg = std::move(arg);
-          } else {
-            outer.push(asdl::Arguments{{}, std::move(arg), {}, {}});
-          }
-        }
+        };
       };
       template <bool Implicit>
-      struct Control<VarargsListStarName<Implicit>>
-          : ChangeState<VarargsListStarName<Implicit>,
-                        VarargsListStarNameAction> {};
+      struct VarargsListStarName : Seq<StarOp<Implicit>, Opt<Name<Implicit>>> {
+        struct Transform : rules::Stack<asdl::Name> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            asdl::Arg arg;
+            if (has_value()) {
+              arg.name = pop<asdl::Name>();
+            }
+            if (outer.has_value()) {
+              outer.template top<asdl::Arguments>().vararg = std::move(arg);
+            } else {
+              outer.push(asdl::Arguments{{}, std::move(arg), {}, {}});
+            }
+          }
+        };
+      };
       template <bool Implicit>
       struct VarargsListUnpackName
-          : tao::pegtl::seq<Unpack<Implicit>, Name<Implicit>,
-                            tao::pegtl::opt<Comma<Implicit>>> {};
-      struct VarargsListUnpackNameAction : Stack<asdl::Name> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          asdl::Arg arg{pop<asdl::Name>(), {}, {}};
-          if (outer.has_value()) {
-            outer.template top<asdl::Arguments>().kwarg = std::move(arg);
-          } else {
-            outer.push(asdl::Arguments{{}, {}, {}, std::move(arg)});
+          : Seq<Unpack<Implicit>, Name<Implicit>, Opt<Comma<Implicit>>> {
+        struct Transform : rules::Stack<asdl::Name> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            asdl::Arg arg{pop<asdl::Name>(), {}, {}};
+            if (outer.has_value()) {
+              outer.template top<asdl::Arguments>().kwarg = std::move(arg);
+            } else {
+              outer.push(asdl::Arguments{{}, {}, {}, std::move(arg)});
+            }
           }
-        }
+        };
       };
-      template <bool Implicit>
-      struct Control<VarargsListUnpackName<Implicit>>
-          : ChangeState<VarargsListUnpackName<Implicit>,
-                        VarargsListUnpackNameAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct VarargsList
-          : tao::pegtl::sor<
-                tao::pegtl::if_must<
+          : Sor<IfMust<
                     VarargsListNameEqTest<Implicit, AsyncFlow, ScopeFlow>,
-                    tao::pegtl::star<
-                        Comma<Implicit>,
-                        VarargsListNameEqTest<Implicit, AsyncFlow, ScopeFlow>>,
-                    tao::pegtl::opt<
-                        Comma<Implicit>,
-                        tao::pegtl::opt<tao::pegtl::sor<
-                            tao::pegtl::if_must<
-                                VarargsListStarName<Implicit>,
-                                tao::pegtl::star<
-                                    Comma<Implicit>,
-                                    VarargsListNameEqTest<Implicit, AsyncFlow,
-                                                          ScopeFlow>>,
-                                tao::pegtl::opt<
-                                    Comma<Implicit>,
-                                    tao::pegtl::opt<
-                                        VarargsListUnpackName<Implicit>>>>,
+                    Star<Comma<Implicit>,
+                         VarargsListNameEqTest<Implicit, AsyncFlow, ScopeFlow>>,
+                    Opt<Comma<Implicit>,
+                        Opt<Sor<
+                            IfMust<VarargsListStarName<Implicit>,
+                                   Star<Comma<Implicit>,
+                                        VarargsListNameEqTest<
+                                            Implicit, AsyncFlow, ScopeFlow>>,
+                                   Opt<Comma<Implicit>,
+                                       Opt<VarargsListUnpackName<Implicit>>>>,
                             VarargsListUnpackName<Implicit>>>>>,
-                tao::pegtl::if_must<
+                IfMust<
                     VarargsListStarName<Implicit>,
-                    tao::pegtl::star<
-                        Comma<Implicit>,
-                        VarargsListNameEqTest<Implicit, AsyncFlow, ScopeFlow>>,
-                    tao::pegtl::opt<
-                        Comma<Implicit>,
-                        tao::pegtl::opt<VarargsListUnpackName<Implicit>>>>,
-                VarargsListUnpackName<Implicit>> {};
-      struct VarargsListAction : Stack<asdl::Arguments> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(pop<asdl::Arguments>());
-        }
+                    Star<Comma<Implicit>,
+                         VarargsListNameEqTest<Implicit, AsyncFlow, ScopeFlow>>,
+                    Opt<Comma<Implicit>, Opt<VarargsListUnpackName<Implicit>>>>,
+                VarargsListUnpackName<Implicit>> {
+        struct Transform : rules::Stack<asdl::Arguments> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(pop<asdl::Arguments>());
+          }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<VarargsList<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<VarargsList<Implicit, AsyncFlow, ScopeFlow>,
-                        VarargsListAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct StarExpr;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct TestOrStarExpr
-          : tao::pegtl::sor<Test<Implicit, AsyncFlow, ScopeFlow>,
-                            StarExpr<Implicit, AsyncFlow, ScopeFlow>> {};
+      struct TestOrStarExpr : Sor<Test<Implicit, AsyncFlow, ScopeFlow>,
+                                  StarExpr<Implicit, AsyncFlow, ScopeFlow>> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct TestListStarExpr
-          : tao::pegtl::list_tail<
-                TestOrStarExpr<Implicit, AsyncFlow, ScopeFlow>,
-                Comma<Implicit>> {};
+          : ListTail<TestOrStarExpr<Implicit, AsyncFlow, ScopeFlow>,
+                     Comma<Implicit>> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct ExprList;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct OrTest;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct ConditionalExpression
-          : tao::pegtl::seq<
-                OrTest<Implicit, AsyncFlow, ScopeFlow>,
-                tao::pegtl::opt<
-                    If<Implicit>,
-                    tao::pegtl::must<OrTest<Implicit, AsyncFlow, ScopeFlow>,
-                                     Else<Implicit>,
-                                     Test<Implicit, AsyncFlow, ScopeFlow>>>> {};
-      struct ConditionalExpressionAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          if (size() > 1) {
-            auto elif = pop<asdl::ExprImpl>();
-            auto test = pop<asdl::ExprImpl>();
-            auto body = pop<asdl::ExprImpl>();
-            outer.push(asdl::ExprImpl{asdl::IfExp{test, body, elif}});
-          } else {
-            outer.push(pop<asdl::ExprImpl>());
+          : Seq<OrTest<Implicit, AsyncFlow, ScopeFlow>,
+                Opt<If<Implicit>,
+                    Must<OrTest<Implicit, AsyncFlow, ScopeFlow>, Else<Implicit>,
+                         Test<Implicit, AsyncFlow, ScopeFlow>>>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            if (size() > 1) {
+              auto elif = pop<asdl::ExprImpl>();
+              auto test = pop<asdl::ExprImpl>();
+              auto body = pop<asdl::ExprImpl>();
+              outer.push(asdl::ExprImpl{asdl::IfExp{test, body, elif}});
+            } else {
+              outer.push(pop<asdl::ExprImpl>());
+            }
           }
-        }
+        };
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<ConditionalExpression<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<ConditionalExpression<Implicit, AsyncFlow, ScopeFlow>,
-                        ConditionalExpressionAction> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct LambDef
-          : tao::pegtl::if_must<
-                Lambda<Implicit>,
-                tao::pegtl::opt<VarargsList<Implicit, AsyncFlow, ScopeFlow>>,
-                Colon<Implicit>, Test<Implicit, false, true>> {};
-      struct LambDefAction : Stack<asdl::ExprImpl, asdl::Arguments> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          asdl::Lambda lambda{{}, pop<asdl::ExprImpl>()};
-          if (has_value()) {
-            lambda.args = pop<asdl::Arguments>();
+      struct LambDef : IfMust<Lambda<Implicit>,
+                              Opt<VarargsList<Implicit, AsyncFlow, ScopeFlow>>,
+                              Colon<Implicit>, Test<Implicit, false, true>> {
+        struct Transform : rules::Stack<asdl::ExprImpl, asdl::Arguments> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            asdl::Lambda lambda{{}, pop<asdl::ExprImpl>()};
+            if (has_value()) {
+              lambda.args = pop<asdl::Arguments>();
+            }
+            outer.push(asdl::ExprImpl{std::move(lambda)});
           }
-          outer.push(asdl::ExprImpl{std::move(lambda)});
-        }
+        };
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<LambDef<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<LambDef<Implicit, AsyncFlow, ScopeFlow>,
-                        LambDefAction> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Test : tao::pegtl::sor<
-                        ConditionalExpression<Implicit, AsyncFlow, ScopeFlow>,
+      struct Test : Sor<ConditionalExpression<Implicit, AsyncFlow, ScopeFlow>,
                         LambDef<Implicit, AsyncFlow, ScopeFlow>> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct LambDefNoCond;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct TestNocond
-          : tao::pegtl::sor<OrTest<Implicit, AsyncFlow, ScopeFlow>,
-                            LambDefNoCond<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct TestNocondAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(pop<asdl::ExprImpl>());
-        }
+      struct TestNocond : Sor<OrTest<Implicit, AsyncFlow, ScopeFlow>,
+                              LambDefNoCond<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(pop<asdl::ExprImpl>());
+          }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<TestNocond<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<TestNocond<Implicit, AsyncFlow, ScopeFlow>,
-                        TestNocondAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct LambDefNoCond
-          : tao::pegtl::if_must<
-                Lambda<Implicit>,
-                tao::pegtl::opt<VarargsList<Implicit, AsyncFlow, ScopeFlow>>,
-                Colon<Implicit>, TestNocond<Implicit, false, true>> {};
-      struct LambDefNoCondAction : Stack<asdl::ExprImpl, asdl::Arguments> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          asdl::Lambda lambda{{}, pop<asdl::ExprImpl>()};
-          if (has_value()) {
-            lambda.args = pop<asdl::Arguments>();
+          : IfMust<Lambda<Implicit>,
+                   Opt<VarargsList<Implicit, AsyncFlow, ScopeFlow>>,
+                   Colon<Implicit>, TestNocond<Implicit, false, true>> {
+        struct Transform : rules::Stack<asdl::ExprImpl, asdl::Arguments> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            asdl::Lambda lambda{{}, pop<asdl::ExprImpl>()};
+            if (has_value()) {
+              lambda.args = pop<asdl::Arguments>();
+            }
+            outer.push(asdl::ExprImpl{std::move(lambda)});
           }
-          outer.push(asdl::ExprImpl{std::move(lambda)});
-        }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<LambDefNoCond<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<LambDefNoCond<Implicit, AsyncFlow, ScopeFlow>,
-                        LambDefNoCondAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct AndTest;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct OrTest
-          : tao::pegtl::list_must<AndTest<Implicit, AsyncFlow, ScopeFlow>,
-                                  Or<Implicit>> {};
-      struct OrTestAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          if (auto s = size(); s > 1) {
-            asdl::Bool asdlBool{asdl::Bool::OR, {}};
-            asdlBool.values.reserve(s);
-            transform<asdl::ExprImpl>(std::back_inserter(asdlBool.values));
-            outer.push(asdl::ExprImpl{std::move(asdlBool)});
-          } else {
-            outer.push(pop<asdl::ExprImpl>());
+          : ListMust<AndTest<Implicit, AsyncFlow, ScopeFlow>, Or<Implicit>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            if (auto s = size(); s > 1) {
+              asdl::Bool asdlBool{asdl::Bool::OR, {}};
+              asdlBool.values.reserve(s);
+              transform<asdl::ExprImpl>(std::back_inserter(asdlBool.values));
+              outer.push(asdl::ExprImpl{std::move(asdlBool)});
+            } else {
+              outer.push(pop<asdl::ExprImpl>());
+            }
           }
-        }
-      };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<OrTest<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<OrTest<Implicit, AsyncFlow, ScopeFlow>, OrTestAction> {
+        };
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct NotTest;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct AndTest
-          : tao::pegtl::list_must<NotTest<Implicit, AsyncFlow, ScopeFlow>,
-                                  And<Implicit>> {};
-      struct AndTestAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          if (auto s = size(); s > 1) {
-            asdl::Bool asdlBool{asdl::Bool::AND, {}};
-            asdlBool.values.reserve(s);
-            transform<asdl::ExprImpl>(std::back_inserter(asdlBool.values));
-            outer.push(asdl::ExprImpl{std::move(asdlBool)});
-          } else {
-            outer.push(pop<asdl::ExprImpl>());
+          : ListMust<NotTest<Implicit, AsyncFlow, ScopeFlow>, And<Implicit>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            if (auto s = size(); s > 1) {
+              asdl::Bool asdlBool{asdl::Bool::AND, {}};
+              asdlBool.values.reserve(s);
+              transform<asdl::ExprImpl>(std::back_inserter(asdlBool.values));
+              outer.push(asdl::ExprImpl{std::move(asdlBool)});
+            } else {
+              outer.push(pop<asdl::ExprImpl>());
+            }
           }
-        }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<AndTest<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<AndTest<Implicit, AsyncFlow, ScopeFlow>,
-                        AndTestAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct Comparison;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct NotTestNot
-          : tao::pegtl::if_must<Not<Implicit>,
-                                NotTest<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct NotTestNotAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(asdl::ExprImpl{
-              asdl::Unary{asdl::Unary::NOT, pop<asdl::ExprImpl>()}});
-        }
+          : IfMust<Not<Implicit>, NotTest<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(asdl::ExprImpl{
+                asdl::Unary{asdl::Unary::NOT, pop<asdl::ExprImpl>()}});
+          }
+        };
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<NotTestNot<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<NotTestNot<Implicit, AsyncFlow, ScopeFlow>,
-                        NotTestNotAction> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct NotTest
-          : tao::pegtl::sor<NotTestNot<Implicit, AsyncFlow, ScopeFlow>,
-                            Comparison<Implicit, AsyncFlow, ScopeFlow>> {};
+      struct NotTest : Sor<NotTestNot<Implicit, AsyncFlow, ScopeFlow>,
+                           Comparison<Implicit, AsyncFlow, ScopeFlow>> {};
       template <bool Implicit>
       struct CompOp
-          : tao::pegtl::sor<Lt<Implicit>, Gt<Implicit>, EqEq<Implicit>,
-                            GtE<Implicit>, LtE<Implicit>, NotEq<Implicit>,
-                            InOp<Implicit>, NotIn<Implicit>, Is<Implicit>,
-                            IsNot<Implicit>> {};
+          : Sor<Lt<Implicit>, Gt<Implicit>, EqEq<Implicit>, GtE<Implicit>,
+                LtE<Implicit>, NotEq<Implicit>, InOp<Implicit>, NotIn<Implicit>,
+                Is<Implicit>, IsNot<Implicit>> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct ComparisonTail
-          : tao::pegtl::if_must<CompOp<Implicit>,
-                                Expr<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct ComparisonTailAction
-          : Stack<asdl::ExprImpl, asdl::CompareExpr::Op> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          [this](auto &&expr) {
-            if (!std::holds_alternative<asdl::Compare>(*expr.value)) {
-              expr = asdl::Compare{expr, {}};
-            }
-            std::get<asdl::Compare>(*expr.value)
-                .comparators.push_back(
-                    this->template reshape<asdl::CompareExpr,
-                                           asdl::CompareExpr::Op,
-                                           asdl::ExprImpl>());
-          }(outer.template top<asdl::ExprImpl>());
-        }
+          : IfMust<CompOp<Implicit>, Expr<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl, asdl::CompareExpr::Op> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            [this](auto &&expr) {
+              if (!std::holds_alternative<asdl::Compare>(*expr.value)) {
+                expr = asdl::Compare{expr, {}};
+              }
+              std::get<asdl::Compare>(*expr.value)
+                  .comparators.push_back(
+                      this->template reshape<asdl::CompareExpr,
+                                             asdl::CompareExpr::Op,
+                                             asdl::ExprImpl>());
+            }(outer.template top<asdl::ExprImpl>());
+          }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<ComparisonTail<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<ComparisonTail<Implicit, AsyncFlow, ScopeFlow>,
-                        ComparisonTailAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct Comparison
-          : tao::pegtl::seq<Expr<Implicit, AsyncFlow, ScopeFlow>,
-                            tao::pegtl::star<ComparisonTail<Implicit, AsyncFlow,
-                                                            ScopeFlow>>> {};
+          : Seq<Expr<Implicit, AsyncFlow, ScopeFlow>,
+                Star<ComparisonTail<Implicit, AsyncFlow, ScopeFlow>>> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct StarExpr : tao::pegtl::seq<Star<Implicit>,
-                                        Expr<Implicit, AsyncFlow, ScopeFlow>> {
+      struct StarExpr
+          : Seq<StarOp<Implicit>, Expr<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(asdl::ExprImpl{asdl::Starred{pop<asdl::ExprImpl>()}});
+          }
+        };
       };
-      struct StarExprAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(asdl::ExprImpl{asdl::Starred{pop<asdl::ExprImpl>()}});
-        }
-      };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<StarExpr<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<StarExpr<Implicit, AsyncFlow, ScopeFlow>,
-                        StarExprAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct XorExpr;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct Expr
-          : tao::pegtl::list_must<XorExpr<Implicit, AsyncFlow, ScopeFlow>,
-                                  BitOr<Implicit>> {};
-      struct ExprAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          if (auto s = size(); s > 1) {
-            asdl::Bin bin{asdl::Operator::BIT_OR, {}};
-            bin.values.reserve(s);
-            transform<asdl::ExprImpl>(std::back_inserter(bin.values));
-            outer.push(asdl::ExprImpl{std::move(bin)});
-          } else {
-            outer.push(pop<asdl::ExprImpl>());
+          : ListMust<XorExpr<Implicit, AsyncFlow, ScopeFlow>, BitOr<Implicit>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            if (auto s = size(); s > 1) {
+              asdl::Bin bin{asdl::Operator::BIT_OR, {}};
+              bin.values.reserve(s);
+              transform<asdl::ExprImpl>(std::back_inserter(bin.values));
+              outer.push(asdl::ExprImpl{std::move(bin)});
+            } else {
+              outer.push(pop<asdl::ExprImpl>());
+            }
           }
-        }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<Expr<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<Expr<Implicit, AsyncFlow, ScopeFlow>, ExprAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct AndExpr;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct XorExpr
-          : tao::pegtl::list_must<AndExpr<Implicit, AsyncFlow, ScopeFlow>,
-                                  BitXor<Implicit>> {};
-      struct XorExprAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          if (auto s = size(); s > 1) {
-            asdl::Bin bin{asdl::Operator::BIT_XOR, {}};
-            bin.values.reserve(s);
-            transform<asdl::ExprImpl>(std::back_inserter(bin.values));
-            outer.push(asdl::ExprImpl{std::move(bin)});
-          } else {
-            outer.push(pop<asdl::ExprImpl>());
+      struct XorExpr : ListMust<AndExpr<Implicit, AsyncFlow, ScopeFlow>,
+                                BitXor<Implicit>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            if (auto s = size(); s > 1) {
+              asdl::Bin bin{asdl::Operator::BIT_XOR, {}};
+              bin.values.reserve(s);
+              transform<asdl::ExprImpl>(std::back_inserter(bin.values));
+              outer.push(asdl::ExprImpl{std::move(bin)});
+            } else {
+              outer.push(pop<asdl::ExprImpl>());
+            }
           }
-        }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<XorExpr<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<XorExpr<Implicit, AsyncFlow, ScopeFlow>,
-                        XorExprAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct ShiftExpr;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct AndExpr
-          : tao::pegtl::list_must<ShiftExpr<Implicit, AsyncFlow, ScopeFlow>,
-                                  BitAnd<Implicit>> {};
-      struct AndExprAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          if (auto s = size(); s > 1) {
-            asdl::Bin bin{asdl::Operator::BIT_AND, {}};
-            bin.values.reserve(s);
-            transform<asdl::ExprImpl>(std::back_inserter(bin.values));
-            outer.push(asdl::ExprImpl{std::move(bin)});
-          } else {
-            outer.push(pop<asdl::ExprImpl>());
+      struct AndExpr : ListMust<ShiftExpr<Implicit, AsyncFlow, ScopeFlow>,
+                                BitAnd<Implicit>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            if (auto s = size(); s > 1) {
+              asdl::Bin bin{asdl::Operator::BIT_AND, {}};
+              bin.values.reserve(s);
+              transform<asdl::ExprImpl>(std::back_inserter(bin.values));
+              outer.push(asdl::ExprImpl{std::move(bin)});
+            } else {
+              outer.push(pop<asdl::ExprImpl>());
+            }
           }
-        }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<AndExpr<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<AndExpr<Implicit, AsyncFlow, ScopeFlow>,
-                        AndExprAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct ArithExpr;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct ShiftExprTail
-          : tao::pegtl::if_must<
-                tao::pegtl::sor<LShift<Implicit>, RShift<Implicit>>,
-                ArithExpr<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct ShiftExprTailAction : Stack<asdl::ExprImpl, asdl::Operator> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          asdl::Bin bin{};
-          bin.values.reserve(2);
-          bin.values = {outer.template pop<asdl::ExprImpl>(),
-                        pop<asdl::ExprImpl>()};
-          bin.op = pop<asdl::Operator>();
-          outer.push(asdl::ExprImpl{std::move(bin)});
-        }
+      struct ShiftExprTail : IfMust<Sor<LShift<Implicit>, RShift<Implicit>>,
+                                    ArithExpr<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl, asdl::Operator> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            asdl::Bin bin{};
+            bin.values.reserve(2);
+            bin.values = {outer.template pop<asdl::ExprImpl>(),
+                          pop<asdl::ExprImpl>()};
+            bin.op = pop<asdl::Operator>();
+            outer.push(asdl::ExprImpl{std::move(bin)});
+          }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<ShiftExprTail<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<ShiftExprTail<Implicit, AsyncFlow, ScopeFlow>,
-                        ShiftExprTailAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct ShiftExpr
-          : tao::pegtl::seq<ArithExpr<Implicit, AsyncFlow, ScopeFlow>,
-                            tao::pegtl::star<ShiftExprTail<Implicit, AsyncFlow,
-                                                           ScopeFlow>>> {};
-      struct ShiftExprAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(pop<asdl::ExprImpl>());
-        }
+          : Seq<ArithExpr<Implicit, AsyncFlow, ScopeFlow>,
+                Star<ShiftExprTail<Implicit, AsyncFlow, ScopeFlow>>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(pop<asdl::ExprImpl>());
+          }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<ShiftExpr<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<ShiftExpr<Implicit, AsyncFlow, ScopeFlow>,
-                        ShiftExprAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct Term;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct ArithExprTail
-          : tao::pegtl::if_must<tao::pegtl::sor<Add<Implicit>, Sub<Implicit>>,
-                                Term<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct ArithExprTailAction : Stack<asdl::ExprImpl, asdl::Operator> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          asdl::Bin bin{};
-          bin.values.reserve(2);
-          bin.values = {outer.template pop<asdl::ExprImpl>(),
-                        pop<asdl::ExprImpl>()};
-          bin.op = pop<asdl::Operator>();
-          outer.push(asdl::ExprImpl{std::move(bin)});
-        }
+      struct ArithExprTail : IfMust<Sor<Add<Implicit>, Sub<Implicit>>,
+                                    Term<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl, asdl::Operator> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            asdl::Bin bin{};
+            bin.values.reserve(2);
+            bin.values = {outer.template pop<asdl::ExprImpl>(),
+                          pop<asdl::ExprImpl>()};
+            bin.op = pop<asdl::Operator>();
+            outer.push(asdl::ExprImpl{std::move(bin)});
+          }
+        };
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<ArithExprTail<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<ArithExprTail<Implicit, AsyncFlow, ScopeFlow>,
-                        ArithExprTailAction> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct ArithExpr
-          : tao::pegtl::seq<Term<Implicit, AsyncFlow, ScopeFlow>,
-                            tao::pegtl::star<ArithExprTail<Implicit, AsyncFlow,
-                                                           ScopeFlow>>> {};
+          : Seq<Term<Implicit, AsyncFlow, ScopeFlow>,
+                Star<ArithExprTail<Implicit, AsyncFlow, ScopeFlow>>> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct Factor;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct TermTail : tao::pegtl::if_must<
-                            tao::pegtl::sor<Mult<Implicit>, MatMult<Implicit>,
-                                            Div<Implicit>, Mod<Implicit>,
-                                            FloorDiv<Implicit>>,
-                            Factor<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct TermTailAction : Stack<asdl::ExprImpl, asdl::Operator> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          asdl::Bin bin{};
-          bin.values.reserve(2);
-          bin.values = {outer.template pop<asdl::ExprImpl>(),
-                        pop<asdl::ExprImpl>()};
-          bin.op = pop<asdl::Operator>();
-          outer.push(asdl::ExprImpl{std::move(bin)});
-        }
+      struct TermTail
+          : IfMust<Sor<Mult<Implicit>, MatMult<Implicit>, Div<Implicit>,
+                       Mod<Implicit>, FloorDiv<Implicit>>,
+                   Factor<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl, asdl::Operator> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            asdl::Bin bin{};
+            bin.values.reserve(2);
+            bin.values = {outer.template pop<asdl::ExprImpl>(),
+                          pop<asdl::ExprImpl>()};
+            bin.op = pop<asdl::Operator>();
+            outer.push(asdl::ExprImpl{std::move(bin)});
+          }
+        };
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<TermTail<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<TermTail<Implicit, AsyncFlow, ScopeFlow>,
-                        TermTailAction> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Term
-          : tao::pegtl::seq<
-                Factor<Implicit, AsyncFlow, ScopeFlow>,
-                tao::pegtl::star<TermTail<Implicit, AsyncFlow, ScopeFlow>>> {};
+      struct Term : Seq<Factor<Implicit, AsyncFlow, ScopeFlow>,
+                        Star<TermTail<Implicit, AsyncFlow, ScopeFlow>>> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct Power;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct Factor
-          : tao::pegtl::sor<tao::pegtl::if_must<
-                                tao::pegtl::sor<UAdd<Implicit>, USub<Implicit>,
-                                                BitNot<Implicit>>,
-                                Factor<Implicit, AsyncFlow, ScopeFlow>>,
-                            Power<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct FactorAction : Stack<asdl::ExprImpl, asdl::Unary::Op> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          if (size() > 1) {
-            asdl::Unary unary{{}, pop<asdl::ExprImpl>()};
-            unary.op = pop<asdl::Unary::Op>();
-            outer.push(asdl::ExprImpl{std::move(unary)});
-          } else {
-            outer.push(pop<asdl::ExprImpl>());
+          : Sor<IfMust<Sor<UAdd<Implicit>, USub<Implicit>, BitNot<Implicit>>,
+                       Factor<Implicit, AsyncFlow, ScopeFlow>>,
+                Power<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl, asdl::Unary::Op> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            if (size() > 1) {
+              asdl::Unary unary{{}, pop<asdl::ExprImpl>()};
+              unary.op = pop<asdl::Unary::Op>();
+              outer.push(asdl::ExprImpl{std::move(unary)});
+            } else {
+              outer.push(pop<asdl::ExprImpl>());
+            }
           }
-        }
-      };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<Factor<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<Factor<Implicit, AsyncFlow, ScopeFlow>, FactorAction> {
+        };
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct AtomExpr;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Power
-          : tao::pegtl::seq<
-                AtomExpr<Implicit, AsyncFlow, ScopeFlow>,
-                tao::pegtl::opt<
-                    Pow<Implicit>,
-                    tao::pegtl::must<Factor<Implicit, AsyncFlow, ScopeFlow>>>> {
-      };
-      struct PowerAction : Stack<asdl::ExprImpl, asdl::Operator> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          if (size() > 1) {
-            asdl::Bin bin{};
-            bin.values.reserve(2);
-            bin.values[1] = pop<asdl::ExprImpl>();
-            bin.op = pop<asdl::Operator>();
-            bin.values[0] = pop<asdl::ExprImpl>();
-            outer.push(asdl::ExprImpl{std::move(bin)});
-          } else {
-            outer.push(pop<asdl::ExprImpl>());
+      struct Power : Seq<AtomExpr<Implicit, AsyncFlow, ScopeFlow>,
+                         Opt<Pow<Implicit>,
+                             Must<Factor<Implicit, AsyncFlow, ScopeFlow>>>> {
+        struct Transform : rules::Stack<asdl::ExprImpl, asdl::Operator> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            if (size() > 1) {
+              asdl::Bin bin{};
+              bin.values.reserve(2);
+              bin.values[1] = pop<asdl::ExprImpl>();
+              bin.op = pop<asdl::Operator>();
+              bin.values[0] = pop<asdl::ExprImpl>();
+              outer.push(asdl::ExprImpl{std::move(bin)});
+            } else {
+              outer.push(pop<asdl::ExprImpl>());
+            }
           }
-        }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<Power<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<Power<Implicit, AsyncFlow, ScopeFlow>, PowerAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct Atom;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct Trailer;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct AtomExprAtomTrailer
-          : tao::pegtl::seq<
-                Atom<Implicit, AsyncFlow, ScopeFlow>,
-                tao::pegtl::star<Trailer<Implicit, AsyncFlow, ScopeFlow>>> {};
+          : Seq<Atom<Implicit, AsyncFlow, ScopeFlow>,
+                Star<Trailer<Implicit, AsyncFlow, ScopeFlow>>> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct AtomExprAwait
           : std::conditional_t<
                 AsyncFlow,
-                tao::pegtl::if_must<
-                    Await<Implicit>,
-                    AtomExprAtomTrailer<Implicit, AsyncFlow, ScopeFlow>>,
-                tao::pegtl::failure> {};
-      struct AtomExprAwaitAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(asdl::ExprImpl{asdl::Await{pop<asdl::ExprImpl>()}});
-        }
+                IfMust<Await<Implicit>,
+                       AtomExprAtomTrailer<Implicit, AsyncFlow, ScopeFlow>>,
+                Failure> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(asdl::ExprImpl{asdl::Await{pop<asdl::ExprImpl>()}});
+          }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<AtomExprAwait<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<AtomExprAwait<Implicit, AsyncFlow, ScopeFlow>,
-                        AtomExprAwaitAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct AtomExpr
-          : tao::pegtl::sor<
-                AtomExprAwait<Implicit, AsyncFlow, ScopeFlow>,
-                AtomExprAtomTrailer<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct AtomExprAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(pop<asdl::ExprImpl>());
-        }
+          : Sor<AtomExprAwait<Implicit, AsyncFlow, ScopeFlow>,
+                AtomExprAtomTrailer<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(pop<asdl::ExprImpl>());
+          }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<AtomExpr<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<AtomExpr<Implicit, AsyncFlow, ScopeFlow>,
-                        AtomExprAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct TestListComp;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct AtomLParRParTest
-          : tao::pegtl::seq<Test<Implicit, AsyncFlow, ScopeFlow>,
-                            tao::pegtl::at<RPar<false>>> {};
+          : Seq<Test<Implicit, AsyncFlow, ScopeFlow>, At<RPar<false>>> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct AtomLParRParTestListComp
-          : tao::pegtl::seq<TestListComp<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct AtomLParRParTestListCompAction
-          : Stack<asdl::ExprImpl, asdl::Comprehension> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          if (top_is<asdl::Comprehension>()) {
-            std::vector<asdl::Comprehension> generators;
-            generators.reserve(size() - 1);
-            while (size() > 1) {
-              generators.push_back(pop<asdl::Comprehension>());
+          : Seq<TestListComp<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl, asdl::Comprehension> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            if (top_is<asdl::Comprehension>()) {
+              std::vector<asdl::Comprehension> generators;
+              generators.reserve(size() - 1);
+              while (size() > 1) {
+                generators.push_back(pop<asdl::Comprehension>());
+              }
+              outer.push(asdl::ExprImpl{asdl::GeneratorExp{
+                  pop<asdl::ExprImpl>(), std::move(generators)}});
+            } else {
+              asdl::Tuple tuple;
+              tuple.elts.reserve(size());
+              transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
+              outer.push(asdl::ExprImpl{std::move(tuple)});
             }
-            outer.push(asdl::ExprImpl{asdl::GeneratorExp{
-                pop<asdl::ExprImpl>(), std::move(generators)}});
-          } else {
-            asdl::Tuple tuple;
-            tuple.elts.reserve(size());
-            transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
-            outer.push(asdl::ExprImpl{std::move(tuple)});
           }
-        }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<AtomLParRParTestListComp<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<
-                AtomLParRParTestListComp<Implicit, AsyncFlow, ScopeFlow>,
-                AtomLParRParTestListCompAction> {};
-      struct EmptyTuple : tao::pegtl::success {};
-      struct EmptyTupleAction {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(asdl::ExprImpl{asdl::Tuple{}});
-        }
+      struct EmptyTuple : Success {
+        struct Transform {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(asdl::ExprImpl{asdl::Tuple{}});
+          }
+        };
       };
-      template <>
-      struct Control<EmptyTuple> : ChangeState<EmptyTuple, EmptyTupleAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct AtomLParRParContent
-          : tao::pegtl::sor<
-                YieldExpr<Implicit, AsyncFlow, ScopeFlow>,
+          : Sor<YieldExpr<Implicit, AsyncFlow, ScopeFlow>,
                 AtomLParRParTest<Implicit, AsyncFlow, ScopeFlow>,
                 AtomLParRParTestListComp<Implicit, AsyncFlow, ScopeFlow>,
                 EmptyTuple> {};
@@ -718,81 +582,70 @@ namespace chimera {
           : Paren<Implicit, AsyncFlow, ScopeFlow, AtomLParRParContent> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct AtomLBrtRBrt
-          : BracketOpt<Implicit, AsyncFlow, ScopeFlow, TestListComp> {};
-      struct AtomLBrtRBrtAction : Stack<asdl::ExprImpl, asdl::Comprehension> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          if (top_is<asdl::Comprehension>()) {
-            std::vector<asdl::Comprehension> generators;
-            generators.reserve(size() - 1);
-            while (size() > 1) {
-              generators.push_back(pop<asdl::Comprehension>());
+          : BracketOpt<Implicit, AsyncFlow, ScopeFlow, TestListComp> {
+        struct Transform : rules::Stack<asdl::ExprImpl, asdl::Comprehension> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            if (top_is<asdl::Comprehension>()) {
+              std::vector<asdl::Comprehension> generators;
+              generators.reserve(size() - 1);
+              while (size() > 1) {
+                generators.push_back(pop<asdl::Comprehension>());
+              }
+              outer.push(asdl::ExprImpl{asdl::ListComp{pop<asdl::ExprImpl>(),
+                                                       std::move(generators)}});
+            } else {
+              asdl::List list;
+              list.elts.reserve(size());
+              transform<asdl::ExprImpl>(std::back_inserter(list.elts));
+              outer.push(asdl::ExprImpl{std::move(list)});
             }
-            outer.push(asdl::ExprImpl{
-                asdl::ListComp{pop<asdl::ExprImpl>(), std::move(generators)}});
-          } else {
-            asdl::List list;
-            list.elts.reserve(size());
-            transform<asdl::ExprImpl>(std::back_inserter(list.elts));
-            outer.push(asdl::ExprImpl{std::move(list)});
           }
-        }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<AtomLBrtRBrt<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<AtomLBrtRBrt<Implicit, AsyncFlow, ScopeFlow>,
-                        AtomLBrtRBrtAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct DictMaker;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct SetMaker;
-      struct EmptyDict : tao::pegtl::success {};
-      struct EmptyDictAction {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(asdl::ExprImpl{asdl::Dict{}});
-        }
+      struct EmptyDict : Success {
+        struct Transform {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(asdl::ExprImpl{asdl::Dict{}});
+          }
+        };
       };
-      template <>
-      struct Control<EmptyDict> : ChangeState<EmptyDict, EmptyDictAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct DictOrSetMaker
-          : tao::pegtl::sor<DictMaker<Implicit, AsyncFlow, ScopeFlow>,
-                            SetMaker<Implicit, AsyncFlow, ScopeFlow>,
-                            EmptyDict> {};
+          : Sor<DictMaker<Implicit, AsyncFlow, ScopeFlow>,
+                SetMaker<Implicit, AsyncFlow, ScopeFlow>, EmptyDict> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct AtomLBrcRBrc
           : Brace<Implicit, AsyncFlow, ScopeFlow, DictOrSetMaker> {};
-      struct AtomNameImpl : tao::pegtl::minus<NameImpl, Keywords> {};
+      struct AtomNameImpl : Minus<NameImpl, Keywords> {};
       template <bool Implicit>
-      struct AtomName : Token<Implicit, AtomNameImpl> {};
-      struct AtomNameAction : Stack<asdl::Name> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(asdl::ExprImpl{pop<asdl::Name>()});
-        }
-      };
-      template <bool Implicit>
-      struct Control<AtomName<Implicit>>
-          : ChangeState<AtomName<Implicit>, AtomNameAction> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Atom
-          : tao::pegtl::sor<AtomLParRPar<Implicit, AsyncFlow, ScopeFlow>,
-                            AtomLBrtRBrt<Implicit, AsyncFlow, ScopeFlow>,
-                            AtomLBrcRBrc<Implicit, AsyncFlow, ScopeFlow>,
-                            STRING<Implicit, AsyncFlow, ScopeFlow>,
-                            NUMBER<Implicit>, Ellipsis<Implicit>,
-                            None<Implicit>, True<Implicit>, False<Implicit>,
-                            AtomName<Implicit>> {};
-      struct AtomAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(pop<asdl::ExprImpl>());
-        }
+      struct AtomName : Token<Implicit, AtomNameImpl> {
+        struct Transform : rules::Stack<asdl::Name> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(asdl::ExprImpl{pop<asdl::Name>()});
+          }
+        };
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<Atom<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<Atom<Implicit, AsyncFlow, ScopeFlow>, AtomAction> {};
+      struct Atom : Sor<AtomLParRPar<Implicit, AsyncFlow, ScopeFlow>,
+                        AtomLBrtRBrt<Implicit, AsyncFlow, ScopeFlow>,
+                        AtomLBrcRBrc<Implicit, AsyncFlow, ScopeFlow>,
+                        STRING<Implicit, AsyncFlow, ScopeFlow>,
+                        NUMBER<Implicit>, EllipsisOp<Implicit>, None<Implicit>,
+                        True<Implicit>, False<Implicit>, AtomName<Implicit>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(pop<asdl::ExprImpl>());
+          }
+        };
+      };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct TestListComp
           : CompOrCommaList<Implicit, AsyncFlow, ScopeFlow, TestOrStarExpr> {};
@@ -800,589 +653,464 @@ namespace chimera {
       struct ArgList;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct TrailerLParRPar
-          : ParenOpt<Implicit, AsyncFlow, ScopeFlow, ArgList> {};
-      struct TrailerLParRParAction : Stack<asdl::ExprImpl, asdl::Keyword> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          asdl::Call call{outer.template pop<asdl::ExprImpl>(), {}, {}};
-          call.keywords.reserve(size());
-          call.args.reserve(size());
-          while (has_value()) {
-            if (top_is<asdl::Keyword>()) {
-              call.keywords.push_back(pop<asdl::Keyword>());
-            } else {
-              call.args.push_back(pop<asdl::ExprImpl>());
+          : ParenOpt<Implicit, AsyncFlow, ScopeFlow, ArgList> {
+        struct Transform : rules::Stack<asdl::ExprImpl, asdl::Keyword> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            asdl::Call call{outer.template pop<asdl::ExprImpl>(), {}, {}};
+            call.keywords.reserve(size());
+            call.args.reserve(size());
+            while (has_value()) {
+              if (top_is<asdl::Keyword>()) {
+                call.keywords.push_back(pop<asdl::Keyword>());
+              } else {
+                call.args.push_back(pop<asdl::ExprImpl>());
+              }
             }
+            std::reverse(call.args.begin(), call.args.end());
+            std::reverse(call.keywords.begin(), call.keywords.end());
+            outer.push(asdl::ExprImpl{std::move(call)});
           }
-          std::reverse(call.args.begin(), call.args.end());
-          std::reverse(call.keywords.begin(), call.keywords.end());
-          outer.push(asdl::ExprImpl{std::move(call)});
-        }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<TrailerLParRPar<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<TrailerLParRPar<Implicit, AsyncFlow, ScopeFlow>,
-                        TrailerLParRParAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct SubscriptList;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct TrailerLBrtRBrt
-          : Bracket<Implicit, AsyncFlow, ScopeFlow, SubscriptList> {};
-      struct TrailerLBrtRBrtAction : Stack<asdl::SliceImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(asdl::ExprImpl{asdl::Subscript{
-              outer.template pop<asdl::ExprImpl>(), pop<asdl::SliceImpl>()}});
-        }
-      };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<TrailerLBrtRBrt<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<TrailerLBrtRBrt<Implicit, AsyncFlow, ScopeFlow>,
-                        TrailerLBrtRBrtAction> {};
-      template <bool Implicit>
-      struct TrailerPeriod
-          : tao::pegtl::if_must<Period<Implicit>, Name<Implicit>> {};
-      struct TrailerPeriodAction : Stack<asdl::Name> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(asdl::ExprImpl{asdl::Attribute{
-              outer.template pop<asdl::ExprImpl>(), pop<asdl::Name>()}});
-        }
+          : Bracket<Implicit, AsyncFlow, ScopeFlow, SubscriptList> {
+        struct Transform : rules::Stack<asdl::SliceImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(asdl::ExprImpl{asdl::Subscript{
+                outer.template pop<asdl::ExprImpl>(), pop<asdl::SliceImpl>()}});
+          }
+        };
       };
       template <bool Implicit>
-      struct Control<TrailerPeriod<Implicit>>
-          : ChangeState<TrailerPeriod<Implicit>, TrailerPeriodAction> {};
+      struct TrailerPeriod : IfMust<Period<Implicit>, Name<Implicit>> {
+        struct Transform : rules::Stack<asdl::Name> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(asdl::ExprImpl{asdl::Attribute{
+                outer.template pop<asdl::ExprImpl>(), pop<asdl::Name>()}});
+          }
+        };
+      };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Trailer
-          : tao::pegtl::sor<TrailerLParRPar<Implicit, AsyncFlow, ScopeFlow>,
-                            TrailerLBrtRBrt<Implicit, AsyncFlow, ScopeFlow>,
-                            TrailerPeriod<Implicit>> {};
+      struct Trailer : Sor<TrailerLParRPar<Implicit, AsyncFlow, ScopeFlow>,
+                           TrailerLBrtRBrt<Implicit, AsyncFlow, ScopeFlow>,
+                           TrailerPeriod<Implicit>> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct Subscript;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct SubscriptList
-          : tao::pegtl::list_tail<Subscript<Implicit, AsyncFlow, ScopeFlow>,
-                                  Comma<Implicit>> {};
-      struct SubscriptListAction : Stack<asdl::SliceImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          if (auto s = size(); s > 1) {
-            asdl::ExtSlice extSlice;
-            extSlice.dims.reserve(s);
-            transform<asdl::SliceImpl>(std::back_inserter(extSlice.dims));
-            outer.push(asdl::SliceImpl{std::move(extSlice)});
-          } else {
-            outer.push(pop<asdl::SliceImpl>());
+      struct SubscriptList : ListTail<Subscript<Implicit, AsyncFlow, ScopeFlow>,
+                                      Comma<Implicit>> {
+        struct Transform : rules::Stack<asdl::SliceImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            if (auto s = size(); s > 1) {
+              asdl::ExtSlice extSlice;
+              extSlice.dims.reserve(s);
+              transform<asdl::SliceImpl>(std::back_inserter(extSlice.dims));
+              outer.push(asdl::SliceImpl{std::move(extSlice)});
+            } else {
+              outer.push(pop<asdl::SliceImpl>());
+            }
           }
-        }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<SubscriptList<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<SubscriptList<Implicit, AsyncFlow, ScopeFlow>,
-                        SubscriptListAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct SubscriptTest
-          : tao::pegtl::seq<Test<Implicit, AsyncFlow, ScopeFlow>,
-                            tao::pegtl::not_at<Colon<false>>> {};
-      struct SubscriptTestAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(asdl::SliceImpl{asdl::Index{pop<asdl::ExprImpl>()}});
-        }
+          : Seq<Test<Implicit, AsyncFlow, ScopeFlow>, NotAt<Colon<false>>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(asdl::SliceImpl{asdl::Index{pop<asdl::ExprImpl>()}});
+          }
+        };
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<SubscriptTest<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<SubscriptTest<Implicit, AsyncFlow, ScopeFlow>,
-                        SubscriptTestAction> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct SubscriptStep
-          : tao::pegtl::seq<Colon<Implicit>, Colon<Implicit>,
-                            Test<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct SubscriptStepAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(
-              asdl::SliceImpl{asdl::Slice{{}, {}, pop<asdl::ExprImpl>()}});
-        }
+      struct SubscriptStep : Seq<Colon<Implicit>, Colon<Implicit>,
+                                 Test<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(
+                asdl::SliceImpl{asdl::Slice{{}, {}, pop<asdl::ExprImpl>()}});
+          }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<SubscriptStep<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<SubscriptStep<Implicit, AsyncFlow, ScopeFlow>,
-                        SubscriptStepAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct SubscriptStopStep
-          : tao::pegtl::seq<
-                Colon<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>,
-                Colon<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct SubscriptStopStepAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          asdl::Slice slice{{}, {}, pop<asdl::ExprImpl>()};
-          slice.upper = pop<asdl::ExprImpl>();
-          outer.push(asdl::SliceImpl{std::move(slice)});
-        }
+          : Seq<Colon<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>,
+                Colon<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            asdl::Slice slice{{}, {}, pop<asdl::ExprImpl>()};
+            slice.upper = pop<asdl::ExprImpl>();
+            outer.push(asdl::SliceImpl{std::move(slice)});
+          }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<SubscriptStopStep<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<SubscriptStopStep<Implicit, AsyncFlow, ScopeFlow>,
-                        SubscriptStopStepAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct SubscriptStartStep
-          : tao::pegtl::seq<Test<Implicit, AsyncFlow, ScopeFlow>,
-                            Colon<Implicit>, Colon<Implicit>,
-                            Test<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct SubscriptStartStepAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          asdl::Slice slice{{}, {}, pop<asdl::ExprImpl>()};
-          slice.lower = pop<asdl::ExprImpl>();
-          outer.push(asdl::SliceImpl{std::move(slice)});
-        }
+          : Seq<Test<Implicit, AsyncFlow, ScopeFlow>, Colon<Implicit>,
+                Colon<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            asdl::Slice slice{{}, {}, pop<asdl::ExprImpl>()};
+            slice.lower = pop<asdl::ExprImpl>();
+            outer.push(asdl::SliceImpl{std::move(slice)});
+          }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<SubscriptStartStep<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<SubscriptStartStep<Implicit, AsyncFlow, ScopeFlow>,
-                        SubscriptStartStepAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct SubscriptStartStopStep
-          : tao::pegtl::seq<
+          : Seq<Test<Implicit, AsyncFlow, ScopeFlow>, Colon<Implicit>,
                 Test<Implicit, AsyncFlow, ScopeFlow>, Colon<Implicit>,
-                Test<Implicit, AsyncFlow, ScopeFlow>, Colon<Implicit>,
-                Test<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct SubscriptStartStopStepAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          asdl::Slice slice{{}, {}, pop<asdl::ExprImpl>()};
-          slice.upper = pop<asdl::ExprImpl>();
-          slice.lower = pop<asdl::ExprImpl>();
-          outer.push(asdl::SliceImpl{std::move(slice)});
-        }
+                Test<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            asdl::Slice slice{{}, {}, pop<asdl::ExprImpl>()};
+            slice.upper = pop<asdl::ExprImpl>();
+            slice.lower = pop<asdl::ExprImpl>();
+            outer.push(asdl::SliceImpl{std::move(slice)});
+          }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<SubscriptStartStopStep<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<SubscriptStartStopStep<Implicit, AsyncFlow, ScopeFlow>,
-                        SubscriptStartStopStepAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct SubscriptStartStop
-          : tao::pegtl::seq<Test<Implicit, AsyncFlow, ScopeFlow>,
-                            Colon<Implicit>,
-                            Test<Implicit, AsyncFlow, ScopeFlow>,
-                            tao::pegtl::opt<Colon<Implicit>>> {};
-      struct SubscriptStartStopAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          asdl::Slice slice{{}, pop<asdl::ExprImpl>(), {}};
-          slice.lower = pop<asdl::ExprImpl>();
-          outer.push(asdl::SliceImpl{std::move(slice)});
-        }
+          : Seq<Test<Implicit, AsyncFlow, ScopeFlow>, Colon<Implicit>,
+                Test<Implicit, AsyncFlow, ScopeFlow>, Opt<Colon<Implicit>>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            asdl::Slice slice{{}, pop<asdl::ExprImpl>(), {}};
+            slice.lower = pop<asdl::ExprImpl>();
+            outer.push(asdl::SliceImpl{std::move(slice)});
+          }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<SubscriptStartStop<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<SubscriptStartStop<Implicit, AsyncFlow, ScopeFlow>,
-                        SubscriptStartStopAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct SubscriptStop
-          : tao::pegtl::seq<Colon<Implicit>,
-                            Test<Implicit, AsyncFlow, ScopeFlow>,
-                            tao::pegtl::opt<Colon<Implicit>>> {};
-      struct SubscriptStopAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(
-              asdl::SliceImpl{asdl::Slice{{}, pop<asdl::ExprImpl>(), {}}});
-        }
-      };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<SubscriptStop<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<SubscriptStop<Implicit, AsyncFlow, ScopeFlow>,
-                        SubscriptStopAction> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct SubscriptStart
-          : tao::pegtl::seq<
-                tao::pegtl::opt<Test<Implicit, AsyncFlow, ScopeFlow>>,
-                Colon<Implicit>, tao::pegtl::opt<Colon<Implicit>>> {};
-      struct SubscriptStartAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          if (has_value()) {
+          : Seq<Colon<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>,
+                Opt<Colon<Implicit>>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
             outer.push(
-                asdl::SliceImpl{asdl::Slice{pop<asdl::ExprImpl>(), {}, {}}});
-          } else {
-            outer.push(asdl::SliceImpl{asdl::Slice{}});
+                asdl::SliceImpl{asdl::Slice{{}, pop<asdl::ExprImpl>(), {}}});
           }
-        }
+        };
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<SubscriptStart<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<SubscriptStart<Implicit, AsyncFlow, ScopeFlow>,
-                        SubscriptStartAction> {};
+      struct SubscriptStart : Seq<Opt<Test<Implicit, AsyncFlow, ScopeFlow>>,
+                                  Colon<Implicit>, Opt<Colon<Implicit>>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            if (has_value()) {
+              outer.push(
+                  asdl::SliceImpl{asdl::Slice{pop<asdl::ExprImpl>(), {}, {}}});
+            } else {
+              outer.push(asdl::SliceImpl{asdl::Slice{}});
+            }
+          }
+        };
+      };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct Subscript
-          : tao::pegtl::sor<
-                SubscriptTest<Implicit, AsyncFlow, ScopeFlow>,
+          : Sor<SubscriptTest<Implicit, AsyncFlow, ScopeFlow>,
                 SubscriptStep<Implicit, AsyncFlow, ScopeFlow>,
                 SubscriptStopStep<Implicit, AsyncFlow, ScopeFlow>,
                 SubscriptStartStep<Implicit, AsyncFlow, ScopeFlow>,
                 SubscriptStartStopStep<Implicit, AsyncFlow, ScopeFlow>,
                 SubscriptStop<Implicit, AsyncFlow, ScopeFlow>,
                 SubscriptStartStop<Implicit, AsyncFlow, ScopeFlow>,
-                SubscriptStart<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct SubscriptAction : Stack<asdl::SliceImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(pop<asdl::SliceImpl>());
-        }
-      };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<Subscript<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<Subscript<Implicit, AsyncFlow, ScopeFlow>,
-                        SubscriptAction> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct ExprList
-          : tao::pegtl::list_tail<
-                tao::pegtl::sor<Expr<Implicit, AsyncFlow, ScopeFlow>,
-                                StarExpr<Implicit, AsyncFlow, ScopeFlow>>,
-                Comma<Implicit>> {};
-      struct ExprListAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          if (auto s = size(); s > 0) {
-            asdl::Tuple tuple;
-            tuple.elts.reserve(s);
-            transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
-            outer.push(asdl::ExprImpl{std::move(tuple)});
-          } else {
-            outer.push(pop<asdl::ExprImpl>());
+                SubscriptStart<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::SliceImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(pop<asdl::SliceImpl>());
           }
-        }
+        };
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<ExprList<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<ExprList<Implicit, AsyncFlow, ScopeFlow>,
-                        ExprListAction> {};
+      struct ExprList : ListTail<Sor<Expr<Implicit, AsyncFlow, ScopeFlow>,
+                                     StarExpr<Implicit, AsyncFlow, ScopeFlow>>,
+                                 Comma<Implicit>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            if (auto s = size(); s > 0) {
+              asdl::Tuple tuple;
+              tuple.elts.reserve(s);
+              transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
+              outer.push(asdl::ExprImpl{std::move(tuple)});
+            } else {
+              outer.push(pop<asdl::ExprImpl>());
+            }
+          }
+        };
+      };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct TestList
-          : tao::pegtl::list_tail<Test<Implicit, AsyncFlow, ScopeFlow>,
-                                  Comma<Implicit>> {};
-      struct TestListAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          if (auto s = size(); s > 0) {
-            asdl::Tuple tuple;
-            tuple.elts.reserve(s);
-            transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
-            outer.push(asdl::ExprImpl{std::move(tuple)});
-          } else {
-            outer.push(pop<asdl::ExprImpl>());
+          : ListTail<Test<Implicit, AsyncFlow, ScopeFlow>, Comma<Implicit>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            if (auto s = size(); s > 0) {
+              asdl::Tuple tuple;
+              tuple.elts.reserve(s);
+              transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
+              outer.push(asdl::ExprImpl{std::move(tuple)});
+            } else {
+              outer.push(pop<asdl::ExprImpl>());
+            }
           }
-        }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<TestList<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<TestList<Implicit, AsyncFlow, ScopeFlow>,
-                        TestListAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct SetMaker
-          : CompOrCommaList<Implicit, AsyncFlow, ScopeFlow, TestOrStarExpr> {};
-      struct SetMakerAction : Stack<asdl::ExprImpl, asdl::Comprehension> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          if (top_is<asdl::Comprehension>()) {
-            std::vector<asdl::Comprehension> generators;
-            generators.reserve(size() - 1);
-            while (size() > 1) {
-              generators.push_back(pop<asdl::Comprehension>());
+          : CompOrCommaList<Implicit, AsyncFlow, ScopeFlow, TestOrStarExpr> {
+        struct Transform : rules::Stack<asdl::ExprImpl, asdl::Comprehension> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            if (top_is<asdl::Comprehension>()) {
+              std::vector<asdl::Comprehension> generators;
+              generators.reserve(size() - 1);
+              while (size() > 1) {
+                generators.push_back(pop<asdl::Comprehension>());
+              }
+              outer.push(asdl::ExprImpl{
+                  asdl::SetComp{pop<asdl::ExprImpl>(), std::move(generators)}});
+            } else {
+              asdl::Set set;
+              set.elts.reserve(size());
+              transform<asdl::ExprImpl>(std::back_inserter(set.elts));
+              outer.push(asdl::ExprImpl{std::move(set)});
             }
-            outer.push(asdl::ExprImpl{
-                asdl::SetComp{pop<asdl::ExprImpl>(), std::move(generators)}});
-          } else {
-            asdl::Set set;
-            set.elts.reserve(size());
-            transform<asdl::ExprImpl>(std::back_inserter(set.elts));
-            outer.push(asdl::ExprImpl{std::move(set)});
           }
-        }
-      };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<SetMaker<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<SetMaker<Implicit, AsyncFlow, ScopeFlow>,
-                        SetMakerAction> {};
-      template <bool Implicit>
-      struct DictMakerUnpack : Unpack<Implicit> {};
-      struct DictMakerUnpackAction {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(asdl::ExprImpl{asdl::UnpackDict{}});
-        }
+        };
       };
       template <bool Implicit>
-      struct Control<DictMakerUnpack<Implicit>>
-          : ChangeState<DictMakerUnpack<Implicit>, DictMakerUnpackAction> {};
+      struct DictMakerUnpack : Unpack<Implicit> {
+        struct Transform {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(asdl::ExprImpl{asdl::UnpackDict{}});
+          }
+        };
+      };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct DictMakerEltStart
-          : tao::pegtl::seq<Test<Implicit, AsyncFlow, ScopeFlow>,
-                            Colon<Implicit>> {};
-      struct DictMakerEltStartAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          std::visit(outer, pop());
-        }
+          : Seq<Test<Implicit, AsyncFlow, ScopeFlow>, Colon<Implicit>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            std::visit(outer, pop());
+          }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<DictMakerEltStart<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<DictMakerEltStart<Implicit, AsyncFlow, ScopeFlow>,
-                        DictMakerEltStartAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct DictMakerElt
-          : tao::pegtl::sor<
-                tao::pegtl::if_must<DictMakerUnpack<Implicit>,
-                                    Expr<Implicit, AsyncFlow, ScopeFlow>>,
-                tao::pegtl::if_must<
-                    DictMakerEltStart<Implicit, AsyncFlow, ScopeFlow>,
-                    Test<Implicit, AsyncFlow, ScopeFlow>>> {};
+          : Sor<IfMust<DictMakerUnpack<Implicit>,
+                       Expr<Implicit, AsyncFlow, ScopeFlow>>,
+                IfMust<DictMakerEltStart<Implicit, AsyncFlow, ScopeFlow>,
+                       Test<Implicit, AsyncFlow, ScopeFlow>>> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct DictMaker
-          : CompOrCommaList<Implicit, AsyncFlow, ScopeFlow, DictMakerElt> {};
-      struct DictMakerAction : Stack<asdl::ExprImpl, asdl::Comprehension> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          if (top_is<asdl::Comprehension>()) {
-            std::vector<asdl::Comprehension> generators;
-            generators.reserve(size() - 1);
-            while (size() > 1) {
-              generators.push_back(pop<asdl::Comprehension>());
+          : CompOrCommaList<Implicit, AsyncFlow, ScopeFlow, DictMakerElt> {
+        struct Transform : rules::Stack<asdl::ExprImpl, asdl::Comprehension> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            if (top_is<asdl::Comprehension>()) {
+              std::vector<asdl::Comprehension> generators;
+              generators.reserve(size() - 1);
+              while (size() > 1) {
+                generators.push_back(pop<asdl::Comprehension>());
+              }
+              auto value = pop<asdl::ExprImpl>();
+              outer.push(asdl::ExprImpl{asdl::DictComp{pop<asdl::ExprImpl>(),
+                                                       std::move(value),
+                                                       std::move(generators)}});
+            } else {
+              asdl::Dict dict;
+              auto s = size() / 2;
+              dict.keys.reserve(s);
+              dict.values.reserve(s);
+              while (has_value()) {
+                dict.values.push_back(pop<asdl::ExprImpl>());
+                dict.keys.push_back(pop<asdl::ExprImpl>());
+              }
+              std::reverse(dict.values.begin(), dict.values.end());
+              std::reverse(dict.keys.begin(), dict.keys.end());
+              outer.push(asdl::ExprImpl{std::move(dict)});
             }
-            auto value = pop<asdl::ExprImpl>();
-            outer.push(asdl::ExprImpl{asdl::DictComp{pop<asdl::ExprImpl>(),
-                                                     std::move(value),
-                                                     std::move(generators)}});
-          } else {
-            asdl::Dict dict;
-            auto s = size() / 2;
-            dict.keys.reserve(s);
-            dict.values.reserve(s);
-            while (has_value()) {
-              dict.values.push_back(pop<asdl::ExprImpl>());
-              dict.keys.push_back(pop<asdl::ExprImpl>());
-            }
-            std::reverse(dict.values.begin(), dict.values.end());
-            std::reverse(dict.keys.begin(), dict.keys.end());
-            outer.push(asdl::ExprImpl{std::move(dict)});
           }
-        }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<DictMaker<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<DictMaker<Implicit, AsyncFlow, ScopeFlow>,
-                        DictMakerAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct Argument;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct ArgList
-          : tao::pegtl::list_tail<Argument<Implicit, AsyncFlow, ScopeFlow>,
-                                  Comma<Implicit>> {};
+      struct ArgList : ListTail<Argument<Implicit, AsyncFlow, ScopeFlow>,
+                                Comma<Implicit>> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct ArgumentArg
-          : tao::pegtl::seq<
-                Test<Implicit, AsyncFlow, ScopeFlow>,
-                tao::pegtl::opt<CompFor<Implicit, AsyncFlow, ScopeFlow>>> {};
-      struct ArgumentArgAction : Stack<asdl::ExprImpl, asdl::Comprehension> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          if (auto s = size(); s > 1) {
-            std::vector<asdl::Comprehension> generators;
-            generators.reserve(size() - 1);
-            while (size() > 1) {
-              generators.push_back(pop<asdl::Comprehension>());
+      struct ArgumentArg : Seq<Test<Implicit, AsyncFlow, ScopeFlow>,
+                               Opt<CompFor<Implicit, AsyncFlow, ScopeFlow>>> {
+        struct Transform : rules::Stack<asdl::ExprImpl, asdl::Comprehension> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            if (auto s = size(); s > 1) {
+              std::vector<asdl::Comprehension> generators;
+              generators.reserve(size() - 1);
+              while (size() > 1) {
+                generators.push_back(pop<asdl::Comprehension>());
+              }
+              outer.push(asdl::ExprImpl{asdl::GeneratorExp{
+                  pop<asdl::ExprImpl>(), std::move(generators)}});
+            } else {
+              outer.push(pop<asdl::ExprImpl>());
             }
-            outer.push(asdl::ExprImpl{asdl::GeneratorExp{
-                pop<asdl::ExprImpl>(), std::move(generators)}});
-          } else {
-            outer.push(pop<asdl::ExprImpl>());
           }
-        }
+        };
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<ArgumentArg<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<ArgumentArg<Implicit, AsyncFlow, ScopeFlow>,
-                        ArgumentArgAction> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct ArgumentKeyword
-          : tao::pegtl::seq<Name<Implicit>, Eq<Implicit>,
-                            Test<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct ArgumentKeywordAction : Stack<asdl::ExprImpl, asdl::Name> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          asdl::Keyword keyword{{}, pop<asdl::ExprImpl>()};
-          keyword.arg = pop<asdl::Name>();
-          outer.push(std::move(keyword));
-        }
+      struct ArgumentKeyword : Seq<Name<Implicit>, Eq<Implicit>,
+                                   Test<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl, asdl::Name> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            asdl::Keyword keyword{{}, pop<asdl::ExprImpl>()};
+            keyword.arg = pop<asdl::Name>();
+            outer.push(std::move(keyword));
+          }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<ArgumentKeyword<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<ArgumentKeyword<Implicit, AsyncFlow, ScopeFlow>,
-                        ArgumentKeywordAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct ArgumentKeywordUnpack
-          : tao::pegtl::if_must<Unpack<Implicit>,
-                                Test<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct ArgumentKeywordUnpackAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(asdl::Keyword{{}, pop<asdl::ExprImpl>()});
-        }
+          : IfMust<Unpack<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(asdl::Keyword{{}, pop<asdl::ExprImpl>()});
+          }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<ArgumentKeywordUnpack<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<ArgumentKeywordUnpack<Implicit, AsyncFlow, ScopeFlow>,
-                        ArgumentKeywordUnpackAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct ArgumentArgUnpack
-          : tao::pegtl::if_must<Star<Implicit>,
-                                Test<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct ArgumentArgUnpackAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(asdl::ExprImpl{asdl::Starred{pop<asdl::ExprImpl>()}});
-        }
+          : IfMust<StarOp<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(asdl::ExprImpl{asdl::Starred{pop<asdl::ExprImpl>()}});
+          }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<ArgumentArgUnpack<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<ArgumentArgUnpack<Implicit, AsyncFlow, ScopeFlow>,
-                        ArgumentArgUnpackAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct Argument
-          : tao::pegtl::sor<
-                ArgumentKeywordUnpack<Implicit, AsyncFlow, ScopeFlow>,
+          : Sor<ArgumentKeywordUnpack<Implicit, AsyncFlow, ScopeFlow>,
                 ArgumentArgUnpack<Implicit, AsyncFlow, ScopeFlow>,
                 ArgumentKeyword<Implicit, AsyncFlow, ScopeFlow>,
-                ArgumentArg<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct ArgumentAction : Stack<asdl::ExprImpl, asdl::Keyword> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          std::visit(outer, pop());
-        }
+                ArgumentArg<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl, asdl::Keyword> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            std::visit(outer, pop());
+          }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<Argument<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<Argument<Implicit, AsyncFlow, ScopeFlow>,
-                        ArgumentAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct CompIf
-          : tao::pegtl::if_must<If<Implicit>,
-                                TestNocond<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct CompIfAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.template top<asdl::Comprehension>().ifs.push_back(
-              pop<asdl::ExprImpl>());
-        }
-      };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<CompIf<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<CompIf<Implicit, AsyncFlow, ScopeFlow>, CompIfAction> {
+          : IfMust<If<Implicit>, TestNocond<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.template top<asdl::Comprehension>().ifs.push_back(
+                pop<asdl::ExprImpl>());
+          }
+        };
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct CompForAsync
           : std::conditional_t<
                 AsyncFlow,
-                tao::pegtl::if_must<Async<Implicit>, For<Implicit>,
-                                    ExprList<Implicit, AsyncFlow, ScopeFlow>,
-                                    In<Implicit>,
-                                    OrTest<Implicit, AsyncFlow, ScopeFlow>>,
-                tao::pegtl::failure> {};
-      struct CompForAsyncAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          auto iter = pop<asdl::ExprImpl>();
-          auto target = pop<asdl::ExprImpl>();
-          outer.push(asdl::Comprehension{target, iter, {}, true});
-        }
+                IfMust<Async<Implicit>, For<Implicit>,
+                       ExprList<Implicit, AsyncFlow, ScopeFlow>, In<Implicit>,
+                       OrTest<Implicit, AsyncFlow, ScopeFlow>>,
+                Failure> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            auto iter = pop<asdl::ExprImpl>();
+            auto target = pop<asdl::ExprImpl>();
+            outer.push(asdl::Comprehension{target, iter, {}, true});
+          }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<CompForAsync<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<CompForAsync<Implicit, AsyncFlow, ScopeFlow>,
-                        CompForAsyncAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct CompForSync
-          : tao::pegtl::if_must<
-                For<Implicit>, ExprList<Implicit, AsyncFlow, ScopeFlow>,
-                In<Implicit>, OrTest<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct CompForSyncAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          auto iter = pop<asdl::ExprImpl>();
-          auto target = pop<asdl::ExprImpl>();
-          outer.push(asdl::Comprehension{target, iter, {}, false});
-        }
+          : IfMust<For<Implicit>, ExprList<Implicit, AsyncFlow, ScopeFlow>,
+                   In<Implicit>, OrTest<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            auto iter = pop<asdl::ExprImpl>();
+            auto target = pop<asdl::ExprImpl>();
+            outer.push(asdl::Comprehension{target, iter, {}, false});
+          }
+        };
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<CompForSync<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<CompForSync<Implicit, AsyncFlow, ScopeFlow>,
-                        CompForSyncAction> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct CompFor
-          : tao::pegtl::seq<
-                tao::pegtl::sor<CompForAsync<Implicit, AsyncFlow, ScopeFlow>,
-                                CompForSync<Implicit, AsyncFlow, ScopeFlow>>,
-                tao::pegtl::star<tao::pegtl::sor<
-                    CompForAsync<Implicit, AsyncFlow, ScopeFlow>,
-                    CompForSync<Implicit, AsyncFlow, ScopeFlow>,
-                    CompIf<Implicit, AsyncFlow, ScopeFlow>>>> {};
+          : Seq<Sor<CompForAsync<Implicit, AsyncFlow, ScopeFlow>,
+                    CompForSync<Implicit, AsyncFlow, ScopeFlow>>,
+                Star<Sor<CompForAsync<Implicit, AsyncFlow, ScopeFlow>,
+                         CompForSync<Implicit, AsyncFlow, ScopeFlow>,
+                         CompIf<Implicit, AsyncFlow, ScopeFlow>>>> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct YieldArg;
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct YieldExpr
-          : std::conditional_t<
-                ScopeFlow || AsyncFlow,
-                tao::pegtl::seq<
-                    Yield<Implicit>,
-                    tao::pegtl::opt<YieldArg<Implicit, AsyncFlow, ScopeFlow>>>,
-                tao::pegtl::failure> {};
-      struct YieldExprAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          if (has_value()) {
-            outer.push(pop<asdl::ExprImpl>());
-          } else {
-            outer.push(asdl::ExprImpl{asdl::Yield{}});
+      struct YieldExpr : std::conditional_t<
+                             ScopeFlow || AsyncFlow,
+                             Seq<Yield<Implicit>,
+                                 Opt<YieldArg<Implicit, AsyncFlow, ScopeFlow>>>,
+                             Failure> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            if (has_value()) {
+              outer.push(pop<asdl::ExprImpl>());
+            } else {
+              outer.push(asdl::ExprImpl{asdl::Yield{}});
+            }
           }
-        }
+        };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<YieldExpr<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<YieldExpr<Implicit, AsyncFlow, ScopeFlow>,
-                        YieldExprAction> {};
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct YieldArgFrom
-          : tao::pegtl::if_must<From<Implicit>,
-                                Test<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct YieldArgFromAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(asdl::ExprImpl{asdl::YieldFrom{pop<asdl::ExprImpl>()}});
-        }
+          : IfMust<From<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(asdl::ExprImpl{asdl::YieldFrom{pop<asdl::ExprImpl>()}});
+          }
+        };
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<YieldArgFrom<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<YieldArgFrom<Implicit, AsyncFlow, ScopeFlow>,
-                        YieldArgFromAction> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct YieldArgTestList
-          : tao::pegtl::seq<TestList<Implicit, AsyncFlow, ScopeFlow>> {};
-      struct YieldArgTestListAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(asdl::ExprImpl{asdl::Yield{pop<asdl::ExprImpl>()}});
-        }
+      struct YieldArgTestList : Seq<TestList<Implicit, AsyncFlow, ScopeFlow>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(asdl::ExprImpl{asdl::Yield{pop<asdl::ExprImpl>()}});
+          }
+        };
       };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Control<YieldArgTestList<Implicit, AsyncFlow, ScopeFlow>>
-          : ChangeState<YieldArgTestList<Implicit, AsyncFlow, ScopeFlow>,
-                        YieldArgTestListAction> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct YieldArg
-          : tao::pegtl::sor<YieldArgFrom<Implicit, AsyncFlow, ScopeFlow>,
+      struct YieldArg : Sor<YieldArgFrom<Implicit, AsyncFlow, ScopeFlow>,
                             YieldArgTestList<Implicit, AsyncFlow, ScopeFlow>> {
       };
     } // namespace grammar

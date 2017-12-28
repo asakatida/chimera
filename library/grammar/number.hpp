@@ -38,20 +38,17 @@ namespace chimera {
     namespace grammar {
       namespace number {
         template <typename Rule>
-        struct Actions : tao::pegtl::nothing<Rule> {};
-        template <typename Rule>
-        struct Control : ControlBase<Rule> {};
+        struct ChimeraActions : Nothing<Rule> {};
         template <typename... Args>
         object::Number ston(Args &&... args) {
           return object::number::number(
               std::stoul(std::forward<Args>(args)...));
         }
-        struct Holder {
+        struct Holder : rules::Stack<asdl::ExprImpl> {
           object::Number number = object::number::number(0);
-          template <typename ProcessContext, typename Outer>
-          void success(ProcessContext &&processContext, Outer &&outer) {
-            outer.push(asdl::ExprImpl{
-                processContext.insert_constant(std::move(number))});
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(pop<asdl::ExprImpl>());
           }
           template <std::uint8_t Base, typename Input>
           void apply(const Input &in) {
@@ -103,126 +100,100 @@ namespace chimera {
                      ston(in.string(), nullptr, Base);
           }
         };
-        struct Nonzerodigit
-            : tao::pegtl::seq<tao::pegtl::range<'1', '9'>,
-                              tao::pegtl::rep_opt<18, tao::pegtl::digit>> {};
+        struct Nonzerodigit : Seq<Range<'1', '9'>, RepOpt<18, Digit>> {};
         template <>
-        struct Actions<Nonzerodigit> {
+        struct ChimeraActions<Nonzerodigit> {
           template <typename Input, typename ProcessContext, typename Top>
           static void apply(const Input &in,
                             ProcessContext && /*processContext*/, Top &&top) {
             top.template apply<10>(in);
           }
         };
-        struct Digit
-            : tao::pegtl::seq<tao::pegtl::digit,
-                              tao::pegtl::rep_opt<18, tao::pegtl::digit>> {};
+        struct Digit : Seq<Digit, RepOpt<18, Digit>> {};
         template <>
-        struct Actions<Digit> {
+        struct ChimeraActions<Digit> {
           template <typename Input, typename ProcessContext, typename Top>
           static void apply(const Input &in,
                             ProcessContext && /*processContext*/, Top &&top) {
             top.template apply<10>(in);
           }
         };
-        struct Bindigit
-            : tao::pegtl::seq<
-                  tao::pegtl::range<'0', '1'>,
-                  tao::pegtl::rep_opt<63, tao::pegtl::range<'0', '1'>>> {};
+        struct Bindigit : Seq<Range<'0', '1'>, RepOpt<63, Range<'0', '1'>>> {};
         template <>
-        struct Actions<Bindigit> {
+        struct ChimeraActions<Bindigit> {
           template <typename Input, typename ProcessContext, typename Top>
           static void apply(const Input &in,
                             ProcessContext && /*processContext*/, Top &&top) {
             top.template apply<2>(in);
           }
         };
-        struct Octdigit
-            : tao::pegtl::seq<
-                  tao::pegtl::range<'0', '7'>,
-                  tao::pegtl::rep_opt<31, tao::pegtl::range<'0', '7'>>> {};
+        struct Octdigit : Seq<Range<'0', '7'>, RepOpt<31, Range<'0', '7'>>> {};
         template <>
-        struct Actions<Octdigit> {
+        struct ChimeraActions<Octdigit> {
           template <typename Input, typename ProcessContext, typename Top>
           static void apply(const Input &in,
                             ProcessContext && /*processContext*/, Top &&top) {
             top.template apply<8>(in);
           }
         };
-        struct Hexdigit
-            : tao::pegtl::seq<tao::pegtl::xdigit,
-                              tao::pegtl::rep_opt<15, tao::pegtl::xdigit>> {};
+        struct Hexdigit : Seq<Xdigit, RepOpt<15, Xdigit>> {};
         template <>
-        struct Actions<Hexdigit> {
+        struct ChimeraActions<Hexdigit> {
           template <typename Input, typename ProcessContext, typename Top>
           static void apply(const Input &in,
                             ProcessContext && /*processContext*/, Top &&top) {
             top.template apply<16>(in);
           }
         };
-        using DecIntegerNonZeroDigit = tao::pegtl::seq<
-            Nonzerodigit,
-            tao::pegtl::star<tao::pegtl::opt<tao::pegtl::one<'_'>>, Digit>>;
-        using DecIntegerZeroDigit = tao::pegtl::seq<
-            tao::pegtl::one<'0'>,
-            tao::pegtl::star<tao::pegtl::opt<tao::pegtl::one<'_'>>,
-                             tao::pegtl::one<'0'>>>;
-        using Decinteger =
-            tao::pegtl::sor<DecIntegerNonZeroDigit, DecIntegerZeroDigit>;
-        using Bininteger = tao::pegtl::if_must<
-            tao::pegtl::istring<'0', 'b'>,
-            tao::pegtl::plus<tao::pegtl::opt<tao::pegtl::one<'_'>>, Bindigit>>;
-        using Octinteger = tao::pegtl::if_must<
-            tao::pegtl::istring<'0', 'o'>,
-            tao::pegtl::plus<tao::pegtl::opt<tao::pegtl::one<'_'>>, Octdigit>>;
-        using Hexinteger = tao::pegtl::if_must<
-            tao::pegtl::istring<'0', 'x'>,
-            tao::pegtl::plus<tao::pegtl::opt<tao::pegtl::one<'_'>>, Hexdigit>>;
-        using Integer =
-            tao::pegtl::sor<Bininteger, Octinteger, Hexinteger, Decinteger>;
+        using DecIntegerNonZeroDigit =
+            Seq<Nonzerodigit, Star<Opt<One<'_'>>, Digit>>;
+        using DecIntegerZeroDigit =
+            Seq<One<'0'>, Star<Opt<One<'_'>>, One<'0'>>>;
+        using Decinteger = Sor<DecIntegerNonZeroDigit, DecIntegerZeroDigit>;
+        using BinStart = Seq<One<'0'>, Sor<One<'b'>, One<'B'>>>;
+        using Bininteger = IfMust<BinStart, Plus<Opt<One<'_'>>, Bindigit>>;
+        using OctStart = Seq<One<'0'>, Sor<One<'o'>, One<'O'>>>;
+        using Octinteger = IfMust<OctStart, Plus<Opt<One<'_'>>, Octdigit>>;
+        using HexStart = Seq<One<'0'>, Sor<One<'x'>, One<'X'>>>;
+        using Hexinteger = IfMust<HexStart, Plus<Opt<One<'_'>>, Hexdigit>>;
+        using Integer = Sor<Bininteger, Octinteger, Hexinteger, Decinteger>;
 
-        using Digitpart =
-            tao::pegtl::plus<tao::pegtl::opt<tao::pegtl::one<'_'>>, Digit>;
-        using Fraction = tao::pegtl::seq<tao::pegtl::one<'.'>, Digitpart>;
-        struct ExponentNegative
-            : tao::pegtl::seq<tao::pegtl::one<'-'>, Digitpart> {};
+        using Digitpart = Plus<Opt<One<'_'>>, Digit>;
+        using Fraction = Seq<One<'.'>, Digitpart>;
+        struct ExponentNegative : Seq<One<'-'>, Digitpart> {};
         template <>
-        struct Actions<ExponentNegative> {
+        struct ChimeraActions<ExponentNegative> {
           template <typename ProcessContext, typename Top>
           static void apply0(ProcessContext && /*processContext*/, Top &&top) {
             top.number = -top.number;
           }
         };
-        using Exponent = tao::pegtl::if_must<
-            tao::pegtl::one<'e', 'E'>,
-            tao::pegtl::sor<
-                tao::pegtl::seq<tao::pegtl::opt<tao::pegtl::one<'+'>>,
-                                Digitpart>,
-                ExponentNegative>>;
-        using Pointfloat = tao::pegtl::sor<
-            tao::pegtl::seq<tao::pegtl::opt<Digitpart>, Fraction>,
-            tao::pegtl::seq<Digitpart, tao::pegtl::one<'.'>>>;
-        using Exponentfloat =
-            tao::pegtl::seq<tao::pegtl::sor<Digitpart, Pointfloat>, Exponent>;
-        using Floatnumber = tao::pegtl::sor<Pointfloat, Exponentfloat>;
-        struct Imagnumber
-            : tao::pegtl::seq<tao::pegtl::sor<Floatnumber, Digitpart>,
-                              tao::pegtl::one<'j', 'J'>> {};
-        template <>
-        struct Control<Imagnumber> : ChangeState<Imagnumber, ImaginaryHolder> {
+        using Exponent =
+            IfMust<One<'e', 'E'>,
+                   Sor<Seq<Opt<One<'+'>>, Digitpart>, ExponentNegative>>;
+        using Pointfloat =
+            Sor<Seq<Opt<Digitpart>, Fraction>, Seq<Digitpart, One<'.'>>>;
+        using Exponentfloat = Seq<Sor<Digitpart, Pointfloat>, Exponent>;
+        using Floatnumber = Sor<Pointfloat, Exponentfloat>;
+        struct Imagnumber : Seq<Sor<Floatnumber, Digitpart>, One<'j', 'J'>> {
+          using Transform = ImaginaryHolder;
         };
-        struct Numberliteral
-            : tao::pegtl::sor<Imagnumber, Floatnumber, Integer> {};
+        struct Numberliteral : Sor<Imagnumber, Floatnumber, Integer> {
+          using Transform = Holder;
+        };
         template <>
-        struct Control<Numberliteral>
-            : ChangeStateGlobal<Numberliteral, Holder> {};
+        struct ChimeraActions<Numberliteral> {
+          template <typename ProcessContext, typename Top>
+          static void apply0(ProcessContext &&processContext, Top &&top) {
+            top.push(asdl::ExprImpl{
+                processContext.insert_constant(std::move(top.number))});
+          }
+        };
       } // namespace number
       template <bool Implicit>
       struct NUMBER
-          : Token<Implicit, tao::pegtl::action<
-                                number::Actions,
-                                tao::pegtl::control<number::Control,
-                                                    number::Numberliteral>>> {};
+          : Token<Implicit,
+                  Action<number::ChimeraActions, number::Numberliteral>> {};
     } // namespace grammar
   }   // namespace library
 } // namespace chimera

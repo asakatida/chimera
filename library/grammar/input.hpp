@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! wrapper for tao::pegtl::input*
+//! wrapper for Input*
 //! provides global parse state tracking
 
 #pragma once
@@ -52,13 +52,15 @@ namespace chimera {
         }
 
         bool dedent() {
+          using namespace std::literals;
+
           indentStack.pop();
           if (Base::empty()) {
             return true;
           }
           std::uintmax_t i = Base::byte_in_line();
           if (i > indentStack.top()) {
-            throw tao::pegtl::parse_error("bad dedent", *this);
+            throw tao::pegtl::parse_error("bad dedent"s, *this);
           }
           return i == indentStack.top();
         }

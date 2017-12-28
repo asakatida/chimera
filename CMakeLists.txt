@@ -17,6 +17,13 @@ add_library(
   library/container/atomic_container.hpp
   library/container/atomic_map.hpp
   library/container/reverse.hpp
+  library/grammar/rules/action.hpp
+  library/grammar/rules/captures.hpp
+  library/grammar/rules/control.hpp
+  library/grammar/rules/rules.hpp
+  library/grammar/rules/set.hpp
+  library/grammar/rules/stack.hpp
+  library/grammar/captures.hpp
   library/grammar/control.hpp
   library/grammar/expr.hpp
   library/grammar/exprfwd.hpp
@@ -26,7 +33,7 @@ add_library(
   library/grammar/keys.hpp
   library/grammar/number.hpp
   library/grammar/oper.hpp
-  library/grammar/stack.hpp
+  library/grammar/rules.hpp
   library/grammar/stmt.hpp
   library/grammar/string.hpp
   library/grammar/utf8_id_continue.hpp
@@ -120,6 +127,7 @@ target_include_directories(
   libchimera
   SYSTEM PUBLIC
   external/GSL/include
+  external/metal/include
   external/PEGTL/include)
 
 set_target_properties(libchimera PROPERTIES OUTPUT_NAME "chimera")

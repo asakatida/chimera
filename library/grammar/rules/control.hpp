@@ -18,25 +18,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! helpers needed by all parse rules.
+//! tao::pegtl::normal that finds embeded rule transformations.
 
 #pragma once
 
-#include <tao/pegtl/contrib/changes.hpp>
-#include <tao/pegtl/contrib/tracer.hpp>
+#include <type_traits>
 
-#include "asdl/asdl.hpp"
-#include "grammar/rules.hpp"
+#include <tao/pegtl.hpp>
 
 namespace chimera {
   namespace library {
     namespace grammar {
-      template <typename Rule>
-      struct ChimeraActions : Nothing<Rule> {};
-      template <typename Rule>
-      using ControlBase = Normal<Rule>;
-      template <typename... Rules>
-      using InputRule = Control<ControlBase, Action<ChimeraActions, Rules...>>;
-    } // namespace grammar
-  }   // namespace library
+      namespace rules {
+        template <typename Rule, typename = std::void_t<>>
+        struct Normal : tao::pegtl::normal<Rule> {};
+        template <typename Rule>
+        struct Normal<Rule, std::void_t<typename Rule::Transform>>
+            : tao::pegtl::normal<Rule> {
+          template <tao::pegtl::apply_mode A, tao::pegtl::rewind_mode M,
+                    template <typename...> class Action,
+                    template <typename...> class Control, typename Input,
+                    typename ProcessContext, typename Outer>
+          static bool match(Input &in, ProcessContext &&processContext,
+                            Outer &&outer) {
+            typename Rule::Transform state;
+
+            if (tao::pegtl::normal<Rule>::template match<A, M, Action, Control>(
+                    in, processContext, state)) {
+              state.success(outer);
+              return true;
+            }
+            return false;
+          }
+        };
+      } // namespace rules
+    }   // namespace grammar
+  }     // namespace library
 } // namespace chimera

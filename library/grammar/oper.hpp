@@ -34,26 +34,14 @@
 namespace chimera {
   namespace library {
     namespace grammar {
-      template <bool Implicit, typename String, char... Cs>
-      using Op =
-          Token<Implicit,
-                std::conditional_t<
-                    (sizeof...(Cs) > 0),
-                    tao::pegtl::seq<String,
-                                    tao::pegtl::not_at<tao::pegtl::one<Cs...>>>,
-                    String>>;
-      template <bool Implicit, char One, char... Cs>
-      using OpSimple =
-          Token<Implicit,
-                std::conditional_t<
-                    (sizeof...(Cs) > 0),
-                    tao::pegtl::seq<tao::pegtl::one<One>,
-                                    tao::pegtl::not_at<tao::pegtl::one<Cs...>>>,
-                    tao::pegtl::one<One>>>;
+      template <bool Implicit, typename Rule, char... Cs>
+      using Op = Token<
+          Implicit, Rule,
+          std::conditional_t<(sizeof...(Cs) > 0), NotAt<One<Cs...>>, Success>>;
       template <bool Implicit>
-      struct Add : OpSimple<Implicit, '+', '='> {};
+      struct Add : Op<Implicit, One<'+'>, '='> {};
       template <bool Implicit>
-      struct Actions<Add<Implicit>> {
+      struct ChimeraActions<Add<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -61,15 +49,15 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct Arr : Op<Implicit, tao::pegtl::string<'-', '>'>> {};
+      struct Arr : Op<Implicit, String<'-', '>'>> {};
       template <bool Implicit>
-      struct AtImpl : OpSimple<Implicit, '@', '='> {};
+      struct AtImpl : Op<Implicit, One<'@'>, '='> {};
       template <bool Implicit>
-      struct At : tao::pegtl::seq<AtImpl<Implicit>> {};
+      struct AtOp : Seq<AtImpl<Implicit>> {};
       template <bool Implicit>
-      struct AugAdd : Op<Implicit, tao::pegtl::string<'+', '='>> {};
+      struct AugAdd : Op<Implicit, String<'+', '='>> {};
       template <bool Implicit>
-      struct Actions<AugAdd<Implicit>> {
+      struct ChimeraActions<AugAdd<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -77,9 +65,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct AugBitAnd : Op<Implicit, tao::pegtl::string<'&', '='>> {};
+      struct AugBitAnd : Op<Implicit, String<'&', '='>> {};
       template <bool Implicit>
-      struct Actions<AugBitAnd<Implicit>> {
+      struct ChimeraActions<AugBitAnd<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -87,9 +75,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct AugBitOr : Op<Implicit, tao::pegtl::string<'|', '='>> {};
+      struct AugBitOr : Op<Implicit, String<'|', '='>> {};
       template <bool Implicit>
-      struct Actions<AugBitOr<Implicit>> {
+      struct ChimeraActions<AugBitOr<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -97,9 +85,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct AugBitXor : Op<Implicit, tao::pegtl::string<'^', '='>> {};
+      struct AugBitXor : Op<Implicit, String<'^', '='>> {};
       template <bool Implicit>
-      struct Actions<AugBitXor<Implicit>> {
+      struct ChimeraActions<AugBitXor<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -107,9 +95,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct AugDiv : Op<Implicit, tao::pegtl::string<'/', '='>> {};
+      struct AugDiv : Op<Implicit, String<'/', '='>> {};
       template <bool Implicit>
-      struct Actions<AugDiv<Implicit>> {
+      struct ChimeraActions<AugDiv<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -117,9 +105,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct AugFloorDiv : Op<Implicit, tao::pegtl::string<'/', '/', '='>> {};
+      struct AugFloorDiv : Op<Implicit, String<'/', '/', '='>> {};
       template <bool Implicit>
-      struct Actions<AugFloorDiv<Implicit>> {
+      struct ChimeraActions<AugFloorDiv<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -127,9 +115,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct AugLShift : Op<Implicit, tao::pegtl::string<'<', '<', '='>> {};
+      struct AugLShift : Op<Implicit, String<'<', '<', '='>> {};
       template <bool Implicit>
-      struct Actions<AugLShift<Implicit>> {
+      struct ChimeraActions<AugLShift<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -137,9 +125,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct AugMatMult : Op<Implicit, tao::pegtl::string<'@', '='>> {};
+      struct AugMatMult : Op<Implicit, String<'@', '='>> {};
       template <bool Implicit>
-      struct Actions<AugMatMult<Implicit>> {
+      struct ChimeraActions<AugMatMult<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -147,9 +135,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct AugMod : Op<Implicit, tao::pegtl::string<'%', '='>> {};
+      struct AugMod : Op<Implicit, String<'%', '='>> {};
       template <bool Implicit>
-      struct Actions<AugMod<Implicit>> {
+      struct ChimeraActions<AugMod<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -157,9 +145,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct AugMult : Op<Implicit, tao::pegtl::string<'*', '='>> {};
+      struct AugMult : Op<Implicit, String<'*', '='>> {};
       template <bool Implicit>
-      struct Actions<AugMult<Implicit>> {
+      struct ChimeraActions<AugMult<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -167,9 +155,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct AugPow : Op<Implicit, tao::pegtl::string<'*', '*', '='>> {};
+      struct AugPow : Op<Implicit, String<'*', '*', '='>> {};
       template <bool Implicit>
-      struct Actions<AugPow<Implicit>> {
+      struct ChimeraActions<AugPow<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -177,9 +165,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct AugRShift : Op<Implicit, tao::pegtl::string<'>', '>', '='>> {};
+      struct AugRShift : Op<Implicit, String<'>', '>', '='>> {};
       template <bool Implicit>
-      struct Actions<AugRShift<Implicit>> {
+      struct ChimeraActions<AugRShift<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -187,9 +175,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct AugSub : Op<Implicit, tao::pegtl::string<'-', '='>> {};
+      struct AugSub : Op<Implicit, String<'-', '='>> {};
       template <bool Implicit>
-      struct Actions<AugSub<Implicit>> {
+      struct ChimeraActions<AugSub<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -197,11 +185,11 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct BitAnd : OpSimple<Implicit, '&', '='> {};
+      struct BitAnd : Op<Implicit, One<'&'>, '='> {};
       template <bool Implicit>
-      struct BitNot : OpSimple<Implicit, '~'> {};
+      struct BitNot : Op<Implicit, One<'~'>> {};
       template <bool Implicit>
-      struct Actions<BitNot<Implicit>> {
+      struct ChimeraActions<BitNot<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -209,17 +197,17 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct BitOr : OpSimple<Implicit, '|', '='> {};
+      struct BitOr : Op<Implicit, One<'|'>, '='> {};
       template <bool Implicit>
-      struct BitXor : OpSimple<Implicit, '^', '='> {};
+      struct BitXor : Op<Implicit, One<'^'>, '='> {};
       template <bool Implicit>
-      struct Colon : OpSimple<Implicit, ':'> {};
+      struct Colon : Op<Implicit, One<':'>> {};
       template <bool Implicit>
-      struct Comma : OpSimple<Implicit, ','> {};
+      struct Comma : Op<Implicit, One<','>> {};
       template <bool Implicit>
-      struct Div : OpSimple<Implicit, '/', '=', '/'> {};
+      struct Div : Op<Implicit, One<'/'>, '=', '/'> {};
       template <bool Implicit>
-      struct Actions<Div<Implicit>> {
+      struct ChimeraActions<Div<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -227,9 +215,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct Ellipsis : Op<Implicit, tao::pegtl::ellipsis> {};
+      struct EllipsisOp : Op<Implicit, Ellipsis> {};
       template <bool Implicit>
-      struct Actions<Ellipsis<Implicit>> {
+      struct ChimeraActions<EllipsisOp<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -237,11 +225,11 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct Eq : OpSimple<Implicit, '=', '='> {};
+      struct Eq : Op<Implicit, One<'='>, '='> {};
       template <bool Implicit>
-      struct EqEq : Op<Implicit, tao::pegtl::two<'='>> {};
+      struct EqEq : Op<Implicit, String<'=', '='>> {};
       template <bool Implicit>
-      struct Actions<EqEq<Implicit>> {
+      struct ChimeraActions<EqEq<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -249,9 +237,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct FloorDiv : Op<Implicit, tao::pegtl::two<'/'>, '='> {};
+      struct FloorDiv : Op<Implicit, String<'/', '/'>, '='> {};
       template <bool Implicit>
-      struct Actions<FloorDiv<Implicit>> {
+      struct ChimeraActions<FloorDiv<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -259,9 +247,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct Gt : OpSimple<Implicit, '>', '=', '>'> {};
+      struct Gt : Op<Implicit, One<'>'>, '=', '>'> {};
       template <bool Implicit>
-      struct Actions<Gt<Implicit>> {
+      struct ChimeraActions<Gt<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -269,9 +257,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct GtE : Op<Implicit, tao::pegtl::string<'>', '='>> {};
+      struct GtE : Op<Implicit, String<'>', '='>> {};
       template <bool Implicit>
-      struct Actions<GtE<Implicit>> {
+      struct ChimeraActions<GtE<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -279,15 +267,15 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct LBrc : OpSimple<Implicit, '{'> {};
+      struct LBrc : Op<Implicit, One<'{'>> {};
       template <bool Implicit>
-      struct LBrt : OpSimple<Implicit, '['> {};
+      struct LBrt : Op<Implicit, One<'['>> {};
       template <bool Implicit>
-      struct LPar : OpSimple<Implicit, '('> {};
+      struct LPar : Op<Implicit, One<'('>> {};
       template <bool Implicit>
-      struct LShift : Op<Implicit, tao::pegtl::two<'<'>, '='> {};
+      struct LShift : Op<Implicit, String<'<', '<'>, '='> {};
       template <bool Implicit>
-      struct Actions<LShift<Implicit>> {
+      struct ChimeraActions<LShift<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -295,9 +283,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct Lt : OpSimple<Implicit, '<', '=', '<', '>'> {};
+      struct Lt : Op<Implicit, One<'<'>, '=', '<', '>'> {};
       template <bool Implicit>
-      struct Actions<Lt<Implicit>> {
+      struct ChimeraActions<Lt<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -305,9 +293,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct LtE : Op<Implicit, tao::pegtl::string<'<', '='>> {};
+      struct LtE : Op<Implicit, String<'<', '='>> {};
       template <bool Implicit>
-      struct Actions<LtE<Implicit>> {
+      struct ChimeraActions<LtE<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -315,9 +303,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct MatMult : tao::pegtl::seq<AtImpl<Implicit>> {};
+      struct MatMult : Seq<AtImpl<Implicit>> {};
       template <bool Implicit>
-      struct Actions<MatMult<Implicit>> {
+      struct ChimeraActions<MatMult<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -325,9 +313,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct Mod : OpSimple<Implicit, '%', '='> {};
+      struct Mod : Op<Implicit, One<'%'>, '='> {};
       template <bool Implicit>
-      struct Actions<Mod<Implicit>> {
+      struct ChimeraActions<Mod<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -335,11 +323,11 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct MultImpl : OpSimple<Implicit, '*', '*', '='> {};
+      struct MultImpl : Op<Implicit, One<'*'>, '*', '='> {};
       template <bool Implicit>
-      struct Mult : tao::pegtl::seq<MultImpl<Implicit>> {};
+      struct Mult : Seq<MultImpl<Implicit>> {};
       template <bool Implicit>
-      struct Actions<Mult<Implicit>> {
+      struct ChimeraActions<Mult<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -347,11 +335,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct NotEq
-          : Op<Implicit, tao::pegtl::sor<tao::pegtl::string<'!', '='>,
-                                         tao::pegtl::string<'<', '>'>>> {};
+      struct NotEq : Op<Implicit, Sor<String<'!', '='>, String<'<', '>'>>> {};
       template <bool Implicit>
-      struct Actions<NotEq<Implicit>> {
+      struct ChimeraActions<NotEq<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -359,16 +345,15 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct PeriodImpl : OpSimple<Implicit, '.'> {};
+      struct PeriodImpl : Op<Implicit, One<'.'>> {};
       template <bool Implicit>
-      struct Period : tao::pegtl::seq<tao::pegtl::not_at<tao::pegtl::ellipsis>,
-                                      PeriodImpl<Implicit>> {};
+      struct Period : Seq<NotAt<Ellipsis>, PeriodImpl<Implicit>> {};
       template <bool Implicit>
-      struct PowImpl : Op<Implicit, tao::pegtl::two<'*'>, '='> {};
+      struct PowImpl : Op<Implicit, String<'*', '*'>, '='> {};
       template <bool Implicit>
-      struct Pow : tao::pegtl::seq<PowImpl<Implicit>> {};
+      struct Pow : Seq<PowImpl<Implicit>> {};
       template <bool Implicit>
-      struct Actions<Pow<Implicit>> {
+      struct ChimeraActions<Pow<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -376,15 +361,15 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct RBrc : OpSimple<Implicit, '}'> {};
+      struct RBrc : Op<Implicit, One<'}'>> {};
       template <bool Implicit>
-      struct RBrt : OpSimple<Implicit, ']'> {};
+      struct RBrt : Op<Implicit, One<']'>> {};
       template <bool Implicit>
-      struct RPar : OpSimple<Implicit, ')'> {};
+      struct RPar : Op<Implicit, One<')'>> {};
       template <bool Implicit>
-      struct RShift : Op<Implicit, tao::pegtl::two<'>'>, '='> {};
+      struct RShift : Op<Implicit, String<'>', '>'>, '='> {};
       template <bool Implicit>
-      struct Actions<RShift<Implicit>> {
+      struct ChimeraActions<RShift<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -392,15 +377,15 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct Semi : OpSimple<Implicit, ';'> {};
+      struct Semi : Op<Implicit, One<';'>> {};
       template <bool Implicit>
-      struct Star : tao::pegtl::seq<MultImpl<Implicit>> {};
+      struct StarOp : Seq<MultImpl<Implicit>> {};
       template <bool Implicit>
-      struct SubImpl : OpSimple<Implicit, '-', '=', '>'> {};
+      struct SubImpl : Op<Implicit, One<'-'>, '=', '>'> {};
       template <bool Implicit>
-      struct Sub : tao::pegtl::seq<SubImpl<Implicit>> {};
+      struct Sub : Seq<SubImpl<Implicit>> {};
       template <bool Implicit>
-      struct Actions<Sub<Implicit>> {
+      struct ChimeraActions<Sub<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -408,9 +393,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct UAdd : OpSimple<Implicit, '+', '='> {};
+      struct UAdd : Op<Implicit, One<'+'>, '='> {};
       template <bool Implicit>
-      struct Actions<UAdd<Implicit>> {
+      struct ChimeraActions<UAdd<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -418,9 +403,9 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct USub : tao::pegtl::seq<SubImpl<Implicit>> {};
+      struct USub : Seq<SubImpl<Implicit>> {};
       template <bool Implicit>
-      struct Actions<USub<Implicit>> {
+      struct ChimeraActions<USub<Implicit>> {
         template <typename ProcessContext, typename Stack>
         static void apply0(ProcessContext && /*processContext*/,
                            Stack &&stack) {
@@ -428,7 +413,7 @@ namespace chimera {
         }
       };
       template <bool Implicit>
-      struct Unpack : tao::pegtl::seq<PowImpl<Implicit>> {};
+      struct Unpack : Seq<PowImpl<Implicit>> {};
     } // namespace grammar
   }   // namespace library
 } // namespace chimera

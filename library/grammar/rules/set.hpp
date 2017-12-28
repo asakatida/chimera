@@ -18,25 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! helpers needed by all parse rules.
+//! metal::list of unique types
 
 #pragma once
 
-#include <tao/pegtl/contrib/changes.hpp>
-#include <tao/pegtl/contrib/tracer.hpp>
-
-#include "asdl/asdl.hpp"
-#include "grammar/rules.hpp"
+#include <metal.hpp>
 
 namespace chimera {
   namespace library {
     namespace grammar {
-      template <typename Rule>
-      struct ChimeraActions : Nothing<Rule> {};
-      template <typename Rule>
-      using ControlBase = Normal<Rule>;
-      template <typename... Rules>
-      using InputRule = Control<ControlBase, Action<ChimeraActions, Rules...>>;
-    } // namespace grammar
-  }   // namespace library
+      namespace rules {
+        template <typename List, typename New>
+        using Unique =
+            metal::invoke<metal::invoke<metal::lambda<metal::distinct>,
+                                        metal::append<List, New>>,
+                          metal::append<List, New>, List>;
+
+        template <typename... Types>
+        using Set =
+            metal::fold_left<metal::lambda<Unique>, metal::list<>, Types...>;
+      } // namespace rules
+    }   // namespace grammar
+  }     // namespace library
 } // namespace chimera

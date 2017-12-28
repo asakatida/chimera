@@ -33,76 +33,65 @@
 namespace chimera {
   namespace library {
     namespace grammar {
-      struct SingleInputState : Stack<asdl::StmtImpl> {
-        template <typename Top>
-        void success(Top &&top) {
-          top.body.reserve(size());
-          transform<asdl::StmtImpl>(std::back_inserter(top.body));
-        }
-      };
       template <bool Implicit = false, bool AsyncFlow = false,
                 bool LoopFlow = false, bool ScopeFlow = false,
                 bool ImportAll = true>
       struct SingleInputImpl
-          : tao::pegtl::sor<
-                NEWLINE,
-                tao::pegtl::if_must<CompoundStmt<Implicit, AsyncFlow, LoopFlow,
-                                                 ScopeFlow, ImportAll>,
-                                    NEWLINE>,
-                tao::pegtl::must<SimpleStmt<Implicit, AsyncFlow, LoopFlow,
-                                            ScopeFlow, ImportAll>>> {};
-      template <>
-      struct Control<SingleInputImpl<>>
-          : ChangeState<SingleInputImpl<>, SingleInputState> {};
-      struct SingleInput : InputRule<SingleInputImpl<>> {};
-      struct FileInputState : Stack<asdl::DocString, asdl::StmtImpl> {
-        template <typename Top>
-        void success(Top &&top) {
-          top.body.reserve(size());
-          while (top_is<asdl::StmtImpl>()) {
-            top.body.push_back(pop<asdl::StmtImpl>());
+          : Sor<NEWLINE,
+                IfMust<CompoundStmt<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
+                                    ImportAll>,
+                       NEWLINE>,
+                Must<SimpleStmt<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
+                                ImportAll>>> {
+        struct Transform : rules::Stack<asdl::StmtImpl> {
+          template <typename Top>
+          void success(Top &&top) {
+            top.body.reserve(size());
+            transform<asdl::StmtImpl>(std::back_inserter(top.body));
           }
-          std::reverse(top.body.begin(), top.body.end());
-          if (has_value()) {
-            top.doc_string = pop<asdl::DocString>();
-          }
-        }
+        };
       };
+      using SingleInput = InputRule<SingleInputImpl<>>;
       template <bool Implicit = false, bool AsyncFlow = false,
                 bool LoopFlow = false, bool ScopeFlow = false,
                 bool ImportAll = true>
-      struct FileInputImpl
-          : tao::pegtl::must<
-                tao::pegtl::opt<NEWLINE>, tao::pegtl::opt<DocString<Implicit>>,
-                tao::pegtl::until<tao::pegtl::eof,
-                                  Stmt<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
-                                       ImportAll>>> {};
-      template <>
-      struct Control<FileInputImpl<>>
-          : ChangeState<FileInputImpl<>, FileInputState> {};
-      struct FileInput : InputRule<FileInputImpl<>> {};
-      struct EvalInputState : Stack<asdl::ExprImpl> {
-        template <typename Top>
-        void success(Top &&top) {
-          if (auto s = size(); s > 1) {
-            asdl::Tuple tuple;
-            tuple.elts.reserve(s);
-            transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
-            top.body = std::move(tuple);
-          } else {
-            top.body = pop<asdl::ExprImpl>();
+      struct FileInputImpl : Must<Opt<NEWLINE>, Opt<DocString<Implicit>>,
+                                  Until<Eof, Stmt<Implicit, AsyncFlow, LoopFlow,
+                                                  ScopeFlow, ImportAll>>> {
+        struct Transform : rules::Stack<asdl::DocString, asdl::StmtImpl> {
+          template <typename Top>
+          void success(Top &&top) {
+            top.body.reserve(size());
+            while (top_is<asdl::StmtImpl>()) {
+              top.body.push_back(pop<asdl::StmtImpl>());
+            }
+            std::reverse(top.body.begin(), top.body.end());
+            if (has_value()) {
+              top.doc_string = pop<asdl::DocString>();
+            }
           }
-        }
+        };
       };
+      using FileInput = InputRule<FileInputImpl<>>;
       template <bool Implicit = false, bool AsyncFlow = false,
                 bool ScopeFlow = false>
       struct EvalInputImpl
-          : tao::pegtl::must<TestList<Implicit, AsyncFlow, ScopeFlow>,
-                             tao::pegtl::opt<NEWLINE>, tao::pegtl::eof> {};
-      template <>
-      struct Control<EvalInputImpl<>>
-          : ChangeState<EvalInputImpl<>, EvalInputState> {};
-      struct EvalInput : InputRule<EvalInputImpl<>> {};
+          : Must<TestList<Implicit, AsyncFlow, ScopeFlow>, Opt<NEWLINE>, Eof> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Top>
+          void success(Top &&top) {
+            if (auto s = size(); s > 1) {
+              asdl::Tuple tuple;
+              tuple.elts.reserve(s);
+              transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
+              top.body = std::move(tuple);
+            } else {
+              top.body = pop<asdl::ExprImpl>();
+            }
+          }
+        };
+      };
+      using EvalInput = InputRule<EvalInputImpl<>>;
     } // namespace grammar
   }   // namespace library
 } // namespace chimera
