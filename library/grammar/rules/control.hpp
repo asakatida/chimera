@@ -18,60 +18,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! wrapper for Input*
-//! provides global parse state tracking
+//! tao::pegtl::normal that finds embeded rule transformations.
 
 #pragma once
 
-#include <cstdint>
-#include <stack>
+#include <type_traits>
 
 #include <tao/pegtl.hpp>
 
 namespace chimera {
   namespace library {
     namespace grammar {
-      template <typename Base>
-      struct Input : Base {
-        template <typename... Args>
-        explicit Input(Args &&... args) : Base(std::forward<Args>(args)...) {
-          indentStack.emplace();
-        }
+      namespace rules {
+        template <typename Rule, typename = std::void_t<>>
+        struct Normal : tao::pegtl::normal<Rule> {};
+        template <typename Rule>
+        struct Normal<Rule, std::void_t<typename Rule::Transform>>
+            : tao::pegtl::normal<Rule> {
+          template <tao::pegtl::apply_mode A, tao::pegtl::rewind_mode M,
+                    template <typename...> class Action,
+                    template <typename...> class Control, typename Input,
+                    typename ProcessContext, typename Outer>
+          static bool match(Input &in, ProcessContext &&processContext,
+                            Outer &&outer) {
+            typename Rule::Transform state;
 
-        bool indent() {
-          std::uintmax_t i = Base::byte_in_line();
-          if (indentStack.top() < i) {
-            indentStack.push(i);
-            return true;
+            if (tao::pegtl::normal<Rule>::template match<A, M, Action, Control>(
+                    in, processContext, state)) {
+              state.success(outer);
+              return true;
+            }
+            return false;
           }
-          return false;
-        }
-
-        bool is_dedent() const {
-          return Base::byte_in_line() < indentStack.top();
-        }
-
-        bool dedent() {
-          using namespace std::literals;
-
-          indentStack.pop();
-          if (Base::empty()) {
-            return true;
-          }
-          std::uintmax_t i = Base::byte_in_line();
-          if (i > indentStack.top()) {
-            throw tao::pegtl::parse_error("bad dedent"s, *this);
-          }
-          return i == indentStack.top();
-        }
-
-        bool is_newline() const {
-          return Base::byte_in_line() == indentStack.top();
-        }
-
-      private:
-        std::stack<std::uintmax_t> indentStack{};
-      };
-    } // namespace grammar
-  }   // namespace library
+        };
+      } // namespace rules
+    }   // namespace grammar
+  }     // namespace library
 } // namespace chimera

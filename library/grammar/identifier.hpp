@@ -33,12 +33,11 @@
 namespace chimera {
   namespace library {
     namespace grammar {
-      struct XidStart : tao::pegtl::seq<Utf8IdStart> {};
-      struct XidContinue : tao::pegtl::sor<Utf8IdStart, Utf8IdContinue> {};
-      struct NameImpl
-          : tao::pegtl::seq<XidStart, tao::pegtl::star<XidContinue>> {};
+      struct XidStart : Seq<Utf8IdStart> {};
+      struct XidContinue : Sor<Utf8IdStart, Utf8IdContinue> {};
+      struct NameImpl : Seq<XidStart, Star<XidContinue>> {};
       template <>
-      struct Actions<NameImpl> {
+      struct ChimeraActions<NameImpl> {
         template <typename Input, typename ProcessContext, typename Stack>
         static void apply(const Input &in, ProcessContext && /*processContext*/,
                           Stack &&stack) {

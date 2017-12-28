@@ -11,6 +11,9 @@
 	path = external/llvm
 	url = https://git.llvm.org/git/llvm
 	branch = release_50
+[submodule "external/metal"]
+	path = external/metal
+	url = https://github.com/brunocodutra/metal.git
 [submodule "external/PEGTL"]
 	path = external/PEGTL
 	url = https://github.com/taocpp/PEGTL.git
