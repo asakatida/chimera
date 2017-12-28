@@ -18,60 +18,58 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! wrapper for Input*
-//! provides global parse state tracking
+//! tao::pegtl::* wrappers to control stack specialization
 
 #pragma once
 
-#include <cstdint>
-#include <stack>
-
+#include <metal.hpp>
 #include <tao/pegtl.hpp>
+#include <tao/pegtl/contrib/rep_one_min_max.hpp>
+
+#include "grammar/rules/rules.hpp"
 
 namespace chimera {
   namespace library {
     namespace grammar {
-      template <typename Base>
-      struct Input : Base {
-        template <typename... Args>
-        explicit Input(Args &&... args) : Base(std::forward<Args>(args)...) {
-          indentStack.emplace();
-        }
-
-        bool indent() {
-          std::uintmax_t i = Base::byte_in_line();
-          if (indentStack.top() < i) {
-            indentStack.push(i);
-            return true;
-          }
-          return false;
-        }
-
-        bool is_dedent() const {
-          return Base::byte_in_line() < indentStack.top();
-        }
-
-        bool dedent() {
-          using namespace std::literals;
-
-          indentStack.pop();
-          if (Base::empty()) {
-            return true;
-          }
-          std::uintmax_t i = Base::byte_in_line();
-          if (i > indentStack.top()) {
-            throw tao::pegtl::parse_error("bad dedent"s, *this);
-          }
-          return i == indentStack.top();
-        }
-
-        bool is_newline() const {
-          return Base::byte_in_line() == indentStack.top();
-        }
-
-      private:
-        std::stack<std::uintmax_t> indentStack{};
-      };
+      using rules::Action;
+      using rules::Any;
+      using rules::At;
+      using rules::Control;
+      using rules::Digit;
+      using rules::Discard;
+      using rules::Ellipsis;
+      using rules::Eof;
+      using rules::Eol;
+      using rules::Eolf;
+      using rules::Failure;
+      using rules::IfMust;
+      using rules::List;
+      using rules::ListMust;
+      using rules::ListTail;
+      using rules::Minus;
+      using rules::Must;
+      using rules::Normal;
+      using rules::NotAt;
+      using rules::NotOne;
+      using rules::Nothing;
+      using rules::Nul;
+      using rules::One;
+      using rules::One;
+      using rules::Opt;
+      using rules::Plus;
+      using rules::Range;
+      using rules::Ranges;
+      using rules::Rep;
+      using rules::RepOpt;
+      using rules::Seq;
+      using rules::Seven;
+      using rules::Sor;
+      using rules::Star;
+      using rules::String;
+      using rules::Success;
+      using rules::Until;
+      using rules::Xdigit;
+      using tao::pegtl::if_then_else;
     } // namespace grammar
   }   // namespace library
 } // namespace chimera

@@ -33,71 +33,51 @@ namespace chimera {
   namespace library {
     namespace grammar {
       template <bool Implicit>
-      struct Space
-          : tao::pegtl::star<tao::pegtl::sor<
-                tao::pegtl::seq<tao::pegtl::one<'\\'>, tao::pegtl::eol>,
-                tao::pegtl::seq<
-                    tao::pegtl::one<'#'>,
-                    tao::pegtl::star<tao::pegtl::not_at<tao::pegtl::eolf>,
-                                     tao::pegtl::utf8::any>>,
-                std::conditional_t<
-                    Implicit, Utf8Space,
-                    tao::pegtl::minus<Utf8Space,
-                                      tao::pegtl::one<'\r', '\n'>>>>> {};
+      using Space =
+          Star<Sor<Seq<One<'\\'>, Eol>, Seq<One<'#'>, Star<NotAt<Eolf>, Any>>,
+                   std::conditional_t<Implicit, Utf8Space,
+                                      Minus<Utf8Space, One<'\r', '\n'>>>>>;
       template <bool Discard>
       struct BlankLines;
       template <>
-      struct BlankLines<true>
-          : tao::pegtl::seq<
-                tao::pegtl::plus<Space<false>, tao::pegtl::eol,
-                                 tao::pegtl::discard>,
-                tao::pegtl::sor<tao::pegtl::plus<tao::pegtl::one<' '>>,
-                                tao::pegtl::star<tao::pegtl::one<'\t'>>>,
-                tao::pegtl::must<
-                    tao::pegtl::not_at<tao::pegtl::one<' ', '\t'>>>,
-                tao::pegtl::discard> {};
+      struct BlankLines<true> : Seq<Plus<Space<false>, Eol, Discard>,
+                                    Sor<Plus<One<' '>>, Star<One<'\t'>>>,
+                                    Must<NotAt<One<' ', '\t'>>>, Discard> {};
       template <>
       struct BlankLines<false>
-          : tao::pegtl::seq<
-                tao::pegtl::plus<Space<false>, tao::pegtl::eol>,
-                tao::pegtl::sor<tao::pegtl::plus<tao::pegtl::one<' '>>,
-                                tao::pegtl::star<tao::pegtl::one<'\t'>>>,
-                tao::pegtl::must<
-                    tao::pegtl::not_at<tao::pegtl::one<' ', '\t'>>>> {};
-      struct IndentCheck : tao::pegtl::not_at<tao::pegtl::one<' ', '\t'>> {
+          : Seq<Plus<Space<false>, Eol>, Sor<Plus<One<' '>>, Star<One<'\t'>>>,
+                Must<NotAt<One<' ', '\t'>>>> {};
+      struct IndentCheck : NotAt<One<' ', '\t'>> {
         template <typename Input>
         static bool match(Input &&in) {
           return in.indent();
         }
       };
-      struct INDENT : tao::pegtl::seq<BlankLines<true>, IndentCheck> {};
-      struct DedentCheck : tao::pegtl::not_at<tao::pegtl::one<' ', '\t'>> {
+      using INDENT = Seq<BlankLines<true>, IndentCheck>;
+      struct DedentCheck : NotAt<One<' ', '\t'>> {
         template <typename Input>
         static bool match(Input &&in) {
           return in.is_dedent();
         }
       };
-      struct DedentConsume : tao::pegtl::not_at<tao::pegtl::one<' ', '\t'>> {
+      struct DedentConsume : NotAt<One<' ', '\t'>> {
         template <typename Input>
         static bool match(Input &&in) {
           return in.dedent();
         }
       };
-      struct DEDENT
-          : tao::pegtl::sor<
-                tao::pegtl::seq<tao::pegtl::eof, DedentConsume>,
-                tao::pegtl::seq<
-                    tao::pegtl::at<BlankLines<false>, DedentCheck>,
-                    tao::pegtl::opt<BlankLines<false>, DedentConsume>>> {};
-      struct NextIndentCheck : tao::pegtl::not_at<tao::pegtl::one<' ', '\t'>> {
+      using DEDENT = Sor<Seq<Eof, DedentConsume>,
+                         Seq<At<BlankLines<false>, DedentCheck>,
+                             Opt<BlankLines<false>, DedentConsume, Discard>>>;
+      struct NextIndentCheck : NotAt<One<' ', '\t'>> {
         template <typename Input>
         static bool match(Input &&in) {
           return in.is_newline();
         }
       };
-      struct NEWLINE : tao::pegtl::seq<BlankLines<true>, NextIndentCheck> {};
+      using NEWLINE = Seq<BlankLines<false>, NextIndentCheck, Discard>;
       template <bool Implicit, typename... Rules>
-      using Token = tao::pegtl::seq<Rules..., Space<Implicit>>;
+      using Token = Seq<Rules..., Space<Implicit>>;
     } // namespace grammar
   }   // namespace library
 } // namespace chimera

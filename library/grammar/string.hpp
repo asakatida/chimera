@@ -37,6 +37,7 @@
 #include "grammar/input.hpp"
 #include "grammar/whitespace.hpp"
 #include "object/object.hpp"
+#include "virtual_machine/process_context.hpp"
 
 namespace chimera {
   namespace library {
@@ -45,29 +46,26 @@ namespace chimera {
         using namespace std::literals;
 
         template <typename Rule>
-        struct Actions : tao::pegtl::nothing<Rule> {};
-        template <typename Rule>
-        struct Control : ControlBase<Rule> {};
-        struct BytesHolder {
+        struct ChimeraActions : Nothing<Rule> {};
+        struct BytesHolder : rules::Stack<asdl::ExprImpl> {
           object::Bytes bytes;
-          template <typename ProcessContext, typename Stack>
-          void success(ProcessContext &&processContext, Stack &&stack) {
-            stack.push(asdl::ExprImpl{asdl::Constant{
-                processContext.insert_constant(std::move(bytes))}});
+          template <typename Stack>
+          void success(Stack &&stack) {
+            stack.push(pop<asdl::ExprImpl>());
           }
           template <typename String>
           void apply(String &&in) {
-            for (const auto &byte : in) {
-              bytes.push_back(static_cast<std::uint8_t>(byte));
-            }
+            std::transform(in.begin(), in.end(), std::back_inserter(bytes),
+                           [](const auto &byte) {
+                             return static_cast<std::uint8_t>(byte);
+                           });
           }
         };
-        struct StringHolder {
+        struct StringHolder : rules::Stack<asdl::ExprImpl> {
           std::string string;
-          template <typename ProcessContext, typename Outer>
-          void success(ProcessContext &&processContext, Outer &&outer) {
-            outer.push(asdl::ExprImpl{asdl::Constant{
-                processContext.insert_constant(object::String(string))}});
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(pop<asdl::ExprImpl>());
           }
           template <typename String>
           void apply(String &&in) {
@@ -85,10 +83,9 @@ namespace chimera {
             string.append(std::forward<String>(in));
           }
         };
-        struct LiteralChar
-            : tao::pegtl::plus<tao::pegtl::utf8::not_one<'\0', '{', '}'>> {};
+        struct LiteralChar : Plus<NotOne<'\0', '{', '}'>> {};
         template <>
-        struct Actions<LiteralChar> {
+        struct ChimeraActions<LiteralChar> {
           template <typename Input, typename ProcessContext, typename Top>
           static void apply(const Input &in,
                             ProcessContext && /*processContext*/, Top &&top) {
@@ -97,26 +94,20 @@ namespace chimera {
         };
         template <bool AsyncFlow, bool ScopeFlow>
         struct FExpression
-            : tao::pegtl::sor<
-                  tao::pegtl::seq<
-                      tao::pegtl::sor<
-                          InputRule<ConditionalExpression<true, AsyncFlow,
+            : Sor<Seq<Sor<InputRule<ConditionalExpression<true, AsyncFlow,
                                                           ScopeFlow>>,
-                          tao::pegtl::seq<
-                              tao::pegtl::one<'*'>,
+                          Seq<One<'*'>,
                               InputRule<Expr<true, AsyncFlow, ScopeFlow>>>>,
-                      tao::pegtl::star<tao::pegtl::sor<tao::pegtl::seq<
-                          tao::pegtl::seq<tao::pegtl::one<','>,
-                                          InputRule<ConditionalExpression<
-                                              true, AsyncFlow, ScopeFlow>>>,
-                          tao::pegtl::seq<
-                              tao::pegtl::one<','>, tao::pegtl::one<'*'>,
+                      Star<Sor<Seq<
+                          Seq<One<','>, InputRule<ConditionalExpression<
+                                            true, AsyncFlow, ScopeFlow>>>,
+                          Seq<One<','>, One<'*'>,
                               InputRule<Expr<true, AsyncFlow, ScopeFlow>>>>>>,
-                      tao::pegtl::opt<tao::pegtl::one<','>>>,
+                      Opt<One<','>>>,
                   InputRule<YieldExpr<true, AsyncFlow, ScopeFlow>>> {};
-        struct Conversion : tao::pegtl::one<'a', 'r', 's'> {};
+        struct Conversion : One<'a', 'r', 's'> {};
         template <>
-        struct Actions<Conversion> {
+        struct ChimeraActions<Conversion> {
           template <typename Input, typename ProcessContext, typename Top>
           static void apply(const Input &in,
                             ProcessContext && /*processContext*/, Top &&top) {
@@ -143,12 +134,11 @@ namespace chimera {
         template <bool AsyncFlow, bool ScopeFlow>
         struct ReplacementField;
         template <bool AsyncFlow, bool ScopeFlow>
-        struct FormatSpec
-            : tao::pegtl::star<
-                  tao::pegtl::sor<LiteralChar, tao::pegtl::nul,
-                                  ReplacementField<AsyncFlow, ScopeFlow>>> {};
+        struct FormatSpec : Star<Sor<LiteralChar, Nul,
+                                     ReplacementField<AsyncFlow, ScopeFlow>>> {
+        };
         template <bool AsyncFlow, bool ScopeFlow>
-        struct Actions<FormatSpec<AsyncFlow, ScopeFlow>> {
+        struct ChimeraActions<FormatSpec<AsyncFlow, ScopeFlow>> {
           template <typename ProcessContext, typename Top>
           static void apply0(ProcessContext && /*processContext*/, Top &&top) {
             auto formatSpec = top.template pop<asdl::ExprImpl>();
@@ -166,40 +156,42 @@ namespace chimera {
         };
         template <bool AsyncFlow, bool ScopeFlow>
         struct ReplacementField
-            : tao::pegtl::if_must<
-                  tao::pegtl::one<'{'>, FExpression<AsyncFlow, ScopeFlow>,
-                  tao::pegtl::opt<tao::pegtl::one<'!'>, Conversion>,
-                  tao::pegtl::opt<tao::pegtl::one<':'>,
-                                  FormatSpec<AsyncFlow, ScopeFlow>>,
-                  tao::pegtl::one<'}'>> {};
-        struct LeftFLiteral : tao::pegtl::two<'{'> {};
+            : IfMust<One<'{'>, FExpression<AsyncFlow, ScopeFlow>,
+                     Opt<One<'!'>, Conversion>,
+                     Opt<One<':'>, FormatSpec<AsyncFlow, ScopeFlow>>,
+                     One<'}'>> {};
+        struct LeftFLiteral : String<'{', '{'> {};
         template <>
-        struct Actions<LeftFLiteral> {
+        struct ChimeraActions<LeftFLiteral> {
           template <typename ProcessContext, typename Top>
           static void apply0(ProcessContext && /*processContext*/, Top &&top) {
             top.apply("{"sv);
           }
         };
-        struct RightFLiteral : tao::pegtl::two<'}'> {};
+        struct RightFLiteral : String<'}', '}'> {};
         template <>
-        struct Actions<RightFLiteral> {
+        struct ChimeraActions<RightFLiteral> {
           template <typename ProcessContext, typename Top>
           static void apply0(ProcessContext && /*processContext*/, Top &&top) {
             top.apply("}"sv);
           }
         };
-        struct FLiteral
-            : tao::pegtl::plus<
-                  tao::pegtl::sor<LiteralChar, LeftFLiteral, RightFLiteral>> {};
+        struct FLiteral : Plus<Sor<LiteralChar, LeftFLiteral, RightFLiteral>> {
+          using Transform = StringHolder;
+        };
         template <>
-        struct Control<FLiteral> : ChangeStateGlobal<FLiteral, StringHolder> {};
+        struct ChimeraActions<FLiteral> {
+          template <typename ProcessContext, typename Top>
+          static void apply0(ProcessContext &&processContext, Top &&top) {
+            top.push(asdl::ExprImpl{
+                processContext.insert_constant(object::String(top.string))});
+          }
+        };
         template <bool AsyncFlow, bool ScopeFlow>
         struct FString
-            : tao::pegtl::must<
-                  tao::pegtl::star<tao::pegtl::sor<
-                      FLiteral, ReplacementField<AsyncFlow, ScopeFlow>>>,
-                  tao::pegtl::eof> {};
-        struct FormattedStringHolder : Stack<asdl::ExprImpl> {
+            : Must<Star<Sor<FLiteral, ReplacementField<AsyncFlow, ScopeFlow>>>,
+                   Eof> {};
+        struct FormattedStringHolder : rules::Stack<asdl::ExprImpl> {
           std::string string;
           template <typename Outer>
           void success(Outer &&outer) {
@@ -215,61 +207,10 @@ namespace chimera {
             string.append(std::forward<String>(in));
           }
         };
-        struct JoinedStringAction : Stack<std::string, asdl::ExprImpl> {
-          template <typename ProcessContext, typename Outer>
-          void success(ProcessContext &&processContext, Outer &&outer) {
-            using State = std::variant<std::string, asdl::JoinedStr>;
-            struct Visitor {
-              ProcessContext &process_context;
-              State operator()(std::string &&value,
-                               const std::string &element) {
-                value.append(element);
-                return value;
-              }
-              State operator()(std::string &&value,
-                               const asdl::ExprImpl &element) {
-                auto &joinedStr = std::get<asdl::JoinedStr>(*element.value);
-                joinedStr.values.emplace(
-                    joinedStr.values.begin(),
-                    process_context.insert_constant(object::String(value)));
-                return State{std::move(joinedStr)};
-              }
-              State operator()(asdl::JoinedStr &&value,
-                               const std::string &element) {
-                value.values.emplace_back(
-                    process_context.insert_constant(object::String(element)));
-                return State{std::move(value)};
-              }
-              State operator()(asdl::JoinedStr &&value,
-                               const asdl::ExprImpl &element) {
-                auto &joinedStr = std::get<asdl::JoinedStr>(*element.value);
-                std::move(joinedStr.values.begin(), joinedStr.values.end(),
-                          std::back_inserter(value.values));
-                return State{std::move(value)};
-              }
-            };
-            struct Push {
-              ProcessContext &process_context;
-              asdl::ExprImpl operator()(std::string &&value) {
-                return asdl::ExprImpl{
-                    process_context.insert_constant(object::String(value))};
-              }
-              asdl::ExprImpl operator()(asdl::JoinedStr &&value) {
-                return asdl::ExprImpl{std::move(value)};
-              }
-            };
-            State value;
-            for (auto &&element : vector()) {
-              value = std::visit(Visitor{processContext}, std::move(value),
-                                 element);
-            }
-            outer.push(std::visit(Push{processContext}, std::move(value)));
-          }
-        };
         template <typename Chars>
-        struct SingleChars : tao::pegtl::plus<Chars> {};
+        struct SingleChars : Plus<Chars> {};
         template <typename Chars>
-        struct Actions<SingleChars<Chars>> {
+        struct ChimeraActions<SingleChars<Chars>> {
           template <typename Input, typename ProcessContext, typename Top>
           static void apply(const Input &in,
                             ProcessContext && /*processContext*/, Top &&top) {
@@ -277,9 +218,9 @@ namespace chimera {
           }
         };
         template <unsigned Len>
-        struct Hexseq : tao::pegtl::rep<Len, tao::pegtl::xdigit> {};
+        struct Hexseq : Rep<Len, Xdigit> {};
         template <unsigned Len>
-        struct Actions<Hexseq<Len>> {
+        struct ChimeraActions<Hexseq<Len>> {
           template <typename Input, typename ProcessContext, typename Top>
           static void apply(const Input &in,
                             ProcessContext && /*processContext*/, Top &&top) {
@@ -292,13 +233,10 @@ namespace chimera {
           }
         };
         template <char Open, unsigned Len>
-        struct UTF : tao::pegtl::seq<tao::pegtl::one<Open>, Hexseq<Len>> {};
-        struct Octseq
-            : tao::pegtl::seq<
-                  tao::pegtl::range<'0', '7'>,
-                  tao::pegtl::rep_opt<2, tao::pegtl::range<'0', '7'>>> {};
+        struct UTF : Seq<One<Open>, Hexseq<Len>> {};
+        struct Octseq : Seq<Range<'0', '7'>, RepOpt<2, Range<'0', '7'>>> {};
         template <>
-        struct Actions<Octseq> {
+        struct ChimeraActions<Octseq> {
           template <typename Input, typename ProcessContext, typename Top>
           static void apply(const Input &in,
                             ProcessContext && /*processContext*/, Top &&top) {
@@ -314,10 +252,9 @@ namespace chimera {
             }
           }
         };
-        struct EscapeControl
-            : tao::pegtl::one<'a', 'b', 'f', 'n', 'r', 't', 'v'> {};
+        struct EscapeControl : One<'a', 'b', 'f', 'n', 'r', 't', 'v'> {};
         template <>
-        struct Actions<EscapeControl> {
+        struct ChimeraActions<EscapeControl> {
           template <typename Input, typename ProcessContext, typename Top>
           static void apply(const Input &in,
                             ProcessContext && /*processContext*/, Top &&top) {
@@ -349,9 +286,9 @@ namespace chimera {
           }
         };
         template <typename Chars>
-        struct EscapeIgnore : tao::pegtl::seq<Chars> {};
+        struct EscapeIgnore : Seq<Chars> {};
         template <typename Chars>
-        struct Actions<EscapeIgnore<Chars>> {
+        struct ChimeraActions<EscapeIgnore<Chars>> {
           template <typename Input, typename ProcessContext, typename Top>
           static void apply(const Input &in,
                             ProcessContext && /*processContext*/, Top &&top) {
@@ -359,38 +296,30 @@ namespace chimera {
             top.apply(in.string());
           }
         };
-        struct Escape : tao::pegtl::one<'\\'> {};
+        struct Escape : One<'\\'> {};
         struct XEscapeseq : UTF<'x', 2> {};
         template <typename Chars, typename... Escapes>
-        struct Escapeseq
-            : tao::pegtl::sor<Escapes..., XEscapeseq, Octseq, tao::pegtl::eol,
-                              EscapeControl, EscapeIgnore<Chars>> {};
+        struct Escapeseq : Sor<Escapes..., XEscapeseq, Octseq, Eol,
+                               EscapeControl, EscapeIgnore<Chars>> {};
         template <typename Chars, typename... Escapes>
-        struct Item : tao::pegtl::seq<
-                          tao::pegtl::if_then_else<
-                              Escape, Escapeseq<Chars, Escapes...>,
-                              SingleChars<tao::pegtl::minus<Chars, Escape>>>,
-                          tao::pegtl::discard> {};
+        struct Item
+            : Seq<rules::IfThenElse<Escape, Escapeseq<Chars, Escapes...>,
+                                    SingleChars<Minus<Chars, Escape>>>,
+                  Discard> {};
         template <typename Chars>
-        struct RawItem : tao::pegtl::if_then_else<Escape, Chars, Chars> {};
+        struct RawItem : rules::IfThenElse<Escape, Chars, Chars> {};
         template <typename Triple, typename Chars, typename... Escapes>
         struct Long
-            : tao::pegtl::if_must<
+            : IfMust<
                   Triple,
-                  tao::pegtl::until<
-                      Triple,
-                      Item<tao::pegtl::seq<tao::pegtl::not_at<Triple>, Chars>,
-                           Escapes...>>> {};
-        template <typename Triple, typename Chars>
-        struct LongRaw
-            : tao::pegtl::if_must<
-                  Triple,
-                  tao::pegtl::until<Triple,
-                                    RawItem<tao::pegtl::seq<
-                                        tao::pegtl::not_at<Triple>, Chars>>>> {
+                  Until<Triple, Item<Seq<NotAt<Triple>, Chars>, Escapes...>>> {
         };
         template <typename Triple, typename Chars>
-        struct Actions<LongRaw<Triple, Chars>> {
+        struct LongRaw
+            : IfMust<Triple,
+                     Until<Triple, RawItem<Seq<NotAt<Triple>, Chars>>>> {};
+        template <typename Triple, typename Chars>
+        struct ChimeraActions<LongRaw<Triple, Chars>> {
           template <typename Input, typename ProcessContext, typename Top>
           static void apply(const Input &in,
                             ProcessContext && /*processContext*/, Top &&top) {
@@ -402,25 +331,17 @@ namespace chimera {
         };
         template <typename Quote, typename Chars, typename... Escapes>
         struct Short
-            : tao::pegtl::if_must<
-                  Quote,
-                  tao::pegtl::until<
-                      Quote, Item<tao::pegtl::minus<
-                                      tao::pegtl::seq<tao::pegtl::not_at<Quote>,
-                                                      Chars>,
-                                      tao::pegtl::eol>,
-                                  Escapes...>>> {};
+            : IfMust<Quote,
+                     Until<Quote, Item<Minus<Seq<NotAt<Quote>, Chars>, Eol>,
+                                       Escapes...>>> {};
         template <typename Quote, typename Chars>
         struct ShortRaw
-            : tao::pegtl::if_must<
+            : IfMust<
                   Quote,
-                  tao::pegtl::until<
-                      Quote,
-                      RawItem<tao::pegtl::minus<
-                          tao::pegtl::seq<tao::pegtl::not_at<Quote>, Chars>,
-                          tao::pegtl::eol>>>> {};
+                  Until<Quote, RawItem<Minus<Seq<NotAt<Quote>, Chars>, Eol>>>> {
+        };
         template <typename Quote, typename Chars>
-        struct Actions<ShortRaw<Quote, Chars>> {
+        struct ChimeraActions<ShortRaw<Quote, Chars>> {
           template <typename Input, typename ProcessContext, typename Top>
           static void apply(const Input &in,
                             ProcessContext && /*processContext*/, Top &&top) {
@@ -430,134 +351,180 @@ namespace chimera {
             top.apply(view);
           }
         };
-        using TripleSingle = tao::pegtl::rep<3, tao::pegtl::one<'\''>>;
-        using TripleDouble = tao::pegtl::rep<3, tao::pegtl::one<'"'>>;
-        using Single = tao::pegtl::one<'\''>;
-        using Double = tao::pegtl::one<'"'>;
+        using TripleSingle = Rep<3, One<'\''>>;
+        using TripleDouble = Rep<3, One<'"'>>;
+        using Single = One<'\''>;
+        using Double = One<'"'>;
         template <typename Chars>
         struct Raw
-            : tao::pegtl::sor<
-                  LongRaw<TripleDouble, Chars>, LongRaw<TripleSingle, Chars>,
+            : Sor<LongRaw<TripleDouble, Chars>, LongRaw<TripleSingle, Chars>,
                   ShortRaw<Double, Chars>, ShortRaw<Single, Chars>> {};
         template <typename Chars, typename... Escapes>
-        struct Escaped : tao::pegtl::sor<Long<TripleDouble, Chars, Escapes...>,
-                                         Long<TripleSingle, Chars, Escapes...>,
-                                         Short<Double, Chars, Escapes...>,
-                                         Short<Single, Chars, Escapes...>> {};
+        struct Escaped : Sor<Long<TripleDouble, Chars, Escapes...>,
+                             Long<TripleSingle, Chars, Escapes...>,
+                             Short<Double, Chars, Escapes...>,
+                             Short<Single, Chars, Escapes...>> {};
         struct UTF16Escape : UTF<'u', 4> {};
         struct UTF32Escape : UTF<'U', 8> {};
-        struct UName : tao::pegtl::star<tao::pegtl::utf8::not_one<'}'>> {};
+        struct UName : Star<NotOne<'}'>> {};
         template <>
-        struct Actions<UName> {
+        struct ChimeraActions<UName> {
           template <typename Input, typename ProcessContext, typename Top>
           static void apply(const Input &in,
                             ProcessContext && /*processContext*/, Top &&top) {
             top.apply(in.string());
           }
         };
-        struct UNameEscape
-            : tao::pegtl::seq<tao::pegtl::one<'N'>, tao::pegtl::one<'{'>, UName,
-                              tao::pegtl::one<'}'>> {};
+        struct UNameEscape : Seq<One<'N'>, One<'{'>, UName, One<'}'>> {};
         template <typename Prefix, typename RawPrefix, typename Chars,
                   typename... Escapes>
-        struct StringImpl
-            : tao::pegtl::plus<tao::pegtl::sor<
-                  tao::pegtl::seq<RawPrefix, Raw<Chars>>,
-                  tao::pegtl::seq<Prefix, Escaped<Chars, Escapes...>>>> {};
-        struct BytesPrefix : tao::pegtl::istring<'b'> {};
-        struct BytesRawPrefix : tao::pegtl::sor<tao::pegtl::istring<'r', 'b'>,
-                                                tao::pegtl::istring<'b', 'r'>> {
+        struct StringImpl : Plus<Sor<Seq<RawPrefix, Raw<Chars>>,
+                                     Seq<Prefix, Escaped<Chars, Escapes...>>>> {
         };
+        struct BytesPrefix : Sor<One<'b'>, One<'B'>> {};
+        struct BytesRawPrefix
+            : Sor<Seq<Sor<One<'r'>, One<'R'>>, Sor<One<'b'>, One<'B'>>>,
+                  Seq<Sor<One<'b'>, One<'B'>>, Sor<One<'r'>, One<'R'>>>> {};
         template <bool Implicit>
         struct Bytes
-            : tao::pegtl::plus<
-                  Token<Implicit, StringImpl<BytesPrefix, BytesRawPrefix,
-                                             tao::pegtl::seven>>> {};
+            : Plus<Token<Implicit,
+                         StringImpl<BytesPrefix, BytesRawPrefix, Seven>>> {
+          using Transform = BytesHolder;
+        };
         template <bool Implicit>
-        struct Control<Bytes<Implicit>>
-            : ChangeStateGlobal<Bytes<Implicit>, BytesHolder> {};
-        struct StrPrefix : tao::pegtl::opt<tao::pegtl::istring<'u'>> {};
-        struct StrRawPrefix : tao::pegtl::istring<'r'> {};
+        struct ChimeraActions<Bytes<Implicit>> {
+          template <typename ProcessContext, typename Top>
+          static void apply0(ProcessContext &&processContext, Top &&top) {
+            top.push(asdl::ExprImpl{
+                processContext.insert_constant(std::move(top.bytes))});
+          }
+        };
+        struct StrPrefix : Opt<Sor<One<'u'>, One<'U'>>> {};
+        struct StrRawPrefix : Sor<One<'r'>, One<'R'>> {};
         template <bool Implicit>
         struct String
-            : tao::pegtl::plus<
-                  Token<Implicit, StringImpl<StrPrefix, StrRawPrefix,
-                                             tao::pegtl::utf8::any, UTF16Escape,
-                                             UTF32Escape, UNameEscape>>> {};
+            : Plus<Token<Implicit,
+                         StringImpl<StrPrefix, StrRawPrefix, Any, UTF16Escape,
+                                    UTF32Escape, UNameEscape>>> {
+          using Transform = StringHolder;
+        };
         template <bool Implicit>
-        struct Control<String<Implicit>>
-            : ChangeStateGlobal<String<Implicit>, StringHolder> {};
-        struct JoinedStrPrefix : tao::pegtl::istring<'f'> {};
+        struct ChimeraActions<String<Implicit>> {
+          template <typename ProcessContext, typename Top>
+          static void apply0(ProcessContext &&processContext, Top &&top) {
+            top.push(asdl::ExprImpl{
+                processContext.insert_constant(object::String(top.string))});
+          }
+        };
+        struct JoinedStrPrefix : Sor<One<'f'>, One<'F'>> {};
         struct JoinedStrRawPrefix
-            : tao::pegtl::sor<tao::pegtl::istring<'r', 'f'>,
-                              tao::pegtl::istring<'f', 'r'>> {};
+            : Sor<Seq<Sor<One<'r'>, One<'R'>>, Sor<One<'f'>, One<'F'>>>,
+                  Seq<Sor<One<'f'>, One<'F'>>, Sor<One<'r'>, One<'R'>>>> {};
         struct PartialString
-            : tao::pegtl::plus<
-                  StringImpl<StrPrefix, StrRawPrefix, tao::pegtl::utf8::any,
-                             UTF16Escape, UTF32Escape, UNameEscape>> {};
-        template <>
-        struct Control<PartialString>
-            : ChangeState<PartialString, PartialStringHolder> {};
+            : Plus<StringImpl<StrPrefix, StrRawPrefix, Any, UTF16Escape,
+                              UTF32Escape, UNameEscape>> {
+          using Transform = PartialStringHolder;
+        };
         template <bool AsyncFlow, bool ScopeFlow>
         struct FormattedString
-            : tao::pegtl::seq<StringImpl<JoinedStrPrefix, JoinedStrRawPrefix,
-                                         tao::pegtl::utf8::any, UTF16Escape,
-                                         UTF32Escape, UNameEscape>> {};
+            : Seq<StringImpl<JoinedStrPrefix, JoinedStrRawPrefix, Any,
+                             UTF16Escape, UTF32Escape, UNameEscape>> {
+          using Transform = FormattedStringHolder;
+        };
         template <bool AsyncFlow, bool ScopeFlow>
-        struct Actions<FormattedString<AsyncFlow, ScopeFlow>> {
+        struct ChimeraActions<FormattedString<AsyncFlow, ScopeFlow>> {
           template <typename Input, typename ProcessContext, typename Top>
           static void apply(const Input &in, ProcessContext &&processContext,
                             Top &&top) {
             Ensures((tao::pegtl::parse_nested<FString<AsyncFlow, ScopeFlow>,
-                                              Actions, Control>(
+                                              ChimeraActions, ControlBase>(
                 in,
                 tao::pegtl::memory_input<>(top.string.c_str(),
                                            top.string.size(), "<f_string>"),
                 processContext, top)));
           }
         };
-        template <bool AsyncFlow, bool ScopeFlow>
-        struct Control<FormattedString<AsyncFlow, ScopeFlow>>
-            : ChangeState<FormattedString<AsyncFlow, ScopeFlow>,
-                          FormattedStringHolder> {};
         template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
         struct JoinedStr
-            : tao::pegtl::plus<Token<
-                  Implicit,
-                  tao::pegtl::sor<PartialString,
-                                  FormattedString<AsyncFlow, ScopeFlow>>>> {};
+            : Plus<
+                  Token<Implicit, Sor<PartialString,
+                                      FormattedString<AsyncFlow, ScopeFlow>>>> {
+          struct Transform : rules::Stack<std::string, asdl::ExprImpl> {
+            template <typename Outer>
+            void success(Outer &&outer) {
+              outer.push(pop<asdl::ExprImpl>());
+            }
+          };
+        };
         template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-        struct Control<JoinedStr<Implicit, AsyncFlow, ScopeFlow>>
-            : ChangeStateGlobal<JoinedStr<Implicit, AsyncFlow, ScopeFlow>,
-                                JoinedStringAction> {};
+        struct ChimeraActions<JoinedStr<Implicit, AsyncFlow, ScopeFlow>> {
+          using State = std::variant<std::string, asdl::JoinedStr>;
+          struct Visitor {
+            virtual_machine::ProcessContext &process_context;
+            State operator()(std::string &&value, const std::string &element) {
+              value.append(element);
+              return value;
+            }
+            State operator()(std::string &&value,
+                             const asdl::ExprImpl &element) {
+              auto &joinedStr = std::get<asdl::JoinedStr>(*element.value);
+              joinedStr.values.emplace(
+                  joinedStr.values.begin(),
+                  process_context.insert_constant(object::String(value)));
+              return State{std::move(joinedStr)};
+            }
+            State operator()(asdl::JoinedStr &&value,
+                             const std::string &element) {
+              value.values.emplace_back(
+                  process_context.insert_constant(object::String(element)));
+              return State{std::move(value)};
+            }
+            State operator()(asdl::JoinedStr &&value,
+                             const asdl::ExprImpl &element) {
+              auto &joinedStr = std::get<asdl::JoinedStr>(*element.value);
+              std::move(joinedStr.values.begin(), joinedStr.values.end(),
+                        std::back_inserter(value.values));
+              return State{std::move(value)};
+            }
+          };
+          struct Push {
+            virtual_machine::ProcessContext &process_context;
+            asdl::ExprImpl operator()(std::string &&value) {
+              return asdl::ExprImpl{
+                  process_context.insert_constant(object::String(value))};
+            }
+            asdl::ExprImpl operator()(asdl::JoinedStr &&value) {
+              return asdl::ExprImpl{std::move(value)};
+            }
+          };
+          template <typename ProcessContext, typename Top>
+          static void apply0(ProcessContext &&processContext, Top &&top) {
+            State value;
+            for (auto &&element : top.vector()) {
+              value = std::visit(Visitor{processContext}, std::move(value),
+                                 element);
+            }
+            top.push(std::visit(Push{processContext}, std::move(value)));
+          }
+        };
       } // namespace string
-      struct DocStringAction : Stack<asdl::ExprImpl> {
-        template <typename Outer>
-        void success(Outer &&outer) {
-          outer.push(asdl::DocString{
-              std::get<asdl::Constant>(*pop<asdl::ExprImpl>().value)});
-        }
-      };
       template <bool Implicit>
       struct DocString
-          : tao::pegtl::seq<
-                tao::pegtl::action<
-                    string::Actions,
-                    tao::pegtl::control<string::Control,
-                                        string::String<Implicit>>>,
-                tao::pegtl::sor<NEWLINE, tao::pegtl::at<tao::pegtl::eolf>>> {};
-      template <bool Implicit>
-      struct Control<DocString<Implicit>>
-          : ChangeState<DocString<Implicit>, DocStringAction> {};
+          : Seq<Action<string::ChimeraActions, string::String<Implicit>>,
+                Sor<NEWLINE, At<Eolf>>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(asdl::DocString{
+                std::get<asdl::Constant>(*pop<asdl::ExprImpl>().value)});
+          }
+        };
+      };
       template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
       struct STRING
-          : tao::pegtl::action<
-                string::Actions,
-                tao::pegtl::control<
-                    string::Control,
-                    tao::pegtl::sor<
-                        string::Bytes<Implicit>,
-                        string::JoinedStr<Implicit, AsyncFlow, ScopeFlow>>>> {};
+          : Action<string::ChimeraActions,
+                   Sor<string::Bytes<Implicit>,
+                       string::JoinedStr<Implicit, AsyncFlow, ScopeFlow>>> {};
     } // namespace grammar
   }   // namespace library
 } // namespace chimera

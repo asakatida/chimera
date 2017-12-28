@@ -18,60 +18,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! wrapper for Input*
-//! provides global parse state tracking
+//! Expose tao::pegtl::nothing in namespace for use with typename Rule::Type.
 
 #pragma once
-
-#include <cstdint>
-#include <stack>
 
 #include <tao/pegtl.hpp>
 
 namespace chimera {
   namespace library {
     namespace grammar {
-      template <typename Base>
-      struct Input : Base {
-        template <typename... Args>
-        explicit Input(Args &&... args) : Base(std::forward<Args>(args)...) {
-          indentStack.emplace();
-        }
-
-        bool indent() {
-          std::uintmax_t i = Base::byte_in_line();
-          if (indentStack.top() < i) {
-            indentStack.push(i);
-            return true;
-          }
-          return false;
-        }
-
-        bool is_dedent() const {
-          return Base::byte_in_line() < indentStack.top();
-        }
-
-        bool dedent() {
-          using namespace std::literals;
-
-          indentStack.pop();
-          if (Base::empty()) {
-            return true;
-          }
-          std::uintmax_t i = Base::byte_in_line();
-          if (i > indentStack.top()) {
-            throw tao::pegtl::parse_error("bad dedent"s, *this);
-          }
-          return i == indentStack.top();
-        }
-
-        bool is_newline() const {
-          return Base::byte_in_line() == indentStack.top();
-        }
-
-      private:
-        std::stack<std::uintmax_t> indentStack{};
-      };
-    } // namespace grammar
-  }   // namespace library
+      namespace rules {
+        template <typename Rule>
+        using Nothing = tao::pegtl::nothing<Rule>;
+      } // namespace rules
+    }   // namespace grammar
+  }     // namespace library
 } // namespace chimera
