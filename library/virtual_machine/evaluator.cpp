@@ -42,6 +42,8 @@
 #include "virtual_machine/set_evaluator.hpp"
 #include "virtual_machine/slice_evaluator.hpp"
 
+using namespace std::literals;
+
 namespace chimera {
   namespace library {
     namespace virtual_machine {
@@ -155,10 +157,10 @@ namespace chimera {
         enter_scope(thread_context.main);
         if (module.doc_string) {
           self().set_attribute(
-              "__doc__", thread_context.process_context
-                             .constants[module.doc_string->constant.constant]);
+              "__doc__"s, thread_context.process_context
+                              .constants[module.doc_string->constant.constant]);
         } else {
-          self().set_attribute("__doc__", builtins().get_attribute("None"));
+          self().set_attribute("__doc__"s, builtins().get_attribute("None"));
         }
         extend(module.body);
         return evaluate();
@@ -211,7 +213,7 @@ namespace chimera {
         if (functionDef.doc_string) {
           push([&functionDef](Evaluator *evaluator) {
             evaluator->stack.top().set_attribute(
-                "__doc__",
+                "__doc__"s,
                 evaluator->thread_context.process_context
                     .constants[functionDef.doc_string->constant.constant]);
           });
@@ -484,7 +486,7 @@ namespace chimera {
           std::cerr << error.what() << std::endl;
           object::Object exception = error.exception;
           if (context) {
-            exception.set_attribute("__context__", context->exception);
+            exception.set_attribute("__context__"s, context->exception);
           }
           return object::BaseException{exception};
         } catch (const ReRaise &) {
@@ -497,7 +499,7 @@ namespace chimera {
           std::cerr << exc.what() << std::endl;
           object::Object exception(object::String(exc.what()), {});
           if (context) {
-            exception.set_attribute("__context__", context->exception);
+            exception.set_attribute("__context__"s, context->exception);
           }
           return object::BaseException{exception};
         }

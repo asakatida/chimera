@@ -24,28 +24,30 @@
 
 #include "object/object.hpp"
 
+using namespace std::literals;
+
 namespace chimera {
   namespace library {
     namespace virtual_machine {
       namespace modules {
         void init(const object::Object &module) {
           auto builtins = module;
-          builtins.set_attribute("__builtins__", builtins);
+          builtins.set_attribute("__builtins__"s, builtins);
           object::Object builtinsFalse(object::False{},
                                        {{"__class__", {/*set below*/}}});
-          builtins.set_attribute("False", builtinsFalse);
-          builtins.set_attribute("__debug__", builtinsFalse);
+          builtins.set_attribute("False"s, builtinsFalse);
+          builtins.set_attribute("__debug__"s, builtinsFalse);
           object::Object builtinsNone(object::None{}, {});
-          builtins.set_attribute("None", builtinsNone);
+          builtins.set_attribute("None"s, builtinsNone);
           object::Object builtinsTrue(object::True{},
                                       {{"__class__", {/*set below*/}}});
-          builtins.set_attribute("True", builtinsTrue);
+          builtins.set_attribute("True"s, builtinsTrue);
           object::Object builtinsClass(object::Instance{},
                                        {{"__class__", {/*set below*/}}});
-          builtins.set_attribute("__class__", builtinsClass);
+          builtins.set_attribute("__class__"s, builtinsClass);
           object::Object builtinsName(object::String("builtins"),
                                       {{"__class__", {/*set below*/}}});
-          builtins.set_attribute("__name__", builtinsName);
+          builtins.set_attribute("__name__"s, builtinsName);
           object::Object builtinsBool(object::Instance{},
                                       {{"__abs__", builtinsNone},
                                        {"__add__", builtinsNone},
@@ -109,9 +111,9 @@ namespace chimera {
                                        {"numerator", builtinsNone},
                                        {"real", builtinsNone},
                                        {"to_bytes", builtinsNone}});
-          builtins.set_attribute("bool", builtinsBool);
-          builtinsFalse.set_attribute("__class__", builtinsBool);
-          builtinsTrue.set_attribute("__class__", builtinsBool);
+          builtins.set_attribute("bool"s, builtinsBool);
+          builtinsFalse.set_attribute("__class__"s, builtinsBool);
+          builtinsTrue.set_attribute("__class__"s, builtinsBool);
           object::Object builtinsBytes(object::Instance{},
                                        {{"__add__", builtinsNone},
                                         {"__class__", {/*set below*/}},
@@ -177,25 +179,25 @@ namespace chimera {
                                         {"translate", builtinsNone},
                                         {"upper", builtinsNone},
                                         {"zfill", builtinsNone}});
-          builtins.set_attribute("bytes", builtinsBytes);
+          builtins.set_attribute("bytes"s, builtinsBytes);
           object::Object builtinsCompile(object::SysCall::COMPILE,
                                          {{"__class__", {/*set below*/}},
                                           {"__doc__", builtinsNone},
                                           {"__name__", builtinsNone},
                                           {"__qualname__", builtinsNone}});
-          builtins.set_attribute("compile", builtinsCompile);
+          builtins.set_attribute("compile"s, builtinsCompile);
           object::Object builtinsEval(object::SysCall::EVAL,
                                       {{"__class__", {/*set below*/}},
                                        {"__doc__", builtinsNone},
                                        {"__name__", builtinsNone},
                                        {"__qualname__", builtinsNone}});
-          builtins.set_attribute("eval", builtinsEval);
+          builtins.set_attribute("eval"s, builtinsEval);
           object::Object builtinsExec(object::SysCall::EXEC,
                                       {{"__class__", {/*set below*/}},
                                        {"__doc__", builtinsNone},
                                        {"__name__", builtinsNone},
                                        {"__qualname__", builtinsNone}});
-          builtins.set_attribute("exec", builtinsExec);
+          builtins.set_attribute("exec"s, builtinsExec);
           object::Object builtinsFloat(object::Instance{},
                                        {{"__abs__", builtinsNone},
                                         {"__add__", builtinsNone},
@@ -246,25 +248,25 @@ namespace chimera {
                                         {"imag", builtinsNone},
                                         {"is_integer", builtinsNone},
                                         {"real", builtinsNone}});
-          builtins.set_attribute("float", builtinsFloat);
+          builtins.set_attribute("float"s, builtinsFloat);
           object::Object builtinsGlobals(object::SysCall::GLOBALS,
                                          {{"__class__", {/*set below*/}},
                                           {"__doc__", builtinsNone},
                                           {"__name__", builtinsNone},
                                           {"__qualname__", builtinsNone}});
-          builtins.set_attribute("globals", builtinsGlobals);
+          builtins.set_attribute("globals"s, builtinsGlobals);
           object::Object builtinsId(object::SysCall::ID,
                                     {{"__class__", {/*set below*/}},
                                      {"__doc__", builtinsNone},
                                      {"__name__", builtinsNone},
                                      {"__qualname__", builtinsNone}});
-          builtins.set_attribute("id", builtinsId);
+          builtins.set_attribute("id"s, builtinsId);
           object::Object builtinsInput(object::SysCall::INPUT,
                                        {{"__class__", {/*set below*/}},
                                         {"__doc__", builtinsNone},
                                         {"__name__", builtinsNone},
                                         {"__qualname__", builtinsNone}});
-          builtins.set_attribute("input", builtinsInput);
+          builtins.set_attribute("input"s, builtinsInput);
           object::Object builtinsInt(object::Instance{},
                                      {{"__abs__", builtinsNone},
                                       {"__add__", builtinsNone},
@@ -328,13 +330,13 @@ namespace chimera {
                                       {"numerator", builtinsNone},
                                       {"real", builtinsNone},
                                       {"to_bytes", builtinsNone}});
-          builtins.set_attribute("int", builtinsInt);
+          builtins.set_attribute("int"s, builtinsInt);
           object::Object builtinsLocals(object::SysCall::LOCALS,
                                         {{"__class__", {/*set below*/}},
                                          {"__doc__", builtinsNone},
                                          {"__name__", builtinsNone},
                                          {"__qualname__", builtinsNone}});
-          builtins.set_attribute("locals", builtinsLocals);
+          builtins.set_attribute("locals"s, builtinsLocals);
           object::Object builtinsObject(object::Instance{},
                                         {{"__abstractmethods__", builtinsNone},
                                          {"__base__", {/*set below*/}},
@@ -377,20 +379,20 @@ namespace chimera {
                                          {"__text_signature__", builtinsNone},
                                          {"__weakrefoffset__", builtinsNone},
                                          {"mro", builtinsNone}});
-          builtins.set_attribute("object", builtinsObject);
-          builtinsObject.set_attribute("__base__", builtinsObject);
+          builtins.set_attribute("object"s, builtinsObject);
+          builtinsObject.set_attribute("__base__"s, builtinsObject);
           object::Object builtinsOpen(object::SysCall::OPEN,
                                       {{"__class__", {/*set below*/}},
                                        {"__doc__", builtinsNone},
                                        {"__name__", builtinsNone},
                                        {"__qualname__", builtinsNone}});
-          builtins.set_attribute("open", builtinsOpen);
+          builtins.set_attribute("open"s, builtinsOpen);
           object::Object builtinsPrint(object::SysCall::PRINT,
                                        {{"__class__", {/*set below*/}},
                                         {"__doc__", builtinsNone},
                                         {"__name__", builtinsNone},
                                         {"__qualname__", builtinsNone}});
-          builtins.set_attribute("print", builtinsPrint);
+          builtins.set_attribute("print"s, builtinsPrint);
           object::Object builtinsStr(object::Instance{},
                                      {{"__add__", builtinsNone},
                                       {"__class__", {/*set below*/}},
@@ -461,8 +463,8 @@ namespace chimera {
                                       {"translate", builtinsNone},
                                       {"upper", builtinsNone},
                                       {"zfill", builtinsNone}});
-          builtins.set_attribute("str", builtinsStr);
-          builtinsName.set_attribute("__class__", builtinsStr);
+          builtins.set_attribute("str"s, builtinsStr);
+          builtinsName.set_attribute("__class__"s, builtinsStr);
           object::Object builtinsTuple(object::Instance{},
                                        {{"__add__", builtinsNone},
                                         {"__class__", {/*set below*/}},
@@ -490,7 +492,7 @@ namespace chimera {
                                         {"__rmul__", builtinsNone},
                                         {"count", builtinsNone},
                                         {"index", builtinsNone}});
-          builtins.set_attribute("tuple", builtinsTuple);
+          builtins.set_attribute("tuple"s, builtinsTuple);
           object::Object builtinsType(object::Instance{},
                                       {{"__base__", builtinsObject},
                                        {"__bases__", builtinsNone},
@@ -500,15 +502,15 @@ namespace chimera {
                                        {"__mro__", {/*set below*/}},
                                        {"__name__", builtinsNone},
                                        {"__qualname__", builtinsNone}});
-          builtins.set_attribute("type", builtinsType);
-          builtinsClass.set_attribute("__class__", builtinsType);
-          builtinsBool.set_attribute("__class__", builtinsType);
-          builtinsBytes.set_attribute("__class__", builtinsType);
-          builtinsFloat.set_attribute("__class__", builtinsType);
-          builtinsInt.set_attribute("__class__", builtinsType);
-          builtinsStr.set_attribute("__class__", builtinsType);
-          builtinsTuple.set_attribute("__class__", builtinsType);
-          builtinsType.set_attribute("__class__", builtinsType);
+          builtins.set_attribute("type"s, builtinsType);
+          builtinsClass.set_attribute("__class__"s, builtinsType);
+          builtinsBool.set_attribute("__class__"s, builtinsType);
+          builtinsBytes.set_attribute("__class__"s, builtinsType);
+          builtinsFloat.set_attribute("__class__"s, builtinsType);
+          builtinsInt.set_attribute("__class__"s, builtinsType);
+          builtinsStr.set_attribute("__class__"s, builtinsType);
+          builtinsTuple.set_attribute("__class__"s, builtinsType);
+          builtinsType.set_attribute("__class__"s, builtinsType);
           object::Object builtinsCompileClass(
               object::Instance{}, {{"__call__", builtinsNone},
                                    {"__class__", builtinsType},
@@ -531,15 +533,15 @@ namespace chimera {
                                    {"__reduce_ex__", builtinsNone},
                                    {"__repr__", builtinsNone},
                                    {"__text_signature__", builtinsNone}});
-          builtinsCompile.set_attribute("__class__", builtinsCompileClass);
-          builtinsEval.set_attribute("__class__", builtinsCompileClass);
-          builtinsExec.set_attribute("__class__", builtinsCompileClass);
-          builtinsGlobals.set_attribute("__class__", builtinsCompileClass);
-          builtinsId.set_attribute("__class__", builtinsCompileClass);
-          builtinsInput.set_attribute("__class__", builtinsCompileClass);
-          builtinsLocals.set_attribute("__class__", builtinsCompileClass);
-          builtinsOpen.set_attribute("__class__", builtinsCompileClass);
-          builtinsPrint.set_attribute("__class__", builtinsCompileClass);
+          builtinsCompile.set_attribute("__class__"s, builtinsCompileClass);
+          builtinsEval.set_attribute("__class__"s, builtinsCompileClass);
+          builtinsExec.set_attribute("__class__"s, builtinsCompileClass);
+          builtinsGlobals.set_attribute("__class__"s, builtinsCompileClass);
+          builtinsId.set_attribute("__class__"s, builtinsCompileClass);
+          builtinsInput.set_attribute("__class__"s, builtinsCompileClass);
+          builtinsLocals.set_attribute("__class__"s, builtinsCompileClass);
+          builtinsOpen.set_attribute("__class__"s, builtinsCompileClass);
+          builtinsPrint.set_attribute("__class__"s, builtinsCompileClass);
           object::Object builtinsObjectClass(
               object::Instance{}, {{"__bool__", builtinsNone},
                                    {"__class__", builtinsType},
@@ -557,27 +559,27 @@ namespace chimera {
                                    {"__new__", builtinsNone},
                                    {"__reduce__", builtinsNone},
                                    {"__reduce_ex__", builtinsNone}});
-          builtinsObject.set_attribute("__class__", builtinsObjectClass);
+          builtinsObject.set_attribute("__class__"s, builtinsObjectClass);
           object::Object builtinsObjectDelattr(
               object::ObjectMethod::DELATTR,
               {{"__class__", builtinsCompileClass},
                {"__doc__", builtinsNone},
                {"__name__", builtinsNone},
                {"__qualname__", builtinsNone}});
-          builtinsObject.set_attribute("__delattr__", builtinsObjectDelattr);
+          builtinsObject.set_attribute("__delattr__"s, builtinsObjectDelattr);
           object::Object builtinsObjectDir(object::ObjectMethod::DIR,
                                            {{"__class__", builtinsCompileClass},
                                             {"__doc__", builtinsNone},
                                             {"__name__", builtinsNone},
                                             {"__qualname__", builtinsNone}});
-          builtinsObject.set_attribute("__dir__", builtinsObjectDir);
+          builtinsObject.set_attribute("__dir__"s, builtinsObjectDir);
           object::Object builtinsObjectGetattribute(
               object::ObjectMethod::GETATTRIBUTE,
               {{"__class__", builtinsCompileClass},
                {"__doc__", builtinsNone},
                {"__name__", builtinsNone},
                {"__qualname__", builtinsNone}});
-          builtinsObject.set_attribute("__getattribute__",
+          builtinsObject.set_attribute("__getattribute__"s,
                                        builtinsObjectGetattribute);
           object::Object builtinsObjectSetattr(
               object::ObjectMethod::SETATTR,
@@ -585,11 +587,11 @@ namespace chimera {
                {"__doc__", builtinsNone},
                {"__name__", builtinsNone},
                {"__qualname__", builtinsNone}});
-          builtinsObject.set_attribute("__setattr__", builtinsObjectSetattr);
+          builtinsObject.set_attribute("__setattr__"s, builtinsObjectSetattr);
           object::Object builtinsTypeMro(
               object::Tuple{builtinsType, builtinsObject},
               {{"__class__", builtinsTuple}});
-          builtinsType.set_attribute("__mro__", builtinsTypeMro);
+          builtinsType.set_attribute("__mro__"s, builtinsTypeMro);
         }
       } // namespace modules
     }   // namespace virtual_machine

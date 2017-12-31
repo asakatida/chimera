@@ -43,7 +43,7 @@ using namespace std::literals;
 
 static const std::string_view CHIMERA_IMPORT_PATH_VIEW
 #ifdef CHIMERA_PATH
-#define STRINGIFY(ARG) #ARG
+#define STRINGIFY(ARG) #ARG##sv
     (STRINGIFY(CHIMERA_PATH))
 #undef STRINGIFY
 #endif
@@ -157,7 +157,7 @@ namespace chimera {
       asdl::Constant ProcessContext::insert_constant(object::Bytes &&bytes) {
         object::Object object(
             std::move(bytes),
-            {{"__class__"s, global_context.builtins.get_attribute("bytes"s)}});
+            {{"__class__", global_context.builtins.get_attribute("bytes")}});
         auto result = constants.try_emplace(object.id(), object);
         Ensures(result.second);
         return asdl::Constant{result.first->first};
@@ -165,8 +165,8 @@ namespace chimera {
 
       asdl::Constant ProcessContext::insert_constant(object::Number &&number) {
         auto cls = global_context.builtins.get_attribute(
-            number.is_int() ? "int"s : "float"s);
-        object::Object object(std::move(number), {{"__class__"s, cls}});
+            number.is_int() ? "int" : "float");
+        object::Object object(std::move(number), {{"__class__", cls}});
         auto result = constants.try_emplace(object.id(), object);
         Ensures(result.second);
         return asdl::Constant{result.first->first};
@@ -175,7 +175,7 @@ namespace chimera {
       asdl::Constant ProcessContext::insert_constant(object::String &&string) {
         object::Object object(
             std::move(string),
-            {{"__class__"s, global_context.builtins.get_attribute("str"s)}});
+            {{"__class__", global_context.builtins.get_attribute("str")}});
         auto result = constants.try_emplace(object.id(), object);
         Ensures(result.second);
         return asdl::Constant{result.first->first};
