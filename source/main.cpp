@@ -93,9 +93,10 @@ namespace chimera {
             if (*argChar != '-') {
               options.script = *arg;
               options.argv = forward_args(std::next(arg), args.end());
-              builtins.set_attribute(
-                  "__debug__", options.debug ? builtins.get_attribute("True")
-                                             : builtins.get_attribute("False"));
+              builtins.set_attribute("__debug__"s,
+                                     options.debug
+                                         ? builtins.get_attribute("True")
+                                         : builtins.get_attribute("False"));
               return virtual_machine::GlobalContext{
                   options, builtins,
                   builtins.get_attribute("type")
@@ -110,9 +111,10 @@ namespace chimera {
             }
             if (argCStr.length() == 1) {
               options.argv = forward_args(std::next(arg), args.end());
-              builtins.set_attribute(
-                  "__debug__", options.debug ? builtins.get_attribute("True")
-                                             : builtins.get_attribute("False"));
+              builtins.set_attribute("__debug__"s,
+                                     options.debug
+                                         ? builtins.get_attribute("True")
+                                         : builtins.get_attribute("False"));
               return virtual_machine::GlobalContext{
                   options, builtins,
                   builtins.get_attribute("type")
@@ -166,9 +168,9 @@ namespace chimera {
                     }
                     options.argv = forward_args(std::next(arg), args.end());
                     builtins.set_attribute(
-                        "__debug__", options.debug
-                                         ? builtins.get_attribute("True")
-                                         : builtins.get_attribute("False"));
+                        "__debug__"s, options.debug
+                                          ? builtins.get_attribute("True")
+                                          : builtins.get_attribute("False"));
                     return virtual_machine::GlobalContext{
                         options, builtins,
                         builtins.get_attribute("type")
@@ -206,9 +208,9 @@ namespace chimera {
                     }
                     options.argv = forward_args(std::next(arg), args.end());
                     builtins.set_attribute(
-                        "__debug__", options.debug
-                                         ? builtins.get_attribute("True")
-                                         : builtins.get_attribute("False"));
+                        "__debug__"s, options.debug
+                                          ? builtins.get_attribute("True")
+                                          : builtins.get_attribute("False"));
                     return virtual_machine::GlobalContext{
                         options, builtins,
                         builtins.get_attribute("type")
@@ -285,8 +287,8 @@ namespace chimera {
             }
           }
           builtins.set_attribute(
-              "__debug__", options.debug ? builtins.get_attribute("True")
-                                         : builtins.get_attribute("False"));
+              "__debug__"s, options.debug ? builtins.get_attribute("True")
+                                          : builtins.get_attribute("False"));
           return virtual_machine::GlobalContext{
               options, builtins,
               builtins.get_attribute("type")
