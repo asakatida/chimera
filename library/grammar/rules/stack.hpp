@@ -25,6 +25,7 @@
 #pragma once
 
 #include <algorithm>
+#include <iostream>
 #include <tuple>
 #include <variant>
 #include <vector>
@@ -39,8 +40,8 @@ namespace chimera {
         struct Stack {
           using ValueT = std::variant<Types...>;
           template <typename Type>
-          void push(Type &&type) {
-            return stack.push_back(ValueT{std::forward<Type>(type)});
+          void push(Type && /*type*/) {
+            // return stack.push_back(ValueT{std::forward<Type>(type)});
           }
           const ValueT &top() const {
             Expects(has_value());

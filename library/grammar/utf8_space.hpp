@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <tao/pegtl.hpp>
+#include "grammar/rules.hpp"
 
 namespace chimera {
   namespace library {

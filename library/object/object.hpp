@@ -105,8 +105,6 @@ namespace chimera {
         std::vector<std::string> dir() const;
         Object get_attribute(std::string &&key) const;
         Object get_attribute(const std::string &key) const;
-        Object get_attribute(std::string &&key);
-        Object get_attribute(const std::string &key);
         bool has_attribute(std::string &&key) const noexcept;
         bool has_attribute(const std::string &key) const noexcept;
         template <typename... Args>

@@ -23,16 +23,15 @@
 
 #include <algorithm>
 #include <atomic> // for atomic_flag
+#include <iomanip>
 #include <iostream>
 #include <map>
 #include <queue>
 #include <vector>
 
-#include "asdl/asdl.hpp" // for Module
-#include "grammar/grammar.hpp"
-#include "object/object.hpp" // for Object
-#include "options.hpp"       // for Options
-#include "parse.hpp"
+#include "asdl/asdl.hpp"                       // for Module
+#include "object/object.hpp"                   // for Object
+#include "options.hpp"                         // for Options
 #include "virtual_machine/virtual_machine.hpp" // for VirtualMachine
 
 namespace chimera {
@@ -119,7 +118,7 @@ namespace chimera {
         return {};
       }
       template <typename Type>
-      std::optional<object::Object> operator()(Type && /*type*/) const {
+      std::optional<object::Object> operator()(const Type & /*type*/) const {
         return {};
       }
     };
@@ -376,11 +375,7 @@ namespace chimera {
           builtins.get_attribute("compile").get_attribute("__class__").id(),
           &sigInt};
       virtual_machine::ProcessContext processContext{globalContext};
-      asdl::Module module;
-      parse<grammar::FileInput>(globalContext.options,
-                                grammar::Input<tao::pegtl::istream_input<>>(
-                                    std::cin, BUFFER_SIZE, "<input>"),
-                                processContext, module);
+      auto module = processContext.parse_file(&std::cin, "<input>");
       virtual_machine::ThreadContext threadContext{
           processContext, processContext.make_module("builtins")};
       threadContext.evaluate(module);

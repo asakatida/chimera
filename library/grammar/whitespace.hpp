@@ -25,35 +25,34 @@
 
 #include <type_traits>
 
-#include <tao/pegtl.hpp>
-
+#include "grammar/rules.hpp"
 #include "grammar/utf8_space.hpp"
 
 namespace chimera {
   namespace library {
     namespace grammar {
-      template <bool Implicit>
-      using Space =
-          Star<Sor<Seq<One<'\\'>, Eol>, Seq<One<'#'>, Star<NotAt<Eolf>, Any>>,
-                   std::conditional_t<Implicit, Utf8Space,
-                                      Minus<Utf8Space, One<'\r', '\n'>>>>>;
-      template <bool Discard>
-      struct BlankLines;
-      template <>
-      struct BlankLines<true> : Seq<Plus<Space<false>, Eol, Discard>,
-                                    Sor<Plus<One<' '>>, Star<One<'\t'>>>,
-                                    Must<NotAt<One<' ', '\t'>>>, Discard> {};
-      template <>
-      struct BlankLines<false>
-          : Seq<Plus<Space<false>, Eol>, Sor<Plus<One<' '>>, Star<One<'\t'>>>,
-                Must<NotAt<One<' ', '\t'>>>> {};
+      template <typename Option>
+      using Space = Star<Sor<
+          Seq<One<'\\'>, Eol>, Seq<One<'#'>, Star<NotAt<Eolf>, Any>>,
+          std::conditional_t<Option::template Get<Option::Implicit>, Utf8Space,
+                             Minus<Utf8Space, One<'\r', '\n'>>>>>;
+      template <typename Option>
+      struct BlankLines
+          : Seq<Plus<Space<Option>, Eol,
+                     std::conditional_t<Option::template Get<Option::Discard>,
+                                        Discard, Success>>,
+                Sor<Plus<One<' '>>, Star<One<'\t'>>>,
+                Must<NotAt<One<' ', '\t'>>>,
+                std::conditional_t<Option::template Get<Option::Discard>,
+                                   Discard, Success>> {};
       struct IndentCheck : NotAt<One<' ', '\t'>> {
         template <typename Input>
         static bool match(Input &&in) {
           return in.indent();
         }
       };
-      using INDENT = Seq<BlankLines<true>, IndentCheck>;
+      template <typename Option>
+      using INDENT = Seq<BlankLines<Option>, IndentCheck>;
       struct DedentCheck : NotAt<One<' ', '\t'>> {
         template <typename Input>
         static bool match(Input &&in) {
@@ -66,18 +65,20 @@ namespace chimera {
           return in.dedent();
         }
       };
+      template <typename Option>
       using DEDENT = Sor<Seq<Eof, DedentConsume>,
-                         Seq<At<BlankLines<false>, DedentCheck>,
-                             Opt<BlankLines<false>, DedentConsume, Discard>>>;
+                         Seq<At<BlankLines<Option>, DedentCheck>,
+                             Opt<BlankLines<Option>, DedentConsume, Discard>>>;
       struct NextIndentCheck : NotAt<One<' ', '\t'>> {
         template <typename Input>
         static bool match(Input &&in) {
           return in.is_newline();
         }
       };
-      using NEWLINE = Seq<BlankLines<false>, NextIndentCheck, Discard>;
-      template <bool Implicit, typename... Rules>
-      using Token = Seq<Rules..., Space<Implicit>>;
+      template <typename Option>
+      using NEWLINE = Seq<BlankLines<Option>, NextIndentCheck, Discard>;
+      template <typename Option, typename... Rules>
+      using Token = Seq<Rules..., Space<Option>>;
     } // namespace grammar
   }   // namespace library
 } // namespace chimera

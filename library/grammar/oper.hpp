@@ -24,396 +24,260 @@
 
 #include <type_traits>
 
-#include <tao/pegtl.hpp>
-#include <tao/pegtl/contrib/rep_one_min_max.hpp>
-
 #include "asdl/asdl.hpp"
-#include "grammar/control.hpp"
+#include "grammar/rules.hpp"
 #include "grammar/whitespace.hpp"
 
 namespace chimera {
   namespace library {
     namespace grammar {
-      template <bool Implicit, typename Rule, char... Cs>
-      using Op = Token<
-          Implicit, Rule,
-          std::conditional_t<(sizeof...(Cs) > 0), NotAt<One<Cs...>>, Success>>;
-      template <bool Implicit>
-      struct Add : Op<Implicit, One<'+'>, '='> {};
-      template <bool Implicit>
-      struct ChimeraActions<Add<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::ADD);
-        }
-      };
-      template <bool Implicit>
-      struct Arr : Op<Implicit, String<'-', '>'>> {};
-      template <bool Implicit>
-      struct AtImpl : Op<Implicit, One<'@'>, '='> {};
-      template <bool Implicit>
-      struct AtOp : Seq<AtImpl<Implicit>> {};
-      template <bool Implicit>
-      struct AugAdd : Op<Implicit, String<'+', '='>> {};
-      template <bool Implicit>
-      struct ChimeraActions<AugAdd<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::ADD);
-        }
-      };
-      template <bool Implicit>
-      struct AugBitAnd : Op<Implicit, String<'&', '='>> {};
-      template <bool Implicit>
-      struct ChimeraActions<AugBitAnd<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::BIT_AND);
-        }
-      };
-      template <bool Implicit>
-      struct AugBitOr : Op<Implicit, String<'|', '='>> {};
-      template <bool Implicit>
-      struct ChimeraActions<AugBitOr<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::BIT_OR);
-        }
-      };
-      template <bool Implicit>
-      struct AugBitXor : Op<Implicit, String<'^', '='>> {};
-      template <bool Implicit>
-      struct ChimeraActions<AugBitXor<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::BIT_XOR);
-        }
-      };
-      template <bool Implicit>
-      struct AugDiv : Op<Implicit, String<'/', '='>> {};
-      template <bool Implicit>
-      struct ChimeraActions<AugDiv<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::DIV);
-        }
-      };
-      template <bool Implicit>
-      struct AugFloorDiv : Op<Implicit, String<'/', '/', '='>> {};
-      template <bool Implicit>
-      struct ChimeraActions<AugFloorDiv<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::FLOOR_DIV);
-        }
-      };
-      template <bool Implicit>
-      struct AugLShift : Op<Implicit, String<'<', '<', '='>> {};
-      template <bool Implicit>
-      struct ChimeraActions<AugLShift<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::L_SHIFT);
-        }
-      };
-      template <bool Implicit>
-      struct AugMatMult : Op<Implicit, String<'@', '='>> {};
-      template <bool Implicit>
-      struct ChimeraActions<AugMatMult<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::MAT_MULT);
-        }
-      };
-      template <bool Implicit>
-      struct AugMod : Op<Implicit, String<'%', '='>> {};
-      template <bool Implicit>
-      struct ChimeraActions<AugMod<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::MOD);
-        }
-      };
-      template <bool Implicit>
-      struct AugMult : Op<Implicit, String<'*', '='>> {};
-      template <bool Implicit>
-      struct ChimeraActions<AugMult<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::MULT);
-        }
-      };
-      template <bool Implicit>
-      struct AugPow : Op<Implicit, String<'*', '*', '='>> {};
-      template <bool Implicit>
-      struct ChimeraActions<AugPow<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::POW);
-        }
-      };
-      template <bool Implicit>
-      struct AugRShift : Op<Implicit, String<'>', '>', '='>> {};
-      template <bool Implicit>
-      struct ChimeraActions<AugRShift<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::R_SHIFT);
-        }
-      };
-      template <bool Implicit>
-      struct AugSub : Op<Implicit, String<'-', '='>> {};
-      template <bool Implicit>
-      struct ChimeraActions<AugSub<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::SUB);
-        }
-      };
-      template <bool Implicit>
-      struct BitAnd : Op<Implicit, One<'&'>, '='> {};
-      template <bool Implicit>
-      struct BitNot : Op<Implicit, One<'~'>> {};
-      template <bool Implicit>
-      struct ChimeraActions<BitNot<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Unary::BIT_NOT);
-        }
-      };
-      template <bool Implicit>
-      struct BitOr : Op<Implicit, One<'|'>, '='> {};
-      template <bool Implicit>
-      struct BitXor : Op<Implicit, One<'^'>, '='> {};
-      template <bool Implicit>
-      struct Colon : Op<Implicit, One<':'>> {};
-      template <bool Implicit>
-      struct Comma : Op<Implicit, One<','>> {};
-      template <bool Implicit>
-      struct Div : Op<Implicit, One<'/'>, '=', '/'> {};
-      template <bool Implicit>
-      struct ChimeraActions<Div<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::DIV);
-        }
-      };
-      template <bool Implicit>
-      struct EllipsisOp : Op<Implicit, Ellipsis> {};
-      template <bool Implicit>
-      struct ChimeraActions<EllipsisOp<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::ExprImpl{asdl::Ellipsis{}});
-        }
-      };
-      template <bool Implicit>
-      struct Eq : Op<Implicit, One<'='>, '='> {};
-      template <bool Implicit>
-      struct EqEq : Op<Implicit, String<'=', '='>> {};
-      template <bool Implicit>
-      struct ChimeraActions<EqEq<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::CompareExpr::Op::EQ);
-        }
-      };
-      template <bool Implicit>
-      struct FloorDiv : Op<Implicit, String<'/', '/'>, '='> {};
-      template <bool Implicit>
-      struct ChimeraActions<FloorDiv<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::FLOOR_DIV);
-        }
-      };
-      template <bool Implicit>
-      struct Gt : Op<Implicit, One<'>'>, '=', '>'> {};
-      template <bool Implicit>
-      struct ChimeraActions<Gt<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::CompareExpr::Op::GT);
-        }
-      };
-      template <bool Implicit>
-      struct GtE : Op<Implicit, String<'>', '='>> {};
-      template <bool Implicit>
-      struct ChimeraActions<GtE<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::CompareExpr::Op::GT_E);
-        }
-      };
-      template <bool Implicit>
-      struct LBrc : Op<Implicit, One<'{'>> {};
-      template <bool Implicit>
-      struct LBrt : Op<Implicit, One<'['>> {};
-      template <bool Implicit>
-      struct LPar : Op<Implicit, One<'('>> {};
-      template <bool Implicit>
-      struct LShift : Op<Implicit, String<'<', '<'>, '='> {};
-      template <bool Implicit>
-      struct ChimeraActions<LShift<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::L_SHIFT);
-        }
-      };
-      template <bool Implicit>
-      struct Lt : Op<Implicit, One<'<'>, '=', '<', '>'> {};
-      template <bool Implicit>
-      struct ChimeraActions<Lt<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::CompareExpr::Op::LT);
-        }
-      };
-      template <bool Implicit>
-      struct LtE : Op<Implicit, String<'<', '='>> {};
-      template <bool Implicit>
-      struct ChimeraActions<LtE<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::CompareExpr::Op::LT_E);
-        }
-      };
-      template <bool Implicit>
-      struct MatMult : Seq<AtImpl<Implicit>> {};
-      template <bool Implicit>
-      struct ChimeraActions<MatMult<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::MAT_MULT);
-        }
-      };
-      template <bool Implicit>
-      struct Mod : Op<Implicit, One<'%'>, '='> {};
-      template <bool Implicit>
-      struct ChimeraActions<Mod<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::MOD);
-        }
-      };
-      template <bool Implicit>
-      struct MultImpl : Op<Implicit, One<'*'>, '*', '='> {};
-      template <bool Implicit>
-      struct Mult : Seq<MultImpl<Implicit>> {};
-      template <bool Implicit>
-      struct ChimeraActions<Mult<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::MULT);
-        }
-      };
-      template <bool Implicit>
-      struct NotEq : Op<Implicit, Sor<String<'!', '='>, String<'<', '>'>>> {};
-      template <bool Implicit>
-      struct ChimeraActions<NotEq<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::CompareExpr::Op::NOT_EQ);
-        }
-      };
-      template <bool Implicit>
-      struct PeriodImpl : Op<Implicit, One<'.'>> {};
-      template <bool Implicit>
-      struct Period : Seq<NotAt<Ellipsis>, PeriodImpl<Implicit>> {};
-      template <bool Implicit>
-      struct PowImpl : Op<Implicit, String<'*', '*'>, '='> {};
-      template <bool Implicit>
-      struct Pow : Seq<PowImpl<Implicit>> {};
-      template <bool Implicit>
-      struct ChimeraActions<Pow<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::POW);
-        }
-      };
-      template <bool Implicit>
-      struct RBrc : Op<Implicit, One<'}'>> {};
-      template <bool Implicit>
-      struct RBrt : Op<Implicit, One<']'>> {};
-      template <bool Implicit>
-      struct RPar : Op<Implicit, One<')'>> {};
-      template <bool Implicit>
-      struct RShift : Op<Implicit, String<'>', '>'>, '='> {};
-      template <bool Implicit>
-      struct ChimeraActions<RShift<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::R_SHIFT);
-        }
-      };
-      template <bool Implicit>
-      struct Semi : Op<Implicit, One<';'>> {};
-      template <bool Implicit>
-      struct StarOp : Seq<MultImpl<Implicit>> {};
-      template <bool Implicit>
-      struct SubImpl : Op<Implicit, One<'-'>, '=', '>'> {};
-      template <bool Implicit>
-      struct Sub : Seq<SubImpl<Implicit>> {};
-      template <bool Implicit>
-      struct ChimeraActions<Sub<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Operator::SUB);
-        }
-      };
-      template <bool Implicit>
-      struct UAdd : Op<Implicit, One<'+'>, '='> {};
-      template <bool Implicit>
-      struct ChimeraActions<UAdd<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Unary::ADD);
-        }
-      };
-      template <bool Implicit>
-      struct USub : Seq<SubImpl<Implicit>> {};
-      template <bool Implicit>
-      struct ChimeraActions<USub<Implicit>> {
-        template <typename ProcessContext, typename Stack>
-        static void apply0(ProcessContext && /*processContext*/,
-                           Stack &&stack) {
-          stack.push(asdl::Unary::SUB);
-        }
-      };
-      template <bool Implicit>
-      struct Unpack : Seq<PowImpl<Implicit>> {};
+      namespace op {
+        template <auto Asdl>
+        struct Transform {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(Asdl);
+          }
+        };
+        template <typename Option, typename Rule, char... Cs>
+        using Op = Token<Option, Rule,
+                         std::conditional_t<(sizeof...(Cs) > 0),
+                                            NotAt<One<Cs...>>, Success>>;
+        template <typename Option>
+        struct Add : Op<Option, One<'+'>, '='> {
+          using Transform = Transform<asdl::Operator::ADD>;
+        };
+        template <typename Option>
+        struct Arr : Op<Option, String<'-', '>'>> {};
+        template <typename Option>
+        struct AtImpl : Op<Option, One<'@'>, '='> {};
+        template <typename Option>
+        struct AtOp : Seq<AtImpl<Option>> {};
+        template <typename Option>
+        struct AugAdd : Op<Option, String<'+', '='>> {
+          using Transform = Transform<asdl::Operator::ADD>;
+        };
+        template <typename Option>
+        struct AugBitAnd : Op<Option, String<'&', '='>> {
+          using Transform = Transform<asdl::Operator::BIT_AND>;
+        };
+        template <typename Option>
+        struct AugBitOr : Op<Option, String<'|', '='>> {
+          using Transform = Transform<asdl::Operator::BIT_OR>;
+        };
+        template <typename Option>
+        struct AugBitXor : Op<Option, String<'^', '='>> {
+          using Transform = Transform<asdl::Operator::BIT_XOR>;
+        };
+        template <typename Option>
+        struct AugDiv : Op<Option, String<'/', '='>> {
+          using Transform = Transform<asdl::Operator::DIV>;
+        };
+        template <typename Option>
+        struct AugFloorDiv : Op<Option, String<'/', '/', '='>> {
+          using Transform = Transform<asdl::Operator::FLOOR_DIV>;
+        };
+        template <typename Option>
+        struct AugLShift : Op<Option, String<'<', '<', '='>> {
+          using Transform = Transform<asdl::Operator::L_SHIFT>;
+        };
+        template <typename Option>
+        struct AugMatMult : Op<Option, String<'@', '='>> {
+          using Transform = Transform<asdl::Operator::MAT_MULT>;
+        };
+        template <typename Option>
+        struct AugMod : Op<Option, String<'%', '='>> {
+          using Transform = Transform<asdl::Operator::MOD>;
+        };
+        template <typename Option>
+        struct AugMult : Op<Option, String<'*', '='>> {
+          using Transform = Transform<asdl::Operator::MULT>;
+        };
+        template <typename Option>
+        struct AugPow : Op<Option, String<'*', '*', '='>> {
+          using Transform = Transform<asdl::Operator::POW>;
+        };
+        template <typename Option>
+        struct AugRShift : Op<Option, String<'>', '>', '='>> {
+          using Transform = Transform<asdl::Operator::R_SHIFT>;
+        };
+        template <typename Option>
+        struct AugSub : Op<Option, String<'-', '='>> {
+          using Transform = Transform<asdl::Operator::SUB>;
+        };
+        template <typename Option>
+        struct BitAnd : Op<Option, One<'&'>, '='> {};
+        template <typename Option>
+        struct BitNot : Op<Option, One<'~'>> {
+          using Transform = Transform<asdl::Unary::Op::BIT_NOT>;
+        };
+        template <typename Option>
+        struct BitOr : Op<Option, One<'|'>, '='> {};
+        template <typename Option>
+        struct BitXor : Op<Option, One<'^'>, '='> {};
+        template <typename Option>
+        struct Colon : Op<Option, One<':'>> {};
+        template <typename Option>
+        struct Comma : Op<Option, One<','>> {};
+        template <typename Option>
+        struct Div : Op<Option, One<'/'>, '=', '/'> {
+          using Transform = Transform<asdl::Operator::DIV>;
+        };
+        template <typename Option>
+        struct EllipsisOp : Op<Option, Ellipsis> {
+          struct Transform {
+            template <typename Outer>
+            void success(Outer &&outer) {
+              outer.push(asdl::ExprImpl{asdl::Ellipsis{}});
+            }
+          };
+        };
+        template <typename Option>
+        struct Eq : Op<Option, One<'='>, '='> {};
+        template <typename Option>
+        struct EqEq : Op<Option, String<'=', '='>> {
+          using Transform = Transform<asdl::CompareExpr::Op::EQ>;
+        };
+        template <typename Option>
+        struct FloorDiv : Op<Option, String<'/', '/'>, '='> {
+          using Transform = Transform<asdl::Operator::FLOOR_DIV>;
+        };
+        template <typename Option>
+        struct Gt : Op<Option, One<'>'>, '=', '>'> {
+          using Transform = Transform<asdl::CompareExpr::Op::GT>;
+        };
+        template <typename Option>
+        struct GtE : Op<Option, String<'>', '='>> {
+          using Transform = Transform<asdl::CompareExpr::Op::GT_E>;
+        };
+        template <typename Option>
+        struct LBrc : Op<Option, One<'{'>> {};
+        template <typename Option>
+        struct LBrt : Op<Option, One<'['>> {};
+        template <typename Option>
+        struct LPar : Op<Option, One<'('>> {};
+        template <typename Option>
+        struct LShift : Op<Option, String<'<', '<'>, '='> {
+          using Transform = Transform<asdl::Operator::L_SHIFT>;
+        };
+        template <typename Option>
+        struct Lt : Op<Option, One<'<'>, '=', '<', '>'> {
+          using Transform = Transform<asdl::CompareExpr::Op::LT>;
+        };
+        template <typename Option>
+        struct LtE : Op<Option, String<'<', '='>> {
+          using Transform = Transform<asdl::CompareExpr::Op::LT_E>;
+        };
+        template <typename Option>
+        struct MatMult : Seq<AtImpl<Option>> {
+          using Transform = Transform<asdl::Operator::MAT_MULT>;
+        };
+        template <typename Option>
+        struct Mod : Op<Option, One<'%'>, '='> {
+          using Transform = Transform<asdl::Operator::MOD>;
+        };
+        template <typename Option>
+        struct MultImpl : Op<Option, One<'*'>, '*', '='> {};
+        template <typename Option>
+        struct Mult : Seq<MultImpl<Option>> {
+          using Transform = Transform<asdl::Operator::MULT>;
+        };
+        template <typename Option>
+        struct NotEq : Op<Option, Sor<String<'!', '='>, String<'<', '>'>>> {
+          using Transform = Transform<asdl::CompareExpr::Op::NOT_EQ>;
+        };
+        template <typename Option>
+        struct PeriodImpl : Op<Option, One<'.'>> {};
+        template <typename Option>
+        struct Period : Seq<NotAt<Ellipsis>, PeriodImpl<Option>> {};
+        template <typename Option>
+        struct PowImpl : Op<Option, String<'*', '*'>, '='> {};
+        template <typename Option>
+        struct Pow : Seq<PowImpl<Option>> {
+          using Transform = Transform<asdl::Operator::POW>;
+        };
+        template <typename Option>
+        struct RBrc : Op<Option, One<'}'>> {};
+        template <typename Option>
+        struct RBrt : Op<Option, One<']'>> {};
+        template <typename Option>
+        struct RPar : Op<Option, One<')'>> {};
+        template <typename Option>
+        struct RShift : Op<Option, String<'>', '>'>, '='> {
+          using Transform = Transform<asdl::Operator::R_SHIFT>;
+        };
+        template <typename Option>
+        struct Semi : Op<Option, One<';'>> {};
+        template <typename Option>
+        struct StarOp : Seq<MultImpl<Option>> {};
+        template <typename Option>
+        struct SubImpl : Op<Option, One<'-'>, '=', '>'> {};
+        template <typename Option>
+        struct Sub : Seq<SubImpl<Option>> {
+          using Transform = Transform<asdl::Operator::SUB>;
+        };
+        template <typename Option>
+        struct UAdd : Op<Option, One<'+'>, '='> {
+          using Transform = Transform<asdl::Unary::ADD>;
+        };
+        template <typename Option>
+        struct USub : Seq<SubImpl<Option>> {
+          using Transform = Transform<asdl::Unary::SUB>;
+        };
+        template <typename Option>
+        struct Unpack : Seq<PowImpl<Option>> {};
+      } // namespace op
+      using op::Add;
+      using op::Arr;
+      using op::AtOp;
+      using op::AugAdd;
+      using op::AugBitAnd;
+      using op::AugBitOr;
+      using op::AugBitXor;
+      using op::AugDiv;
+      using op::AugFloorDiv;
+      using op::AugLShift;
+      using op::AugMatMult;
+      using op::AugMod;
+      using op::AugMult;
+      using op::AugPow;
+      using op::AugRShift;
+      using op::AugSub;
+      using op::BitAnd;
+      using op::BitNot;
+      using op::BitOr;
+      using op::BitXor;
+      using op::Colon;
+      using op::Comma;
+      using op::Div;
+      using op::EllipsisOp;
+      using op::Eq;
+      using op::EqEq;
+      using op::FloorDiv;
+      using op::Gt;
+      using op::GtE;
+      using op::LBrc;
+      using op::LBrt;
+      using op::LPar;
+      using op::LShift;
+      using op::Lt;
+      using op::LtE;
+      using op::MatMult;
+      using op::Mod;
+      using op::Mult;
+      using op::NotEq;
+      using op::Period;
+      using op::Pow;
+      using op::RBrc;
+      using op::RBrt;
+      using op::RPar;
+      using op::RShift;
+      using op::Semi;
+      using op::StarOp;
+      using op::Sub;
+      using op::UAdd;
+      using op::USub;
+      using op::Unpack;
     } // namespace grammar
   }   // namespace library
 } // namespace chimera

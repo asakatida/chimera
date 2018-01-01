@@ -18,25 +18,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! helpers needed by all parse rules.
+//! template options for parse rules.
 
 #pragma once
-
-#include <tao/pegtl/contrib/changes.hpp>
-#include <tao/pegtl/contrib/tracer.hpp>
-
-#include "asdl/asdl.hpp"
-#include "grammar/rules.hpp"
 
 namespace chimera {
   namespace library {
     namespace grammar {
-      template <typename Rule>
-      struct ChimeraActions : Nothing<Rule> {};
-      template <typename Rule>
-      using ControlBase = Normal<Rule>;
-      template <typename... Rules>
-      using InputRule = Control<ControlBase, Action<ChimeraActions, Rules...>>;
+      template <std::uint8_t Mask = 0>
+      struct Options {
+        enum { AsyncFlow, Discard, Implicit, ImportAll, LoopFlow, ScopeFlow };
+
+        template <int... Bits>
+        constexpr static bool Get = (Mask & (... | (1 << Bits))) != 0;
+        template <int... Bits>
+        using Set = Options<(Mask | ... | (1 << Bits))>;
+        template <int... Bits>
+        using UnSet = Options<(Mask & ... & ~(1 << Bits))>;
+      };
     } // namespace grammar
   }   // namespace library
 } // namespace chimera

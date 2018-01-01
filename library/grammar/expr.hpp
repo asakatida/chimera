@@ -26,63 +26,54 @@
 #include <numeric>
 #include <type_traits>
 
-#include <tao/pegtl.hpp>
-
-#include "grammar/control.hpp"
+#include "asdl/asdl.hpp"
 #include "grammar/identifier.hpp"
 #include "grammar/keys.hpp"
 #include "grammar/number.hpp"
 #include "grammar/oper.hpp"
+#include "grammar/rules.hpp"
 #include "grammar/string.hpp"
 
 namespace chimera {
   namespace library {
     namespace grammar {
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow,
-                template <bool> typename Start,
-                template <bool, bool, bool> typename Content,
-                template <bool> typename End>
-      struct Group : IfMust<Start<true>, Content<true, AsyncFlow, ScopeFlow>,
-                            End<Implicit>> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow,
-                template <bool> typename Start,
-                template <bool, bool, bool> typename Content,
-                template <bool> typename End>
+      template <typename Option, template <typename> typename Start,
+                template <typename> typename Content,
+                template <typename> typename End>
       struct GroupOpt
-          : IfMust<Start<true>, Opt<Content<true, AsyncFlow, ScopeFlow>>,
-                   End<Implicit>> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow,
-                template <bool, bool, bool> typename Content>
-      using Paren = Group<Implicit, AsyncFlow, ScopeFlow, LPar, Content, RPar>;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow,
-                template <bool, bool, bool> typename Content>
-      using ParenOpt =
-          GroupOpt<Implicit, AsyncFlow, ScopeFlow, LPar, Content, RPar>;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow,
-                template <bool, bool, bool> typename Content>
+          : IfMust<
+                Start<typename Option::template Set<Option::Implicit>>,
+                Opt<Content<typename Option::template Set<Option::Implicit>>>,
+                End<Option>> {};
+      template <typename Option, template <typename> typename Content>
+      using Paren =
+          IfMust<LPar<typename Option::template Set<Option::Implicit>>,
+                 Content<typename Option::template Set<Option::Implicit>>,
+                 RPar<Option>>;
+      template <typename Option, template <typename> typename Content>
+      using ParenOpt = GroupOpt<Option, LPar, Content, RPar>;
+      template <typename Option, template <typename> typename Content>
       using Bracket =
-          Group<Implicit, AsyncFlow, ScopeFlow, LBrt, Content, RBrt>;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow,
-                template <bool, bool, bool> typename Content>
-      using BracketOpt =
-          GroupOpt<Implicit, AsyncFlow, ScopeFlow, LBrt, Content, RBrt>;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow,
-                template <bool, bool, bool> typename Content>
-      using Brace = Group<Implicit, AsyncFlow, ScopeFlow, LBrc, Content, RBrc>;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+          IfMust<LBrt<typename Option::template Set<Option::Implicit>>,
+                 Content<typename Option::template Set<Option::Implicit>>,
+                 RBrt<Option>>;
+      template <typename Option, template <typename> typename Content>
+      using BracketOpt = GroupOpt<Option, LBrt, Content, RBrt>;
+      template <typename Option, template <typename> typename Content>
+      using Brace =
+          IfMust<LBrc<typename Option::template Set<Option::Implicit>>,
+                 Content<typename Option::template Set<Option::Implicit>>,
+                 RBrc<Option>>;
+      template <typename Option>
       struct CompFor;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow,
-                template <bool, bool, bool> typename Elt>
-      struct CompOrCommaList : Sor<Seq<Elt<Implicit, AsyncFlow, ScopeFlow>,
-                                       CompFor<Implicit, AsyncFlow, ScopeFlow>>,
-                                   ListTail<Elt<Implicit, AsyncFlow, ScopeFlow>,
-                                            Comma<Implicit>>> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option, template <typename> typename Elt>
+      struct CompOrCommaList : Sor<Seq<Elt<Option>, CompFor<Option>>,
+                                   ListTail<Elt<Option>, Comma<Option>>> {};
+      template <typename Option>
       struct Test;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct VarargsListNameEqTest
-          : Seq<Name<Implicit>,
-                Opt<Eq<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>>> {
+          : Seq<Name<Option>, Opt<Eq<Option>, Test<Option>>> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::Name> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -101,8 +92,8 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit>
-      struct VarargsListStarName : Seq<StarOp<Implicit>, Opt<Name<Implicit>>> {
+      template <typename Option>
+      struct VarargsListStarName : Seq<StarOp<Option>, Opt<Name<Option>>> {
         struct Transform : rules::Stack<asdl::Name> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -118,9 +109,9 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit>
+      template <typename Option>
       struct VarargsListUnpackName
-          : Seq<Unpack<Implicit>, Name<Implicit>, Opt<Comma<Implicit>>> {
+          : Seq<Unpack<Option>, Name<Option>, Opt<Comma<Option>>> {
         struct Transform : rules::Stack<asdl::Name> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -133,27 +124,22 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct VarargsList
           : Sor<IfMust<
-                    VarargsListNameEqTest<Implicit, AsyncFlow, ScopeFlow>,
-                    Star<Comma<Implicit>,
-                         VarargsListNameEqTest<Implicit, AsyncFlow, ScopeFlow>>,
-                    Opt<Comma<Implicit>,
-                        Opt<Sor<
-                            IfMust<VarargsListStarName<Implicit>,
-                                   Star<Comma<Implicit>,
-                                        VarargsListNameEqTest<
-                                            Implicit, AsyncFlow, ScopeFlow>>,
-                                   Opt<Comma<Implicit>,
-                                       Opt<VarargsListUnpackName<Implicit>>>>,
-                            VarargsListUnpackName<Implicit>>>>>,
-                IfMust<
-                    VarargsListStarName<Implicit>,
-                    Star<Comma<Implicit>,
-                         VarargsListNameEqTest<Implicit, AsyncFlow, ScopeFlow>>,
-                    Opt<Comma<Implicit>, Opt<VarargsListUnpackName<Implicit>>>>,
-                VarargsListUnpackName<Implicit>> {
+                    VarargsListNameEqTest<Option>,
+                    Star<Comma<Option>, VarargsListNameEqTest<Option>>,
+                    Opt<Comma<Option>,
+                        Opt<Sor<IfMust<VarargsListStarName<Option>,
+                                       Star<Comma<Option>,
+                                            VarargsListNameEqTest<Option>>,
+                                       Opt<Comma<Option>,
+                                           Opt<VarargsListUnpackName<Option>>>>,
+                                VarargsListUnpackName<Option>>>>>,
+                IfMust<VarargsListStarName<Option>,
+                       Star<Comma<Option>, VarargsListNameEqTest<Option>>,
+                       Opt<Comma<Option>, Opt<VarargsListUnpackName<Option>>>>,
+                VarargsListUnpackName<Option>> {
         struct Transform : rules::Stack<asdl::Arguments> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -161,25 +147,22 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct StarExpr;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct TestOrStarExpr : Sor<Test<Implicit, AsyncFlow, ScopeFlow>,
-                                  StarExpr<Implicit, AsyncFlow, ScopeFlow>> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
+      struct TestOrStarExpr : Sor<Test<Option>, StarExpr<Option>> {};
+      template <typename Option>
       struct TestListStarExpr
-          : ListTail<TestOrStarExpr<Implicit, AsyncFlow, ScopeFlow>,
-                     Comma<Implicit>> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+          : ListTail<TestOrStarExpr<Option>, Comma<Option>> {};
+      template <typename Option>
       struct ExprList;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct OrTest;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct ConditionalExpression
-          : Seq<OrTest<Implicit, AsyncFlow, ScopeFlow>,
-                Opt<If<Implicit>,
-                    Must<OrTest<Implicit, AsyncFlow, ScopeFlow>, Else<Implicit>,
-                         Test<Implicit, AsyncFlow, ScopeFlow>>>> {
+          : Seq<OrTest<Option>,
+                Opt<If<Option>,
+                    Must<OrTest<Option>, Else<Option>, Test<Option>>>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -194,10 +177,11 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct LambDef : IfMust<Lambda<Implicit>,
-                              Opt<VarargsList<Implicit, AsyncFlow, ScopeFlow>>,
-                              Colon<Implicit>, Test<Implicit, false, true>> {
+      template <typename Option>
+      struct LambDef
+          : IfMust<Lambda<Option>, Opt<VarargsList<Option>>, Colon<Option>,
+                   Test<typename Option::template UnSet<
+                       Option::AsyncFlow>::template Set<Option::ScopeFlow>>> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::Arguments> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -209,14 +193,12 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Test : Sor<ConditionalExpression<Implicit, AsyncFlow, ScopeFlow>,
-                        LambDef<Implicit, AsyncFlow, ScopeFlow>> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
+      struct Test : Sor<ConditionalExpression<Option>, LambDef<Option>> {};
+      template <typename Option>
       struct LambDefNoCond;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct TestNocond : Sor<OrTest<Implicit, AsyncFlow, ScopeFlow>,
-                              LambDefNoCond<Implicit, AsyncFlow, ScopeFlow>> {
+      template <typename Option>
+      struct TestNocond : Sor<OrTest<Option>, LambDefNoCond<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -224,11 +206,11 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct LambDefNoCond
-          : IfMust<Lambda<Implicit>,
-                   Opt<VarargsList<Implicit, AsyncFlow, ScopeFlow>>,
-                   Colon<Implicit>, TestNocond<Implicit, false, true>> {
+          : IfMust<Lambda<Option>, Opt<VarargsList<Option>>, Colon<Option>,
+                   TestNocond<typename Option::template UnSet<
+                       Option::AsyncFlow>::template Set<Option::ScopeFlow>>> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::Arguments> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -240,11 +222,10 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct AndTest;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct OrTest
-          : ListMust<AndTest<Implicit, AsyncFlow, ScopeFlow>, Or<Implicit>> {
+      template <typename Option>
+      struct OrTest : ListMust<AndTest<Option>, Or<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -259,11 +240,10 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct NotTest;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct AndTest
-          : ListMust<NotTest<Implicit, AsyncFlow, ScopeFlow>, And<Implicit>> {
+      template <typename Option>
+      struct AndTest : ListMust<NotTest<Option>, And<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -278,11 +258,10 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct Comparison;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct NotTestNot
-          : IfMust<Not<Implicit>, NotTest<Implicit, AsyncFlow, ScopeFlow>> {
+      template <typename Option>
+      struct NotTestNot : IfMust<Not<Option>, NotTest<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -291,17 +270,14 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct NotTest : Sor<NotTestNot<Implicit, AsyncFlow, ScopeFlow>,
-                           Comparison<Implicit, AsyncFlow, ScopeFlow>> {};
-      template <bool Implicit>
-      struct CompOp
-          : Sor<Lt<Implicit>, Gt<Implicit>, EqEq<Implicit>, GtE<Implicit>,
-                LtE<Implicit>, NotEq<Implicit>, InOp<Implicit>, NotIn<Implicit>,
-                Is<Implicit>, IsNot<Implicit>> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct ComparisonTail
-          : IfMust<CompOp<Implicit>, Expr<Implicit, AsyncFlow, ScopeFlow>> {
+      template <typename Option>
+      struct NotTest : Sor<NotTestNot<Option>, Comparison<Option>> {};
+      template <typename Option>
+      struct CompOp : Sor<Lt<Option>, Gt<Option>, EqEq<Option>, GtE<Option>,
+                          LtE<Option>, NotEq<Option>, InOp<Option>,
+                          NotIn<Option>, Is<Option>, IsNot<Option>> {};
+      template <typename Option>
+      struct ComparisonTail : IfMust<CompOp<Option>, Expr<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::CompareExpr::Op> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -318,13 +294,10 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Comparison
-          : Seq<Expr<Implicit, AsyncFlow, ScopeFlow>,
-                Star<ComparisonTail<Implicit, AsyncFlow, ScopeFlow>>> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct StarExpr
-          : Seq<StarOp<Implicit>, Expr<Implicit, AsyncFlow, ScopeFlow>> {
+      template <typename Option>
+      struct Comparison : Seq<Expr<Option>, Star<ComparisonTail<Option>>> {};
+      template <typename Option>
+      struct StarExpr : Seq<StarOp<Option>, Expr<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -332,11 +305,10 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct XorExpr;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Expr
-          : ListMust<XorExpr<Implicit, AsyncFlow, ScopeFlow>, BitOr<Implicit>> {
+      template <typename Option>
+      struct Expr : ListMust<XorExpr<Option>, BitOr<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -351,11 +323,10 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct AndExpr;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct XorExpr : ListMust<AndExpr<Implicit, AsyncFlow, ScopeFlow>,
-                                BitXor<Implicit>> {
+      template <typename Option>
+      struct XorExpr : ListMust<AndExpr<Option>, BitXor<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -370,11 +341,10 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct ShiftExpr;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct AndExpr : ListMust<ShiftExpr<Implicit, AsyncFlow, ScopeFlow>,
-                                BitAnd<Implicit>> {
+      template <typename Option>
+      struct AndExpr : ListMust<ShiftExpr<Option>, BitAnd<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -389,11 +359,11 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct ArithExpr;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct ShiftExprTail : IfMust<Sor<LShift<Implicit>, RShift<Implicit>>,
-                                    ArithExpr<Implicit, AsyncFlow, ScopeFlow>> {
+      template <typename Option>
+      struct ShiftExprTail
+          : IfMust<Sor<LShift<Option>, RShift<Option>>, ArithExpr<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::Operator> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -406,10 +376,8 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct ShiftExpr
-          : Seq<ArithExpr<Implicit, AsyncFlow, ScopeFlow>,
-                Star<ShiftExprTail<Implicit, AsyncFlow, ScopeFlow>>> {
+      template <typename Option>
+      struct ShiftExpr : Seq<ArithExpr<Option>, Star<ShiftExprTail<Option>>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -417,11 +385,11 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct Term;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct ArithExprTail : IfMust<Sor<Add<Implicit>, Sub<Implicit>>,
-                                    Term<Implicit, AsyncFlow, ScopeFlow>> {
+      template <typename Option>
+      struct ArithExprTail
+          : IfMust<Sor<Add<Option>, Sub<Option>>, Term<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::Operator> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -434,17 +402,14 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct ArithExpr
-          : Seq<Term<Implicit, AsyncFlow, ScopeFlow>,
-                Star<ArithExprTail<Implicit, AsyncFlow, ScopeFlow>>> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
+      struct ArithExpr : Seq<Term<Option>, Star<ArithExprTail<Option>>> {};
+      template <typename Option>
       struct Factor;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct TermTail
-          : IfMust<Sor<Mult<Implicit>, MatMult<Implicit>, Div<Implicit>,
-                       Mod<Implicit>, FloorDiv<Implicit>>,
-                   Factor<Implicit, AsyncFlow, ScopeFlow>> {
+      template <typename Option>
+      struct TermTail : IfMust<Sor<Mult<Option>, MatMult<Option>, Div<Option>,
+                                   Mod<Option>, FloorDiv<Option>>,
+                               Factor<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::Operator> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -457,16 +422,15 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Term : Seq<Factor<Implicit, AsyncFlow, ScopeFlow>,
-                        Star<TermTail<Implicit, AsyncFlow, ScopeFlow>>> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
+      struct Term : Seq<Factor<Option>, Star<TermTail<Option>>> {};
+      template <typename Option>
       struct Power;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct Factor
-          : Sor<IfMust<Sor<UAdd<Implicit>, USub<Implicit>, BitNot<Implicit>>,
-                       Factor<Implicit, AsyncFlow, ScopeFlow>>,
-                Power<Implicit, AsyncFlow, ScopeFlow>> {
+          : Sor<IfMust<Sor<UAdd<Option>, USub<Option>, BitNot<Option>>,
+                       Factor<Option>>,
+                Power<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::Unary::Op> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -480,12 +444,11 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct AtomExpr;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Power : Seq<AtomExpr<Implicit, AsyncFlow, ScopeFlow>,
-                         Opt<Pow<Implicit>,
-                             Must<Factor<Implicit, AsyncFlow, ScopeFlow>>>> {
+      template <typename Option>
+      struct Power
+          : Seq<AtomExpr<Option>, Opt<Pow<Option>, Must<Factor<Option>>>> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::Operator> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -502,21 +465,17 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct Atom;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct Trailer;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct AtomExprAtomTrailer
-          : Seq<Atom<Implicit, AsyncFlow, ScopeFlow>,
-                Star<Trailer<Implicit, AsyncFlow, ScopeFlow>>> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
+      struct AtomExprAtomTrailer : Seq<Atom<Option>, Star<Trailer<Option>>> {};
+      template <typename Option>
       struct AtomExprAwait
           : std::conditional_t<
-                AsyncFlow,
-                IfMust<Await<Implicit>,
-                       AtomExprAtomTrailer<Implicit, AsyncFlow, ScopeFlow>>,
-                Failure> {
+                Option::template Get<Option::AsyncFlow>,
+                IfMust<Await<Option>, AtomExprAtomTrailer<Option>>, Failure> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -524,10 +483,9 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct AtomExpr
-          : Sor<AtomExprAwait<Implicit, AsyncFlow, ScopeFlow>,
-                AtomExprAtomTrailer<Implicit, AsyncFlow, ScopeFlow>> {
+          : Sor<AtomExprAwait<Option>, AtomExprAtomTrailer<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -535,14 +493,12 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct TestListComp;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct AtomLParRParTest
-          : Seq<Test<Implicit, AsyncFlow, ScopeFlow>, At<RPar<false>>> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct AtomLParRParTestListComp
-          : Seq<TestListComp<Implicit, AsyncFlow, ScopeFlow>> {
+      template <typename Option>
+      struct AtomLParRParTest : Seq<Test<Option>, At<RPar<Option>>> {};
+      template <typename Option>
+      struct AtomLParRParTestListComp : Seq<TestListComp<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::Comprehension> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -571,18 +527,14 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct AtomLParRParContent
-          : Sor<YieldExpr<Implicit, AsyncFlow, ScopeFlow>,
-                AtomLParRParTest<Implicit, AsyncFlow, ScopeFlow>,
-                AtomLParRParTestListComp<Implicit, AsyncFlow, ScopeFlow>,
-                EmptyTuple> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct AtomLParRPar
-          : Paren<Implicit, AsyncFlow, ScopeFlow, AtomLParRParContent> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct AtomLBrtRBrt
-          : BracketOpt<Implicit, AsyncFlow, ScopeFlow, TestListComp> {
+          : Sor<YieldExpr<Option>, AtomLParRParTest<Option>,
+                AtomLParRParTestListComp<Option>, EmptyTuple> {};
+      template <typename Option>
+      struct AtomLParRPar : Paren<Option, AtomLParRParContent> {};
+      template <typename Option>
+      struct AtomLBrtRBrt : BracketOpt<Option, TestListComp> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::Comprehension> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -603,9 +555,9 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct DictMaker;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct SetMaker;
       struct EmptyDict : Success {
         struct Transform {
@@ -615,16 +567,13 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct DictOrSetMaker
-          : Sor<DictMaker<Implicit, AsyncFlow, ScopeFlow>,
-                SetMaker<Implicit, AsyncFlow, ScopeFlow>, EmptyDict> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct AtomLBrcRBrc
-          : Brace<Implicit, AsyncFlow, ScopeFlow, DictOrSetMaker> {};
-      struct AtomNameImpl : Minus<NameImpl, Keywords> {};
-      template <bool Implicit>
-      struct AtomName : Token<Implicit, AtomNameImpl> {
+          : Sor<DictMaker<Option>, SetMaker<Option>, EmptyDict> {};
+      template <typename Option>
+      struct AtomLBrcRBrc : Brace<Option, DictOrSetMaker> {};
+      template <typename Option>
+      struct AtomName : Minus<Name<Option>, Keywords<Option>> {
         struct Transform : rules::Stack<asdl::Name> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -632,13 +581,11 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Atom : Sor<AtomLParRPar<Implicit, AsyncFlow, ScopeFlow>,
-                        AtomLBrtRBrt<Implicit, AsyncFlow, ScopeFlow>,
-                        AtomLBrcRBrc<Implicit, AsyncFlow, ScopeFlow>,
-                        STRING<Implicit, AsyncFlow, ScopeFlow>,
-                        NUMBER<Implicit>, EllipsisOp<Implicit>, None<Implicit>,
-                        True<Implicit>, False<Implicit>, AtomName<Implicit>> {
+      template <typename Option>
+      struct Atom : Sor<AtomLParRPar<Option>, AtomLBrtRBrt<Option>,
+                        AtomLBrcRBrc<Option>, STRING<Option>, NUMBER<Option>,
+                        EllipsisOp<Option>, None<Option>, True<Option>,
+                        False<Option>, AtomName<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -646,14 +593,12 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct TestListComp
-          : CompOrCommaList<Implicit, AsyncFlow, ScopeFlow, TestOrStarExpr> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
+      struct TestListComp : CompOrCommaList<Option, TestOrStarExpr> {};
+      template <typename Option>
       struct ArgList;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct TrailerLParRPar
-          : ParenOpt<Implicit, AsyncFlow, ScopeFlow, ArgList> {
+      template <typename Option>
+      struct TrailerLParRPar : ParenOpt<Option, ArgList> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::Keyword> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -673,11 +618,10 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct SubscriptList;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct TrailerLBrtRBrt
-          : Bracket<Implicit, AsyncFlow, ScopeFlow, SubscriptList> {
+      template <typename Option>
+      struct TrailerLBrtRBrt : Bracket<Option, SubscriptList> {
         struct Transform : rules::Stack<asdl::SliceImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -686,8 +630,8 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit>
-      struct TrailerPeriod : IfMust<Period<Implicit>, Name<Implicit>> {
+      template <typename Option>
+      struct TrailerPeriod : IfMust<Period<Option>, Name<Option>> {
         struct Transform : rules::Stack<asdl::Name> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -696,15 +640,13 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct Trailer : Sor<TrailerLParRPar<Implicit, AsyncFlow, ScopeFlow>,
-                           TrailerLBrtRBrt<Implicit, AsyncFlow, ScopeFlow>,
-                           TrailerPeriod<Implicit>> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
+      struct Trailer : Sor<TrailerLParRPar<Option>, TrailerLBrtRBrt<Option>,
+                           TrailerPeriod<Option>> {};
+      template <typename Option>
       struct Subscript;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct SubscriptList : ListTail<Subscript<Implicit, AsyncFlow, ScopeFlow>,
-                                      Comma<Implicit>> {
+      template <typename Option>
+      struct SubscriptList : ListTail<Subscript<Option>, Comma<Option>> {
         struct Transform : rules::Stack<asdl::SliceImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -719,9 +661,8 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct SubscriptTest
-          : Seq<Test<Implicit, AsyncFlow, ScopeFlow>, NotAt<Colon<false>>> {
+      template <typename Option>
+      struct SubscriptTest : Seq<Test<Option>, NotAt<Colon<Option>>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -729,9 +670,8 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct SubscriptStep : Seq<Colon<Implicit>, Colon<Implicit>,
-                                 Test<Implicit, AsyncFlow, ScopeFlow>> {
+      template <typename Option>
+      struct SubscriptStep : Seq<Colon<Option>, Colon<Option>, Test<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -740,10 +680,9 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct SubscriptStopStep
-          : Seq<Colon<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>,
-                Colon<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>> {
+          : Seq<Colon<Option>, Test<Option>, Colon<Option>, Test<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -753,10 +692,9 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct SubscriptStartStep
-          : Seq<Test<Implicit, AsyncFlow, ScopeFlow>, Colon<Implicit>,
-                Colon<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>> {
+          : Seq<Test<Option>, Colon<Option>, Colon<Option>, Test<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -766,11 +704,10 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct SubscriptStartStopStep
-          : Seq<Test<Implicit, AsyncFlow, ScopeFlow>, Colon<Implicit>,
-                Test<Implicit, AsyncFlow, ScopeFlow>, Colon<Implicit>,
-                Test<Implicit, AsyncFlow, ScopeFlow>> {
+          : Seq<Test<Option>, Colon<Option>, Test<Option>, Colon<Option>,
+                Test<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -781,10 +718,9 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct SubscriptStartStop
-          : Seq<Test<Implicit, AsyncFlow, ScopeFlow>, Colon<Implicit>,
-                Test<Implicit, AsyncFlow, ScopeFlow>, Opt<Colon<Implicit>>> {
+          : Seq<Test<Option>, Colon<Option>, Test<Option>, Opt<Colon<Option>>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -794,10 +730,9 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct SubscriptStop
-          : Seq<Colon<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>,
-                Opt<Colon<Implicit>>> {
+          : Seq<Colon<Option>, Test<Option>, Opt<Colon<Option>>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -806,9 +741,9 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct SubscriptStart : Seq<Opt<Test<Implicit, AsyncFlow, ScopeFlow>>,
-                                  Colon<Implicit>, Opt<Colon<Implicit>>> {
+      template <typename Option>
+      struct SubscriptStart
+          : Seq<Opt<Test<Option>>, Colon<Option>, Opt<Colon<Option>>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -821,16 +756,12 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct Subscript
-          : Sor<SubscriptTest<Implicit, AsyncFlow, ScopeFlow>,
-                SubscriptStep<Implicit, AsyncFlow, ScopeFlow>,
-                SubscriptStopStep<Implicit, AsyncFlow, ScopeFlow>,
-                SubscriptStartStep<Implicit, AsyncFlow, ScopeFlow>,
-                SubscriptStartStopStep<Implicit, AsyncFlow, ScopeFlow>,
-                SubscriptStop<Implicit, AsyncFlow, ScopeFlow>,
-                SubscriptStartStop<Implicit, AsyncFlow, ScopeFlow>,
-                SubscriptStart<Implicit, AsyncFlow, ScopeFlow>> {
+          : Sor<SubscriptTest<Option>, SubscriptStep<Option>,
+                SubscriptStopStep<Option>, SubscriptStartStep<Option>,
+                SubscriptStartStopStep<Option>, SubscriptStop<Option>,
+                SubscriptStartStop<Option>, SubscriptStart<Option>> {
         struct Transform : rules::Stack<asdl::SliceImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -838,10 +769,9 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct ExprList : ListTail<Sor<Expr<Implicit, AsyncFlow, ScopeFlow>,
-                                     StarExpr<Implicit, AsyncFlow, ScopeFlow>>,
-                                 Comma<Implicit>> {
+      template <typename Option>
+      struct ExprList
+          : ListTail<Sor<Expr<Option>, StarExpr<Option>>, Comma<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -856,9 +786,8 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct TestList
-          : ListTail<Test<Implicit, AsyncFlow, ScopeFlow>, Comma<Implicit>> {
+      template <typename Option>
+      struct TestList : ListTail<Test<Option>, Comma<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -873,9 +802,8 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct SetMaker
-          : CompOrCommaList<Implicit, AsyncFlow, ScopeFlow, TestOrStarExpr> {
+      template <typename Option>
+      struct SetMaker : CompOrCommaList<Option, TestOrStarExpr> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::Comprehension> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -896,8 +824,8 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit>
-      struct DictMakerUnpack : Unpack<Implicit> {
+      template <typename Option>
+      struct DictMakerUnpack : Unpack<Option> {
         struct Transform {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -905,9 +833,8 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct DictMakerEltStart
-          : Seq<Test<Implicit, AsyncFlow, ScopeFlow>, Colon<Implicit>> {
+      template <typename Option>
+      struct DictMakerEltStart : Seq<Test<Option>, Colon<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -915,15 +842,12 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct DictMakerElt
-          : Sor<IfMust<DictMakerUnpack<Implicit>,
-                       Expr<Implicit, AsyncFlow, ScopeFlow>>,
-                IfMust<DictMakerEltStart<Implicit, AsyncFlow, ScopeFlow>,
-                       Test<Implicit, AsyncFlow, ScopeFlow>>> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct DictMaker
-          : CompOrCommaList<Implicit, AsyncFlow, ScopeFlow, DictMakerElt> {
+          : Sor<IfMust<DictMakerUnpack<Option>, Expr<Option>>,
+                IfMust<DictMakerEltStart<Option>, Test<Option>>> {};
+      template <typename Option>
+      struct DictMaker : CompOrCommaList<Option, DictMakerElt> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::Comprehension> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -953,14 +877,12 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct Argument;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct ArgList : ListTail<Argument<Implicit, AsyncFlow, ScopeFlow>,
-                                Comma<Implicit>> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct ArgumentArg : Seq<Test<Implicit, AsyncFlow, ScopeFlow>,
-                               Opt<CompFor<Implicit, AsyncFlow, ScopeFlow>>> {
+      template <typename Option>
+      struct ArgList : ListTail<Argument<Option>, Comma<Option>> {};
+      template <typename Option>
+      struct ArgumentArg : Seq<Test<Option>, Opt<CompFor<Option>>> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::Comprehension> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -978,9 +900,8 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct ArgumentKeyword : Seq<Name<Implicit>, Eq<Implicit>,
-                                   Test<Implicit, AsyncFlow, ScopeFlow>> {
+      template <typename Option>
+      struct ArgumentKeyword : Seq<Name<Option>, Eq<Option>, Test<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::Name> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -990,9 +911,8 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct ArgumentKeywordUnpack
-          : IfMust<Unpack<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>> {
+      template <typename Option>
+      struct ArgumentKeywordUnpack : IfMust<Unpack<Option>, Test<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -1000,9 +920,8 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct ArgumentArgUnpack
-          : IfMust<StarOp<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>> {
+      template <typename Option>
+      struct ArgumentArgUnpack : IfMust<StarOp<Option>, Test<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -1010,12 +929,10 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct Argument
-          : Sor<ArgumentKeywordUnpack<Implicit, AsyncFlow, ScopeFlow>,
-                ArgumentArgUnpack<Implicit, AsyncFlow, ScopeFlow>,
-                ArgumentKeyword<Implicit, AsyncFlow, ScopeFlow>,
-                ArgumentArg<Implicit, AsyncFlow, ScopeFlow>> {
+          : Sor<ArgumentKeywordUnpack<Option>, ArgumentArgUnpack<Option>,
+                ArgumentKeyword<Option>, ArgumentArg<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::Keyword> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -1023,9 +940,8 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct CompIf
-          : IfMust<If<Implicit>, TestNocond<Implicit, AsyncFlow, ScopeFlow>> {
+      template <typename Option>
+      struct CompIf : IfMust<If<Option>, TestNocond<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -1034,13 +950,12 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct CompForAsync
           : std::conditional_t<
-                AsyncFlow,
-                IfMust<Async<Implicit>, For<Implicit>,
-                       ExprList<Implicit, AsyncFlow, ScopeFlow>, In<Implicit>,
-                       OrTest<Implicit, AsyncFlow, ScopeFlow>>,
+                Option::template Get<Option::AsyncFlow>,
+                IfMust<Async<Option>, For<Option>, ExprList<Option>, In<Option>,
+                       OrTest<Option>>,
                 Failure> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
@@ -1051,10 +966,9 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct CompForSync
-          : IfMust<For<Implicit>, ExprList<Implicit, AsyncFlow, ScopeFlow>,
-                   In<Implicit>, OrTest<Implicit, AsyncFlow, ScopeFlow>> {
+          : IfMust<For<Option>, ExprList<Option>, In<Option>, OrTest<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -1064,21 +978,35 @@ namespace chimera {
           }
         };
       };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct CompFor
-          : Seq<Sor<CompForAsync<Implicit, AsyncFlow, ScopeFlow>,
-                    CompForSync<Implicit, AsyncFlow, ScopeFlow>>,
-                Star<Sor<CompForAsync<Implicit, AsyncFlow, ScopeFlow>,
-                         CompForSync<Implicit, AsyncFlow, ScopeFlow>,
-                         CompIf<Implicit, AsyncFlow, ScopeFlow>>>> {};
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct YieldArg;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct YieldExpr : std::conditional_t<
-                             ScopeFlow || AsyncFlow,
-                             Seq<Yield<Implicit>,
-                                 Opt<YieldArg<Implicit, AsyncFlow, ScopeFlow>>>,
-                             Failure> {
+      template <typename Option>
+      struct CompFor : Seq<Sor<CompForAsync<Option>, CompForSync<Option>>,
+                           Star<Sor<CompForAsync<Option>, CompForSync<Option>,
+                                    CompIf<Option>>>> {};
+      template <typename Option>
+      struct YieldArgFrom : IfMust<From<Option>, Test<Option>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(asdl::ExprImpl{asdl::YieldFrom{pop<asdl::ExprImpl>()}});
+          }
+        };
+      };
+      template <typename Option>
+      struct YieldArgTestList : Seq<TestList<Option>> {
+        struct Transform : rules::Stack<asdl::ExprImpl> {
+          template <typename Outer>
+          void success(Outer &&outer) {
+            outer.push(asdl::ExprImpl{asdl::Yield{pop<asdl::ExprImpl>()}});
+          }
+        };
+      };
+      template <typename Option>
+      struct YieldArg : Sor<YieldArgFrom<Option>, YieldArgTestList<Option>> {};
+      template <typename Option>
+      struct YieldExpr
+          : std::conditional_t<
+                Option::template Get<Option::AsyncFlow, Option::ScopeFlow>,
+                Seq<Yield<Option>, Opt<YieldArg<Option>>>, Failure> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -1089,29 +1017,6 @@ namespace chimera {
             }
           }
         };
-      };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct YieldArgFrom
-          : IfMust<From<Implicit>, Test<Implicit, AsyncFlow, ScopeFlow>> {
-        struct Transform : rules::Stack<asdl::ExprImpl> {
-          template <typename Outer>
-          void success(Outer &&outer) {
-            outer.push(asdl::ExprImpl{asdl::YieldFrom{pop<asdl::ExprImpl>()}});
-          }
-        };
-      };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct YieldArgTestList : Seq<TestList<Implicit, AsyncFlow, ScopeFlow>> {
-        struct Transform : rules::Stack<asdl::ExprImpl> {
-          template <typename Outer>
-          void success(Outer &&outer) {
-            outer.push(asdl::ExprImpl{asdl::Yield{pop<asdl::ExprImpl>()}});
-          }
-        };
-      };
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
-      struct YieldArg : Sor<YieldArgFrom<Implicit, AsyncFlow, ScopeFlow>,
-                            YieldArgTestList<Implicit, AsyncFlow, ScopeFlow>> {
       };
     } // namespace grammar
   }   // namespace library

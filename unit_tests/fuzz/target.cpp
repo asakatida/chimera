@@ -8,15 +8,13 @@
 #include <tao/pegtl.hpp>
 
 #include "asdl/asdl.hpp"
-#include "grammar/grammar.hpp"
 #include "options.hpp"
-#include "parse.hpp"
 #include "virtual_machine/virtual_machine.hpp"
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-  chimera::Options options;
+  chimera::library::Options options;
   options.chimera = "chimera";
   options.script = "fuzzer.py";
   chimera::library::object::Object builtins;
@@ -38,10 +36,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   std::istringstream in(
       std::string(reinterpret_cast<const char *>(data), size));
   try {
-    Ensures(tao::pegtl::parse<chimera::library::grammar::FileInput>(
-        chimera::library::grammar::Input<tao::pegtl::istream_input<>>(in, size,
-                                                                      "<fuzz>"),
-        processContext, module));
+    module = processContext.parse_file(&in, "<fuzz>");
   } catch (const tao::pegtl::parse_error &) {
     success = false;
   }

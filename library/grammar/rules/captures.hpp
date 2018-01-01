@@ -32,57 +32,57 @@ namespace chimera {
   namespace library {
     namespace grammar {
       namespace rules {
-        template <typename... Types>
-        using UniqueStack = metal::invoke<metal::lambda<Stack>, Set<Types...>>;
-        template <typename... Types>
-        struct ForwardCapture : UniqueStack<Types...> {
-          template <typename Outer>
-          void success(Outer && /*outer*/) {
-            //   outer.push(reshape<Types...>());
-          }
-        };
-        template <typename Type>
-        struct ForwardCapture<Type> : UniqueStack<Type> {
-          template <typename Outer>
-          void success(Outer && /*outer*/) {
-            //   outer.push(reshape<Types...>());
-          }
-        };
-        template <typename Type>
-        struct OptionalCapture : UniqueStack<Type> {
-          template <typename Outer>
-          void success(Outer && /*outer*/) {
-            //   if (has_value()) {
-            //     std::visit(outer, pop());
-            //   } else {
-            //     outer.push(std::optional<Type>{});
-            //   }
-          }
-        };
-        template <typename... Types>
-        struct ReshapeCapture : UniqueStack<Types...> {
-          template <typename Outer>
-          void success(Outer && /*outer*/) {
-            //   outer.push(reshape<Types...>());
-          }
-        };
-        template <typename... Types>
-        struct VariantCapture : UniqueStack<Types...> {
-          template <typename Outer>
-          void success(Outer && /*outer*/) {
-            //   std::visit(outer, pop());
-          }
-        };
-        template <typename Type>
-        struct VectorCapture : UniqueStack<Type> {
-          template <typename Outer>
-          void success(Outer && /*outer*/) {
-            //   std::vector<Type> vector;
-            //   vector.reserve(size());
-            //   transform<Type>(std::back_inserter(vector));
-            //   outer.push(std::move(vector));
-          }
-        };
+        // template <typename... Types>
+        // using UniqueStack = metal::invoke<metal::lambda<Stack>,
+        // Set<Types...>>; template <typename... Types> struct ForwardCapture :
+        // Stack<Types...> {
+        //   template <typename Outer>
+        //   void success(Outer && outer) {
+        //       outer.push(reshape<Types...>());
+        //   }
+        // };
+        // template <typename Type>
+        // struct ForwardCapture<Type> : Stack<Type> {
+        //   template <typename Outer>
+        //   void success(Outer && outer) {
+        //       outer.push(reshape<Types...>());
+        //   }
+        // };
+        // template <typename Type>
+        // struct OptionalCapture : Stack<Type> {
+        //   template <typename Outer>
+        //   void success(Outer && outer) {
+        //       if (has_value()) {
+        //         std::visit(outer, pop());
+        //       } else {
+        //         outer.push(std::optional<Type>{});
+        //       }
+        //   }
+        // };
+        // template <typename... Types>
+        // struct ReshapeCapture : Stack<Types...> {
+        //   template <typename Outer>
+        //   void success(Outer && outer) {
+        //       outer.push(reshape<Types...>());
+        //   }
+        // };
+        // template <typename... Types>
+        // struct VariantCapture : Stack<Types...> {
+        //   template <typename Outer>
+        //   void success(Outer && outer) {
+        //       std::visit(outer, pop());
+        //   }
+        // };
+        // template <typename Type>
+        // struct VectorCapture : Stack<Type> {
+        //   template <typename Outer>
+        //   void success(Outer && outer) {
+        //       std::vector<Type> vector;
+        //       vector.reserve(size());
+        //       transform<Type>(std::back_inserter(vector));
+        //       outer.push(std::move(vector));
+        //   }
+        // };
       } // namespace rules
     }   // namespace grammar
   }     // namespace library
