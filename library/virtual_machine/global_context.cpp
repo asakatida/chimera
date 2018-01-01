@@ -29,10 +29,8 @@
 #include <tao/pegtl.hpp>
 
 #include "asdl/asdl.hpp" // for Module
-#include "grammar/grammar.hpp"
 #include "object/object.hpp"
 #include "options.hpp" // for Options
-#include "parse.hpp"
 #include "virtual_machine/process_context.hpp"
 #include "virtual_machine/thread_context.hpp"
 #include "virtual_machine/virtual_machine.hpp" // for VirtualMachine
@@ -49,48 +47,32 @@ namespace chimera {
                        "for more information.\n";
         }
         ProcessContext processContext{*this};
-        grammar::Input<tao::pegtl::istream_input<>> input(std::cin, BUFFER_SIZE,
-                                                          "<string>");
         auto main = processContext.make_module("__main__");
         while (!std::cin.eof()) {
           std::cout << ">>> ";
-          asdl::Interactive interactive;
-          parse<grammar::SingleInput>(options, input, processContext,
-                                      interactive);
+          auto interactive = processContext.parse_input(&std::cin, "<string>");
           ThreadContext{processContext, main}.evaluate(interactive);
         }
         return 0;
       }
       int GlobalContext::execute_script() {
         std::ifstream input(options.script);
-        asdl::Module module;
         ProcessContext processContext{*this};
-        parse<grammar::FileInput>(options,
-                                  grammar::Input<tao::pegtl::istream_input<>>(
-                                      input, BUFFER_SIZE, options.script),
-                                  processContext, module);
+        auto module = processContext.parse_file(&input, options.script);
         ThreadContext{processContext, processContext.make_module("__main__")}
             .evaluate(module);
         return 0;
       }
       int GlobalContext::execute_script_string() {
-        asdl::Module module;
         ProcessContext processContext{*this};
-        parse<grammar::FileInput>(options,
-                                  grammar::Input<tao::pegtl::memory_input<>>(
-                                      options.command, "<string>"),
-                                  processContext, module);
+        auto module = processContext.parse_file(options.command, "<string>");
         ThreadContext{processContext, processContext.make_module("__main__")}
             .evaluate(module);
         return 0;
       }
       int GlobalContext::execute_script_input() {
-        asdl::Module module;
         ProcessContext processContext{*this};
-        parse<grammar::FileInput>(options,
-                                  grammar::Input<tao::pegtl::istream_input<>>(
-                                      std::cin, BUFFER_SIZE, "<input>"),
-                                  processContext, module);
+        auto module = processContext.parse_file(&std::cin, "<input>");
         ThreadContext{processContext, processContext.make_module("__main__")}
             .evaluate(module);
         return 0;

@@ -61,7 +61,7 @@ namespace chimera {
         using String = tao::pegtl::utf8::string<Chars...>;
 
         using Digit = Range<'0', '9'>;
-        using Ellipsis = tao::pegtl::seq<One<'.'>, One<'.'>, One<'.'>>;
+        using Ellipsis = String<'.', '.', '.'>;
         using Eof = tao::pegtl::eof;
         using Eol = tao::pegtl::sor<String<'\r', '\n'>, One<'\r'>, One<'\n'>>;
         using Eolf = tao::pegtl::sor<Eof, Eol>;

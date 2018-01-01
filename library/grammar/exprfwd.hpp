@@ -26,11 +26,11 @@
 namespace chimera {
   namespace library {
     namespace grammar {
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct ConditionalExpression;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct Expr;
-      template <bool Implicit, bool AsyncFlow, bool ScopeFlow>
+      template <typename Option>
       struct YieldExpr;
     } // namespace grammar
   }   // namespace library

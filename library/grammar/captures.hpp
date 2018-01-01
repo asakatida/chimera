@@ -28,11 +28,9 @@
 namespace chimera {
   namespace library {
     namespace grammar {
-      struct ArgumentsCapture
-          : Stack<std::optional<asdl::Arg>, std::vector<asdl::Arg>>,
-            ReshapeCapture<asdl::Arguments, std::vector<Arg>,
-                           std::optional<Arg>, std::vector<Arg>,
-                           std::optional<Arg>> {};
+      using ArgumentsCapture =
+          ReshapeCapture<asdl::Arguments, std::vector<Arg>, std::optional<Arg>,
+                         std::vector<Arg>, std::optional<Arg>>{};
       using ExcepthandlerCapture = VariantCapture<asdl::ExceptHandler>;
       using OptionalArgCapture = OptionalCapture<asdl::Arg>;
       using OptionalDocStringCapture = OptionalCapture<asdl::DocString>;

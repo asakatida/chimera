@@ -69,20 +69,6 @@ namespace chimera {
         }
         return {};
       }
-      Object Object::get_attribute(std::string &&key) {
-        try {
-          return object->attributes.at(key);
-        } catch (...) {
-        }
-        return {};
-      }
-      Object Object::get_attribute(const std::string &key) {
-        try {
-          return object->attributes.at(key);
-        } catch (...) {
-        }
-        return {};
-      }
       bool Object::has_attribute(std::string &&key) const noexcept {
         return object->attributes.count(key) != 0;
       }

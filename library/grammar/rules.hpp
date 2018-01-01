@@ -18,13 +18,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! tao::pegtl::* wrappers to control stack specialization
+//! expose ::rules::* for easy use.
 
 #pragma once
-
-#include <metal.hpp>
-#include <tao/pegtl.hpp>
-#include <tao/pegtl/contrib/rep_one_min_max.hpp>
 
 #include "grammar/rules/rules.hpp"
 
@@ -43,6 +39,7 @@ namespace chimera {
       using rules::Eolf;
       using rules::Failure;
       using rules::IfMust;
+      using rules::IfThenElse;
       using rules::List;
       using rules::ListMust;
       using rules::ListTail;
@@ -69,7 +66,6 @@ namespace chimera {
       using rules::Success;
       using rules::Until;
       using rules::Xdigit;
-      using tao::pegtl::if_then_else;
     } // namespace grammar
   }   // namespace library
 } // namespace chimera

@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <iostream>
 #include <map>
 #include <optional>
 #include <string>
@@ -47,6 +48,14 @@ namespace chimera {
         asdl::Constant insert_constant(object::Bytes &&bytes);
         asdl::Constant insert_constant(object::Number &&number);
         asdl::Constant insert_constant(object::String &&string);
+
+        asdl::Module parse_file(const std::string_view &data,
+                                const char *source);
+        asdl::Module parse_file(std::istream *input, const char *source);
+
+        asdl::Interactive parse_input(const std::string_view &data,
+                                      const char *source);
+        asdl::Interactive parse_input(std::istream *input, const char *source);
 
         const GlobalContext &global_context;
         GarbageCollector garbage_collector{};

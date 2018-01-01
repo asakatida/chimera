@@ -18,31 +18,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! wrapper for tao::pegtl::parse
+//! template options for parse rules.
 
 #pragma once
 
-#include <gsl/gsl>
-#include <tao/pegtl.hpp>
-
-#include "asdl/asdl.hpp"
-#include "grammar/grammar.hpp"
-#include "options.hpp"
-
 namespace chimera {
-  static const std::uint16_t BUFFER_SIZE =
-      std::numeric_limits<std::uint16_t>::max();
+  namespace library {
+    namespace grammar {
+      template <std::uint8_t Mask = 0>
+      struct Options {
+        enum { AsyncFlow, Discard, Implicit, ImportAll, LoopFlow, ScopeFlow };
 
-  template <typename Syntax, typename... Args>
-  void parse(const Options &options, Args &&... args) {
-    Ensures(tao::pegtl::parse<Syntax>(std::forward<Args>(args)...));
-    switch (options.optimize) {
-      case Optimize::NONE:
-        break;
-      case Optimize::BASIC:
-        break;
-      case Optimize::DISCARD_DOCS:
-        break;
-    }
-  }
+        template <int... Bits>
+        constexpr static bool Get = (Mask & (... | (1 << Bits))) != 0;
+        template <int... Bits>
+        using Set = Options<(Mask | ... | (1 << Bits))>;
+        template <int... Bits>
+        using UnSet = Options<(Mask & ... & ~(1 << Bits))>;
+      };
+    } // namespace grammar
+  }   // namespace library
 } // namespace chimera

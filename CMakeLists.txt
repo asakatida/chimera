@@ -24,7 +24,6 @@ add_library(
   library/grammar/rules/set.hpp
   library/grammar/rules/stack.hpp
   library/grammar/captures.hpp
-  library/grammar/control.hpp
   library/grammar/expr.hpp
   library/grammar/exprfwd.hpp
   library/grammar/grammar.hpp
@@ -33,6 +32,7 @@ add_library(
   library/grammar/keys.hpp
   library/grammar/number.hpp
   library/grammar/oper.hpp
+  library/grammar/options.hpp
   library/grammar/rules.hpp
   library/grammar/stmt.hpp
   library/grammar/string.hpp
@@ -100,6 +100,7 @@ add_library(
   library/virtual_machine/get_evaluator.hpp
   library/virtual_machine/global_context.cpp
   library/virtual_machine/global_context.hpp
+  library/virtual_machine/parse_file.cpp
   library/virtual_machine/process_context.cpp
   library/virtual_machine/process_context.hpp
   library/virtual_machine/push_stack.cpp
@@ -119,7 +120,6 @@ add_library(
   library/virtual_machine/virtual_machine.cpp
   library/virtual_machine/virtual_machine.hpp
   library/options.hpp
-  library/parse.hpp
   library/version.hpp)
 
 target_include_directories(libchimera PUBLIC library include)
