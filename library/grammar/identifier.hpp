@@ -22,10 +22,8 @@
 
 #pragma once
 
-#include <tao/pegtl.hpp>
-
 #include "asdl/asdl.hpp"
-#include "grammar/control.hpp"
+#include "grammar/rules.hpp"
 #include "grammar/utf8_id_continue.hpp"
 #include "grammar/utf8_id_start.hpp"
 #include "grammar/whitespace.hpp"
@@ -33,19 +31,23 @@
 namespace chimera {
   namespace library {
     namespace grammar {
-      struct XidStart : Seq<Utf8IdStart> {};
-      struct XidContinue : Sor<Utf8IdStart, Utf8IdContinue> {};
-      struct NameImpl : Seq<XidStart, Star<XidContinue>> {};
-      template <>
-      struct ChimeraActions<NameImpl> {
-        template <typename Input, typename ProcessContext, typename Stack>
-        static void apply(const Input &in, ProcessContext && /*processContext*/,
-                          Stack &&stack) {
-          stack.push(asdl::Name{in.string()});
-        }
-      };
-      template <bool Implicit>
-      struct Name : Token<Implicit, NameImpl> {};
+      namespace name {
+        using XidStart = Seq<Utf8IdStart>;
+        using XidContinue = Sor<Utf8IdStart, Utf8IdContinue>;
+        struct Name : Seq<XidStart, Star<XidContinue>> {};
+        template <typename Rule>
+        struct NameActions : Nothing<Rule> {};
+        template <>
+        struct NameActions<Name> {
+          template <typename Input, typename Stack, typename... Args>
+          static void apply(const Input &in, Stack &&stack,
+                            const Args &... /*args*/) {
+            stack.push(asdl::Name{in.string()});
+          }
+        };
+      }; // namespace name
+      template <typename Option>
+      using Name = Token<Option, Action<name::NameActions, name::Name>>;
     } // namespace grammar
   }   // namespace library
 } // namespace chimera

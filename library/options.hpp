@@ -27,32 +27,34 @@
 #include <gsl/gsl>
 
 namespace chimera {
-  enum class BytesCompare { NONE, WARN, ERROR };
-  enum class Optimize { NONE, BASIC, DISCARD_DOCS };
-  enum class VerboseInit { NONE, LOAD, SEARCH };
-  struct Options {
-    bool debug = false;
-    bool disable_site = false;
-    bool dont_add_site = false;
-    bool dont_display_copyright = false;
-    bool dont_write_byte_code = false;
-    bool ignore_environment = false;
-    bool interactive = false;
-    bool isolated_mode = false;
-    bool skip_first_line = false;
-    bool unbuffered_output = false;
+  namespace library {
+    enum class BytesCompare { NONE, WARN, ERROR };
+    enum class Optimize { NONE, BASIC, DISCARD_DOCS };
+    enum class VerboseInit { NONE, LOAD, SEARCH };
+    struct Options {
+      bool debug = false;
+      bool disable_site = false;
+      bool dont_add_site = false;
+      bool dont_display_copyright = false;
+      bool dont_write_byte_code = false;
+      bool ignore_environment = false;
+      bool interactive = false;
+      bool isolated_mode = false;
+      bool skip_first_line = false;
+      bool unbuffered_output = false;
 
-    BytesCompare bytes_compare = BytesCompare::NONE;
-    Optimize optimize = Optimize::NONE;
-    VerboseInit verbose_init = VerboseInit::NONE;
+      BytesCompare bytes_compare = BytesCompare::NONE;
+      Optimize optimize = Optimize::NONE;
+      VerboseInit verbose_init = VerboseInit::NONE;
 
-    gsl::span<const char *> argv{};
-    std::vector<const char *> extensions{};
-    std::vector<const char *> warnings{};
+      gsl::span<const char *> argv{};
+      std::vector<const char *> extensions{};
+      std::vector<const char *> warnings{};
 
-    const char *chimera = nullptr;
-    const char *command = nullptr;
-    const char *module_name = nullptr;
-    const char *script = nullptr;
-  };
+      const char *chimera = nullptr;
+      const char *command = nullptr;
+      const char *module_name = nullptr;
+      const char *script = nullptr;
+    };
+  } // namespace library
 } // namespace chimera

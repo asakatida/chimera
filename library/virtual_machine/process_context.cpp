@@ -22,18 +22,17 @@
 
 #include "virtual_machine/process_context.hpp"
 
-#include <csignal>     // for signal
-#include <exception>   // for exception
-#include <fstream>     // for ifstream
+#include <csignal>   // for signal
+#include <exception> // for exception
+#include <fstream>   // for ifstream
+#include <iostream>
 #include <string>      // for string
 #include <string_view> // for string_view
 
 #include <gsl/gsl>
 
 #include "asdl/asdl.hpp" // for ExprImpl (ptr only), StmtImp...
-#include "grammar/grammar.hpp"
 #include "options.hpp"
-#include "parse.hpp"
 #include "virtual_machine/builtins.hpp" // for init
 #include "virtual_machine/evaluator.hpp"
 #include "virtual_machine/modules/marshal.hpp"
@@ -136,20 +135,15 @@ namespace chimera {
         if (global_context.options.verbose_init == VerboseInit::SEARCH) {
           std::cout << path << module << '\n';
         }
-        if (std::ifstream ifstream(std::string(path).append(module),
+        auto source = std::string(path).append(module);
+        if (std::ifstream ifstream(source,
                                    std::iostream::in | std::iostream::binary);
             ifstream.is_open() && ifstream.good()) {
           if (global_context.options.verbose_init == VerboseInit::LOAD) {
             std::cout << path << module << '\n';
           }
           std::cerr << path << module << '\n';
-          asdl::Module importModule;
-          parse<grammar::FileInput>(
-              global_context.options,
-              grammar::Input<tao::pegtl::istream_input<>>(
-                  ifstream, BUFFER_SIZE, std::string(path).append(module)),
-              *this, importModule);
-          return importModule;
+          return parse_file(&ifstream, source.c_str());
         }
         return {};
       }

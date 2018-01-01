@@ -24,25 +24,20 @@
 
 #include <algorithm>
 
-#include <tao/pegtl.hpp>
-
-#include "grammar/control.hpp"
+#include "asdl/asdl.hpp"
 #include "grammar/expr.hpp"
+#include "grammar/input.hpp"
+#include "grammar/options.hpp"
+#include "grammar/rules.hpp"
 #include "grammar/stmt.hpp"
 
 namespace chimera {
   namespace library {
     namespace grammar {
-      template <bool Implicit = false, bool AsyncFlow = false,
-                bool LoopFlow = false, bool ScopeFlow = false,
-                bool ImportAll = true>
-      struct SingleInputImpl
-          : Sor<NEWLINE,
-                IfMust<CompoundStmt<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
-                                    ImportAll>,
-                       NEWLINE>,
-                Must<SimpleStmt<Implicit, AsyncFlow, LoopFlow, ScopeFlow,
-                                ImportAll>>> {
+      template <typename Option = Options<>::Set<Options<>::ImportAll>>
+      struct SingleInput
+          : Sor<NEWLINE<Option>, IfMust<CompoundStmt<Option>, NEWLINE<Option>>,
+                Must<SimpleStmt<Option>>> {
         struct Transform : rules::Stack<asdl::StmtImpl> {
           template <typename Top>
           void success(Top &&top) {
@@ -51,13 +46,9 @@ namespace chimera {
           }
         };
       };
-      using SingleInput = InputRule<SingleInputImpl<>>;
-      template <bool Implicit = false, bool AsyncFlow = false,
-                bool LoopFlow = false, bool ScopeFlow = false,
-                bool ImportAll = true>
-      struct FileInputImpl : Must<Opt<NEWLINE>, Opt<DocString<Implicit>>,
-                                  Until<Eof, Stmt<Implicit, AsyncFlow, LoopFlow,
-                                                  ScopeFlow, ImportAll>>> {
+      template <typename Option = Options<>::Set<Options<>::ImportAll>>
+      struct FileInput : Must<Opt<NEWLINE<Option>>, Opt<DocString<Option>>,
+                              Until<Eof, Stmt<Option>>> {
         struct Transform : rules::Stack<asdl::DocString, asdl::StmtImpl> {
           template <typename Top>
           void success(Top &&top) {
@@ -72,11 +63,8 @@ namespace chimera {
           }
         };
       };
-      using FileInput = InputRule<FileInputImpl<>>;
-      template <bool Implicit = false, bool AsyncFlow = false,
-                bool ScopeFlow = false>
-      struct EvalInputImpl
-          : Must<TestList<Implicit, AsyncFlow, ScopeFlow>, Opt<NEWLINE>, Eof> {
+      template <typename Option = Options<>>
+      struct EvalInput : Must<TestList<Option>, Opt<NEWLINE<Option>>, Eof> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Top>
           void success(Top &&top) {
@@ -91,7 +79,6 @@ namespace chimera {
           }
         };
       };
-      using EvalInput = InputRule<EvalInputImpl<>>;
     } // namespace grammar
   }   // namespace library
 } // namespace chimera
