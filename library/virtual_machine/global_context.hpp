@@ -23,7 +23,6 @@
 #pragma once
 
 #include <atomic> // for atomic_flag
-#include <cstdint>
 
 #include "object/object.hpp"
 #include "options.hpp"
