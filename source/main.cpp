@@ -20,8 +20,6 @@
 
 //! main interpreter start
 
-#include <atomic>  // for atomic_flag
-#include <csignal> // for signal
 #include <iostream>
 #include <iterator> // for distance
 #include <stdexcept>
@@ -31,15 +29,9 @@
 
 #include "object/object.hpp"
 #include "version.hpp"
-#include "virtual_machine/virtual_machine.hpp" // for GlobalContext
+#include "virtual_machine/virtual_machine.hpp"
 
 using namespace std::literals;
-
-static std::atomic_flag SIG_INT;
-
-extern "C" void interupt_handler(int signal);
-
-extern "C" void interupt_handler(int /*signal*/) { SIG_INT.clear(); }
 
 namespace chimera {
   namespace library {
@@ -74,8 +66,6 @@ namespace chimera {
       std::cerr.exceptions(std::ios_base::failbit | std::ios_base::badbit);
       std::cin.exceptions(std::ios_base::failbit | std::ios_base::badbit);
       std::cout.exceptions(std::ios_base::failbit | std::ios_base::badbit);
-      SIG_INT.test_and_set();
-      std::signal(SIGINT, interupt_handler);
       try {
         try {
           Options options{};
@@ -93,39 +83,13 @@ namespace chimera {
             if (*argChar != '-') {
               options.script = *arg;
               options.argv = forward_args(std::next(arg), args.end());
-              builtins.set_attribute("__debug__"s,
-                                     options.debug
-                                         ? builtins.get_attribute("True")
-                                         : builtins.get_attribute("False"));
-              return virtual_machine::GlobalContext{
-                  options, builtins,
-                  builtins.get_attribute("type")
-                      .get_attribute("__dir__")
-                      .get_attribute("__class__")
-                      .id(),
-                  builtins.get_attribute("compile")
-                      .get_attribute("__class__")
-                      .id(),
-                  &SIG_INT}
-                  .execute_script();
+              return virtual_machine::VirtualMachine(options, builtins)
+                  .global_context.execute_script();
             }
             if (argCStr.length() == 1) {
               options.argv = forward_args(std::next(arg), args.end());
-              builtins.set_attribute("__debug__"s,
-                                     options.debug
-                                         ? builtins.get_attribute("True")
-                                         : builtins.get_attribute("False"));
-              return virtual_machine::GlobalContext{
-                  options, builtins,
-                  builtins.get_attribute("type")
-                      .get_attribute("__dir__")
-                      .get_attribute("__class__")
-                      .id(),
-                  builtins.get_attribute("compile")
-                      .get_attribute("__class__")
-                      .id(),
-                  &SIG_INT}
-                  .execute_script_input();
+              return virtual_machine::VirtualMachine(options, builtins)
+                  .global_context.execute_script_input();
             }
             ++argChar;
             if (*argChar == '-') {
@@ -167,21 +131,8 @@ namespace chimera {
                       options.command = *arg;
                     }
                     options.argv = forward_args(std::next(arg), args.end());
-                    builtins.set_attribute(
-                        "__debug__"s, options.debug
-                                          ? builtins.get_attribute("True")
-                                          : builtins.get_attribute("False"));
-                    return virtual_machine::GlobalContext{
-                        options, builtins,
-                        builtins.get_attribute("type")
-                            .get_attribute("__dir__")
-                            .get_attribute("__class__")
-                            .id(),
-                        builtins.get_attribute("compile")
-                            .get_attribute("__class__")
-                            .id(),
-                        &SIG_INT}
-                        .execute_script_string();
+                    return virtual_machine::VirtualMachine(options, builtins)
+                        .global_context.execute_script_string();
                   case 'd':
                     options.debug = true;
                     break;
@@ -207,21 +158,8 @@ namespace chimera {
                       options.module_name = *arg;
                     }
                     options.argv = forward_args(std::next(arg), args.end());
-                    builtins.set_attribute(
-                        "__debug__"s, options.debug
-                                          ? builtins.get_attribute("True")
-                                          : builtins.get_attribute("False"));
-                    return virtual_machine::GlobalContext{
-                        options, builtins,
-                        builtins.get_attribute("type")
-                            .get_attribute("__dir__")
-                            .get_attribute("__class__")
-                            .id(),
-                        builtins.get_attribute("compile")
-                            .get_attribute("__class__")
-                            .id(),
-                        &SIG_INT}
-                        .execute_module();
+                    return virtual_machine::VirtualMachine(options, builtins)
+                        .global_context.execute_module();
                   case 'O':
                     options.optimize = options.optimize == Optimize::NONE
                                            ? Optimize::BASIC
@@ -286,18 +224,8 @@ namespace chimera {
               }
             }
           }
-          builtins.set_attribute(
-              "__debug__"s, options.debug ? builtins.get_attribute("True")
-                                          : builtins.get_attribute("False"));
-          return virtual_machine::GlobalContext{
-              options, builtins,
-              builtins.get_attribute("type")
-                  .get_attribute("__dir__")
-                  .get_attribute("__class__")
-                  .id(),
-              builtins.get_attribute("compile").get_attribute("__class__").id(),
-              &SIG_INT}
-              .interactive();
+          return virtual_machine::VirtualMachine(options, builtins)
+              .global_context.interactive();
         } catch (const std::exception &error) {
           std::cerr << error.what() << std::endl;
           return 1;

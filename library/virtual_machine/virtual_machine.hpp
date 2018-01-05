@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <atomic> // for atomic_flag
 #include <map>
 #include <string>
 #include <string_view>
@@ -32,15 +33,26 @@
 #include "object/object.hpp"
 #include "options.hpp"
 #include "virtual_machine/builtins.hpp"
+#include "virtual_machine/global_context.hpp"
 #include "virtual_machine/modules/marshal.hpp"
 #include "virtual_machine/modules/sys.hpp"
 #include "virtual_machine/process_context.hpp"
 #include "virtual_machine/thread_context.hpp"
 
+static std::atomic_flag SIG_INT;
+
+extern "C" void interupt_handler(int signal);
+
 namespace chimera {
   namespace library {
     namespace virtual_machine {
-      struct VirtualMachine {};
+      struct VirtualMachine {
+        VirtualMachine(Options options, object::Object builtins);
+
+        ProcessContext process_context() const;
+
+        GlobalContext global_context;
+      };
     } // namespace virtual_machine
   }   // namespace library
 } // namespace chimera

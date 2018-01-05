@@ -22,7 +22,6 @@
 //! Then prints the module construction.
 
 #include <algorithm>
-#include <atomic> // for atomic_flag
 #include <iomanip>
 #include <iostream>
 #include <map>
@@ -363,18 +362,8 @@ namespace chimera {
     static void main() {
       object::Object builtins;
       virtual_machine::modules::init(builtins);
-      std::atomic_flag sigInt{};
-      sigInt.test_and_set();
-      virtual_machine::GlobalContext globalContext{
-          {},
-          builtins,
-          builtins.get_attribute("type")
-              .get_attribute("__dir__")
-              .get_attribute("__class__")
-              .id(),
-          builtins.get_attribute("compile").get_attribute("__class__").id(),
-          &sigInt};
-      virtual_machine::ProcessContext processContext{globalContext};
+      virtual_machine::VirtualMachine virtualMachine({}, builtins);
+      auto processContext = virtualMachine.process_context();
       auto module = processContext.parse_file(&std::cin, "<input>");
       virtual_machine::ThreadContext threadContext{
           processContext, processContext.make_module("builtins")};
