@@ -1,4 +1,3 @@
-#include <atomic> // for atomic_flag
 #include <cstdint>
 #include <sstream>
 #include <string>
@@ -19,18 +18,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   options.script = "fuzzer.py";
   chimera::library::object::Object builtins;
   chimera::library::virtual_machine::modules::init(builtins);
-  std::atomic_flag SIG_INT{};
-  SIG_INT.test_and_set();
-  chimera::library::virtual_machine::GlobalContext globalContext{
-      options, builtins,
-      builtins.get_attribute("type")
-          .get_attribute("__dir__")
-          .get_attribute("__class__")
-          .id(),
-      builtins.get_attribute("compile").get_attribute("__class__").id(),
-      &SIG_INT};
+  chimera::library::virtual_machine::VirtualMachine virtualMachine(options,
+                                                                   builtins);
   chimera::library::virtual_machine::ProcessContext processContext{
-      globalContext};
+      virtualMachine.global_context};
   chimera::library::asdl::Module module;
   bool success = true;
   std::istringstream in(
