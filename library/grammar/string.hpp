@@ -255,7 +255,7 @@ namespace chimera {
         template <typename Chars, typename... Escapes>
         struct Item : Seq<IfThenElse<Escape, Escapeseq<Chars, Escapes...>,
                                      SingleChars<Minus<Chars, Escape>>>,
-                          Discard> {};
+                          DISCARD> {};
         template <typename Chars>
         struct RawItem : IfThenElse<Escape, Chars, Chars> {};
         template <typename Triple, typename Chars, typename... Escapes>
@@ -425,7 +425,7 @@ namespace chimera {
           static void apply(const Input &in, Top &&top,
                             ProcessContext &&processContext) {
             Ensures((tao::pegtl::parse_nested<
-                     FString<typename Option::template Set<Option::Implicit>>,
+                     FString<typename Option::template Set<Option::IMPLICIT>>,
                      Nothing, Normal>(
                 in,
                 tao::pegtl::memory_input<>(top.string.c_str(),

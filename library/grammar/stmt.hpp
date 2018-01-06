@@ -138,13 +138,13 @@ namespace chimera {
       struct FuncDef
           : IfMust<
                 Def<Option>, Name<Option>,
-                Parameters<typename Option::template UnSet<Option::AsyncFlow,
-                                                           Option::ScopeFlow>>,
+                Parameters<typename Option::template UnSet<Option::ASYNC_FLOW,
+                                                           Option::SCOPE_FLOW>>,
                 Opt<Arr<Option>, Must<Test<typename Option::template UnSet<
-                                     Option::AsyncFlow, Option::ScopeFlow>>>>,
+                                     Option::ASYNC_FLOW, Option::SCOPE_FLOW>>>>,
                 SuiteWithDoc<typename Option::template UnSet<
-                    Option::LoopFlow,
-                    Option::ImportAll>::template Set<Option::ScopeFlow>>> {
+                    Option::LOOP_FLOW,
+                    Option::IMPORT_ALL>::template Set<Option::SCOPE_FLOW>>> {
         struct Transform
             : rules::Stack<asdl::DocString, std::vector<asdl::StmtImpl>,
                            asdl::ExprImpl, asdl::Arguments, asdl::Name> {
@@ -170,7 +170,7 @@ namespace chimera {
       template <typename Option>
       struct AsyncFuncDef
           : Seq<Async<Option>,
-                FuncDef<typename Option::template Set<Option::AsyncFlow>>> {
+                FuncDef<typename Option::template Set<Option::ASYNC_FLOW>>> {
         struct Transform : rules::Stack<asdl::StmtImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -281,7 +281,7 @@ namespace chimera {
       };
       template <typename Option>
       struct BreakStmt
-          : std::conditional_t<Option::template Get<Option::LoopFlow>,
+          : std::conditional_t<Option::template get<Option::LOOP_FLOW>,
                                Break<Option>, Failure> {
         struct Transform {
           template <typename Outer>
@@ -292,7 +292,7 @@ namespace chimera {
       };
       template <typename Option>
       struct ContinueStmt
-          : std::conditional_t<Option::template Get<Option::LoopFlow>,
+          : std::conditional_t<Option::template get<Option::LOOP_FLOW>,
                                Continue<Option>, Failure> {
         struct Transform {
           template <typename Outer>
@@ -303,7 +303,7 @@ namespace chimera {
       };
       template <typename Option>
       struct ReturnStmt
-          : std::conditional_t<Option::template Get<Option::ScopeFlow>,
+          : std::conditional_t<Option::template get<Option::SCOPE_FLOW>,
                                Seq<Return<Option>, Opt<TestList<Option>>>,
                                Failure> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
@@ -454,13 +454,13 @@ namespace chimera {
                         ImportFromModuleName<Option>>,
                     Plus<op::PeriodImpl<Option>>>,
                 Import<Option>,
-                Sor<std::conditional_t<Option::template Get<Option::ImportAll>,
+                Sor<std::conditional_t<Option::template get<Option::IMPORT_ALL>,
                                        StarOp<Option>, Failure>,
-                    Paren<typename Option::template UnSet<Option::AsyncFlow,
-                                                          Option::ScopeFlow>,
+                    Paren<typename Option::template UnSet<Option::ASYNC_FLOW,
+                                                          Option::SCOPE_FLOW>,
                           ImportAsNames>,
                     ImportAsNames<typename Option::template UnSet<
-                        Option::AsyncFlow, Option::ScopeFlow>>>> {
+                        Option::ASYNC_FLOW, Option::SCOPE_FLOW>>>> {
         struct Transform : rules::Stack<asdl::StmtImpl> {
           Transform() { push(asdl::StmtImpl{asdl::ImportFrom{}}); }
           template <typename Outer>
@@ -566,7 +566,7 @@ namespace chimera {
       template <typename Option>
       struct WhileStmt
           : IfMust<While<Option>, Test<Option>,
-                   Suite<typename Option::template Set<Option::LoopFlow>>,
+                   Suite<typename Option::template Set<Option::LOOP_FLOW>>,
                    Opt<Else<Option>, Must<Suite<Option>>>> {
         struct Transform
             : rules::Stack<std::vector<asdl::StmtImpl>, asdl::ExprImpl> {
@@ -588,7 +588,7 @@ namespace chimera {
       template <typename Option>
       struct ForStmt
           : IfMust<For<Option>, ExprList<Option>, In<Option>, TestList<Option>,
-                   Suite<typename Option::template Set<Option::LoopFlow>>,
+                   Suite<typename Option::template Set<Option::LOOP_FLOW>>,
                    Opt<Else<Option>, Must<Suite<Option>>>> {
         struct Transform
             : rules::Stack<std::vector<asdl::StmtImpl>, asdl::ExprImpl> {
@@ -714,11 +714,11 @@ namespace chimera {
       struct ClassDef
           : IfMust<Class<Option>, Name<Option>,
                    Opt<ParenOpt<typename Option::template UnSet<
-                                    Option::AsyncFlow, Option::ScopeFlow>,
+                                    Option::ASYNC_FLOW, Option::SCOPE_FLOW>,
                                 ArgList>>,
                    SuiteWithDoc<typename Option::template UnSet<
-                       Option::AsyncFlow, Option::ImportAll, Option::LoopFlow,
-                       Option::ScopeFlow>>> {
+                       Option::ASYNC_FLOW, Option::IMPORT_ALL,
+                       Option::LOOP_FLOW, Option::SCOPE_FLOW>>> {
         struct Transform
             : rules::Stack<asdl::DocString, std::vector<asdl::StmtImpl>,
                            asdl::ExprImpl, asdl::Keyword, asdl::Name> {
@@ -764,11 +764,11 @@ namespace chimera {
       struct Decorators : Plus<Decorator<Option>> {};
       template <typename Option>
       struct Decorated
-          : IfMust<
-                Decorators<Option>,
-                Sor<ClassDef<Option>,
-                    FuncDef<typename Option::template UnSet<Option::AsyncFlow>>,
-                    AsyncFuncDef<Option>>> {
+          : IfMust<Decorators<Option>,
+                   Sor<ClassDef<Option>,
+                       FuncDef<
+                           typename Option::template UnSet<Option::ASYNC_FLOW>>,
+                       AsyncFuncDef<Option>>> {
         struct Transform : rules::Stack<asdl::StmtImpl, asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -793,10 +793,10 @@ namespace chimera {
       struct AsyncStmt
           : IfMust<Async<Option>,
                    Sor<std::conditional_t<
-                           Option::template Get<Option::AsyncFlow>,
+                           Option::template get<Option::ASYNC_FLOW>,
                            Sor<WithStmt<Option>, ForStmt<Option>>, Failure>,
-                       FuncDef<
-                           typename Option::template Set<Option::AsyncFlow>>>> {
+                       FuncDef<typename Option::template Set<
+                           Option::ASYNC_FLOW>>>> {
         struct Transform : rules::Stack<asdl::StmtImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -826,7 +826,7 @@ namespace chimera {
       struct CompoundStmt
           : Sor<IfStmt<Option>, WhileStmt<Option>, ForStmt<Option>,
                 TryStmt<Option>, WithStmt<Option>,
-                FuncDef<typename Option::template UnSet<Option::AsyncFlow>>,
+                FuncDef<typename Option::template UnSet<Option::ASYNC_FLOW>>,
                 ClassDef<Option>, Decorated<Option>, AsyncStmt<Option>> {};
       template <typename Option>
       struct Stmt : Sor<CompoundStmt<Option>, SimpleStmt<Option>> {};

@@ -34,7 +34,7 @@
 namespace chimera {
   namespace library {
     namespace grammar {
-      template <typename Option = Options<>::Set<Options<>::ImportAll>>
+      template <typename Option = Options<>::Set<Options<>::IMPORT_ALL>>
       struct SingleInput
           : Sor<NEWLINE<Option>, IfMust<CompoundStmt<Option>, NEWLINE<Option>>,
                 Must<SimpleStmt<Option>>> {
@@ -46,7 +46,7 @@ namespace chimera {
           }
         };
       };
-      template <typename Option = Options<>::Set<Options<>::ImportAll>>
+      template <typename Option = Options<>::Set<Options<>::IMPORT_ALL>>
       struct FileInput : Must<Opt<NEWLINE<Option>>, Opt<DocString<Option>>,
                               Until<Eof, Stmt<Option>>> {
         struct Transform : rules::Stack<asdl::DocString, asdl::StmtImpl> {
