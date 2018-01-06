@@ -34,16 +34,16 @@ namespace chimera {
       template <typename Option>
       using Space = Star<Sor<
           Seq<One<'\\'>, Eol>, Seq<One<'#'>, Star<NotAt<Eolf>, Any>>,
-          std::conditional_t<Option::template Get<Option::Implicit>, Utf8Space,
+          std::conditional_t<Option::template get<Option::IMPLICIT>, Utf8Space,
                              Minus<Utf8Space, One<'\r', '\n'>>>>>;
       template <typename Option>
       struct BlankLines
           : Seq<Plus<Space<Option>, Eol,
-                     std::conditional_t<Option::template Get<Option::Discard>,
+                     std::conditional_t<Option::template get<Option::DISCARD>,
                                         Discard, Success>>,
                 Sor<Plus<One<' '>>, Star<One<'\t'>>>,
                 Must<NotAt<One<' ', '\t'>>>,
-                std::conditional_t<Option::template Get<Option::Discard>,
+                std::conditional_t<Option::template get<Option::DISCARD>,
                                    Discard, Success>> {};
       struct IndentCheck : NotAt<One<' ', '\t'>> {
         template <typename Input>

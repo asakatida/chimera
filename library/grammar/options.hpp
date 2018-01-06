@@ -27,10 +27,17 @@ namespace chimera {
     namespace grammar {
       template <std::uint8_t Mask = 0>
       struct Options {
-        enum { AsyncFlow, Discard, Implicit, ImportAll, LoopFlow, ScopeFlow };
+        enum {
+          ASYNC_FLOW,
+          DISCARD,
+          IMPLICIT,
+          IMPORT_ALL,
+          LOOP_FLOW,
+          SCOPE_FLOW
+        };
 
         template <int... Bits>
-        constexpr static bool Get = (Mask & (... | (1 << Bits))) != 0;
+        constexpr static bool get = (Mask & (... | (1 << Bits))) != 0;
         template <int... Bits>
         using Set = Options<(Mask | ... | (1 << Bits))>;
         template <int... Bits>

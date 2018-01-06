@@ -42,27 +42,27 @@ namespace chimera {
                 template <typename> typename End>
       struct GroupOpt
           : IfMust<
-                Start<typename Option::template Set<Option::Implicit>>,
-                Opt<Content<typename Option::template Set<Option::Implicit>>>,
+                Start<typename Option::template Set<Option::IMPLICIT>>,
+                Opt<Content<typename Option::template Set<Option::IMPLICIT>>>,
                 End<Option>> {};
       template <typename Option, template <typename> typename Content>
       using Paren =
-          IfMust<LPar<typename Option::template Set<Option::Implicit>>,
-                 Content<typename Option::template Set<Option::Implicit>>,
+          IfMust<LPar<typename Option::template Set<Option::IMPLICIT>>,
+                 Content<typename Option::template Set<Option::IMPLICIT>>,
                  RPar<Option>>;
       template <typename Option, template <typename> typename Content>
       using ParenOpt = GroupOpt<Option, LPar, Content, RPar>;
       template <typename Option, template <typename> typename Content>
       using Bracket =
-          IfMust<LBrt<typename Option::template Set<Option::Implicit>>,
-                 Content<typename Option::template Set<Option::Implicit>>,
+          IfMust<LBrt<typename Option::template Set<Option::IMPLICIT>>,
+                 Content<typename Option::template Set<Option::IMPLICIT>>,
                  RBrt<Option>>;
       template <typename Option, template <typename> typename Content>
       using BracketOpt = GroupOpt<Option, LBrt, Content, RBrt>;
       template <typename Option, template <typename> typename Content>
       using Brace =
-          IfMust<LBrc<typename Option::template Set<Option::Implicit>>,
-                 Content<typename Option::template Set<Option::Implicit>>,
+          IfMust<LBrc<typename Option::template Set<Option::IMPLICIT>>,
+                 Content<typename Option::template Set<Option::IMPLICIT>>,
                  RBrc<Option>>;
       template <typename Option>
       struct CompFor;
@@ -181,7 +181,7 @@ namespace chimera {
       struct LambDef
           : IfMust<Lambda<Option>, Opt<VarargsList<Option>>, Colon<Option>,
                    Test<typename Option::template UnSet<
-                       Option::AsyncFlow>::template Set<Option::ScopeFlow>>> {
+                       Option::ASYNC_FLOW>::template Set<Option::SCOPE_FLOW>>> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::Arguments> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -210,7 +210,7 @@ namespace chimera {
       struct LambDefNoCond
           : IfMust<Lambda<Option>, Opt<VarargsList<Option>>, Colon<Option>,
                    TestNocond<typename Option::template UnSet<
-                       Option::AsyncFlow>::template Set<Option::ScopeFlow>>> {
+                       Option::ASYNC_FLOW>::template Set<Option::SCOPE_FLOW>>> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::Arguments> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -474,7 +474,7 @@ namespace chimera {
       template <typename Option>
       struct AtomExprAwait
           : std::conditional_t<
-                Option::template Get<Option::AsyncFlow>,
+                Option::template get<Option::ASYNC_FLOW>,
                 IfMust<Await<Option>, AtomExprAtomTrailer<Option>>, Failure> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
@@ -953,7 +953,7 @@ namespace chimera {
       template <typename Option>
       struct CompForAsync
           : std::conditional_t<
-                Option::template Get<Option::AsyncFlow>,
+                Option::template get<Option::ASYNC_FLOW>,
                 IfMust<Async<Option>, For<Option>, ExprList<Option>, In<Option>,
                        OrTest<Option>>,
                 Failure> {
@@ -1005,7 +1005,7 @@ namespace chimera {
       template <typename Option>
       struct YieldExpr
           : std::conditional_t<
-                Option::template Get<Option::AsyncFlow, Option::ScopeFlow>,
+                Option::template get<Option::ASYNC_FLOW, Option::SCOPE_FLOW>,
                 Seq<Yield<Option>, Opt<YieldArg<Option>>>, Failure> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
