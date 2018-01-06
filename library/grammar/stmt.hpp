@@ -36,6 +36,25 @@ namespace chimera {
   namespace library {
     namespace grammar {
       template <typename Option>
+      struct SuiteSimpleStmt;
+      template <typename Option>
+      struct SuiteSeqStmtPlus;
+      template <typename Option>
+      struct SuiteSeqStmtStar;
+      template <typename Option>
+      using SuiteWithDoc = IfMust<
+          Colon<Option>,
+          Sor<DocString<Option>, SuiteSimpleStmt<Option>,
+              IfMust<INDENT<Option>,
+                     Sor<Seq<DocString<Option>, SuiteSeqStmtStar<Option>>,
+                         SuiteSeqStmtPlus<Option>>,
+                     DEDENT<Option>>>>;
+      template <typename Option>
+      using Suite = IfMust<Colon<Option>,
+                           Sor<SuiteSimpleStmt<Option>,
+                               IfMust<INDENT<Option>, SuiteSeqStmtPlus<Option>,
+                                      DEDENT<Option>>>>;
+      template <typename Option>
       struct TFPDef
           : Seq<Name<Option>, Opt<Colon<Option>, Must<Test<Option>>>> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::Name> {
@@ -129,11 +148,7 @@ namespace chimera {
         };
       };
       template <typename Option>
-      struct Parameters : ParenOpt<Option, TypedArgsList> {};
-      template <typename Option>
-      struct SuiteWithDoc;
-      template <typename Option>
-      struct Suite;
+      using Parameters = ParenOpt<Option, TypedArgsList>;
       template <typename Option>
       struct FuncDef
           : IfMust<
@@ -201,12 +216,12 @@ namespace chimera {
         };
       };
       template <typename Option>
-      struct AugAssign
-          : Sor<AugAdd<Option>, AugSub<Option>, AugMult<Option>,
-                AugMatMult<Option>, AugDiv<Option>, AugMod<Option>,
-                AugBitAnd<Option>, AugBitOr<Option>, AugBitXor<Option>,
-                AugLShift<Option>, AugRShift<Option>, AugPow<Option>,
-                AugFloorDiv<Option>> {};
+      using AugAssign =
+          Sor<AugAdd<Option>, AugSub<Option>, AugMult<Option>,
+              AugMatMult<Option>, AugDiv<Option>, AugMod<Option>,
+              AugBitAnd<Option>, AugBitOr<Option>, AugBitXor<Option>,
+              AugLShift<Option>, AugRShift<Option>, AugPow<Option>,
+              AugFloorDiv<Option>>;
       template <typename Option>
       struct ExprStmtAugAssign
           : IfMust<Seq<ExprStmtTarget<Option>, AugAssign<Option>>,
@@ -264,9 +279,9 @@ namespace chimera {
         };
       };
       template <typename Option>
-      struct ExprStmt
-          : Sor<AnnAssign<Option>, ExprStmtAugAssign<Option>,
-                ExprStmtAssign<Option>, ExprStmtExprStmtTarget<Option>> {};
+      using ExprStmt =
+          Sor<AnnAssign<Option>, ExprStmtAugAssign<Option>,
+              ExprStmtAssign<Option>, ExprStmtExprStmtTarget<Option>>;
       template <typename Option>
       struct DelStmt : IfMust<Del<Option>, ExprList<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
@@ -382,7 +397,7 @@ namespace chimera {
         };
       };
       template <typename Option>
-      struct DottedAsNames : List<DottedAsName<Option>, Comma<Option>> {};
+      using DottedAsNames = List<DottedAsName<Option>, Comma<Option>>;
       template <typename Option>
       struct ImportName : Seq<Import<Option>, DottedAsNames<Option>> {
         struct Transform : rules::Stack<asdl::Alias> {
@@ -526,9 +541,9 @@ namespace chimera {
         };
       };
       template <typename Option>
-      struct IfStmtIf : IfMust<If<Option>, IfStmtBranch<Option>> {};
+      using IfStmtIf = IfMust<If<Option>, IfStmtBranch<Option>>;
       template <typename Option>
-      struct IfStmtElif : IfMust<Elif<Option>, IfStmtBranch<Option>> {};
+      using IfStmtElif = IfMust<Elif<Option>, IfStmtBranch<Option>>;
       template <typename Option>
       struct IfStmtBranches : Seq<IfStmtIf<Option>, Star<IfStmtElif<Option>>> {
         struct Transform : rules::Stack<asdl::IfBranch> {
@@ -542,7 +557,7 @@ namespace chimera {
         };
       };
       template <typename Option>
-      struct IfStmtElse : IfMust<Else<Option>, Suite<Option>> {};
+      using IfStmtElse = IfMust<Else<Option>, Suite<Option>>;
       template <typename Option>
       struct IfStmt : Seq<IfStmtBranches<Option>, Opt<IfStmtElse<Option>>> {
         struct Transform : rules::Stack<std::vector<asdl::IfBranch>,
@@ -610,11 +625,11 @@ namespace chimera {
         };
       };
       template <typename Option>
-      struct TryStmtTry : IfMust<Try<Option>, Suite<Option>> {};
+      using TryStmtTry = IfMust<Try<Option>, Suite<Option>>;
       template <typename Option>
-      struct ExceptClause
-          : Seq<Except<Option>,
-                Opt<Test<Option>, Opt<As<Option>, Must<Name<Option>>>>> {};
+      using ExceptClause =
+          Seq<Except<Option>,
+              Opt<Test<Option>, Opt<As<Option>, Must<Name<Option>>>>>;
       template <typename Option>
       struct TryStmtExcept : IfMust<ExceptClause<Option>, Suite<Option>> {
         struct Transform : rules::Stack<std::vector<asdl::StmtImpl>,
@@ -645,9 +660,9 @@ namespace chimera {
         };
       };
       template <typename Option>
-      struct TryStmtElse : IfMust<Else<Option>, Suite<Option>> {};
+      using TryStmtElse = IfMust<Else<Option>, Suite<Option>>;
       template <typename Option>
-      struct TryStmtFinally : IfMust<Finally<Option>, Suite<Option>> {};
+      using TryStmtFinally = IfMust<Finally<Option>, Suite<Option>>;
       template <typename Option>
       struct TryStmtExcepts : Plus<TryStmtExcept<Option>> {
         struct Transform : rules::Stack<asdl::ExceptHandler> {
@@ -745,23 +760,23 @@ namespace chimera {
         };
       };
       template <typename Option>
-      struct FlowStmt
-          : Sor<BreakStmt<Option>, ContinueStmt<Option>, ReturnStmt<Option>,
-                RaiseStmt<Option>, YieldStmt<Option>> {};
+      using FlowStmt =
+          Sor<BreakStmt<Option>, ContinueStmt<Option>, ReturnStmt<Option>,
+              RaiseStmt<Option>, YieldStmt<Option>>;
       template <typename Option>
-      struct ImportStmt : Sor<ImportName<Option>, ImportFrom<Option>> {};
+      using ImportStmt = Sor<ImportName<Option>, ImportFrom<Option>>;
       template <typename Option>
-      struct SmallStmt
-          : Sor<AssertStmt<Option>, DelStmt<Option>, Pass<Option>,
-                FlowStmt<Option>, ImportStmt<Option>, GlobalStmt<Option>,
-                NonLocalStmt<Option>, ExprStmt<Option>> {};
+      using SmallStmt =
+          Sor<AssertStmt<Option>, DelStmt<Option>, Pass<Option>,
+              FlowStmt<Option>, ImportStmt<Option>, GlobalStmt<Option>,
+              NonLocalStmt<Option>, ExprStmt<Option>>;
       template <typename Option>
-      struct SimpleStmt : IfMust<ListTail<SmallStmt<Option>, Semi<Option>>,
-                                 Sor<NEWLINE<Option>, At<Eolf>>> {};
+      using SimpleStmt = IfMust<ListTail<SmallStmt<Option>, Semi<Option>>,
+                                Sor<NEWLINE<Option>, At<Eolf>>>;
       template <typename Option>
-      struct Decorator : IfMust<AtOp<Option>, Expr<Option>, NEWLINE<Option>> {};
+      using Decorator = IfMust<AtOp<Option>, Expr<Option>, NEWLINE<Option>>;
       template <typename Option>
-      struct Decorators : Plus<Decorator<Option>> {};
+      using Decorators = Plus<Decorator<Option>>;
       template <typename Option>
       struct Decorated
           : IfMust<Decorators<Option>,
@@ -823,13 +838,13 @@ namespace chimera {
         };
       };
       template <typename Option>
-      struct CompoundStmt
-          : Sor<IfStmt<Option>, WhileStmt<Option>, ForStmt<Option>,
-                TryStmt<Option>, WithStmt<Option>,
-                FuncDef<typename Option::template UnSet<Option::ASYNC_FLOW>>,
-                ClassDef<Option>, Decorated<Option>, AsyncStmt<Option>> {};
+      using CompoundStmt =
+          Sor<IfStmt<Option>, WhileStmt<Option>, ForStmt<Option>,
+              TryStmt<Option>, WithStmt<Option>,
+              FuncDef<typename Option::template UnSet<Option::ASYNC_FLOW>>,
+              ClassDef<Option>, Decorated<Option>, AsyncStmt<Option>>;
       template <typename Option>
-      struct Stmt : Sor<CompoundStmt<Option>, SimpleStmt<Option>> {};
+      using Stmt = Sor<CompoundStmt<Option>, SimpleStmt<Option>>;
       struct SuiteAction : rules::Stack<asdl::StmtImpl> {
         template <typename Outer>
         void success(Outer &&outer) {
@@ -851,20 +866,6 @@ namespace chimera {
       struct SuiteSeqStmtStar : Star<Stmt<Option>> {
         using Transform = SuiteAction;
       };
-      template <typename Option>
-      struct SuiteWithDoc
-          : IfMust<
-                Colon<Option>,
-                Sor<DocString<Option>, SuiteSimpleStmt<Option>,
-                    IfMust<INDENT<Option>,
-                           Sor<Seq<DocString<Option>, SuiteSeqStmtStar<Option>>,
-                               SuiteSeqStmtPlus<Option>>,
-                           DEDENT<Option>>>> {};
-      template <typename Option>
-      struct Suite : IfMust<Colon<Option>,
-                            Sor<SuiteSimpleStmt<Option>,
-                                IfMust<INDENT<Option>, SuiteSeqStmtPlus<Option>,
-                                       DEDENT<Option>>>> {};
     } // namespace grammar
   }   // namespace library
 } // namespace chimera
