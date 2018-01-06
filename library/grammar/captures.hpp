@@ -30,7 +30,7 @@ namespace chimera {
     namespace grammar {
       using ArgumentsCapture =
           ReshapeCapture<asdl::Arguments, std::vector<Arg>, std::optional<Arg>,
-                         std::vector<Arg>, std::optional<Arg>>{};
+                         std::vector<Arg>, std::optional<Arg>>;
       using ExcepthandlerCapture = VariantCapture<asdl::ExceptHandler>;
       using OptionalArgCapture = OptionalCapture<asdl::Arg>;
       using OptionalDocStringCapture = OptionalCapture<asdl::DocString>;

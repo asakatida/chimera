@@ -37,14 +37,13 @@ namespace chimera {
           std::conditional_t<Option::template get<Option::IMPLICIT>, Utf8Space,
                              Minus<Utf8Space, One<'\r', '\n'>>>>>;
       template <typename Option>
-      struct BlankLines
-          : Seq<Plus<Space<Option>, Eol,
-                     std::conditional_t<Option::template get<Option::DISCARD>,
-                                        Discard, Success>>,
-                Sor<Plus<One<' '>>, Star<One<'\t'>>>,
-                Must<NotAt<One<' ', '\t'>>>,
-                std::conditional_t<Option::template get<Option::DISCARD>,
-                                   Discard, Success>> {};
+      using BlankLines =
+          Seq<Plus<Space<Option>, Eol,
+                   std::conditional_t<Option::template get<Option::DISCARD>,
+                                      Discard, Success>>,
+              Sor<Plus<One<' '>>, Star<One<'\t'>>>, Must<NotAt<One<' ', '\t'>>>,
+              std::conditional_t<Option::template get<Option::DISCARD>, Discard,
+                                 Success>>;
       struct IndentCheck : NotAt<One<' ', '\t'>> {
         template <typename Input>
         static bool match(Input &&in) {

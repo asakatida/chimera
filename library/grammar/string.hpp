@@ -68,13 +68,10 @@ namespace chimera {
           }
         };
         template <typename Option>
-        struct FExpression
-            : Sor<Seq<Sor<ConditionalExpression<Option>,
-                          Seq<One<'*'>, Expr<Option>>>,
-                      Star<Sor<Seq<Seq<One<','>, ConditionalExpression<Option>>,
-                                   Seq<One<','>, One<'*'>, Expr<Option>>>>>,
-                      Opt<One<','>>>,
-                  YieldExpr<Option>> {};
+        using FExpression =
+            Sor<ListTail<Sor<ConditionalExpression<Option>, StarExpr<Option>>,
+                         Comma<Option>>,
+                YieldExpr<Option>>;
         struct Conversion : One<'a', 'r', 's'> {};
         template <>
         struct StringActions<Conversion> {
@@ -102,7 +99,11 @@ namespace chimera {
           }
         };
         template <typename Option>
-        struct ReplacementField;
+        struct FormatSpec;
+        template <typename Option>
+        using ReplacementField =
+            IfMust<One<'{'>, FExpression<Option>, Opt<One<'!'>, Conversion>,
+                   Opt<One<':'>, FormatSpec<Option>>, One<'}'>>;
         template <typename Option>
         struct FormatSpec
             : Star<Sor<LiteralChar, Nul, ReplacementField<Option>>> {};
@@ -123,10 +124,6 @@ namespace chimera {
             }(top.template top<asdl::ExprImpl>());
           }
         };
-        template <typename Option>
-        struct ReplacementField
-            : IfMust<One<'{'>, FExpression<Option>, Opt<One<'!'>, Conversion>,
-                     Opt<One<':'>, FormatSpec<Option>>, One<'}'>> {};
         struct LeftFLiteral : String<'{', '{'> {};
         template <>
         struct StringActions<LeftFLiteral> {
@@ -155,9 +152,9 @@ namespace chimera {
           }
         };
         template <typename Option>
-        struct FString : Must<Star<Sor<Action<StringActions, FLiteral>,
-                                       ReplacementField<Option>>>,
-                              Eof> {};
+        using FString = Must<Star<Sor<Action<StringActions, FLiteral>,
+                                      ReplacementField<Option>>>,
+                             Eof>;
         template <typename Chars>
         struct SingleChars : Plus<Chars> {};
         template <typename Chars>
@@ -184,7 +181,7 @@ namespace chimera {
           }
         };
         template <char Open, unsigned Len>
-        struct UTF : Seq<One<Open>, Hexseq<Len>> {};
+        using UTF = Seq<One<Open>, Hexseq<Len>>;
         struct Octseq : Seq<Range<'0', '7'>, RepOpt<2, Range<'0', '7'>>> {};
         template <>
         struct StringActions<Octseq> {
@@ -247,23 +244,21 @@ namespace chimera {
             top.apply(in.string());
           }
         };
-        struct Escape : One<'\\'> {};
-        struct XEscapeseq : UTF<'x', 2> {};
+        using Escape = One<'\\'>;
+        using XEscapeseq = UTF<'x', 2>;
         template <typename Chars, typename... Escapes>
-        struct Escapeseq : Sor<Escapes..., XEscapeseq, Octseq, Eol,
-                               EscapeControl, EscapeIgnore<Chars>> {};
+        using Escapeseq = Sor<Escapes..., XEscapeseq, Octseq, Eol,
+                              EscapeControl, EscapeIgnore<Chars>>;
         template <typename Chars, typename... Escapes>
-        struct Item : Seq<IfThenElse<Escape, Escapeseq<Chars, Escapes...>,
-                                     SingleChars<Minus<Chars, Escape>>>,
-                          DISCARD> {};
+        using Item = Seq<IfThenElse<Escape, Escapeseq<Chars, Escapes...>,
+                                    SingleChars<Minus<Chars, Escape>>>,
+                         Discard>;
         template <typename Chars>
-        struct RawItem : IfThenElse<Escape, Chars, Chars> {};
+        using RawItem = IfThenElse<Escape, Chars, Chars>;
         template <typename Triple, typename Chars, typename... Escapes>
-        struct Long
-            : IfMust<
-                  Triple,
-                  Until<Triple, Item<Seq<NotAt<Triple>, Chars>, Escapes...>>> {
-        };
+        using Long =
+            IfMust<Triple,
+                   Until<Triple, Item<Seq<NotAt<Triple>, Chars>, Escapes...>>>;
         template <typename Triple, typename Chars>
         struct LongRaw
             : IfMust<Triple,
@@ -280,10 +275,10 @@ namespace chimera {
           }
         };
         template <typename Quote, typename Chars, typename... Escapes>
-        struct Short
-            : IfMust<Quote,
-                     Until<Quote, Item<Minus<Seq<NotAt<Quote>, Chars>, Eol>,
-                                       Escapes...>>> {};
+        using Short =
+            IfMust<Quote,
+                   Until<Quote, Item<Minus<Seq<NotAt<Quote>, Chars>, Eol>,
+                                     Escapes...>>>;
         template <typename Quote, typename Chars>
         struct ShortRaw
             : IfMust<
@@ -306,16 +301,16 @@ namespace chimera {
         using Single = One<'\''>;
         using Double = One<'"'>;
         template <typename Chars>
-        struct Raw
-            : Sor<LongRaw<TripleDouble, Chars>, LongRaw<TripleSingle, Chars>,
-                  ShortRaw<Double, Chars>, ShortRaw<Single, Chars>> {};
+        using Raw =
+            Sor<LongRaw<TripleDouble, Chars>, LongRaw<TripleSingle, Chars>,
+                ShortRaw<Double, Chars>, ShortRaw<Single, Chars>>;
         template <typename Chars, typename... Escapes>
-        struct Escaped : Sor<Long<TripleDouble, Chars, Escapes...>,
-                             Long<TripleSingle, Chars, Escapes...>,
-                             Short<Double, Chars, Escapes...>,
-                             Short<Single, Chars, Escapes...>> {};
-        struct UTF16Escape : UTF<'u', 4> {};
-        struct UTF32Escape : UTF<'U', 8> {};
+        using Escaped = Sor<Long<TripleDouble, Chars, Escapes...>,
+                            Long<TripleSingle, Chars, Escapes...>,
+                            Short<Double, Chars, Escapes...>,
+                            Short<Single, Chars, Escapes...>>;
+        using UTF16Escape = UTF<'u', 4>;
+        using UTF32Escape = UTF<'U', 8>;
         struct UName : Star<NotOne<'}'>> {};
         template <>
         struct StringActions<UName> {
@@ -325,16 +320,15 @@ namespace chimera {
             top.apply(in.string());
           }
         };
-        struct UNameEscape : Seq<One<'N'>, One<'{'>, UName, One<'}'>> {};
+        using UNameEscape = IfMust<String<'N', '{'>, UName, One<'}'>>;
         template <typename Prefix, typename RawPrefix, typename Chars,
                   typename... Escapes>
-        struct StringImpl : Plus<Sor<Seq<RawPrefix, Raw<Chars>>,
-                                     Seq<Prefix, Escaped<Chars, Escapes...>>>> {
-        };
-        struct BytesPrefix : Sor<One<'b'>, One<'B'>> {};
-        struct BytesRawPrefix
-            : Sor<Seq<Sor<One<'r'>, One<'R'>>, Sor<One<'b'>, One<'B'>>>,
-                  Seq<Sor<One<'b'>, One<'B'>>, Sor<One<'r'>, One<'R'>>>> {};
+        using StringImpl = Plus<Sor<Seq<RawPrefix, Raw<Chars>>,
+                                    Seq<Prefix, Escaped<Chars, Escapes...>>>>;
+        using BytesPrefix = Sor<One<'b'>, One<'B'>>;
+        using BytesRawPrefix =
+            Sor<Seq<Sor<One<'r'>, One<'R'>>, Sor<One<'b'>, One<'B'>>>,
+                Seq<Sor<One<'b'>, One<'B'>>, Sor<One<'r'>, One<'R'>>>>;
         template <typename Option>
         struct Bytes
             : Plus<Token<Option,
@@ -362,8 +356,8 @@ namespace chimera {
                 processContext.insert_constant(std::move(top.bytes))});
           }
         };
-        struct StrPrefix : Opt<Sor<One<'u'>, One<'U'>>> {};
-        struct StrRawPrefix : Sor<One<'r'>, One<'R'>> {};
+        using StrPrefix = Opt<Sor<One<'u'>, One<'U'>>>;
+        using StrRawPrefix = Sor<One<'r'>, One<'R'>>;
         template <typename Option>
         struct String
             : Plus<Token<Option,
@@ -379,10 +373,10 @@ namespace chimera {
                 processContext.insert_constant(object::String(top.string))});
           }
         };
-        struct JoinedStrPrefix : Sor<One<'f'>, One<'F'>> {};
-        struct JoinedStrRawPrefix
-            : Sor<Seq<Sor<One<'r'>, One<'R'>>, Sor<One<'f'>, One<'F'>>>,
-                  Seq<Sor<One<'f'>, One<'F'>>, Sor<One<'r'>, One<'R'>>>> {};
+        using JoinedStrPrefix = Sor<One<'f'>, One<'F'>>;
+        using JoinedStrRawPrefix =
+            Sor<Seq<Sor<One<'r'>, One<'R'>>, Sor<One<'f'>, One<'F'>>>,
+                Seq<Sor<One<'f'>, One<'F'>>, Sor<One<'r'>, One<'R'>>>>;
         struct PartialString
             : Plus<StringImpl<StrPrefix, StrRawPrefix, Any, UTF16Escape,
                               UTF32Escape, UNameEscape>> {
@@ -508,9 +502,9 @@ namespace chimera {
         };
       };
       template <typename Option>
-      struct STRING
-          : Action<string::StringActions,
-                   Sor<string::Bytes<Option>, string::JoinedStr<Option>>> {};
+      using STRING =
+          Action<string::StringActions,
+                 Sor<string::Bytes<Option>, string::JoinedStr<Option>>>;
     } // namespace grammar
   }   // namespace library
 } // namespace chimera

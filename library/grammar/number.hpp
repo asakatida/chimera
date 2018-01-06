@@ -172,9 +172,8 @@ namespace chimera {
         };
       } // namespace number
       template <typename Option>
-      struct NUMBER
-          : Token<Option,
-                  Action<number::NumberActions, number::Numberliteral>> {};
+      using NUMBER =
+          Token<Option, Action<number::NumberActions, number::Numberliteral>>;
     } // namespace grammar
   }   // namespace library
 } // namespace chimera

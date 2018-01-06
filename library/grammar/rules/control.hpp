@@ -59,10 +59,6 @@ namespace chimera {
         template <typename Rule>
         struct Normal<Rule, std::void_t<typename Rule::Transform>>
             : tao::pegtl::normal<Rule> {
-          struct BlankState {
-            template <typename Outer>
-            void success(const Outer & /*outer*/) {}
-          };
           template <tao::pegtl::apply_mode A, tao::pegtl::rewind_mode M,
                     template <typename...> class Action,
                     template <typename...> class Control, typename Input,

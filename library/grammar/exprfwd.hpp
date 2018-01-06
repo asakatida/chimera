@@ -29,7 +29,7 @@ namespace chimera {
       template <typename Option>
       struct ConditionalExpression;
       template <typename Option>
-      struct Expr;
+      struct StarExpr;
       template <typename Option>
       struct YieldExpr;
     } // namespace grammar

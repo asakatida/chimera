@@ -70,7 +70,7 @@ namespace chimera {
         }
 
       private:
-        std::stack<std::uintmax_t> indentStack{};
+        std::stack<std::uintmax_t> indentStack;
       };
     } // namespace grammar
   }   // namespace library

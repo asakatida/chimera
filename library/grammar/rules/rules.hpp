@@ -24,7 +24,6 @@
 
 #include <metal.hpp>
 #include <tao/pegtl.hpp>
-#include <tao/pegtl/contrib/rep_one_min_max.hpp>
 
 #include "grammar/rules/action.hpp"
 #include "grammar/rules/captures.hpp"
