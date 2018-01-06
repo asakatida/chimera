@@ -101,6 +101,7 @@ add_library(
   library/virtual_machine/global_context.cpp
   library/virtual_machine/global_context.hpp
   library/virtual_machine/parse_file.cpp
+  library/virtual_machine/parse_input.cpp
   library/virtual_machine/process_context.cpp
   library/virtual_machine/process_context.hpp
   library/virtual_machine/push_stack.cpp
