@@ -41,32 +41,32 @@ namespace chimera {
         template <typename Option, typename String>
         using Key = Token<Option, String, NotAt<name::XidContinue>>;
         template <typename Option>
-        struct And : Key<Option, String<'a', 'n', 'd'>> {};
+        using And = Key<Option, String<'a', 'n', 'd'>>;
         template <typename Option>
-        struct As : Key<Option, String<'a', 's'>> {};
+        using As = Key<Option, String<'a', 's'>>;
         template <typename Option>
-        struct Assert : Key<Option, String<'a', 's', 's', 'e', 'r', 't'>> {};
+        using Assert = Key<Option, String<'a', 's', 's', 'e', 'r', 't'>>;
         template <typename Option>
-        struct Async : Key<Option, String<'a', 's', 'y', 'n', 'c'>> {};
+        using Async = Key<Option, String<'a', 's', 'y', 'n', 'c'>>;
         template <typename Option>
-        struct Await : Key<Option, String<'a', 'w', 'a', 'i', 't'>> {};
+        using Await = Key<Option, String<'a', 'w', 'a', 'i', 't'>>;
         template <typename Option>
-        struct Break : Key<Option, String<'b', 'r', 'e', 'a', 'k'>> {};
+        using Break = Key<Option, String<'b', 'r', 'e', 'a', 'k'>>;
         template <typename Option>
-        struct Class : Key<Option, String<'c', 'l', 'a', 's', 's'>> {};
+        using Class = Key<Option, String<'c', 'l', 'a', 's', 's'>>;
         template <typename Option>
-        struct Continue
-            : Key<Option, String<'c', 'o', 'n', 't', 'i', 'n', 'u', 'e'>> {};
+        using Continue =
+            Key<Option, String<'c', 'o', 'n', 't', 'i', 'n', 'u', 'e'>>;
         template <typename Option>
-        struct Def : Key<Option, String<'d', 'e', 'f'>> {};
+        using Def = Key<Option, String<'d', 'e', 'f'>>;
         template <typename Option>
-        struct Del : Key<Option, String<'d', 'e', 'l'>> {};
+        using Del = Key<Option, String<'d', 'e', 'l'>>;
         template <typename Option>
-        struct Elif : Key<Option, String<'e', 'l', 'i', 'f'>> {};
+        using Elif = Key<Option, String<'e', 'l', 'i', 'f'>>;
         template <typename Option>
-        struct Else : Key<Option, String<'e', 'l', 's', 'e'>> {};
+        using Else = Key<Option, String<'e', 'l', 's', 'e'>>;
         template <typename Option>
-        struct Except : Key<Option, String<'e', 'x', 'c', 'e', 'p', 't'>> {};
+        using Except = Key<Option, String<'e', 'x', 'c', 'e', 'p', 't'>>;
         template <typename Option>
         struct False : Key<Option, String<'F', 'a', 'l', 's', 'e'>> {
           struct Transform {
@@ -78,30 +78,29 @@ namespace chimera {
           };
         };
         template <typename Option>
-        struct Finally
-            : Key<Option, String<'f', 'i', 'n', 'a', 'l', 'l', 'y'>> {};
+        using Finally = Key<Option, String<'f', 'i', 'n', 'a', 'l', 'l', 'y'>>;
         template <typename Option>
-        struct For : Key<Option, String<'f', 'o', 'r'>> {};
+        using For = Key<Option, String<'f', 'o', 'r'>>;
         template <typename Option>
-        struct From : Key<Option, String<'f', 'r', 'o', 'm'>> {};
+        using From = Key<Option, String<'f', 'r', 'o', 'm'>>;
         template <typename Option>
-        struct Global : Key<Option, String<'g', 'l', 'o', 'b', 'a', 'l'>> {};
+        using Global = Key<Option, String<'g', 'l', 'o', 'b', 'a', 'l'>>;
         template <typename Option>
-        struct If : Key<Option, String<'i', 'f'>> {};
+        using If = Key<Option, String<'i', 'f'>>;
         template <typename Option>
-        struct Import : Key<Option, String<'i', 'm', 'p', 'o', 'r', 't'>> {};
+        using Import = Key<Option, String<'i', 'm', 'p', 'o', 'r', 't'>>;
         template <typename Option>
-        struct InImpl : Key<Option, String<'i', 'n'>> {};
+        using InImpl = Key<Option, String<'i', 'n'>>;
         template <typename Option>
-        struct In : Seq<InImpl<Option>> {};
+        using In = Seq<InImpl<Option>>;
         template <typename Option>
         struct InOp : Seq<InImpl<Option>> {
           using Transform = Transform<asdl::CompareExpr::Op::IN>;
         };
         template <typename Option>
-        struct IsImpl : Key<Option, String<'i', 's'>> {};
+        using IsImpl = Key<Option, String<'i', 's'>>;
         template <typename Option>
-        struct Lambda : Key<Option, String<'l', 'a', 'm', 'b', 'd', 'a'>> {};
+        using Lambda = Key<Option, String<'l', 'a', 'm', 'b', 'd', 'a'>>;
         template <typename Option>
         struct None : Key<Option, String<'N', 'o', 'n', 'e'>> {
           struct Transform {
@@ -113,10 +112,10 @@ namespace chimera {
           };
         };
         template <typename Option>
-        struct Nonlocal
-            : Key<Option, String<'n', 'o', 'n', 'l', 'o', 'c', 'a', 'l'>> {};
+        using Nonlocal =
+            Key<Option, String<'n', 'o', 'n', 'l', 'o', 'c', 'a', 'l'>>;
         template <typename Option>
-        struct NotImpl : Key<Option, String<'n', 'o', 't'>> {};
+        using NotImpl = Key<Option, String<'n', 'o', 't'>>;
         template <typename Option>
         struct NotIn : Seq<NotImpl<Option>, InImpl<Option>> {
           using Transform = Transform<asdl::CompareExpr::Op::NOT_IN>;
@@ -130,15 +129,15 @@ namespace chimera {
           using Transform = Transform<asdl::CompareExpr::Op::IS_NOT>;
         };
         template <typename Option>
-        struct Not : Seq<NotImpl<Option>, NotAt<InImpl<Option>>> {};
+        using Not = Seq<NotImpl<Option>, NotAt<InImpl<Option>>>;
         template <typename Option>
-        struct Or : Key<Option, String<'o', 'r'>> {};
+        using Or = Key<Option, String<'o', 'r'>>;
         template <typename Option>
-        struct Pass : Key<Option, String<'p', 'a', 's', 's'>> {};
+        using Pass = Key<Option, String<'p', 'a', 's', 's'>>;
         template <typename Option>
-        struct Raise : Key<Option, String<'r', 'a', 'i', 's', 'e'>> {};
+        using Raise = Key<Option, String<'r', 'a', 'i', 's', 'e'>>;
         template <typename Option>
-        struct Return : Key<Option, String<'r', 'e', 't', 'u', 'r', 'n'>> {};
+        using Return = Key<Option, String<'r', 'e', 't', 'u', 'r', 'n'>>;
         template <typename Option>
         struct True : Key<Option, String<'T', 'r', 'u', 'e'>> {
           struct Transform {
@@ -150,13 +149,13 @@ namespace chimera {
           };
         };
         template <typename Option>
-        struct Try : Key<Option, String<'t', 'r', 'y'>> {};
+        using Try = Key<Option, String<'t', 'r', 'y'>>;
         template <typename Option>
-        struct While : Key<Option, String<'w', 'h', 'i', 'l', 'e'>> {};
+        using While = Key<Option, String<'w', 'h', 'i', 'l', 'e'>>;
         template <typename Option>
-        struct With : Key<Option, String<'w', 'i', 't', 'h'>> {};
+        using With = Key<Option, String<'w', 'i', 't', 'h'>>;
         template <typename Option>
-        struct Yield : Key<Option, String<'y', 'i', 'e', 'l', 'd'>> {};
+        using Yield = Key<Option, String<'y', 'i', 'e', 'l', 'd'>>;
         template <typename Option>
         using Keywords =
             Sor<And<Option>, As<Option>, Assert<Option>, Break<Option>,

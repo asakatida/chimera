@@ -48,11 +48,11 @@ namespace chimera {
           using Transform = Transform<asdl::Operator::ADD>;
         };
         template <typename Option>
-        struct Arr : Op<Option, String<'-', '>'>> {};
+        using Arr = Op<Option, String<'-', '>'>>;
         template <typename Option>
-        struct AtImpl : Op<Option, One<'@'>, '='> {};
+        using AtImpl = Op<Option, One<'@'>, '='>;
         template <typename Option>
-        struct AtOp : Seq<AtImpl<Option>> {};
+        using AtOp = Seq<AtImpl<Option>>;
         template <typename Option>
         struct AugAdd : Op<Option, String<'+', '='>> {
           using Transform = Transform<asdl::Operator::ADD>;
@@ -106,19 +106,19 @@ namespace chimera {
           using Transform = Transform<asdl::Operator::SUB>;
         };
         template <typename Option>
-        struct BitAnd : Op<Option, One<'&'>, '='> {};
+        using BitAnd = Op<Option, One<'&'>, '='>;
         template <typename Option>
         struct BitNot : Op<Option, One<'~'>> {
           using Transform = Transform<asdl::Unary::Op::BIT_NOT>;
         };
         template <typename Option>
-        struct BitOr : Op<Option, One<'|'>, '='> {};
+        using BitOr = Op<Option, One<'|'>, '='>;
         template <typename Option>
-        struct BitXor : Op<Option, One<'^'>, '='> {};
+        using BitXor = Op<Option, One<'^'>, '='>;
         template <typename Option>
-        struct Colon : Op<Option, One<':'>> {};
+        using Colon = Op<Option, One<':'>>;
         template <typename Option>
-        struct Comma : Op<Option, One<','>> {};
+        using Comma = Op<Option, One<','>>;
         template <typename Option>
         struct Div : Op<Option, One<'/'>, '=', '/'> {
           using Transform = Transform<asdl::Operator::DIV>;
@@ -133,7 +133,7 @@ namespace chimera {
           };
         };
         template <typename Option>
-        struct Eq : Op<Option, One<'='>, '='> {};
+        using Eq = Op<Option, One<'='>, '='>;
         template <typename Option>
         struct EqEq : Op<Option, String<'=', '='>> {
           using Transform = Transform<asdl::CompareExpr::Op::EQ>;
@@ -151,11 +151,11 @@ namespace chimera {
           using Transform = Transform<asdl::CompareExpr::Op::GT_E>;
         };
         template <typename Option>
-        struct LBrc : Op<Option, One<'{'>> {};
+        using LBrc = Op<Option, One<'{'>>;
         template <typename Option>
-        struct LBrt : Op<Option, One<'['>> {};
+        using LBrt = Op<Option, One<'['>>;
         template <typename Option>
-        struct LPar : Op<Option, One<'('>> {};
+        using LPar = Op<Option, One<'('>>;
         template <typename Option>
         struct LShift : Op<Option, String<'<', '<'>, '='> {
           using Transform = Transform<asdl::Operator::L_SHIFT>;
@@ -177,7 +177,7 @@ namespace chimera {
           using Transform = Transform<asdl::Operator::MOD>;
         };
         template <typename Option>
-        struct MultImpl : Op<Option, One<'*'>, '*', '='> {};
+        using MultImpl = Op<Option, One<'*'>, '*', '='>;
         template <typename Option>
         struct Mult : Seq<MultImpl<Option>> {
           using Transform = Transform<asdl::Operator::MULT>;
@@ -187,31 +187,31 @@ namespace chimera {
           using Transform = Transform<asdl::CompareExpr::Op::NOT_EQ>;
         };
         template <typename Option>
-        struct PeriodImpl : Op<Option, One<'.'>> {};
+        using PeriodImpl = Op<Option, One<'.'>>;
         template <typename Option>
-        struct Period : Seq<NotAt<Ellipsis>, PeriodImpl<Option>> {};
+        using Period = Seq<NotAt<Ellipsis>, PeriodImpl<Option>>;
         template <typename Option>
-        struct PowImpl : Op<Option, String<'*', '*'>, '='> {};
+        using PowImpl = Op<Option, String<'*', '*'>, '='>;
         template <typename Option>
         struct Pow : Seq<PowImpl<Option>> {
           using Transform = Transform<asdl::Operator::POW>;
         };
         template <typename Option>
-        struct RBrc : Op<Option, One<'}'>> {};
+        using RBrc = Op<Option, One<'}'>>;
         template <typename Option>
-        struct RBrt : Op<Option, One<']'>> {};
+        using RBrt = Op<Option, One<']'>>;
         template <typename Option>
-        struct RPar : Op<Option, One<')'>> {};
+        using RPar = Op<Option, One<')'>>;
         template <typename Option>
         struct RShift : Op<Option, String<'>', '>'>, '='> {
           using Transform = Transform<asdl::Operator::R_SHIFT>;
         };
         template <typename Option>
-        struct Semi : Op<Option, One<';'>> {};
+        using Semi = Op<Option, One<';'>>;
         template <typename Option>
-        struct StarOp : Seq<MultImpl<Option>> {};
+        using StarOp = Seq<MultImpl<Option>>;
         template <typename Option>
-        struct SubImpl : Op<Option, One<'-'>, '=', '>'> {};
+        using SubImpl = Op<Option, One<'-'>, '=', '>'>;
         template <typename Option>
         struct Sub : Seq<SubImpl<Option>> {
           using Transform = Transform<asdl::Operator::SUB>;
@@ -225,7 +225,7 @@ namespace chimera {
           using Transform = Transform<asdl::Unary::SUB>;
         };
         template <typename Option>
-        struct Unpack : Seq<PowImpl<Option>> {};
+        using Unpack = Seq<PowImpl<Option>>;
       } // namespace op
       using op::Add;
       using op::Arr;
