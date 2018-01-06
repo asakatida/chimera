@@ -31,6 +31,7 @@
 #include "asdl/asdl.hpp" // for Module
 #include "object/object.hpp"
 #include "options.hpp" // for Options
+#include "version.hpp"
 #include "virtual_machine/process_context.hpp"
 #include "virtual_machine/thread_context.hpp"
 #include "virtual_machine/virtual_machine.hpp" // for VirtualMachine
@@ -40,9 +41,9 @@ namespace chimera {
     namespace virtual_machine {
       int GlobalContext::interactive() {
         if (!options.dont_display_copyright) {
-          std::cout << "chimera 1.0.0 (default, " __DATE__ ", " __TIME__ ")\n"
-                       "[" __VERSION__ "] on "
-                       "darwin\n"
+          std::cout << "chimera " CHIMERA_VERSION " (default, " __DATE__
+                       ", " __TIME__ ")\n"
+                       "[" __VERSION__ "] on darwin\n"
                        R"(Type "help", "copyright", "credits" or "license" )"
                        "for more information.\n";
         }
@@ -50,7 +51,7 @@ namespace chimera {
         auto main = processContext.make_module("__main__");
         while (!std::cin.eof()) {
           std::cout << ">>> ";
-          auto interactive = processContext.parse_input(&std::cin, "<string>");
+          auto interactive = processContext.parse_input(std::cin, "<string>");
           ThreadContext{processContext, main}.evaluate(interactive);
         }
         return 0;
@@ -58,7 +59,7 @@ namespace chimera {
       int GlobalContext::execute_script() {
         std::ifstream input(options.script);
         ProcessContext processContext{*this};
-        auto module = processContext.parse_file(&input, options.script);
+        auto module = processContext.parse_file(input, options.script);
         ThreadContext{processContext, processContext.make_module("__main__")}
             .evaluate(module);
         return 0;
@@ -72,7 +73,7 @@ namespace chimera {
       }
       int GlobalContext::execute_script_input() {
         ProcessContext processContext{*this};
-        auto module = processContext.parse_file(&std::cin, "<input>");
+        auto module = processContext.parse_file(std::cin, "<input>");
         ThreadContext{processContext, processContext.make_module("__main__")}
             .evaluate(module);
         return 0;

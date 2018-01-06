@@ -42,7 +42,7 @@ namespace chimera {
       template <typename... Args>
       void parse(const Options &options, Args &&... args) {
         Ensures(
-            (tao::pegtl::parse<grammar::FileInput<>, grammar::Nothing,
+            (tao::pegtl::parse<grammar::SingleInput<>, grammar::Nothing,
                                grammar::Normal>(std::forward<Args>(args)...)));
         switch (options.optimize) {
           case Optimize::NONE:
@@ -54,24 +54,24 @@ namespace chimera {
         }
       }
 
-      asdl::Module ProcessContext::parse_file(const std::string_view &data,
+      asdl::Interactive ProcessContext::parse_input(const std::string_view &data,
                                               const char *source) {
-        asdl::Module module;
+        asdl::Interactive interactive;
         parse(global_context.options,
               grammar::Input<tao::pegtl::memory_input<>>(data.data(),
                                                          data.size(), source),
-              module, *this);
-        return module;
+              interactive, *this);
+        return interactive;
       }
 
-      asdl::Module ProcessContext::parse_file(std::istream &input,
+      asdl::Interactive ProcessContext::parse_input(std::istream &input,
                                               const char *source) {
-        asdl::Module module;
+        asdl::Interactive interactive;
         parse(global_context.options,
               grammar::Input<tao::pegtl::istream_input<>>(input, BUFFER_SIZE,
                                                           source),
-              module, *this);
-        return module;
+              interactive, *this);
+        return interactive;
       }
     } // namespace virtual_machine
   }   // namespace library

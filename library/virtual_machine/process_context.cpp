@@ -143,7 +143,7 @@ namespace chimera {
             std::cout << path << module << '\n';
           }
           std::cerr << path << module << '\n';
-          return parse_file(&ifstream, source.c_str());
+          return parse_file(ifstream, source.c_str());
         }
         return {};
       }
