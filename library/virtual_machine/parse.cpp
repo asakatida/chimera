@@ -54,8 +54,9 @@ namespace chimera {
         }
       }
 
-      asdl::Interactive ProcessContext::parse_input(const std::string_view &data,
-                                              const char *source) {
+      asdl::Interactive
+      ProcessContext::parse_input(const std::string_view &data,
+                                  const char *source) {
         asdl::Interactive interactive;
         parse(global_context.options,
               grammar::Input<tao::pegtl::memory_input<>>(data.data(),
@@ -65,7 +66,7 @@ namespace chimera {
       }
 
       asdl::Interactive ProcessContext::parse_input(std::istream &input,
-                                              const char *source) {
+                                                    const char *source) {
         asdl::Interactive interactive;
         parse(global_context.options,
               grammar::Input<tao::pegtl::istream_input<>>(input, BUFFER_SIZE,
