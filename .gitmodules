@@ -10,7 +10,7 @@
 [submodule "external/llvm"]
 	path = external/llvm
 	url = https://git.llvm.org/git/llvm
-	branch = release_50
+	branch = release_60
 [submodule "external/metal"]
 	path = external/metal
 	url = https://github.com/brunocodutra/metal.git
