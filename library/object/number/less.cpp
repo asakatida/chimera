@@ -20,16 +20,7 @@
 
 #include "object/number/less.hpp"
 
-#include <vector>
-
-#include <gsl/gsl>
-
-#include "object/number/add.hpp"
-#include "object/number/compare.hpp"
 #include "object/number/mult.hpp"
-#include "object/number/overflow.hpp"
-#include "object/number/positive.hpp"
-#include "object/number/sub.hpp"
 #include "object/number/util.hpp"
 
 namespace chimera {
@@ -126,7 +117,7 @@ namespace chimera {
         }
 
         bool operator<(const Integer &left, const Integer &right) {
-          return std::visit([](const auto &a, const auto &b) { return a > b; },
+          return std::visit([](const auto &a, const auto &b) { return b < a; },
                             left.value, right.value);
         }
 

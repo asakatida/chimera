@@ -26,18 +26,19 @@
 
 #include "asdl/asdl.hpp"
 #include "grammar/expr.hpp"
+#include "grammar/flags.hpp"
 #include "grammar/input.hpp"
-#include "grammar/options.hpp"
+#include "grammar/parse.hpp"
 #include "grammar/rules.hpp"
 #include "grammar/stmt.hpp"
 
 namespace chimera {
   namespace library {
     namespace grammar {
-      template <typename Option = Options<>::Set<Options<>::IMPORT_ALL>>
+      constexpr static flags::Flag option = flags::list<flags::IMPORT_ALL>;
       struct SingleInput
-          : Sor<NEWLINE<Option>, IfMust<CompoundStmt<Option>, NEWLINE<Option>>,
-                Must<SimpleStmt<Option>>> {
+          : sor<NEWLINE<option>, if_must<CompoundStmt<option>, NEWLINE<option>>,
+                must<SimpleStmt<option>>> {
         struct Transform : rules::Stack<asdl::StmtImpl> {
           template <typename Top>
           void success(Top &&top) {
@@ -46,9 +47,8 @@ namespace chimera {
           }
         };
       };
-      template <typename Option = Options<>::Set<Options<>::IMPORT_ALL>>
-      struct FileInput : Must<Opt<NEWLINE<Option>>, Opt<DocString<Option>>,
-                              Until<Eof, Stmt<Option>>> {
+      struct FileInput : must<opt<NEWLINE<option>>, opt<DocString<option>>,
+                              until<eof, Stmt<option>>> {
         struct Transform : rules::Stack<asdl::DocString, asdl::StmtImpl> {
           template <typename Top>
           void success(Top &&top) {
@@ -63,8 +63,8 @@ namespace chimera {
           }
         };
       };
-      template <typename Option = Options<>>
-      struct EvalInput : Must<TestList<Option>, Opt<NEWLINE<Option>>, Eof> {
+      struct EvalInput
+          : must<TestList<flags::list<>>, opt<NEWLINE<flags::list<>>>, eof> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Top>
           void success(Top &&top) {

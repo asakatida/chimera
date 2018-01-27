@@ -22,27 +22,35 @@
 
 #pragma once
 
+#include <type_traits>
+
 namespace chimera {
   namespace library {
     namespace grammar {
-      template <std::uint8_t Mask = 0>
-      struct Options {
+      namespace flags {
         enum {
           ASYNC_FLOW,
           DISCARD,
           IMPLICIT,
           IMPORT_ALL,
           LOOP_FLOW,
-          SCOPE_FLOW
+          SCOPE_FLOW,
         };
 
-        template <int... Bits>
-        constexpr static bool get = (Mask & (... | (1 << Bits))) != 0;
-        template <int... Bits>
-        using Set = Options<(Mask | ... | (1 << Bits))>;
-        template <int... Bits>
-        using UnSet = Options<(Mask & ... & ~(1 << Bits))>;
-      };
-    } // namespace grammar
-  }   // namespace library
+        using Flag = std::uint8_t;
+
+        template <auto... Flags>
+        constexpr static Flag list = ((1 << Flags) | ... | 0);
+
+        template <Flag Options, auto... Flags>
+        constexpr static Flag mask = Options &((1 << Flags) | ...);
+        template <Flag Options, auto... Flags>
+        constexpr static bool get = mask<Options, Flags...> != 0;
+        template <Flag Options, auto... Flags>
+        constexpr static Flag set = ((1 << Flags) | ... | Options);
+        template <Flag Options, auto... Flags>
+        constexpr static Flag unSet = ((~(1 << Flags)) & ... & Options);
+      } // namespace flags
+    }   // namespace grammar
+  }     // namespace library
 } // namespace chimera

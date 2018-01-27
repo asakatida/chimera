@@ -20,7 +20,7 @@
 
 #include "object/number/compare.hpp"
 
-#include "object/number/less.hpp"
+#include "object/number/less.hpp" // for operator<
 
 namespace chimera {
   namespace library {

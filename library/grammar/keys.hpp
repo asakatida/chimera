@@ -30,183 +30,178 @@
 namespace chimera {
   namespace library {
     namespace grammar {
-      namespace key {
-        template <auto Asdl>
-        struct Transform {
-          template <typename Outer>
-          void success(Outer &&outer) {
-            outer.push(Asdl);
-          }
-        };
-        template <typename Option, typename String>
-        using Key = Token<Option, String, NotAt<name::XidContinue>>;
-        template <typename Option>
+      namespace token {
+        namespace keys {
+          template <auto Asdl>
+          struct Transform {
+            template <typename Outer>
+            void success(Outer &&outer) {
+              outer.push(Asdl);
+            }
+          };
+        } // namespace keys
+        template <flags::Flag Option, typename String>
+        using Key = Token<Option, seq<String, not_at<XidContinue>>>;
+        template <flags::Flag Option>
         using And = Key<Option, String<'a', 'n', 'd'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using As = Key<Option, String<'a', 's'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using Assert = Key<Option, String<'a', 's', 's', 'e', 'r', 't'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using Async = Key<Option, String<'a', 's', 'y', 'n', 'c'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using Await = Key<Option, String<'a', 'w', 'a', 'i', 't'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using Break = Key<Option, String<'b', 'r', 'e', 'a', 'k'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using Class = Key<Option, String<'c', 'l', 'a', 's', 's'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using Continue =
             Key<Option, String<'c', 'o', 'n', 't', 'i', 'n', 'u', 'e'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using Def = Key<Option, String<'d', 'e', 'f'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using Del = Key<Option, String<'d', 'e', 'l'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using Elif = Key<Option, String<'e', 'l', 'i', 'f'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using Else = Key<Option, String<'e', 'l', 's', 'e'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using Except = Key<Option, String<'e', 'x', 'c', 'e', 'p', 't'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         struct False : Key<Option, String<'F', 'a', 'l', 's', 'e'>> {
           struct Transform {
             template <typename Outer>
             void success(Outer &&outer) {
-              outer.push(asdl::ExprImpl{
-                  asdl::NameConstant{asdl::NameConstant::FALSE}});
+              outer.push(asdl::NameConstant{asdl::NameConstant::FALSE});
             }
           };
         };
-        template <typename Option>
+        template <flags::Flag Option>
         using Finally = Key<Option, String<'f', 'i', 'n', 'a', 'l', 'l', 'y'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using For = Key<Option, String<'f', 'o', 'r'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using From = Key<Option, String<'f', 'r', 'o', 'm'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using Global = Key<Option, String<'g', 'l', 'o', 'b', 'a', 'l'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using If = Key<Option, String<'i', 'f'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using Import = Key<Option, String<'i', 'm', 'p', 'o', 'r', 't'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using InImpl = Key<Option, String<'i', 'n'>>;
-        template <typename Option>
-        using In = Seq<InImpl<Option>>;
-        template <typename Option>
-        struct InOp : Seq<InImpl<Option>> {
-          using Transform = Transform<asdl::CompareExpr::Op::IN>;
+        template <flags::Flag Option>
+        using In = seq<InImpl<Option>>;
+        template <flags::Flag Option>
+        struct InOp : seq<InImpl<Option>> {
+          using Transform = keys::Transform<asdl::CompareExpr::Op::IN>;
         };
-        template <typename Option>
+        template <flags::Flag Option>
         using IsImpl = Key<Option, String<'i', 's'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using Lambda = Key<Option, String<'l', 'a', 'm', 'b', 'd', 'a'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         struct None : Key<Option, String<'N', 'o', 'n', 'e'>> {
           struct Transform {
             template <typename Outer>
             void success(Outer &&outer) {
-              outer.push(
-                  asdl::ExprImpl{asdl::NameConstant{asdl::NameConstant::NONE}});
+              outer.push(asdl::NameConstant{asdl::NameConstant::NONE});
             }
           };
         };
-        template <typename Option>
+        template <flags::Flag Option>
         using Nonlocal =
             Key<Option, String<'n', 'o', 'n', 'l', 'o', 'c', 'a', 'l'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using NotImpl = Key<Option, String<'n', 'o', 't'>>;
-        template <typename Option>
-        struct NotIn : Seq<NotImpl<Option>, InImpl<Option>> {
-          using Transform = Transform<asdl::CompareExpr::Op::NOT_IN>;
+        template <flags::Flag Option>
+        struct NotIn : seq<NotImpl<Option>, InImpl<Option>> {
+          using Transform = keys::Transform<asdl::CompareExpr::Op::NOT_IN>;
         };
-        template <typename Option>
-        struct Is : Seq<IsImpl<Option>, NotAt<NotImpl<Option>>> {
-          using Transform = Transform<asdl::CompareExpr::Op::IS>;
+        template <flags::Flag Option>
+        struct Is : seq<IsImpl<Option>, not_at<NotImpl<Option>>> {
+          using Transform = keys::Transform<asdl::CompareExpr::Op::IS>;
         };
-        template <typename Option>
-        struct IsNot : Seq<IsImpl<Option>, NotImpl<Option>> {
-          using Transform = Transform<asdl::CompareExpr::Op::IS_NOT>;
+        template <flags::Flag Option>
+        struct IsNot : seq<IsImpl<Option>, NotImpl<Option>> {
+          using Transform = keys::Transform<asdl::CompareExpr::Op::IS_NOT>;
         };
-        template <typename Option>
-        using Not = Seq<NotImpl<Option>, NotAt<InImpl<Option>>>;
-        template <typename Option>
+        template <flags::Flag Option>
+        using Not = seq<NotImpl<Option>, not_at<InImpl<Option>>>;
+        template <flags::Flag Option>
         using Or = Key<Option, String<'o', 'r'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using Pass = Key<Option, String<'p', 'a', 's', 's'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using Raise = Key<Option, String<'r', 'a', 'i', 's', 'e'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using Return = Key<Option, String<'r', 'e', 't', 'u', 'r', 'n'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         struct True : Key<Option, String<'T', 'r', 'u', 'e'>> {
           struct Transform {
             template <typename Outer>
             void success(Outer &&outer) {
-              outer.push(
-                  asdl::ExprImpl{asdl::NameConstant{asdl::NameConstant::TRUE}});
+              outer.push(asdl::NameConstant{asdl::NameConstant::TRUE});
             }
           };
         };
-        template <typename Option>
+        template <flags::Flag Option>
         using Try = Key<Option, String<'t', 'r', 'y'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using While = Key<Option, String<'w', 'h', 'i', 'l', 'e'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using With = Key<Option, String<'w', 'i', 't', 'h'>>;
-        template <typename Option>
+        template <flags::Flag Option>
         using Yield = Key<Option, String<'y', 'i', 'e', 'l', 'd'>>;
-        template <typename Option>
         using Keywords =
-            Sor<And<Option>, As<Option>, Assert<Option>, Break<Option>,
-                Class<Option>, Continue<Option>, Def<Option>, Del<Option>,
-                Elif<Option>, Else<Option>, Except<Option>, False<Option>,
-                Finally<Option>, For<Option>, From<Option>, Global<Option>,
-                If<Option>, Import<Option>, InImpl<Option>, IsImpl<Option>,
-                Lambda<Option>, None<Option>, Nonlocal<Option>, NotImpl<Option>,
-                Or<Option>, Pass<Option>, Raise<Option>, Return<Option>,
-                True<Option>, Try<Option>, While<Option>, With<Option>,
-                Yield<Option>>;
-      } // namespace key
-      using key::And;
-      using key::As;
-      using key::Assert;
-      using key::Async;
-      using key::Await;
-      using key::Break;
-      using key::Class;
-      using key::Continue;
-      using key::Def;
-      using key::Del;
-      using key::Elif;
-      using key::Else;
-      using key::Except;
-      using key::False;
-      using key::Finally;
-      using key::For;
-      using key::From;
-      using key::Global;
-      using key::If;
-      using key::Import;
-      using key::In;
-      using key::InOp;
-      using key::Is;
-      using key::IsNot;
-      using key::Keywords;
-      using key::Lambda;
-      using key::None;
-      using key::Nonlocal;
-      using key::Not;
-      using key::NotIn;
-      using key::Or;
-      using key::Pass;
-      using key::Raise;
-      using key::Return;
-      using key::True;
-      using key::Try;
-      using key::While;
-      using key::With;
-      using key::Yield;
+            sor<And<0>, As<0>, Assert<0>, Break<0>, Class<0>, Continue<0>,
+                Def<0>, Del<0>, Elif<0>, Else<0>, Except<0>, False<0>,
+                Finally<0>, For<0>, From<0>, Global<0>, If<0>, Import<0>,
+                InImpl<0>, IsImpl<0>, Lambda<0>, None<0>, Nonlocal<0>,
+                NotImpl<0>, Or<0>, Pass<0>, Raise<0>, Return<0>, True<0>,
+                Try<0>, While<0>, With<0>, Yield<0>>;
+      } // namespace token
+      using token::And;
+      using token::As;
+      using token::Assert;
+      using token::Async;
+      using token::Await;
+      using token::Break;
+      using token::Class;
+      using token::Continue;
+      using token::Def;
+      using token::Del;
+      using token::Elif;
+      using token::Else;
+      using token::Except;
+      using token::False;
+      using token::Finally;
+      using token::For;
+      using token::From;
+      using token::Global;
+      using token::If;
+      using token::Import;
+      using token::In;
+      using token::InOp;
+      using token::Is;
+      using token::IsNot;
+      using token::Keywords;
+      using token::Lambda;
+      using token::None;
+      using token::Nonlocal;
+      using token::Not;
+      using token::NotIn;
+      using token::Or;
+      using token::Pass;
+      using token::Raise;
+      using token::Return;
+      using token::True;
+      using token::Try;
+      using token::While;
+      using token::With;
+      using token::Yield;
     } // namespace grammar
   }   // namespace library
 } // namespace chimera

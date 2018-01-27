@@ -20,23 +20,18 @@
 
 #include "object/number/sub.hpp"
 
-#include <vector>
-
-#include <gsl/gsl>
+#include <gsl/gsl> // for Ensures
 
 #include "object/number/add.hpp"
-#include "object/number/less.hpp"
+#include "object/number/div.hpp"
+#include "object/number/less.hpp" // for operator<
 #include "object/number/mult.hpp"
-#include "object/number/negative.hpp"
-#include "object/number/overflow.hpp"
-#include "object/number/positive.hpp"
-#include "object/number/sub.hpp"
+#include "object/number/overflow.hpp" // for Carryover
 #include "object/number/util.hpp"
 
 namespace chimera {
   namespace library {
     namespace object {
-
       namespace number {
         Number operator-(const std::uint64_t &left, const Base &right) {
           if (left < right.value) {

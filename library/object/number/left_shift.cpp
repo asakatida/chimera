@@ -18,17 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "object/number/right_shift.hpp"
+#include "object/number/left_shift.hpp"
 
-#include <vector>
+#include <gsl/gsl> // for Ensures
 
-#include <gsl/gsl>
-
-#include "object/number/add.hpp"
-#include "object/number/mult.hpp"
-#include "object/number/overflow.hpp"
-#include "object/number/positive.hpp"
-#include "object/number/sub.hpp"
+#include "object/number/compare.hpp"     // for operator==, operator>=
+#include "object/number/mod.hpp"         // for operator%
+#include "object/number/right_shift.hpp" // for operator>>
 #include "object/number/util.hpp"
 
 namespace chimera {
@@ -46,7 +42,7 @@ namespace chimera {
 
         Number operator<<(const std::uint64_t &left, const Integer &right) {
           return std::visit(
-              [&left](const auto &value) { return left >> value; },
+              [&left](const auto &value) { return left << value; },
               right.value);
         }
 

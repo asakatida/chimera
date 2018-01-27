@@ -29,10 +29,9 @@ namespace chimera {
     namespace grammar {
       namespace rules {
         template <typename List, typename New>
-        using Unique =
-            metal::invoke<metal::invoke<metal::lambda<metal::distinct>,
-                                        metal::append<List, New>>,
-                          metal::append<List, New>, List>;
+        using Unique = metal::if_<metal::apply<metal::lambda<metal::distinct>,
+                                               metal::append<List, New>>,
+                                  metal::append<List, New>, List>;
 
         template <typename... Types>
         using Set =

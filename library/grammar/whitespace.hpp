@@ -25,59 +25,84 @@
 
 #include <type_traits>
 
+#include "grammar/flags.hpp"
 #include "grammar/rules.hpp"
 #include "grammar/utf8_space.hpp"
 
 namespace chimera {
   namespace library {
     namespace grammar {
-      template <typename Option>
-      using Space = Star<Sor<
-          Seq<One<'\\'>, Eol>, Seq<One<'#'>, Star<NotAt<Eolf>, Any>>,
-          std::conditional_t<Option::template get<Option::IMPLICIT>, Utf8Space,
-                             Minus<Utf8Space, One<'\r', '\n'>>>>>;
-      template <typename Option>
+      template <char32_t... Chars>
+      using String = tao::pegtl::utf8::string<Chars...>;
+
+      using Eol = sor<String<'\r', '\n'>, one<'\r', '\n'>>;
+      using Eolf = sor<eof, Eol>;
+
+      template <flags::Flag Option>
+      using Space = star<
+          sor<seq<one<'\\'>, Eol>, seq<one<'#'>, star<not_at<Eolf>, any>>,
+              std::conditional_t<flags::get<Option, flags::IMPLICIT>, Utf8Space,
+                                 minus<Utf8Space, one<'\r', '\n'>>>>,
+          std::conditional_t<flags::get<Option, flags::DISCARD>, discard,
+                             success>>;
+      template <flags::Flag Option>
       using BlankLines =
-          Seq<Plus<Space<Option>, Eol,
-                   std::conditional_t<Option::template get<Option::DISCARD>,
-                                      Discard, Success>>,
-              Sor<Plus<One<' '>>, Star<One<'\t'>>>, Must<NotAt<One<' ', '\t'>>>,
-              std::conditional_t<Option::template get<Option::DISCARD>, Discard,
-                                 Success>>;
-      struct IndentCheck : NotAt<One<' ', '\t'>> {
+          seq<plus<Space<flags::mask<Option, flags::IMPLICIT>>, Eol,
+                   std::conditional_t<flags::get<Option, flags::DISCARD>,
+                                      discard, success>>,
+              sor<plus<one<' '>>, star<one<'\t'>>>,
+              must<not_at<one<' ', '\t'>>>,
+              std::conditional_t<flags::get<Option, flags::DISCARD>, discard,
+                                 success>>;
+      struct IndentCheck : not_at<one<' ', '\t'>> {
         template <typename Input>
         static bool match(Input &&in) {
           return in.indent();
         }
       };
-      template <typename Option>
-      using INDENT = Seq<BlankLines<Option>, IndentCheck>;
-      struct DedentCheck : NotAt<One<' ', '\t'>> {
+      template <flags::Flag Option>
+      using INDENT =
+          seq<BlankLines<flags::mask<Option, flags::IMPLICIT, flags::DISCARD>>,
+              IndentCheck, discard>;
+      struct DedentCheck : not_at<one<' ', '\t'>> {
         template <typename Input>
         static bool match(Input &&in) {
           return in.is_dedent();
         }
       };
-      struct DedentConsume : NotAt<One<' ', '\t'>> {
+      struct DedentConsume : not_at<one<' ', '\t'>> {
         template <typename Input>
         static bool match(Input &&in) {
           return in.dedent();
         }
       };
-      template <typename Option>
-      using DEDENT = Sor<Seq<Eof, DedentConsume>,
-                         Seq<At<BlankLines<Option>, DedentCheck>,
-                             Opt<BlankLines<Option>, DedentConsume, Discard>>>;
-      struct NextIndentCheck : NotAt<One<' ', '\t'>> {
+      template <flags::Flag Option>
+      using DEDENT =
+          sor<seq<eof, DedentConsume>,
+              seq<at<BlankLines<
+                         flags::mask<Option, flags::IMPLICIT, flags::DISCARD>>,
+                     DedentCheck>,
+                  opt<BlankLines<
+                          flags::mask<Option, flags::IMPLICIT, flags::DISCARD>>,
+                      DedentConsume, discard>>>;
+      struct NextIndentCheck : not_at<one<' ', '\t'>> {
         template <typename Input>
         static bool match(Input &&in) {
           return in.is_newline();
         }
       };
-      template <typename Option>
-      using NEWLINE = Seq<BlankLines<Option>, NextIndentCheck, Discard>;
-      template <typename Option, typename... Rules>
-      using Token = Seq<Rules..., Space<Option>>;
-    } // namespace grammar
-  }   // namespace library
+      template <flags::Flag Option>
+      using NEWLINE =
+          seq<BlankLines<flags::mask<Option, flags::IMPLICIT, flags::DISCARD>>,
+              NextIndentCheck, discard>;
+      namespace token {
+        template <typename Rule>
+        struct Action : tao::pegtl::nothing<Rule> {};
+        template <flags::Flag Option, typename Rule>
+        using Token =
+            seq<Rule,
+                Space<flags::mask<Option, flags::IMPLICIT, flags::DISCARD>>>;
+      }; // namespace token
+    }    // namespace grammar
+  }      // namespace library
 } // namespace chimera

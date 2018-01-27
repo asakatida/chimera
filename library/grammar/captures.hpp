@@ -28,28 +28,30 @@
 namespace chimera {
   namespace library {
     namespace grammar {
-      using ArgumentsCapture =
-          ReshapeCapture<asdl::Arguments, std::vector<Arg>, std::optional<Arg>,
-                         std::vector<Arg>, std::optional<Arg>>;
-      using ExcepthandlerCapture = VariantCapture<asdl::ExceptHandler>;
-      using OptionalArgCapture = OptionalCapture<asdl::Arg>;
-      using OptionalDocStringCapture = OptionalCapture<asdl::DocString>;
-      using OptionalExprImplCapture = OptionalCapture<asdl::ExprImpl>;
-      using OptionalNameCapture = OptionalCapture<asdl::Name>;
+      using ArgumentsCapture = rules::ReshapeCapture<
+          asdl::Arguments, std::vector<asdl::Arg>, std::optional<asdl::Arg>,
+          std::vector<asdl::Arg>, std::optional<asdl::Arg>>;
+      using ExcepthandlerCapture = rules::VariantCapture<asdl::ExceptHandler>;
+      using OptionalArgCapture = rules::OptionalCapture<asdl::Arg>;
+      using OptionalDocStringCapture = rules::OptionalCapture<asdl::DocString>;
+      using OptionalExprImplCapture = rules::OptionalCapture<asdl::ExprImpl>;
+      using OptionalNameCapture = rules::OptionalCapture<asdl::Name>;
       using SliceImplCapture =
-          VariantCapture<asdl::ExtSlice, asdl::Index, asdl::Slice>;
-      using VectorAliasCapture = VectorCapture<asdl::Alias>;
-      using VectorArgCapture = VectorCapture<asdl::Arg>;
-      using VectorCompareExprCapture = VectorCapture<asdl::CompareExpr>;
-      using VectorComprehensionCapture = VectorCapture<asdl::Comprehension>;
-      using VectorExcepthandlerCapture = VectorCapture<asdl::Excepthandler>;
-      using VectorExprImplCapture = VectorCapture<asdl::ExprImpl>;
-      using VectorIfBranchCapture = VectorCapture<asdl::IfBranch>;
-      using VectorKeywordCapture = VectorCapture<asdl::Keyword>;
-      using VectorCapture = VectorCapture<asdl::Name>;
-      using VectorSliceImplCapture = VectorCapture<asdl::SliceImpl>;
-      using VectorStmtImplCapture = VectorCapture<asdl::StmtImpl>;
-      using VectorWithitemCapture = VectorCapture<asdl::Withitem>;
+          rules::VariantCapture<asdl::ExtSlice, asdl::Index, asdl::Slice>;
+      using VectorAliasCapture = rules::VectorCapture<asdl::Alias>;
+      using VectorArgCapture = rules::VectorCapture<asdl::Arg>;
+      using VectorCompareExprCapture = rules::VectorCapture<asdl::CompareExpr>;
+      using VectorComprehensionCapture =
+          rules::VectorCapture<asdl::Comprehension>;
+      using VectorExcepthandlerCapture =
+          rules::VectorCapture<asdl::Excepthandler>;
+      using VectorExprImplCapture = rules::VectorCapture<asdl::ExprImpl>;
+      using VectorIfBranchCapture = rules::VectorCapture<asdl::IfBranch>;
+      using VectorKeywordCapture = rules::VectorCapture<asdl::Keyword>;
+      using VectorCapture = rules::VectorCapture<asdl::Name>;
+      using VectorSliceImplCapture = rules::VectorCapture<asdl::SliceImpl>;
+      using VectorStmtImplCapture = rules::VectorCapture<asdl::StmtImpl>;
+      using VectorWithitemCapture = rules::VectorCapture<asdl::Withitem>;
     } // namespace grammar
   }   // namespace library
 } // namespace chimera

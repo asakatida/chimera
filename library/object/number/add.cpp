@@ -20,13 +20,11 @@
 
 #include "object/number/add.hpp"
 
-#include <vector>
-
-#include <gsl/gsl>
+#include <gsl/gsl> // for Ensures
 
 #include "object/number/div.hpp"
 #include "object/number/mult.hpp"
-#include "object/number/overflow.hpp"
+#include "object/number/overflow.hpp" // for Carryover
 #include "object/number/positive.hpp"
 #include "object/number/sub.hpp"
 #include "object/number/util.hpp"

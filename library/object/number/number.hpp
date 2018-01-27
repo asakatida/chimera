@@ -21,13 +21,12 @@
 #pragma once
 
 #include <cstdint>
-#include <variant>
+#include <variant> // for variant
 #include <vector>
 
 namespace chimera {
   namespace library {
     namespace object {
-
       namespace number {
         struct Base {
           std::uint64_t value;

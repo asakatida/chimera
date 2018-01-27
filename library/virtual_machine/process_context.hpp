@@ -22,22 +22,24 @@
 
 #pragma once
 
-#include <iostream>
-#include <map>
-#include <optional>
+#include <iostream> // for istream
+#include <optional> // for optional
 #include <string>
-#include <string_view>
+#include <string_view> // for string_view
 
-#include "asdl/asdl.hpp"
-#include "container/atomic_map.hpp"
-#include "object/object.hpp"
-#include "virtual_machine/garbage.hpp"
+#include "asdl/asdl.hpp"               // for Constant, Interactive, Module
+#include "container/atomic_map.hpp"    // for AtomicMap
+#include "object/object.hpp"           // for Object, String (ptr only)
+#include "virtual_machine/garbage.hpp" // for GarbageCollector
 #include "virtual_machine/global_context.hpp"
 
 namespace chimera {
   namespace library {
     namespace virtual_machine {
       struct ProcessContext {
+        constexpr static auto bufferSize =
+            std::numeric_limits<std::uint16_t>::max();
+
         std::optional<asdl::Module> import_module(std::string &&module);
 
         object::Object &import_object(std::string_view &&name,

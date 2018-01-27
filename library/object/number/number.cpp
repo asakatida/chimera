@@ -20,9 +20,6 @@
 
 #include "object/number/number.hpp"
 
-#include <tuple> // for tuple
-#include <type_traits>
-
 #include "object/number/add.hpp"
 #include "object/number/and.hpp"
 #include "object/number/compare.hpp"
@@ -34,7 +31,6 @@
 #include "object/number/mult.hpp"
 #include "object/number/negative.hpp"
 #include "object/number/or.hpp"
-#include "object/number/overflow.hpp"
 #include "object/number/positive.hpp"
 #include "object/number/right_shift.hpp"
 #include "object/number/sub.hpp"
