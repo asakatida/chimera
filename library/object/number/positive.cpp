@@ -20,14 +20,9 @@
 
 #include "object/number/positive.hpp"
 
-#include <vector>
-
-#include <gsl/gsl>
-
 namespace chimera {
   namespace library {
     namespace object {
-
       namespace number {
         Number operator+(const Base &base) { return Number{base}; }
         Number operator+(const Natural &natural) { return Number{natural}; }

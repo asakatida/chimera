@@ -22,7 +22,7 @@
 
 #include "virtual_machine/virtual_machine.hpp"
 
-#include <csignal>
+#include <csignal> // for signal, SIGINT
 
 using namespace std::literals;
 

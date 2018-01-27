@@ -31,42 +31,31 @@ namespace chimera {
   namespace library {
     namespace grammar {
       namespace rules {
-        namespace detail {
-          template <typename Rule, tao::pegtl::apply_mode A>
-          struct Match : tao::pegtl::normal<Rule> {};
-          template <typename Rule>
-          struct Match<Rule, tao::pegtl::apply_mode::ACTION> {
-            template <tao::pegtl::apply_mode A, tao::pegtl::rewind_mode M,
-                      template <typename...> class Action,
-                      template <typename...> class Control, typename Input,
-                      typename Outer, typename ProcessContext>
-            static bool match(Input &in, Outer &&outer,
-                              ProcessContext &&processContext) {
+        using tao::pegtl::normal;
+        template <typename Rule, typename = std::void_t<>>
+        struct Normal : normal<Rule> {};
+        template <typename Rule>
+        struct Normal<Rule, std::void_t<decltype(typename Rule::Transform{})>>
+            : normal<Rule> {
+          template <tao::pegtl::apply_mode A, tao::pegtl::rewind_mode M,
+                    template <typename...> class Action,
+                    template <typename...> class Control, typename Input,
+                    typename Outer, typename ProcessContext>
+          static bool match(Input &in, Outer &&outer,
+                            ProcessContext &&processContext) {
+            if constexpr (A == tao::pegtl::apply_mode::ACTION) {
               typename Rule::Transform state;
 
-              if (tao::pegtl::normal<Rule>::template match<A, M, Action,
-                                                           Control>(
+              if (normal<Rule>::template match<A, M, Action, Control>(
                       in, state, processContext)) {
                 state.success(outer);
                 return true;
               }
               return false;
+            } else {
+              return normal<Rule>::template match<A, M, Action, Control>(
+                  in, outer, processContext);
             }
-          };
-        } // namespace detail
-        template <typename Rule, typename = std::void_t<>>
-        struct Normal : tao::pegtl::normal<Rule> {};
-        template <typename Rule>
-        struct Normal<Rule, std::void_t<typename Rule::Transform>>
-            : tao::pegtl::normal<Rule> {
-          template <tao::pegtl::apply_mode A, tao::pegtl::rewind_mode M,
-                    template <typename...> class Action,
-                    template <typename...> class Control, typename Input,
-                    typename... Args>
-          static bool match(Input &in, Args &&... args) {
-            return detail::Match<Rule, A>::template match<A, M, Action,
-                                                          Control>(
-                in, std::forward<Args>(args)...);
           }
         };
       } // namespace rules

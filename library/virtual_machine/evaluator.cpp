@@ -23,24 +23,16 @@
 
 #include "virtual_machine/evaluator.hpp"
 
-#include <algorithm>
-#include <atomic>
-#include <functional> // for function
-#include <iostream>
-#include <stack>
-#include <string>
-#include <string_view>
-#include <variant> // for variant
+#include <exception> // for exception
+#include <iostream>  // for string
 
-#include <gsl/gsl>
+#include <gsl/gsl> // for Ensures
 
-#include "asdl/asdl.hpp" // for ExprImpl (ptr only), StmtImp...
+#include "asdl/asdl.hpp" // for ExprImpl, AnnAssign (ptr only), Assert (pt...
 #include "container/reverse.hpp"
-#include "options.hpp"
 #include "virtual_machine/del_evaluator.hpp"
 #include "virtual_machine/get_evaluator.hpp"
 #include "virtual_machine/set_evaluator.hpp"
-#include "virtual_machine/slice_evaluator.hpp"
 
 using namespace std::literals;
 

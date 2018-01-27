@@ -22,10 +22,10 @@
 
 #pragma once
 
-#include <optional>
-#include <vector>
+#include <optional> // for optional
 
-#include "object/object.hpp"
+#include "asdl/asdl.hpp"
+#include "object/object.hpp" // for Object
 #include "virtual_machine/process_context.hpp"
 
 namespace chimera {

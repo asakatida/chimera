@@ -7,7 +7,7 @@
 namespace chimera {
   namespace library {
     namespace grammar {
-      using Utf8IdStart = Ranges<
+      using Utf8IdStart = ranges<
           65, 90, 95, 95, 97, 122, 170, 170, 181, 181, 186, 186, 192, 214, 216,
           246, 248, 705, 710, 721, 736, 740, 748, 748, 750, 750, 880, 884, 886,
           887, 891, 893, 895, 895, 902, 902, 904, 906, 908, 908, 910, 929, 931,

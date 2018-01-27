@@ -34,9 +34,7 @@
 namespace chimera {
   namespace library {
     namespace grammar {
-      namespace number {
-        template <typename Rule>
-        struct NumberActions : Nothing<Rule> {};
+      namespace token {
         struct NumberHolder {
           template <std::uint8_t Base, typename Input>
           void apply(const Input &in) {
@@ -46,48 +44,50 @@ namespace chimera {
                 object::number::number(std::stoul(in.string(), nullptr, Base));
           }
 
-        public:
           object::Number number = object::number::number(0);
         };
-        struct Nonzerodigit : Seq<Range<'1', '9'>, RepOpt<18, Digit>> {};
+        struct Nonzerodigit
+            : seq<range<'1', '9'>, rep_opt<18, range<'0', '9'>>> {};
         template <>
-        struct NumberActions<Nonzerodigit> {
+        struct Action<Nonzerodigit> {
           template <typename Input, typename Top, typename... Args>
           static void apply(const Input &in, Top &&top,
                             const Args &... /*args*/) {
             top.template apply<10>(in);
           }
         };
-        struct Digit : Seq<Digit, RepOpt<18, Digit>> {};
+        struct Digit : seq<range<'0', '9'>, rep_opt<18, range<'0', '9'>>> {};
         template <>
-        struct NumberActions<Digit> {
+        struct Action<Digit> {
           template <typename Input, typename Top, typename... Args>
           static void apply(const Input &in, Top &&top,
                             const Args &... /*args*/) {
             top.template apply<10>(in);
           }
         };
-        struct Bindigit : Seq<Range<'0', '1'>, RepOpt<63, Range<'0', '1'>>> {};
+        struct Bindigit : seq<range<'0', '1'>, rep_opt<63, range<'0', '1'>>> {};
         template <>
-        struct NumberActions<Bindigit> {
+        struct Action<Bindigit> {
           template <typename Input, typename Top, typename... Args>
           static void apply(const Input &in, Top &&top,
                             const Args &... /*args*/) {
             top.template apply<2>(in);
           }
         };
-        struct Octdigit : Seq<Range<'0', '7'>, RepOpt<31, Range<'0', '7'>>> {};
+        struct Octdigit : seq<range<'0', '7'>, rep_opt<31, range<'0', '7'>>> {};
         template <>
-        struct NumberActions<Octdigit> {
+        struct Action<Octdigit> {
           template <typename Input, typename Top, typename... Args>
           static void apply(const Input &in, Top &&top,
                             const Args &... /*args*/) {
             top.template apply<8>(in);
           }
         };
-        struct Hexdigit : Seq<Xdigit, RepOpt<15, Xdigit>> {};
+        struct Hexdigit
+            : seq<ranges<'0', '9', 'a', 'f', 'A', 'F'>,
+                  rep_opt<15, ranges<'0', '9', 'a', 'f', 'A', 'F'>>> {};
         template <>
-        struct NumberActions<Hexdigit> {
+        struct Action<Hexdigit> {
           template <typename Input, typename Top, typename... Args>
           static void apply(const Input &in, Top &&top,
                             const Args &... /*args*/) {
@@ -95,21 +95,21 @@ namespace chimera {
           }
         };
         using DecIntegerNonZeroDigit =
-            Seq<Nonzerodigit, Star<Opt<One<'_'>>, Digit>>;
+            seq<Nonzerodigit, star<opt<one<'_'>>, Digit>>;
         using DecIntegerZeroDigit =
-            Seq<One<'0'>, Star<Opt<One<'_'>>, One<'0'>>>;
-        using Decinteger = Sor<DecIntegerNonZeroDigit, DecIntegerZeroDigit>;
-        using BinStart = Seq<One<'0'>, Sor<One<'b'>, One<'B'>>>;
-        using Bininteger = IfMust<BinStart, Plus<Opt<One<'_'>>, Bindigit>>;
-        using OctStart = Seq<One<'0'>, Sor<One<'o'>, One<'O'>>>;
-        using Octinteger = IfMust<OctStart, Plus<Opt<One<'_'>>, Octdigit>>;
-        using HexStart = Seq<One<'0'>, Sor<One<'x'>, One<'X'>>>;
-        using Hexinteger = IfMust<HexStart, Plus<Opt<One<'_'>>, Hexdigit>>;
-        using Integer = Sor<Bininteger, Octinteger, Hexinteger, Decinteger>;
+            seq<one<'0'>, star<opt<one<'_'>>, one<'0'>>>;
+        using Decinteger = sor<DecIntegerNonZeroDigit, DecIntegerZeroDigit>;
+        using BinStart = seq<one<'0'>, one<'b', 'B'>>;
+        using Bininteger = if_must<BinStart, plus<opt<one<'_'>>, Bindigit>>;
+        using OctStart = seq<one<'0'>, one<'o', 'O'>>;
+        using Octinteger = if_must<OctStart, plus<opt<one<'_'>>, Octdigit>>;
+        using HexStart = seq<one<'0'>, one<'x', 'X'>>;
+        using Hexinteger = if_must<HexStart, plus<opt<one<'_'>>, Hexdigit>>;
+        using Integer = sor<Bininteger, Octinteger, Hexinteger, Decinteger>;
 
-        using Digitpart = Plus<Opt<One<'_'>>, Digit>;
-        using Fraction = Seq<One<'.'>, Digitpart>;
-        struct ExponentNegative : Seq<One<'-'>, Digitpart> {
+        using Digitpart = plus<opt<one<'_'>>, Digit>;
+        using Fraction = seq<one<'.'>, Digitpart>;
+        struct ExponentNegative : seq<one<'-'>, Digitpart> {
           struct Transform : NumberHolder {
             template <typename Top>
             void success(Top &&top) {
@@ -118,8 +118,8 @@ namespace chimera {
           };
         };
         struct Exponent
-            : IfMust<One<'e', 'E'>,
-                     Sor<Seq<Opt<One<'+'>>, Digitpart>, ExponentNegative>> {
+            : if_must<one<'e', 'E'>,
+                      sor<seq<opt<one<'+'>>, Digitpart>, ExponentNegative>> {
           struct Transform : NumberHolder {
             template <typename Top>
             void success(Top &&top) {
@@ -128,9 +128,9 @@ namespace chimera {
           };
         };
         using Pointfloat =
-            Sor<Seq<Opt<Digitpart>, Fraction>, Seq<Digitpart, One<'.'>>>;
-        using Exponentfloat = Seq<Sor<Digitpart, Pointfloat>, Exponent>;
-        struct Floatnumber : Sor<Pointfloat, Exponentfloat> {
+            sor<seq<opt<Digitpart>, Fraction>, seq<Digitpart, one<'.'>>>;
+        using Exponentfloat = seq<sor<Digitpart, Pointfloat>, Exponent>;
+        struct Floatnumber : sor<Pointfloat, Exponentfloat> {
           struct Transform : NumberHolder {
             object::Number denominator = object::number::number(1);
             template <typename Top>
@@ -146,7 +146,7 @@ namespace chimera {
             }
           };
         };
-        struct Imagnumber : Seq<Sor<Floatnumber, Digitpart>, One<'j', 'J'>> {
+        struct Imagnumber : seq<sor<Floatnumber, Digitpart>, one<'j', 'J'>> {
           struct Transform : NumberHolder {
             template <typename Top>
             void success(Top &&top) {
@@ -154,26 +154,20 @@ namespace chimera {
             }
           };
         };
-        struct Numberliteral : Sor<Imagnumber, Floatnumber, Integer> {
-          struct Transform : NumberHolder, rules::Stack<asdl::ExprImpl> {
-            template <typename Outer>
-            void success(Outer &&outer) {
-              outer.push(pop<asdl::ExprImpl>());
-            }
-          };
+        struct Numberliteral : sor<Imagnumber, Floatnumber, Integer> {
+          struct Transform : NumberHolder,
+                             rules::VariantCapture<asdl::ExprImpl> {};
         };
         template <>
-        struct NumberActions<Numberliteral> {
+        struct Action<Numberliteral> {
           template <typename Top, typename ProcessContext>
           static void apply0(Top &&top, ProcessContext &&processContext) {
-            top.push(asdl::ExprImpl{
-                processContext.insert_constant(std::move(top.number))});
+            top.push(processContext.insert_constant(std::move(top.number)));
           }
         };
-      } // namespace number
-      template <typename Option>
-      using NUMBER =
-          Token<Option, Action<number::NumberActions, number::Numberliteral>>;
+      } // namespace token
+      template <flags::Flag Option>
+      using NUMBER = token::Token<Option, token::Numberliteral>;
     } // namespace grammar
   }   // namespace library
 } // namespace chimera

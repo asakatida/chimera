@@ -22,19 +22,13 @@
 
 #include "object.hpp"
 
-#include <algorithm>
-#include <functional>
-#include <limits>
-#include <map>
-#include <memory>
-#include <string>
+#include <string> // for string
+#include <utility>
 
 namespace chimera {
   namespace library {
     namespace object {
-      String::String(const std::string &string) : value(string){};
-      String::String(std::string &&string) noexcept
-          : value(std::move(string)){};
+      String::String(std::string string) : value(std::move(string)){};
 
       Object::Object() : object(std::make_shared<Impl>()) {}
       Object::Object(Value &&value, std::map<std::string, Object> &&attributes)
@@ -91,9 +85,7 @@ namespace chimera {
         return std::holds_alternative<object::True>(object->value);
       }
 
-      BaseException::BaseException(const Object &anException)
-          : exception(anException) {}
-      BaseException::BaseException(Object &&anException)
+      BaseException::BaseException(Object anException)
           : exception(std::move(anException)) {}
       const char *BaseException::what() const noexcept {
         return "BaseException";

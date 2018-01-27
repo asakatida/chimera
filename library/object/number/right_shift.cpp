@@ -20,17 +20,12 @@
 
 #include "object/number/right_shift.hpp"
 
-#include <vector>
-
-#include <gsl/gsl>
+#include <gsl/gsl> // for Ensures
 
 #include "container/reverse.hpp"
-#include "object/number/add.hpp"
-#include "object/number/mult.hpp"
-#include "object/number/overflow.hpp"
-#include "object/number/positive.hpp"
-#include "object/number/sub.hpp"
-#include "object/number/util.hpp"
+#include "object/number/compare.hpp" // for operator==
+#include "object/number/left_shift.hpp"
+#include "object/number/overflow.hpp" // for Carryover
 
 namespace chimera {
   namespace library {

@@ -26,13 +26,14 @@ add_library(
   library/grammar/captures.hpp
   library/grammar/expr.hpp
   library/grammar/exprfwd.hpp
+  library/grammar/flags.hpp
   library/grammar/grammar.hpp
   library/grammar/identifier.hpp
   library/grammar/input.hpp
   library/grammar/keys.hpp
   library/grammar/number.hpp
   library/grammar/oper.hpp
-  library/grammar/options.hpp
+  library/grammar/parse.hpp
   library/grammar/rules.hpp
   library/grammar/stmt.hpp
   library/grammar/string.hpp
@@ -100,7 +101,6 @@ add_library(
   library/virtual_machine/get_evaluator.hpp
   library/virtual_machine/global_context.cpp
   library/virtual_machine/global_context.hpp
-  library/virtual_machine/parse_file.cpp
   library/virtual_machine/parse.cpp
   library/virtual_machine/process_context.cpp
   library/virtual_machine/process_context.hpp
@@ -143,6 +143,9 @@ target_compile_features(chimera PUBLIC cxx_std_17)
 
 add_executable(
   unit_test
+  unit_tests/grammar/identifier.cpp
+  unit_tests/grammar/number.cpp
+  unit_tests/grammar/test_parse.hpp
   unit_tests/number/number.cpp
   unit_tests/main.cpp)
 target_include_directories(unit_test PRIVATE unit_tests)
@@ -152,22 +155,7 @@ target_link_libraries(unit_test libchimera)
 
 target_compile_features(unit_test PUBLIC cxx_std_17)
 
-add_custom_command(
-  OUTPUT "${CMAKE_BINARY_DIR}/libFuzzer.a"
-  COMMAND "${CMAKE_SOURCE_DIR}/external/llvm/lib/Fuzzer/build.sh"
-  VERBATIM
-  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
-add_custom_target(libFuzzer DEPENDS "${CMAKE_BINARY_DIR}/libFuzzer.a")
-add_library(Fuzzer STATIC IMPORTED)
-add_dependencies(Fuzzer libFuzzer)
-set_property(
-  TARGET Fuzzer
-  PROPERTY IMPORTED_LOCATION
-  "${CMAKE_BINARY_DIR}/libFuzzer.a")
-
-add_executable(
-  fuzz
-  unit_tests/fuzz/target.cpp)
+add_executable(fuzz unit_tests/fuzz/target.cpp)
 
 target_compile_options(
   fuzz
@@ -175,18 +163,33 @@ target_compile_options(
   -g
   -fsanitize-coverage=trace-cmp
   -fsanitize-coverage=trace-pc-guard
-  -fsanitize=address)
+  -fsanitize=address,fuzzer)
 target_link_libraries(
   fuzz
   -fsanitize-coverage=trace-cmp
   -fsanitize-coverage=trace-pc-guard
-  -fsanitize=address
+  -fsanitize=address,fuzzer
   -rtlib=compiler-rt
-  libchimera
-  pthread
-  ${LINK_SEARCH_START_STATIC} Fuzzer ${LINK_SEARCH_END_STATIC})
-
+  libchimera)
 target_compile_features(fuzz PUBLIC cxx_std_17)
+
+add_executable(fuzz2 unit_tests/fuzz/target2.cpp)
+
+target_compile_options(
+  fuzz2
+  PUBLIC
+  -g
+  -fsanitize-coverage=trace-cmp
+  -fsanitize-coverage=trace-pc-guard
+  -fsanitize=address,fuzzer)
+target_link_libraries(
+  fuzz2
+  -fsanitize-coverage=trace-cmp
+  -fsanitize-coverage=trace-pc-guard
+  -fsanitize=address,fuzzer
+  -rtlib=compiler-rt
+  libchimera)
+target_compile_features(fuzz2 PUBLIC cxx_std_17)
 
 add_executable(bnf2abnf tools/bnf2abnf.cpp)
 target_include_directories(

@@ -20,30 +20,20 @@
 
 //! wrapper for tao::pegtl::parse
 
-#include "virtual_machine/process_context.hpp"
+#pragma once
 
-#include <iostream>
-#include <string>      // for string
-#include <string_view> // for string_view
-
-#include <gsl/gsl>
+#include <gsl/gsl> // for Ensures
 #include <tao/pegtl.hpp>
 
-#include "asdl/asdl.hpp"
-#include "grammar/grammar.hpp"
-#include "options.hpp"
+#include "grammar/rules.hpp"
+#include "options.hpp" // for Optimize, Optimize::B...
 
 namespace chimera {
   namespace library {
-    namespace virtual_machine {
-      static const std::uint16_t BUFFER_SIZE =
-          std::numeric_limits<std::uint16_t>::max();
-
-      template <typename... Args>
+    namespace grammar {
+      template <typename Grammar, typename... Args>
       void parse(const Options &options, Args &&... args) {
-        Ensures(
-            (tao::pegtl::parse<grammar::FileInput<>, grammar::Nothing,
-                               grammar::Normal>(std::forward<Args>(args)...)));
+        Ensures((tao::pegtl::parse<Grammar, token::Action, Normal>(args...)));
         switch (options.optimize) {
           case Optimize::NONE:
             break;
@@ -53,26 +43,6 @@ namespace chimera {
             break;
         }
       }
-
-      asdl::Module ProcessContext::parse_file(const std::string_view &data,
-                                              const char *source) {
-        asdl::Module module;
-        parse(global_context.options,
-              grammar::Input<tao::pegtl::memory_input<>>(data.data(),
-                                                         data.size(), source),
-              module, *this);
-        return module;
-      }
-
-      asdl::Module ProcessContext::parse_file(std::istream &input,
-                                              const char *source) {
-        asdl::Module module;
-        parse(global_context.options,
-              grammar::Input<tao::pegtl::istream_input<>>(input, BUFFER_SIZE,
-                                                          source),
-              module, *this);
-        return module;
-      }
-    } // namespace virtual_machine
+    } // namespace grammar
   }   // namespace library
 } // namespace chimera

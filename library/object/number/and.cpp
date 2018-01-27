@@ -20,9 +20,7 @@
 
 #include "object/number/and.hpp"
 
-#include <limits>
-
-#include <gsl/gsl>
+#include <gsl/gsl> // for Ensures
 
 namespace chimera {
   namespace library {

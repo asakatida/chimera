@@ -34,47 +34,43 @@
 
 #include "asdl/asdl.hpp"
 #include "grammar/exprfwd.hpp"
+#include "grammar/flags.hpp"
+#include "grammar/oper.hpp"
 #include "grammar/rules.hpp"
 #include "grammar/whitespace.hpp"
 #include "object/object.hpp"
-#include "virtual_machine/process_context.hpp"
+#include "virtual_machine/virtual_machine.hpp"
 
 namespace chimera {
   namespace library {
     namespace grammar {
-      namespace string {
+      namespace token {
         using namespace std::literals;
 
-        template <typename Rule>
-        struct StringActions : Nothing<Rule> {};
-        struct StringHolder : rules::Stack<asdl::ExprImpl> {
+        struct StringHolder : rules::VariantCapture<asdl::ExprImpl> {
           std::string string;
-          template <typename Outer>
-          void success(Outer &&outer) {
-            outer.push(pop<asdl::ExprImpl>());
-          }
           template <typename String>
           void apply(String &&in) {
             string.append(std::forward<String>(in));
           }
         };
-        struct LiteralChar : Plus<NotOne<'\0', '{', '}'>> {};
+        struct LiteralChar : plus<not_one<'\0', '{', '}'>> {};
         template <>
-        struct StringActions<LiteralChar> {
+        struct Action<LiteralChar> {
           template <typename Input, typename Top, typename... Args>
           static void apply(const Input &in, Top &&top,
                             const Args &... /*args*/) {
             top.apply(in.string());
           }
         };
-        template <typename Option>
+        template <flags::Flag Option>
         using FExpression =
-            Sor<ListTail<Sor<ConditionalExpression<Option>, StarExpr<Option>>,
-                         Comma<Option>>,
+            sor<list_tail<sor<ConditionalExpression<Option>, StarExpr<Option>>,
+                          Comma<Option>>,
                 YieldExpr<Option>>;
-        struct Conversion : One<'a', 'r', 's'> {};
+        struct Conversion : one<'a', 'r', 's'> {};
         template <>
-        struct StringActions<Conversion> {
+        struct Action<Conversion> {
           template <typename Input, typename Top, typename... Args>
           static void apply(const Input &in, Top &&top,
                             const Args &... /*args*/) {
@@ -95,38 +91,39 @@ namespace chimera {
               default:
                 break;
             }
-            top.push(asdl::ExprImpl{std::move(formattedValue)});
+            top.push(std::move(formattedValue));
           }
         };
-        template <typename Option>
+        template <flags::Flag Option>
         struct FormatSpec;
-        template <typename Option>
+        template <flags::Flag Option>
         using ReplacementField =
-            IfMust<One<'{'>, FExpression<Option>, Opt<One<'!'>, Conversion>,
-                   Opt<One<':'>, FormatSpec<Option>>, One<'}'>>;
-        template <typename Option>
+            if_must<LBrt<Option>, FExpression<Option>,
+                    opt<one<'!'>, Conversion>,
+                    opt<one<':'>, FormatSpec<Option>>, RBrt<Option>>;
+        template <flags::Flag Option>
         struct FormatSpec
-            : Star<Sor<LiteralChar, Nul, ReplacementField<Option>>> {};
-        template <typename Option>
-        struct StringActions<FormatSpec<Option>> {
+            : star<sor<LiteralChar, one<0>, ReplacementField<Option>>> {};
+        template <flags::Flag Option>
+        struct Action<FormatSpec<Option>> {
           template <typename Top, typename... Args>
           static void apply0(Top &&top, const Args &... /*args*/) {
             auto formatSpec = top.template pop<asdl::ExprImpl>();
-            [&formatSpec](auto &&expr) {
-              if (std::holds_alternative<asdl::FormattedValue>(*expr.value)) {
-                std::get<asdl::FormattedValue>(*expr.value).format_spec =
-                    std::move(formatSpec);
-              } else {
-                asdl::FormattedValue formattedValue{
-                    expr, asdl::FormattedValue::STR, std::move(formatSpec)};
-                expr = std::move(formattedValue);
-              }
-            }(top.template top<asdl::ExprImpl>());
+            auto expr = top.template pop<asdl::ExprImpl>();
+            if (std::holds_alternative<asdl::FormattedValue>(*expr.value)) {
+              std::get<asdl::FormattedValue>(*expr.value).format_spec =
+                  std::move(formatSpec);
+              top.push(std::move(expr));
+            } else {
+              top.push(asdl::FormattedValue{std::move(expr),
+                                            asdl::FormattedValue::STR,
+                                            std::move(formatSpec)});
+            }
           }
         };
         struct LeftFLiteral : String<'{', '{'> {};
         template <>
-        struct StringActions<LeftFLiteral> {
+        struct Action<LeftFLiteral> {
           template <typename Top, typename... Args>
           static void apply0(Top &&top, const Args &... /*args*/) {
             top.apply("{"sv);
@@ -134,31 +131,30 @@ namespace chimera {
         };
         struct RightFLiteral : String<'}', '}'> {};
         template <>
-        struct StringActions<RightFLiteral> {
+        struct Action<RightFLiteral> {
           template <typename Top, typename... Args>
           static void apply0(Top &&top, const Args &... /*args*/) {
             top.apply("}"sv);
           }
         };
-        struct FLiteral : Plus<Sor<LiteralChar, LeftFLiteral, RightFLiteral>> {
+        struct FLiteral : plus<sor<LiteralChar, LeftFLiteral, RightFLiteral>> {
           using Transform = StringHolder;
         };
         template <>
-        struct StringActions<FLiteral> {
+        struct Action<FLiteral> {
           template <typename Top, typename ProcessContext>
           static void apply0(Top &&top, ProcessContext &&processContext) {
-            top.push(asdl::ExprImpl{
-                processContext.insert_constant(object::String(top.string))});
+            top.push(
+                processContext.insert_constant(object::String(top.string)));
           }
         };
-        template <typename Option>
-        using FString = Must<Star<Sor<Action<StringActions, FLiteral>,
-                                      ReplacementField<Option>>>,
-                             Eof>;
+        template <flags::Flag Option>
+        using FString =
+            must<star<sor<FLiteral, ReplacementField<Option>>>, eof>;
         template <typename Chars>
-        struct SingleChars : Plus<Chars> {};
+        struct SingleChars : plus<Chars> {};
         template <typename Chars>
-        struct StringActions<SingleChars<Chars>> {
+        struct Action<SingleChars<Chars>> {
           template <typename Input, typename Top, typename... Args>
           static void apply(const Input &in, Top &&top,
                             const Args &... /*args*/) {
@@ -166,9 +162,9 @@ namespace chimera {
           }
         };
         template <unsigned Len>
-        struct Hexseq : Rep<Len, Xdigit> {};
+        struct Hexseq : rep<Len, ranges<'0', '9', 'a', 'f', 'A', 'F'>> {};
         template <unsigned Len>
-        struct StringActions<Hexseq<Len>> {
+        struct Action<Hexseq<Len>> {
           template <typename Input, typename Top, typename... Args>
           static void apply(const Input &in, Top &&top,
                             const Args &... /*args*/) {
@@ -181,10 +177,10 @@ namespace chimera {
           }
         };
         template <char Open, unsigned Len>
-        using UTF = Seq<One<Open>, Hexseq<Len>>;
-        struct Octseq : Seq<Range<'0', '7'>, RepOpt<2, Range<'0', '7'>>> {};
+        using UTF = seq<one<Open>, Hexseq<Len>>;
+        struct Octseq : seq<range<'0', '7'>, rep_opt<2, range<'0', '7'>>> {};
         template <>
-        struct StringActions<Octseq> {
+        struct Action<Octseq> {
           template <typename Input, typename Top, typename... Args>
           static void apply(const Input &in, Top &&top,
                             const Args &... /*args*/) {
@@ -200,9 +196,9 @@ namespace chimera {
             }
           }
         };
-        struct EscapeControl : One<'a', 'b', 'f', 'n', 'r', 't', 'v'> {};
+        struct EscapeControl : one<'a', 'b', 'f', 'n', 'r', 't', 'v'> {};
         template <>
-        struct StringActions<EscapeControl> {
+        struct Action<EscapeControl> {
           template <typename Input, typename Top, typename... Args>
           static void apply(const Input &in, Top &&top,
                             const Args &... /*args*/) {
@@ -234,9 +230,9 @@ namespace chimera {
           }
         };
         template <typename Chars>
-        struct EscapeIgnore : Seq<Chars> {};
+        struct EscapeIgnore : seq<Chars> {};
         template <typename Chars>
-        struct StringActions<EscapeIgnore<Chars>> {
+        struct Action<EscapeIgnore<Chars>> {
           template <typename Input, typename Top, typename... Args>
           static void apply(const Input &in, Top &&top,
                             const Args &... /*args*/) {
@@ -244,27 +240,27 @@ namespace chimera {
             top.apply(in.string());
           }
         };
-        using Escape = One<'\\'>;
+        using Escape = one<'\\'>;
         using XEscapeseq = UTF<'x', 2>;
         template <typename Chars, typename... Escapes>
-        using Escapeseq = Sor<Escapes..., XEscapeseq, Octseq, Eol,
+        using Escapeseq = sor<Escapes..., XEscapeseq, Octseq, Eol,
                               EscapeControl, EscapeIgnore<Chars>>;
         template <typename Chars, typename... Escapes>
-        using Item = Seq<IfThenElse<Escape, Escapeseq<Chars, Escapes...>,
-                                    SingleChars<Minus<Chars, Escape>>>,
-                         Discard>;
+        using Item = seq<if_then_else<Escape, Escapeseq<Chars, Escapes...>,
+                                      SingleChars<minus<Chars, Escape>>>,
+                         discard>;
         template <typename Chars>
-        using RawItem = IfThenElse<Escape, Chars, Chars>;
+        using RawItem = if_then_else<Escape, Chars, Chars>;
         template <typename Triple, typename Chars, typename... Escapes>
-        using Long =
-            IfMust<Triple,
-                   Until<Triple, Item<Seq<NotAt<Triple>, Chars>, Escapes...>>>;
+        using Long = if_must<
+            Triple,
+            until<Triple, Item<seq<not_at<Triple>, Chars>, Escapes...>>>;
         template <typename Triple, typename Chars>
         struct LongRaw
-            : IfMust<Triple,
-                     Until<Triple, RawItem<Seq<NotAt<Triple>, Chars>>>> {};
+            : if_must<Triple,
+                      until<Triple, RawItem<seq<not_at<Triple>, Chars>>>> {};
         template <typename Triple, typename Chars>
-        struct StringActions<LongRaw<Triple, Chars>> {
+        struct Action<LongRaw<Triple, Chars>> {
           template <typename Input, typename Top, typename... Args>
           static void apply(const Input &in, Top &&top,
                             const Args &... /*args*/) {
@@ -276,17 +272,16 @@ namespace chimera {
         };
         template <typename Quote, typename Chars, typename... Escapes>
         using Short =
-            IfMust<Quote,
-                   Until<Quote, Item<Minus<Seq<NotAt<Quote>, Chars>, Eol>,
-                                     Escapes...>>>;
+            if_must<Quote,
+                    until<Quote, Item<minus<seq<not_at<Quote>, Chars>, Eol>,
+                                      Escapes...>>>;
         template <typename Quote, typename Chars>
         struct ShortRaw
-            : IfMust<
-                  Quote,
-                  Until<Quote, RawItem<Minus<Seq<NotAt<Quote>, Chars>, Eol>>>> {
-        };
+            : if_must<Quote,
+                      until<Quote,
+                            RawItem<minus<seq<not_at<Quote>, Chars>, Eol>>>> {};
         template <typename Quote, typename Chars>
-        struct StringActions<ShortRaw<Quote, Chars>> {
+        struct Action<ShortRaw<Quote, Chars>> {
           template <typename Input, typename Top, typename... Args>
           static void apply(const Input &in, Top &&top,
                             const Args &... /*args*/) {
@@ -296,43 +291,42 @@ namespace chimera {
             top.apply(view);
           }
         };
-        using TripleSingle = Rep<3, One<'\''>>;
-        using TripleDouble = Rep<3, One<'"'>>;
-        using Single = One<'\''>;
-        using Double = One<'"'>;
+        using TripleSingle = rep<3, one<'\''>>;
+        using TripleDouble = rep<3, one<'"'>>;
+        using Single = one<'\''>;
+        using Double = one<'"'>;
         template <typename Chars>
         using Raw =
-            Sor<LongRaw<TripleDouble, Chars>, LongRaw<TripleSingle, Chars>,
+            sor<LongRaw<TripleDouble, Chars>, LongRaw<TripleSingle, Chars>,
                 ShortRaw<Double, Chars>, ShortRaw<Single, Chars>>;
         template <typename Chars, typename... Escapes>
-        using Escaped = Sor<Long<TripleDouble, Chars, Escapes...>,
+        using Escaped = sor<Long<TripleDouble, Chars, Escapes...>,
                             Long<TripleSingle, Chars, Escapes...>,
                             Short<Double, Chars, Escapes...>,
                             Short<Single, Chars, Escapes...>>;
         using UTF16Escape = UTF<'u', 4>;
         using UTF32Escape = UTF<'U', 8>;
-        struct UName : Star<NotOne<'}'>> {};
+        struct UName : star<not_one<'}'>> {};
         template <>
-        struct StringActions<UName> {
+        struct Action<UName> {
           template <typename Input, typename Top, typename... Args>
           static void apply(const Input &in, Top &&top,
                             const Args &... /*args*/) {
             top.apply(in.string());
           }
         };
-        using UNameEscape = IfMust<String<'N', '{'>, UName, One<'}'>>;
+        using UNameEscape = if_must<String<'N', '{'>, UName, one<'}'>>;
         template <typename Prefix, typename RawPrefix, typename Chars,
                   typename... Escapes>
-        using StringImpl = Plus<Sor<Seq<RawPrefix, Raw<Chars>>,
-                                    Seq<Prefix, Escaped<Chars, Escapes...>>>>;
-        using BytesPrefix = Sor<One<'b'>, One<'B'>>;
-        using BytesRawPrefix =
-            Sor<Seq<Sor<One<'r'>, One<'R'>>, Sor<One<'b'>, One<'B'>>>,
-                Seq<Sor<One<'b'>, One<'B'>>, Sor<One<'r'>, One<'R'>>>>;
-        template <typename Option>
+        using StringImpl = sor<seq<RawPrefix, Raw<Chars>>,
+                               seq<Prefix, Escaped<Chars, Escapes...>>>;
+        using BytesPrefix = one<'b', 'B'>;
+        using BytesRawPrefix = sor<seq<one<'r', 'R'>, one<'b', 'B'>>,
+                                   seq<one<'b', 'B'>, one<'r', 'R'>>>;
+        template <flags::Flag Option>
         struct Bytes
-            : Plus<Token<Option,
-                         StringImpl<BytesPrefix, BytesRawPrefix, Seven>>> {
+            : plus<Token<Option, StringImpl<BytesPrefix, BytesRawPrefix,
+                                            range<0, 0b1111111>>>> {
           struct Transform : rules::Stack<asdl::ExprImpl> {
             object::Bytes bytes;
             template <typename Stack>
@@ -348,37 +342,35 @@ namespace chimera {
             }
           };
         };
-        template <typename Option>
-        struct StringActions<Bytes<Option>> {
+        template <flags::Flag Option>
+        struct Action<Bytes<Option>> {
           template <typename Top, typename ProcessContext>
           static void apply0(Top &&top, ProcessContext &&processContext) {
-            top.push(asdl::ExprImpl{
-                processContext.insert_constant(std::move(top.bytes))});
+            top.push(processContext.insert_constant(std::move(top.bytes)));
           }
         };
-        using StrPrefix = Opt<Sor<One<'u'>, One<'U'>>>;
-        using StrRawPrefix = Sor<One<'r'>, One<'R'>>;
-        template <typename Option>
+        using StrPrefix = opt<one<'u', 'U'>>;
+        using StrRawPrefix = one<'r', 'R'>;
+        template <flags::Flag Option>
         struct String
-            : Plus<Token<Option,
-                         StringImpl<StrPrefix, StrRawPrefix, Any, UTF16Escape,
+            : plus<Token<Option,
+                         StringImpl<StrPrefix, StrRawPrefix, any, UTF16Escape,
                                     UTF32Escape, UNameEscape>>> {
           using Transform = StringHolder;
         };
-        template <typename Option>
-        struct StringActions<String<Option>> {
+        template <flags::Flag Option>
+        struct Action<String<Option>> {
           template <typename Top, typename ProcessContext>
           static void apply0(Top &&top, ProcessContext &&processContext) {
-            top.push(asdl::ExprImpl{
-                processContext.insert_constant(object::String(top.string))});
+            top.push(
+                processContext.insert_constant(object::String(top.string)));
           }
         };
-        using JoinedStrPrefix = Sor<One<'f'>, One<'F'>>;
-        using JoinedStrRawPrefix =
-            Sor<Seq<Sor<One<'r'>, One<'R'>>, Sor<One<'f'>, One<'F'>>>,
-                Seq<Sor<One<'f'>, One<'F'>>, Sor<One<'r'>, One<'R'>>>>;
+        using JoinedStrPrefix = one<'f', 'F'>;
+        using JoinedStrRawPrefix = sor<seq<one<'r', 'R'>, one<'f', 'F'>>,
+                                       seq<one<'f', 'F'>, one<'r', 'R'>>>;
         struct PartialString
-            : Plus<StringImpl<StrPrefix, StrRawPrefix, Any, UTF16Escape,
+            : plus<StringImpl<StrPrefix, StrRawPrefix, any, UTF16Escape,
                               UTF32Escape, UNameEscape>> {
           struct Transform {
             std::string string;
@@ -392,9 +384,9 @@ namespace chimera {
             }
           };
         };
-        template <typename Option>
+        template <flags::Flag Option>
         struct FormattedString
-            : Seq<StringImpl<JoinedStrPrefix, JoinedStrRawPrefix, Any,
+            : seq<StringImpl<JoinedStrPrefix, JoinedStrRawPrefix, any,
                              UTF16Escape, UTF32Escape, UNameEscape>> {
           struct Transform : rules::Stack<asdl::ExprImpl> {
             std::string string;
@@ -404,7 +396,7 @@ namespace chimera {
                 asdl::JoinedStr joinedStr;
                 joinedStr.values.reserve(s);
                 transform<asdl::ExprImpl>(std::back_inserter(joinedStr.values));
-                outer.push(asdl::ExprImpl{std::move(joinedStr)});
+                outer.push(std::move(joinedStr));
               }
             }
             template <typename String>
@@ -413,23 +405,23 @@ namespace chimera {
             }
           };
         };
-        template <typename Option>
-        struct StringActions<FormattedString<Option>> {
+        template <flags::Flag Option>
+        struct Action<FormattedString<Option>> {
           template <typename Input, typename Top, typename ProcessContext>
           static void apply(const Input &in, Top &&top,
                             ProcessContext &&processContext) {
             Ensures((tao::pegtl::parse_nested<
-                     FString<typename Option::template Set<Option::IMPLICIT>>,
-                     Nothing, Normal>(
+                     FString<flags::list<flags::DISCARD, flags::IMPLICIT>>,
+                     Action, Normal>(
                 in,
                 tao::pegtl::memory_input<>(top.string.c_str(),
                                            top.string.size(), "<f_string>"),
                 top, processContext)));
           }
         };
-        template <typename Option>
+        template <flags::Flag Option>
         struct JoinedStr
-            : Plus<Token<Option, Sor<PartialString, FormattedString<Option>>>> {
+            : plus<Token<Option, sor<PartialString, FormattedString<Option>>>> {
           struct Transform : rules::Stack<std::string, asdl::ExprImpl> {
             template <typename Outer>
             void success(Outer &&outer) {
@@ -437,8 +429,8 @@ namespace chimera {
             }
           };
         };
-        template <typename Option>
-        struct StringActions<JoinedStr<Option>> {
+        template <flags::Flag Option>
+        struct Action<JoinedStr<Option>> {
           using State = std::variant<std::string, asdl::JoinedStr>;
           struct Visitor {
             virtual_machine::ProcessContext &process_context;
@@ -488,11 +480,10 @@ namespace chimera {
             top.push(std::visit(Push{processContext}, std::move(value)));
           }
         };
-      } // namespace string
-      template <typename Option>
+      } // namespace token
+      template <flags::Flag Option>
       struct DocString
-          : Seq<Action<string::StringActions, string::String<Option>>,
-                Sor<NEWLINE<Option>, At<Eolf>>> {
+          : seq<token::String<Option>, sor<NEWLINE<Option>, at<Eolf>>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -501,10 +492,8 @@ namespace chimera {
           }
         };
       };
-      template <typename Option>
-      using STRING =
-          Action<string::StringActions,
-                 Sor<string::Bytes<Option>, string::JoinedStr<Option>>>;
+      template <flags::Flag Option>
+      using STRING = sor<token::Bytes<Option>, token::JoinedStr<Option>>;
     } // namespace grammar
   }   // namespace library
 } // namespace chimera

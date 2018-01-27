@@ -26,11 +26,11 @@
 namespace chimera {
   namespace library {
     namespace grammar {
-      template <typename Option>
+      template <flags::Flag Option>
       struct ConditionalExpression;
-      template <typename Option>
+      template <flags::Flag Option>
       struct StarExpr;
-      template <typename Option>
+      template <flags::Flag Option>
       struct YieldExpr;
     } // namespace grammar
   }   // namespace library

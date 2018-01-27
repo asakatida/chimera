@@ -45,7 +45,7 @@ namespace chimera {
           object::Object builtinsClass(object::Instance{},
                                        {{"__class__", {/*set below*/}}});
           builtins.set_attribute("__class__"s, builtinsClass);
-          object::Object builtinsName(object::String("builtins"),
+          object::Object builtinsName(object::String("builtins"s),
                                       {{"__class__", {/*set below*/}}});
           builtins.set_attribute("__name__"s, builtinsName);
           object::Object builtinsBool(object::Instance{},

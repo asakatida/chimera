@@ -20,15 +20,9 @@
 
 #include "object/number/mod.hpp"
 
-#include <vector>
-
-#include <gsl/gsl>
-
-#include "object/number/add.hpp"
 #include "object/number/compare.hpp"
+#include "object/number/div.hpp"
 #include "object/number/mult.hpp"
-#include "object/number/overflow.hpp"
-#include "object/number/positive.hpp"
 #include "object/number/sub.hpp"
 #include "object/number/util.hpp"
 

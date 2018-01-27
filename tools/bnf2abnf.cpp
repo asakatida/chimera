@@ -20,10 +20,10 @@
 
 //! helper to generate abnf from bnf
 
-#include <algorithm>
-#include <iostream>
+#include <algorithm> // for replace
+#include <iostream>  // for cout
 
-#include <tao/pegtl.hpp>
+#include <tao/pegtl.hpp> // for identifier, nothing
 
 template <typename Rule>
 struct BnfAction : tao::pegtl::nothing<Rule> {};

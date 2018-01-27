@@ -20,7 +20,6 @@
 
 #include "object/number/overflow.hpp"
 
-#include <cstdint>
 #include <limits>
 
 namespace chimera {

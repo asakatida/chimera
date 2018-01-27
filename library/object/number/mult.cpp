@@ -20,21 +20,15 @@
 
 #include "object/number/mult.hpp"
 
-#include <vector>
+#include <gsl/gsl> // for Ensures
 
-#include <gsl/gsl>
-
-#include "object/number/add.hpp"
-#include "object/number/mult.hpp"
-#include "object/number/overflow.hpp"
-#include "object/number/positive.hpp"
-#include "object/number/sub.hpp"
+#include "object/number/div.hpp"
+#include "object/number/overflow.hpp" // for Carryover
 #include "object/number/util.hpp"
 
 namespace chimera {
   namespace library {
     namespace object {
-
       namespace number {
         Number operator*(const std::uint64_t &left, const Base &right) {
           auto value = mult(left, right.value);

@@ -23,16 +23,11 @@
 #include "virtual_machine/global_context.hpp"
 
 #include <fstream> // for ifstream
-#include <iostream>
 #include <string_view>
 
-#include <tao/pegtl.hpp>
-
-#include "asdl/asdl.hpp" // for Module
 #include "object/object.hpp"
-#include "options.hpp" // for Options
-#include "version.hpp"
-#include "virtual_machine/process_context.hpp"
+#include "version.hpp"                         // for CHIMERA_VERSION
+#include "virtual_machine/process_context.hpp" // for ProcessContext
 #include "virtual_machine/thread_context.hpp"
 #include "virtual_machine/virtual_machine.hpp" // for VirtualMachine
 

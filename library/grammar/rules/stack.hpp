@@ -31,6 +31,7 @@
 #include <vector>
 
 #include <gsl/gsl>
+#include <metal.hpp>
 
 namespace chimera {
   namespace library {
@@ -40,43 +41,17 @@ namespace chimera {
         struct Stack {
           using ValueT = std::variant<Types...>;
           template <typename Type>
-          void push(Type && /*type*/) {
-            // return stack.push_back(ValueT{std::forward<Type>(type)});
+          void push(Type &&type) {
+            return stack.push_back(ValueT{std::forward<Type>(type)});
           }
-          const ValueT &top() const {
-            Expects(has_value());
-            return stack.back();
-          }
-          ValueT &top() {
-            Expects(has_value());
-            return stack.back();
-          }
-          template <typename Type>
-          void print_debug() const {
-            if (!top_is<Type>()) {
-              if (has_value()) {
-                std::visit(
-                    [](const auto &t) {
-                      std::cout << "Wanted: " << typeid(Type).name()
-                                << "\nFound: " << typeid(t).name() << '\n';
-                    },
-                    top());
-              } else {
-                std::cout << "Wanted: " << typeid(Type).name()
-                          << "\nFound: empty stack\n";
-              }
-            }
-          }
+          const ValueT &top() const { return stack.back(); }
+          ValueT &top() { return stack.back(); }
           template <typename Type>
           const Type &top() const {
-            print_debug<Type>();
-            Ensures(top_is<Type>());
             return std::get<Type>(top());
           }
           template <typename Type>
           Type &top() {
-            print_debug<Type>();
-            Ensures(top_is<Type>());
             return std::get<Type>(top());
           }
           ValueT pop() {
@@ -93,38 +68,38 @@ namespace chimera {
             template <typename Iter, std::size_t... I>
             static Type reshape(Iter &&it,
                                 std::index_sequence<I...> /*unused*/) {
-              return Type{std::get<Args>(*(it + I))...};
+              return Type{std::move(std::get<Args>(*(it + I)))...};
             }
           };
           template <typename Type, typename... Args>
           Type reshape() {
-            auto it = stack.begin();
+            Expects(sizeof...(Args) == size());
+            auto finally = gsl::finally([this] { this->stack.clear(); });
             return Reshape<Type, Args...>::reshape(
-                it, std::index_sequence_for<Args...>{});
+                stack.begin(), std::index_sequence_for<Args...>{});
           }
           const std::vector<ValueT> &vector() const { return stack; }
           template <typename OutputIt>
-          void transform(OutputIt &&outputIt) {
+          auto transform(OutputIt &&outputIt) {
             return transform<
                 typename std::iterator_traits<OutputIt>::value_type>(
                 std::forward<OutputIt>(outputIt));
           }
           template <typename Type, typename OutputIt>
-          void transform(OutputIt &&outputIt) {
-            std::transform(stack.begin(), stack.end(),
-                           std::forward<OutputIt>(outputIt),
-                           [](ValueT &value) -> Type {
-                             if (!std::holds_alternative<Type>(value)) {
-                               std::visit(
-                                   [](const auto &t) {
-                                     std::cout << typeid(t).name() << '\n';
-                                   },
-                                   value);
-                             }
-                             Ensures(std::holds_alternative<Type>(value));
-                             return std::move(std::get<Type>(value));
-                           });
-            return stack.clear();
+          auto transform(OutputIt &&outputIt) {
+            auto finally = gsl::finally([this] { this->stack.clear(); });
+            return std::transform(
+                stack.begin(), stack.end(), std::forward<OutputIt>(outputIt),
+                [](ValueT &value) -> Type {
+                  if (!std::holds_alternative<Type>(value)) {
+                    std::visit(
+                        [](const auto &t) {
+                          std::cout << typeid(t).name() << '\n';
+                        },
+                        value);
+                  }
+                  return std::move(std::get<Type>(value));
+                });
           }
           bool has_value() const { return !stack.empty(); }
           template <typename Type>
