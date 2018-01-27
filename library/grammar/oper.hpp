@@ -32,24 +32,15 @@ namespace chimera {
   namespace library {
     namespace grammar {
       namespace token {
-        namespace oper {
-          template <auto Asdl>
-          struct Transform {
-            template <typename Outer>
-            void success(Outer &&outer) {
-              outer.push(Asdl);
-            }
-          };
-        } // namespace oper
         template <flags::Flag Option, typename Rule, char... Cs>
         using Op =
             Token<Option,
                   std::conditional_t<(sizeof...(Cs) > 0),
                                      seq<Rule, not_at<one<Cs...>>>, Rule>>;
         template <flags::Flag Option>
-        struct Add : Op<Option, one<'+'>, '='> {
-          using Transform = oper::Transform<asdl::Operator::ADD>;
-        };
+        struct Add : Op<Option, one<'+'>, '='> {};
+        template <flags::Flag Option>
+        struct Action<Add<Option>> : ConstantToken<asdl::Operator::ADD> {};
         template <flags::Flag Option>
         using Arr = Op<Option, String<'-', '>'>>;
         template <flags::Flag Option>
@@ -57,63 +48,71 @@ namespace chimera {
         template <flags::Flag Option>
         using AtOp = seq<AtImpl<Option>>;
         template <flags::Flag Option>
-        struct AugAdd : Op<Option, String<'+', '='>> {
-          using Transform = oper::Transform<asdl::Operator::ADD>;
-        };
+        struct AugAdd : Op<Option, String<'+', '='>> {};
         template <flags::Flag Option>
-        struct AugBitAnd : Op<Option, String<'&', '='>> {
-          using Transform = oper::Transform<asdl::Operator::BIT_AND>;
-        };
+        struct Action<AugAdd<Option>> : ConstantToken<asdl::Operator::ADD> {};
         template <flags::Flag Option>
-        struct AugBitOr : Op<Option, String<'|', '='>> {
-          using Transform = oper::Transform<asdl::Operator::BIT_OR>;
-        };
+        struct AugBitAnd : Op<Option, String<'&', '='>> {};
         template <flags::Flag Option>
-        struct AugBitXor : Op<Option, String<'^', '='>> {
-          using Transform = oper::Transform<asdl::Operator::BIT_XOR>;
-        };
+        struct Action<AugBitAnd<Option>>
+            : ConstantToken<asdl::Operator::BIT_AND> {};
         template <flags::Flag Option>
-        struct AugDiv : Op<Option, String<'/', '='>> {
-          using Transform = oper::Transform<asdl::Operator::DIV>;
-        };
+        struct AugBitOr : Op<Option, String<'|', '='>> {};
         template <flags::Flag Option>
-        struct AugFloorDiv : Op<Option, String<'/', '/', '='>> {
-          using Transform = oper::Transform<asdl::Operator::FLOOR_DIV>;
-        };
+        struct Action<AugBitOr<Option>>
+            : ConstantToken<asdl::Operator::BIT_OR> {};
         template <flags::Flag Option>
-        struct AugLShift : Op<Option, String<'<', '<', '='>> {
-          using Transform = oper::Transform<asdl::Operator::L_SHIFT>;
-        };
+        struct AugBitXor : Op<Option, String<'^', '='>> {};
         template <flags::Flag Option>
-        struct AugMatMult : Op<Option, String<'@', '='>> {
-          using Transform = oper::Transform<asdl::Operator::MAT_MULT>;
-        };
+        struct Action<AugBitXor<Option>>
+            : ConstantToken<asdl::Operator::BIT_XOR> {};
         template <flags::Flag Option>
-        struct AugMod : Op<Option, String<'%', '='>> {
-          using Transform = oper::Transform<asdl::Operator::MOD>;
-        };
+        struct AugDiv : Op<Option, String<'/', '='>> {};
         template <flags::Flag Option>
-        struct AugMult : Op<Option, String<'*', '='>> {
-          using Transform = oper::Transform<asdl::Operator::MULT>;
-        };
+        struct Action<AugDiv<Option>> : ConstantToken<asdl::Operator::DIV> {};
         template <flags::Flag Option>
-        struct AugPow : Op<Option, String<'*', '*', '='>> {
-          using Transform = oper::Transform<asdl::Operator::POW>;
-        };
+        struct AugFloorDiv : Op<Option, String<'/', '/', '='>> {};
         template <flags::Flag Option>
-        struct AugRShift : Op<Option, String<'>', '>', '='>> {
-          using Transform = oper::Transform<asdl::Operator::R_SHIFT>;
-        };
+        struct Action<AugFloorDiv<Option>>
+            : ConstantToken<asdl::Operator::FLOOR_DIV> {};
         template <flags::Flag Option>
-        struct AugSub : Op<Option, String<'-', '='>> {
-          using Transform = oper::Transform<asdl::Operator::SUB>;
-        };
+        struct AugLShift : Op<Option, String<'<', '<', '='>> {};
+        template <flags::Flag Option>
+        struct Action<AugLShift<Option>>
+            : ConstantToken<asdl::Operator::L_SHIFT> {};
+        template <flags::Flag Option>
+        struct AugMatMult : Op<Option, String<'@', '='>> {};
+        template <flags::Flag Option>
+        struct Action<AugMatMult<Option>>
+            : ConstantToken<asdl::Operator::MAT_MULT> {};
+        template <flags::Flag Option>
+        struct AugMod : Op<Option, String<'%', '='>> {};
+        template <flags::Flag Option>
+        struct Action<AugMod<Option>> : ConstantToken<asdl::Operator::MOD> {};
+        template <flags::Flag Option>
+        struct AugMult : Op<Option, String<'*', '='>> {};
+        template <flags::Flag Option>
+        struct Action<AugMult<Option>> : ConstantToken<asdl::Operator::MULT> {};
+        template <flags::Flag Option>
+        struct AugPow : Op<Option, String<'*', '*', '='>> {};
+        template <flags::Flag Option>
+        struct Action<AugPow<Option>> : ConstantToken<asdl::Operator::POW> {};
+        template <flags::Flag Option>
+        struct AugRShift : Op<Option, String<'>', '>', '='>> {};
+        template <flags::Flag Option>
+        struct Action<AugRShift<Option>>
+            : ConstantToken<asdl::Operator::R_SHIFT> {};
+        template <flags::Flag Option>
+        struct AugSub : Op<Option, String<'-', '='>> {};
+        template <flags::Flag Option>
+        struct Action<AugSub<Option>> : ConstantToken<asdl::Operator::SUB> {};
         template <flags::Flag Option>
         using BitAnd = Op<Option, one<'&'>, '='>;
         template <flags::Flag Option>
-        struct BitNot : Op<Option, one<'~'>> {
-          using Transform = oper::Transform<asdl::Unary::Op::BIT_NOT>;
-        };
+        struct BitNot : Op<Option, one<'~'>> {};
+        template <flags::Flag Option>
+        struct Action<BitNot<Option>>
+            : ConstantToken<asdl::Unary::Op::BIT_NOT> {};
         template <flags::Flag Option>
         using BitOr = Op<Option, one<'|'>, '='>;
         template <flags::Flag Option>
@@ -123,9 +122,9 @@ namespace chimera {
         template <flags::Flag Option>
         using Comma = Op<Option, one<','>>;
         template <flags::Flag Option>
-        struct Div : Op<Option, one<'/'>, '=', '/'> {
-          using Transform = oper::Transform<asdl::Operator::DIV>;
-        };
+        struct Div : Op<Option, one<'/'>, '=', '/'> {};
+        template <flags::Flag Option>
+        struct Action<Div<Option>> : ConstantToken<asdl::Operator::DIV> {};
         template <flags::Flag Option>
         struct Ellipsis : Op<Option, rep<3, one<'.'>>> {
           struct Transform {
@@ -138,21 +137,24 @@ namespace chimera {
         template <flags::Flag Option>
         using Eq = Op<Option, one<'='>, '='>;
         template <flags::Flag Option>
-        struct EqEq : Op<Option, String<'=', '='>> {
-          using Transform = oper::Transform<asdl::CompareExpr::Op::EQ>;
+        struct EqEq : Op<Option, String<'=', '='>> {};
+        template <flags::Flag Option>
+        struct Action<EqEq<Option>> : ConstantToken<asdl::CompareExpr::Op::EQ> {
         };
         template <flags::Flag Option>
-        struct FloorDiv : Op<Option, String<'/', '/'>, '='> {
-          using Transform = oper::Transform<asdl::Operator::FLOOR_DIV>;
-        };
+        struct FloorDiv : Op<Option, String<'/', '/'>, '='> {};
         template <flags::Flag Option>
-        struct Gt : Op<Option, one<'>'>, '=', '>'> {
-          using Transform = oper::Transform<asdl::CompareExpr::Op::GT>;
-        };
+        struct Action<FloorDiv<Option>>
+            : ConstantToken<asdl::Operator::FLOOR_DIV> {};
         template <flags::Flag Option>
-        struct GtE : Op<Option, String<'>', '='>> {
-          using Transform = oper::Transform<asdl::CompareExpr::Op::GT_E>;
-        };
+        struct Gt : Op<Option, one<'>'>, '=', '>'> {};
+        template <flags::Flag Option>
+        struct Action<Gt<Option>> : ConstantToken<asdl::CompareExpr::Op::GT> {};
+        template <flags::Flag Option>
+        struct GtE : Op<Option, String<'>', '='>> {};
+        template <flags::Flag Option>
+        struct Action<GtE<Option>>
+            : ConstantToken<asdl::CompareExpr::Op::GT_E> {};
         template <flags::Flag Option>
         using LBrc = Op<Option, one<'{'>>;
         template <flags::Flag Option>
@@ -160,35 +162,39 @@ namespace chimera {
         template <flags::Flag Option>
         using LPar = Op<Option, one<'('>>;
         template <flags::Flag Option>
-        struct LShift : Op<Option, String<'<', '<'>, '='> {
-          using Transform = oper::Transform<asdl::Operator::L_SHIFT>;
+        struct LShift : Op<Option, String<'<', '<'>, '='> {};
+        template <flags::Flag Option>
+        struct Action<LShift<Option>> : ConstantToken<asdl::Operator::L_SHIFT> {
         };
         template <flags::Flag Option>
-        struct Lt : Op<Option, one<'<'>, '=', '<', '>'> {
-          using Transform = oper::Transform<asdl::CompareExpr::Op::LT>;
-        };
+        struct Lt : Op<Option, one<'<'>, '=', '<', '>'> {};
         template <flags::Flag Option>
-        struct LtE : Op<Option, String<'<', '='>> {
-          using Transform = oper::Transform<asdl::CompareExpr::Op::LT_E>;
-        };
+        struct Action<Lt<Option>> : ConstantToken<asdl::CompareExpr::Op::LT> {};
         template <flags::Flag Option>
-        struct MatMult : seq<AtImpl<Option>> {
-          using Transform = oper::Transform<asdl::Operator::MAT_MULT>;
-        };
+        struct LtE : Op<Option, String<'<', '='>> {};
         template <flags::Flag Option>
-        struct Mod : Op<Option, one<'%'>, '='> {
-          using Transform = oper::Transform<asdl::Operator::MOD>;
-        };
+        struct Action<LtE<Option>>
+            : ConstantToken<asdl::CompareExpr::Op::LT_E> {};
+        template <flags::Flag Option>
+        struct MatMult : seq<AtImpl<Option>> {};
+        template <flags::Flag Option>
+        struct Action<MatMult<Option>>
+            : ConstantToken<asdl::Operator::MAT_MULT> {};
+        template <flags::Flag Option>
+        struct Mod : Op<Option, one<'%'>, '='> {};
+        template <flags::Flag Option>
+        struct Action<Mod<Option>> : ConstantToken<asdl::Operator::MOD> {};
         template <flags::Flag Option>
         using MultImpl = Op<Option, one<'*'>, '*', '='>;
         template <flags::Flag Option>
-        struct Mult : seq<MultImpl<Option>> {
-          using Transform = oper::Transform<asdl::Operator::MULT>;
-        };
+        struct Mult : seq<MultImpl<Option>> {};
         template <flags::Flag Option>
-        struct NotEq : Op<Option, sor<String<'!', '='>, String<'<', '>'>>> {
-          using Transform = oper::Transform<asdl::CompareExpr::Op::NOT_EQ>;
-        };
+        struct Action<Mult<Option>> : ConstantToken<asdl::Operator::MULT> {};
+        template <flags::Flag Option>
+        struct NotEq : Op<Option, sor<String<'!', '='>, String<'<', '>'>>> {};
+        template <flags::Flag Option>
+        struct Action<NotEq<Option>>
+            : ConstantToken<asdl::CompareExpr::Op::NOT_EQ> {};
         template <flags::Flag Option>
         using PeriodImpl = Op<Option, one<'.'>>;
         template <flags::Flag Option>
@@ -196,9 +202,9 @@ namespace chimera {
         template <flags::Flag Option>
         using PowImpl = Op<Option, String<'*', '*'>, '='>;
         template <flags::Flag Option>
-        struct Pow : seq<PowImpl<Option>> {
-          using Transform = oper::Transform<asdl::Operator::POW>;
-        };
+        struct Pow : seq<PowImpl<Option>> {};
+        template <flags::Flag Option>
+        struct Action<Pow<Option>> : ConstantToken<asdl::Operator::POW> {};
         template <flags::Flag Option>
         using RBrc = Op<Option, one<'}'>>;
         template <flags::Flag Option>
@@ -206,8 +212,9 @@ namespace chimera {
         template <flags::Flag Option>
         using RPar = Op<Option, one<')'>>;
         template <flags::Flag Option>
-        struct RShift : Op<Option, String<'>', '>'>, '='> {
-          using Transform = oper::Transform<asdl::Operator::R_SHIFT>;
+        struct RShift : Op<Option, String<'>', '>'>, '='> {};
+        template <flags::Flag Option>
+        struct Action<RShift<Option>> : ConstantToken<asdl::Operator::R_SHIFT> {
         };
         template <flags::Flag Option>
         using Semi = Op<Option, one<';'>>;
@@ -216,17 +223,17 @@ namespace chimera {
         template <flags::Flag Option>
         using SubImpl = Op<Option, one<'-'>, '=', '>'>;
         template <flags::Flag Option>
-        struct Sub : seq<SubImpl<Option>> {
-          using Transform = oper::Transform<asdl::Operator::SUB>;
-        };
+        struct Sub : seq<SubImpl<Option>> {};
         template <flags::Flag Option>
-        struct UAdd : Op<Option, one<'+'>, '='> {
-          using Transform = oper::Transform<asdl::Unary::ADD>;
-        };
+        struct Action<Sub<Option>> : ConstantToken<asdl::Operator::SUB> {};
         template <flags::Flag Option>
-        struct USub : seq<SubImpl<Option>> {
-          using Transform = oper::Transform<asdl::Unary::SUB>;
-        };
+        struct UAdd : Op<Option, one<'+'>, '='> {};
+        template <flags::Flag Option>
+        struct Action<UAdd<Option>> : ConstantToken<asdl::Unary::ADD> {};
+        template <flags::Flag Option>
+        struct USub : seq<SubImpl<Option>> {};
+        template <flags::Flag Option>
+        struct Action<USub<Option>> : ConstantToken<asdl::Unary::SUB> {};
         template <flags::Flag Option>
         using Unpack = seq<PowImpl<Option>>;
       } // namespace token

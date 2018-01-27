@@ -31,7 +31,6 @@
 #include <vector>
 
 #include <gsl/gsl>
-#include <metal.hpp>
 
 namespace chimera {
   namespace library {
