@@ -28,6 +28,8 @@
 #include <variant>
 #include <vector>
 
+#include <metal.hpp>
+
 namespace chimera {
   namespace library {
     namespace object {
@@ -37,23 +39,25 @@ namespace chimera {
       namespace detail {
         template <typename... Types>
         struct Impl {
-          using ValueT = std::variant<Types...>;
+          using List = metal::list<Types...>;
+          using ValueT = metal::apply<metal::lambda<std::variant>, List>;
           std::shared_ptr<ValueT> value;
 
           Impl(const Impl &impl) = default;
           Impl(Impl &&impl) noexcept = default;
 
-          template <typename Type,
-                    typename = std::enable_if_t<!std::is_same_v<Type, Impl>>>
-          explicit Impl(Type &&type)
-              : value(std::make_shared<ValueT>(std::forward<Type>(type))) {}
+          template <typename Type, typename = std::enable_if_t<
+                                       metal::contains<List, Type>() != 0>>
+          Impl(Type &&type)
+              : value(std::make_shared<ValueT>(
+                    ValueT(std::forward<Type>(type)))) {}
 
           ~Impl() noexcept = default;
           Impl &operator=(const Impl &impl) = default;
           Impl &operator=(Impl &&impl) noexcept = default;
 
-          template <typename Type,
-                    typename = std::enable_if_t<!std::is_same_v<Type, Impl>>>
+          template <typename Type, typename = std::enable_if_t<
+                                       metal::contains<List, Type>() != 0>>
           Impl &operator=(Type &&type) {
             value = std::make_shared<ValueT>(std::forward<Type>(type));
             return *this;
