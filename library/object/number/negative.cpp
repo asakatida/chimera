@@ -20,10 +20,6 @@
 
 #include "object/number/negative.hpp"
 
-#include <vector>
-
-#include <gsl/gsl>
-
 #include "object/number/div.hpp"
 #include "object/number/util.hpp"
 

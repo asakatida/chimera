@@ -29,14 +29,13 @@
 #include <string>      // for string
 #include <string_view> // for string_view
 
-#include <gsl/gsl>
+#include <gsl/gsl> // for Ensures
 
-#include "asdl/asdl.hpp" // for ExprImpl (ptr only), StmtImp...
-#include "options.hpp"
-#include "virtual_machine/builtins.hpp" // for init
-#include "virtual_machine/evaluator.hpp"
+#include "asdl/asdl.hpp" // for Constant, Module (ptr only)
+#include "object/object.hpp"
 #include "virtual_machine/modules/marshal.hpp"
 #include "virtual_machine/modules/sys.hpp"
+#include "virtual_machine/thread_context.hpp"
 
 using namespace std::literals;
 
@@ -67,7 +66,7 @@ namespace chimera {
         for (std::string_view::size_type
                  pos = CHIMERA_IMPORT_PATH_VIEW.find_first_of(':'),
                  prev = 0;
-             prev != CHIMERA_IMPORT_PATH_VIEW.npos; prev = pos + 1,
+             prev != std::string_view::npos; prev = pos + 1,
                  pos = CHIMERA_IMPORT_PATH_VIEW.find_first_of(':', prev)) {
           auto path = CHIMERA_IMPORT_PATH_VIEW.substr(prev, pos - 1);
           if (auto importModule = import_module(

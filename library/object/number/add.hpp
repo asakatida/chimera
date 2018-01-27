@@ -20,12 +20,11 @@
 
 #pragma once
 
-#include "object/number/number.hpp"
+#include "object/number/number.hpp" // for Base, Integer, Natural, Rational
 
 namespace chimera {
   namespace library {
     namespace object {
-
       namespace number {
         Number operator+(const std::uint64_t &left, const Base &right);
         Number operator+(const std::uint64_t &left, const Natural &right);

@@ -31,23 +31,21 @@
 namespace chimera {
   namespace library {
     namespace grammar {
-      namespace name {
-        using XidStart = Seq<Utf8IdStart>;
-        using XidContinue = Sor<Utf8IdStart, Utf8IdContinue>;
-        struct Name : Seq<XidStart, Star<XidContinue>> {};
-        template <typename Rule>
-        struct NameActions : Nothing<Rule> {};
+      namespace token {
+        using XidStart = seq<Utf8IdStart>;
+        using XidContinue = sor<Utf8IdStart, Utf8IdContinue>;
+        struct Name : seq<XidStart, star<XidContinue>> {};
         template <>
-        struct NameActions<Name> {
+        struct Action<Name> {
           template <typename Input, typename Stack, typename... Args>
           static void apply(const Input &in, Stack &&stack,
                             const Args &... /*args*/) {
             stack.push(asdl::Name{in.string()});
           }
         };
-      }; // namespace name
-      template <typename Option>
-      using Name = Token<Option, Action<name::NameActions, name::Name>>;
+      }; // namespace token
+      template <flags::Flag Option>
+      using Name = token::Token<Option, token::Name>;
     } // namespace grammar
   }   // namespace library
 } // namespace chimera

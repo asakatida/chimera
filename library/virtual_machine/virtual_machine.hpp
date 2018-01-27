@@ -18,26 +18,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! constructs and processes an evaluator
+//! controller to set up GlobalContext.
 
 #pragma once
 
 #include <atomic> // for atomic_flag
-#include <map>
-#include <string>
-#include <string_view>
-#include <tuple>
-#include <vector>
 
-#include "asdl/asdl.hpp"
-#include "object/object.hpp"
-#include "options.hpp"
-#include "virtual_machine/builtins.hpp"
-#include "virtual_machine/global_context.hpp"
-#include "virtual_machine/modules/marshal.hpp"
-#include "virtual_machine/modules/sys.hpp"
-#include "virtual_machine/process_context.hpp"
-#include "virtual_machine/thread_context.hpp"
+#include "object/object.hpp"                   // for Object
+#include "options.hpp"                         // for Options
+#include "virtual_machine/builtins.hpp"        // for init
+#include "virtual_machine/global_context.hpp"  // for GlobalContext
+#include "virtual_machine/process_context.hpp" // for ProcessContext
+#include "virtual_machine/thread_context.hpp"  // for ThreadContext
 
 static std::atomic_flag SIG_INT;
 

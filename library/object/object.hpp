@@ -22,24 +22,19 @@
 
 #pragma once
 
-#include <exception>
-#include <future>
-#include <map>
-#include <memory>
-#include <shared_mutex>
-#include <string>
-#include <tuple>
-#include <variant>
-#include <vector>
+#include <exception> // for exception
+#include <future>    // for future
+#include <map>       // for map
+#include <memory>    // for shared_ptr
+#include <string>    // for string
 
 #include "asdl/asdl.hpp"
-#include "container/atomic_map.hpp"
-#include "object/number/number.hpp"
+#include "container/atomic_map.hpp" // for AtomicMap
+#include "object/number/number.hpp" // for Number (ptr only)
 
 namespace chimera {
   namespace library {
     namespace object {
-      using number::number;
       struct Object;
 
       using Id = std::uint64_t;
@@ -56,8 +51,7 @@ namespace chimera {
       enum class ObjectMethod { DELATTR, DIR, GETATTRIBUTE, SETATTR };
       struct String {
         String() noexcept = default;
-        explicit String(const std::string &string);
-        explicit String(std::string &&string) noexcept;
+        explicit String(std::string string);
         String(const String &string) = default;
         String(String &&string) noexcept = default;
         ~String() noexcept = default;
@@ -131,8 +125,7 @@ namespace chimera {
       };
 
       struct BaseException final : std::exception {
-        explicit BaseException(const Object &anException);
-        explicit BaseException(Object &&anException);
+        explicit BaseException(Object anException);
         const char *what() const noexcept override;
         Object exception;
       };

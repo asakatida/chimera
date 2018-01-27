@@ -18,18 +18,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "object/number/xor.hpp"
+#include "object/number/or.hpp"
 
-#include <vector>
-
-#include <gsl/gsl>
-
-#include "object/number/add.hpp"
-#include "object/number/mult.hpp"
-#include "object/number/overflow.hpp"
-#include "object/number/positive.hpp"
-#include "object/number/sub.hpp"
-#include "object/number/util.hpp"
+#include <gsl/gsl> // for Ensures
 
 namespace chimera {
   namespace library {

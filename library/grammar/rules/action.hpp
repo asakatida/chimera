@@ -27,10 +27,7 @@
 namespace chimera {
   namespace library {
     namespace grammar {
-      namespace rules {
-        template <typename Rule>
-        using Nothing = tao::pegtl::nothing<Rule>;
-      } // namespace rules
-    }   // namespace grammar
-  }     // namespace library
+      namespace rules {} // namespace rules
+    }                    // namespace grammar
+  }                      // namespace library
 } // namespace chimera

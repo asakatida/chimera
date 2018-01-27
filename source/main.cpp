@@ -20,16 +20,15 @@
 
 //! main interpreter start
 
-#include <iostream>
-#include <iterator> // for distance
-#include <stdexcept>
-#include <string>
+#include <exception> // for exception
+#include <iterator>  // for distance
 
 #include <gsl/gsl> // for make_span
 
-#include "object/object.hpp"
-#include "version.hpp"
-#include "virtual_machine/virtual_machine.hpp"
+#include "object/object.hpp" // for Object
+#include "options.hpp"       // for Options
+#include "version.hpp"       // for CHIMERA_GIT_HEAD, CHIMERA_VE...
+#include "virtual_machine/virtual_machine.hpp" // for init
 
 using namespace std::literals;
 
@@ -103,124 +102,121 @@ namespace chimera {
                                            .append(" at position ")
                                            .append(std::to_string(std::distance(
                                                args.begin(), arg))));
-
-            } else {
-              for (; argChar != argCStr.cend(); ++argChar) {
-                switch (*argChar) {
-                  case '?':
-                  case 'h':
-                    return print_help(args);
-                  case 'b':
-                    options.bytes_compare =
-                        options.bytes_compare == BytesCompare::NONE
-                            ? BytesCompare::WARN
-                            : BytesCompare::ERROR;
-                    break;
-                  case 'B':
-                    options.dont_write_byte_code = true;
-                    break;
-                  case 'c':
-                    ++argChar;
-                    if (argChar != argCStr.cend()) {
-                      options.command = &*argChar;
-                    } else {
-                      ++arg;
-                      if (arg == args.end()) {
-                        throw std::runtime_error("missing command argument");
-                      }
-                      options.command = *arg;
-                    }
-                    options.argv = forward_args(std::next(arg), args.end());
-                    return virtual_machine::VirtualMachine(options, builtins)
-                        .global_context.execute_script_string();
-                  case 'd':
-                    options.debug = true;
-                    break;
-                  case 'E':
-                    options.ignore_environment = true;
-                    break;
-                  case 'i':
-                    options.interactive = true;
-                    break;
-                  case 'I':
-                    options.isolated_mode = true;
-                    break;
-                  case 'm':
-                    ++argChar;
-                    if (argChar != argCStr.cend()) {
-                      options.module_name = &*argChar;
-                    } else {
-                      ++arg;
-                      if (arg == args.end()) {
-                        throw std::runtime_error(
-                            "missing module name argument");
-                      }
-                      options.module_name = *arg;
-                    }
-                    options.argv = forward_args(std::next(arg), args.end());
-                    return virtual_machine::VirtualMachine(options, builtins)
-                        .global_context.execute_module();
-                  case 'O':
-                    options.optimize = options.optimize == Optimize::NONE
-                                           ? Optimize::BASIC
-                                           : Optimize::DISCARD_DOCS;
-                    break;
-                  case 'q':
-                    options.dont_display_copyright = true;
-                    break;
-                  case 'R':
-                    break;
-                  case 's':
-                    options.dont_add_site = true;
-                    break;
-                  case 'S':
-                    options.disable_site = true;
-                    break;
-                  case 'u':
-                    options.unbuffered_output = true;
-                    break;
-                  case 'v':
-                    options.verbose_init =
-                        options.verbose_init == VerboseInit::NONE
-                            ? VerboseInit::LOAD
-                            : VerboseInit::SEARCH;
-                    break;
-                  case 'V':
-                    return print_version(args);
-                  case 'W':
-                    ++argChar;
-                    if (argChar != argCStr.cend()) {
-                      options.warnings.emplace_back(&*argChar);
-                      break;
-                    }
+            }
+            for (; argChar != argCStr.cend(); ++argChar) {
+              switch (*argChar) {
+                case '?':
+                case 'h':
+                  return print_help(args);
+                case 'b':
+                  options.bytes_compare =
+                      options.bytes_compare == BytesCompare::NONE
+                          ? BytesCompare::WARN
+                          : BytesCompare::ERROR;
+                  break;
+                case 'B':
+                  options.dont_write_byte_code = true;
+                  break;
+                case 'c':
+                  ++argChar;
+                  if (argChar != argCStr.cend()) {
+                    options.command = &*argChar;
+                  } else {
                     ++arg;
                     if (arg == args.end()) {
-                      throw std::runtime_error("missing warning argument");
+                      throw std::runtime_error("missing command argument");
                     }
-                    options.warnings.emplace_back(*arg);
-                    break;
-                  case 'x':
-                    options.skip_first_line = true;
-                    break;
-                  case 'X':
-                    ++argChar;
-                    if (argChar != argCStr.cend()) {
-                      options.extensions.emplace_back(&*argChar);
-                      break;
-                    }
+                    options.command = *arg;
+                  }
+                  options.argv = forward_args(std::next(arg), args.end());
+                  return virtual_machine::VirtualMachine(options, builtins)
+                      .global_context.execute_script_string();
+                case 'd':
+                  options.debug = true;
+                  break;
+                case 'E':
+                  options.ignore_environment = true;
+                  break;
+                case 'i':
+                  options.interactive = true;
+                  break;
+                case 'I':
+                  options.isolated_mode = true;
+                  break;
+                case 'm':
+                  ++argChar;
+                  if (argChar != argCStr.cend()) {
+                    options.module_name = &*argChar;
+                  } else {
                     ++arg;
                     if (arg == args.end()) {
-                      throw std::runtime_error("missing extension argument");
+                      throw std::runtime_error("missing module name argument");
                     }
-                    options.extensions.emplace_back(*arg);
+                    options.module_name = *arg;
+                  }
+                  options.argv = forward_args(std::next(arg), args.end());
+                  return virtual_machine::VirtualMachine(options, builtins)
+                      .global_context.execute_module();
+                case 'O':
+                  options.optimize = options.optimize == Optimize::NONE
+                                         ? Optimize::BASIC
+                                         : Optimize::DISCARD_DOCS;
+                  break;
+                case 'q':
+                  options.dont_display_copyright = true;
+                  break;
+                case 'R':
+                  break;
+                case 's':
+                  options.dont_add_site = true;
+                  break;
+                case 'S':
+                  options.disable_site = true;
+                  break;
+                case 'u':
+                  options.unbuffered_output = true;
+                  break;
+                case 'v':
+                  options.verbose_init =
+                      options.verbose_init == VerboseInit::NONE
+                          ? VerboseInit::LOAD
+                          : VerboseInit::SEARCH;
+                  break;
+                case 'V':
+                  return print_version(args);
+                case 'W':
+                  ++argChar;
+                  if (argChar != argCStr.cend()) {
+                    options.warnings.emplace_back(&*argChar);
                     break;
-                  default:
-                    throw std::runtime_error(
-                        "unrecognized option -"s.append(1, *argChar)
-                            .append(" at position ")
-                            .append(std::to_string(
-                                std::distance(args.begin(), arg))));
-                }
+                  }
+                  ++arg;
+                  if (arg == args.end()) {
+                    throw std::runtime_error("missing warning argument");
+                  }
+                  options.warnings.emplace_back(*arg);
+                  break;
+                case 'x':
+                  options.skip_first_line = true;
+                  break;
+                case 'X':
+                  ++argChar;
+                  if (argChar != argCStr.cend()) {
+                    options.extensions.emplace_back(&*argChar);
+                    break;
+                  }
+                  ++arg;
+                  if (arg == args.end()) {
+                    throw std::runtime_error("missing extension argument");
+                  }
+                  options.extensions.emplace_back(*arg);
+                  break;
+                default:
+                  throw std::runtime_error(
+                      "unrecognized option -"s.append(1, *argChar)
+                          .append(" at position ")
+                          .append(std::to_string(
+                              std::distance(args.begin(), arg))));
               }
             }
           }

@@ -20,12 +20,11 @@
 
 #pragma once
 
-#include "object/number/number.hpp"
+#include "object/number/number.hpp" // for Base, Integer, Natural, Rational
 
 namespace chimera {
   namespace library {
     namespace object {
-
       namespace number {
         Number operator-(const Base &base);
         Number operator-(const Natural &natural);

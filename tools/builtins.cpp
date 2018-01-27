@@ -23,15 +23,19 @@
 
 #include <algorithm>
 #include <iomanip>
-#include <iostream>
+#include <iostream> // for basic_ostream
 #include <map>
+#include <optional> // for optional
 #include <queue>
+#include <string> // for string
 #include <vector>
 
-#include "asdl/asdl.hpp"                       // for Module
+#include <gsl/gsl> // for Ensures
+
+#include "asdl/asdl.hpp"                       // for ExprImpl, StmtImpl
 #include "object/object.hpp"                   // for Object
 #include "options.hpp"                         // for Options
-#include "virtual_machine/virtual_machine.hpp" // for VirtualMachine
+#include "virtual_machine/virtual_machine.hpp" // for init, ThreadContext, ...
 
 namespace chimera {
   namespace library {
