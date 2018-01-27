@@ -98,6 +98,13 @@ namespace chimera {
       namespace token {
         template <typename Rule>
         struct Action : tao::pegtl::nothing<Rule> {};
+        template <auto Asdl>
+        struct ConstantToken {
+          template <typename Top, typename... Args>
+          static void apply0(Top &&top, const Args &... /*args*/) {
+            top.push(Asdl);
+          }
+        };
         template <flags::Flag Option, typename Rule>
         using Token =
             seq<Rule,

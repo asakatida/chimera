@@ -31,15 +31,6 @@ namespace chimera {
   namespace library {
     namespace grammar {
       namespace token {
-        namespace keys {
-          template <auto Asdl>
-          struct Transform {
-            template <typename Outer>
-            void success(Outer &&outer) {
-              outer.push(Asdl);
-            }
-          };
-        } // namespace keys
         template <flags::Flag Option, typename String>
         using Key = Token<Option, seq<String, not_at<XidContinue>>>;
         template <flags::Flag Option>
@@ -95,8 +86,9 @@ namespace chimera {
         template <flags::Flag Option>
         using In = seq<InImpl<Option>>;
         template <flags::Flag Option>
-        struct InOp : seq<InImpl<Option>> {
-          using Transform = keys::Transform<asdl::CompareExpr::Op::IN>;
+        struct InOp : seq<InImpl<Option>> {};
+        template <flags::Flag Option>
+        struct Action<InOp<Option>> : ConstantToken<asdl::CompareExpr::Op::IN> {
         };
         template <flags::Flag Option>
         using IsImpl = Key<Option, String<'i', 's'>>;
@@ -117,17 +109,19 @@ namespace chimera {
         template <flags::Flag Option>
         using NotImpl = Key<Option, String<'n', 'o', 't'>>;
         template <flags::Flag Option>
-        struct NotIn : seq<NotImpl<Option>, InImpl<Option>> {
-          using Transform = keys::Transform<asdl::CompareExpr::Op::NOT_IN>;
-        };
+        struct NotIn : seq<NotImpl<Option>, InImpl<Option>> {};
         template <flags::Flag Option>
-        struct Is : seq<IsImpl<Option>, not_at<NotImpl<Option>>> {
-          using Transform = keys::Transform<asdl::CompareExpr::Op::IS>;
-        };
+        struct Action<NotIn<Option>>
+            : ConstantToken<asdl::CompareExpr::Op::NOT_IN> {};
         template <flags::Flag Option>
-        struct IsNot : seq<IsImpl<Option>, NotImpl<Option>> {
-          using Transform = keys::Transform<asdl::CompareExpr::Op::IS_NOT>;
-        };
+        struct Is : seq<IsImpl<Option>, not_at<NotImpl<Option>>> {};
+        template <flags::Flag Option>
+        struct Action<Is<Option>> : ConstantToken<asdl::CompareExpr::Op::IS> {};
+        template <flags::Flag Option>
+        struct IsNot : seq<IsImpl<Option>, NotImpl<Option>> {};
+        template <flags::Flag Option>
+        struct Action<IsNot<Option>>
+            : ConstantToken<asdl::CompareExpr::Op::IS_NOT> {};
         template <flags::Flag Option>
         using Not = seq<NotImpl<Option>, not_at<InImpl<Option>>>;
         template <flags::Flag Option>
