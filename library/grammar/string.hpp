@@ -47,7 +47,7 @@ namespace chimera {
       namespace token {
         using namespace std::literals;
 
-        struct StringHolder : rules::VariantCapture<asdl::ExprImpl> {
+        struct StringHolder : rules::VariantCapture<asdl::Constant> {
           std::string string;
           template <typename String>
           void apply(String &&in) {
@@ -327,12 +327,8 @@ namespace chimera {
         struct Bytes
             : plus<Token<Option, StringImpl<BytesPrefix, BytesRawPrefix,
                                             range<0, 0b1111111>>>> {
-          struct Transform : rules::Stack<asdl::ExprImpl> {
+          struct Transform : rules::VariantCapture<asdl::Constant> {
             object::Bytes bytes;
-            template <typename Stack>
-            void success(Stack &&stack) {
-              stack.push(pop<asdl::ExprImpl>());
-            }
             template <typename String>
             void apply(String &&in) {
               std::transform(in.begin(), in.end(), std::back_inserter(bytes),
@@ -352,14 +348,14 @@ namespace chimera {
         using StrPrefix = opt<one<'u', 'U'>>;
         using StrRawPrefix = one<'r', 'R'>;
         template <flags::Flag Option>
-        struct String
+        struct DocString
             : plus<Token<Option,
                          StringImpl<StrPrefix, StrRawPrefix, any, UTF16Escape,
                                     UTF32Escape, UNameEscape>>> {
           using Transform = StringHolder;
         };
         template <flags::Flag Option>
-        struct Action<String<Option>> {
+        struct Action<DocString<Option>> {
           template <typename Top, typename ProcessContext>
           static void apply0(Top &&top, ProcessContext &&processContext) {
             top.push(
@@ -420,54 +416,37 @@ namespace chimera {
           }
         };
         template <flags::Flag Option>
-        struct JoinedStr
+        struct JoinedStrOne
             : plus<Token<Option, sor<PartialString, FormattedString<Option>>>> {
-          struct Transform : rules::Stack<std::string, asdl::ExprImpl> {
-            template <typename Outer>
-            void success(Outer &&outer) {
-              outer.push(pop<asdl::ExprImpl>());
-            }
-          };
+          using Transform = rules::VariantCapture<std::string, asdl::JoinedStr>;
         };
         template <flags::Flag Option>
-        struct Action<JoinedStr<Option>> {
+        struct Action<JoinedStrOne<Option>> {
           using State = std::variant<std::string, asdl::JoinedStr>;
           struct Visitor {
             virtual_machine::ProcessContext &process_context;
-            State operator()(std::string &&value, const std::string &element) {
-              value.append(element);
-              return value;
+            auto operator()(std::string &&value, std::string &&element) {
+              value.append(std::move(element));
+              return State{std::move(value)};
             }
-            State operator()(std::string &&value,
-                             const asdl::ExprImpl &element) {
-              auto &joinedStr = std::get<asdl::JoinedStr>(*element.value);
+            auto operator()(std::string &&value,
+                             asdl::JoinedStr &&joinedStr) {
               joinedStr.values.emplace(
                   joinedStr.values.begin(),
                   process_context.insert_constant(object::String(value)));
               return State{std::move(joinedStr)};
             }
-            State operator()(asdl::JoinedStr &&value,
-                             const std::string &element) {
+            auto operator()(asdl::JoinedStr &&value,
+                             std::string &&element) {
               value.values.emplace_back(
                   process_context.insert_constant(object::String(element)));
               return State{std::move(value)};
             }
-            State operator()(asdl::JoinedStr &&value,
-                             const asdl::ExprImpl &element) {
-              auto &joinedStr = std::get<asdl::JoinedStr>(*element.value);
+            auto operator()(asdl::JoinedStr &&value,
+                             asdl::JoinedStr &&joinedStr) {
               std::move(joinedStr.values.begin(), joinedStr.values.end(),
                         std::back_inserter(value.values));
               return State{std::move(value)};
-            }
-          };
-          struct Push {
-            virtual_machine::ProcessContext &process_context;
-            asdl::ExprImpl operator()(std::string &&value) {
-              return asdl::ExprImpl{
-                  process_context.insert_constant(object::String(value))};
-            }
-            asdl::ExprImpl operator()(asdl::JoinedStr &&value) {
-              return asdl::ExprImpl{std::move(value)};
             }
           };
           template <typename Top, typename ProcessContext>
@@ -475,22 +454,58 @@ namespace chimera {
             State value;
             for (auto &&element : top.vector()) {
               value = std::visit(Visitor{processContext}, std::move(value),
-                                 element);
+                                 std::move(element));
             }
-            top.push(std::visit(Push{processContext}, std::move(value)));
+            std::visit(top, std::move(value));
+          }
+        };
+        template <flags::Flag Option>
+        struct JoinedStr : seq<JoinedStrOne<Option>> {
+          struct Transform : rules::Stack<std::string, asdl::JoinedStr, asdl::Constant> {
+            struct Push {
+              using State = std::variant<asdl::JoinedStr, asdl::Constant>;
+              State operator()(std::string && /*value*/) {
+                Ensures(false);
+              }
+              auto operator()(asdl::JoinedStr &&value) {
+                return State{std::move(value)};
+              }
+              auto operator()(asdl::Constant &&value) {
+                return State{std::move(value)};
+              }
+            };
+            template <typename Outer>
+            void success(Outer &&outer) {
+              std::visit(outer, std::visit(Push{}, pop()));
+            }
+          };
+        };
+        template <flags::Flag Option>
+        struct Action<JoinedStr<Option>> {
+          struct Push {
+            using State = std::variant<asdl::JoinedStr, asdl::Constant>;
+            virtual_machine::ProcessContext &process_context;
+            auto operator()(std::string &&value) {
+              return State{
+                  process_context.insert_constant(object::String(value))};
+            }
+            auto operator()(asdl::JoinedStr &&value) {
+              return State{std::move(value)};
+            }
+            auto operator()(asdl::Constant &&value) {
+              return State{std::move(value)};
+            }
+          };
+          template <typename Top, typename ProcessContext>
+          static void apply0(Top &&top, ProcessContext &&processContext) {
+            std::visit(top, std::visit(Push{processContext}, top.pop()));
           }
         };
       } // namespace token
       template <flags::Flag Option>
       struct DocString
-          : seq<token::String<Option>, sor<NEWLINE<Option>, at<Eolf>>> {
-        struct Transform : rules::Stack<asdl::ExprImpl> {
-          template <typename Outer>
-          void success(Outer &&outer) {
-            outer.push(asdl::DocString{
-                std::get<asdl::Constant>(*pop<asdl::ExprImpl>().value)});
-          }
-        };
+          : seq<token::DocString<Option>, sor<NEWLINE<Option>, at<Eolf>>> {
+        using Transform = rules::ReshapeCapture<asdl::DocString, asdl::Constant>;
       };
       template <flags::Flag Option>
       using STRING = sor<token::Bytes<Option>, token::JoinedStr<Option>>;
