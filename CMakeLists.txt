@@ -143,10 +143,12 @@ target_compile_features(chimera PUBLIC cxx_std_17)
 
 add_executable(
   unit_test
+  unit_tests/grammar/grammar.cpp
   unit_tests/grammar/identifier.cpp
   unit_tests/grammar/number.cpp
   unit_tests/grammar/test_parse.hpp
   unit_tests/number/number.cpp
+  unit_tests/virtual_machine/virtual_machine.cpp
   unit_tests/main.cpp)
 target_include_directories(unit_test PRIVATE unit_tests)
 target_include_directories(
