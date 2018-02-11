@@ -23,7 +23,6 @@ add_library(
   library/grammar/rules/rules.hpp
   library/grammar/rules/set.hpp
   library/grammar/rules/stack.hpp
-  library/grammar/captures.hpp
   library/grammar/expr.hpp
   library/grammar/exprfwd.hpp
   library/grammar/flags.hpp

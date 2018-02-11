@@ -27,7 +27,6 @@
 #include <type_traits>
 
 #include "asdl/asdl.hpp"
-#include "grammar/captures.hpp"
 #include "grammar/flags.hpp"
 #include "grammar/identifier.hpp"
 #include "grammar/keys.hpp"
@@ -76,7 +75,7 @@ namespace chimera {
       struct Subscript;
       template <flags::Flag Option>
       struct SubscriptListOne : list_tail<Subscript<Option>, Comma<Option>> {
-        using Transform = VectorSliceImplCapture;
+        using Transform = rules::VectorCapture<asdl::SliceImpl>;
       };
       template <flags::Flag Option>
       struct SubscriptList
@@ -762,7 +761,7 @@ namespace chimera {
                         AtomName<flags::mask<Option, flags::IMPLICIT>>> {};
       template <flags::Flag Option>
       struct SubscriptBound : opt<Test<Option>> {
-        using Transform = OptionalExprImplCapture;
+        using Transform = rules::OptionalCapture<asdl::ExprImpl>;
       };
       template <flags::Flag Option>
       struct SubscriptStop : opt<Colon<Option>, SubscriptBound<Option>> {
@@ -784,7 +783,7 @@ namespace chimera {
       template <flags::Flag Option>
       struct Subscript
           : sor<SubscriptStartStopStep<Option>, SubscriptIndex<Option>> {
-        using Transform = SliceImplCapture;
+        using Transform = rules::VariantCapture<asdl::ExtSlice, asdl::Index, asdl::Slice>;
       };
       template <flags::Flag Option>
       struct TestList : list_tail<Test<flags::mask<Option, flags::IMPLICIT>>,
