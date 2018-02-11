@@ -167,7 +167,7 @@ namespace chimera {
         };
       } // namespace token
       template <flags::Flag Option>
-      using NUMBER = token::Token<Option, token::Numberliteral>;
+      struct NUMBER : token::Token<Option, token::Numberliteral> {};
     } // namespace grammar
   }   // namespace library
 } // namespace chimera

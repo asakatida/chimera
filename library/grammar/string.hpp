@@ -508,7 +508,7 @@ namespace chimera {
         using Transform = rules::ReshapeCapture<asdl::DocString, asdl::Constant>;
       };
       template <flags::Flag Option>
-      using STRING = sor<token::Bytes<Option>, token::JoinedStr<Option>>;
+      struct STRING : sor<token::Bytes<Option>, token::JoinedStr<Option>> {};
     } // namespace grammar
   }   // namespace library
 } // namespace chimera
