@@ -21,8 +21,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   chimera::library::virtual_machine::modules::init(builtins);
   chimera::library::virtual_machine::VirtualMachine virtualMachine(options,
                                                                    builtins);
-  chimera::library::virtual_machine::ProcessContext processContext{
-      virtualMachine.global_context};
+  auto processContext = virtualMachine.process_context();
   chimera::library::asdl::Module module;
   bool success = true;
   std::istringstream in(
