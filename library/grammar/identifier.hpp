@@ -45,7 +45,7 @@ namespace chimera {
         };
       }; // namespace token
       template <flags::Flag Option>
-      using Name = token::Token<Option, token::Name>;
+      struct Name : token::Token<Option, token::Name> {};
     } // namespace grammar
   }   // namespace library
 } // namespace chimera

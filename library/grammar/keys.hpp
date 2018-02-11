@@ -34,32 +34,32 @@ namespace chimera {
         template <flags::Flag Option, typename String>
         using Key = Token<Option, seq<String, not_at<XidContinue>>>;
         template <flags::Flag Option>
-        using And = Key<Option, String<'a', 'n', 'd'>>;
+        struct And : Key<Option, String<'a', 'n', 'd'>> {};
         template <flags::Flag Option>
-        using As = Key<Option, String<'a', 's'>>;
+        struct As : Key<Option, String<'a', 's'>> {};
         template <flags::Flag Option>
-        using Assert = Key<Option, String<'a', 's', 's', 'e', 'r', 't'>>;
+        struct Assert : Key<Option, String<'a', 's', 's', 'e', 'r', 't'>> {};
         template <flags::Flag Option>
-        using Async = Key<Option, String<'a', 's', 'y', 'n', 'c'>>;
+        struct Async : Key<Option, String<'a', 's', 'y', 'n', 'c'>> {};
         template <flags::Flag Option>
-        using Await = Key<Option, String<'a', 'w', 'a', 'i', 't'>>;
+        struct Await : Key<Option, String<'a', 'w', 'a', 'i', 't'>> {};
         template <flags::Flag Option>
-        using Break = Key<Option, String<'b', 'r', 'e', 'a', 'k'>>;
+        struct Break : Key<Option, String<'b', 'r', 'e', 'a', 'k'>> {};
         template <flags::Flag Option>
-        using Class = Key<Option, String<'c', 'l', 'a', 's', 's'>>;
+        struct Class : Key<Option, String<'c', 'l', 'a', 's', 's'>> {};
         template <flags::Flag Option>
-        using Continue =
-            Key<Option, String<'c', 'o', 'n', 't', 'i', 'n', 'u', 'e'>>;
+        struct Continue :
+            Key<Option, String<'c', 'o', 'n', 't', 'i', 'n', 'u', 'e'>> {};
         template <flags::Flag Option>
-        using Def = Key<Option, String<'d', 'e', 'f'>>;
+        struct Def : Key<Option, String<'d', 'e', 'f'>> {};
         template <flags::Flag Option>
-        using Del = Key<Option, String<'d', 'e', 'l'>>;
+        struct Del : Key<Option, String<'d', 'e', 'l'>> {};
         template <flags::Flag Option>
-        using Elif = Key<Option, String<'e', 'l', 'i', 'f'>>;
+        struct Elif : Key<Option, String<'e', 'l', 'i', 'f'>> {};
         template <flags::Flag Option>
-        using Else = Key<Option, String<'e', 'l', 's', 'e'>>;
+        struct Else : Key<Option, String<'e', 'l', 's', 'e'>> {};
         template <flags::Flag Option>
-        using Except = Key<Option, String<'e', 'x', 'c', 'e', 'p', 't'>>;
+        struct Except : Key<Option, String<'e', 'x', 'c', 'e', 'p', 't'>> {};
         template <flags::Flag Option>
         struct False : Key<Option, String<'F', 'a', 'l', 's', 'e'>> {
           struct Transform {
@@ -70,21 +70,21 @@ namespace chimera {
           };
         };
         template <flags::Flag Option>
-        using Finally = Key<Option, String<'f', 'i', 'n', 'a', 'l', 'l', 'y'>>;
+        struct Finally : Key<Option, String<'f', 'i', 'n', 'a', 'l', 'l', 'y'>> {};
         template <flags::Flag Option>
-        using For = Key<Option, String<'f', 'o', 'r'>>;
+        struct For : Key<Option, String<'f', 'o', 'r'>> {};
         template <flags::Flag Option>
-        using From = Key<Option, String<'f', 'r', 'o', 'm'>>;
+        struct From : Key<Option, String<'f', 'r', 'o', 'm'>> {};
         template <flags::Flag Option>
-        using Global = Key<Option, String<'g', 'l', 'o', 'b', 'a', 'l'>>;
+        struct Global : Key<Option, String<'g', 'l', 'o', 'b', 'a', 'l'>> {};
         template <flags::Flag Option>
-        using If = Key<Option, String<'i', 'f'>>;
+        struct If : Key<Option, String<'i', 'f'>> {};
         template <flags::Flag Option>
-        using Import = Key<Option, String<'i', 'm', 'p', 'o', 'r', 't'>>;
+        struct Import : Key<Option, String<'i', 'm', 'p', 'o', 'r', 't'>> {};
         template <flags::Flag Option>
         using InImpl = Key<Option, String<'i', 'n'>>;
         template <flags::Flag Option>
-        using In = seq<InImpl<Option>>;
+        struct In : seq<InImpl<Option>> {};
         template <flags::Flag Option>
         struct InOp : seq<InImpl<Option>> {};
         template <flags::Flag Option>
@@ -93,7 +93,7 @@ namespace chimera {
         template <flags::Flag Option>
         using IsImpl = Key<Option, String<'i', 's'>>;
         template <flags::Flag Option>
-        using Lambda = Key<Option, String<'l', 'a', 'm', 'b', 'd', 'a'>>;
+        struct Lambda : Key<Option, String<'l', 'a', 'm', 'b', 'd', 'a'>> {};
         template <flags::Flag Option>
         struct None : Key<Option, String<'N', 'o', 'n', 'e'>> {
           struct Transform {
@@ -104,8 +104,8 @@ namespace chimera {
           };
         };
         template <flags::Flag Option>
-        using Nonlocal =
-            Key<Option, String<'n', 'o', 'n', 'l', 'o', 'c', 'a', 'l'>>;
+        struct Nonlocal :
+            Key<Option, String<'n', 'o', 'n', 'l', 'o', 'c', 'a', 'l'>> {};
         template <flags::Flag Option>
         using NotImpl = Key<Option, String<'n', 'o', 't'>>;
         template <flags::Flag Option>
@@ -123,15 +123,15 @@ namespace chimera {
         struct Action<IsNot<Option>>
             : ConstantToken<asdl::CompareExpr::Op::IS_NOT> {};
         template <flags::Flag Option>
-        using Not = seq<NotImpl<Option>, not_at<InImpl<Option>>>;
+        struct Not : seq<NotImpl<Option>, not_at<InImpl<Option>>> {};
         template <flags::Flag Option>
-        using Or = Key<Option, String<'o', 'r'>>;
+        struct Or : Key<Option, String<'o', 'r'>> {};
         template <flags::Flag Option>
-        using Pass = Key<Option, String<'p', 'a', 's', 's'>>;
+        struct Pass : Key<Option, String<'p', 'a', 's', 's'>> {};
         template <flags::Flag Option>
-        using Raise = Key<Option, String<'r', 'a', 'i', 's', 'e'>>;
+        struct Raise : Key<Option, String<'r', 'a', 'i', 's', 'e'>> {};
         template <flags::Flag Option>
-        using Return = Key<Option, String<'r', 'e', 't', 'u', 'r', 'n'>>;
+        struct Return : Key<Option, String<'r', 'e', 't', 'u', 'r', 'n'>> {};
         template <flags::Flag Option>
         struct True : Key<Option, String<'T', 'r', 'u', 'e'>> {
           struct Transform {
@@ -142,13 +142,13 @@ namespace chimera {
           };
         };
         template <flags::Flag Option>
-        using Try = Key<Option, String<'t', 'r', 'y'>>;
+        struct Try : Key<Option, String<'t', 'r', 'y'>> {};
         template <flags::Flag Option>
-        using While = Key<Option, String<'w', 'h', 'i', 'l', 'e'>>;
+        struct While : Key<Option, String<'w', 'h', 'i', 'l', 'e'>> {};
         template <flags::Flag Option>
-        using With = Key<Option, String<'w', 'i', 't', 'h'>>;
+        struct With : Key<Option, String<'w', 'i', 't', 'h'>> {};
         template <flags::Flag Option>
-        using Yield = Key<Option, String<'y', 'i', 'e', 'l', 'd'>>;
+        struct Yield : Key<Option, String<'y', 'i', 'e', 'l', 'd'>> {};
         using Keywords =
             sor<And<0>, As<0>, Assert<0>, Break<0>, Class<0>, Continue<0>,
                 Def<0>, Del<0>, Elif<0>, Else<0>, Except<0>, False<0>,

@@ -42,11 +42,11 @@ namespace chimera {
         template <flags::Flag Option>
         struct Action<Add<Option>> : ConstantToken<asdl::Operator::ADD> {};
         template <flags::Flag Option>
-        using Arr = Op<Option, String<'-', '>'>>;
+        struct Arr : Op<Option, String<'-', '>'>> {};
         template <flags::Flag Option>
         using AtImpl = Op<Option, one<'@'>, '='>;
         template <flags::Flag Option>
-        using AtOp = seq<AtImpl<Option>>;
+        struct AtOp : seq<AtImpl<Option>> {};
         template <flags::Flag Option>
         struct AugAdd : Op<Option, String<'+', '='>> {};
         template <flags::Flag Option>
@@ -107,20 +107,20 @@ namespace chimera {
         template <flags::Flag Option>
         struct Action<AugSub<Option>> : ConstantToken<asdl::Operator::SUB> {};
         template <flags::Flag Option>
-        using BitAnd = Op<Option, one<'&'>, '='>;
+        struct BitAnd : Op<Option, one<'&'>, '='> {};
         template <flags::Flag Option>
         struct BitNot : Op<Option, one<'~'>> {};
         template <flags::Flag Option>
         struct Action<BitNot<Option>>
             : ConstantToken<asdl::Unary::Op::BIT_NOT> {};
         template <flags::Flag Option>
-        using BitOr = Op<Option, one<'|'>, '='>;
+        struct BitOr : Op<Option, one<'|'>, '='> {};
         template <flags::Flag Option>
-        using BitXor = Op<Option, one<'^'>, '='>;
+        struct BitXor : Op<Option, one<'^'>, '='> {};
         template <flags::Flag Option>
-        using Colon = Op<Option, one<':'>>;
+        struct Colon : Op<Option, one<':'>> {};
         template <flags::Flag Option>
-        using Comma = Op<Option, one<','>>;
+        struct Comma : Op<Option, one<','>> {};
         template <flags::Flag Option>
         struct Div : Op<Option, one<'/'>, '=', '/'> {};
         template <flags::Flag Option>
@@ -135,7 +135,7 @@ namespace chimera {
           };
         };
         template <flags::Flag Option>
-        using Eq = Op<Option, one<'='>, '='>;
+        struct Eq : Op<Option, one<'='>, '='> {};
         template <flags::Flag Option>
         struct EqEq : Op<Option, String<'=', '='>> {};
         template <flags::Flag Option>
@@ -156,11 +156,11 @@ namespace chimera {
         struct Action<GtE<Option>>
             : ConstantToken<asdl::CompareExpr::Op::GT_E> {};
         template <flags::Flag Option>
-        using LBrc = Op<Option, one<'{'>>;
+        struct LBrc : Op<Option, one<'{'>> {};
         template <flags::Flag Option>
-        using LBrt = Op<Option, one<'['>>;
+        struct LBrt : Op<Option, one<'['>> {};
         template <flags::Flag Option>
-        using LPar = Op<Option, one<'('>>;
+        struct LPar : Op<Option, one<'('>> {};
         template <flags::Flag Option>
         struct LShift : Op<Option, String<'<', '<'>, '='> {};
         template <flags::Flag Option>
@@ -198,7 +198,7 @@ namespace chimera {
         template <flags::Flag Option>
         using PeriodImpl = Op<Option, one<'.'>>;
         template <flags::Flag Option>
-        using Period = seq<not_at<rep<3, one<'.'>>>, PeriodImpl<Option>>;
+        struct Period : seq<not_at<rep<3, one<'.'>>>, PeriodImpl<Option>> {};
         template <flags::Flag Option>
         using PowImpl = Op<Option, String<'*', '*'>, '='>;
         template <flags::Flag Option>
@@ -206,20 +206,20 @@ namespace chimera {
         template <flags::Flag Option>
         struct Action<Pow<Option>> : ConstantToken<asdl::Operator::POW> {};
         template <flags::Flag Option>
-        using RBrc = Op<Option, one<'}'>>;
+        struct RBrc : Op<Option, one<'}'>> {};
         template <flags::Flag Option>
-        using RBrt = Op<Option, one<']'>>;
+        struct RBrt : Op<Option, one<']'>> {};
         template <flags::Flag Option>
-        using RPar = Op<Option, one<')'>>;
+        struct RPar : Op<Option, one<')'>> {};
         template <flags::Flag Option>
         struct RShift : Op<Option, String<'>', '>'>, '='> {};
         template <flags::Flag Option>
         struct Action<RShift<Option>> : ConstantToken<asdl::Operator::R_SHIFT> {
         };
         template <flags::Flag Option>
-        using Semi = Op<Option, one<';'>>;
+        struct Semi : Op<Option, one<';'>> {};
         template <flags::Flag Option>
-        using StarOp = seq<MultImpl<Option>>;
+        struct StarOp : seq<MultImpl<Option>> {};
         template <flags::Flag Option>
         using SubImpl = Op<Option, one<'-'>, '=', '>'>;
         template <flags::Flag Option>
@@ -235,7 +235,7 @@ namespace chimera {
         template <flags::Flag Option>
         struct Action<USub<Option>> : ConstantToken<asdl::Unary::SUB> {};
         template <flags::Flag Option>
-        using Unpack = seq<PowImpl<Option>>;
+        struct Unpack : seq<PowImpl<Option>> {};
       } // namespace token
       using token::Add;
       using token::Arr;
