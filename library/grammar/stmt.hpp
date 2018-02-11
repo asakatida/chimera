@@ -602,7 +602,7 @@ namespace chimera {
       struct IfStmtBranches
           : seq<IfStmtIf<flags::mask<Option, flags::IMPLICIT>>,
                 star<IfStmtElif<flags::mask<Option, flags::IMPLICIT>>>> {
-        using Transform = VectorIfBranchCapture;
+        using Transform = rules::VectorCapture<asdl::IfBranch>;
       };
       template <flags::Flag Option>
       using IfStmtElse = if_must<Else<flags::mask<Option, flags::IMPLICIT>>,
@@ -719,7 +719,7 @@ namespace chimera {
       template <flags::Flag Option>
       struct TryStmtExcepts
           : plus<TryStmtExcept<flags::mask<Option, flags::IMPLICIT>>> {
-        using Transform = VectorExcepthandlerCapture;
+        using Transform = rules::VectorCapture<asdl::Excepthandler>;
       };
       template <flags::Flag Option>
       struct TryStmt
@@ -930,17 +930,17 @@ namespace chimera {
       template <flags::Flag Option>
       struct SuiteSimpleStmt
           : seq<SimpleStmt<flags::mask<Option, flags::IMPLICIT>>> {
-        using Transform = VectorStmtImplCapture;
+        using Transform = rules::VectorCapture<asdl::StmtImpl>;
       };
       template <flags::Flag Option>
       struct SuiteSeqStmtPlus
           : plus<Stmt<flags::mask<Option, flags::IMPLICIT>>> {
-        using Transform = VectorStmtImplCapture;
+        using Transform = rules::VectorCapture<asdl::StmtImpl>;
       };
       template <flags::Flag Option>
       struct SuiteSeqStmtStar
           : star<Stmt<flags::mask<Option, flags::IMPLICIT>>> {
-        using Transform = VectorStmtImplCapture;
+        using Transform = rules::VectorCapture<asdl::StmtImpl>;
       };
     } // namespace grammar
   }   // namespace library
