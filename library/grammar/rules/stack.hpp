@@ -47,10 +47,12 @@ namespace chimera {
           ValueT &top() { return stack.back(); }
           template <typename Type>
           const Type &top() const {
+            Ensures(std::holds_alternative<Type>(top()));
             return std::get<Type>(top());
           }
           template <typename Type>
           Type &top() {
+            Ensures(std::holds_alternative<Type>(top()));
             return std::get<Type>(top());
           }
           ValueT pop() {
@@ -67,6 +69,7 @@ namespace chimera {
             template <typename Iter, std::size_t... I>
             static Type reshape(Iter &&it,
                                 std::index_sequence<I...> /*unused*/) {
+              Ensures(std::holds_alternative<Args>(*(it + I)) && ...);
               return Type{std::move(std::get<Args>(*(it + I)))...};
             }
           };
@@ -78,6 +81,7 @@ namespace chimera {
                 stack.begin(), std::index_sequence_for<Args...>{});
           }
           const std::vector<ValueT> &vector() const { return stack; }
+          std::vector<ValueT> &vector() { return stack; }
           template <typename OutputIt>
           auto transform(OutputIt &&outputIt) {
             return transform<
@@ -97,6 +101,7 @@ namespace chimera {
                         },
                         value);
                   }
+                  Ensures(std::holds_alternative<Type>(value));
                   return std::move(std::get<Type>(value));
                 });
           }
