@@ -30,67 +30,6 @@
 namespace chimera {
   namespace library {
     namespace virtual_machine {
-      void SetEvaluator::evaluate(const asdl::Bool & /*asdlBool*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void SetEvaluator::evaluate(const asdl::Bin & /*bin*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void SetEvaluator::evaluate(const asdl::Unary & /*unary*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void SetEvaluator::evaluate(const asdl::Lambda & /*lambda*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void SetEvaluator::evaluate(const asdl::IfExp & /*ifExp*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void SetEvaluator::evaluate(const asdl::ListComp & /*list_comp*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void SetEvaluator::evaluate(const asdl::SetComp & /*set_comp*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void SetEvaluator::evaluate(const asdl::UnpackDict & /*unpackDict*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void SetEvaluator::evaluate(const asdl::DictComp & /*dict_comp*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void
-      SetEvaluator::evaluate(const asdl::GeneratorExp & /*generator_exp*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void SetEvaluator::evaluate(const asdl::Await & /*await*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void SetEvaluator::evaluate(const asdl::Yield & /*yield*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void SetEvaluator::evaluate(const asdl::YieldFrom & /*yield_from*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void SetEvaluator::evaluate(const asdl::Compare & /*compare*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void SetEvaluator::evaluate(const asdl::Call & /*call*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
       void SetEvaluator::evaluate(const asdl::Attribute &attribute) {
         evaluator->push([&attribute](Evaluator *evaluatorA) {
           auto value = std::move(evaluatorA->stack.top());
@@ -104,53 +43,16 @@ namespace chimera {
       void SetEvaluator::evaluate(const asdl::Subscript &subscript) {
         evaluator->evaluate_get(subscript.value);
       }
-      void SetEvaluator::evaluate(const asdl::Starred & /*starred*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void SetEvaluator::evaluate(const asdl::NameConstant & /*nameConstant*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void SetEvaluator::evaluate(const asdl::Ellipsis & /*ellipsis*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void
-      SetEvaluator::evaluate(const asdl::FormattedValue & /*formatted_value*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void SetEvaluator::evaluate(const asdl::JoinedStr & /*joined_str*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
       void SetEvaluator::evaluate(const asdl::Name &name) {
         evaluator->push([&name](Evaluator *evaluatorA) {
           evaluatorA->self().set_attribute(name.value, evaluatorA->stack.top());
         });
-      }
-      void SetEvaluator::evaluate(const asdl::Dict & /*dict*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void SetEvaluator::evaluate(const asdl::Set & /*set*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
       }
       void SetEvaluator::evaluate(const asdl::List & /*list*/) {
         evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
       }
       void SetEvaluator::evaluate(const asdl::Tuple & /*tuple*/) {
         evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
-      }
-      void SetEvaluator::evaluate(const asdl::Constant & /*constant*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
-      }
-      void SetEvaluator::evaluate(const object::Object & /*object*/) {
-        throw object::BaseException{
-            evaluator->builtins().get_attribute("RuntimeError")};
       }
     } // namespace virtual_machine
   }   // namespace library
