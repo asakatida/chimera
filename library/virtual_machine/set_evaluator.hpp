@@ -33,35 +33,17 @@ namespace chimera {
       struct SetEvaluator {
         Evaluator *evaluator;
 
-        [[noreturn]] void evaluate(const asdl::Bool &asdlBool);
-        [[noreturn]] void evaluate(const asdl::Bin &bin);
-        [[noreturn]] void evaluate(const asdl::Unary &unary);
-        [[noreturn]] void evaluate(const asdl::Lambda &lambda);
-        [[noreturn]] void evaluate(const asdl::IfExp &ifExp);
-        [[noreturn]] void evaluate(const asdl::ListComp &listComp);
-        [[noreturn]] void evaluate(const asdl::SetComp &setComp);
-        [[noreturn]] void evaluate(const asdl::UnpackDict &unpackDict);
-        [[noreturn]] void evaluate(const asdl::DictComp &dictComp);
-        [[noreturn]] void evaluate(const asdl::GeneratorExp &generatorExp);
-        [[noreturn]] void evaluate(const asdl::Await &await);
-        [[noreturn]] void evaluate(const asdl::Yield &yield);
-        [[noreturn]] void evaluate(const asdl::YieldFrom &yieldFrom);
-        [[noreturn]] void evaluate(const asdl::Compare &compare);
-        [[noreturn]] void evaluate(const asdl::Call &call);
         void evaluate(const asdl::Attribute &attribute);
         void evaluate(const asdl::Subscript &subscript);
-        [[noreturn]] void evaluate(const asdl::Starred &starred);
-        [[noreturn]] void evaluate(const asdl::NameConstant &nameConstant);
-        [[noreturn]] void evaluate(const asdl::Ellipsis &ellipsis);
-        [[noreturn]] void evaluate(const asdl::FormattedValue &formattedValue);
-        [[noreturn]] void evaluate(const asdl::JoinedStr &joinedStr);
         void evaluate(const asdl::Name &name);
-        [[noreturn]] void evaluate(const asdl::Dict &dict);
-        [[noreturn]] void evaluate(const asdl::Set &set);
         void evaluate(const asdl::List &list);
         void evaluate(const asdl::Tuple &tuple);
-        [[noreturn]] void evaluate(const asdl::Constant &constant);
-        [[noreturn]] void evaluate(const object::Object &object);
+
+        template <typename ASDL>
+        [[noreturn]] void evaluate(const ASDL & /*asdl*/) {
+          throw object::BaseException{
+              evaluator->builtins().get_attribute("RuntimeError")};
+        }
       };
     } // namespace virtual_machine
   }   // namespace library
