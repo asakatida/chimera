@@ -459,9 +459,12 @@ namespace chimera {
             if (size() > 1) {
               asdl::Bin bin;
               bin.values.reserve(2);
-              bin.values[1] = pop<asdl::ExprImpl>();
-              bin.op = pop<asdl::Operator>();
-              bin.values[0] = pop<asdl::ExprImpl>();
+              {
+                auto expr = pop<asdl::ExprImpl>();
+                bin.op = pop<asdl::Operator>();
+                bin.values.push_back(pop<asdl::ExprImpl>());
+                bin.values.push_back(std::move(expr));
+              }
               outer.push(std::move(bin));
             } else {
               outer.push(pop<asdl::ExprImpl>());
@@ -783,7 +786,8 @@ namespace chimera {
       template <flags::Flag Option>
       struct Subscript
           : sor<SubscriptStartStopStep<Option>, SubscriptIndex<Option>> {
-        using Transform = rules::VariantCapture<asdl::ExtSlice, asdl::Index, asdl::Slice>;
+        using Transform =
+            rules::VariantCapture<asdl::ExtSlice, asdl::Index, asdl::Slice>;
       };
       template <flags::Flag Option>
       struct TestList : list_tail<Test<flags::mask<Option, flags::IMPLICIT>>,
