@@ -17,7 +17,7 @@ TEST_CASE("grammar VirtualMachine ()") {
     auto module = processContext.parse_file(""sv, "<test>");
     chimera::library::virtual_machine::ThreadContext threadContext{
         processContext, processContext.make_module("__main__")};
-    threadContext.evaluate(module);
+    REQUIRE_NOTHROW(threadContext.evaluate(module));
   }
   REQUIRE(true);
 }
