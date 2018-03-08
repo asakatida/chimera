@@ -144,6 +144,7 @@ add_executable(
   unit_test
   unit_tests/grammar/grammar.cpp
   unit_tests/grammar/identifier.cpp
+  unit_tests/grammar/number_parse.cpp
   unit_tests/grammar/number.cpp
   unit_tests/grammar/test_parse.hpp
   unit_tests/number/number.cpp

@@ -5,16 +5,19 @@
 namespace chimera {
   namespace library {
     template <typename Data>
-    void test_parse(Data &&data) {
+    auto test_parse(Data &&data) {
       Options options;
       options.chimera = "chimera";
-      options.script = "fuzzer.py";
+      options.script = "unit_test.py";
       object::Object builtins;
       virtual_machine::modules::init(builtins);
       virtual_machine::VirtualMachine virtualMachine(options, builtins);
-      virtual_machine::ProcessContext processContext{
-          virtualMachine.global_context};
-      (void)processContext.parse_file(data, "<unit_test>");
+      auto processContext = virtualMachine.process_context();
+      std::istringstream in(data);
+      auto module = processContext.parse_file(in, "<unit_test>");
+      virtual_machine::ThreadContext threadContext{
+          processContext, processContext.make_module("__main__")};
+      threadContext.evaluate(module);
     }
   } // namespace library
 } // namespace chimera
