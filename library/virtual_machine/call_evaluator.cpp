@@ -38,7 +38,8 @@ namespace chimera {
           Expects(false);
         }
 
-        void operator()(Evaluator *evaluator) const {
+        void
+        operator()(Evaluator *evaluator) const {
           auto top = std::move(evaluator->stack.top());
           evaluator->stack.pop();
           std::visit(

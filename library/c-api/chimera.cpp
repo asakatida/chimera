@@ -39,12 +39,12 @@ static auto &Py_REFCNT(PyObject *o) { return o->ob_refcnt; }
 
 static auto &Py_REFCNT(PyVarObject *o) { return Py_REFCNT(&o->ob_base); }
 
-  // static auto &Py_REFCNT(PyTypeObject *o) { return Py_REFCNT(&o->ob_base); }
+// static auto &Py_REFCNT(PyTypeObject *o) { return Py_REFCNT(&o->ob_base); }
 
 #undef Py_SIZE
 static auto &Py_SIZE(PyVarObject *o) { return o->ob_size; }
 
-  // static auto &Py_SIZE(PyTypeObject *o) { return Py_SIZE(&o->ob_base); }
+// static auto &Py_SIZE(PyTypeObject *o) { return Py_SIZE(&o->ob_base); }
 
 #undef PyObject_HEAD_INIT
 #ifdef Py_TRACE_REFS
@@ -54,14 +54,14 @@ static auto &Py_SIZE(PyVarObject *o) { return o->ob_size; }
 #endif
 
 #undef PyObject_New
-  // template <typename Type>
-  // Type *PyObject_New(PyTypeObject *type) { return nullptr; }
+// template <typename Type>
+// Type *PyObject_New(PyTypeObject *type) { return nullptr; }
 
 #undef PyObject_NewVar
-  // template <typename Type>
-  // Type *PyObject_NewVar(PyTypeObject *type, Py_ssize_t size) {
-  //   return nullptr;
-  // }
+// template <typename Type>
+// Type *PyObject_NewVar(PyTypeObject *type, Py_ssize_t size) {
+//   return nullptr;
+// }
 
 #undef PyObject_GC_New
 #undef PyObject_GC_NewVar
