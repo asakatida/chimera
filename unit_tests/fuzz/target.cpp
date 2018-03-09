@@ -25,7 +25,8 @@ namespace chimera {
         virtual_machine::VirtualMachine virtualMachine(options, builtins);
         auto processContext = virtualMachine.process_context();
         asdl::Module module;
-        std::istringstream in(std::string(reinterpret_cast<const char *>(data), size));
+        std::istringstream in(
+            std::string(reinterpret_cast<const char *>(data), size));
         try {
           module = processContext.parse_file(in, "<fuzz>");
         } catch (const tao::pegtl::parse_error &) {
