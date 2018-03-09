@@ -48,8 +48,8 @@ namespace chimera {
         template <flags::Flag Option>
         struct Class : Key<Option, String<'c', 'l', 'a', 's', 's'>> {};
         template <flags::Flag Option>
-        struct Continue :
-            Key<Option, String<'c', 'o', 'n', 't', 'i', 'n', 'u', 'e'>> {};
+        struct Continue
+            : Key<Option, String<'c', 'o', 'n', 't', 'i', 'n', 'u', 'e'>> {};
         template <flags::Flag Option>
         struct Def : Key<Option, String<'d', 'e', 'f'>> {};
         template <flags::Flag Option>
@@ -70,7 +70,8 @@ namespace chimera {
           };
         };
         template <flags::Flag Option>
-        struct Finally : Key<Option, String<'f', 'i', 'n', 'a', 'l', 'l', 'y'>> {};
+        struct Finally
+            : Key<Option, String<'f', 'i', 'n', 'a', 'l', 'l', 'y'>> {};
         template <flags::Flag Option>
         struct For : Key<Option, String<'f', 'o', 'r'>> {};
         template <flags::Flag Option>
@@ -104,8 +105,8 @@ namespace chimera {
           };
         };
         template <flags::Flag Option>
-        struct Nonlocal :
-            Key<Option, String<'n', 'o', 'n', 'l', 'o', 'c', 'a', 'l'>> {};
+        struct Nonlocal
+            : Key<Option, String<'n', 'o', 'n', 'l', 'o', 'c', 'a', 'l'>> {};
         template <flags::Flag Option>
         using NotImpl = Key<Option, String<'n', 'o', 't'>>;
         template <flags::Flag Option>
