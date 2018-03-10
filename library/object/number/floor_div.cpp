@@ -35,13 +35,15 @@ namespace chimera {
           return Number{Base{left / right.value}};
         }
 
-        Number floor_div(const std::uint64_t & /*left*/, const Natural & /*right*/) {
+        Number floor_div(const std::uint64_t & /*left*/,
+                         const Natural & /*right*/) {
           return Number{Base{0u}};
         }
 
         Number floor_div(const std::uint64_t &left, const Integer &right) {
-          return -std::visit([&left](const auto &r) { return floor_div(left, r); },
-                             right.value);
+          return -std::visit(
+              [&left](const auto &r) { return floor_div(left, r); },
+              right.value);
         }
 
         Number floor_div(const std::uint64_t &left, const Rational &right) {
@@ -65,8 +67,9 @@ namespace chimera {
         }
 
         Number floor_div(const Base &left, const Integer &right) {
-          return -std::visit([&left](const auto &r) { return floor_div(left, r); },
-                             right.value);
+          return -std::visit(
+              [&left](const auto &r) { return floor_div(left, r); },
+              right.value);
         }
 
         Number floor_div(const Base &left, const Rational &right) {
@@ -142,8 +145,9 @@ namespace chimera {
         }
 
         Number floor_div(const Natural &left, const Integer &right) {
-          return -std::visit([&left](const auto &r) { return floor_div(left, r); },
-                             right.value);
+          return -std::visit(
+              [&left](const auto &r) { return floor_div(left, r); },
+              right.value);
         }
 
         Number floor_div(const Natural &left, const Rational &right) {
@@ -155,23 +159,27 @@ namespace chimera {
         }
 
         Number floor_div(const Integer &left, const std::uint64_t &right) {
-          return -std::visit([&right](const auto &l) { return floor_div(l, right); },
-                             left.value);
+          return -std::visit(
+              [&right](const auto &l) { return floor_div(l, right); },
+              left.value);
         }
 
         Number floor_div(const Integer &left, const Base &right) {
-          return -std::visit([&right](const auto &l) { return floor_div(l, right); },
-                             left.value);
+          return -std::visit(
+              [&right](const auto &l) { return floor_div(l, right); },
+              left.value);
         }
 
         Number floor_div(const Integer &left, const Natural &right) {
-          return -std::visit([&right](const auto &l) { return floor_div(l, right); },
-                             left.value);
+          return -std::visit(
+              [&right](const auto &l) { return floor_div(l, right); },
+              left.value);
         }
 
         Number floor_div(const Integer &left, const Integer &right) {
-          return std::visit([](const auto &l, const auto &r) { return floor_div(l, r); },
-                            left.value, right.value);
+          return std::visit(
+              [](const auto &l, const auto &r) { return floor_div(l, r); },
+              left.value, right.value);
         }
 
         Number floor_div(const Integer &left, const Rational &right) {

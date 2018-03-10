@@ -426,24 +426,22 @@ namespace chimera {
           struct Visitor {
             virtual_machine::ProcessContext &process_context;
             auto operator()(std::string &&value, std::string &&element) {
-              value.append(std::move(element));
+              value.append(element);
               return State{std::move(value)};
             }
-            auto operator()(std::string &&value,
-                             asdl::JoinedStr &&joinedStr) {
+            auto operator()(std::string &&value, asdl::JoinedStr &&joinedStr) {
               joinedStr.values.emplace(
                   joinedStr.values.begin(),
                   process_context.insert_constant(object::String(value)));
               return State{std::move(joinedStr)};
             }
-            auto operator()(asdl::JoinedStr &&value,
-                             std::string &&element) {
+            auto operator()(asdl::JoinedStr &&value, std::string &&element) {
               value.values.emplace_back(
                   process_context.insert_constant(object::String(element)));
               return State{std::move(value)};
             }
             auto operator()(asdl::JoinedStr &&value,
-                             asdl::JoinedStr &&joinedStr) {
+                            asdl::JoinedStr &&joinedStr) {
               std::move(joinedStr.values.begin(), joinedStr.values.end(),
                         std::back_inserter(value.values));
               return State{std::move(value)};
@@ -461,18 +459,15 @@ namespace chimera {
         };
         template <flags::Flag Option>
         struct JoinedStr : seq<JoinedStrOne<Option>> {
-          struct Transform : rules::Stack<std::string, asdl::JoinedStr, asdl::Constant> {
+          struct Transform
+              : rules::Stack<std::string, asdl::JoinedStr, asdl::Constant> {
             struct Push {
               using State = std::variant<asdl::JoinedStr, asdl::Constant>;
-              State operator()(std::string && /*value*/) {
-                Ensures(false);
-              }
+              State operator()(std::string && /*value*/) { Ensures(false); }
               auto operator()(asdl::JoinedStr &&value) {
                 return State{std::move(value)};
               }
-              auto operator()(asdl::Constant &&value) {
-                return State{std::move(value)};
-              }
+              auto operator()(asdl::Constant &&value) { return State{value}; }
             };
             template <typename Outer>
             void success(Outer &&outer) {
@@ -492,9 +487,7 @@ namespace chimera {
             auto operator()(asdl::JoinedStr &&value) {
               return State{std::move(value)};
             }
-            auto operator()(asdl::Constant &&value) {
-              return State{std::move(value)};
-            }
+            auto operator()(asdl::Constant value) { return State{value}; }
           };
           template <typename Top, typename ProcessContext>
           static void apply0(Top &&top, ProcessContext &&processContext) {
@@ -505,7 +498,8 @@ namespace chimera {
       template <flags::Flag Option>
       struct DocString
           : seq<token::DocString<Option>, sor<NEWLINE<Option>, at<Eolf>>> {
-        using Transform = rules::ReshapeCapture<asdl::DocString, asdl::Constant>;
+        using Transform =
+            rules::ReshapeCapture<asdl::DocString, asdl::Constant>;
       };
       template <flags::Flag Option>
       struct STRING : sor<token::Bytes<Option>, token::JoinedStr<Option>> {};
