@@ -104,9 +104,6 @@ namespace chimera {
         }
 
         Number operator<<(const Natural &left, const Natural &right) {
-          if (right == 0) {
-            return Number{left};
-          }
           auto value = left;
           auto shift = right % 64;
           if (right >= 64) {

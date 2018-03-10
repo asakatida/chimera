@@ -20,6 +20,8 @@
 
 #include "object/number/number.hpp"
 
+#include <functional>
+
 #include "object/number/add.hpp"
 #include "object/number/and.hpp"
 #include "object/number/compare.hpp"
@@ -41,85 +43,72 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
+        Number::Number(const std::uint64_t i) : value(Base{i}) {}
+        Number::Number(Base base) : value(std::move(base)) {}
+        Number::Number(Natural natural) : value(std::move(natural)) {}
+        Number::Number(Integer integer) : value(std::move(integer)) {}
+        Number::Number(Rational rational) : value(std::move(rational)) {}
+
         Number Number::operator+() const {
-          return std::visit([](auto a) { return +a; }, value);
+          return visit([](auto a) { return +a; });
         }
         Number Number::operator-() const {
-          return std::visit([](auto a) { return -a; }, value);
+          return visit(std::negate<>{});
         }
         Number Number::operator+(const Number &right) const {
-          return std::visit([](auto a, auto b) { return a + b; }, value,
-                            right.value);
+          return visit(right, std::plus<>{});
         }
         Number Number::operator-(const Number &right) const {
-          return std::visit([](auto a, auto b) { return a - b; }, value,
-                            right.value);
+          return visit(right, std::minus<>{});
         }
         Number Number::operator*(const Number &right) const {
-          return std::visit([](auto a, auto b) { return a * b; }, value,
-                            right.value);
+          return visit(right, std::multiplies<>{});
         }
         Number Number::operator/(const Number &right) const {
-          return std::visit([](auto a, auto b) { return a / b; }, value,
-                            right.value);
+          return visit(right, std::divides<>{});
         }
         Number Number::operator%(const Number &right) const {
-          return std::visit([](auto a, auto b) { return a % b; }, value,
-                            right.value);
+          return visit(right, std::modulus<>{});
         }
         Number Number::operator~() const {
-          return std::visit([](auto a) { return ~a; }, value);
+          return visit(std::bit_not<>{});
         }
         Number Number::operator&(const Number &right) const {
-          return std::visit([](auto a, auto b) { return a & b; }, value,
-                            right.value);
+          return visit(right, std::bit_and<>{});
         }
         Number Number::operator|(const Number &right) const {
-          return std::visit([](auto a, auto b) { return a | b; }, value,
-                            right.value);
+          return visit(right, std::bit_or<>{});
         }
         Number Number::operator^(const Number &right) const {
-          return std::visit([](auto a, auto b) { return a ^ b; }, value,
-                            right.value);
+          return visit(right, std::bit_xor<>{});
         }
         Number Number::operator<<(const Number &right) const {
-          return std::visit([](auto a, auto b) { return a << b; }, value,
-                            right.value);
+          return visit(right, [](auto a, auto b) { return a << b; });
         }
         Number Number::operator>>(const Number &right) const {
-          return std::visit([](auto a, auto b) { return a >> b; }, value,
-                            right.value);
+          return visit(right, [](auto a, auto b) { return a >> b; });
         }
         bool Number::operator==(const Number &right) const {
-          return value.index() == right.value.index() &&
-                 std::visit([](auto a, auto b) { return a == b; }, value,
-                            right.value);
+          return value.index() == right.value.index() && visit(right, std::equal_to<>{});
         }
         bool Number::operator!=(const Number &right) const {
-          return value.index() != right.value.index() ||
-                 std::visit([](auto a, auto b) { return a != b; }, value,
-                            right.value);
+          return value.index() != right.value.index() || visit(right, std::not_equal_to<>{});
         }
         bool Number::operator<(const Number &right) const {
-          return std::visit([](auto a, auto b) { return a < b; }, value,
-                            right.value);
+          return visit(right, std::less<>{});
         }
         bool Number::operator>(const Number &right) const {
-          return std::visit([](auto a, auto b) { return a > b; }, value,
-                            right.value);
+          return visit(right, std::greater<>{});
         }
         bool Number::operator<=(const Number &right) const {
-          return std::visit([](auto a, auto b) { return a <= b; }, value,
-                            right.value);
+          return visit(right, std::less_equal<>{});
         }
         bool Number::operator>=(const Number &right) const {
-          return std::visit([](auto a, auto b) { return a >= b; }, value,
-                            right.value);
+          return visit(right, std::greater_equal<>{});
         }
 
         Number Number::floor_div(const Number &right) const {
-          return std::visit([](auto a, auto b) { return number::floor_div(a, b); }, value,
-                            right.value);
+          return visit(right, [](auto a, auto b) { return number::floor_div(a, b); });
         }
 
         Number Number::pow(const Number &right) const { return right; }

@@ -39,12 +39,12 @@ namespace chimera {
           template <std::uint8_t Base, typename Input>
           void apply(const Input &in) {
             number =
-                number * object::number::number(Base).pow(
-                             object::number::number(in.size())) +
-                object::number::number(std::stoul(in.string(), nullptr, Base));
+                number * object::Number(Base).pow(
+                             object::Number(in.size())) +
+                object::Number(std::stoul(in.string(), nullptr, Base));
           }
 
-          object::Number number = object::number::number(0);
+          object::Number number;
         };
         struct Nonzerodigit
             : seq<range<'1', '9'>, rep_opt<18, range<'0', '9'>>> {};
@@ -123,7 +123,7 @@ namespace chimera {
           struct Transform : NumberHolder {
             template <typename Top>
             void success(Top &&top) {
-              top.number = object::number::number(10).pow(number) * top.number;
+              top.number = object::Number(10).pow(number) * top.number;
             }
           };
         };
@@ -132,16 +132,16 @@ namespace chimera {
         using Exponentfloat = seq<sor<Digitpart, Pointfloat>, Exponent>;
         struct Floatnumber : sor<Pointfloat, Exponentfloat> {
           struct Transform : NumberHolder {
-            object::Number denominator = object::number::number(1);
+            object::Number denominator = object::Number(1);
             template <typename Top>
             void success(Top &&top) {
               top.number =
-                  number / object::number::number(10).pow(denominator) +
+                  number / object::Number(10).pow(denominator) +
                   top.number;
             }
             template <std::uint8_t Base, typename Input>
             void apply(const Input &in) {
-              denominator = denominator + object::number::number(in.size());
+              denominator = denominator + object::Number(in.size());
               NumberHolder::apply<Base>(in);
             }
           };

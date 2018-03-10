@@ -42,8 +42,7 @@ namespace chimera {
         }
         static bool even(const Rational & /*i*/) { return false; }
         static bool even(const Number &i) {
-          return std::visit([](const auto &value) { return even(value); },
-                            i.value);
+          return i.visit([](const auto &value) { return even(value); });
         }
 
         static Rational to_rational(Number &&left, Number &&right);
@@ -141,9 +140,8 @@ namespace chimera {
         }
 
         static Rational to_rational(Number &&left, Number &&right) {
-          return std::visit(
-              [](auto &&l, auto &&r) { return to_rational(l, r); },
-              std::move(left.value), std::move(right.value));
+          return left.visit(right,
+              [](auto &&l, auto &&r) { return to_rational(l, r); });
         }
 
         template <typename Left, typename Right>
