@@ -48,7 +48,7 @@ namespace chimera {
         }
 
         Number operator%(const std::uint64_t &left, const Base &right) {
-          return Number{Base{left % right.value}};
+          return Number(Base{left % right.value});
         }
 
         Number operator%(const std::uint64_t &left, const Natural & /*right*/) {

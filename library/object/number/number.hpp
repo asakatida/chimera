@@ -45,8 +45,22 @@ namespace chimera {
         };
         using NumberValue = std::variant<Base, Natural, Integer, Rational>;
 
-        struct Number {
-          NumberValue value;
+        class Number {
+        public:
+          Number() noexcept = default;
+          explicit Number(const std::uint64_t i);
+          explicit Number(Base base);
+          explicit Number(Natural natural);
+          explicit Number(Integer integer);
+          explicit Number(Rational rational);
+
+          Number(const Number &other) = default;
+          Number(Number &&other) noexcept = default;
+
+          ~Number() noexcept = default;
+
+          Number &operator=(const Number &other) = default;
+          Number &operator=(Number &&other) noexcept = default;
 
           Number operator+() const;
           Number operator-() const;
@@ -88,11 +102,19 @@ namespace chimera {
           bool is_complex() const;
 
           Number complex() const;
-        };
 
-        inline Number number(std::uint64_t value) {
-          return Number{Base{value}};
-        }
+          template <typename Visitor>
+          auto visit(Visitor &&visitor) const {
+            return std::visit(std::forward<Visitor>(visitor), value);
+          }
+
+          template <typename Visitor>
+          auto visit(const Number &right, Visitor &&visitor) const {
+            return std::visit(std::forward<Visitor>(visitor), value, right.value);
+          }
+        private:
+          NumberValue value;
+        };
       } // namespace number
     }   // namespace object
   }     // namespace library
