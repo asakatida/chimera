@@ -26,8 +26,8 @@ TEST_CASE("number Number") {
   REQUIRE(number > huge);
   auto massive = number * other;
   REQUIRE(massive > number);
-  // massive = massive / number;
-  // REQUIRE(massive > huge);
-  // massive = massive / other;
-  // REQUIRE(massive == huge);
+  massive = massive / number;
+  REQUIRE(massive > huge);
+  massive = massive / other;
+  REQUIRE(massive == huge);
 }
