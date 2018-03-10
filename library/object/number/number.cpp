@@ -24,6 +24,7 @@
 #include "object/number/and.hpp"
 #include "object/number/compare.hpp"
 #include "object/number/div.hpp"
+#include "object/number/floor_div.hpp"
 #include "object/number/invert.hpp"
 #include "object/number/left_shift.hpp"
 #include "object/number/less.hpp"
@@ -116,7 +117,10 @@ namespace chimera {
                             right.value);
         }
 
-        Number Number::floor_div(const Number &right) const { return right; }
+        Number Number::floor_div(const Number &right) const {
+          return std::visit([](auto a, auto b) { return number::floor_div(a, b); }, value,
+                            right.value);
+        }
 
         Number Number::pow(const Number &right) const { return right; }
         Number Number::pow(const Number &y, const Number & /*z*/) const {

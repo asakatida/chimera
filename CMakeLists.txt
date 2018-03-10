@@ -46,6 +46,8 @@ add_library(
   library/object/number/and.hpp
   library/object/number/div.cpp
   library/object/number/div.hpp
+  library/object/number/floor_div.cpp
+  library/object/number/floor_div.hpp
   library/object/number/compare.cpp
   library/object/number/compare.hpp
   library/object/number/invert.cpp
