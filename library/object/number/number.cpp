@@ -43,8 +43,8 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        Number::Number(const std::uint64_t i) : value(Base{i}) {}
-        Number::Number(Base base) : value(std::move(base)) {}
+        Number::Number(std::uint64_t i) : value(Base{i}) {}
+        Number::Number(Base base) : value(base) {}
         Number::Number(Natural natural) : value(std::move(natural)) {}
         Number::Number(Integer integer) : value(std::move(integer)) {}
         Number::Number(Rational rational) : value(std::move(rational)) {}
@@ -52,9 +52,7 @@ namespace chimera {
         Number Number::operator+() const {
           return visit([](auto a) { return +a; });
         }
-        Number Number::operator-() const {
-          return visit(std::negate<>{});
-        }
+        Number Number::operator-() const { return visit(std::negate<>{}); }
         Number Number::operator+(const Number &right) const {
           return visit(right, std::plus<>{});
         }
@@ -70,9 +68,7 @@ namespace chimera {
         Number Number::operator%(const Number &right) const {
           return visit(right, std::modulus<>{});
         }
-        Number Number::operator~() const {
-          return visit(std::bit_not<>{});
-        }
+        Number Number::operator~() const { return visit(std::bit_not<>{}); }
         Number Number::operator&(const Number &right) const {
           return visit(right, std::bit_and<>{});
         }
@@ -89,10 +85,12 @@ namespace chimera {
           return visit(right, [](auto a, auto b) { return a >> b; });
         }
         bool Number::operator==(const Number &right) const {
-          return value.index() == right.value.index() && visit(right, std::equal_to<>{});
+          return value.index() == right.value.index() &&
+                 visit(right, std::equal_to<>{});
         }
         bool Number::operator!=(const Number &right) const {
-          return value.index() != right.value.index() || visit(right, std::not_equal_to<>{});
+          return value.index() != right.value.index() ||
+                 visit(right, std::not_equal_to<>{});
         }
         bool Number::operator<(const Number &right) const {
           return visit(right, std::less<>{});
@@ -108,7 +106,8 @@ namespace chimera {
         }
 
         Number Number::floor_div(const Number &right) const {
-          return visit(right, [](auto a, auto b) { return number::floor_div(a, b); });
+          return visit(right,
+                       [](auto a, auto b) { return number::floor_div(a, b); });
         }
 
         Number Number::pow(const Number &right) const { return right; }

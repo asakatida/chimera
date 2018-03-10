@@ -39,8 +39,7 @@ namespace chimera {
           template <std::uint8_t Base, typename Input>
           void apply(const Input &in) {
             number =
-                number * object::Number(Base).pow(
-                             object::Number(in.size())) +
+                number * object::Number(Base).pow(object::Number(in.size())) +
                 object::Number(std::stoul(in.string(), nullptr, Base));
           }
 
@@ -136,8 +135,7 @@ namespace chimera {
             template <typename Top>
             void success(Top &&top) {
               top.number =
-                  number / object::Number(10).pow(denominator) +
-                  top.number;
+                  number / object::Number(10).pow(denominator) + top.number;
             }
             template <std::uint8_t Base, typename Input>
             void apply(const Input &in) {

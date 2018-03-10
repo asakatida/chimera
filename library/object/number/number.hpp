@@ -48,7 +48,7 @@ namespace chimera {
         class Number {
         public:
           Number() noexcept = default;
-          explicit Number(const std::uint64_t i);
+          explicit Number(std::uint64_t i);
           explicit Number(Base base);
           explicit Number(Natural natural);
           explicit Number(Integer integer);
@@ -110,8 +110,10 @@ namespace chimera {
 
           template <typename Visitor>
           auto visit(const Number &right, Visitor &&visitor) const {
-            return std::visit(std::forward<Visitor>(visitor), value, right.value);
+            return std::visit(std::forward<Visitor>(visitor), value,
+                              right.value);
           }
+
         private:
           NumberValue value;
         };

@@ -61,9 +61,10 @@ namespace chimera {
         }
       };
       template <flags::Flag Option>
-      struct INDENT :
-          seq<BlankLines<flags::mask<Option, flags::IMPLICIT, flags::DISCARD>>,
-              IndentCheck, discard> {};
+      struct INDENT
+          : seq<BlankLines<
+                    flags::mask<Option, flags::IMPLICIT, flags::DISCARD>>,
+                IndentCheck, discard> {};
       struct DedentCheck : not_at<one<' ', '\t'>> {
         template <typename Input>
         static bool match(Input &&in) {
@@ -77,14 +78,14 @@ namespace chimera {
         }
       };
       template <flags::Flag Option>
-      struct DEDENT :
-          sor<seq<eof, DedentConsume>,
-              seq<at<BlankLines<
-                         flags::mask<Option, flags::IMPLICIT, flags::DISCARD>>,
-                     DedentCheck>,
-                  opt<BlankLines<
-                          flags::mask<Option, flags::IMPLICIT, flags::DISCARD>>,
-                      DedentConsume, discard>>> {};
+      struct DEDENT
+          : sor<seq<eof, DedentConsume>,
+                seq<at<BlankLines<flags::mask<Option, flags::IMPLICIT,
+                                              flags::DISCARD>>,
+                       DedentCheck>,
+                    opt<BlankLines<flags::mask<Option, flags::IMPLICIT,
+                                               flags::DISCARD>>,
+                        DedentConsume, discard>>> {};
       struct NextIndentCheck : not_at<one<' ', '\t'>> {
         template <typename Input>
         static bool match(Input &&in) {
@@ -92,9 +93,10 @@ namespace chimera {
         }
       };
       template <flags::Flag Option>
-      struct NEWLINE :
-          seq<BlankLines<flags::mask<Option, flags::IMPLICIT, flags::DISCARD>>,
-              NextIndentCheck, discard> {};
+      struct NEWLINE
+          : seq<BlankLines<
+                    flags::mask<Option, flags::IMPLICIT, flags::DISCARD>>,
+                NextIndentCheck, discard> {};
       namespace token {
         template <typename Rule>
         struct Action : tao::pegtl::nothing<Rule> {};
