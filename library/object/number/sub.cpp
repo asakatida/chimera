@@ -27,6 +27,7 @@
 #include "object/number/less.hpp" // for operator<
 #include "object/number/mult.hpp"
 #include "object/number/overflow.hpp" // for Carryover
+#include "object/number/simplify.hpp"
 #include "object/number/util.hpp"
 
 namespace chimera {
@@ -35,9 +36,9 @@ namespace chimera {
       namespace number {
         Number operator-(const std::uint64_t &left, const Base &right) {
           if (left < right.value) {
-            return Number{Integer{Base{right.value - left}}};
+            return Number(Integer{Base{right.value - left}});
           }
-          return Number{Base{left - right.value}};
+          return Number(Base{left - right.value});
         }
 
         Number operator-(const std::uint64_t &left, const Natural &right) {
@@ -59,16 +60,16 @@ namespace chimera {
 
         Number operator-(const Base &left, const std::uint64_t &right) {
           if (left.value < right) {
-            return Number{Integer{Base{right - left.value}}};
+            return Number(Integer{Base{right - left.value}});
           }
-          return Number{Base{left.value - right}};
+          return Number(Base{left.value - right});
         }
 
         Number operator-(const Base &left, const Base &right) {
           if (left.value < right.value) {
-            return Number{Integer{Base{right.value - left.value}}};
+            return Number(Integer{Base{right.value - left.value}});
           }
-          return Number{Base{left.value - right.value}};
+          return Number(Base{left.value - right.value});
         }
 
         Number operator-(const Base &left, const Natural &right) {
@@ -90,7 +91,7 @@ namespace chimera {
 
         Number operator-(const Natural &left, const std::uint64_t &right) {
           if (right == 0) {
-            return Number{left};
+            return Number(left);
           }
           auto value = left;
           Carryover carryover{0, right};
@@ -98,25 +99,15 @@ namespace chimera {
             carryover = sub(i, carryover.overflow);
             i = carryover.result;
             if (carryover.overflow == 0) {
-              return Number{value};
+              return Number(value);
             }
           }
-          while (value.value.back() == 0) {
-            value.value.pop_back();
-            if (value.value.empty()) {
-              return Number{};
-            }
-          }
-          if (value.value.size() == 1) {
-            return Number{Base{value.value[0]}};
-          }
-          value.value.shrink_to_fit();
-          return Number{value};
+          return simplify(value);
         }
 
         Number operator-(const Natural &left, const Base &right) {
           if (right.value == 0) {
-            return Number{left};
+            return Number(left);
           }
           auto value = left;
           Carryover carryover{0, right.value};
@@ -124,20 +115,10 @@ namespace chimera {
             carryover = sub(i, carryover.overflow);
             i = carryover.result;
             if (carryover.overflow == 0) {
-              return Number{value};
+              return Number(value);
             }
           }
-          while (value.value.back() == 0) {
-            value.value.pop_back();
-            if (value.value.empty()) {
-              return Number{};
-            }
-          }
-          if (value.value.size() == 1) {
-            return Number{Base{value.value[0]}};
-          }
-          value.value.shrink_to_fit();
-          return Number{value};
+          return simplify(value);
         }
 
         Number operator-(const Natural &left, const Natural &right) {
@@ -165,17 +146,7 @@ namespace chimera {
           }
           Ensures(carryover.result == 0);
           Ensures(carryover.overflow == 0);
-          while (output.back() == 0) {
-            output.pop_back();
-            if (output.empty()) {
-              return Number{};
-            }
-          }
-          if (output.size() == 1) {
-            return Number{Base{output[0]}};
-          }
-          output.shrink_to_fit();
-          return Number{Natural{output}};
+          return simplify(Natural{output});
         }
 
         Number operator-(const Natural &left, const Integer &right) {

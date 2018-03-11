@@ -20,10 +20,14 @@
 
 #include "object/number/floor_div.hpp"
 
+#include <gsl/gsl>
+
 #include "container/reverse.hpp"
+#include "object/number/compare.hpp"
+#include "object/number/less.hpp"
 #include "object/number/mult.hpp"
 #include "object/number/overflow.hpp" // for Carryover
-#include "object/number/right_shift.hpp"
+#include "object/number/simplify.hpp"
 #include "object/number/sub.hpp"
 #include "object/number/util.hpp"
 
@@ -32,12 +36,13 @@ namespace chimera {
     namespace object {
       namespace number {
         Number floor_div(const std::uint64_t &left, const Base &right) {
-          return Number{Base{left / right.value}};
+          Expects(right.value != 0);
+          return Number(Base{left / right.value});
         }
 
         Number floor_div(const std::uint64_t & /*left*/,
                          const Natural & /*right*/) {
-          return Number{Base{0u}};
+          return Number();
         }
 
         Number floor_div(const std::uint64_t &left, const Integer &right) {
@@ -49,21 +54,23 @@ namespace chimera {
         Number floor_div(const std::uint64_t &left, const Rational &right) {
           return std::visit(
               [&left](const auto &rN, const auto &rD) {
-                return (left * rD).floor_div(Number{rN});
+                return (left * rD).floor_div(Number(rN));
               },
               right.numerator, right.denominator);
         }
 
         Number floor_div(const Base &left, const std::uint64_t &right) {
-          return Number{Base{left.value / right}};
+          Expects(right != 0);
+          return Number(Base{left.value / right});
         }
 
         Number floor_div(const Base &left, const Base &right) {
-          return Number{Base{left.value / right.value}};
+          Expects(right.value != 0);
+          return Number(Base{left.value / right.value});
         }
 
         Number floor_div(const Base & /*left*/, const Natural & /*right*/) {
-          return Number{Base{0u}};
+          return Number();
         }
 
         Number floor_div(const Base &left, const Integer &right) {
@@ -75,12 +82,13 @@ namespace chimera {
         Number floor_div(const Base &left, const Rational &right) {
           return std::visit(
               [&left](const auto &rN, const auto &rD) {
-                return (left * rD).floor_div(Number{rN});
+                return (left * rD).floor_div(Number(rN));
               },
               right.numerator, right.denominator);
         }
 
         Number floor_div(const Natural &left, const std::uint64_t &right) {
+          Expects(right != 0);
           auto value = left;
           Carryover carryover{};
           for (auto &&i : container::reverse(value.value)) {
@@ -88,20 +96,11 @@ namespace chimera {
             carryover = div(carryover, right);
             i = carryover.result;
           }
-          while (value.value.back() == 0) {
-            value.value.pop_back();
-            if (value.value.empty()) {
-              return Number{Base{0u}};
-            }
-          }
-          if (value.value.size() == 1) {
-            return Number{Base{value.value[0]}};
-          }
-          value.value.shrink_to_fit();
-          return Number{value};
+          return simplify(value);
         }
 
         Number floor_div(const Natural &left, const Base &right) {
+          Expects(right.value != 0);
           auto value = left;
           Carryover carryover{};
           for (auto &&i : container::reverse(value.value)) {
@@ -109,39 +108,21 @@ namespace chimera {
             carryover = div(carryover, right.value);
             i = carryover.result;
           }
-          while (value.value.back() == 0) {
-            value.value.pop_back();
-            if (value.value.empty()) {
-              return Number{Base{0u}};
-            }
-          }
-          if (value.value.size() == 1) {
-            return Number{Base{value.value[0]}};
-          }
-          value.value.shrink_to_fit();
-          return Number{value};
+          return simplify(value);
         }
 
         Number floor_div(const Natural &left, const Natural &right) {
-          // TODO(grandquista)
-          auto value = left;
-          Carryover carryover{};
-          for (auto &&i : container::reverse(value.value)) {
-            carryover.result = i;
-            carryover = div(carryover, right.value[0]);
-            i = carryover.result;
+          if (left < right) {
+            return Number();
           }
-          while (value.value.back() == 0) {
-            value.value.pop_back();
-            if (value.value.empty()) {
-              return Number{Base{0u}};
-            }
+          if (left == right) {
+            return Number(1u);
           }
-          if (value.value.size() == 1) {
-            return Number{Base{value.value[0]}};
+          Number a(left);
+          while (a > right) {
+            a -= right;
           }
-          value.value.shrink_to_fit();
-          return Number{value};
+          return a;
         }
 
         Number floor_div(const Natural &left, const Integer &right) {
@@ -153,7 +134,7 @@ namespace chimera {
         Number floor_div(const Natural &left, const Rational &right) {
           return std::visit(
               [&left](const auto &rN, const auto &rD) {
-                return (left * rD).floor_div(Number{rN});
+                return (left * rD).floor_div(Number(rN));
               },
               right.numerator, right.denominator);
         }
@@ -185,7 +166,7 @@ namespace chimera {
         Number floor_div(const Integer &left, const Rational &right) {
           return std::visit(
               [&left](const auto &rN, const auto &rD) {
-                return (left * rD).floor_div(Number{rN});
+                return (left * rD).floor_div(Number(rN));
               },
               right.numerator, right.denominator);
         }
@@ -193,7 +174,7 @@ namespace chimera {
         Number floor_div(const Rational &left, const std::uint64_t &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Number{lN}.floor_div(lD * right);
+                return Number(lN).floor_div(lD * right);
               },
               left.numerator, left.denominator);
         }
@@ -201,7 +182,7 @@ namespace chimera {
         Number floor_div(const Rational &left, const Base &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Number{lN}.floor_div(lD * right);
+                return Number(lN).floor_div(lD * right);
               },
               left.numerator, left.denominator);
         }
@@ -209,7 +190,7 @@ namespace chimera {
         Number floor_div(const Rational &left, const Natural &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Number{lN}.floor_div(lD * right);
+                return Number(lN).floor_div(lD * right);
               },
               left.numerator, left.denominator);
         }
@@ -217,7 +198,7 @@ namespace chimera {
         Number floor_div(const Rational &left, const Integer &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Number{lN}.floor_div(lD * right);
+                return Number(lN).floor_div(lD * right);
               },
               left.numerator, left.denominator);
         }
