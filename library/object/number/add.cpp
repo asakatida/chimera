@@ -36,15 +36,15 @@ namespace chimera {
         Number operator+(const std::uint64_t &left, const Base &right) {
           auto value = sum(left, right.value);
           if (value.overflow == 0) {
-            return Number{Base{value.result}};
+            return Number(Base{value.result});
           }
-          return Number{Natural{
-              std::vector<std::uint64_t>{value.result, value.overflow}}};
+          return Number(Natural{
+              std::vector<std::uint64_t>{value.result, value.overflow}});
         }
 
         Number operator+(const std::uint64_t &left, const Natural &right) {
           if (left == 0) {
-            return Number{right};
+            return Number(right);
           }
           auto value = right;
           Carryover carryover{0, left};
@@ -52,11 +52,11 @@ namespace chimera {
             carryover = sum(i, carryover.overflow);
             i = carryover.result;
             if (carryover.overflow == 0) {
-              return Number{value};
+              return Number(value);
             }
           }
           value.value.push_back(carryover.overflow);
-          return Number{value};
+          return Number(value);
         }
 
         Number operator+(const std::uint64_t &left, const Integer &right) {
@@ -74,24 +74,24 @@ namespace chimera {
         Number operator+(const Base &left, const std::uint64_t &right) {
           auto value = sum(left.value, right);
           if (value.overflow == 0) {
-            return Number{Base{value.result}};
+            return Number(Base{value.result});
           }
-          return Number{Natural{
-              std::vector<std::uint64_t>{value.result, value.overflow}}};
+          return Number(Natural{
+              std::vector<std::uint64_t>{value.result, value.overflow}});
         }
 
         Number operator+(const Base &left, const Base &right) {
           auto value = sum(left.value, right.value);
           if (value.overflow == 0) {
-            return Number{Base{value.result}};
+            return Number(Base{value.result});
           }
-          return Number{Natural{
-              std::vector<std::uint64_t>{value.result, value.overflow}}};
+          return Number(Natural{
+              std::vector<std::uint64_t>{value.result, value.overflow}});
         }
 
         Number operator+(const Base &left, const Natural &right) {
           if (left.value == 0) {
-            return Number{right};
+            return Number(right);
           }
           auto value = right;
           Carryover carryover{0, left.value};
@@ -99,11 +99,11 @@ namespace chimera {
             carryover = sum(i, carryover.overflow);
             i = carryover.result;
             if (carryover.overflow == 0) {
-              return Number{value};
+              return Number(value);
             }
           }
           value.value.push_back(carryover.overflow);
-          return Number{value};
+          return Number(value);
         }
 
         Number operator+(const Base &left, const Integer &right) {
@@ -120,7 +120,7 @@ namespace chimera {
 
         Number operator+(const Natural &left, const std::uint64_t &right) {
           if (right == 0) {
-            return Number{left};
+            return Number(left);
           }
           auto value = left;
           Carryover carryover{0, right};
@@ -128,16 +128,16 @@ namespace chimera {
             carryover = sum(i, carryover.overflow);
             i = carryover.result;
             if (carryover.overflow == 0) {
-              return Number{value};
+              return Number(value);
             }
           }
           value.value.push_back(carryover.overflow);
-          return Number{value};
+          return Number(value);
         }
 
         Number operator+(const Natural &left, const Base &right) {
           if (right.value == 0) {
-            return Number{left};
+            return Number(left);
           }
           auto value = left;
           Carryover carryover{0, right.value};
@@ -145,11 +145,11 @@ namespace chimera {
             carryover = sum(i, carryover.overflow);
             i = carryover.result;
             if (carryover.overflow == 0) {
-              return Number{value};
+              return Number(value);
             }
           }
           value.value.push_back(carryover.overflow);
-          return Number{value};
+          return Number(value);
         }
 
         Number operator+(const Natural &left, const Natural &right) {
@@ -179,7 +179,7 @@ namespace chimera {
           if (carryover.result != 0) {
             output.emplace_back(carryover.result);
           }
-          return Number{Natural{output}};
+          return Number(Natural{output});
         }
 
         Number operator+(const Natural &left, const Integer &right) {

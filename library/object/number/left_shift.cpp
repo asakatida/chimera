@@ -32,12 +32,12 @@ namespace chimera {
     namespace object {
       namespace number {
         Number operator<<(const std::uint64_t &left, const Base &right) {
-          return Number{Base{left << right.value}};
+          return Number(Base{left << right.value});
         }
 
         Number operator<<(const std::uint64_t & /*left*/,
                           const Natural & /*right*/) {
-          return Number{};
+          return Number();
         }
 
         Number operator<<(const std::uint64_t &left, const Integer &right) {
@@ -52,15 +52,15 @@ namespace chimera {
         }
 
         Number operator<<(const Base &left, const std::uint64_t &right) {
-          return Number{Base{left.value << right}};
+          return Number(Base{left.value << right});
         }
 
         Number operator<<(const Base &left, const Base &right) {
-          return Number{Base{left.value << right.value}};
+          return Number(Base{left.value << right.value});
         }
 
         Number operator<<(const Base & /*left*/, const Natural & /*right*/) {
-          return Number{};
+          return Number();
         }
 
         Number operator<<(const Base &left, const Integer &right) {
@@ -75,42 +75,43 @@ namespace chimera {
 
         Number operator<<(const Natural &left, const std::uint64_t &right) {
           if (right == 0) {
-            return Number{left};
+            return Number(left);
           }
           auto value = left;
-          auto shift = right % 64;
           if (right >= 64) {
             value.value.erase(value.value.begin(),
                               value.value.begin() + right / 64);
           }
-          if (shift != 0) {
+          if (auto shift = right % 64; shift != 0) {
+            // TODO(grandquista)
           }
-          return Number{value};
+          return Number(value);
         }
 
         Number operator<<(const Natural &left, const Base &right) {
           if (right.value == 0) {
-            return Number{left};
+            return Number(left);
           }
           auto value = left;
-          auto shift = right.value % 64;
           if (right.value >= 64) {
             value.value.erase(value.value.begin(),
                               value.value.begin() + right.value / 64);
           }
-          if (shift != 0) {
+          if (auto shift = right.value % 64; shift != 0) {
+            // TODO(grandquista)
           }
-          return Number{value};
+          return Number(value);
         }
 
         Number operator<<(const Natural &left, const Natural &right) {
           const auto &value = left;
-          auto shift = right % 64;
           if (right >= 64) {
+            // TODO(grandquista)
           }
-          if (shift != 0u) {
+          if (auto shift = right % 64; shift != 0u) {
+            // TODO(grandquista)
           }
-          return Number{value};
+          return Number(value);
         }
 
         Number operator<<(const Natural &left, const Integer &right) {

@@ -21,6 +21,8 @@
 #pragma once
 
 #include <cstdint>
+#include <iosfwd>
+#include <numeric>
 #include <variant> // for variant
 #include <vector>
 
@@ -61,6 +63,10 @@ namespace chimera {
 
           Number &operator=(const Number &other) = default;
           Number &operator=(Number &&other) noexcept = default;
+
+          explicit operator bool() const noexcept;
+          explicit operator long() const noexcept;
+          explicit operator double() const noexcept;
 
           Number operator+() const;
           Number operator-() const;
@@ -117,6 +123,47 @@ namespace chimera {
         private:
           NumberValue value;
         };
+
+        template <typename CharT, typename Traits>
+        std::basic_ostream<CharT, Traits> &
+        operator<<(std::basic_ostream<CharT, Traits> &os, const Base &base) {
+          return os << base.value;
+        }
+
+        template <typename CharT, typename Traits>
+        std::basic_ostream<CharT, Traits> &
+        operator<<(std::basic_ostream<CharT, Traits> &os, const Natural &natural) {
+          std::for_each(natural.value.begin(), natural.value.end(),
+          [&os](const auto &value){
+            os << value;
+          });
+          return os;
+        }
+
+        template <typename CharT, typename Traits>
+        std::basic_ostream<CharT, Traits> &
+        operator<<(std::basic_ostream<CharT, Traits> &os, const Integer &integer) {
+          std::visit([&os](const auto &value) { os << '-' << value; }, integer.value);
+          return os;
+        }
+
+        template <typename CharT, typename Traits>
+        std::basic_ostream<CharT, Traits> &
+        operator<<(std::basic_ostream<CharT, Traits> &os, const Rational &rational) {
+          std::visit(
+            [&os](const auto &numerator, const auto &denominator) {
+              os << numerator << '/' << denominator; }, rational.numerator, rational.denominator);
+              return os;
+        }
+
+        template <typename CharT, typename Traits>
+        std::basic_ostream<CharT, Traits> &
+        operator<<(std::basic_ostream<CharT, Traits> &os, const Number &number) {
+          number.visit([&os](const auto &value) {
+            os << value;
+          });
+          return os;
+        }
       } // namespace number
     }   // namespace object
   }     // namespace library
