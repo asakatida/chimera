@@ -33,17 +33,17 @@ namespace chimera {
         Number operator*(const std::uint64_t &left, const Base &right) {
           auto value = mult(left, right.value);
           if (value.overflow == 0) {
-            return Number{Base{value.result}};
+            return Number(Base{value.result});
           }
-          return Number{Natural{{value.result, value.overflow}}};
+          return Number(Natural{{value.result, value.overflow}});
         }
 
         Number operator*(const std::uint64_t &left, const Natural &right) {
           if (left == 0) {
-            return Number{};
+            return Number();
           }
           if (left == 1) {
-            return Number{right};
+            return Number(right);
           }
           auto value = right;
           Carryover carryover{};
@@ -58,7 +58,7 @@ namespace chimera {
           if (carryover.overflow != 0) {
             value.value.push_back(carryover.overflow);
           }
-          return Number{value};
+          return Number(value);
         }
 
         Number operator*(const std::uint64_t &left, const Integer &right) {
@@ -77,25 +77,25 @@ namespace chimera {
         Number operator*(const Base &left, const std::uint64_t &right) {
           auto value = mult(left.value, right);
           if (value.overflow == 0) {
-            return Number{Base{value.result}};
+            return Number(Base{value.result});
           }
-          return Number{Natural{{value.result, value.overflow}}};
+          return Number(Natural{{value.result, value.overflow}});
         }
 
         Number operator*(const Base &left, const Base &right) {
           auto value = mult(left.value, right.value);
           if (value.overflow == 0) {
-            return Number{Base{value.result}};
+            return Number(Base{value.result});
           }
-          return Number{Natural{{value.result, value.overflow}}};
+          return Number(Natural{{value.result, value.overflow}});
         }
 
         Number operator*(const Base &left, const Natural &right) {
           if (left.value == 0) {
-            return Number{};
+            return Number();
           }
           if (left.value == 1) {
-            return Number{right};
+            return Number(right);
           }
           auto value = right;
           Carryover carryover{};
@@ -110,7 +110,7 @@ namespace chimera {
           if (carryover.overflow != 0) {
             value.value.push_back(carryover.overflow);
           }
-          return Number{value};
+          return Number(value);
         }
 
         Number operator*(const Base &left, const Integer &right) {
@@ -128,10 +128,10 @@ namespace chimera {
 
         Number operator*(const Natural &left, const std::uint64_t &right) {
           if (right == 0) {
-            return Number{};
+            return Number();
           }
           if (right == 1) {
-            return Number{left};
+            return Number(left);
           }
           auto value = left;
           Carryover carryover{};
@@ -146,15 +146,15 @@ namespace chimera {
           if (carryover.overflow != 0) {
             value.value.push_back(carryover.overflow);
           }
-          return Number{value};
+          return Number(value);
         }
 
         Number operator*(const Natural &left, const Base &right) {
           if (right.value == 0) {
-            return Number{};
+            return Number();
           }
           if (right.value == 1) {
-            return Number{left};
+            return Number(left);
           }
           auto value = left;
           Carryover carryover{};
@@ -169,7 +169,7 @@ namespace chimera {
           if (carryover.overflow != 0) {
             value.value.push_back(carryover.overflow);
           }
-          return Number{value};
+          return Number(value);
         }
 
         Number operator*(const Natural &left, const Natural &right) {
@@ -192,9 +192,9 @@ namespace chimera {
             if (carryover.overflow != 0) {
               output.emplace_back(carryover.overflow);
             }
-            integers.emplace_back(Number{Natural{output}});
+            integers.emplace_back(Number(Natural{output}));
           }
-          return std::accumulate(integers.begin(), integers.end(), Number{});
+          return std::accumulate(integers.begin(), integers.end(), Number());
         }
 
         Number operator*(const Natural &left, const Integer &right) {

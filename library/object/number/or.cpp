@@ -22,18 +22,20 @@
 
 #include <gsl/gsl> // for Ensures
 
+#include "object/number/simplify.hpp"
+
 namespace chimera {
   namespace library {
     namespace object {
       namespace number {
         Number operator|(const std::uint64_t &left, const Base &right) {
-          return Number{Base{left | right.value}};
+          return Number(Base{left | right.value});
         }
 
         Number operator|(const std::uint64_t &left, const Natural &right) {
           auto value = right;
           value.value[0] |= left;
-          return Number{value};
+          return Number(value);
         }
 
         Number operator|(const std::uint64_t &left, const Integer &right) {
@@ -47,17 +49,17 @@ namespace chimera {
         }
 
         Number operator|(const Base &left, const std::uint64_t &right) {
-          return Number{Base{left.value | right}};
+          return Number(Base{left.value | right});
         }
 
         Number operator|(const Base &left, const Base &right) {
-          return Number{Base{left.value | right.value}};
+          return Number(Base{left.value | right.value});
         }
 
         Number operator|(const Base &left, const Natural &right) {
           auto value = right;
           value.value[0] |= left.value;
-          return Number{value};
+          return Number(value);
         }
 
         Number operator|(const Base &left, const Integer &right) {
@@ -72,13 +74,13 @@ namespace chimera {
         Number operator|(const Natural &left, const std::uint64_t &right) {
           auto value = left;
           value.value[0] |= right;
-          return Number{value};
+          return Number(value);
         }
 
         Number operator|(const Natural &left, const Base &right) {
           auto value = left;
           value.value[0] |= right.value;
-          return Number{value};
+          return Number(value);
         }
 
         Number operator|(const Natural &left, const Natural &right) {
@@ -87,17 +89,7 @@ namespace chimera {
           std::transform(right.value.begin(), right.value.end(),
                          value.value.begin(), value.value.begin(),
                          [](const auto &a, const auto &b) { return a | b; });
-          while (value.value.back() == 0) {
-            value.value.pop_back();
-            if (value.value.empty()) {
-              return Number{};
-            }
-          }
-          if (value.value.size() == 1) {
-            return Number{Base{value.value[0]}};
-          }
-          value.value.shrink_to_fit();
-          return Number{value};
+          return simplify(value);
         }
 
         Number operator|(const Natural &left, const Integer &right) {

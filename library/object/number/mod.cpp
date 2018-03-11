@@ -20,9 +20,14 @@
 
 #include "object/number/mod.hpp"
 
+#include <gsl/gsl>
+
+#include "container/reverse.hpp"
 #include "object/number/compare.hpp"
 #include "object/number/div.hpp"
+#include "object/number/less.hpp"
 #include "object/number/mult.hpp"
+#include "object/number/overflow.hpp"
 #include "object/number/sub.hpp"
 #include "object/number/util.hpp"
 
@@ -34,7 +39,7 @@ namespace chimera {
         auto mod(const Left &left, const Rational &right) {
           return std::visit(
               [&left](const auto &rN, const auto &rD) {
-                return left - rN * (left * rD).floor_div(Number{rN}) / rD;
+                return left - rN * (left * rD).floor_div(Number(rN)) / rD;
               },
               right.numerator, right.denominator);
         }
@@ -42,17 +47,18 @@ namespace chimera {
         auto mod(const Rational &left, const Right &right) {
           return std::visit(
               [&left, &right](const auto &lN, const auto &lD) {
-                return left - right * Number{lN}.floor_div(lD * right);
+                return left - right * Number(lN).floor_div(lD * right);
               },
               left.numerator, left.denominator);
         }
 
         Number operator%(const std::uint64_t &left, const Base &right) {
+          Expects(right.value != 0);
           return Number(Base{left % right.value});
         }
 
         Number operator%(const std::uint64_t &left, const Natural & /*right*/) {
-          return Number{Base{left}};
+          return Number(Base{left});
         }
 
         Number operator%(const std::uint64_t &left, const Integer &right) {
@@ -65,15 +71,17 @@ namespace chimera {
         }
 
         Number operator%(const Base &left, const std::uint64_t &right) {
-          return Number{Base{left.value % right}};
+          Expects(right != 0);
+          return Number(Base{left.value % right});
         }
 
         Number operator%(const Base &left, const Base &right) {
-          return Number{Base{left.value % right.value}};
+          Expects(right.value != 0);
+          return Number(Base{left.value % right.value});
         }
 
         Number operator%(const Base &left, const Natural & /*right*/) {
-          return Number{left};
+          return Number(left);
         }
 
         Number operator%(const Base &left, const Integer &right) {
@@ -86,23 +94,37 @@ namespace chimera {
         }
 
         Number operator%(const Natural &left, const std::uint64_t &right) {
-          return Number{Base{left.value[0] % right}};
+          Expects(right != 0);
+          Carryover carryover{};
+          for (auto &&i : container::reverse(left.value)) {
+            carryover.result = i;
+            carryover = div(carryover, right);
+          }
+          return Number(Base{carryover.overflow});
         }
 
         Number operator%(const Natural &left, const Base &right) {
-          return Number{Base{left.value[0] % right.value}};
+          Expects(right.value != 0);
+          Carryover carryover{};
+          for (auto &&i : container::reverse(left.value)) {
+            carryover.result = i;
+            carryover = div(carryover, right.value);
+          }
+          return Number(Base{carryover.overflow});
         }
 
         Number operator%(const Natural &left, const Natural &right) {
-          auto result = Number{left};
-          while (result > right) {
-            // auto start = result.value.back().value /
-            // right.value.back().value; for (; (right * start) > result;
-            // --start) {
-            // }
-            // result = Number{result} - right * start;
+          if (left < right) {
+            return Number(left);
           }
-          return Number{result};
+          if (left == right) {
+            return Number();
+          }
+          Number a(left);
+          while (a > right) {
+            a -= right;
+          }
+          return a;
         }
 
         Number operator%(const Natural &left, const Integer &right) {

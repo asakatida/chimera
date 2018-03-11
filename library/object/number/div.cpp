@@ -20,166 +20,23 @@
 
 #include "object/number/div.hpp"
 
-#include "container/reverse.hpp"
-#include "object/number/div.hpp"
-#include "object/number/floor_div.hpp"
 #include "object/number/mult.hpp"
-#include "object/number/overflow.hpp" // for Carryover
-#include "object/number/right_shift.hpp"
-#include "object/number/sub.hpp"
+#include "object/number/simplify.hpp"
 #include "object/number/util.hpp"
 
 namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        static bool even(const std::uint64_t &i) { return (i & 1u) == 0u; }
-        static bool even(const Base &i) { return even(i.value); }
-        static bool even(const Natural &i) { return even(i.value[0]); }
-        static bool even(const Integer &i) {
-          return std::visit([](const auto &value) { return even(value); },
-                            i.value);
-        }
-        static bool even(const Rational & /*i*/) { return false; }
-        static bool even(const Number &i) {
-          return i.visit([](const auto &value) { return even(value); });
-        }
-
-        static Rational to_rational(Number &&left, Number &&right);
-
-        static Rational to_rational(const Base &left, const Base &right) {
-          return Rational{left, right};
-        }
-
-        static Rational to_rational(const Base &left, const Natural &right) {
-          return Rational{left, right};
-        }
-
-        static Rational to_rational(const Base &left, const Integer &right) {
-          return Rational{left, right};
-        }
-
-        static Rational to_rational(const Base &left, const Rational &right) {
-          return std::visit(
-              [&left](const auto &rN, const auto &rD) {
-                return to_rational(left * rD, Number{rN});
-              },
-              right.numerator, right.denominator);
-        }
-
-        static Rational to_rational(const Natural &left, const Base &right) {
-          return Rational{left, right};
-        }
-
-        static Rational to_rational(const Natural &left, const Natural &right) {
-          return Rational{left, right};
-        }
-
-        static Rational to_rational(const Natural &left, const Integer &right) {
-          return Rational{left, right};
-        }
-
-        static Rational to_rational(const Natural &left,
-                                    const Rational &right) {
-          return std::visit(
-              [&left](const auto &rN, const auto &rD) {
-                return to_rational((left * rD), Number{rN});
-              },
-              right.numerator, right.denominator);
-        }
-
-        static Rational to_rational(const Integer &left, const Base &right) {
-          return Rational{left, right};
-        }
-
-        static Rational to_rational(const Integer &left, const Natural &right) {
-          return Rational{left, right};
-        }
-
-        static Rational to_rational(const Integer &left, const Integer &right) {
-          return Rational{left, right};
-        }
-
-        static Rational to_rational(const Integer &left,
-                                    const Rational &right) {
-          return std::visit(
-              [&left](const auto &rN, const auto &rD) {
-                return to_rational((left * rD), Number{rN});
-              },
-              right.numerator, right.denominator);
-        }
-
-        static Rational to_rational(const Rational &left, const Base &right) {
-          return std::visit(
-              [&right](const auto &lN, const auto &lD) {
-                return to_rational(Number{lN}, (lD * right));
-              },
-              left.numerator, left.denominator);
-        }
-
-        static Rational to_rational(const Rational &left,
-                                    const Natural &right) {
-          return std::visit(
-              [&right](const auto &lN, const auto &lD) {
-                return to_rational(Number{lN}, lD * right);
-              },
-              left.numerator, left.denominator);
-        }
-
-        static Rational to_rational(const Rational &left,
-                                    const Integer &right) {
-          return std::visit(
-              [&right](const auto &lN, const auto &lD) {
-                return to_rational(Number{lN}, lD * right);
-              },
-              left.numerator, left.denominator);
-        }
-
-        static Rational to_rational(const Rational &left,
-                                    const Rational &right) {
-          return std::visit(
-              [](const auto &lN, const auto &lD, const auto &rN,
-                 const auto &rD) { return to_rational(lN * rD, lD * rN); },
-              left.numerator, left.denominator, right.numerator,
-              right.denominator);
-        }
-
-        static Rational to_rational(Number &&left, Number &&right) {
-          return left.visit(
-              right, [](auto &&l, auto &&r) { return to_rational(l, r); });
-        }
-
-        template <typename Left, typename Right>
-        Number reduce(Left &&left, Right &&right) {
-          Number a{left}, b{right};
-          while (even(a) && even(b)) {
-            a >>= 1u;
-            b >>= 1u;
-          }
-          auto aPrime = a, bPrime = b;
-          while (aPrime != bPrime) {
-            if (even(aPrime)) {
-              aPrime >>= 1u;
-            } else if (even(bPrime)) {
-              bPrime >>= 1u;
-            } else if (aPrime > bPrime) {
-              aPrime = (aPrime - bPrime) >> 1u;
-            } else {
-              bPrime = (bPrime - aPrime) >> 1u;
-            }
-          }
-          return Number{to_rational(a.floor_div(aPrime), b.floor_div(aPrime))};
-        }
-
         Number operator/(const std::uint64_t &left, const Base &right) {
           if (left % right.value == 0) {
-            return Number{Base{left / right.value}};
+            return Number(Base{left / right.value});
           }
-          return reduce(Base{left}, right);
+          return simplify(Rational{Base{left}, right});
         }
 
         Number operator/(const std::uint64_t &left, const Natural &right) {
-          return reduce(Base{left}, right);
+          return simplify(Rational{Base{left}, right});
         }
 
         Number operator/(const std::uint64_t &left, const Integer &right) {
@@ -196,15 +53,15 @@ namespace chimera {
         }
 
         Number operator/(const Base &left, const std::uint64_t &right) {
-          return reduce(left, Base{right});
+          return simplify(Rational{left, Base{right}});
         }
 
         Number operator/(const Base &left, const Base &right) {
-          return reduce(left, right);
+          return simplify(Rational{left, right});
         }
 
         Number operator/(const Base &left, const Natural &right) {
-          return reduce(left, right);
+          return simplify(Rational{left, right});
         }
 
         Number operator/(const Base &left, const Integer &right) {
@@ -221,15 +78,15 @@ namespace chimera {
         }
 
         Number operator/(const Natural &left, const std::uint64_t &right) {
-          return reduce(left, Base{right});
+          return simplify(Rational{left, Base{right}});
         }
 
         Number operator/(const Natural &left, const Base &right) {
-          return reduce(left, right);
+          return simplify(Rational{left, right});
         }
 
         Number operator/(const Natural &left, const Natural &right) {
-          return reduce(left, right);
+          return simplify(Rational{left, right});
         }
 
         Number operator/(const Natural &left, const Integer &right) {

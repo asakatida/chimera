@@ -26,18 +26,19 @@
 #include "object/number/compare.hpp" // for operator==
 #include "object/number/left_shift.hpp"
 #include "object/number/overflow.hpp" // for Carryover
+#include "object/number/simplify.hpp"
 
 namespace chimera {
   namespace library {
     namespace object {
       namespace number {
         Number operator>>(const std::uint64_t &left, const Base &right) {
-          return Number{Base{left >> right.value}};
+          return Number(Base{left >> right.value});
         }
 
         Number operator>>(const std::uint64_t & /*left*/,
                           const Natural & /*right*/) {
-          return Number{};
+          return Number();
         }
 
         Number operator>>(const std::uint64_t &left, const Integer &right) {
@@ -52,15 +53,15 @@ namespace chimera {
         }
 
         Number operator>>(const Base &left, const std::uint64_t &right) {
-          return Number{Base{left.value >> right}};
+          return Number(Base{left.value >> right});
         }
 
         Number operator>>(const Base &left, const Base &right) {
-          return Number{Base{left.value >> right.value}};
+          return Number(Base{left.value >> right.value});
         }
 
         Number operator>>(const Base & /*left*/, const Natural & /*right*/) {
-          return Number{};
+          return Number();
         }
 
         Number operator>>(const Base &left, const Integer &right) {
@@ -75,41 +76,34 @@ namespace chimera {
 
         Number operator>>(const Natural &left, const std::uint64_t &right) {
           if (right == 0) {
-            return Number{left};
+            return Number(left);
+          }
+          if (right >= (left.value.size() * 64)) {
+            return Number();
           }
           auto value = left;
-          if (right >= 64) {
-            value.value.erase(value.value.begin(),
-                              value.value.begin() + (right / 64));
+          if (std::ptrdiff_t shift = right / 64; shift != 0) {
+            value.value.erase(value.value.begin(), value.value.begin() + shift);
           }
           if (auto shift = right % 64; shift != 0) {
             Carryover carryover{};
             for (auto &&i : container::reverse(value.value)) {
-              carryover = right_shift(i & carryover.overflow, shift);
-              i = carryover.result;
-            }
-            while (value.value.back() == 0) {
-              value.value.pop_back();
-              if (value.value.empty()) {
-                return Number{};
-              }
+              auto o = carryover.overflow;
+              carryover = right_shift(i, shift);
+              i = carryover.result & o;
             }
           }
-          if (value.value.size() == 1) {
-            return Number{Base{value.value[0]}};
-          }
-          value.value.shrink_to_fit();
-          return Number{value};
+          return simplify(value);
         }
 
         Number operator>>(const Natural &left, const Base &right) {
           if (right == 0) {
-            return Number{left};
+            return Number(left);
           }
           auto value = left;
           if (right.value >= 64) {
             if ((right.value / 64) >= value.value.size()) {
-              return Number{};
+              return Number();
             }
             value.value.erase(value.value.begin(),
                               value.value.begin() + (right.value / 64));
@@ -120,22 +114,12 @@ namespace chimera {
               carryover = right_shift(i & carryover.overflow, shift);
               i = carryover.result;
             }
-            while (value.value.back() == 0) {
-              value.value.pop_back();
-              if (value.value.empty()) {
-                return Number{};
-              }
-            }
           }
-          if (value.value.size() == 1) {
-            return Number{Base{value.value[0]}};
-          }
-          value.value.shrink_to_fit();
-          return Number{value};
+          return simplify(value);
         }
 
         Number operator>>(const Natural & /*left*/, const Natural & /*right*/) {
-          return Number{};
+          return Number();
         }
 
         Number operator>>(const Natural &left, const Integer &right) {

@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Asa Katida <github@holomaplefeline.net>
+// Copyright (c) 2018 Asa Katida <github@holomaplefeline.net>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,23 +18,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "object/number/positive.hpp"
+#pragma once
+
+#include "object/number/number.hpp" // for Base, Integer, Natural, Rational
 
 namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        Number operator+(const Base &base) { return Number(base); }
-        Number operator+(const Natural &natural) { return Number(natural); }
-        Number operator+(const Integer &integer) {
-          return std::visit([](const auto &value) { return Number(value); },
-                            integer.value);
-        }
-        Number operator+(const Rational &rational) {
-          return std::visit(
-              [](const auto &a, const auto &b) { return (+a) / (+b); },
-              rational.numerator, rational.denominator);
-        }
+        Number simplify(Base base);
+        Number simplify(Natural natural);
+        Number simplify(Integer integer);
+        Number simplify(Rational rational);
+        Number simplify(Number number);
       } // namespace number
     }   // namespace object
   }     // namespace library
