@@ -32,7 +32,7 @@
 namespace chimera {
   namespace library {
     namespace grammar {
-      template <char32_t... Chars>
+      template <char... Chars>
       using String = tao::pegtl::utf8::string<Chars...>;
 
       using Eol = sor<String<'\r', '\n'>, one<'\r', '\n'>>;
@@ -45,15 +45,9 @@ namespace chimera {
                                  minus<Utf8Space, one<'\r', '\n'>>>>,
           std::conditional_t<flags::get<Option, flags::DISCARD>, discard,
                              success>>;
-      template <flags::Flag Option>
       using BlankLines =
-          seq<plus<Space<flags::mask<Option, flags::IMPLICIT>>, Eol,
-                   std::conditional_t<flags::get<Option, flags::DISCARD>,
-                                      discard, success>>,
-              sor<plus<one<' '>>, star<one<'\t'>>>,
-              must<not_at<one<' ', '\t'>>>,
-              std::conditional_t<flags::get<Option, flags::DISCARD>, discard,
-                                 success>>;
+          seq<plus<Space<0>, Eol>, sor<plus<one<' '>>, star<one<'\t'>>>,
+              must<not_at<one<' ', '\t'>>>>;
       struct IndentCheck : not_at<one<' ', '\t'>> {
         template <typename Input>
         static bool match(Input &&in) {
@@ -61,10 +55,7 @@ namespace chimera {
         }
       };
       template <flags::Flag Option>
-      struct INDENT
-          : seq<BlankLines<
-                    flags::mask<Option, flags::IMPLICIT, flags::DISCARD>>,
-                IndentCheck, discard> {};
+      struct INDENT : seq<BlankLines, IndentCheck, discard> {};
       struct DedentCheck : not_at<one<' ', '\t'>> {
         template <typename Input>
         static bool match(Input &&in) {
@@ -78,14 +69,9 @@ namespace chimera {
         }
       };
       template <flags::Flag Option>
-      struct DEDENT
-          : sor<seq<eof, DedentConsume>,
-                seq<at<BlankLines<flags::mask<Option, flags::IMPLICIT,
-                                              flags::DISCARD>>,
-                       DedentCheck>,
-                    opt<BlankLines<flags::mask<Option, flags::IMPLICIT,
-                                               flags::DISCARD>>,
-                        DedentConsume, discard>>> {};
+      struct DEDENT : sor<seq<eof, DedentConsume>,
+                          seq<at<BlankLines, DedentCheck>,
+                              opt<BlankLines, DedentConsume, discard>>> {};
       struct NextIndentCheck : not_at<one<' ', '\t'>> {
         template <typename Input>
         static bool match(Input &&in) {
@@ -93,10 +79,7 @@ namespace chimera {
         }
       };
       template <flags::Flag Option>
-      struct NEWLINE
-          : seq<BlankLines<
-                    flags::mask<Option, flags::IMPLICIT, flags::DISCARD>>,
-                NextIndentCheck, discard> {};
+      struct NEWLINE : seq<BlankLines, NextIndentCheck, discard> {};
       namespace token {
         template <typename Rule>
         struct Action : tao::pegtl::nothing<Rule> {};
@@ -110,7 +93,7 @@ namespace chimera {
         template <flags::Flag Option, typename Rule>
         using Token =
             seq<Rule,
-                Space<flags::mask<Option, flags::IMPLICIT, flags::DISCARD>>>;
+                Space<flags::mask<Option, flags::DISCARD, flags::IMPLICIT>>>;
       }; // namespace token
     }    // namespace grammar
   }      // namespace library
