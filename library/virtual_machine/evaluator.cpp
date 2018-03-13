@@ -166,6 +166,9 @@ namespace chimera {
 
       void Evaluator::evaluate(const asdl::Expression &expression) {
         enter_scope(thread_context.main);
+        push([](Evaluator *evaluator) {
+          evaluator->thread_context.ret = std::move(evaluator->stack.top());
+        });
         evaluate_get(expression.body);
         return evaluate();
       }
