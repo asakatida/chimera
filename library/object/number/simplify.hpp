@@ -30,7 +30,7 @@ namespace chimera {
         Number simplify(Natural natural);
         Number simplify(Integer integer);
         Number simplify(Rational rational);
-        Number simplify(Number number);
+        Number simplify(const Number &number);
       } // namespace number
     }   // namespace object
   }     // namespace library

@@ -50,11 +50,11 @@ struct PyVarObject {
 #define Py_REFCNT(o) (((PyObject *)(o))->ob_refcnt)
 #define Py_SIZE(o) (((PyVarObject *)(o))->ob_size)
 #ifdef Py_TRACE_REFS
-#define PyObject_HEAD_INIT(type) _PyObject_EXTRA_INIT NULL, NULL, 1, type,
+#define PyObject_HEAD_INIT(type) _PyObject_EXTRA_INIT NULL, NULL, 1u, (type),
 #else
-#define PyObject_HEAD_INIT(type) _PyObject_EXTRA_INIT 1, type,
+#define PyObject_HEAD_INIT(type) _PyObject_EXTRA_INIT 1u, (type),
 #endif
-#define PyVarObject_HEAD_INIT(type, size) {PyObject_HEAD_INIT(type)}, size,
+#define PyVarObject_HEAD_INIT(type, size) {PyObject_HEAD_INIT(type)}, (size),
 typedef PyObject *(PyCFunction)(PyObject *, PyObject *);
 typedef PyObject *(PyCFunctionWithKeywords)(PyObject *, PyObject *, PyObject *);
 typedef struct PyMethodDef PyMethodDef;
@@ -127,21 +127,21 @@ struct PyTypeObject {
   PyTypeObject *tp_next;
 };
 enum {
-  Py_TPFLAGS_HEAPTYPE = 1 << 0,
-  Py_TPFLAGS_BASETYPE = 1 << 1,
-  Py_TPFLAGS_READY = 1 << 2,
-  Py_TPFLAGS_READYING = 1 << 3,
-  Py_TPFLAGS_HAVE_GC = 1 << 4,
-  Py_TPFLAGS_DEFAULT = 1 << 5,
-  Py_TPFLAGS_LONG_SUBCLASS = 1 << 6,
-  Py_TPFLAGS_LIST_SUBCLASS = 1 << 7,
-  Py_TPFLAGS_TUPLE_SUBCLASS = 1 << 8,
-  Py_TPFLAGS_BYTES_SUBCLASS = 1 << 9,
-  Py_TPFLAGS_UNICODE_SUBCLASS = 1 << 10,
-  Py_TPFLAGS_DICT_SUBCLASS = 1 << 11,
-  Py_TPFLAGS_BASE_EXC_SUBCLASS = 1 << 12,
-  Py_TPFLAGS_TYPE_SUBCLASS = 1 << 13,
-  Py_TPFLAGS_HAVE_FINALIZE = 1 << 14
+  Py_TPFLAGS_HEAPTYPE = 1u << 0u,
+  Py_TPFLAGS_BASETYPE = 1u << 1u,
+  Py_TPFLAGS_READY = 1u << 2u,
+  Py_TPFLAGS_READYING = 1u << 3u,
+  Py_TPFLAGS_HAVE_GC = 1u << 4u,
+  Py_TPFLAGS_DEFAULT = 1u << 5u,
+  Py_TPFLAGS_LONG_SUBCLASS = 1u << 6u,
+  Py_TPFLAGS_LIST_SUBCLASS = 1u << 7u,
+  Py_TPFLAGS_TUPLE_SUBCLASS = 1u << 8u,
+  Py_TPFLAGS_BYTES_SUBCLASS = 1u << 9u,
+  Py_TPFLAGS_UNICODE_SUBCLASS = 1u << 10u,
+  Py_TPFLAGS_DICT_SUBCLASS = 1u << 11u,
+  Py_TPFLAGS_BASE_EXC_SUBCLASS = 1u << 12u,
+  Py_TPFLAGS_TYPE_SUBCLASS = 1u << 13u,
+  Py_TPFLAGS_HAVE_FINALIZE = 1u << 14u
 };
 typedef struct PyNumberMethods PyNumberMethods;
 struct PyNumberMethods {
@@ -244,9 +244,9 @@ extern PyVarObject *_PyObject_NewVar(PyTypeObject *type, Py_ssize_t size);
 extern PyObject *PyObject_Init(PyObject *op, PyTypeObject *type);
 extern PyVarObject *PyObject_InitVar(PyVarObject *op, PyTypeObject *type,
                                      Py_ssize_t size);
-#define PyObject_New(TYPE, type) (TYPE *)_PyObject_New((PyTypeObject *)type);
+#define PyObject_New(TYPE, type) (TYPE *)_PyObject_New((PyTypeObject *)(type));
 #define PyObject_NewVar(TYPE, type, size)                                      \
-  (TYPE *)_PyObject_NewVar((PyTypeObject *)type, (Py_ssize_t)size);
+  (TYPE *)_PyObject_NewVar((PyTypeObject *)(type), (Py_ssize_t)(size));
 extern void PyObject_Del(PyObject *op);
 extern const PyObject _Py_NoneStruct;
 /* end allocation.rst */
@@ -261,7 +261,7 @@ extern int PyArg_ParseTupleAndKeywords(PyObject *args, PyObject *kw,
 extern int PyArg_VaParseTupleAndKeywords(PyObject *args, PyObject *kw,
                                          const char *format, char *keywords[],
                                          va_list vargs);
-extern int PyArg_ValidateKeywordArguments(PyObject *);
+extern int PyArg_ValidateKeywordArguments(PyObject *kw);
 extern int PyArg_Parse(PyObject *args, const char *format, ...);
 extern int PyArg_UnpackTuple(PyObject *args, const char *name, Py_ssize_t min,
                              Py_ssize_t max, ...);
@@ -315,7 +315,7 @@ struct Py_buffer {
 extern int PyObject_CheckBuffer(PyObject *obj);
 extern int PyObject_GetBuffer(PyObject *exporter, Py_buffer *view, int flags);
 extern void PyBuffer_Release(Py_buffer *view);
-extern Py_ssize_t PyBuffer_SizeFromFormat(const char *);
+extern Py_ssize_t PyBuffer_SizeFromFormat(const char *format);
 extern int PyBuffer_IsContiguous(Py_buffer *view, char order);
 extern void PyBuffer_FillContiguousStrides(int ndim, Py_ssize_t *shape,
                                            Py_ssize_t *strides,
@@ -537,7 +537,7 @@ extern PyObject *PyDescr_NewWrapper(PyTypeObject *type,
 extern PyObject *PyDescr_NewClassMethod(PyTypeObject *type,
                                         PyMethodDef *method);
 extern int PyDescr_IsData(PyObject *descr);
-extern PyObject *PyWrapper_New(PyObject *, PyObject *);
+extern PyObject *PyWrapper_New(PyObject *a, PyObject *b);
 /* end descriptor.rst */
 /* start dict.rst */
 typedef struct PyDictObject PyDictObject;
@@ -814,7 +814,7 @@ extern wchar_t *Py_GetPrefix();
 extern wchar_t *Py_GetExecPrefix();
 extern wchar_t *Py_GetProgramFullPath();
 extern wchar_t *Py_GetPath();
-extern void Py_SetPath(const wchar_t *);
+extern void Py_SetPath(const wchar_t *path);
 extern const char *Py_GetVersion();
 extern const char *Py_GetPlatform();
 extern const char *Py_GetCopyright();
@@ -840,7 +840,7 @@ extern PyThreadState *PyThreadState_Get();
 extern PyThreadState *PyThreadState_Swap(PyThreadState *tstate);
 extern void PyEval_ReInitThreads();
 extern PyGILState_STATE PyGILState_Ensure();
-extern void PyGILState_Release(PyGILState_STATE);
+extern void PyGILState_Release(PyGILState_STATE state);
 extern PyThreadState *PyGILState_GetThisThreadState();
 extern int PyGILState_Check();
 #define Py_BEGIN_ALLOW_THREADS                                                 \
@@ -992,9 +992,9 @@ extern void *PyMem_Malloc(size_t n);
 extern void *PyMem_Calloc(size_t nelem, size_t elsize);
 extern void *PyMem_Realloc(void *p, size_t n);
 extern void PyMem_Free(void *p);
-#define PyMem_New(TYPE, n) (TYPE *)PyMem_Malloc(n * sizeof(TYPE))
+#define PyMem_New(TYPE, n) (TYPE *)PyMem_Malloc((n) * sizeof(TYPE))
 #define PyMem_Resize(p, TYPE, n)                                               \
-  { p = (TYPE *)PyMem_Realloc(p, n * sizeof(TYPE)); }
+  { (p) = (TYPE *)PyMem_Realloc((p), (n) * sizeof(TYPE)); }
 #define PyMem_Del PyMem_Free
 typedef struct PyMemAllocatorEx PyMemAllocatorEx;
 struct PyMemAllocatorEx {
@@ -1421,9 +1421,9 @@ extern Py_UNICODE Py_UNICODE_TOTITLE(Py_UNICODE ch);
 extern int Py_UNICODE_TODECIMAL(Py_UNICODE ch);
 extern int Py_UNICODE_TODIGIT(Py_UNICODE ch);
 extern double Py_UNICODE_TONUMERIC(Py_UNICODE ch);
-#define Py_UNICODE_IS_SURROGATE(ch) (0xD800 <= ch <= 0xDFFF)
-#define Py_UNICODE_IS_HIGH_SURROGATE(ch) (0xD800 <= ch <= 0xDBFF)
-#define Py_UNICODE_IS_LOW_SURROGATE(ch) (0xDC00 <= ch <= 0xDFFF)
+#define Py_UNICODE_IS_SURROGATE(ch) (0xD800 <= (ch) <= 0xDFFF)
+#define Py_UNICODE_IS_HIGH_SURROGATE(ch) (0xD800 <= (ch) <= 0xDBFF)
+#define Py_UNICODE_IS_LOW_SURROGATE(ch) (0xDC00 <= (ch) <= 0xDFFF)
 #define Py_UNICODE_JOIN_SURROGATES(high, low)
 extern PyObject *PyUnicode_New(Py_ssize_t size, Py_UCS4 maxchar);
 extern PyObject *PyUnicode_FromKindAndData(int kind, const void *buffer,
@@ -1563,8 +1563,6 @@ extern PyObject *PyUnicode_Concat(PyObject *left, PyObject *right);
 extern PyObject *PyUnicode_Split(PyObject *s, PyObject *sep,
                                  Py_ssize_t maxsplit);
 extern PyObject *PyUnicode_Splitlines(PyObject *s, int keepend);
-extern PyObject *PyUnicode_Translate(PyObject *str, PyObject *table,
-                                     const char *errors);
 extern PyObject *PyUnicode_Join(PyObject *separator, PyObject *seq);
 extern Py_ssize_t PyUnicode_Tailmatch(PyObject *str, PyObject *substr,
                                       Py_ssize_t start, Py_ssize_t end,
