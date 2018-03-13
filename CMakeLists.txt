@@ -161,7 +161,10 @@ target_link_libraries(unit_test libchimera)
 
 target_compile_features(unit_test PUBLIC cxx_std_17)
 
-add_executable(fuzz unit_tests/fuzz/target.cpp)
+add_executable(
+  fuzz
+  unit_tests/fuzz/target.cpp
+  $<TARGET_PROPERTY:libchimera,SOURCES>)
 
 target_compile_options(
   fuzz
@@ -170,16 +173,29 @@ target_compile_options(
   -fsanitize-coverage=trace-cmp
   -fsanitize-coverage=trace-pc-guard
   -fsanitize=address,fuzzer)
+
+target_include_directories(fuzz PUBLIC library include)
+target_include_directories(
+  fuzz
+  SYSTEM PUBLIC
+  external/GSL/include
+  external/metal/include
+  external/PEGTL/include)
+
 target_link_libraries(
   fuzz
+  pthread
   -fsanitize-coverage=trace-cmp
   -fsanitize-coverage=trace-pc-guard
   -fsanitize=address,fuzzer
-  -rtlib=compiler-rt
-  libchimera)
+  -rtlib=compiler-rt)
+
 target_compile_features(fuzz PUBLIC cxx_std_17)
 
-add_executable(fuzz2 unit_tests/fuzz/target2.cpp)
+add_executable(
+  fuzz2
+  unit_tests/fuzz/target2.cpp
+  $<TARGET_PROPERTY:libchimera,SOURCES>)
 
 target_compile_options(
   fuzz2
@@ -188,13 +204,23 @@ target_compile_options(
   -fsanitize-coverage=trace-cmp
   -fsanitize-coverage=trace-pc-guard
   -fsanitize=address,fuzzer)
+
+target_include_directories(fuzz2 PUBLIC library include)
+target_include_directories(
+  fuzz2
+  SYSTEM PUBLIC
+  external/GSL/include
+  external/metal/include
+  external/PEGTL/include)
+
 target_link_libraries(
   fuzz2
+  pthread
   -fsanitize-coverage=trace-cmp
   -fsanitize-coverage=trace-pc-guard
   -fsanitize=address,fuzzer
-  -rtlib=compiler-rt
-  libchimera)
+  -rtlib=compiler-rt)
+
 target_compile_features(fuzz2 PUBLIC cxx_std_17)
 
 add_executable(bnf2abnf tools/bnf2abnf.cpp)
@@ -220,6 +246,17 @@ add_custom_target(
   -max_total_time=500
   -shrink=1 -use_value_profile=1
   -only_ascii=1
+  -jobs=8
+  -dict="${CMAKE_SOURCE_DIR}/unit_tests/fuzz/chimera.txt"
+  ${CMAKE_BINARY_DIR}/corpus
+  DEPENDS check corpus_dir
+  VERBATIM USES_TERMINAL)
+add_custom_target(
+  corpus2
+  fuzz2
+  -max_len=8
+  -max_total_time=500
+  -shrink=1 -use_value_profile=1
   -jobs=8
   -dict="${CMAKE_SOURCE_DIR}/unit_tests/fuzz/chimera.txt"
   ${CMAKE_BINARY_DIR}/corpus
