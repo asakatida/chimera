@@ -25,6 +25,7 @@
 
 #include <type_traits>
 
+#include <gsl/gsl>
 #include <tao/pegtl.hpp>
 
 namespace chimera {
@@ -52,10 +53,12 @@ namespace chimera {
                 return true;
               }
               return false;
-            } else {
+            }
+            if constexpr (A != tao::pegtl::apply_mode::ACTION) {
               return normal<Rule>::template match<A, M, Action, Control>(
                   in, outer, processContext);
             }
+            Ensures(false);
           }
         };
       } // namespace rules

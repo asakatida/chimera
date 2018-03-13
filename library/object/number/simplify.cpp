@@ -162,7 +162,7 @@ namespace chimera {
             return Number();
           }
           if (b == Number()) {
-            return Number(Rational{left, {}});
+            return a / Number();
           }
           auto aPrime = a, bPrime = b;
           while (aPrime != bPrime) {
@@ -185,9 +185,7 @@ namespace chimera {
           return Number(to_rational(a.floor_div(aPrime), b.floor_div(aPrime)));
         }
 
-        Number simplify(Base base) {
-          return Number(base);
-        }
+        Number simplify(Base base) { return Number(base); }
         Number simplify(Natural natural) {
           while (natural.value.back() == 0) {
             natural.value.pop_back();
@@ -202,14 +200,17 @@ namespace chimera {
           return Number(natural);
         }
         Number simplify(Integer integer) {
-          return std::visit([](const auto &value) { return simplify(value); }, integer.value);
+          return std::visit([](const auto &value) { return -simplify(value); },
+                            integer.value);
         }
         Number simplify(Rational rational) {
           return std::visit(
-            [](const auto &numerator, const auto &denominator) {
-              return reduce(numerator, denominator); }, rational.numerator, rational.denominator);
+              [](const auto &numerator, const auto &denominator) {
+                return reduce(numerator, denominator);
+              },
+              rational.numerator, rational.denominator);
         }
-        Number simplify(Number number) {
+        Number simplify(const Number &number) {
           return number.visit([](auto value) { return simplify(value); });
         }
       } // namespace number

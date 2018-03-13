@@ -127,14 +127,14 @@ namespace chimera {
     };
 
     template <typename CharT, typename Traits>
-    static std::basic_ostream<CharT, Traits> &
+    std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT, Traits> &os,
                const object::Instance & /*instance*/) {
       return os << "object::Instance{}";
     }
 
     template <typename CharT, typename Traits>
-    static std::basic_ostream<CharT, Traits> &
+    std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT, Traits> &os,
                const object::Bytes &bytes) {
       os << "object::Bytes{";
@@ -151,7 +151,7 @@ namespace chimera {
     }
 
     template <typename CharT, typename Traits>
-    static std::basic_ostream<CharT, Traits> &
+    std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT, Traits> &os,
                const object::BytesMethod &bytesMethod) {
       os << "object::BytesMethod::";
@@ -160,14 +160,14 @@ namespace chimera {
     }
 
     template <typename CharT, typename Traits>
-    static std::basic_ostream<CharT, Traits> &
+    std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT, Traits> &os,
                const object::False & /*false*/) {
       return os << "object::False{}";
     }
 
     template <typename CharT, typename Traits>
-    static std::basic_ostream<CharT, Traits> &
+    std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT, Traits> &os,
                const object::Future & /*future*/) {
       Ensures(false);
@@ -175,28 +175,28 @@ namespace chimera {
     }
 
     template <typename CharT, typename Traits>
-    static std::basic_ostream<CharT, Traits> &
+    std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT, Traits> &os,
                const object::None & /*none*/) {
       return os << "object::None{}";
     }
 
     template <typename CharT, typename Traits>
-    static std::basic_ostream<CharT, Traits> &
+    std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT, Traits> &os,
                const object::NullFunction & /*nullFunction*/) {
       return os << "object::NullFunction{}";
     }
 
     template <typename CharT, typename Traits>
-    static std::basic_ostream<CharT, Traits> &
+    std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT, Traits> &os,
-               const object::Number & /*number*/) {
-      return os << "object::Number{}";
+               const object::Number &number) {
+      return number.repr(os);
     }
 
     template <typename CharT, typename Traits>
-    static std::basic_ostream<CharT, Traits> &
+    std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT, Traits> &os,
                const object::NumberMethod &numberMethod) {
       os << "object::NumberMethod::";
@@ -205,7 +205,7 @@ namespace chimera {
     }
 
     template <typename CharT, typename Traits>
-    static std::basic_ostream<CharT, Traits> &
+    std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT, Traits> &os,
                const object::ObjectMethod &objectMethod) {
       os << "object::ObjectMethod::";
@@ -223,14 +223,14 @@ namespace chimera {
     }
 
     template <typename CharT, typename Traits>
-    static std::basic_ostream<CharT, Traits> &
+    std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT, Traits> &os,
                const object::String &string) {
       return os << "object::String(" << std::quoted(string.value) << "s)";
     }
 
     template <typename CharT, typename Traits>
-    static std::basic_ostream<CharT, Traits> &
+    std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT, Traits> &os,
                const object::StringMethod &stringMethod) {
       os << "object::StringMethod::";
@@ -239,14 +239,14 @@ namespace chimera {
     }
 
     template <typename CharT, typename Traits>
-    static std::basic_ostream<CharT, Traits> &
+    std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT, Traits> &os,
                const object::True & /*true*/) {
       return os << "object::True{}";
     }
 
     template <typename CharT, typename Traits>
-    static std::basic_ostream<CharT, Traits> &
+    std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT, Traits> &os,
                const object::Tuple &tuple) {
       os << "object::Tuple{";
@@ -263,7 +263,7 @@ namespace chimera {
     }
 
     template <typename CharT, typename Traits>
-    static std::basic_ostream<CharT, Traits> &
+    std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT, Traits> &os,
                const object::TupleMethod &tupleMethod) {
       os << "object::TupleMethod::";
@@ -272,7 +272,7 @@ namespace chimera {
     }
 
     template <typename CharT, typename Traits>
-    static std::basic_ostream<CharT, Traits> &
+    std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT, Traits> &os,
                const object::SysCall &sysCall) {
       os << "object::SysCall::";
@@ -300,21 +300,21 @@ namespace chimera {
     }
 
     template <typename CharT, typename Traits>
-    static std::basic_ostream<CharT, Traits> &
+    std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT, Traits> &os,
                const asdl::StmtImpl &stmtImpl) {
       return os << &stmtImpl;
     }
 
     template <typename CharT, typename Traits>
-    static std::basic_ostream<CharT, Traits> &
+    std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT, Traits> &os,
                const asdl::ExprImpl &exprImpl) {
       return os << &exprImpl;
     }
 
     template <typename CharT, typename Traits>
-    static std::basic_ostream<CharT, Traits> &
+    std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT, Traits> &os, const Work &work) {
       auto baseName = std::string(work.base_name).append("_").append(work.name);
       auto object = std::visit(IncompleteTuple{}, work.object.value());

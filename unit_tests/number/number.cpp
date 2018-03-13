@@ -2,6 +2,13 @@
 
 #include <catch.hpp>
 
+template <typename CharT, typename Traits>
+std::basic_ostream<CharT, Traits> &
+operator<<(std::basic_ostream<CharT, Traits> &os,
+           const chimera::library::object::number::Number &number) {
+  return number.debug(os);
+}
+
 TEST_CASE("number Number") {
   chimera::library::object::number::Number number;
   auto other = chimera::library::object::number::Number(2);
