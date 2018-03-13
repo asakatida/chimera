@@ -60,7 +60,8 @@ namespace chimera {
         asdl::Interactive parse_input(std::istream &input, const char *source);
 
         const GlobalContext &global_context;
-        GarbageCollector garbage_collector{};
+        // TODO(asakatida)
+        // GarbageCollector garbage_collector{};
         container::AtomicMap<object::Id, object::Object> constants{};
         container::AtomicMap<std::string, object::Object> modules{};
 
