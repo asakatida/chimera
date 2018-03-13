@@ -32,18 +32,107 @@ namespace chimera {
       namespace number {
         struct Base {
           std::uint64_t value;
+
+          template <typename T>
+          explicit operator T() const noexcept {
+            if constexpr (std::is_same_v<T, bool>) {
+              return value != 0u;
+            }
+            if (value >= std::uint64_t(std::numeric_limits<T>::max())) {
+              return std::numeric_limits<T>::max();
+            }
+            return T(value);
+          }
+
+          template <typename CharT, typename Traits>
+          std::basic_ostream<CharT, Traits> &debug(std::basic_ostream<CharT, Traits> &os) const {
+            return os << value;
+          }
+
+          template <typename CharT, typename Traits>
+          std::basic_ostream<CharT, Traits> &repr(std::basic_ostream<CharT, Traits> &os) const {
+            return os << "Number(" << value << ')';
+          }
         };
         struct Natural {
           std::vector<std::uint64_t> value;
+
+          template <typename T>
+          explicit operator T() const noexcept {
+            if constexpr (std::is_same_v<T, bool>) {
+              return true;
+            }
+            if (value.size() > 2) {
+              return std::numeric_limits<T>::max();
+            }
+            auto a = (__uint128_t(value[1]) << 64u) | value[0];
+            if (a >= __uint128_t(std::numeric_limits<T>::max())) {
+              return std::numeric_limits<T>::max();
+            }
+            return T(a);
+          }
+
+          template <typename CharT, typename Traits>
+          std::basic_ostream<CharT, Traits> &debug(std::basic_ostream<CharT, Traits> &os) const {
+            std::for_each(value.begin(), value.end(), [&os](const auto &v){ os << v; });
+            return os;
+          }
+
+          template <typename CharT, typename Traits>
+          std::basic_ostream<CharT, Traits> &repr(std::basic_ostream<CharT, Traits> &os) const {
+            os << "Number({{";
+            std::for_each(value.begin(), value.end(), [&os](const auto &v){ os << v << ','; });
+            return os << "}})";
+          }
         };
         using IntegerValue = std::variant<Base, Natural>;
         struct Integer {
           IntegerValue value;
+
+          template <typename T>
+          explicit operator T() const noexcept {
+            if constexpr (std::is_same_v<T, bool>) {
+              return std::visit([](const auto &v) { return T(v); }, value);
+            }
+            return -std::visit([](const auto &v) { return T(v); }, value);
+          }
+
+          template <typename CharT, typename Traits>
+          std::basic_ostream<CharT, Traits> &debug(std::basic_ostream<CharT, Traits> &os) const {
+            std::visit([&os](const auto &v) { v.debug(os << '-'); }, value);
+            return os;
+          }
+
+          template <typename CharT, typename Traits>
+          std::basic_ostream<CharT, Traits> &repr(std::basic_ostream<CharT, Traits> &os) const {
+            std::visit([&os](const auto &v) { v.repr(os << '-'); }, value);
+            return os;
+          }
         };
         using RationalValue = std::variant<Base, Natural, Integer>;
         struct Rational {
           RationalValue numerator;
           RationalValue denominator;
+
+          template <typename T>
+          explicit operator T() const noexcept {
+            if constexpr (std::is_same_v<T, bool>) {
+              return true;
+            }
+            return std::visit([](const auto &n, const auto &d) { return T(n) / T(d); }, numerator, denominator);
+          }
+
+          template <typename CharT, typename Traits>
+          std::basic_ostream<CharT, Traits> &debug(std::basic_ostream<CharT, Traits> &os) const {
+            std::visit([&os](const auto &n, const auto &d) { d.debug(n.debug(os) << '/'); }, numerator, denominator);
+            return os;
+          }
+
+          template <typename CharT, typename Traits>
+          std::basic_ostream<CharT, Traits> &repr(std::basic_ostream<CharT, Traits> &os) const {
+            std::visit([&os](const auto &n, const auto &d) { d.repr(n.repr(os) << '/'); }, numerator, denominator);
+            return os;
+          }
         };
         using NumberValue = std::variant<Base, Natural, Integer, Rational>;
 
@@ -64,9 +153,10 @@ namespace chimera {
           Number &operator=(const Number &other) = default;
           Number &operator=(Number &&other) noexcept = default;
 
-          explicit operator bool() const noexcept;
-          explicit operator long() const noexcept;
-          explicit operator double() const noexcept;
+          template <typename T>
+          explicit operator T() const noexcept {
+            return visit([](const auto &v) { return T(v); });
+          }
 
           Number operator+() const;
           Number operator-() const;
@@ -120,50 +210,21 @@ namespace chimera {
                               right.value);
           }
 
+          template <typename CharT, typename Traits>
+          std::basic_ostream<CharT, Traits> &debug(std::basic_ostream<CharT, Traits> &os) const {
+            visit([&os](const auto &v) { v.debug(os); });
+            return os;
+          }
+
+          template <typename CharT, typename Traits>
+          std::basic_ostream<CharT, Traits> &repr(std::basic_ostream<CharT, Traits> &os) const {
+            visit([&os](const auto &v) { v.repr(os); });
+            return os;
+          }
+
         private:
           NumberValue value;
         };
-
-        template <typename CharT, typename Traits>
-        std::basic_ostream<CharT, Traits> &
-        operator<<(std::basic_ostream<CharT, Traits> &os, const Base &base) {
-          return os << base.value;
-        }
-
-        template <typename CharT, typename Traits>
-        std::basic_ostream<CharT, Traits> &
-        operator<<(std::basic_ostream<CharT, Traits> &os, const Natural &natural) {
-          std::for_each(natural.value.begin(), natural.value.end(),
-          [&os](const auto &value){
-            os << value;
-          });
-          return os;
-        }
-
-        template <typename CharT, typename Traits>
-        std::basic_ostream<CharT, Traits> &
-        operator<<(std::basic_ostream<CharT, Traits> &os, const Integer &integer) {
-          std::visit([&os](const auto &value) { os << '-' << value; }, integer.value);
-          return os;
-        }
-
-        template <typename CharT, typename Traits>
-        std::basic_ostream<CharT, Traits> &
-        operator<<(std::basic_ostream<CharT, Traits> &os, const Rational &rational) {
-          std::visit(
-            [&os](const auto &numerator, const auto &denominator) {
-              os << numerator << '/' << denominator; }, rational.numerator, rational.denominator);
-              return os;
-        }
-
-        template <typename CharT, typename Traits>
-        std::basic_ostream<CharT, Traits> &
-        operator<<(std::basic_ostream<CharT, Traits> &os, const Number &number) {
-          number.visit([&os](const auto &value) {
-            os << value;
-          });
-          return os;
-        }
       } // namespace number
     }   // namespace object
   }     // namespace library
