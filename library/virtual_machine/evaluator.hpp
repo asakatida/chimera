@@ -62,17 +62,16 @@ namespace chimera {
 
         template <typename Visitor>
         void visit(Visitor &&visitor) {
-          while (true) {
-            if (scopes.empty()) {
-              return;
-            }
-            if (scopes.top().bodies.empty()) {
-              scopes.pop();
-              continue;
-            }
-            if (scopes.top().bodies.top().steps.empty()) {
-              scopes.top().bodies.pop();
-            }
+          if (scopes.empty()) {
+            return;
+          }
+          if (scopes.top().bodies.empty()) {
+            exit_scope();
+            return;
+          }
+          if (scopes.top().bodies.top().steps.empty()) {
+            exit();
+            return;
           }
           auto top = std::move(scopes.top().bodies.top().steps.top());
           scopes.top().bodies.top().steps.pop();
