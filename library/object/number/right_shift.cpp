@@ -90,7 +90,7 @@ namespace chimera {
             for (auto &&i : container::reverse(value.value)) {
               auto o = carryover.overflow;
               carryover = right_shift(i, shift);
-              i = carryover.result & o;
+              i = carryover.result | o;
             }
           }
           return simplify(value);
@@ -111,15 +111,16 @@ namespace chimera {
           if (auto shift = right.value % 64; shift != 0) {
             Carryover carryover{};
             for (auto &&i : container::reverse(value.value)) {
-              carryover = right_shift(i & carryover.overflow, shift);
-              i = carryover.result;
+              auto o = carryover.overflow;
+              carryover = right_shift(i, shift);
+              i = carryover.result | o;
             }
           }
           return simplify(value);
         }
 
         Number operator>>(const Natural & /*left*/, const Natural & /*right*/) {
-          return Number();
+          Ensures(false);
         }
 
         Number operator>>(const Natural &left, const Integer &right) {
