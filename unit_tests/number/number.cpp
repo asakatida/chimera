@@ -37,6 +37,9 @@ TEST_CASE("number Number") {
   massive = massive / huge;
   REQUIRE(massive > huge);
   REQUIRE(massive.is_int());
+  auto test = huge * other;
+  REQUIRE(massive == test);
+  REQUIRE(massive.is_int());
   massive = massive / other;
   REQUIRE(massive == huge);
 }
