@@ -23,12 +23,12 @@
 
 #include "virtual_machine/evaluator.hpp"
 
-#include <exception> // for exception
-#include <iostream>  // for string
+#include <exception>
+#include <iostream>
 
-#include <gsl/gsl> // for Ensures
+#include <gsl/gsl>
 
-#include "asdl/asdl.hpp" // for ExprImpl, AnnAssign (ptr only), Assert (pt...
+#include "asdl/asdl.hpp"
 #include "container/reverse.hpp"
 #include "virtual_machine/del_evaluator.hpp"
 #include "virtual_machine/get_evaluator.hpp"

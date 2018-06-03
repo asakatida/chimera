@@ -23,7 +23,7 @@
 #include <cstdint>
 #include <iosfwd>
 #include <numeric>
-#include <variant> // for variant
+#include <variant>
 #include <vector>
 
 namespace chimera {
@@ -161,26 +161,26 @@ namespace chimera {
           Number operator+() const;
           Number operator-() const;
           Number operator+(const Number &right) const;
-          Number &operator+=(const Number &right) const;
+          Number &operator+=(const Number &right);
           Number operator-(const Number &right) const;
-          Number &operator-=(const Number &right) const;
+          Number &operator-=(const Number &right);
           Number operator*(const Number &right) const;
-          Number &operator*=(const Number &right) const;
+          Number &operator*=(const Number &right);
           Number operator/(const Number &right) const;
-          Number &operator/=(const Number &right) const;
+          Number &operator/=(const Number &right);
           Number operator%(const Number &right) const;
-          Number &operator%=(const Number &right) const;
+          Number &operator%=(const Number &right);
           Number operator~() const;
           Number operator&(const Number &right) const;
-          Number &operator&=(const Number &right) const;
+          Number &operator&=(const Number &right);
           Number operator|(const Number &right) const;
-          Number &operator|=(const Number &right) const;
+          Number &operator|=(const Number &right);
           Number operator^(const Number &right) const;
-          Number &operator^=(const Number &right) const;
+          Number &operator^=(const Number &right);
           Number operator<<(const Number &right) const;
-          Number &operator<<=(const Number &right) const;
+          Number &operator<<=(const Number &right);
           Number operator>>(const Number &right) const;
-          Number &operator>>=(const Number &right) const;
+          Number &operator>>=(const Number &right);
           bool operator==(const Number &right) const;
           bool operator!=(const Number &right) const;
           bool operator<(const Number &right) const;

@@ -22,15 +22,15 @@
 
 #pragma once
 
-#include <iostream> // for istream
-#include <optional> // for optional
+#include <iostream>
+#include <optional>
 #include <string>
-#include <string_view> // for string_view
+#include <string_view>
 
-#include "asdl/asdl.hpp"               // for Constant, Interactive, Module
-#include "container/atomic_map.hpp"    // for AtomicMap
-#include "object/object.hpp"           // for Object, String (ptr only)
-#include "virtual_machine/garbage.hpp" // for GarbageCollector
+#include "asdl/asdl.hpp"
+#include "container/atomic_map.hpp"
+#include "object/object.hpp"
+#include "virtual_machine/garbage.hpp"
 #include "virtual_machine/global_context.hpp"
 
 namespace chimera {

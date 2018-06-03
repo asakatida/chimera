@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include "asdl/asdl.hpp" // for ExprImpl (ptr only), StmtImp...
+#include "asdl/asdl.hpp"
 #include "virtual_machine/evaluator.hpp"
 
 namespace chimera {

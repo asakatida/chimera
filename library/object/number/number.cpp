@@ -23,7 +23,7 @@
 #include <functional>
 #include <limits>
 
-#include <gsl/gsl> // for Ensures
+#include <gsl/gsl>
 
 #include "object/number/add.hpp"
 #include "object/number/and.hpp"
@@ -59,33 +59,73 @@ namespace chimera {
         Number Number::operator+(const Number &right) const {
           return visit(right, std::plus<>{});
         }
+        Number &Number::operator+=(const Number &right) {
+          *this = visit(right, std::plus<>{});
+          return *this;
+        }
         Number Number::operator-(const Number &right) const {
           return visit(right, std::minus<>{});
+        }
+        Number &Number::operator-=(const Number &right) {
+          *this = visit(right, std::minus<>{});
+          return *this;
         }
         Number Number::operator*(const Number &right) const {
           return visit(right, std::multiplies<>{});
         }
+        Number &Number::operator*=(const Number &right) {
+          *this = visit(right, std::multiplies<>{});
+          return *this;
+        }
         Number Number::operator/(const Number &right) const {
           return visit(right, std::divides<>{});
         }
+        Number &Number::operator/=(const Number &right) {
+          *this = visit(right, std::divides<>{});
+          return *this;
+        }
         Number Number::operator%(const Number &right) const {
           return visit(right, std::modulus<>{});
+        }
+        Number &Number::operator%=(const Number &right) {
+          *this = visit(right, std::modulus<>{});
+          return *this;
         }
         Number Number::operator~() const { return visit(std::bit_not<>{}); }
         Number Number::operator&(const Number &right) const {
           return visit(right, std::bit_and<>{});
         }
+        Number &Number::operator&=(const Number &right) {
+          *this = visit(right, std::bit_and<>{});
+          return *this;
+        }
         Number Number::operator|(const Number &right) const {
           return visit(right, std::bit_or<>{});
+        }
+        Number &Number::operator|=(const Number &right) {
+          *this = visit(right, std::bit_or<>{});
+          return *this;
         }
         Number Number::operator^(const Number &right) const {
           return visit(right, std::bit_xor<>{});
         }
+        Number &Number::operator^=(const Number &right) {
+          *this = visit(right, std::bit_xor<>{});
+          return *this;
+        }
         Number Number::operator<<(const Number &right) const {
           return visit(right, [](auto a, auto b) { return a << b; });
         }
+        Number &Number::operator<<=(const Number &right) {
+          *this = visit(right, [](auto a, auto b) { return a << b; });
+          return *this;
+        }
         Number Number::operator>>(const Number &right) const {
           return visit(right, [](auto a, auto b) { return a >> b; });
+        }
+        Number &Number::operator>>=(const Number &right) {
+          *this = visit(right, [](auto a, auto b) { return a >> b; });
+          return *this;
         }
         bool Number::operator==(const Number &right) const {
           return value.index() == right.value.index() &&

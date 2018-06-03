@@ -24,7 +24,7 @@
 
 #include "asdl/asdl.hpp"
 #include "grammar/grammar.hpp"
-#include "virtual_machine/process_context.hpp" // for ProcessContext
+#include "virtual_machine/process_context.hpp"
 
 namespace chimera {
   namespace library {

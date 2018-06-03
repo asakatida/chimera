@@ -20,13 +20,13 @@
 
 #include "object/number/sub.hpp"
 
-#include <gsl/gsl> // for Ensures
+#include <gsl/gsl>
 
 #include "object/number/add.hpp"
 #include "object/number/div.hpp"
-#include "object/number/less.hpp" // for operator<
+#include "object/number/less.hpp"
 #include "object/number/mult.hpp"
-#include "object/number/overflow.hpp" // for Carryover
+#include "object/number/overflow.hpp"
 #include "object/number/simplify.hpp"
 #include "object/number/util.hpp"
 
@@ -66,10 +66,7 @@ namespace chimera {
         }
 
         Number operator-(const Base &left, const Base &right) {
-          if (left.value < right.value) {
-            return Number(Integer{Base{right.value - left.value}});
-          }
-          return Number(Base{left.value - right.value});
+          return left - right.value;
         }
 
         Number operator-(const Base &left, const Natural &right) {
@@ -93,35 +90,21 @@ namespace chimera {
           if (right == 0) {
             return Number(left);
           }
-          auto value = left;
+          Natural value{};
           Carryover carryover{0, right};
           for (auto &&i : value.value) {
             carryover = sub(i, carryover.overflow);
-            i = carryover.result;
-            if (carryover.overflow == 0) {
-              return Number(value);
-            }
+            value.value.push_back(carryover.result);
           }
           return simplify(value);
         }
 
         Number operator-(const Natural &left, const Base &right) {
-          if (right.value == 0) {
-            return Number(left);
-          }
-          auto value = left;
-          Carryover carryover{0, right.value};
-          for (auto &&i : value.value) {
-            carryover = sub(i, carryover.overflow);
-            i = carryover.result;
-            if (carryover.overflow == 0) {
-              return Number(value);
-            }
-          }
-          return simplify(value);
+          return left - right.value;
         }
 
         Number operator-(const Natural &left, const Natural &right) {
+          Ensures(false);
           if (left < right) {
             return -(right - left);
           }
@@ -169,9 +152,7 @@ namespace chimera {
         }
 
         Number operator-(const Integer &left, const Base &right) {
-          return -std::visit(
-              [&right](const auto &value) { return value - right; },
-              left.value);
+          return left - right.value;
         }
 
         Number operator-(const Integer &left, const Natural &right) {
@@ -202,11 +183,7 @@ namespace chimera {
         }
 
         Number operator-(const Rational &left, const Base &right) {
-          return std::visit(
-              [&right](const auto &lN, const auto &lD) {
-                return (lN - right * lD) / lD;
-              },
-              left.numerator, left.denominator);
+          return left - right.value;
         }
 
         Number operator-(const Rational &left, const Natural &right) {

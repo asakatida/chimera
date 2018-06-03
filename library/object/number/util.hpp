@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "object/number/number.hpp" // for Base, Integer, Natural, Rational
+#include "object/number/number.hpp"
 
 namespace chimera {
   namespace library {

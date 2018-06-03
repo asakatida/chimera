@@ -22,11 +22,11 @@
 
 #pragma once
 
-#include <gsl/gsl> // for Ensures
+#include <gsl/gsl>
 #include <tao/pegtl.hpp>
 
 #include "grammar/rules.hpp"
-#include "options.hpp" // for Optimize, Optimize::B...
+#include "options.hpp"
 
 namespace chimera {
   namespace library {
