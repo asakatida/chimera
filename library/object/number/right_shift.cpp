@@ -20,12 +20,12 @@
 
 #include "object/number/right_shift.hpp"
 
-#include <gsl/gsl> // for Ensures
+#include <gsl/gsl>
 
 #include "container/reverse.hpp"
-#include "object/number/compare.hpp" // for operator==
+#include "object/number/compare.hpp"
 #include "object/number/left_shift.hpp"
-#include "object/number/overflow.hpp" // for Carryover
+#include "object/number/overflow.hpp"
 #include "object/number/simplify.hpp"
 
 namespace chimera {
@@ -78,7 +78,7 @@ namespace chimera {
           if (right == 0) {
             return Number(left);
           }
-          if (right >= (left.value.size() * 64)) {
+          if ((right / 64) >= left.value.size()) {
             return Number();
           }
           auto value = left;
@@ -86,37 +86,21 @@ namespace chimera {
             value.value.erase(value.value.begin(), value.value.begin() + shift);
           }
           if (auto shift = right % 64; shift != 0) {
-            Carryover carryover{};
-            for (auto &&i : container::reverse(value.value)) {
-              auto o = carryover.overflow;
-              carryover = right_shift(i, shift);
-              i = carryover.result | o;
+            Natural result{};
+            for (auto &&i : value.value) {
+              auto carryover = right_shift(i, shift);
+              if (!result.value.empty()) {
+                result.value.back() |= carryover.overflow;
+              }
+              result.value.emplace_back(carryover.result);
             }
+            return simplify(result);
           }
           return simplify(value);
         }
 
         Number operator>>(const Natural &left, const Base &right) {
-          if (right == 0) {
-            return Number(left);
-          }
-          auto value = left;
-          if (right.value >= 64) {
-            if ((right.value / 64) >= value.value.size()) {
-              return Number();
-            }
-            value.value.erase(value.value.begin(),
-                              value.value.begin() + (right.value / 64));
-          }
-          if (auto shift = right.value % 64; shift != 0) {
-            Carryover carryover{};
-            for (auto &&i : container::reverse(value.value)) {
-              auto o = carryover.overflow;
-              carryover = right_shift(i, shift);
-              i = carryover.result | o;
-            }
-          }
-          return simplify(value);
+          return left >> right.value;
         }
 
         Number operator>>(const Natural & /*left*/, const Natural & /*right*/) {
@@ -141,9 +125,7 @@ namespace chimera {
         }
 
         Number operator>>(const Integer &left, const Base &right) {
-          return -std::visit(
-              [&right](const auto &value) { return value >> right; },
-              left.value);
+          return left >> right.value;
         }
 
         Number operator>>(const Integer &left, const Natural &right) {

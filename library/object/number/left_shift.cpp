@@ -20,11 +20,11 @@
 
 #include "object/number/left_shift.hpp"
 
-#include <gsl/gsl> // for Ensures
+#include <gsl/gsl>
 
-#include "object/number/compare.hpp"     // for operator==, operator>=
-#include "object/number/mod.hpp"         // for operator%
-#include "object/number/right_shift.hpp" // for operator>>
+#include "object/number/compare.hpp"
+#include "object/number/mod.hpp"
+#include "object/number/right_shift.hpp"
 #include "object/number/util.hpp"
 
 namespace chimera {
@@ -89,18 +89,7 @@ namespace chimera {
         }
 
         Number operator<<(const Natural &left, const Base &right) {
-          if (right.value == 0) {
-            return Number(left);
-          }
-          auto value = left;
-          if (right.value >= 64) {
-            value.value.erase(value.value.begin(),
-                              value.value.begin() + right.value / 64);
-          }
-          if (auto shift = right.value % 64; shift != 0) {
-            // TODO(asakatida)
-          }
-          return Number(value);
+          return left << right.value;
         }
 
         Number operator<<(const Natural &left, const Natural &right) {
@@ -132,9 +121,7 @@ namespace chimera {
         }
 
         Number operator<<(const Integer &left, const Base &right) {
-          return -std::visit(
-              [&right](const auto &value) { return value << right; },
-              left.value);
+          return left << right.value;
         }
 
         Number operator<<(const Integer &left, const Natural &right) {

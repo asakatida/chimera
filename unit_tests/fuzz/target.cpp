@@ -1,15 +1,15 @@
-#include <cstddef> // for size_t
+#include <cstddef>
 #include <cstdint>
-#include <exception> // for exception
-#include <sstream>   // for istringstream
+#include <exception>
+#include <sstream>
 #include <string>
 
-#include <tao/pegtl.hpp> // for parse_error
+#include <tao/pegtl.hpp>
 
-#include "asdl/asdl.hpp"                       // for Module
-#include "object/object.hpp"                   // for Object
-#include "options.hpp"                         // for Options
-#include "virtual_machine/virtual_machine.hpp" // for init, ProcessContext, ...
+#include "asdl/asdl.hpp"
+#include "object/object.hpp"
+#include "options.hpp"
+#include "virtual_machine/virtual_machine.hpp"
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
 

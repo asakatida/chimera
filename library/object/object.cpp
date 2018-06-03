@@ -22,7 +22,7 @@
 
 #include "object.hpp"
 
-#include <string> // for string
+#include <string>
 #include <utility>
 
 namespace chimera {

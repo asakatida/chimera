@@ -22,11 +22,11 @@
 
 #pragma once
 
-#include <functional> // for function
+#include <functional>
 #include <stack>
-#include <variant> // for variant
+#include <variant>
 
-#include "asdl/asdl.hpp" // for ExprImpl (ptr only), StmtImp...
+#include "asdl/asdl.hpp"
 #include "virtual_machine/bin_evaluator.hpp"
 #include "virtual_machine/bool_evaluator.hpp"
 #include "virtual_machine/call_evaluator.hpp"

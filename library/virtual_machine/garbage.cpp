@@ -22,9 +22,9 @@
 
 #include "virtual_machine/garbage.hpp"
 
-#include <atomic> // for atomic_flag
+#include <atomic>
 #include <mutex>
-#include <thread> // for yield, thread
+#include <thread>
 
 namespace chimera {
   namespace library {

@@ -20,9 +20,9 @@
 
 #include "object/number/invert.hpp"
 
-#include <gsl/gsl> // for Ensures
+#include <gsl/gsl>
 
-#include "object/number/add.hpp" // for operator+
+#include "object/number/add.hpp"
 #include "object/number/sub.hpp"
 
 namespace chimera {

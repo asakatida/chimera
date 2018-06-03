@@ -26,7 +26,7 @@
 #include "object/number/compare.hpp"
 #include "object/number/less.hpp"
 #include "object/number/mult.hpp"
-#include "object/number/overflow.hpp" // for Carryover
+#include "object/number/overflow.hpp"
 #include "object/number/simplify.hpp"
 #include "object/number/sub.hpp"
 #include "object/number/util.hpp"
@@ -100,15 +100,7 @@ namespace chimera {
         }
 
         Number floor_div(const Natural &left, const Base &right) {
-          Expects(right.value != 0);
-          auto value = left;
-          Carryover carryover{};
-          for (auto &&i : container::reverse(value.value)) {
-            carryover.result = i;
-            carryover = div(carryover, right.value);
-            i = carryover.result;
-          }
-          return simplify(value);
+          return floor_div(left, right.value);
         }
 
         Number floor_div(const Natural &left, const Natural &right) {
@@ -146,9 +138,7 @@ namespace chimera {
         }
 
         Number floor_div(const Integer &left, const Base &right) {
-          return -std::visit(
-              [&right](const auto &l) { return floor_div(l, right); },
-              left.value);
+          return floor_div(left, right.value);
         }
 
         Number floor_div(const Integer &left, const Natural &right) {
@@ -180,11 +170,7 @@ namespace chimera {
         }
 
         Number floor_div(const Rational &left, const Base &right) {
-          return std::visit(
-              [&right](const auto &lN, const auto &lD) {
-                return Number(lN).floor_div(lD * right);
-              },
-              left.numerator, left.denominator);
+          return floor_div(left, right.value);
         }
 
         Number floor_div(const Rational &left, const Natural &right) {

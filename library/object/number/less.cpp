@@ -138,11 +138,7 @@ namespace chimera {
         }
 
         bool operator<(const Rational &left, const Base &right) {
-          return std::visit(
-              [&right](const auto &lN, const auto &lD) {
-                return lN < (lD * right);
-              },
-              left.numerator, left.denominator);
+          return left < right.value;
         }
 
         bool operator<(const Rational &left, const Natural &right) {

@@ -20,11 +20,11 @@
 
 #include "object/number/add.hpp"
 
-#include <gsl/gsl> // for Ensures
+#include <gsl/gsl>
 
 #include "object/number/div.hpp"
 #include "object/number/mult.hpp"
-#include "object/number/overflow.hpp" // for Carryover
+#include "object/number/overflow.hpp"
 #include "object/number/positive.hpp"
 #include "object/number/sub.hpp"
 #include "object/number/util.hpp"
@@ -81,12 +81,7 @@ namespace chimera {
         }
 
         Number operator+(const Base &left, const Base &right) {
-          auto value = sum(left.value, right.value);
-          if (value.overflow == 0) {
-            return Number(Base{value.result});
-          }
-          return Number(Natural{
-              std::vector<std::uint64_t>{value.result, value.overflow}});
+          return left + right.value;
         }
 
         Number operator+(const Base &left, const Natural &right) {
@@ -136,20 +131,7 @@ namespace chimera {
         }
 
         Number operator+(const Natural &left, const Base &right) {
-          if (right.value == 0) {
-            return Number(left);
-          }
-          auto value = left;
-          Carryover carryover{0, right.value};
-          for (auto &&i : value.value) {
-            carryover = sum(i, carryover.overflow);
-            i = carryover.result;
-            if (carryover.overflow == 0) {
-              return Number(value);
-            }
-          }
-          value.value.push_back(carryover.overflow);
-          return Number(value);
+          return left + right.value;
         }
 
         Number operator+(const Natural &left, const Natural &right) {
@@ -228,11 +210,7 @@ namespace chimera {
         }
 
         Number operator+(const Rational &left, const Base &right) {
-          return std::visit(
-              [&right](const auto &lN, const auto &lD) {
-                return (lN + right * lD) / lD;
-              },
-              left.numerator, left.denominator);
+          return left + right.value;
         }
 
         Number operator+(const Rational &left, const Natural &right) {

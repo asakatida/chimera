@@ -104,13 +104,7 @@ namespace chimera {
         }
 
         Number operator%(const Natural &left, const Base &right) {
-          Expects(right.value != 0);
-          Carryover carryover{};
-          for (auto &&i : container::reverse(left.value)) {
-            carryover.result = i;
-            carryover = div(carryover, right.value);
-          }
-          return Number(Base{carryover.overflow});
+          return left % right.value;
         }
 
         Number operator%(const Natural &left, const Natural &right) {
@@ -143,9 +137,7 @@ namespace chimera {
         }
 
         Number operator%(const Integer &left, const Base &right) {
-          return -std::visit(
-              [&right](const auto &value) { return value % right; },
-              left.value);
+          return left % right.value;
         }
 
         Number operator%(const Integer &left, const Natural &right) {

@@ -22,14 +22,14 @@
 
 #include "virtual_machine/global_context.hpp"
 
-#include <fstream> // for ifstream
+#include <fstream>
 #include <string_view>
 
 #include "object/object.hpp"
-#include "version.hpp"                         // for CHIMERA_VERSION
-#include "virtual_machine/process_context.hpp" // for ProcessContext
+#include "version.hpp"
+#include "virtual_machine/process_context.hpp"
 #include "virtual_machine/thread_context.hpp"
-#include "virtual_machine/virtual_machine.hpp" // for VirtualMachine
+#include "virtual_machine/virtual_machine.hpp"
 
 namespace chimera {
   namespace library {

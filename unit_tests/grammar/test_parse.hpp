@@ -1,6 +1,6 @@
-#include "object/object.hpp"                   // for Object
-#include "options.hpp"                         // for Options
-#include "virtual_machine/virtual_machine.hpp" // for init, ProcessContext, ...
+#include "object/object.hpp"
+#include "options.hpp"
+#include "virtual_machine/virtual_machine.hpp"
 
 namespace chimera {
   namespace library {

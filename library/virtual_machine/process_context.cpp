@@ -22,16 +22,16 @@
 
 #include "virtual_machine/process_context.hpp"
 
-#include <csignal>   // for signal
-#include <exception> // for exception
-#include <fstream>   // for ifstream
+#include <csignal>
+#include <exception>
+#include <fstream>
 #include <iostream>
-#include <string>      // for string
-#include <string_view> // for string_view
+#include <string>
+#include <string_view>
 
-#include <gsl/gsl> // for Ensures
+#include <gsl/gsl>
 
-#include "asdl/asdl.hpp" // for Constant, Module (ptr only)
+#include "asdl/asdl.hpp"
 #include "object/object.hpp"
 #include "virtual_machine/modules/marshal.hpp"
 #include "virtual_machine/modules/sys.hpp"

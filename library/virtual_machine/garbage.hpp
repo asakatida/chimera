@@ -22,9 +22,9 @@
 
 #pragma once
 
-#include <atomic> // for ATOMIC_FLAG_INIT, atomic_flag
-#include <mutex>  // for mutex, lock_guard
-#include <thread> // for thread
+#include <atomic>
+#include <mutex>
+#include <thread>
 
 #include <gsl/gsl>
 

@@ -20,7 +20,7 @@
 
 #include "object/number/and.hpp"
 
-#include <gsl/gsl> // for Ensures
+#include <gsl/gsl>
 
 #include "object/number/simplify.hpp"
 
@@ -100,9 +100,7 @@ namespace chimera {
         }
 
         Number operator&(const Integer &left, const Base &right) {
-          return std::visit(
-              [&right](const auto &value) { return value & right; },
-              left.value);
+          return left & right.value;
         }
 
         Number operator&(const Integer &left, const Natural &right) {

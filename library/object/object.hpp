@@ -22,15 +22,15 @@
 
 #pragma once
 
-#include <exception> // for exception
-#include <future>    // for future
-#include <map>       // for map
-#include <memory>    // for shared_ptr
-#include <string>    // for string
+#include <exception>
+#include <future>
+#include <map>
+#include <memory>
+#include <string>
 
 #include "asdl/asdl.hpp"
-#include "container/atomic_map.hpp" // for AtomicMap
-#include "object/number/number.hpp" // for Number (ptr only)
+#include "container/atomic_map.hpp"
+#include "object/number/number.hpp"
 
 namespace chimera {
   namespace library {
