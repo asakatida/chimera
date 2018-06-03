@@ -1,5 +1,7 @@
 #include "object/number/number.hpp"
 
+#include <iostream>
+
 #include <catch.hpp>
 
 template <typename CharT, typename Traits>
@@ -25,11 +27,12 @@ TEST_CASE("number Number") {
   REQUIRE(number == chimera::library::object::number::Number(1));
   number = number - chimera::library::object::number::Number(1);
   REQUIRE(number == chimera::library::object::number::Number());
-  number = number * (other + other);
-  REQUIRE(number == chimera::library::object::number::Number());
-  auto huge = chimera::library::object::number::Number(
-      std::numeric_limits<std::uint64_t>::max());
-  number = huge * huge;
+}
+
+TEST_CASE("number Number division") {
+  auto other = chimera::library::object::number::Number(2);
+  auto huge = chimera::library::object::number::Number(8);
+  auto number = huge * huge;
   REQUIRE(number > huge);
   auto massive = number * other;
   REQUIRE(massive > number);
@@ -42,4 +45,110 @@ TEST_CASE("number Number") {
   REQUIRE(massive.is_int());
   massive = massive / other;
   REQUIRE(massive == huge);
+}
+
+TEST_CASE("number Number addition huge a") {
+  auto two = chimera::library::object::number::Number(2);
+  auto eight = chimera::library::object::number::Number(8);
+  auto huge = chimera::library::object::number::Number(
+      std::numeric_limits<std::uint64_t>::max());
+  auto number = huge + eight;
+  auto massive = huge + two;
+  massive += two;
+  massive += two;
+  massive += two;
+  REQUIRE(massive.is_int());
+  REQUIRE(massive == number);
+}
+
+TEST_CASE("number Number addition huge b") {
+  auto two = chimera::library::object::number::Number(2);
+  auto eight = chimera::library::object::number::Number(8);
+  auto huge = chimera::library::object::number::Number(
+      std::numeric_limits<std::uint64_t>::max());
+  auto number = eight + huge;
+  auto massive = two + two;
+  massive += two;
+  massive += two;
+  massive += huge;
+  REQUIRE(massive.is_int());
+  REQUIRE(massive == number);
+}
+
+TEST_CASE("number Number addition huge c") {
+  auto two = chimera::library::object::number::Number(2);
+  auto eight = chimera::library::object::number::Number(8);
+  auto huge = chimera::library::object::number::Number(
+      std::numeric_limits<std::uint64_t>::max());
+  auto number = huge + eight;
+  auto massive = two + two;
+  massive += two;
+  massive += two;
+  massive += huge;
+  REQUIRE(massive.is_int());
+  REQUIRE(massive == number);
+}
+
+TEST_CASE("number Number division huge") {
+  auto other = chimera::library::object::number::Number(2);
+  auto huge = chimera::library::object::number::Number(
+      std::numeric_limits<std::uint64_t>::max());
+  auto number = huge * huge;
+  REQUIRE(number > huge);
+  auto massive = number * other;
+  REQUIRE(massive > number);
+  REQUIRE(massive.is_int());
+}
+
+TEST_CASE("number Number multiplication huge a") {
+  auto two = chimera::library::object::number::Number(2);
+  auto eight = chimera::library::object::number::Number(8);
+  auto huge = chimera::library::object::number::Number(
+      std::numeric_limits<std::uint64_t>::max());
+  auto number = huge * eight;
+  auto massive = huge * two;
+  massive *= two;
+  massive *= two;
+  REQUIRE(massive.is_int());
+  REQUIRE(massive == number);
+}
+
+TEST_CASE("number Number multiplication huge b") {
+  auto two = chimera::library::object::number::Number(2);
+  auto eight = chimera::library::object::number::Number(8);
+  auto huge = chimera::library::object::number::Number(
+      std::numeric_limits<std::uint64_t>::max());
+  auto number = eight * huge;
+  auto massive = two * two;
+  massive *= two;
+  massive *= huge;
+  REQUIRE(massive.is_int());
+  REQUIRE(massive == number);
+}
+
+TEST_CASE("number Number multiplication huge c") {
+  auto two = chimera::library::object::number::Number(2);
+  auto eight = chimera::library::object::number::Number(8);
+  auto huge = chimera::library::object::number::Number(
+      std::numeric_limits<std::uint64_t>::max());
+  auto number = huge * eight;
+  auto massive = two * two;
+  massive *= two;
+  massive *= huge;
+  REQUIRE(massive.is_int());
+  REQUIRE(massive == number);
+}
+
+TEST_CASE("number Number subtraction huge") {
+  auto two = chimera::library::object::number::Number(2);
+  auto eight = chimera::library::object::number::Number(8);
+  auto huge = chimera::library::object::number::Number(
+      std::numeric_limits<std::uint64_t>::max());
+  auto number = huge + eight;
+  auto massive = number;
+  massive -= two;
+  massive -= two;
+  massive -= two;
+  massive -= two;
+  REQUIRE(massive.is_int());
 }

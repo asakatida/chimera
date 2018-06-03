@@ -20,15 +20,15 @@
 
 //! main interpreter start
 
-#include <exception> // for exception
-#include <iterator>  // for distance
+#include <exception>
+#include <iterator>
 
-#include <gsl/gsl> // for make_span
+#include <gsl/gsl>
 
-#include "object/object.hpp" // for Object
-#include "options.hpp"       // for Options
-#include "version.hpp"       // for CHIMERA_GIT_HEAD, CHIMERA_VE...
-#include "virtual_machine/virtual_machine.hpp" // for init
+#include "object/object.hpp"
+#include "options.hpp"
+#include "version.hpp"
+#include "virtual_machine/virtual_machine.hpp"
 
 using namespace std::literals;
 

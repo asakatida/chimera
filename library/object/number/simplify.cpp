@@ -20,9 +20,12 @@
 
 #include "object/number/simplify.hpp"
 
+#include <iostream>
+
 #include "object/number/compare.hpp"
 #include "object/number/mult.hpp"
 #include "object/number/right_shift.hpp"
+#include "object/number/sub.hpp"
 #include "object/number/util.hpp"
 
 namespace chimera {
@@ -147,22 +150,28 @@ namespace chimera {
 
         template <typename Left, typename Right>
         Number reduce(Left &&left, Right &&right) {
-          if (left == Number()) {
+          if (left == 0u) {
             return Number();
           }
-          if (right == Number()) {
+          if (left == 1u) {
+            return Number(Rational{left, right});
+          }
+          if (right == 0u) {
             return Number(Rational{left, {}});
+          }
+          if (right == 1u) {
+            return Number(left);
           }
           Number a{left}, b{right};
           while (even(a) && even(b)) {
             a >>= 1u;
             b >>= 1u;
           }
-          if (a == Number()) {
-            return Number();
+          if (a == 1u) {
+            return Number(to_rational(std::move(a), std::move(b)));
           }
-          if (b == Number()) {
-            return a / Number();
+          if (b == 1u) {
+            return a;
           }
           auto aPrime = a, bPrime = b;
           while (aPrime != bPrime) {
@@ -176,22 +185,28 @@ namespace chimera {
               bPrime = (bPrime - aPrime) >> 1u;
             }
           }
+          if (aPrime == 1u) {
+            return Number(to_rational(std::move(a), std::move(b)));
+          }
           if (a == aPrime) {
-            return Number(to_rational(Number(1), b.floor_div(aPrime)));
+            return Number(to_rational(Number(1), Number(b).floor_div(aPrime)));
           }
           if (b == aPrime) {
-            return Number(to_rational(a.floor_div(aPrime), Number(1)));
+            return Number(a).floor_div(aPrime);
           }
-          return Number(to_rational(a.floor_div(aPrime), b.floor_div(aPrime)));
+          return Number(to_rational(Number(a).floor_div(aPrime), Number(b).floor_div(aPrime)));
         }
 
         Number simplify(Base base) { return Number(base); }
         Number simplify(Natural natural) {
-          while (natural.value.back() == 0) {
-            natural.value.pop_back();
-            if (natural.value.empty()) {
-              return Number();
+          while (!natural.value.empty()) {
+            if (natural.value.back() != 0) {
+              break;
             }
+            natural.value.pop_back();
+          }
+          if (natural.value.empty()) {
+            return Number();
           }
           if (natural.value.size() == 1) {
             return Number(Base{natural.value[0]});

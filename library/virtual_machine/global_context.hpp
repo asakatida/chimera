@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <atomic> // for atomic_flag
+#include <atomic>
 
 #include "object/object.hpp"
 #include "options.hpp"

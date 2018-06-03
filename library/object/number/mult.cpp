@@ -20,10 +20,10 @@
 
 #include "object/number/mult.hpp"
 
-#include <gsl/gsl> // for Ensures
+#include <gsl/gsl>
 
 #include "object/number/div.hpp"
-#include "object/number/overflow.hpp" // for Carryover
+#include "object/number/overflow.hpp"
 #include "object/number/util.hpp"
 
 namespace chimera {
@@ -83,11 +83,7 @@ namespace chimera {
         }
 
         Number operator*(const Base &left, const Base &right) {
-          auto value = mult(left.value, right.value);
-          if (value.overflow == 0) {
-            return Number(Base{value.result});
-          }
-          return Number(Natural{{value.result, value.overflow}});
+          return left * right.value;
         }
 
         Number operator*(const Base &left, const Natural &right) {
@@ -150,26 +146,7 @@ namespace chimera {
         }
 
         Number operator*(const Natural &left, const Base &right) {
-          if (right.value == 0) {
-            return Number();
-          }
-          if (right.value == 1) {
-            return Number(left);
-          }
-          auto value = left;
-          Carryover carryover{};
-          for (auto &&i : value.value) {
-            auto m = mult(i, right.value);
-            carryover = sum(m.result, carryover.overflow);
-            i = carryover.result;
-            carryover = sum(m.overflow, carryover.overflow);
-            Ensures(carryover.overflow == 0);
-            carryover = {0, carryover.result};
-          }
-          if (carryover.overflow != 0) {
-            value.value.push_back(carryover.overflow);
-          }
-          return Number(value);
+          return left * right.value;
         }
 
         Number operator*(const Natural &left, const Natural &right) {
@@ -217,9 +194,7 @@ namespace chimera {
         }
 
         Number operator*(const Integer &left, const Base &right) {
-          return -std::visit(
-              [&right](const auto &value) { return value * right; },
-              left.value);
+          return left * right.value;
         }
 
         Number operator*(const Integer &left, const Natural &right) {
@@ -250,11 +225,7 @@ namespace chimera {
         }
 
         Number operator*(const Rational &left, const Base &right) {
-          return std::visit(
-              [&right](const auto &lN, const auto &lD) {
-                return (lN * right) / lD;
-              },
-              left.numerator, left.denominator);
+          return left * right.value;
         }
 
         Number operator*(const Rational &left, const Natural &right) {
