@@ -45,12 +45,14 @@ namespace chimera {
           }
 
           template <typename CharT, typename Traits>
-          std::basic_ostream<CharT, Traits> &debug(std::basic_ostream<CharT, Traits> &os) const {
+          std::basic_ostream<CharT, Traits> &
+          debug(std::basic_ostream<CharT, Traits> &os) const {
             return os << value;
           }
 
           template <typename CharT, typename Traits>
-          std::basic_ostream<CharT, Traits> &repr(std::basic_ostream<CharT, Traits> &os) const {
+          std::basic_ostream<CharT, Traits> &
+          repr(std::basic_ostream<CharT, Traits> &os) const {
             return os << "Number(" << value << ')';
           }
         };
@@ -73,15 +75,19 @@ namespace chimera {
           }
 
           template <typename CharT, typename Traits>
-          std::basic_ostream<CharT, Traits> &debug(std::basic_ostream<CharT, Traits> &os) const {
-            std::for_each(value.begin(), value.end(), [&os](const auto &v){ os << v; });
+          std::basic_ostream<CharT, Traits> &
+          debug(std::basic_ostream<CharT, Traits> &os) const {
+            std::for_each(value.begin(), value.end(),
+                          [&os](const auto &v) { os << v; });
             return os;
           }
 
           template <typename CharT, typename Traits>
-          std::basic_ostream<CharT, Traits> &repr(std::basic_ostream<CharT, Traits> &os) const {
+          std::basic_ostream<CharT, Traits> &
+          repr(std::basic_ostream<CharT, Traits> &os) const {
             os << "Number({{";
-            std::for_each(value.begin(), value.end(), [&os](const auto &v){ os << v << ','; });
+            std::for_each(value.begin(), value.end(),
+                          [&os](const auto &v) { os << v << ','; });
             return os << "}})";
           }
         };
@@ -98,13 +104,15 @@ namespace chimera {
           }
 
           template <typename CharT, typename Traits>
-          std::basic_ostream<CharT, Traits> &debug(std::basic_ostream<CharT, Traits> &os) const {
+          std::basic_ostream<CharT, Traits> &
+          debug(std::basic_ostream<CharT, Traits> &os) const {
             std::visit([&os](const auto &v) { v.debug(os << '-'); }, value);
             return os;
           }
 
           template <typename CharT, typename Traits>
-          std::basic_ostream<CharT, Traits> &repr(std::basic_ostream<CharT, Traits> &os) const {
+          std::basic_ostream<CharT, Traits> &
+          repr(std::basic_ostream<CharT, Traits> &os) const {
             std::visit([&os](const auto &v) { v.repr(os << '-'); }, value);
             return os;
           }
@@ -119,18 +127,26 @@ namespace chimera {
             if constexpr (std::is_same_v<T, bool>) {
               return true;
             }
-            return std::visit([](const auto &n, const auto &d) { return T(n) / T(d); }, numerator, denominator);
+            return std::visit(
+                [](const auto &n, const auto &d) { return T(n) / T(d); },
+                numerator, denominator);
           }
 
           template <typename CharT, typename Traits>
-          std::basic_ostream<CharT, Traits> &debug(std::basic_ostream<CharT, Traits> &os) const {
-            std::visit([&os](const auto &n, const auto &d) { d.debug(n.debug(os) << '/'); }, numerator, denominator);
+          std::basic_ostream<CharT, Traits> &
+          debug(std::basic_ostream<CharT, Traits> &os) const {
+            std::visit([&os](const auto &n,
+                             const auto &d) { d.debug(n.debug(os) << '/'); },
+                       numerator, denominator);
             return os;
           }
 
           template <typename CharT, typename Traits>
-          std::basic_ostream<CharT, Traits> &repr(std::basic_ostream<CharT, Traits> &os) const {
-            std::visit([&os](const auto &n, const auto &d) { d.repr(n.repr(os) << '/'); }, numerator, denominator);
+          std::basic_ostream<CharT, Traits> &
+          repr(std::basic_ostream<CharT, Traits> &os) const {
+            std::visit([&os](const auto &n,
+                             const auto &d) { d.repr(n.repr(os) << '/'); },
+                       numerator, denominator);
             return os;
           }
         };
@@ -211,13 +227,15 @@ namespace chimera {
           }
 
           template <typename CharT, typename Traits>
-          std::basic_ostream<CharT, Traits> &debug(std::basic_ostream<CharT, Traits> &os) const {
+          std::basic_ostream<CharT, Traits> &
+          debug(std::basic_ostream<CharT, Traits> &os) const {
             visit([&os](const auto &v) { v.debug(os); });
             return os;
           }
 
           template <typename CharT, typename Traits>
-          std::basic_ostream<CharT, Traits> &repr(std::basic_ostream<CharT, Traits> &os) const {
+          std::basic_ostream<CharT, Traits> &
+          repr(std::basic_ostream<CharT, Traits> &os) const {
             visit([&os](const auto &v) { v.repr(os); });
             return os;
           }
