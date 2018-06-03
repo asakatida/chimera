@@ -43,6 +43,7 @@ namespace chimera {
       using tao::pegtl::must;
       using tao::pegtl::not_at;
       using tao::pegtl::opt;
+      using tao::pegtl::opt_must;
       using tao::pegtl::plus;
       using tao::pegtl::rep;
       using tao::pegtl::rep_opt;
