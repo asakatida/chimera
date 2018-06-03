@@ -194,7 +194,8 @@ namespace chimera {
           if (b == aPrime) {
             return Number(a).floor_div(aPrime);
           }
-          return Number(to_rational(Number(a).floor_div(aPrime), Number(b).floor_div(aPrime)));
+          return Number(to_rational(Number(a).floor_div(aPrime),
+                                    Number(b).floor_div(aPrime)));
         }
 
         Number simplify(Base base) { return Number(base); }
