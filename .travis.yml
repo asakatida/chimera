@@ -1,26 +1,23 @@
 language: cpp
+sudo: false
 
 compiler: clang
 
 matrix:
   include:
-    - os: linux
-      addons:
+    - addons:
         apt:
           sources:
-            - llvm-toolchain-trusty-5.0
+            - llvm-toolchain-trusty-6.0
           packages:
-            - clang-5.0
+            - clang-6.0
       env:
-        - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
+        - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
 
 before_install:
   - eval "${MATRIX_EVAL}"
-  - wget https://cmake.org/files/v3.10/cmake-3.10.0.tar.gz
-  - tar -xzf cmake-3.10.0.tar.gz
-  - pushd cmake-3.10.0 && cmake . && make && sudo make install && popd
 
 script:
   - cmake .
-  - make
+  - make -j3
   - make check
