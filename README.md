@@ -1,5 +1,7 @@
 # chimera
 
+[![Build Status](https://travis-ci.org/grandquista/chimera.svg?branch=master)](https://travis-ci.org/grandquista/chimera)
+
 A forkable alternative Python3 interpreter.
 
 ## documentation
