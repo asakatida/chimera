@@ -27,9 +27,6 @@ before_install:
   - eval "${MATRIX_EVAL}"
 
 script:
-  - cmake \
-    -DCMAKE_BUILD_TYPE=Debug \
-    -DCMAKE_CPP_FLAGS="-std=c++17" \
-    -DCMAKE_CXX_FLAGS="-Wall -Wextra"
+  - cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CPP_FLAGS="-std=c++17" -DCMAKE_CXX_FLAGS="-Wall -Wextra"
   - make -j3
   - make check
