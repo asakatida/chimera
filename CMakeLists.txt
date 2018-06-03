@@ -44,12 +44,12 @@ add_library(
   library/object/number/add.hpp
   library/object/number/and.cpp
   library/object/number/and.hpp
+  library/object/number/compare.cpp
+  library/object/number/compare.hpp
   library/object/number/div.cpp
   library/object/number/div.hpp
   library/object/number/floor_div.cpp
   library/object/number/floor_div.hpp
-  library/object/number/compare.cpp
-  library/object/number/compare.hpp
   library/object/number/invert.cpp
   library/object/number/invert.hpp
   library/object/number/left_shift.cpp
