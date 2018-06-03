@@ -777,12 +777,12 @@ namespace chimera {
           : if_must<
                 Class<flags::mask<Option, flags::IMPLICIT>>,
                 Name<flags::mask<Option, flags::IMPLICIT>>,
-                opt<if_must<
+                opt_must<
                     LPar<flags::set<flags::mask<Option, flags::IMPLICIT>,
                                     flags::IMPLICIT>>,
                     opt<ArgList<flags::set<flags::mask<Option, flags::IMPLICIT>,
                                            flags::IMPLICIT>>>,
-                    RPar<flags::mask<Option, flags::IMPLICIT>>>>,
+                    RPar<flags::mask<Option, flags::IMPLICIT>>>,
                 SuiteWithDoc<flags::unSet<
                     flags::mask<Option, flags::IMPLICIT>, flags::ASYNC_FLOW,
                     flags::IMPORT_ALL, flags::LOOP_FLOW, flags::SCOPE_FLOW>>> {
