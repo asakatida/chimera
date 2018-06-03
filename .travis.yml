@@ -3,6 +3,10 @@ sudo: false
 
 compiler: clang
 
+env:
+  - CPPFLAGS="-std=c++17"
+  - CXXFLAGS="-Wall -Wextra"
+
 matrix:
   include:
     - addons:
@@ -13,10 +17,17 @@ matrix:
           packages:
             - clang-6.0
       env:
-        - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
-
-before_install:
-  - eval "${MATRIX_EVAL}"
+        - CC=clang-6.0
+        - CXX=clang++-6.0
+    - addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
+      env:
+        - CC=gcc-8
+        - CXX=g++-8
 
 script:
   - cmake .
