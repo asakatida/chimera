@@ -1,12 +1,6 @@
 language: cpp
 sudo: false
 
-compiler: clang
-
-env:
-  - CPPFLAGS="-std=c++17"
-  - CXXFLAGS="-Wall -Wextra"
-
 matrix:
   include:
     - addons:
@@ -16,20 +10,26 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - clang-6.0
+      compiler: clang
       env:
-        - CC=clang-6.0
-        - CXX=clang++-6.0
+        - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
     - addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
           packages:
             - g++-8
+      compiler: gcc
       env:
-        - CC=gcc-8
-        - CXX=g++-8
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+
+before_install:
+  - eval "${MATRIX_EVAL}"
 
 script:
-  - cmake .
+  - cmake \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_CPP_FLAGS="-std=c++17" \
+    -DCMAKE_CXX_FLAGS="-Wall -Wextra"
   - make -j3
   - make check
