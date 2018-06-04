@@ -26,31 +26,31 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        Number operator&(const std::uint64_t &left, const Base &right);
-        Number operator&(const std::uint64_t &left, const Natural &right);
-        Number operator&(const std::uint64_t &left, const Integer &right);
-        Number operator&(const std::uint64_t &left, const Rational &right);
+        Number operator&(std::uint64_t left, Base right);
+        Number operator&(std::uint64_t left, const Natural &right);
+        Number operator&(std::uint64_t left, const Integer &right);
+        Number operator&(std::uint64_t left, const Rational &right);
 
-        Number operator&(const Base &left, const std::uint64_t &right);
-        Number operator&(const Base &left, const Base &right);
-        Number operator&(const Base &left, const Natural &right);
-        Number operator&(const Base &left, const Integer &right);
-        Number operator&(const Base &left, const Rational &right);
+        Number operator&(Base left, std::uint64_t right);
+        Number operator&(Base left, Base right);
+        Number operator&(Base left, const Natural &right);
+        Number operator&(Base left, const Integer &right);
+        Number operator&(Base left, const Rational &right);
 
-        Number operator&(const Natural &left, const std::uint64_t &right);
-        Number operator&(const Natural &left, const Base &right);
+        Number operator&(const Natural &left, std::uint64_t right);
+        Number operator&(const Natural &left, Base right);
         Number operator&(const Natural &left, const Natural &right);
         Number operator&(const Natural &left, const Integer &right);
         Number operator&(const Natural &left, const Rational &right);
 
-        Number operator&(const Integer &left, const std::uint64_t &right);
-        Number operator&(const Integer &left, const Base &right);
+        Number operator&(const Integer &left, std::uint64_t right);
+        Number operator&(const Integer &left, Base right);
         Number operator&(const Integer &left, const Natural &right);
         Number operator&(const Integer &left, const Integer &right);
         Number operator&(const Integer &left, const Rational &right);
 
-        Number operator&(const Rational &left, const std::uint64_t &right);
-        Number operator&(const Rational &left, const Base &right);
+        Number operator&(const Rational &left, std::uint64_t right);
+        Number operator&(const Rational &left, Base right);
         Number operator&(const Rational &left, const Natural &right);
         Number operator&(const Rational &left, const Integer &right);
         Number operator&(const Rational &left, const Rational &right);

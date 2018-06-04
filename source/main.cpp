@@ -21,6 +21,7 @@
 //! main interpreter start
 
 #include <exception>
+#include <iostream>
 #include <iterator>
 
 #include <gsl/gsl>

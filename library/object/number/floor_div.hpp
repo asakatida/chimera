@@ -26,31 +26,31 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        Number floor_div(const std::uint64_t &left, const Base &right);
-        Number floor_div(const std::uint64_t &left, const Natural &right);
-        Number floor_div(const std::uint64_t &left, const Integer &right);
-        Number floor_div(const std::uint64_t &left, const Rational &right);
+        Number floor_div(std::uint64_t left, Base right);
+        Number floor_div(std::uint64_t left, const Natural &right);
+        Number floor_div(std::uint64_t left, const Integer &right);
+        Number floor_div(std::uint64_t left, const Rational &right);
 
-        Number floor_div(const Base &left, const std::uint64_t &right);
-        Number floor_div(const Base &left, const Base &right);
-        Number floor_div(const Base &left, const Natural &right);
-        Number floor_div(const Base &left, const Integer &right);
-        Number floor_div(const Base &left, const Rational &right);
+        Number floor_div(Base left, std::uint64_t right);
+        Number floor_div(Base left, Base right);
+        Number floor_div(Base left, const Natural &right);
+        Number floor_div(Base left, const Integer &right);
+        Number floor_div(Base left, const Rational &right);
 
-        Number floor_div(const Natural &left, const std::uint64_t &right);
-        Number floor_div(const Natural &left, const Base &right);
+        Number floor_div(const Natural &left, std::uint64_t right);
+        Number floor_div(const Natural &left, Base right);
         Number floor_div(const Natural &left, const Natural &right);
         Number floor_div(const Natural &left, const Integer &right);
         Number floor_div(const Natural &left, const Rational &right);
 
-        Number floor_div(const Integer &left, const std::uint64_t &right);
-        Number floor_div(const Integer &left, const Base &right);
+        Number floor_div(const Integer &left, std::uint64_t right);
+        Number floor_div(const Integer &left, Base right);
         Number floor_div(const Integer &left, const Natural &right);
         Number floor_div(const Integer &left, const Integer &right);
         Number floor_div(const Integer &left, const Rational &right);
 
-        Number floor_div(const Rational &left, const std::uint64_t &right);
-        Number floor_div(const Rational &left, const Base &right);
+        Number floor_div(const Rational &left, std::uint64_t right);
+        Number floor_div(const Rational &left, Base right);
         Number floor_div(const Rational &left, const Natural &right);
         Number floor_div(const Rational &left, const Integer &right);
         Number floor_div(const Rational &left, const Rational &right);

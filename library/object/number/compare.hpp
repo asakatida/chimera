@@ -26,147 +26,147 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        bool operator==(const std::uint64_t &left, const Base &right);
-        bool operator==(const std::uint64_t &left, const Natural &right);
-        bool operator==(const std::uint64_t &left, const Integer &right);
-        bool operator==(const std::uint64_t &left, const Rational &right);
+        bool operator==(std::uint64_t left, Base right);
+        bool operator==(std::uint64_t left, const Natural &right);
+        bool operator==(std::uint64_t left, const Integer &right);
+        bool operator==(std::uint64_t left, const Rational &right);
 
-        bool operator==(const Base &left, const std::uint64_t &right);
-        bool operator==(const Base &left, const Base &right);
-        bool operator==(const Base &left, const Natural &right);
-        bool operator==(const Base &left, const Integer &right);
-        bool operator==(const Base &left, const Rational &right);
+        bool operator==(Base left, std::uint64_t right);
+        bool operator==(Base left, Base right);
+        bool operator==(Base left, const Natural &right);
+        bool operator==(Base left, const Integer &right);
+        bool operator==(Base left, const Rational &right);
 
-        bool operator==(const Natural &left, const std::uint64_t &right);
-        bool operator==(const Natural &left, const Base &right);
+        bool operator==(const Natural &left, std::uint64_t right);
+        bool operator==(const Natural &left, Base right);
         bool operator==(const Natural &left, const Natural &right);
         bool operator==(const Natural &left, const Integer &right);
         bool operator==(const Natural &left, const Rational &right);
 
-        bool operator==(const Integer &left, const std::uint64_t &right);
-        bool operator==(const Integer &left, const Base &right);
+        bool operator==(const Integer &left, std::uint64_t right);
+        bool operator==(const Integer &left, Base right);
         bool operator==(const Integer &left, const Natural &right);
         bool operator==(const Integer &left, const Integer &right);
         bool operator==(const Integer &left, const Rational &right);
 
-        bool operator==(const Rational &left, const std::uint64_t &right);
-        bool operator==(const Rational &left, const Base &right);
+        bool operator==(const Rational &left, std::uint64_t right);
+        bool operator==(const Rational &left, Base right);
         bool operator==(const Rational &left, const Natural &right);
         bool operator==(const Rational &left, const Integer &right);
         bool operator==(const Rational &left, const Rational &right);
 
-        bool operator!=(const std::uint64_t &left, const Base &right);
-        bool operator!=(const std::uint64_t &left, const Natural &right);
-        bool operator!=(const std::uint64_t &left, const Integer &right);
-        bool operator!=(const std::uint64_t &left, const Rational &right);
+        bool operator!=(std::uint64_t left, Base right);
+        bool operator!=(std::uint64_t left, const Natural &right);
+        bool operator!=(std::uint64_t left, const Integer &right);
+        bool operator!=(std::uint64_t left, const Rational &right);
 
-        bool operator!=(const Base &left, const std::uint64_t &right);
-        bool operator!=(const Base &left, const Base &right);
-        bool operator!=(const Base &left, const Natural &right);
-        bool operator!=(const Base &left, const Integer &right);
-        bool operator!=(const Base &left, const Rational &right);
+        bool operator!=(Base left, std::uint64_t right);
+        bool operator!=(Base left, Base right);
+        bool operator!=(Base left, const Natural &right);
+        bool operator!=(Base left, const Integer &right);
+        bool operator!=(Base left, const Rational &right);
 
-        bool operator!=(const Natural &left, const std::uint64_t &right);
-        bool operator!=(const Natural &left, const Base &right);
+        bool operator!=(const Natural &left, std::uint64_t right);
+        bool operator!=(const Natural &left, Base right);
         bool operator!=(const Natural &left, const Natural &right);
         bool operator!=(const Natural &left, const Integer &right);
         bool operator!=(const Natural &left, const Rational &right);
 
-        bool operator!=(const Integer &left, const std::uint64_t &right);
-        bool operator!=(const Integer &left, const Base &right);
+        bool operator!=(const Integer &left, std::uint64_t right);
+        bool operator!=(const Integer &left, Base right);
         bool operator!=(const Integer &left, const Natural &right);
         bool operator!=(const Integer &left, const Integer &right);
         bool operator!=(const Integer &left, const Rational &right);
 
-        bool operator!=(const Rational &left, const std::uint64_t &right);
-        bool operator!=(const Rational &left, const Base &right);
+        bool operator!=(const Rational &left, std::uint64_t right);
+        bool operator!=(const Rational &left, Base right);
         bool operator!=(const Rational &left, const Natural &right);
         bool operator!=(const Rational &left, const Integer &right);
         bool operator!=(const Rational &left, const Rational &right);
 
-        bool operator>(const std::uint64_t &left, const Base &right);
-        bool operator>(const std::uint64_t &left, const Natural &right);
-        bool operator>(const std::uint64_t &left, const Integer &right);
-        bool operator>(const std::uint64_t &left, const Rational &right);
+        bool operator>(std::uint64_t left, Base right);
+        bool operator>(std::uint64_t left, const Natural &right);
+        bool operator>(std::uint64_t left, const Integer &right);
+        bool operator>(std::uint64_t left, const Rational &right);
 
-        bool operator>(const Base &left, const std::uint64_t &right);
-        bool operator>(const Base &left, const Base &right);
-        bool operator>(const Base &left, const Natural &right);
-        bool operator>(const Base &left, const Integer &right);
-        bool operator>(const Base &left, const Rational &right);
+        bool operator>(Base left, std::uint64_t right);
+        bool operator>(Base left, Base right);
+        bool operator>(Base left, const Natural &right);
+        bool operator>(Base left, const Integer &right);
+        bool operator>(Base left, const Rational &right);
 
-        bool operator>(const Natural &left, const std::uint64_t &right);
-        bool operator>(const Natural &left, const Base &right);
+        bool operator>(const Natural &left, std::uint64_t right);
+        bool operator>(const Natural &left, Base right);
         bool operator>(const Natural &left, const Natural &right);
         bool operator>(const Natural &left, const Integer &right);
         bool operator>(const Natural &left, const Rational &right);
 
-        bool operator>(const Integer &left, const std::uint64_t &right);
-        bool operator>(const Integer &left, const Base &right);
+        bool operator>(const Integer &left, std::uint64_t right);
+        bool operator>(const Integer &left, Base right);
         bool operator>(const Integer &left, const Natural &right);
         bool operator>(const Integer &left, const Integer &right);
         bool operator>(const Integer &left, const Rational &right);
 
-        bool operator>(const Rational &left, const std::uint64_t &right);
-        bool operator>(const Rational &left, const Base &right);
+        bool operator>(const Rational &left, std::uint64_t right);
+        bool operator>(const Rational &left, Base right);
         bool operator>(const Rational &left, const Natural &right);
         bool operator>(const Rational &left, const Integer &right);
         bool operator>(const Rational &left, const Rational &right);
 
-        bool operator>=(const std::uint64_t &left, const Base &right);
-        bool operator>=(const std::uint64_t &left, const Natural &right);
-        bool operator>=(const std::uint64_t &left, const Integer &right);
-        bool operator>=(const std::uint64_t &left, const Rational &right);
+        bool operator>=(std::uint64_t left, Base right);
+        bool operator>=(std::uint64_t left, const Natural &right);
+        bool operator>=(std::uint64_t left, const Integer &right);
+        bool operator>=(std::uint64_t left, const Rational &right);
 
-        bool operator>=(const Base &left, const std::uint64_t &right);
-        bool operator>=(const Base &left, const Base &right);
-        bool operator>=(const Base &left, const Natural &right);
-        bool operator>=(const Base &left, const Integer &right);
-        bool operator>=(const Base &left, const Rational &right);
+        bool operator>=(Base left, std::uint64_t right);
+        bool operator>=(Base left, Base right);
+        bool operator>=(Base left, const Natural &right);
+        bool operator>=(Base left, const Integer &right);
+        bool operator>=(Base left, const Rational &right);
 
-        bool operator>=(const Natural &left, const std::uint64_t &right);
-        bool operator>=(const Natural &left, const Base &right);
+        bool operator>=(const Natural &left, std::uint64_t right);
+        bool operator>=(const Natural &left, Base right);
         bool operator>=(const Natural &left, const Natural &right);
         bool operator>=(const Natural &left, const Integer &right);
         bool operator>=(const Natural &left, const Rational &right);
 
-        bool operator>=(const Integer &left, const std::uint64_t &right);
-        bool operator>=(const Integer &left, const Base &right);
+        bool operator>=(const Integer &left, std::uint64_t right);
+        bool operator>=(const Integer &left, Base right);
         bool operator>=(const Integer &left, const Natural &right);
         bool operator>=(const Integer &left, const Integer &right);
         bool operator>=(const Integer &left, const Rational &right);
 
-        bool operator>=(const Rational &left, const std::uint64_t &right);
-        bool operator>=(const Rational &left, const Base &right);
+        bool operator>=(const Rational &left, std::uint64_t right);
+        bool operator>=(const Rational &left, Base right);
         bool operator>=(const Rational &left, const Natural &right);
         bool operator>=(const Rational &left, const Integer &right);
         bool operator>=(const Rational &left, const Rational &right);
 
-        bool operator<=(const std::uint64_t &left, const Base &right);
-        bool operator<=(const std::uint64_t &left, const Natural &right);
-        bool operator<=(const std::uint64_t &left, const Integer &right);
-        bool operator<=(const std::uint64_t &left, const Rational &right);
+        bool operator<=(std::uint64_t left, Base right);
+        bool operator<=(std::uint64_t left, const Natural &right);
+        bool operator<=(std::uint64_t left, const Integer &right);
+        bool operator<=(std::uint64_t left, const Rational &right);
 
-        bool operator<=(const Base &left, const std::uint64_t &right);
-        bool operator<=(const Base &left, const Base &right);
-        bool operator<=(const Base &left, const Natural &right);
-        bool operator<=(const Base &left, const Integer &right);
-        bool operator<=(const Base &left, const Rational &right);
+        bool operator<=(Base left, std::uint64_t right);
+        bool operator<=(Base left, Base right);
+        bool operator<=(Base left, const Natural &right);
+        bool operator<=(Base left, const Integer &right);
+        bool operator<=(Base left, const Rational &right);
 
-        bool operator<=(const Natural &left, const std::uint64_t &right);
-        bool operator<=(const Natural &left, const Base &right);
+        bool operator<=(const Natural &left, std::uint64_t right);
+        bool operator<=(const Natural &left, Base right);
         bool operator<=(const Natural &left, const Natural &right);
         bool operator<=(const Natural &left, const Integer &right);
         bool operator<=(const Natural &left, const Rational &right);
 
-        bool operator<=(const Integer &left, const std::uint64_t &right);
-        bool operator<=(const Integer &left, const Base &right);
+        bool operator<=(const Integer &left, std::uint64_t right);
+        bool operator<=(const Integer &left, Base right);
         bool operator<=(const Integer &left, const Natural &right);
         bool operator<=(const Integer &left, const Integer &right);
         bool operator<=(const Integer &left, const Rational &right);
 
-        bool operator<=(const Rational &left, const std::uint64_t &right);
-        bool operator<=(const Rational &left, const Base &right);
+        bool operator<=(const Rational &left, std::uint64_t right);
+        bool operator<=(const Rational &left, Base right);
         bool operator<=(const Rational &left, const Natural &right);
         bool operator<=(const Rational &left, const Integer &right);
         bool operator<=(const Rational &left, const Rational &right);

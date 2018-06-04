@@ -23,6 +23,7 @@
 #include "virtual_machine/global_context.hpp"
 
 #include <fstream>
+#include <iostream>
 #include <string_view>
 
 #include "object/object.hpp"
