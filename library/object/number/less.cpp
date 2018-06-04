@@ -64,11 +64,7 @@ namespace chimera {
         }
 
         bool operator<(const Base left, const Rational &right) {
-          return std::visit(
-              [&left](const auto &rN, const auto &rD) {
-                return (left * rD) < rN;
-              },
-              right.numerator, right.denominator);
+          return left.value < right;
         }
 
         bool operator<(const Natural & /*left*/, std::uint64_t /*right*/) {
@@ -82,8 +78,8 @@ namespace chimera {
         bool operator<(const Natural &left, const Natural &right) {
           if (left.value.size() == right.value.size()) {
             return std::lexicographical_compare(
-                left.value.begin(), left.value.end(), right.value.begin(),
-                right.value.end());
+                left.value.rbegin(), left.value.rend(), right.value.rbegin(),
+                right.value.rend());
           }
           return left.value.size() < right.value.size();
         }

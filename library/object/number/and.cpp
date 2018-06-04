@@ -20,6 +20,8 @@
 
 #include "object/number/and.hpp"
 
+#include <functional>
+
 #include <gsl/gsl>
 
 #include "object/number/simplify.hpp"
@@ -75,11 +77,17 @@ namespace chimera {
         }
 
         Number operator&(const Natural &left, const Natural &right) {
-          auto value = left;
-          value.value.resize(std::min(value.value.size(), right.value.size()));
-          std::transform(value.value.begin(), value.value.end(),
-                         right.value.begin(), value.value.begin(),
-                         [](const auto &a, const auto &b) { return a & b; });
+          Natural value;
+          value.value.resize(std::min(left.value.size(), right.value.size()));
+          if (left.value.size() > right.value.size()) {
+            std::transform(right.value.begin(), right.value.end(),
+                           left.value.begin(), value.value.begin(),
+                           std::bit_and<std::uint64_t>{});
+          } else {
+            std::transform(left.value.begin(), left.value.end(),
+                           right.value.begin(), value.value.begin(),
+                           std::bit_and<std::uint64_t>{});
+          }
           return simplify(value);
         }
 

@@ -96,7 +96,7 @@ namespace chimera {
         Number operator%(const Natural &left, std::uint64_t right) {
           Expects(right != 0);
           Carryover carryover{};
-          for (auto &&i : container::reverse(left.value)) {
+          for (std::uint64_t i : container::reverse(left.value)) {
             carryover.result = i;
             carryover = div(carryover, right);
           }

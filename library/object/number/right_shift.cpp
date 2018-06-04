@@ -85,12 +85,12 @@ namespace chimera {
           }
           if (auto shift = right % 64; shift != 0) {
             Natural result{};
-            for (auto &&i : value.value) {
+            for (std::uint64_t i : left.value) {
               auto carryover = right_shift(i, shift);
               if (!result.value.empty()) {
                 result.value.back() |= carryover.overflow;
               }
-              result.value.emplace_back(carryover.result);
+              result.value.push_back(carryover.result);
             }
             return simplify(result);
           }
