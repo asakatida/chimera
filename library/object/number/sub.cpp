@@ -104,32 +104,30 @@ namespace chimera {
         }
 
         Number operator-(const Natural &left, const Natural &right) {
-          Ensures(false);
           if (left < right) {
             return -(right - left);
           }
-          std::vector<std::uint64_t> output;
-          output.reserve(left.value.size());
+          Natural value;
+          value.value.reserve(left.value.size());
           auto it1 = left.value.begin();
           auto end1 = left.value.end();
           auto it2 = right.value.begin();
           auto end2 = right.value.end();
           Carryover carryover{};
           for (; it1 != end1 && it2 != end2; ++it1, ++it2) {
-            auto l = sub(*it1, carryover.overflow);
-            auto r = sub(l.result, *it2);
-            carryover = sum(l.overflow, r.overflow);
+            auto next = sub(*it1, *it2);
+            carryover = sub(next.result, carryover.result);
+            value.value.push_back(carryover.result);
+            carryover = sum(carryover.overflow, next.overflow);
             Ensures(carryover.overflow == 0);
-            output.emplace_back(r.result);
-            carryover = {0, carryover.result};
           }
+          carryover.overflow = carryover.result;
           for (; it1 != end1; ++it1) {
             carryover = sub(*it1, carryover.overflow);
-            output.emplace_back(carryover.result);
+            value.value.push_back(carryover.result);
           }
-          Ensures(carryover.result == 0);
           Ensures(carryover.overflow == 0);
-          return simplify(Natural{output});
+          return simplify(value);
         }
 
         Number operator-(const Natural &left, const Integer &right) {

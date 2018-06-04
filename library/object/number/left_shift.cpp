@@ -23,7 +23,9 @@
 #include <gsl/gsl>
 
 #include "object/number/compare.hpp"
+#include "object/number/div.hpp"
 #include "object/number/mod.hpp"
+#include "object/number/overflow.hpp"
 #include "object/number/right_shift.hpp"
 #include "object/number/util.hpp"
 
@@ -32,16 +34,24 @@ namespace chimera {
     namespace object {
       namespace number {
         Number operator<<(std::uint64_t left, const Base right) {
-          return Number(Base{left << right.value});
+          if (right.value <= 64) {
+            auto value = left_shift(left, right.value);
+            if (value.overflow == 0) {
+              return Number(Base{value.result});
+            }
+            return Number(Natural{
+                std::vector<std::uint64_t>{value.result, value.overflow}});
+          }
+          return Natural{{left}} << right;
         }
 
-        Number operator<<(std::uint64_t /*left*/, const Natural & /*right*/) {
-          return Number();
+        Number operator<<(std::uint64_t left, const Natural &right) {
+          return Natural{{left}} << right;
         }
 
         Number operator<<(std::uint64_t left, const Integer &right) {
           return std::visit(
-              [&left](const auto &value) { return left << value; },
+              [&left](const auto &value) { return left >> value; },
               right.value);
         }
 
@@ -50,15 +60,23 @@ namespace chimera {
         }
 
         Number operator<<(const Base left, std::uint64_t right) {
-          return Number(Base{left.value << right});
+          if (right <= 64) {
+            auto value = left_shift(left.value, right);
+            if (value.overflow == 0) {
+              return Number(Base{value.result});
+            }
+            return Number(Natural{
+                std::vector<std::uint64_t>{value.result, value.overflow}});
+          }
+          return Natural{{left.value}} << right;
         }
 
         Number operator<<(const Base left, const Base right) {
-          return Number(Base{left.value << right.value});
+          return left << right.value;
         }
 
         Number operator<<(const Base /*left*/, const Natural & /*right*/) {
-          return Number();
+          Ensures(false);
         }
 
         Number operator<<(const Base left, const Integer &right) {
@@ -76,12 +94,17 @@ namespace chimera {
             return Number(left);
           }
           auto value = left;
-          if (right >= 64) {
-            value.value.erase(value.value.begin(),
-                              value.value.begin() + right / 64);
+          if (std::size_t shift = right / 64; shift != 0) {
+            value.value.insert(value.value.begin(), shift, 0);
           }
-          if (auto shift = right % 64; shift != 0) {
-            // TODO(grandquista)
+          if (std::uint64_t shift = right % 64; shift != 0) {
+            Natural result;
+            std::uint64_t overflow = 0;
+            for (std::uint64_t i : value.value) {
+              auto carryover = left_shift(i, shift);
+              result.value.push_back(carryover.result | overflow);
+              overflow = carryover.overflow;
+            }
           }
           return Number(value);
         }
@@ -91,12 +114,18 @@ namespace chimera {
         }
 
         Number operator<<(const Natural &left, const Natural &right) {
-          const auto &value = left;
-          if (right >= 64) {
-            // TODO(grandquista)
+          auto value = left;
+          if (auto shift = std::size_t(right / 64); shift != 0) {
+            value.value.insert(value.value.begin(), shift, 0);
           }
-          if (auto shift = right % 64; shift != 0u) {
-            // TODO(grandquista)
+          if (auto shift = std::uint64_t(right % 64); shift != 0) {
+            Natural result;
+            std::uint64_t overflow = 0;
+            for (std::uint64_t i : value.value) {
+              auto carryover = left_shift(i, shift);
+              result.value.push_back(carryover.result | overflow);
+              overflow = carryover.overflow;
+            }
           }
           return Number(value);
         }
