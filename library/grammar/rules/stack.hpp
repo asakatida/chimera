@@ -25,7 +25,6 @@
 #pragma once
 
 #include <algorithm>
-#include <iostream>
 #include <tuple>
 #include <variant>
 #include <vector>
@@ -94,13 +93,6 @@ namespace chimera {
             return std::transform(
                 stack.begin(), stack.end(), std::forward<OutputIt>(outputIt),
                 [](ValueT &value) -> Type {
-                  if (!std::holds_alternative<Type>(value)) {
-                    std::visit(
-                        [](const auto &t) {
-                          std::cout << typeid(t).name() << '\n';
-                        },
-                        value);
-                  }
                   Ensures(std::holds_alternative<Type>(value));
                   return std::move(std::get<Type>(value));
                 });

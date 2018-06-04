@@ -357,7 +357,7 @@ namespace chimera {
         ExprImpl target;
         ExprImpl annotation;
         std::optional<ExprImpl> value{};
-        int simple{};
+        bool simple{true};
       };
       struct Assign {
         std::vector<ExprImpl> targets{};

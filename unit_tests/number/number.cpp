@@ -1,7 +1,5 @@
 #include "object/number/number.hpp"
 
-#include <iostream>
-
 #include <catch.hpp>
 
 template <typename CharT, typename Traits>
@@ -98,6 +96,14 @@ TEST_CASE("number Number division huge") {
   auto massive = number * other;
   REQUIRE(massive > number);
   REQUIRE(massive.is_int());
+  massive = massive / huge;
+  REQUIRE(massive > huge);
+  REQUIRE(massive.is_int());
+  auto test = huge * other;
+  REQUIRE(massive == test);
+  REQUIRE(massive.is_int());
+  massive = massive / other;
+  REQUIRE(massive == huge);
 }
 
 TEST_CASE("number Number multiplication huge a") {
@@ -150,5 +156,7 @@ TEST_CASE("number Number subtraction huge") {
   massive -= two;
   massive -= two;
   massive -= two;
+  number -= eight;
   REQUIRE(massive.is_int());
+  REQUIRE(massive == number);
 }

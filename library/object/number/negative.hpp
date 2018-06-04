@@ -26,7 +26,7 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        Number operator-(const Base &base);
+        Number operator-(Base base);
         Number operator-(const Natural &natural);
         Number operator-(const Integer &integer);
         Number operator-(const Rational &rational);

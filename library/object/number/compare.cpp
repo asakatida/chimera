@@ -26,43 +26,39 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        bool operator==(const std::uint64_t &left, const Base &right) {
+        bool operator==(std::uint64_t left, const Base right) {
           return left == right.value;
         }
-        bool operator==(const std::uint64_t & /*left*/,
-                        const Natural & /*right*/) {
+        bool operator==(std::uint64_t /*left*/, const Natural & /*right*/) {
           return false;
         }
-        bool operator==(const std::uint64_t & /*left*/,
-                        const Integer & /*right*/) {
+        bool operator==(std::uint64_t /*left*/, const Integer & /*right*/) {
           return false;
         }
-        bool operator==(const std::uint64_t & /*left*/,
-                        const Rational & /*right*/) {
+        bool operator==(std::uint64_t /*left*/, const Rational & /*right*/) {
           return false;
         }
 
-        bool operator==(const Base &left, const std::uint64_t &right) {
+        bool operator==(const Base left, std::uint64_t right) {
           return left.value == right;
         }
-        bool operator==(const Base &left, const Base &right) {
+        bool operator==(const Base left, const Base right) {
           return left.value == right.value;
         }
-        bool operator==(const Base & /*left*/, const Natural & /*right*/) {
+        bool operator==(const Base /*left*/, const Natural & /*right*/) {
           return false;
         }
-        bool operator==(const Base & /*left*/, const Integer & /*right*/) {
+        bool operator==(const Base /*left*/, const Integer & /*right*/) {
           return false;
         }
-        bool operator==(const Base & /*left*/, const Rational & /*right*/) {
+        bool operator==(const Base /*left*/, const Rational & /*right*/) {
           return false;
         }
 
-        bool operator==(const Natural & /*left*/,
-                        const std::uint64_t & /*right*/) {
+        bool operator==(const Natural & /*left*/, std::uint64_t /*right*/) {
           return false;
         }
-        bool operator==(const Natural & /*left*/, const Base & /*right*/) {
+        bool operator==(const Natural & /*left*/, const Base /*right*/) {
           return false;
         }
         bool operator==(const Natural &left, const Natural &right) {
@@ -79,11 +75,10 @@ namespace chimera {
           return false;
         }
 
-        bool operator==(const Integer & /*left*/,
-                        const std::uint64_t & /*right*/) {
+        bool operator==(const Integer & /*left*/, std::uint64_t /*right*/) {
           return false;
         }
-        bool operator==(const Integer & /*left*/, const Base & /*right*/) {
+        bool operator==(const Integer & /*left*/, const Base /*right*/) {
           return false;
         }
         bool operator==(const Integer & /*left*/, const Natural & /*right*/) {
@@ -97,11 +92,10 @@ namespace chimera {
           return false;
         }
 
-        bool operator==(const Rational & /*left*/,
-                        const std::uint64_t & /*right*/) {
+        bool operator==(const Rational & /*left*/, std::uint64_t /*right*/) {
           return false;
         }
-        bool operator==(const Rational & /*left*/, const Base & /*right*/) {
+        bool operator==(const Rational & /*left*/, const Base /*right*/) {
           return false;
         }
         bool operator==(const Rational & /*left*/, const Natural & /*right*/) {
@@ -117,43 +111,39 @@ namespace chimera {
                             right.denominator);
         }
 
-        bool operator!=(const std::uint64_t &left, const Base &right) {
+        bool operator!=(std::uint64_t left, const Base right) {
           return left != right.value;
         }
-        bool operator!=(const std::uint64_t & /*left*/,
-                        const Natural & /*right*/) {
+        bool operator!=(std::uint64_t /*left*/, const Natural & /*right*/) {
           return true;
         }
-        bool operator!=(const std::uint64_t & /*left*/,
-                        const Integer & /*right*/) {
+        bool operator!=(std::uint64_t /*left*/, const Integer & /*right*/) {
           return true;
         }
-        bool operator!=(const std::uint64_t & /*left*/,
-                        const Rational & /*right*/) {
+        bool operator!=(std::uint64_t /*left*/, const Rational & /*right*/) {
           return true;
         }
 
-        bool operator!=(const Base &left, const std::uint64_t &right) {
+        bool operator!=(const Base left, std::uint64_t right) {
           return left.value != right;
         }
-        bool operator!=(const Base &left, const Base &right) {
+        bool operator!=(const Base left, const Base right) {
           return left.value != right.value;
         }
-        bool operator!=(const Base & /*left*/, const Natural & /*right*/) {
+        bool operator!=(const Base /*left*/, const Natural & /*right*/) {
           return true;
         }
-        bool operator!=(const Base & /*left*/, const Integer & /*right*/) {
+        bool operator!=(const Base /*left*/, const Integer & /*right*/) {
           return true;
         }
-        bool operator!=(const Base & /*left*/, const Rational & /*right*/) {
+        bool operator!=(const Base /*left*/, const Rational & /*right*/) {
           return true;
         }
 
-        bool operator!=(const Natural & /*left*/,
-                        const std::uint64_t & /*right*/) {
+        bool operator!=(const Natural & /*left*/, std::uint64_t /*right*/) {
           return true;
         }
-        bool operator!=(const Natural & /*left*/, const Base & /*right*/) {
+        bool operator!=(const Natural & /*left*/, const Base /*right*/) {
           return true;
         }
         bool operator!=(const Natural &left, const Natural &right) {
@@ -170,11 +160,10 @@ namespace chimera {
           return true;
         }
 
-        bool operator!=(const Integer & /*left*/,
-                        const std::uint64_t & /*right*/) {
+        bool operator!=(const Integer & /*left*/, std::uint64_t /*right*/) {
           return true;
         }
-        bool operator!=(const Integer & /*left*/, const Base & /*right*/) {
+        bool operator!=(const Integer & /*left*/, const Base /*right*/) {
           return true;
         }
         bool operator!=(const Integer & /*left*/, const Natural & /*right*/) {
@@ -188,11 +177,10 @@ namespace chimera {
           return true;
         }
 
-        bool operator!=(const Rational & /*left*/,
-                        const std::uint64_t & /*right*/) {
+        bool operator!=(const Rational & /*left*/, std::uint64_t /*right*/) {
           return true;
         }
-        bool operator!=(const Rational & /*left*/, const Base & /*right*/) {
+        bool operator!=(const Rational & /*left*/, const Base /*right*/) {
           return true;
         }
         bool operator!=(const Rational & /*left*/, const Natural & /*right*/) {
@@ -208,39 +196,39 @@ namespace chimera {
                             right.denominator);
         }
 
-        bool operator>(const std::uint64_t &left, const Base &right) {
+        bool operator>(std::uint64_t left, const Base right) {
           return right < left;
         }
-        bool operator>(const std::uint64_t &left, const Natural &right) {
+        bool operator>(std::uint64_t left, const Natural &right) {
           return right < left;
         }
-        bool operator>(const std::uint64_t &left, const Integer &right) {
+        bool operator>(std::uint64_t left, const Integer &right) {
           return right < left;
         }
-        bool operator>(const std::uint64_t &left, const Rational &right) {
-          return right < left;
-        }
-
-        bool operator>(const Base &left, const std::uint64_t &right) {
-          return right < left;
-        }
-        bool operator>(const Base &left, const Base &right) {
-          return right < left;
-        }
-        bool operator>(const Base &left, const Natural &right) {
-          return right < left;
-        }
-        bool operator>(const Base &left, const Integer &right) {
-          return right < left;
-        }
-        bool operator>(const Base &left, const Rational &right) {
+        bool operator>(std::uint64_t left, const Rational &right) {
           return right < left;
         }
 
-        bool operator>(const Natural &left, const std::uint64_t &right) {
+        bool operator>(const Base left, std::uint64_t right) {
           return right < left;
         }
-        bool operator>(const Natural &left, const Base &right) {
+        bool operator>(const Base left, const Base right) {
+          return right < left;
+        }
+        bool operator>(const Base left, const Natural &right) {
+          return right < left;
+        }
+        bool operator>(const Base left, const Integer &right) {
+          return right < left;
+        }
+        bool operator>(const Base left, const Rational &right) {
+          return right < left;
+        }
+
+        bool operator>(const Natural &left, std::uint64_t right) {
+          return right < left;
+        }
+        bool operator>(const Natural &left, const Base right) {
           return right < left;
         }
         bool operator>(const Natural &left, const Natural &right) {
@@ -253,10 +241,10 @@ namespace chimera {
           return right < left;
         }
 
-        bool operator>(const Integer &left, const std::uint64_t &right) {
+        bool operator>(const Integer &left, std::uint64_t right) {
           return right < left;
         }
-        bool operator>(const Integer &left, const Base &right) {
+        bool operator>(const Integer &left, const Base right) {
           return right < left;
         }
         bool operator>(const Integer &left, const Natural &right) {
@@ -269,10 +257,10 @@ namespace chimera {
           return right < left;
         }
 
-        bool operator>(const Rational &left, const std::uint64_t &right) {
+        bool operator>(const Rational &left, std::uint64_t right) {
           return right < left;
         }
-        bool operator>(const Rational &left, const Base &right) {
+        bool operator>(const Rational &left, const Base right) {
           return right < left;
         }
         bool operator>(const Rational &left, const Natural &right) {
@@ -285,39 +273,39 @@ namespace chimera {
           return right < left;
         }
 
-        bool operator>=(const std::uint64_t &left, const Base &right) {
+        bool operator>=(std::uint64_t left, const Base right) {
           return !(left < right);
         }
-        bool operator>=(const std::uint64_t &left, const Natural &right) {
+        bool operator>=(std::uint64_t left, const Natural &right) {
           return !(left < right);
         }
-        bool operator>=(const std::uint64_t &left, const Integer &right) {
+        bool operator>=(std::uint64_t left, const Integer &right) {
           return !(left < right);
         }
-        bool operator>=(const std::uint64_t &left, const Rational &right) {
-          return !(left < right);
-        }
-
-        bool operator>=(const Base &left, const std::uint64_t &right) {
-          return !(left < right);
-        }
-        bool operator>=(const Base &left, const Base &right) {
-          return !(left < right);
-        }
-        bool operator>=(const Base &left, const Natural &right) {
-          return !(left < right);
-        }
-        bool operator>=(const Base &left, const Integer &right) {
-          return !(left < right);
-        }
-        bool operator>=(const Base &left, const Rational &right) {
+        bool operator>=(std::uint64_t left, const Rational &right) {
           return !(left < right);
         }
 
-        bool operator>=(const Natural &left, const std::uint64_t &right) {
+        bool operator>=(const Base left, std::uint64_t right) {
           return !(left < right);
         }
-        bool operator>=(const Natural &left, const Base &right) {
+        bool operator>=(const Base left, const Base right) {
+          return !(left < right);
+        }
+        bool operator>=(const Base left, const Natural &right) {
+          return !(left < right);
+        }
+        bool operator>=(const Base left, const Integer &right) {
+          return !(left < right);
+        }
+        bool operator>=(const Base left, const Rational &right) {
+          return !(left < right);
+        }
+
+        bool operator>=(const Natural &left, std::uint64_t right) {
+          return !(left < right);
+        }
+        bool operator>=(const Natural &left, const Base right) {
           return !(left < right);
         }
         bool operator>=(const Natural &left, const Natural &right) {
@@ -330,10 +318,10 @@ namespace chimera {
           return !(left < right);
         }
 
-        bool operator>=(const Integer &left, const std::uint64_t &right) {
+        bool operator>=(const Integer &left, std::uint64_t right) {
           return !(left < right);
         }
-        bool operator>=(const Integer &left, const Base &right) {
+        bool operator>=(const Integer &left, const Base right) {
           return !(left < right);
         }
         bool operator>=(const Integer &left, const Natural &right) {
@@ -346,10 +334,10 @@ namespace chimera {
           return !(left < right);
         }
 
-        bool operator>=(const Rational &left, const std::uint64_t &right) {
+        bool operator>=(const Rational &left, std::uint64_t right) {
           return !(left < right);
         }
-        bool operator>=(const Rational &left, const Base &right) {
+        bool operator>=(const Rational &left, const Base right) {
           return !(left < right);
         }
         bool operator>=(const Rational &left, const Natural &right) {
@@ -362,39 +350,39 @@ namespace chimera {
           return !(left < right);
         }
 
-        bool operator<=(const std::uint64_t &left, const Base &right) {
+        bool operator<=(std::uint64_t left, const Base right) {
           return !(right < left);
         }
-        bool operator<=(const std::uint64_t &left, const Natural &right) {
+        bool operator<=(std::uint64_t left, const Natural &right) {
           return !(right < left);
         }
-        bool operator<=(const std::uint64_t &left, const Integer &right) {
+        bool operator<=(std::uint64_t left, const Integer &right) {
           return !(right < left);
         }
-        bool operator<=(const std::uint64_t &left, const Rational &right) {
-          return !(right < left);
-        }
-
-        bool operator<=(const Base &left, const std::uint64_t &right) {
-          return !(right < left);
-        }
-        bool operator<=(const Base &left, const Base &right) {
-          return !(right < left);
-        }
-        bool operator<=(const Base &left, const Natural &right) {
-          return !(right < left);
-        }
-        bool operator<=(const Base &left, const Integer &right) {
-          return !(right < left);
-        }
-        bool operator<=(const Base &left, const Rational &right) {
+        bool operator<=(std::uint64_t left, const Rational &right) {
           return !(right < left);
         }
 
-        bool operator<=(const Natural &left, const std::uint64_t &right) {
+        bool operator<=(const Base left, std::uint64_t right) {
           return !(right < left);
         }
-        bool operator<=(const Natural &left, const Base &right) {
+        bool operator<=(const Base left, const Base right) {
+          return !(right < left);
+        }
+        bool operator<=(const Base left, const Natural &right) {
+          return !(right < left);
+        }
+        bool operator<=(const Base left, const Integer &right) {
+          return !(right < left);
+        }
+        bool operator<=(const Base left, const Rational &right) {
+          return !(right < left);
+        }
+
+        bool operator<=(const Natural &left, std::uint64_t right) {
+          return !(right < left);
+        }
+        bool operator<=(const Natural &left, const Base right) {
           return !(right < left);
         }
         bool operator<=(const Natural &left, const Natural &right) {
@@ -407,10 +395,10 @@ namespace chimera {
           return !(right < left);
         }
 
-        bool operator<=(const Integer &left, const std::uint64_t &right) {
+        bool operator<=(const Integer &left, std::uint64_t right) {
           return !(right < left);
         }
-        bool operator<=(const Integer &left, const Base &right) {
+        bool operator<=(const Integer &left, const Base right) {
           return !(right < left);
         }
         bool operator<=(const Integer &left, const Natural &right) {
@@ -423,10 +411,10 @@ namespace chimera {
           return !(right < left);
         }
 
-        bool operator<=(const Rational &left, const std::uint64_t &right) {
+        bool operator<=(const Rational &left, std::uint64_t right) {
           return !(right < left);
         }
-        bool operator<=(const Rational &left, const Base &right) {
+        bool operator<=(const Rational &left, const Base right) {
           return !(right < left);
         }
         bool operator<=(const Rational &left, const Natural &right) {

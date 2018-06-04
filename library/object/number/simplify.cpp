@@ -20,8 +20,6 @@
 
 #include "object/number/simplify.hpp"
 
-#include <iostream>
-
 #include "object/number/compare.hpp"
 #include "object/number/mult.hpp"
 #include "object/number/right_shift.hpp"
@@ -32,8 +30,8 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        static bool even(const std::uint64_t &i) { return (i & 1u) == 0u; }
-        static bool even(const Base &i) { return even(i.value); }
+        static bool even(std::uint64_t i) { return (i & 1u) == 0u; }
+        static bool even(const Base i) { return even(i.value); }
         static bool even(const Natural &i) { return even(i.value[0]); }
         static bool even(const Integer &i) {
           return std::visit([](const auto &value) { return even(value); },
@@ -46,19 +44,19 @@ namespace chimera {
 
         static Rational to_rational(Number &&left, Number &&right);
 
-        static Rational to_rational(const Base &left, const Base &right) {
+        static Rational to_rational(const Base left, const Base right) {
           return Rational{left, right};
         }
 
-        static Rational to_rational(const Base &left, const Natural &right) {
+        static Rational to_rational(const Base left, const Natural &right) {
           return Rational{left, right};
         }
 
-        static Rational to_rational(const Base &left, const Integer &right) {
+        static Rational to_rational(const Base left, const Integer &right) {
           return Rational{left, right};
         }
 
-        static Rational to_rational(const Base &left, const Rational &right) {
+        static Rational to_rational(const Base left, const Rational &right) {
           return std::visit(
               [&left](const auto &rN, const auto &rD) {
                 return to_rational(left * rD, Number(rN));
@@ -66,7 +64,7 @@ namespace chimera {
               right.numerator, right.denominator);
         }
 
-        static Rational to_rational(const Natural &left, const Base &right) {
+        static Rational to_rational(const Natural &left, const Base right) {
           return Rational{left, right};
         }
 
@@ -87,7 +85,7 @@ namespace chimera {
               right.numerator, right.denominator);
         }
 
-        static Rational to_rational(const Integer &left, const Base &right) {
+        static Rational to_rational(const Integer &left, const Base right) {
           return Rational{left, right};
         }
 
@@ -108,7 +106,7 @@ namespace chimera {
               right.numerator, right.denominator);
         }
 
-        static Rational to_rational(const Rational &left, const Base &right) {
+        static Rational to_rational(const Rational &left, const Base right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
                 return to_rational(Number(lN), (lD * right));
