@@ -436,7 +436,7 @@ namespace chimera {
               return State{std::move(joinedStr)};
             }
             auto operator()(asdl::JoinedStr &&value, std::string &&element) {
-              value.values.emplace_back(
+              value.values.push_back(
                   process_context.insert_constant(object::String(element)));
               return State{std::move(value)};
             }

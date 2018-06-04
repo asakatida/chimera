@@ -14,17 +14,17 @@ TEST_CASE("number Number") {
   auto other = chimera::library::object::number::Number(2);
   REQUIRE(number < other);
   number = other + other;
-  REQUIRE(number == chimera::library::object::number::Number(4));
+  REQUIRE(std::uint64_t(number) == 4);
   number = number * other + other;
-  REQUIRE(number == chimera::library::object::number::Number(10));
+  REQUIRE(std::uint64_t(number) == 10);
   number = other * number + number;
-  REQUIRE(number == chimera::library::object::number::Number(30));
+  REQUIRE(std::uint64_t(number) == 30);
   number = number - other;
-  REQUIRE(number == chimera::library::object::number::Number(28));
+  REQUIRE(std::uint64_t(number) == 28);
   number = number % chimera::library::object::number::Number(3);
-  REQUIRE(number == chimera::library::object::number::Number(1));
+  REQUIRE(std::uint64_t(number) == 1);
   number = number - chimera::library::object::number::Number(1);
-  REQUIRE(number == chimera::library::object::number::Number());
+  REQUIRE(std::uint64_t(number) == 0);
 }
 
 TEST_CASE("number Number division") {
@@ -145,6 +145,24 @@ TEST_CASE("number Number multiplication huge c") {
   REQUIRE(massive == number);
 }
 
+TEST_CASE("number Number naturals") {
+  auto one = chimera::library::object::number::Number(1);
+  auto huge = chimera::library::object::number::Number(
+      std::numeric_limits<std::uint64_t>::max());
+  auto number = huge * huge;
+  auto massive = number * number;
+  REQUIRE(massive.is_int());
+  REQUIRE(massive > number);
+  REQUIRE((massive + huge) > massive);
+  REQUIRE((massive + number) == (number * (number + one)));
+  REQUIRE((massive - number) == (number * (number - one)));
+  REQUIRE((massive * number) > massive);
+  REQUIRE((massive / huge) == (number * huge));
+  // REQUIRE((massive / number) == number);
+  REQUIRE(std::uint64_t(massive & huge) == 1);
+  REQUIRE((massive & number) > one);
+}
+
 TEST_CASE("number Number subtraction huge") {
   auto two = chimera::library::object::number::Number(2);
   auto eight = chimera::library::object::number::Number(8);
@@ -159,4 +177,6 @@ TEST_CASE("number Number subtraction huge") {
   number -= eight;
   REQUIRE(massive.is_int());
   REQUIRE(massive == number);
+  REQUIRE(std::uint64_t(massive) == std::numeric_limits<std::uint64_t>::max());
+  REQUIRE(std::uint64_t(number) == std::numeric_limits<std::uint64_t>::max());
 }

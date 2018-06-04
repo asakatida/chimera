@@ -114,43 +114,40 @@ namespace chimera {
           return *this;
         }
         Number Number::operator<<(const Number &right) const {
-          return visit(right, [](auto a, auto b) { return a << b; });
+          return visit(right, [](const auto &a, const auto &b) { return a << b; });
         }
         Number &Number::operator<<=(const Number &right) {
-          *this = visit(right, [](auto a, auto b) { return a << b; });
+          *this = visit(right, [](const auto &a, const auto &b) { return a << b; });
           return *this;
         }
         Number Number::operator>>(const Number &right) const {
-          return visit(right, [](auto a, auto b) { return a >> b; });
+          return visit(right, [](const auto &a, const auto &b) { return a >> b; });
         }
         Number &Number::operator>>=(const Number &right) {
-          *this = visit(right, [](auto a, auto b) { return a >> b; });
+          *this = visit(right, [](const auto &a, const auto &b) { return a >> b; });
           return *this;
         }
         bool Number::operator==(const Number &right) const {
-          return value.index() == right.value.index() &&
-                 visit(right, std::equal_to<>{});
+          return value.index() == right.value.index() && visit(right, std::equal_to<>{});
         }
         bool Number::operator!=(const Number &right) const {
-          return value.index() != right.value.index() ||
-                 visit(right, std::not_equal_to<>{});
+          return !(*this == right);
         }
         bool Number::operator<(const Number &right) const {
           return visit(right, std::less<>{});
         }
         bool Number::operator>(const Number &right) const {
-          return visit(right, std::greater<>{});
+          return right.visit(*this, std::less<>{});
         }
         bool Number::operator<=(const Number &right) const {
-          return visit(right, std::less_equal<>{});
+          return !right.visit(*this, std::less<>{});
         }
         bool Number::operator>=(const Number &right) const {
-          return visit(right, std::greater_equal<>{});
+          return !visit(right, std::less<>{});
         }
 
         Number Number::floor_div(const Number &right) const {
-          return visit(right,
-                       [](auto a, auto b) { return number::floor_div(a, b); });
+          return visit(right, [](auto a, auto b) { return number::floor_div(a, b); });
         }
 
         Number Number::pow(const Number &right) const { return right; }

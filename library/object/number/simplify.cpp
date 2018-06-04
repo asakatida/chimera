@@ -20,6 +20,8 @@
 
 #include "object/number/simplify.hpp"
 
+#include <gsl/gsl>
+
 #include "object/number/compare.hpp"
 #include "object/number/mult.hpp"
 #include "object/number/right_shift.hpp"
@@ -37,12 +39,12 @@ namespace chimera {
           return std::visit([](const auto &value) { return even(value); },
                             i.value);
         }
-        static bool even(const Rational & /*i*/) { return false; }
+        static bool even(const Rational & /*i*/) { Expects(false); }
         static bool even(const Number &i) {
           return i.visit([](const auto &value) { return even(value); });
         }
 
-        static Rational to_rational(Number &&left, Number &&right);
+        static Rational to_rational(const Number &left, const Number &right);
 
         static Rational to_rational(const Base left, const Base right) {
           return Rational{left, right};
@@ -56,12 +58,8 @@ namespace chimera {
           return Rational{left, right};
         }
 
-        static Rational to_rational(const Base left, const Rational &right) {
-          return std::visit(
-              [&left](const auto &rN, const auto &rD) {
-                return to_rational(left * rD, Number(rN));
-              },
-              right.numerator, right.denominator);
+        static Rational to_rational(const Base /*left*/, const Rational & /*right*/) {
+          Expects(false);
         }
 
         static Rational to_rational(const Natural &left, const Base right) {
@@ -76,13 +74,8 @@ namespace chimera {
           return Rational{left, right};
         }
 
-        static Rational to_rational(const Natural &left,
-                                    const Rational &right) {
-          return std::visit(
-              [&left](const auto &rN, const auto &rD) {
-                return to_rational((left * rD), Number(rN));
-              },
-              right.numerator, right.denominator);
+        static Rational to_rational(const Natural & /*left*/, const Rational & /*right*/) {
+          Expects(false);
         }
 
         static Rational to_rational(const Integer &left, const Base right) {
@@ -97,53 +90,28 @@ namespace chimera {
           return Rational{left, right};
         }
 
-        static Rational to_rational(const Integer &left,
-                                    const Rational &right) {
-          return std::visit(
-              [&left](const auto &rN, const auto &rD) {
-                return to_rational((left * rD), Number(rN));
-              },
-              right.numerator, right.denominator);
+        static Rational to_rational(const Integer & /*left*/, const Rational & /*right*/) {
+          Expects(false);
         }
 
-        static Rational to_rational(const Rational &left, const Base right) {
-          return std::visit(
-              [&right](const auto &lN, const auto &lD) {
-                return to_rational(Number(lN), (lD * right));
-              },
-              left.numerator, left.denominator);
+        static Rational to_rational(const Rational & /*left*/, const Base /*right*/) {
+          Expects(false);
         }
 
-        static Rational to_rational(const Rational &left,
-                                    const Natural &right) {
-          return std::visit(
-              [&right](const auto &lN, const auto &lD) {
-                return to_rational(Number(lN), lD * right);
-              },
-              left.numerator, left.denominator);
+        static Rational to_rational(const Rational & /*left*/, const Natural & /*right*/) {
+          Expects(false);
         }
 
-        static Rational to_rational(const Rational &left,
-                                    const Integer &right) {
-          return std::visit(
-              [&right](const auto &lN, const auto &lD) {
-                return to_rational(Number(lN), lD * right);
-              },
-              left.numerator, left.denominator);
+        static Rational to_rational(const Rational & /*left*/, const Integer & /*right*/) {
+          Expects(false);
         }
 
-        static Rational to_rational(const Rational &left,
-                                    const Rational &right) {
-          return std::visit(
-              [](const auto &lN, const auto &lD, const auto &rN,
-                 const auto &rD) { return to_rational(lN * rD, lD * rN); },
-              left.numerator, left.denominator, right.numerator,
-              right.denominator);
+        static Rational to_rational(const Rational & /*left*/, const Rational & /*right*/) {
+          Expects(false);
         }
 
-        static Rational to_rational(Number &&left, Number &&right) {
-          return left.visit(
-              right, [](auto &&l, auto &&r) { return to_rational(l, r); });
+        static Rational to_rational(const Number &left, const Number &right) {
+          return left.visit(right, [](const auto &l, const auto &r) { return to_rational(l, r); });
         }
 
         template <typename Left, typename Right>
@@ -166,7 +134,7 @@ namespace chimera {
             b >>= 1u;
           }
           if (a == 1u) {
-            return Number(to_rational(std::move(a), std::move(b)));
+            return Number(to_rational(a, b));
           }
           if (b == 1u) {
             return a;
@@ -184,7 +152,7 @@ namespace chimera {
             }
           }
           if (aPrime == 1u) {
-            return Number(to_rational(std::move(a), std::move(b)));
+            return Number(to_rational(a, b));
           }
           if (a == aPrime) {
             return Number(to_rational(Number(1), Number(b).floor_div(aPrime)));

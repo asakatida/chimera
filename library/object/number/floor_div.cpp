@@ -20,6 +20,8 @@
 
 #include "object/number/floor_div.hpp"
 
+#include <algorithm>
+
 #include <gsl/gsl>
 
 #include "container/reverse.hpp"
@@ -88,13 +90,14 @@ namespace chimera {
 
         Number floor_div(const Natural &left, std::uint64_t right) {
           Expects(right != 0);
-          auto value = left;
+          Natural value;
           Carryover carryover{};
-          for (auto &&i : container::reverse(value.value)) {
+          for (std::uint64_t i : container::reverse(left.value)) {
             carryover.result = i;
             carryover = div(carryover, right);
-            i = carryover.result;
+            value.value.push_back(carryover.result);
           }
+          std::reverse(value.value.begin(), value.value.end());
           return simplify(value);
         }
 
