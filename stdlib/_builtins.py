@@ -1,11 +1,12 @@
 """builtins.py."""
+# pylama:ignore=W0621,W0622
 
 
 def __build_class__(
         func: object,
         name: str,
         *bases: type,
-        metaclass: type=None,
+        metaclass: type = type,
         **kwds: object) -> type:
     locals = dict()
     func(locals)
@@ -342,6 +343,7 @@ class dict(object):
 
     def __init__(self, *args, **kwargs) -> None:
         """__init__."""
+        self.buckets = ()
         if args:
             self.init_args(*args)
         else:
@@ -417,9 +419,10 @@ class dict(object):
         """copy."""
         return dict(self.items())
 
-    def fromkeys(iterable, value=None):
+    @classmethod
+    def fromkeys(cls, iterable, value=None):
         """fromkeys."""
-        return dict((key, value) for key in iterable)
+        return cls((key, value) for key in iterable)
 
     def get(self, key, default=None):
         """get."""
