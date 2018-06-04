@@ -29,7 +29,7 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        Number operator~(const Base &base) { return -(base + 1); }
+        Number operator~(const Base base) { return -(base + 1); }
         Number operator~(const Natural &natural) { return -(natural + 1); }
         Number operator~(const Integer &integer) {
           return std::visit([](const auto &a) { return a - 1; }, integer.value);

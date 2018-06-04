@@ -27,21 +27,19 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        bool operator<(const std::uint64_t &left, const Base &right) {
+        bool operator<(std::uint64_t left, const Base right) {
           return left < right.value;
         }
 
-        bool operator<(const std::uint64_t & /*left*/,
-                       const Natural & /*right*/) {
+        bool operator<(std::uint64_t /*left*/, const Natural & /*right*/) {
           return true;
         }
 
-        bool operator<(const std::uint64_t & /*left*/,
-                       const Integer & /*right*/) {
+        bool operator<(std::uint64_t /*left*/, const Integer & /*right*/) {
           return false;
         }
 
-        bool operator<(const std::uint64_t &left, const Rational &right) {
+        bool operator<(std::uint64_t left, const Rational &right) {
           return std::visit(
               [&left](const auto &rN, const auto &rD) {
                 return (left * rD) < rN;
@@ -49,23 +47,23 @@ namespace chimera {
               right.numerator, right.denominator);
         }
 
-        bool operator<(const Base &left, const std::uint64_t &right) {
+        bool operator<(const Base left, std::uint64_t right) {
           return left.value < right;
         }
 
-        bool operator<(const Base &left, const Base &right) {
+        bool operator<(const Base left, const Base right) {
           return left.value < right.value;
         }
 
-        bool operator<(const Base & /*left*/, const Natural & /*right*/) {
+        bool operator<(const Base /*left*/, const Natural & /*right*/) {
           return true;
         }
 
-        bool operator<(const Base & /*left*/, const Integer & /*right*/) {
+        bool operator<(const Base /*left*/, const Integer & /*right*/) {
           return false;
         }
 
-        bool operator<(const Base &left, const Rational &right) {
+        bool operator<(const Base left, const Rational &right) {
           return std::visit(
               [&left](const auto &rN, const auto &rD) {
                 return (left * rD) < rN;
@@ -73,12 +71,11 @@ namespace chimera {
               right.numerator, right.denominator);
         }
 
-        bool operator<(const Natural & /*left*/,
-                       const std::uint64_t & /*right*/) {
+        bool operator<(const Natural & /*left*/, std::uint64_t /*right*/) {
           return false;
         }
 
-        bool operator<(const Natural & /*left*/, const Base & /*right*/) {
+        bool operator<(const Natural & /*left*/, const Base /*right*/) {
           return false;
         }
 
@@ -103,12 +100,11 @@ namespace chimera {
               right.numerator, right.denominator);
         }
 
-        bool operator<(const Integer & /*left*/,
-                       const std::uint64_t & /*right*/) {
+        bool operator<(const Integer & /*left*/, std::uint64_t /*right*/) {
           return true;
         }
 
-        bool operator<(const Integer & /*left*/, const Base & /*right*/) {
+        bool operator<(const Integer & /*left*/, const Base /*right*/) {
           return true;
         }
 
@@ -129,7 +125,7 @@ namespace chimera {
               right.numerator, right.denominator);
         }
 
-        bool operator<(const Rational &left, const std::uint64_t &right) {
+        bool operator<(const Rational &left, std::uint64_t right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
                 return lN < (lD * right);
@@ -137,7 +133,7 @@ namespace chimera {
               left.numerator, left.denominator);
         }
 
-        bool operator<(const Rational &left, const Base &right) {
+        bool operator<(const Rational &left, const Base right) {
           return left < right.value;
         }
 

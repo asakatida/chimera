@@ -48,7 +48,8 @@ namespace chimera {
 
         Carryover sub(std::uint64_t left, std::uint64_t right) {
           if (left < right) {
-            return {std::numeric_limits<std::uint64_t>::max() - (right - left),
+            return {std::numeric_limits<std::uint64_t>::max() -
+                        ((right - left) - 1),
                     1u};
           }
           return {left - right, 0u};

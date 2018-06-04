@@ -24,7 +24,7 @@
 #include "virtual_machine/evaluator.hpp"
 
 #include <exception>
-#include <iostream>
+#include <istream>
 
 #include <gsl/gsl>
 
@@ -260,7 +260,6 @@ namespace chimera {
               evaluatorA->exit();
               evaluatorA->extend(asdlFor.orelse);
             } else {
-              std::cerr << error.what() << std::endl;
               throw error;
             }
           }
@@ -478,7 +477,6 @@ namespace chimera {
           evaluator.extend(body);
           evaluator.evaluate();
         } catch (const object::BaseException &error) {
-          std::cerr << error.what() << std::endl;
           object::Object exception = error.exception;
           if (context) {
             exception.set_attribute("__context__"s, context->exception);
@@ -491,7 +489,6 @@ namespace chimera {
           return object::BaseException{
               builtins().get_attribute("RuntimeError")};
         } catch (const std::exception &exc) {
-          std::cerr << exc.what() << std::endl;
           object::Object exception(object::String(exc.what()), {});
           if (context) {
             exception.set_attribute("__context__"s, context->exception);

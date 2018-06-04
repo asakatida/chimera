@@ -27,7 +27,7 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        Number operator-(const Base &base) { return Number(Integer{base}); }
+        Number operator-(const Base base) { return Number(Integer{base}); }
         Number operator-(const Natural &natural) {
           return Number(Integer{natural});
         }

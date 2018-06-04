@@ -5,6 +5,7 @@ project(
   LANGUAGES CXX)
 
 add_compile_options(
+  -Wno-c++11-extensions
   -Wno-c++98-compat-pedantic
   -Wno-date-time
   -Wno-padded

@@ -31,49 +31,47 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        Number operator<<(const std::uint64_t &left, const Base &right) {
+        Number operator<<(std::uint64_t left, const Base right) {
           return Number(Base{left << right.value});
         }
 
-        Number operator<<(const std::uint64_t & /*left*/,
-                          const Natural & /*right*/) {
+        Number operator<<(std::uint64_t /*left*/, const Natural & /*right*/) {
           return Number();
         }
 
-        Number operator<<(const std::uint64_t &left, const Integer &right) {
+        Number operator<<(std::uint64_t left, const Integer &right) {
           return std::visit(
               [&left](const auto &value) { return left << value; },
               right.value);
         }
 
-        Number operator<<(const std::uint64_t & /*left*/,
-                          const Rational & /*right*/) {
+        Number operator<<(std::uint64_t /*left*/, const Rational & /*right*/) {
           Ensures(false);
         }
 
-        Number operator<<(const Base &left, const std::uint64_t &right) {
+        Number operator<<(const Base left, std::uint64_t right) {
           return Number(Base{left.value << right});
         }
 
-        Number operator<<(const Base &left, const Base &right) {
+        Number operator<<(const Base left, const Base right) {
           return Number(Base{left.value << right.value});
         }
 
-        Number operator<<(const Base & /*left*/, const Natural & /*right*/) {
+        Number operator<<(const Base /*left*/, const Natural & /*right*/) {
           return Number();
         }
 
-        Number operator<<(const Base &left, const Integer &right) {
+        Number operator<<(const Base left, const Integer &right) {
           return std::visit(
               [&left](const auto &value) { return left >> value; },
               right.value);
         }
 
-        Number operator<<(const Base & /*left*/, const Rational & /*right*/) {
+        Number operator<<(const Base /*left*/, const Rational & /*right*/) {
           Ensures(false);
         }
 
-        Number operator<<(const Natural &left, const std::uint64_t &right) {
+        Number operator<<(const Natural &left, std::uint64_t right) {
           if (right == 0) {
             return Number(left);
           }
@@ -88,7 +86,7 @@ namespace chimera {
           return Number(value);
         }
 
-        Number operator<<(const Natural &left, const Base &right) {
+        Number operator<<(const Natural &left, const Base right) {
           return left << right.value;
         }
 
@@ -114,13 +112,13 @@ namespace chimera {
           Ensures(false);
         }
 
-        Number operator<<(const Integer &left, const std::uint64_t &right) {
+        Number operator<<(const Integer &left, std::uint64_t right) {
           return -std::visit(
               [&right](const auto &value) { return value << right; },
               left.value);
         }
 
-        Number operator<<(const Integer &left, const Base &right) {
+        Number operator<<(const Integer &left, const Base right) {
           return left << right.value;
         }
 
@@ -141,12 +139,11 @@ namespace chimera {
           Ensures(false);
         }
 
-        Number operator<<(const Rational & /*left*/,
-                          const std::uint64_t & /*right*/) {
+        Number operator<<(const Rational & /*left*/, std::uint64_t /*right*/) {
           Ensures(false);
         }
 
-        Number operator<<(const Rational & /*left*/, const Base & /*right*/) {
+        Number operator<<(const Rational & /*left*/, const Base /*right*/) {
           Ensures(false);
         }
 
