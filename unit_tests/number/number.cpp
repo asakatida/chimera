@@ -158,9 +158,16 @@ TEST_CASE("number Number naturals") {
   REQUIRE((massive - number) == (number * (number - one)));
   REQUIRE((massive * number) > massive);
   REQUIRE((massive / huge) == (number * huge));
-  // REQUIRE((massive / number) == number);
   REQUIRE(std::uint64_t(massive & huge) == 1);
   REQUIRE((massive & number) > one);
+}
+
+TEST_CASE("number Number naturals costly", "[!hide]") {
+  auto huge = chimera::library::object::number::Number(
+      std::numeric_limits<std::uint64_t>::max());
+  auto number = huge * huge;
+  auto massive = number * number;
+  REQUIRE((massive / number) == number);
 }
 
 TEST_CASE("number Number subtraction huge") {
