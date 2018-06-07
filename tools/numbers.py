@@ -110,7 +110,6 @@ def op_source(match: Optional[Match[str]], pair: Tuple[str, str]) -> str:
     """
     if match:
         return match.group()
-    print(pair)
     return str(pair)
 
 
@@ -120,7 +119,6 @@ def op_bit_header(match: Optional[Match[str]], pair: Tuple[str, str]) -> str:
     """
     if match:
         return match.group()
-    print(pair)
     return str(pair)
 
 
@@ -130,7 +128,6 @@ def op_bit_source(match: Optional[Match[str]], pair: Tuple[str, str]) -> str:
     """
     if match:
         return match.group()
-    print(pair)
     return str(pair)
 
 
@@ -140,7 +137,6 @@ def op_comp_header(match: Optional[Match[str]], pair: Tuple[str, str]) -> str:
     """
     if match:
         return match.group()
-    print(pair)
     return str(pair)
 
 
@@ -149,8 +145,7 @@ def op_comp_source(match: Optional[Match[str]], pair: Tuple[str, str]) -> str:
     Source operation.
     """
     if match:
-        print(match.group('left'), match.group('right'))
-    print(pair)
+        return match.group()
     return str(pair)
 
 
@@ -160,7 +155,6 @@ def op_unary_header(match: Optional[Match[str]], typ: str) -> str:
     """
     if match:
         return match.group()
-    print(typ)
     return typ
 
 
@@ -170,7 +164,6 @@ def op_unary_source(match: Optional[Match[str]], typ: str) -> str:
     """
     if match:
         return match.group()
-    print(typ)
     return typ
 
 
