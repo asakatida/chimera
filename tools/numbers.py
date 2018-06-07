@@ -26,8 +26,8 @@ from pathlib import Path
 from re import M
 from re import compile as rc
 from re import escape
-from typing import (Callable, Dict, Iterable, Iterator, Match, Optional,
-                    Pattern, TextIO, Tuple, cast)
+from typing import (Callable, Dict, Iterable, Iterator, Match, Pattern, TextIO,
+                    Tuple, cast)
 
 OPERATIONS = {
     'add': 'operator+',
@@ -67,19 +67,19 @@ TYPES = (
 )
 
 PAIRINGS = tuple(
-    (right, left)
+    (left, right)
     for left in (BASE,) + TYPES
     for right in (BASE,) + TYPES
     if left != BASE or right != BASE
 )
 
-NOT_UNARY_TYPES = (
+NOT_BIT_TYPES = (
     'Rational',
 )
 
 TYPE_RE = '|'.join(map(escape, (BASE,) + TYPES))
 
-OP_LINE_RE_START = r'(^( +)(\S.*)'
+OP_LINE_RE_START = r'(^(?P<indent> +)(\S.*)'
 OP_LINE_RE_END = (
     r'\((const\s+)?(?P<left>'
     + TYPE_RE
@@ -94,81 +94,147 @@ OP_UNARY_LINE_RE_END = (
 ROOT = Path(__file__).resolve().parent.parent / 'library' / 'object' / 'number'
 
 
-def op_header(match: Optional[Match[str]], pair: Tuple[str, str]) -> str:
+def passing_type(typ: str) -> str:
+    """
+    Passing type.
+    """
+    if typ in (BASE, TYPES[0]):
+        return f'{ typ } '
+    return f'const { typ } &'
+
+
+def op_header(
+        match: Match[str],
+        pairs: Iterable[Tuple[str, str]]) -> Iterator[str]:
     """
     Header operation.
     """
-    if match:
-        return match.group()
-    print(pair)
-    return str(pair)
+    for pair in pairs:
+        left, right = pair
+        if (
+                match.group('left') == left
+                and match.group('right') == right):
+            return
+        yield from iter((
+            match.group('indent'),
+            'Base ',
+            match.group('op'),
+            '(',
+            passing_type(left),
+            'left, ',
+            passing_type(right),
+            'right);\n'))
 
 
-def op_source(match: Optional[Match[str]], pair: Tuple[str, str]) -> str:
+def op_source(
+        match: Match[str],
+        pairs: Iterable[Tuple[str, str]]) -> Iterator[str]:
     """
     Source operation.
     """
-    if match:
-        return match.group()
-    return str(pair)
+    for pair in pairs:
+        left, right = pair
+        if (
+                match.group('left') == left
+                and match.group('right') == right):
+            return
+        indent = match.group('indent')
+        yield from iter((
+            indent,
+            'Base ',
+            match.group('op'),
+            '(',
+            passing_type(left),
+            '/*left*/, ',
+            passing_type(right),
+            '/*right*/) {\n',
+            indent,
+            '  Expects(false);\n',
+            indent,
+            '}\n'))
 
 
-def op_bit_header(match: Optional[Match[str]], pair: Tuple[str, str]) -> str:
+def op_bit_header(
+        match: Match[str],
+        pairs: Iterable[Tuple[str, str]]) -> Iterator[str]:
     """
     Header operation.
     """
-    if match:
-        return match.group()
-    return str(pair)
+    return op_header(match, pairs)
 
 
-def op_bit_source(match: Optional[Match[str]], pair: Tuple[str, str]) -> str:
+def op_bit_source(
+        match: Match[str],
+        pairs: Iterable[Tuple[str, str]]) -> Iterator[str]:
     """
     Source operation.
     """
-    if match:
-        return match.group()
-    return str(pair)
+    return op_source(match, pairs)
 
 
-def op_comp_header(match: Optional[Match[str]], pair: Tuple[str, str]) -> str:
+def op_comp_header(
+        match: Match[str],
+        pairs: Iterable[Tuple[str, str]]) -> Iterator[str]:
     """
     Header operation.
     """
-    if match:
-        return match.group()
-    return str(pair)
+    return op_header(match, pairs)
 
 
-def op_comp_source(match: Optional[Match[str]], pair: Tuple[str, str]) -> str:
+def op_comp_source(
+        match: Match[str],
+        pairs: Iterable[Tuple[str, str]]) -> Iterator[str]:
     """
     Source operation.
     """
-    if match:
-        return match.group()
-    return str(pair)
+    return op_source(match, pairs)
 
 
-def op_unary_header(match: Optional[Match[str]], typ: str) -> str:
+def op_unary_header(
+        match: Match[str],
+        types: Iterable[str]) -> Iterator[str]:
     """
     Header operation.
     """
-    if match:
-        return match.group()
-    return typ
+    for typ in types:
+        if match.group('left') == typ:
+            return
+        yield from iter((
+            match.group('indent'),
+            'Base ',
+            match.group('op'),
+            '(',
+            passing_type(typ),
+            'value);\n'))
 
 
-def op_unary_source(match: Optional[Match[str]], typ: str) -> str:
+def op_unary_source(
+        match: Match[str],
+        types: Iterable[str]) -> Iterator[str]:
     """
     Source operation.
     """
-    if match:
-        return match.group()
-    return typ
+    for typ in types:
+        if match.group('left') == typ:
+            return
+        indent = match.group('indent')
+        yield from iter((
+            indent,
+            'Base ',
+            match.group('op'),
+            '(',
+            passing_type(typ),
+            '/*value*/) {\n',
+            indent,
+            '  Expects(false);\n',
+            indent,
+            '}\n'))
 
 
-Callback = Callable[[Optional[Match[str]], Tuple[str, str]], str]
-UnaryCallback = Callable[[Optional[Match[str]], str], str]
+Callback = Callable[
+    [Match[str], Iterable[Tuple[str, str]]], Iterator[str]]
+UnaryCallback = Callable[
+    [Match[str], Iterable[str]], Iterator[str]]
 
 OPERATIONS_CALLBACK = {
     'add': (op_header, op_source),
@@ -191,14 +257,26 @@ def op_line_re(op: str) -> Pattern[str]:
     """
     Operation line regex.
     """
-    return rc(OP_LINE_RE_START + escape(op) + OP_LINE_RE_END, M)
+    return rc(
+        OP_LINE_RE_START
+        + r'(?P<op>'
+        + escape(op)
+        + ')'
+        + OP_LINE_RE_END,
+        M)
 
 
 def op_unary_line_re(op: str) -> Pattern[str]:
     """
     Operation line regex.
     """
-    return rc(OP_LINE_RE_START + escape(op) + OP_UNARY_LINE_RE_END, M)
+    return rc(
+        OP_LINE_RE_START
+        + r'(?P<op>'
+        + escape(op)
+        + ')'
+        + OP_UNARY_LINE_RE_END,
+        M)
 
 
 def sources(name: str) -> Tuple[Path, Path]:
@@ -221,8 +299,9 @@ def process_lines(
     for match in matches:
         yield src[end:match.start()]
         end = match.end()
-        yield callback(match, next(pairs))
-    yield from (callback(None, pair) for pair in pairs)
+        yield from callback(match, pairs)
+        yield match.group()
+    yield from callback(match, pairs)
     yield src[end:]
 
 
@@ -238,8 +317,9 @@ def process_unary_lines(
     for match in matches:
         yield src[end:match.start()]
         end = match.end()
-        yield callback(match, next(types))
-    yield from (callback(None, t) for t in types)
+        yield from callback(match, types)
+        yield match.group()
+    yield from callback(match, types)
     yield src[end:]
 
 
