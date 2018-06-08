@@ -20,6 +20,8 @@
 
 //! wrapper for tao::pegtl::parse
 
+#include <iostream>
+
 #include <tao/pegtl.hpp>
 
 #include "asdl/asdl.hpp"

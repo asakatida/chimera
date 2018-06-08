@@ -22,62 +22,73 @@
 
 #include <gsl/gsl>
 
-#include "object/number/div.hpp"
 #include "object/number/mult.hpp"
+#include "object/number/negative.hpp"
 #include "object/number/overflow.hpp"
 #include "object/number/positive.hpp"
-#include "object/number/simplify.hpp"
 #include "object/number/sub.hpp"
-#include "object/number/util.hpp"
 
 namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        Number operator+(std::uint64_t left, const Base right) {
+        Positive operator+(std::uint64_t left, Base right) {
           return right + left;
         }
 
-        Number operator+(std::uint64_t left, const Natural &right) {
+        Natural operator+(std::uint64_t left, const Natural &right) {
           return right + left;
         }
 
-        Number operator+(std::uint64_t left, const Integer &right) {
+        Positive operator+(std::uint64_t /*left*/, const Positive & /*right*/) {
+          Expects(false);
+        }
+
+        Integer operator+(std::uint64_t left, const Negative &right) {
           return right + left;
         }
 
-        Number operator+(std::uint64_t left, const Rational &right) {
+        Integer operator+(std::uint64_t /*left*/, const Integer & /*right*/) {
+          Expects(false);
+        }
+
+        Rational operator+(std::uint64_t left, const Rational &right) {
           return right + left;
         }
 
-        Number operator+(const Base left, std::uint64_t right) {
+        Positive operator+(Base left, std::uint64_t right) {
           auto value = sum(left.value, right);
           if (value.overflow == 0) {
-            return Number(Base{value.result});
+            return Base{value.result};
           }
-          return Number(Natural{
-              std::vector<std::uint64_t>{value.result, value.overflow}});
+          return Natural{{value.result, value.overflow}};
         }
 
-        Number operator+(const Base left, const Base right) {
-          return left + right.value;
-        }
+        Positive operator+(Base left, Base right) { return left + right.value; }
 
-        Number operator+(const Base left, const Natural &right) {
+        Natural operator+(Base left, const Natural &right) {
           return right + left;
         }
 
-        Number operator+(const Base left, const Integer &right) {
+        Positive operator+(Base /*left*/, const Positive & /*right*/) {
+          Expects(false);
+        }
+
+        Integer operator+(Base left, const Negative &right) {
           return right + left;
         }
 
-        Number operator+(const Base left, const Rational &right) {
+        Integer operator+(Base /*left*/, const Integer & /*right*/) {
+          Expects(false);
+        }
+
+        Rational operator+(Base left, const Rational &right) {
           return right + left;
         }
 
-        Number operator+(const Natural &left, std::uint64_t right) {
+        Natural operator+(const Natural &left, std::uint64_t right) {
           if (right == 0) {
-            return Number(left);
+            return left;
           }
           Natural value;
           value.value.reserve(left.value.size());
@@ -89,14 +100,14 @@ namespace chimera {
           if (carryover.overflow != 0) {
             value.value.push_back(carryover.overflow);
           }
-          return simplify(value);
+          return value;
         }
 
-        Number operator+(const Natural &left, const Base right) {
+        Natural operator+(const Natural &left, Base right) {
           return left + right.value;
         }
 
-        Number operator+(const Natural &left, const Natural &right) {
+        Natural operator+(const Natural &left, const Natural &right) {
           Natural value;
           value.value.reserve(std::max(left.value.size(), right.value.size()));
           auto it1 = left.value.begin();
@@ -123,76 +134,172 @@ namespace chimera {
           if (carryover.overflow != 0) {
             value.value.push_back(carryover.overflow);
           }
-          return simplify(value);
+          return value;
         }
 
-        Number operator+(const Natural &left, const Integer &right) {
+        Natural operator+(const Natural & /*left*/,
+                          const Positive & /*right*/) {
+          Expects(false);
+        }
+
+        Integer operator+(const Natural &left, const Negative &right) {
           return right + left;
         }
 
-        Number operator+(const Natural &left, const Rational &right) {
+        Integer operator+(const Natural & /*left*/, const Integer & /*right*/) {
+          Expects(false);
+        }
+
+        Rational operator+(const Natural &left, const Rational &right) {
           return right + left;
         }
 
-        Number operator+(const Integer &left, std::uint64_t right) {
+        Positive operator+(const Positive & /*left*/, std::uint64_t /*right*/) {
+          Expects(false);
+        }
+
+        Positive operator+(const Positive & /*left*/, Base /*right*/) {
+          Expects(false);
+        }
+
+        Natural operator+(const Positive & /*left*/,
+                          const Natural & /*right*/) {
+          Expects(false);
+        }
+
+        Positive operator+(const Positive & /*left*/,
+                           const Positive & /*right*/) {
+          Expects(false);
+        }
+
+        Integer operator+(const Positive & /*left*/,
+                          const Negative & /*right*/) {
+          Expects(false);
+        }
+
+        Integer operator+(const Positive & /*left*/,
+                          const Integer & /*right*/) {
+          Expects(false);
+        }
+
+        Rational operator+(const Positive & /*left*/,
+                           const Rational & /*right*/) {
+          Expects(false);
+        }
+
+        Integer operator+(const Negative &left, std::uint64_t right) {
           return std::visit(
-              [&right](const auto &value) { return right - value; },
+              [&right](const auto &value) { return Integer(right - value); },
               left.value);
         }
 
-        Number operator+(const Integer &left, const Base right) {
+        Integer operator+(const Negative &left, Base right) {
           return std::visit(
-              [&right](const auto &value) { return right - value; },
+              [&right](const auto &value) { return Integer(right - value); },
               left.value);
         }
 
-        Number operator+(const Integer &left, const Natural &right) {
+        Integer operator+(const Negative &left, const Natural &right) {
           return std::visit(
-              [&right](const auto &value) { return right - value; },
+              [&right](const auto &value) { return Integer(right - value); },
               left.value);
         }
 
-        Number operator+(const Integer &left, const Integer &right) {
-          return -std::visit([](const auto &l, const auto &r) { return l + r; },
-                             left.value, right.value);
+        Integer operator+(const Negative & /*left*/,
+                          const Positive & /*right*/) {
+          Expects(false);
         }
 
-        Number operator+(const Integer &left, const Rational &right) {
+        Negative operator+(const Negative &left, const Negative &right) {
+          return std::visit(
+              [](const auto &l, const auto &r) { return -(l + r); }, left.value,
+              right.value);
+        }
+
+        Integer operator+(const Negative & /*left*/,
+                          const Integer & /*right*/) {
+          Expects(false);
+        }
+
+        Rational operator+(const Negative &left, const Rational &right) {
           return right + left;
         }
 
-        Number operator+(const Rational &left, std::uint64_t right) {
+        Integer operator+(const Integer & /*left*/, std::uint64_t /*right*/) {
+          Expects(false);
+        }
+
+        Integer operator+(const Integer & /*left*/, Base /*right*/) {
+          Expects(false);
+        }
+
+        Integer operator+(const Integer & /*left*/, const Natural & /*right*/) {
+          Expects(false);
+        }
+
+        Integer operator+(const Integer & /*left*/,
+                          const Positive & /*right*/) {
+          Expects(false);
+        }
+
+        Integer operator+(const Integer & /*left*/,
+                          const Negative & /*right*/) {
+          Expects(false);
+        }
+
+        Integer operator+(const Integer & /*left*/, const Integer & /*right*/) {
+          Expects(false);
+        }
+
+        Rational operator+(const Integer & /*left*/,
+                           const Rational & /*right*/) {
+          Expects(false);
+        }
+
+        Rational operator+(const Rational &left, std::uint64_t right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return (lN + right * lD) / lD;
+                return Rational{lN + right * lD, lD};
               },
               left.numerator, left.denominator);
         }
 
-        Number operator+(const Rational &left, const Base right) {
+        Rational operator+(const Rational &left, Base right) {
           return left + right.value;
         }
 
-        Number operator+(const Rational &left, const Natural &right) {
+        Rational operator+(const Rational &left, const Natural &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return (lN + right * lD) / lD;
+                return Rational{lN + right * lD, lD};
               },
               left.numerator, left.denominator);
         }
 
-        Number operator+(const Rational &left, const Integer &right) {
+        Rational operator+(const Rational & /*left*/,
+                           const Positive & /*right*/) {
+          Expects(false);
+        }
+
+        Rational operator+(const Rational &left, const Negative &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return (lN + right * lD) / lD;
+                return Rational{lN + right * lD, lD};
               },
               left.numerator, left.denominator);
         }
 
-        Number operator+(const Rational &left, const Rational &right) {
+        Rational operator+(const Rational & /*left*/,
+                           const Integer & /*right*/) {
+          Expects(false);
+        }
+
+        Rational operator+(const Rational &left, const Rational &right) {
           return std::visit(
               [](const auto &lN, const auto &lD, const auto &rN,
-                 const auto &rD) { return (lN * rD + rN * lD) / (lD * rD); },
+                 const auto &rD) {
+                return Rational{lN * rD + rN * lD, lD * rD};
+              },
               left.numerator, left.denominator, right.numerator,
               right.denominator);
         }

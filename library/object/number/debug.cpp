@@ -18,22 +18,4 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
-
-#include "object/number/details.hpp"
-
-namespace chimera {
-  namespace library {
-    namespace object {
-      namespace number {
-        using NumberValue = std::variant<Base, Natural, Negative, Rational>;
-        NumberValue simplify(Base base);
-        NumberValue simplify(Natural natural);
-        NumberValue simplify(Positive positive);
-        NumberValue simplify(Negative negative);
-        NumberValue simplify(Integer integer);
-        NumberValue simplify(Rational rational);
-      } // namespace number
-    }   // namespace object
-  }     // namespace library
-} // namespace chimera
+#include "object/number/debug.hpp"

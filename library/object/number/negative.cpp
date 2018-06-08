@@ -20,24 +20,28 @@
 
 #include "object/number/negative.hpp"
 
-#include "object/number/div.hpp"
-#include "object/number/util.hpp"
+#include <gsl/gsl>
 
 namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        Number operator-(const Base base) { return Number(Integer{base}); }
-        Number operator-(const Natural &natural) {
-          return Number(Integer{natural});
+        Negative operator-(Base base) { return {base}; }
+        Negative operator-(const Natural &natural) { return {natural}; }
+        Negative operator-(const Positive & /*value*/) { Expects(false); }
+        Positive operator-(const Negative &negative) {
+          return std::visit([](const auto &value) { return Positive(value); },
+                            negative.value);
         }
-        Number operator-(const Integer &integer) {
-          return std::visit([](const auto &value) { return Number(value); },
+        Integer operator-(const Integer &integer) {
+          return std::visit([](const auto &value) { return Integer(-value); },
                             integer.value);
         }
-        Number operator-(const Rational &rational) {
+        Rational operator-(const Rational &rational) {
           return std::visit(
-              [](const auto &a, const auto &b) { return (-a) / b; },
+              [](const auto &a, const auto &b) {
+                return Rational{-a, b};
+              },
               rational.numerator, rational.denominator);
         }
       } // namespace number

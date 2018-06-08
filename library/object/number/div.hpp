@@ -20,40 +20,65 @@
 
 #pragma once
 
-#include "object/number/number.hpp"
+#include "object/number/details.hpp"
 
 namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        Number operator/(std::uint64_t left, Base right);
-        Number operator/(std::uint64_t left, const Natural &right);
-        Number operator/(std::uint64_t left, const Integer &right);
-        Number operator/(std::uint64_t left, const Rational &right);
+        Rational operator/(std::uint64_t left, Base right);
+        Rational operator/(std::uint64_t left, const Natural &right);
+        Rational operator/(std::uint64_t left, const Positive &right);
+        Rational operator/(std::uint64_t left, const Negative &right);
+        Rational operator/(std::uint64_t left, const Integer &right);
+        Rational operator/(std::uint64_t left, const Rational &right);
 
-        Number operator/(Base left, std::uint64_t right);
-        Number operator/(Base left, Base right);
-        Number operator/(Base left, const Natural &right);
-        Number operator/(Base left, const Integer &right);
-        Number operator/(Base left, const Rational &right);
+        Rational operator/(Base left, std::uint64_t right);
+        Rational operator/(Base left, Base right);
+        Rational operator/(Base left, const Natural &right);
+        Rational operator/(Base left, const Positive &right);
+        Rational operator/(Base left, const Negative &right);
+        Rational operator/(Base left, const Integer &right);
+        Rational operator/(Base left, const Rational &right);
 
-        Number operator/(const Natural &left, std::uint64_t right);
-        Number operator/(const Natural &left, Base right);
-        Number operator/(const Natural &left, const Natural &right);
-        Number operator/(const Natural &left, const Integer &right);
-        Number operator/(const Natural &left, const Rational &right);
+        Rational operator/(const Natural &left, std::uint64_t right);
+        Rational operator/(const Natural &left, Base right);
+        Rational operator/(const Natural &left, const Natural &right);
+        Rational operator/(const Natural &left, const Positive &right);
+        Rational operator/(const Natural &left, const Negative &right);
+        Rational operator/(const Natural &left, const Integer &right);
+        Rational operator/(const Natural &left, const Rational &right);
 
-        Number operator/(const Integer &left, std::uint64_t right);
-        Number operator/(const Integer &left, Base right);
-        Number operator/(const Integer &left, const Natural &right);
-        Number operator/(const Integer &left, const Integer &right);
-        Number operator/(const Integer &left, const Rational &right);
+        Rational operator/(const Positive &left, std::uint64_t right);
+        Rational operator/(const Positive &left, Base right);
+        Rational operator/(const Positive &left, const Natural &right);
+        Rational operator/(const Positive &left, const Positive &right);
+        Rational operator/(const Positive &left, const Negative &right);
+        Rational operator/(const Positive &left, const Integer &right);
+        Rational operator/(const Positive &left, const Rational &right);
+        Rational operator/(const Negative &left, std::uint64_t right);
+        Rational operator/(const Negative &left, Base right);
+        Rational operator/(const Negative &left, const Natural &right);
+        Rational operator/(const Negative &left, const Positive &right);
+        Rational operator/(const Negative &left, const Negative &right);
+        Rational operator/(const Negative &left, const Integer &right);
+        Rational operator/(const Negative &left, const Rational &right);
 
-        Number operator/(const Rational &left, std::uint64_t right);
-        Number operator/(const Rational &left, Base right);
-        Number operator/(const Rational &left, const Natural &right);
-        Number operator/(const Rational &left, const Integer &right);
-        Number operator/(const Rational &left, const Rational &right);
+        Rational operator/(const Integer &left, std::uint64_t right);
+        Rational operator/(const Integer &left, Base right);
+        Rational operator/(const Integer &left, const Natural &right);
+        Rational operator/(const Integer &left, const Positive &right);
+        Rational operator/(const Integer &left, const Negative &right);
+        Rational operator/(const Integer &left, const Integer &right);
+        Rational operator/(const Integer &left, const Rational &right);
+
+        Rational operator/(const Rational &left, std::uint64_t right);
+        Rational operator/(const Rational &left, Base right);
+        Rational operator/(const Rational &left, const Natural &right);
+        Rational operator/(const Rational &left, const Positive &right);
+        Rational operator/(const Rational &left, const Negative &right);
+        Rational operator/(const Rational &left, const Integer &right);
+        Rational operator/(const Rational &left, const Rational &right);
       } // namespace number
     }   // namespace object
   }     // namespace library

@@ -22,125 +22,232 @@
 
 #include <gsl/gsl>
 
-#include "object/number/simplify.hpp"
+#include "object/number/negative.hpp"
 
 namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        Number operator^(std::uint64_t left, const Base right) {
-          return Number(Base{left ^ right.value});
+        Base operator^(std::uint64_t left, Base right) {
+          return {left ^ right.value};
         }
 
-        Number operator^(std::uint64_t left, const Natural &right) {
+        Natural operator^(std::uint64_t left, const Natural &right) {
           auto value = right;
           value.value[0] ^= left;
-          return Number(value);
+          return value;
         }
 
-        Number operator^(std::uint64_t left, const Integer &right) {
-          return -std::visit(
-              [&left](const auto &value) { return left ^ value; }, right.value);
+        Positive operator^(std::uint64_t /*left*/, const Positive & /*right*/) {
+          Expects(false);
+        }
+        Negative operator^(std::uint64_t left, const Negative &right) {
+          return std::visit(
+              [&left](const auto &value) { return -(left ^ value); },
+              right.value);
         }
 
-        Number operator^(std::uint64_t /*left*/, const Rational & /*right*/) {
+        Integer operator^(std::uint64_t /*left*/, const Integer & /*right*/) {
+          Expects(false);
+        }
+        Base operator^(std::uint64_t /*left*/, const Rational & /*right*/) {
           Ensures(false);
         }
 
-        Number operator^(const Base left, std::uint64_t right) {
-          return Number(Base{left.value ^ right});
+        Base operator^(Base left, std::uint64_t right) {
+          return {left.value ^ right};
         }
 
-        Number operator^(const Base left, const Base right) {
-          return Number(Base{left.value ^ right.value});
+        Base operator^(Base left, Base right) {
+          return {left.value ^ right.value};
         }
 
-        Number operator^(const Base left, const Natural &right) {
+        Natural operator^(Base left, const Natural &right) {
           auto value = right;
           value.value[0] ^= left.value;
-          return Number(value);
+          return value;
         }
 
-        Number operator^(const Base left, const Integer &right) {
-          return -std::visit(
-              [&left](const auto &value) { return left ^ value; }, right.value);
+        Positive operator^(Base /*left*/, const Positive & /*right*/) {
+          Expects(false);
+        }
+        Negative operator^(Base left, const Negative &right) {
+          return std::visit(
+              [&left](const auto &value) { return -(left ^ value); },
+              right.value);
         }
 
-        Number operator^(const Base /*left*/, const Rational & /*right*/) {
+        Integer operator^(Base /*left*/, const Integer & /*right*/) {
+          Expects(false);
+        }
+        Base operator^(Base /*left*/, const Rational & /*right*/) {
           Ensures(false);
         }
 
-        Number operator^(const Natural &left, std::uint64_t right) {
+        Natural operator^(const Natural &left, std::uint64_t right) {
           auto value = left;
           value.value[0] ^= right;
-          return Number(value);
+          return value;
         }
 
-        Number operator^(const Natural &left, const Base right) {
+        Natural operator^(const Natural &left, Base right) {
           return left ^ right.value;
         }
 
-        Number operator^(const Natural &left, const Natural &right) {
+        Natural operator^(const Natural &left, const Natural &right) {
           auto value = left;
           value.value.resize(std::max(left.value.size(), right.value.size()));
-          std::transform(right.value.begin(), right.value.end(),
-                         value.value.begin(), value.value.begin(),
-                         [](const auto &a, const auto &b) { return a ^ b; });
-          return simplify(value);
+          if (left.value.size() > right.value.size()) {
+            std::transform(right.value.begin(), right.value.end(),
+                           left.value.begin(), value.value.begin(),
+                           std::bit_xor<std::uint64_t>{});
+          } else {
+            std::transform(left.value.begin(), left.value.end(),
+                           right.value.begin(), value.value.begin(),
+                           std::bit_xor<std::uint64_t>{});
+          }
+          return value;
         }
 
-        Number operator^(const Natural &left, const Integer &right) {
-          return -std::visit(
-              [&left](const auto &value) { return left ^ value; }, right.value);
+        Natural operator^(const Natural & /*left*/,
+                          const Positive & /*right*/) {
+          Expects(false);
         }
 
-        Number operator^(const Natural & /*left*/, const Rational & /*right*/) {
+        Negative operator^(const Natural &left, const Negative &right) {
+          return std::visit(
+              [&left](const auto &value) { return -(left ^ value); },
+              right.value);
+        }
+
+        Integer operator^(const Natural & /*left*/, const Integer & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator^(const Natural & /*left*/, const Rational & /*right*/) {
           Ensures(false);
         }
 
-        Number operator^(const Integer &left, std::uint64_t right) {
-          return -std::visit(
-              [&right](const auto &value) { return value ^ right; },
+        Positive operator^(const Positive & /*left*/, std::uint64_t /*right*/) {
+          Expects(false);
+        }
+
+        Positive operator^(const Positive & /*left*/, Base /*right*/) {
+          Expects(false);
+        }
+
+        Natural operator^(const Positive & /*left*/,
+                          const Natural & /*right*/) {
+          Expects(false);
+        }
+
+        Positive operator^(const Positive & /*left*/,
+                           const Positive & /*right*/) {
+          Expects(false);
+        }
+
+        Negative operator^(const Positive & /*left*/,
+                           const Negative & /*right*/) {
+          Expects(false);
+        }
+
+        Integer operator^(const Positive & /*left*/,
+                          const Integer & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator^(const Positive & /*left*/, const Rational & /*right*/) {
+          Expects(false);
+        }
+
+        Negative operator^(const Negative &left, std::uint64_t right) {
+          return std::visit(
+              [&right](const auto &value) { return -(value ^ right); },
               left.value);
         }
 
-        Number operator^(const Integer &left, const Base right) {
+        Negative operator^(const Negative &left, Base right) {
           return left ^ right.value;
         }
 
-        Number operator^(const Integer &left, const Natural &right) {
-          return -std::visit(
-              [&right](const auto &value) { return value ^ right; },
+        Negative operator^(const Negative &left, const Natural &right) {
+          return std::visit(
+              [&right](const auto &value) { return -(value ^ right); },
               left.value);
         }
 
-        Number operator^(const Integer &left, const Integer &right) {
-          return std::visit([](const auto &a, const auto &b) { return a ^ b; },
-                            left.value, right.value);
+        Negative operator^(const Negative & /*left*/,
+                           const Positive & /*right*/) {
+          Expects(false);
         }
 
-        Number operator^(const Integer & /*left*/, const Rational & /*right*/) {
+        Positive operator^(const Negative &left, const Negative &right) {
+          return std::visit(
+              [](const auto &a, const auto &b) { return Positive(a ^ b); },
+              left.value, right.value);
+        }
+
+        Integer operator^(const Negative & /*left*/,
+                          const Integer & /*right*/) {
+          Expects(false);
+        }
+        Base operator^(const Negative & /*left*/, const Rational & /*right*/) {
           Ensures(false);
         }
 
-        Number operator^(const Rational & /*left*/, std::uint64_t /*right*/) {
+        Integer operator^(const Integer & /*left*/, std::uint64_t /*right*/) {
+          Expects(false);
+        }
+
+        Integer operator^(const Integer & /*left*/, Base /*right*/) {
+          Expects(false);
+        }
+
+        Integer operator^(const Integer & /*left*/, const Natural & /*right*/) {
+          Expects(false);
+        }
+
+        Integer operator^(const Integer & /*left*/,
+                          const Positive & /*right*/) {
+          Expects(false);
+        }
+
+        Integer operator^(const Integer & /*left*/,
+                          const Negative & /*right*/) {
+          Expects(false);
+        }
+
+        Integer operator^(const Integer & /*left*/, const Integer & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator^(const Integer & /*left*/, const Rational & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator^(const Rational & /*left*/, std::uint64_t /*right*/) {
           Ensures(false);
         }
 
-        Number operator^(const Rational & /*left*/, const Base /*right*/) {
+        Base operator^(const Rational & /*left*/, Base /*right*/) {
           Ensures(false);
         }
 
-        Number operator^(const Rational & /*left*/, const Natural & /*right*/) {
+        Base operator^(const Rational & /*left*/, const Natural & /*right*/) {
           Ensures(false);
         }
 
-        Number operator^(const Rational & /*left*/, const Integer & /*right*/) {
+        Base operator^(const Rational & /*left*/, const Positive & /*right*/) {
+          Expects(false);
+        }
+        Base operator^(const Rational & /*left*/, const Negative & /*right*/) {
           Ensures(false);
         }
 
-        Number operator^(const Rational & /*left*/,
-                         const Rational & /*right*/) {
+        Base operator^(const Rational & /*left*/, const Integer & /*right*/) {
+          Expects(false);
+        }
+        Base operator^(const Rational & /*left*/, const Rational & /*right*/) {
           Ensures(false);
         }
       } // namespace number
