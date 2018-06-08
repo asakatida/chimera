@@ -16,6 +16,7 @@ set -x CXXFLAGS \
   $CXXFLAGS \
   -Werror \
   "-DCHIMERA_PATH=/usr/local/Cellar/python3/3.6.3/Frameworks/Python.framework/Versions/3.6/lib/python3.6/:$SOURCE/stdlib/" \
+  "-Wno-c++11-extensions" \
   "-Wno-c++98-compat-pedantic" \
   -Wno-date-time \
   -Wno-padded \

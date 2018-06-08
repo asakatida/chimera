@@ -20,17 +20,19 @@
 
 #pragma once
 
-#include "object/number/number.hpp"
+#include "object/number/details.hpp"
 
 namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        Number simplify(Base base);
-        Number simplify(Natural natural);
-        Number simplify(Integer integer);
-        Number simplify(Rational rational);
-        Number simplify(const Number &number);
+        using NumberValue = std::variant<Base, Natural, Negative, Rational>;
+        NumberValue simplify(Base base);
+        NumberValue simplify(Natural natural);
+        NumberValue simplify(Positive positive);
+        NumberValue simplify(Negative negative);
+        NumberValue simplify(Integer integer);
+        NumberValue simplify(Rational rational);
       } // namespace number
     }   // namespace object
   }     // namespace library

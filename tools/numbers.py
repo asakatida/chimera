@@ -62,6 +62,8 @@ BASE = 'std::uint64_t'
 TYPES = (
     'Base',
     'Natural',
+    'Positive',
+    'Negative',
     'Integer',
     'Rational',
 )
@@ -190,9 +192,7 @@ def op_comp_source(
     return op_source(match, pairs)
 
 
-def op_unary_header(
-        match: Match[str],
-        types: Iterable[str]) -> Iterator[str]:
+def op_unary_header(match: Match[str], types: Iterable[str]) -> Iterator[str]:
     """
     Header operation.
     """
@@ -208,9 +208,7 @@ def op_unary_header(
             'value);\n'))
 
 
-def op_unary_source(
-        match: Match[str],
-        types: Iterable[str]) -> Iterator[str]:
+def op_unary_source(match: Match[str], types: Iterable[str]) -> Iterator[str]:
     """
     Source operation.
     """
@@ -231,10 +229,8 @@ def op_unary_source(
             '}\n'))
 
 
-Callback = Callable[
-    [Match[str], Iterable[Tuple[str, str]]], Iterator[str]]
-UnaryCallback = Callable[
-    [Match[str], Iterable[str]], Iterator[str]]
+Callback = Callable[[Match[str], Iterable[Tuple[str, str]]], Iterator[str]]
+UnaryCallback = Callable[[Match[str], Iterable[str]], Iterator[str]]
 
 OPERATIONS_CALLBACK = {
     'add': (op_header, op_source),
