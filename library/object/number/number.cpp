@@ -39,6 +39,7 @@
 #include "object/number/or.hpp"
 #include "object/number/positive.hpp"
 #include "object/number/right_shift.hpp"
+#include "object/number/simplify.hpp"
 #include "object/number/sub.hpp"
 #include "object/number/xor.hpp"
 
@@ -48,87 +49,137 @@ namespace chimera {
       namespace number {
         Number::Number(std::uint64_t i) : value(Base{i}) {}
         Number::Number(Base base) : value(base) {}
-        Number::Number(Natural natural) : value(std::move(natural)) {}
-        Number::Number(Integer integer) : value(std::move(integer)) {}
-        Number::Number(Rational rational) : value(std::move(rational)) {}
+        Number::Number(Natural natural) : value(simplify(std::move(natural))) {}
+        Number::Number(Positive positive)
+            : value(simplify(std::move(positive))) {}
+        Number::Number(Negative negative)
+            : value(simplify(std::move(negative))) {}
+        Number::Number(Integer integer) : value(simplify(std::move(integer))) {}
+        Number::Number(Rational rational)
+            : value(simplify(std::move(rational))) {}
 
         Number Number::operator+() const {
-          return visit([](auto a) { return +a; });
+          return visit([](auto a) { return Number(+a); });
         }
-        Number Number::operator-() const { return visit(std::negate<>{}); }
+        Number Number::operator-() const {
+          return visit([](auto a) { return Number(-a); });
+        }
         Number Number::operator+(const Number &right) const {
-          return visit(right, std::plus<>{});
+          return visit(right, [](const auto &a, const auto &b) {
+            return Number(a + b);
+          });
         }
         Number &Number::operator+=(const Number &right) {
-          *this = visit(right, std::plus<>{});
+          *this = visit(right, [](const auto &a, const auto &b) {
+            return Number(a + b);
+          });
           return *this;
         }
         Number Number::operator-(const Number &right) const {
-          return visit(right, std::minus<>{});
+          return visit(right, [](const auto &a, const auto &b) {
+            return Number(a - b);
+          });
         }
         Number &Number::operator-=(const Number &right) {
-          *this = visit(right, std::minus<>{});
+          *this = visit(right, [](const auto &a, const auto &b) {
+            return Number(a - b);
+          });
           return *this;
         }
         Number Number::operator*(const Number &right) const {
-          return visit(right, std::multiplies<>{});
+          return visit(right, [](const auto &a, const auto &b) {
+            return Number(a * b);
+          });
         }
         Number &Number::operator*=(const Number &right) {
-          *this = visit(right, std::multiplies<>{});
+          *this = visit(right, [](const auto &a, const auto &b) {
+            return Number(a * b);
+          });
           return *this;
         }
         Number Number::operator/(const Number &right) const {
-          return visit(right, std::divides<>{});
+          return visit(right, [](const auto &a, const auto &b) {
+            return Number(a / b);
+          });
         }
         Number &Number::operator/=(const Number &right) {
-          *this = visit(right, std::divides<>{});
+          *this = visit(right, [](const auto &a, const auto &b) {
+            return Number(a / b);
+          });
           return *this;
         }
         Number Number::operator%(const Number &right) const {
-          return visit(right, std::modulus<>{});
+          return visit(right, [](const auto &a, const auto &b) {
+            return Number(a % b);
+          });
         }
         Number &Number::operator%=(const Number &right) {
-          *this = visit(right, std::modulus<>{});
+          *this = visit(right, [](const auto &a, const auto &b) {
+            return Number(a % b);
+          });
           return *this;
         }
-        Number Number::operator~() const { return visit(std::bit_not<>{}); }
+        Number Number::operator~() const {
+          return visit([](auto a) { return Number(~a); });
+        }
         Number Number::operator&(const Number &right) const {
-          return visit(right, std::bit_and<>{});
+          return visit(right, [](const auto &a, const auto &b) {
+            return Number(a & b);
+          });
         }
         Number &Number::operator&=(const Number &right) {
-          *this = visit(right, std::bit_and<>{});
+          *this = visit(right, [](const auto &a, const auto &b) {
+            return Number(a & b);
+          });
           return *this;
         }
         Number Number::operator|(const Number &right) const {
-          return visit(right, std::bit_or<>{});
+          return visit(right, [](const auto &a, const auto &b) {
+            return Number(a | b);
+          });
         }
         Number &Number::operator|=(const Number &right) {
-          *this = visit(right, std::bit_or<>{});
+          *this = visit(right, [](const auto &a, const auto &b) {
+            return Number(a | b);
+          });
           return *this;
         }
         Number Number::operator^(const Number &right) const {
-          return visit(right, std::bit_xor<>{});
+          return visit(right, [](const auto &a, const auto &b) {
+            return Number(a ^ b);
+          });
         }
         Number &Number::operator^=(const Number &right) {
-          *this = visit(right, std::bit_xor<>{});
+          *this = visit(right, [](const auto &a, const auto &b) {
+            return Number(a ^ b);
+          });
           return *this;
         }
         Number Number::operator<<(const Number &right) const {
-          return visit(right, [](const auto &a, const auto &b) { return a << b; });
+          return visit(right, [](const auto &a, const auto &b) {
+            return Number(a << b);
+          });
         }
         Number &Number::operator<<=(const Number &right) {
-          *this = visit(right, [](const auto &a, const auto &b) { return a << b; });
+          *this = visit(right, [](const auto &a, const auto &b) {
+            return Number(a << b);
+          });
           return *this;
         }
         Number Number::operator>>(const Number &right) const {
-          return visit(right, [](const auto &a, const auto &b) { return a >> b; });
+          return visit(right, [](const auto &a, const auto &b) {
+            return Number(a >> b);
+          });
         }
         Number &Number::operator>>=(const Number &right) {
-          *this = visit(right, [](const auto &a, const auto &b) { return a >> b; });
+          *this = visit(right, [](const auto &a, const auto &b) {
+            return Number(a >> b);
+          });
           return *this;
         }
         bool Number::operator==(const Number &right) const {
-          return value.index() == right.value.index() && visit(right, std::equal_to<>{});
+          return value.index() == right.value.index() &&
+                 visit(right, std::equal_to<>{});
         }
         bool Number::operator!=(const Number &right) const {
           return !(*this == right);
@@ -147,7 +198,9 @@ namespace chimera {
         }
 
         Number Number::floor_div(const Number &right) const {
-          return visit(right, [](auto a, auto b) { return number::floor_div(a, b); });
+          return visit(right, [](auto a, auto b) {
+            return Number(number::floor_div(a, b));
+          });
         }
 
         Number Number::pow(const Number &right) const { return right; }
@@ -158,12 +211,12 @@ namespace chimera {
         bool Number::is_int() const {
           return std::holds_alternative<Base>(value) ||
                  std::holds_alternative<Natural>(value) ||
-                 std::holds_alternative<Integer>(value);
+                 std::holds_alternative<Negative>(value);
         }
 
         bool Number::is_complex() const { return false; }
 
-        Number Number::complex() const { return *this; }
+        Number Number::complex() const { Expects(false); }
       } // namespace number
     }   // namespace object
   }     // namespace library

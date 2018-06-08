@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Adam Grandquist <grandquista@gmail.com>
+// Copyright (c) 2018 Adam Grandquist <grandquista@gmail.com>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,21 +18,4 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
-
-#include "object/number/details.hpp"
-
-namespace chimera {
-  namespace library {
-    namespace object {
-      namespace number {
-        Negative operator~(Base base);
-        Negative operator~(const Natural &natural);
-        Negative operator~(const Positive &positive);
-        Positive operator~(const Negative &negative);
-        Integer operator~(const Integer &integer);
-        Base operator~(const Rational &rational);
-      } // namespace number
-    }   // namespace object
-  }     // namespace library
-} // namespace chimera
+#include "object/number/repr.hpp"

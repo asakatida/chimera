@@ -11,42 +11,54 @@ add_compile_options(
   -Wno-padded
   -ftemplate-depth=1536)
 
+  add_library(
+    chimera_grammar
+    library/asdl/asdl.hpp
+    library/grammar/rules/action.hpp
+    library/grammar/rules/captures.hpp
+    library/grammar/rules/control.hpp
+    library/grammar/rules/rules.hpp
+    library/grammar/rules/set.hpp
+    library/grammar/rules/stack.hpp
+    library/grammar/expr.hpp
+    library/grammar/exprfwd.hpp
+    library/grammar/flags.hpp
+    library/grammar/grammar.hpp
+    library/grammar/identifier.hpp
+    library/grammar/input.hpp
+    library/grammar/keys.hpp
+    library/grammar/number.hpp
+    library/grammar/oper.hpp
+    library/grammar/parse.hpp
+    library/grammar/rules.hpp
+    library/grammar/stmt.hpp
+    library/grammar/string.hpp
+    library/grammar/utf8_id_continue.hpp
+    library/grammar/utf8_id_start.hpp
+    library/grammar/utf8_space.hpp
+    library/grammar/whitespace.hpp
+    library/virtual_machine/parse.cpp)
+
+  target_include_directories(chimera_grammar PUBLIC library include)
+  target_include_directories(
+    chimera_grammar
+    SYSTEM PUBLIC
+    external/GSL/include
+    external/metal/include
+    external/PEGTL/include)
+
 add_library(
-  libchimera
-  library/asdl/asdl.hpp
-  library/c-api/chimera.cpp
-  library/container/atomic_container.hpp
-  library/container/atomic_map.hpp
-  library/container/reverse.hpp
-  library/grammar/rules/action.hpp
-  library/grammar/rules/captures.hpp
-  library/grammar/rules/control.hpp
-  library/grammar/rules/rules.hpp
-  library/grammar/rules/set.hpp
-  library/grammar/rules/stack.hpp
-  library/grammar/expr.hpp
-  library/grammar/exprfwd.hpp
-  library/grammar/flags.hpp
-  library/grammar/grammar.hpp
-  library/grammar/identifier.hpp
-  library/grammar/input.hpp
-  library/grammar/keys.hpp
-  library/grammar/number.hpp
-  library/grammar/oper.hpp
-  library/grammar/parse.hpp
-  library/grammar/rules.hpp
-  library/grammar/stmt.hpp
-  library/grammar/string.hpp
-  library/grammar/utf8_id_continue.hpp
-  library/grammar/utf8_id_start.hpp
-  library/grammar/utf8_space.hpp
-  library/grammar/whitespace.hpp
+  chimera_object_number
   library/object/number/add.cpp
   library/object/number/add.hpp
   library/object/number/and.cpp
   library/object/number/and.hpp
   library/object/number/compare.cpp
   library/object/number/compare.hpp
+  library/object/number/debug.cpp
+  library/object/number/debug.hpp
+  library/object/number/details.cpp
+  library/object/number/details.hpp
   library/object/number/div.cpp
   library/object/number/div.hpp
   library/object/number/floor_div.cpp
@@ -71,6 +83,8 @@ add_library(
   library/object/number/overflow.hpp
   library/object/number/positive.cpp
   library/object/number/positive.hpp
+  library/object/number/repr.cpp
+  library/object/number/repr.hpp
   library/object/number/right_shift.cpp
   library/object/number/right_shift.hpp
   library/object/number/simplify.cpp
@@ -79,9 +93,16 @@ add_library(
   library/object/number/sub.hpp
   library/object/number/util.hpp
   library/object/number/xor.cpp
-  library/object/number/xor.hpp
-  library/object/object.cpp
-  library/object/object.hpp
+  library/object/number/xor.hpp)
+
+target_include_directories(chimera_object_number PUBLIC library include)
+target_include_directories(
+  chimera_object_number
+  SYSTEM PUBLIC
+  external/GSL/include)
+
+add_library(
+  chimera_virtual_machine
   library/virtual_machine/modules/marshal.cpp
   library/virtual_machine/modules/marshal.hpp
   library/virtual_machine/modules/sys.cpp
@@ -105,7 +126,6 @@ add_library(
   library/virtual_machine/get_evaluator.hpp
   library/virtual_machine/global_context.cpp
   library/virtual_machine/global_context.hpp
-  library/virtual_machine/parse.cpp
   library/virtual_machine/process_context.cpp
   library/virtual_machine/process_context.hpp
   library/virtual_machine/push_stack.cpp
@@ -123,7 +143,23 @@ add_library(
   library/virtual_machine/unary_evaluator.cpp
   library/virtual_machine/unary_evaluator.hpp
   library/virtual_machine/virtual_machine.cpp
-  library/virtual_machine/virtual_machine.hpp
+  library/virtual_machine/virtual_machine.hpp)
+
+target_include_directories(chimera_virtual_machine PUBLIC library include)
+target_include_directories(
+  chimera_virtual_machine
+  SYSTEM PUBLIC
+  external/GSL/include
+  external/metal/include)
+
+add_library(
+  libchimera
+  library/c-api/chimera.cpp
+  library/container/atomic_container.hpp
+  library/container/atomic_map.hpp
+  library/container/reverse.hpp
+  library/object/object.cpp
+  library/object/object.hpp
   library/options.hpp
   library/version.hpp)
 
@@ -136,7 +172,12 @@ target_include_directories(
   external/PEGTL/include)
 
 set_target_properties(libchimera PROPERTIES OUTPUT_NAME "chimera")
-target_link_libraries(libchimera pthread)
+target_link_libraries(
+  libchimera
+  pthread
+  chimera_grammar
+  chimera_object_number
+  chimera_virtual_machine)
 
 target_compile_features(libchimera PUBLIC cxx_std_17)
 
@@ -162,10 +203,7 @@ target_link_libraries(unit_test libchimera)
 
 target_compile_features(unit_test PUBLIC cxx_std_17)
 
-add_executable(
-  fuzz
-  unit_tests/fuzz/target.cpp
-  $<TARGET_PROPERTY:libchimera,SOURCES>)
+add_executable(fuzz unit_tests/fuzz/target.cpp)
 
 target_compile_options(
   fuzz
@@ -185,7 +223,7 @@ target_include_directories(
 
 target_link_libraries(
   fuzz
-  pthread
+  libchimera
   -fsanitize-coverage=trace-cmp
   -fsanitize-coverage=trace-pc-guard
   -fsanitize=address,fuzzer
@@ -193,10 +231,7 @@ target_link_libraries(
 
 target_compile_features(fuzz PUBLIC cxx_std_17)
 
-add_executable(
-  fuzz2
-  unit_tests/fuzz/target2.cpp
-  $<TARGET_PROPERTY:libchimera,SOURCES>)
+add_executable(fuzz2 unit_tests/fuzz/target2.cpp)
 
 target_compile_options(
   fuzz2
@@ -216,7 +251,7 @@ target_include_directories(
 
 target_link_libraries(
   fuzz2
-  pthread
+  libchimera
   -fsanitize-coverage=trace-cmp
   -fsanitize-coverage=trace-pc-guard
   -fsanitize=address,fuzzer

@@ -21,143 +21,28 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>
 #include <iosfwd>
 #include <numeric>
 #include <variant>
 #include <vector>
 
+#include "object/number/debug.hpp"
+#include "object/number/details.hpp"
+#include "object/number/repr.hpp"
+
 namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        struct Base {
-          std::uint64_t value;
-
-          template <typename T>
-          explicit operator T() const noexcept {
-            if constexpr (std::is_same_v<T, bool>) {
-              return value != 0u;
-            }
-            if (value >= std::uint64_t(std::numeric_limits<T>::max())) {
-              return std::numeric_limits<T>::max();
-            }
-            return T(value);
-          }
-
-          template <typename CharT, typename Traits>
-          std::basic_ostream<CharT, Traits> &
-          debug(std::basic_ostream<CharT, Traits> &os) const {
-            return os << value;
-          }
-
-          template <typename CharT, typename Traits>
-          std::basic_ostream<CharT, Traits> &
-          repr(std::basic_ostream<CharT, Traits> &os) const {
-            return os << "Number(" << value << ')';
-          }
-        };
-        struct Natural {
-          std::vector<std::uint64_t> value;
-
-          template <typename T>
-          explicit operator T() const noexcept {
-            if constexpr (std::is_same_v<T, bool>) {
-              return true;
-            }
-            if (value.size() > 2) {
-              return std::numeric_limits<T>::max();
-            }
-            auto a = (__uint128_t(value[1]) << 64u) | value[0];
-            if (a >= __uint128_t(std::numeric_limits<T>::max())) {
-              return std::numeric_limits<T>::max();
-            }
-            return T(a);
-          }
-
-          template <typename CharT, typename Traits>
-          std::basic_ostream<CharT, Traits> &
-          debug(std::basic_ostream<CharT, Traits> &os) const {
-            std::for_each(value.begin(), value.end(),
-                          [&os](const auto &v) { os << v; });
-            return os;
-          }
-
-          template <typename CharT, typename Traits>
-          std::basic_ostream<CharT, Traits> &
-          repr(std::basic_ostream<CharT, Traits> &os) const {
-            os << "Number({{";
-            std::for_each(value.begin(), value.end(),
-                          [&os](const auto &v) { os << v << ','; });
-            return os << "}})";
-          }
-        };
-        using IntegerValue = std::variant<Base, Natural>;
-        struct Integer {
-          IntegerValue value;
-
-          template <typename T>
-          explicit operator T() const noexcept {
-            if constexpr (std::is_same_v<T, bool>) {
-              return std::visit([](const auto &v) { return T(v); }, value);
-            }
-            return -std::visit([](const auto &v) { return T(v); }, value);
-          }
-
-          template <typename CharT, typename Traits>
-          std::basic_ostream<CharT, Traits> &
-          debug(std::basic_ostream<CharT, Traits> &os) const {
-            std::visit([&os](const auto &v) { v.debug(os << '-'); }, value);
-            return os;
-          }
-
-          template <typename CharT, typename Traits>
-          std::basic_ostream<CharT, Traits> &
-          repr(std::basic_ostream<CharT, Traits> &os) const {
-            std::visit([&os](const auto &v) { v.repr(os << '-'); }, value);
-            return os;
-          }
-        };
-        using RationalValue = std::variant<Base, Natural, Integer>;
-        struct Rational {
-          RationalValue numerator;
-          RationalValue denominator;
-
-          template <typename T>
-          explicit operator T() const noexcept {
-            if constexpr (std::is_same_v<T, bool>) {
-              return true;
-            }
-            return std::visit(
-                [](const auto &n, const auto &d) { return T(n) / T(d); },
-                numerator, denominator);
-          }
-
-          template <typename CharT, typename Traits>
-          std::basic_ostream<CharT, Traits> &
-          debug(std::basic_ostream<CharT, Traits> &os) const {
-            std::visit([&os](const auto &n,
-                             const auto &d) { d.debug(n.debug(os) << '/'); },
-                       numerator, denominator);
-            return os;
-          }
-
-          template <typename CharT, typename Traits>
-          std::basic_ostream<CharT, Traits> &
-          repr(std::basic_ostream<CharT, Traits> &os) const {
-            std::visit([&os](const auto &n,
-                             const auto &d) { d.repr(n.repr(os) << '/'); },
-                       numerator, denominator);
-            return os;
-          }
-        };
-        using NumberValue = std::variant<Base, Natural, Integer, Rational>;
-
         class Number {
         public:
           Number() noexcept = default;
           explicit Number(std::uint64_t i);
           explicit Number(Base base);
           explicit Number(Natural natural);
+          explicit Number(Positive positive);
+          explicit Number(Negative negative);
           explicit Number(Integer integer);
           explicit Number(Rational rational);
 
@@ -229,19 +114,20 @@ namespace chimera {
           template <typename CharT, typename Traits>
           std::basic_ostream<CharT, Traits> &
           debug(std::basic_ostream<CharT, Traits> &os) const {
-            visit([&os](const auto &v) { v.debug(os); });
-            return os;
+            return visit([&os](const auto &v) { return number::debug(os, v); });
           }
 
           template <typename CharT, typename Traits>
           std::basic_ostream<CharT, Traits> &
           repr(std::basic_ostream<CharT, Traits> &os) const {
-            visit([&os](const auto &v) { v.repr(os); });
+            visit([/*&os*/](const auto & /*v*/) { /*return number::repr(os, v)*/
+                                                  ;
+            });
             return os;
           }
 
         private:
-          NumberValue value;
+          std::variant<Base, Natural, Negative, Rational> value;
         };
       } // namespace number
     }   // namespace object
