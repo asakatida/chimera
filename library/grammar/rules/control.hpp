@@ -58,7 +58,7 @@ namespace chimera {
               return normal<Rule>::template match<A, M, Action, Control>(
                   in, outer, processContext);
             }
-            Ensures(false);
+            Expects(false);
           }
         };
       } // namespace rules

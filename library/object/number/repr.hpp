@@ -66,6 +66,13 @@ namespace chimera {
                      rational.numerator, rational.denominator);
           return os;
         }
+
+        template <typename CharT, typename Traits>
+        std::basic_ostream<CharT, Traits> &
+        repr(std::basic_ostream<CharT, Traits> &os, const Real &real) {
+          std::visit([&os](const auto &v) { repr(os, v); }, real.value);
+          return os;
+        }
       } // namespace number
     }   // namespace object
   }     // namespace library

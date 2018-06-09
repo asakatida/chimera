@@ -66,6 +66,7 @@ TYPES = (
     'Negative',
     'Integer',
     'Rational',
+    'Real',
 )
 
 PAIRINGS = tuple(

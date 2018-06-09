@@ -87,8 +87,6 @@ add_library(
   library/object/number/repr.hpp
   library/object/number/right_shift.cpp
   library/object/number/right_shift.hpp
-  library/object/number/simplify.cpp
-  library/object/number/simplify.hpp
   library/object/number/sub.cpp
   library/object/number/sub.hpp
   library/object/number/util.hpp

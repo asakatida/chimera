@@ -46,7 +46,11 @@ namespace chimera {
           return std::visit([](const auto &value) { return Integer(~value); },
                             integer.value);
         }
-        Base operator~(const Rational & /*rational*/) { Ensures(false); }
+        Base operator~(const Rational & /*rational*/) { Expects(false); }
+        Base operator~(const Real &/*value*/) {
+          Expects(false);
+        }
+
       } // namespace number
     }   // namespace object
   }     // namespace library

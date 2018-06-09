@@ -56,6 +56,10 @@ namespace chimera {
           return right + left;
         }
 
+        Real operator+(std::uint64_t /*left*/, const Real &/*right*/) {
+          Expects(false);
+        }
+
         Positive operator+(Base left, std::uint64_t right) {
           auto value = sum(left.value, right);
           if (value.overflow == 0) {
@@ -86,6 +90,9 @@ namespace chimera {
           return right + left;
         }
 
+        Real operator+(Base /*left*/, const Real &/*right*/) {
+          Expects(false);
+        }
         Natural operator+(const Natural &left, std::uint64_t right) {
           if (right == 0) {
             return left;
@@ -154,6 +161,9 @@ namespace chimera {
           return right + left;
         }
 
+        Real operator+(const Natural &/*left*/, const Real &/*right*/) {
+          Expects(false);
+        }
         Positive operator+(const Positive & /*left*/, std::uint64_t /*right*/) {
           Expects(false);
         }
@@ -187,6 +197,9 @@ namespace chimera {
           Expects(false);
         }
 
+        Real operator+(const Positive &/*left*/, const Real &/*right*/) {
+          Expects(false);
+        }
         Integer operator+(const Negative &left, std::uint64_t right) {
           return std::visit(
               [&right](const auto &value) { return Integer(right - value); },
@@ -225,6 +238,9 @@ namespace chimera {
           return right + left;
         }
 
+        Real operator+(const Negative &/*left*/, const Real &/*right*/) {
+          Expects(false);
+        }
         Integer operator+(const Integer & /*left*/, std::uint64_t /*right*/) {
           Expects(false);
         }
@@ -256,6 +272,9 @@ namespace chimera {
           Expects(false);
         }
 
+        Real operator+(const Integer &/*left*/, const Real &/*right*/) {
+          Expects(false);
+        }
         Rational operator+(const Rational &left, std::uint64_t right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
@@ -294,7 +313,7 @@ namespace chimera {
           Expects(false);
         }
 
-        Rational operator+(const Rational &left, const Rational &right) {
+        Real operator+(const Rational &left, const Rational &right) {
           return std::visit(
               [](const auto &lN, const auto &lD, const auto &rN,
                  const auto &rD) {
@@ -302,6 +321,35 @@ namespace chimera {
               },
               left.numerator, left.denominator, right.numerator,
               right.denominator);
+        }
+
+        Real operator+(const Rational &/*left*/, const Real &/*right*/) {
+          Expects(false);
+        }
+
+        Real operator+(const Real &/*left*/, std::uint64_t /*right*/) {
+          Expects(false);
+        }
+        Real operator+(const Real &/*left*/, Base /*right*/) {
+          Expects(false);
+        }
+        Real operator+(const Real &/*left*/, const Natural &/*right*/) {
+          Expects(false);
+        }
+        Real operator+(const Real &/*left*/, const Positive &/*right*/) {
+          Expects(false);
+        }
+        Real operator+(const Real &/*left*/, const Negative &/*right*/) {
+          Expects(false);
+        }
+        Real operator+(const Real &/*left*/, const Integer &/*right*/) {
+          Expects(false);
+        }
+        Real operator+(const Real &/*left*/, const Rational &/*right*/) {
+          Expects(false);
+        }
+        Real operator+(const Real &/*left*/, const Real &/*right*/) {
+          Expects(false);
         }
       } // namespace number
     }   // namespace object

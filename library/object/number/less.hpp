@@ -33,6 +33,7 @@ namespace chimera {
         bool operator<(std::uint64_t left, const Integer &right);
         bool operator<(std::uint64_t left, const Rational &right);
 
+        bool operator<(std::uint64_t left, const Real &right);
         bool operator<(Base left, std::uint64_t right);
         bool operator<(Base left, Base right);
         bool operator<(Base left, const Natural &right);
@@ -41,6 +42,7 @@ namespace chimera {
         bool operator<(Base left, const Integer &right);
         bool operator<(Base left, const Rational &right);
 
+        bool operator<(Base left, const Real &right);
         bool operator<(const Natural &left, std::uint64_t right);
         bool operator<(const Natural &left, Base right);
         bool operator<(const Natural &left, const Natural &right);
@@ -49,6 +51,7 @@ namespace chimera {
         bool operator<(const Natural &left, const Integer &right);
         bool operator<(const Natural &left, const Rational &right);
 
+        bool operator<(const Natural &left, const Real &right);
         bool operator<(const Positive &left, std::uint64_t right);
         bool operator<(const Positive &left, Base right);
         bool operator<(const Positive &left, const Natural &right);
@@ -56,6 +59,7 @@ namespace chimera {
         bool operator<(const Positive &left, const Negative &right);
         bool operator<(const Positive &left, const Integer &right);
         bool operator<(const Positive &left, const Rational &right);
+        bool operator<(const Positive &left, const Real &right);
         bool operator<(const Negative &left, std::uint64_t right);
         bool operator<(const Negative &left, Base right);
         bool operator<(const Negative &left, const Natural &right);
@@ -64,6 +68,7 @@ namespace chimera {
         bool operator<(const Negative &left, const Integer &right);
         bool operator<(const Negative &left, const Rational &right);
 
+        bool operator<(const Negative &left, const Real &right);
         bool operator<(const Integer &left, std::uint64_t right);
         bool operator<(const Integer &left, Base right);
         bool operator<(const Integer &left, const Natural &right);
@@ -72,6 +77,7 @@ namespace chimera {
         bool operator<(const Integer &left, const Integer &right);
         bool operator<(const Integer &left, const Rational &right);
 
+        bool operator<(const Integer &left, const Real &right);
         bool operator<(const Rational &left, std::uint64_t right);
         bool operator<(const Rational &left, Base right);
         bool operator<(const Rational &left, const Natural &right);
@@ -79,6 +85,16 @@ namespace chimera {
         bool operator<(const Rational &left, const Negative &right);
         bool operator<(const Rational &left, const Integer &right);
         bool operator<(const Rational &left, const Rational &right);
+        bool operator<(const Rational &left, const Real &right);
+
+        bool operator<(const Real &left, std::uint64_t right);
+        bool operator<(const Real &left, Base right);
+        bool operator<(const Real &left, const Natural &right);
+        bool operator<(const Real &left, const Positive &right);
+        bool operator<(const Real &left, const Negative &right);
+        bool operator<(const Real &left, const Integer &right);
+        bool operator<(const Real &left, const Rational &right);
+        bool operator<(const Real &left, const Real &right);
       } // namespace number
     }   // namespace object
   }     // namespace library

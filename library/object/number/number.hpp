@@ -45,6 +45,7 @@ namespace chimera {
           explicit Number(Negative negative);
           explicit Number(Integer integer);
           explicit Number(Rational rational);
+          explicit Number(Real real);
 
           Number(const Number &other) = default;
           Number(Number &&other) noexcept = default;

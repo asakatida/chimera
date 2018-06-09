@@ -170,7 +170,7 @@ namespace chimera {
     std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT, Traits> &os,
                const object::Future & /*future*/) {
-      Ensures(false);
+      Expects(false);
       return os;
     }
 
