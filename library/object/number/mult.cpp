@@ -54,6 +54,9 @@ namespace chimera {
           return right * left;
         }
 
+        Base operator*(std::uint64_t /*left*/, const Real &/*right*/) {
+          Expects(false);
+        }
         Positive operator*(Base left, std::uint64_t right) {
           auto value = mult(left.value, right);
           if (value.overflow == 0u) {
@@ -84,6 +87,9 @@ namespace chimera {
           return right * left;
         }
 
+        Base operator*(Base /*left*/, const Real &/*right*/) {
+          Expects(false);
+        }
         Natural operator*(const Natural &left, std::uint64_t right) {
           if (right == 0) {
             return {};
@@ -140,6 +146,9 @@ namespace chimera {
           return right * left;
         }
 
+        Base operator*(const Natural &/*left*/, const Real &/*right*/) {
+          Expects(false);
+        }
         Positive operator*(const Positive & /*left*/, std::uint64_t /*right*/) {
           Expects(false);
         }
@@ -173,6 +182,9 @@ namespace chimera {
           Expects(false);
         }
 
+        Base operator*(const Positive &/*left*/, const Real &/*right*/) {
+          Expects(false);
+        }
         Negative operator*(const Negative &left, std::uint64_t right) {
           return std::visit(
               [&right](const auto &value) { return -(value * right); },
@@ -209,6 +221,9 @@ namespace chimera {
           return right * left;
         }
 
+        Base operator*(const Negative &/*left*/, const Real &/*right*/) {
+          Expects(false);
+        }
         Integer operator*(const Integer & /*left*/, std::uint64_t /*right*/) {
           Expects(false);
         }
@@ -240,6 +255,9 @@ namespace chimera {
           Expects(false);
         }
 
+        Base operator*(const Integer &/*left*/, const Real &/*right*/) {
+          Expects(false);
+        }
         Rational operator*(const Rational &left, std::uint64_t right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
@@ -285,6 +303,33 @@ namespace chimera {
               },
               left.numerator, left.denominator, right.numerator,
               right.denominator);
+        }
+        Base operator*(const Rational &/*left*/, const Real &/*right*/) {
+          Expects(false);
+        }
+        Base operator*(const Real &/*left*/, std::uint64_t /*right*/) {
+          Expects(false);
+        }
+        Base operator*(const Real &/*left*/, Base /*right*/) {
+          Expects(false);
+        }
+        Base operator*(const Real &/*left*/, const Natural &/*right*/) {
+          Expects(false);
+        }
+        Base operator*(const Real &/*left*/, const Positive &/*right*/) {
+          Expects(false);
+        }
+        Base operator*(const Real &/*left*/, const Negative &/*right*/) {
+          Expects(false);
+        }
+        Base operator*(const Real &/*left*/, const Integer &/*right*/) {
+          Expects(false);
+        }
+        Base operator*(const Real &/*left*/, const Rational &/*right*/) {
+          Expects(false);
+        }
+        Base operator*(const Real &/*left*/, const Real &/*right*/) {
+          Expects(false);
         }
       } // namespace number
     }   // namespace object

@@ -225,7 +225,7 @@ namespace chimera {
                 top.apply("\v"sv);
                 break;
               default:
-                Ensures(false);
+                Expects(false);
             }
           }
         };
@@ -463,7 +463,7 @@ namespace chimera {
               : rules::Stack<std::string, asdl::JoinedStr, asdl::Constant> {
             struct Push {
               using State = std::variant<asdl::JoinedStr, asdl::Constant>;
-              State operator()(std::string && /*value*/) { Ensures(false); }
+              State operator()(std::string && /*value*/) { Expects(false); }
               auto operator()(asdl::JoinedStr &&value) {
                 return State{std::move(value)};
               }

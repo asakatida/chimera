@@ -39,7 +39,6 @@
 #include "object/number/or.hpp"
 #include "object/number/positive.hpp"
 #include "object/number/right_shift.hpp"
-#include "object/number/simplify.hpp"
 #include "object/number/sub.hpp"
 #include "object/number/xor.hpp"
 
@@ -47,16 +46,34 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
+        static NumberValue number(Positive positive) {
+          return std::visit(
+              [](const auto &value) { return NumberValue(value); },
+              positive.value);
+        }
+        static NumberValue number(Integer integer) {
+          return std::visit(
+              [](const auto &value) { return NumberValue(value); },
+              integer.value);
+        }
+        static NumberValue number(Real real) {
+          return std::visit(
+              [](const auto &value) { return NumberValue(value); },
+              real.value);
+        }
+
         Number::Number(std::uint64_t i) : value(Base{i}) {}
         Number::Number(Base base) : value(base) {}
-        Number::Number(Natural natural) : value(simplify(std::move(natural))) {}
+        Number::Number(Natural natural) : value(std::move(natural)) {}
         Number::Number(Positive positive)
-            : value(simplify(std::move(positive))) {}
+            : value(number(std::move(positive))) {}
         Number::Number(Negative negative)
-            : value(simplify(std::move(negative))) {}
-        Number::Number(Integer integer) : value(simplify(std::move(integer))) {}
+            : value(std::move(negative)) {}
+        Number::Number(Integer integer) : value(number(std::move(integer))) {}
         Number::Number(Rational rational)
-            : value(simplify(std::move(rational))) {}
+            : value(std::move(rational)) {}
+        Number::Number(Real real)
+            : value(number(std::move(real))) {}
 
         Number Number::operator+() const {
           return visit([](auto a) { return Number(+a); });

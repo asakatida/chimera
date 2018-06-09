@@ -63,8 +63,9 @@ namespace chimera {
             return T(a);
           }
         };
+        using PositiveValue = std::variant<Base, Natural>;
         struct Positive {
-          std::variant<Base, Natural> value;
+          PositiveValue value;
 
           // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
           Positive(Base base);
@@ -88,7 +89,7 @@ namespace chimera {
           }
         };
         struct Negative {
-          std::variant<Base, Natural> value;
+          PositiveValue value;
 
           // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
           Negative(Base base);
@@ -113,8 +114,9 @@ namespace chimera {
             return std::visit([](const auto &v) { return -T(v); }, value);
           }
         };
+        using IntegerValue = std::variant<Base, Natural, Negative>;
         struct Integer {
-          std::variant<Base, Natural, Negative> value;
+          IntegerValue value;
 
           // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
           Integer(Base base);
@@ -139,8 +141,19 @@ namespace chimera {
           }
         };
         struct Rational {
-          std::variant<Base, Natural, Positive, Negative, Integer> numerator;
-          std::variant<Base, Natural, Positive, Negative, Integer> denominator;
+          IntegerValue numerator;
+          IntegerValue denominator;
+
+          template <typename Numerator, typename Denominator>
+          Rational(Numerator _numerator, Denominator _denominator) : numerator(Integer(_numerator).value), denominator(Integer(_denominator).value) {}
+
+          Rational(const Rational &other) = default;
+          Rational(Rational &&other) noexcept = default;
+
+          ~Rational() noexcept = default;
+
+          Rational &operator=(const Rational &other) = default;
+          Rational &operator=(Rational &&other) noexcept = default;
 
           template <typename T>
           explicit operator T() const noexcept {
@@ -152,6 +165,37 @@ namespace chimera {
                 numerator, denominator);
           }
         };
+        using RealValue = std::variant<Base, Natural, Negative, Rational>;
+        struct Real {
+          RealValue value;
+
+          // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+          Real(Base base);
+          // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+          Real(Natural natural);
+          // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+          Real(Positive positive);
+          // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+          Real(Negative negative);
+          // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+          Real(Integer integer);
+          // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+          Real(Rational rational);
+
+          Real(const Real &other) = default;
+          Real(Real &&other) noexcept = default;
+
+          ~Real() noexcept = default;
+
+          Real &operator=(const Real &other) = default;
+          Real &operator=(Real &&other) noexcept = default;
+
+          template <typename T>
+          explicit operator T() const noexcept {
+            return std::visit([](const auto &v) { return T(v); }, value);
+          }
+        };
+        using NumberValue = std::variant<Base, Natural, Negative, Rational>;
       } // namespace number
     }   // namespace object
   }     // namespace library
