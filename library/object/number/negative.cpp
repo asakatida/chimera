@@ -44,6 +44,9 @@ namespace chimera {
               },
               rational.numerator, rational.denominator);
         }
+        Base operator-(const Real &/*value*/) {
+          Expects(false);
+        }
       } // namespace number
     }   // namespace object
   }     // namespace library

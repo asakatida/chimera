@@ -37,12 +37,17 @@ namespace chimera {
           return std::visit([](const auto &value) { return Positive(+value); },
                             integer.value);
         }
+
         Rational operator+(const Rational &rational) {
           return std::visit(
               [](const auto &a, const auto &b) {
                 return Rational{+a, +b};
               },
               rational.numerator, rational.denominator);
+        }
+
+        Base operator+(const Real &/*value*/) {
+          Expects(false);
         }
       } // namespace number
     }   // namespace object

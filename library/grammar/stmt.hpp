@@ -701,7 +701,7 @@ namespace chimera {
                                    asdl::Name, std::vector<asdl::StmtImpl>>());
                 return;
               default:
-                Ensures(false);
+                Expects(false);
             }
             auto body = pop<std::vector<asdl::StmtImpl>>();
             outer.push(asdl::ExceptHandler{

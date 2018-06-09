@@ -32,6 +32,7 @@ namespace chimera {
         Integer operator+(std::uint64_t left, const Negative &right);
         Integer operator+(std::uint64_t left, const Integer &right);
         Rational operator+(std::uint64_t left, const Rational &right);
+        Real operator+(std::uint64_t left, const Real &right);
 
         Positive operator+(Base left, std::uint64_t right);
         Positive operator+(Base left, Base right);
@@ -40,6 +41,7 @@ namespace chimera {
         Integer operator+(Base left, const Negative &right);
         Integer operator+(Base left, const Integer &right);
         Rational operator+(Base left, const Rational &right);
+        Real operator+(Base left, const Real &right);
 
         Natural operator+(const Natural &left, std::uint64_t right);
         Natural operator+(const Natural &left, Base right);
@@ -48,6 +50,7 @@ namespace chimera {
         Integer operator+(const Natural &left, const Negative &right);
         Integer operator+(const Natural &left, const Integer &right);
         Rational operator+(const Natural &left, const Rational &right);
+        Real operator+(const Natural &left, const Real &right);
 
         Positive operator+(const Positive &left, std::uint64_t right);
         Positive operator+(const Positive &left, Base right);
@@ -56,6 +59,7 @@ namespace chimera {
         Integer operator+(const Positive &left, const Negative &right);
         Integer operator+(const Positive &left, const Integer &right);
         Rational operator+(const Positive &left, const Rational &right);
+        Real operator+(const Positive &left, const Real &right);
 
         Integer operator+(const Negative &left, std::uint64_t right);
         Integer operator+(const Negative &left, Base right);
@@ -64,6 +68,7 @@ namespace chimera {
         Negative operator+(const Negative &left, const Negative &right);
         Integer operator+(const Negative &left, const Integer &right);
         Rational operator+(const Negative &left, const Rational &right);
+        Real operator+(const Negative &left, const Real &right);
 
         Integer operator+(const Integer &left, std::uint64_t right);
         Integer operator+(const Integer &left, Base right);
@@ -72,6 +77,7 @@ namespace chimera {
         Integer operator+(const Integer &left, const Negative &right);
         Integer operator+(const Integer &left, const Integer &right);
         Rational operator+(const Integer &left, const Rational &right);
+        Real operator+(const Integer &left, const Real &right);
 
         Rational operator+(const Rational &left, std::uint64_t right);
         Rational operator+(const Rational &left, Base right);
@@ -79,7 +85,17 @@ namespace chimera {
         Rational operator+(const Rational &left, const Positive &right);
         Rational operator+(const Rational &left, const Negative &right);
         Rational operator+(const Rational &left, const Integer &right);
-        Rational operator+(const Rational &left, const Rational &right);
+        Real operator+(const Rational &left, const Rational &right);
+        Real operator+(const Rational &left, const Real &right);
+
+        Real operator+(const Real &left, std::uint64_t right);
+        Real operator+(const Real &left, Base right);
+        Real operator+(const Real &left, const Natural &right);
+        Real operator+(const Real &left, const Positive &right);
+        Real operator+(const Real &left, const Negative &right);
+        Real operator+(const Real &left, const Integer &right);
+        Real operator+(const Real &left, const Rational &right);
+        Real operator+(const Real &left, const Real &right);
       } // namespace number
     }   // namespace object
   }     // namespace library
