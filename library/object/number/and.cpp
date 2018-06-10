@@ -57,7 +57,7 @@ namespace chimera {
           Expects(false);
         }
 
-        Base operator&(std::uint64_t /*left*/, const Real &/*right*/) {
+        Base operator&(std::uint64_t /*left*/, const Real & /*right*/) {
           Expects(false);
         }
         Base operator&(Base left, std::uint64_t right) {
@@ -91,7 +91,7 @@ namespace chimera {
           Expects(false);
         }
 
-        Base operator&(Base /*left*/, const Real &/*right*/) {
+        Base operator&(Base /*left*/, const Real & /*right*/) {
           Expects(false);
         }
         Base operator&(const Natural &left, std::uint64_t right) {
@@ -139,7 +139,7 @@ namespace chimera {
           Expects(false);
         }
 
-        Base operator&(const Natural &/*left*/, const Real &/*right*/) {
+        Base operator&(const Natural & /*left*/, const Real & /*right*/) {
           Expects(false);
         }
         Base operator&(const Positive &left, std::uint64_t right) {
@@ -154,19 +154,19 @@ namespace chimera {
 
         Positive operator&(const Positive &left, const Natural &right) {
           return std::visit(
-              [right](const auto &value) { return Positive(value & right); },
+              [&right](const auto &value) { return Positive(value & right); },
               left.value);
         }
 
         Positive operator&(const Positive &left, const Positive &right) {
           return std::visit(
-              [right](const auto &value) { return Positive(value & right); },
-              left.value);
+              [](const auto &l, const auto &r) { return Positive(l & r); },
+              left.value, right.value);
         }
 
         Positive operator&(const Positive &left, const Negative &right) {
           return std::visit(
-              [right](const auto &l, const auto &r) { return Positive(l & r); },
+              [](const auto &l, const auto &r) { return Positive(l & r); },
               left.value, right.value);
         }
 
@@ -179,7 +179,7 @@ namespace chimera {
           Expects(false);
         }
 
-        Base operator&(const Positive &/*left*/, const Real &/*right*/) {
+        Base operator&(const Positive & /*left*/, const Real & /*right*/) {
           Expects(false);
         }
         Base operator&(const Negative &left, std::uint64_t right) {
@@ -218,7 +218,7 @@ namespace chimera {
           Expects(false);
         }
 
-        Base operator&(const Negative &/*left*/, const Real &/*right*/) {
+        Base operator&(const Negative & /*left*/, const Real & /*right*/) {
           Expects(false);
         }
         Base operator&(const Integer & /*left*/, std::uint64_t /*right*/) {
@@ -252,7 +252,7 @@ namespace chimera {
           Expects(false);
         }
 
-        Base operator&(const Integer &/*left*/, const Real &/*right*/) {
+        Base operator&(const Integer & /*left*/, const Real & /*right*/) {
           Expects(false);
         }
         Base operator&(const Rational & /*left*/, std::uint64_t /*right*/) {
@@ -280,32 +280,32 @@ namespace chimera {
         Base operator&(const Rational & /*left*/, const Rational & /*right*/) {
           Expects(false);
         }
-        Base operator&(const Rational &/*left*/, const Real &/*right*/) {
+        Base operator&(const Rational & /*left*/, const Real & /*right*/) {
           Expects(false);
         }
 
-        Base operator&(const Real &/*left*/, std::uint64_t /*right*/) {
+        Base operator&(const Real & /*left*/, std::uint64_t /*right*/) {
           Expects(false);
         }
-        Base operator&(const Real &/*left*/, Base /*right*/) {
+        Base operator&(const Real & /*left*/, Base /*right*/) {
           Expects(false);
         }
-        Base operator&(const Real &/*left*/, const Natural &/*right*/) {
+        Base operator&(const Real & /*left*/, const Natural & /*right*/) {
           Expects(false);
         }
-        Base operator&(const Real &/*left*/, const Positive &/*right*/) {
+        Base operator&(const Real & /*left*/, const Positive & /*right*/) {
           Expects(false);
         }
-        Base operator&(const Real &/*left*/, const Negative &/*right*/) {
+        Base operator&(const Real & /*left*/, const Negative & /*right*/) {
           Expects(false);
         }
-        Base operator&(const Real &/*left*/, const Integer &/*right*/) {
+        Base operator&(const Real & /*left*/, const Integer & /*right*/) {
           Expects(false);
         }
-        Base operator&(const Real &/*left*/, const Rational &/*right*/) {
+        Base operator&(const Real & /*left*/, const Rational & /*right*/) {
           Expects(false);
         }
-        Base operator&(const Real &/*left*/, const Real &/*right*/) {
+        Base operator&(const Real & /*left*/, const Real & /*right*/) {
           Expects(false);
         }
       } // namespace number
