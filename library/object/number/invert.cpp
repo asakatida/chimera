@@ -47,9 +47,7 @@ namespace chimera {
                             integer.value);
         }
         Base operator~(const Rational & /*rational*/) { Expects(false); }
-        Base operator~(const Real &/*value*/) {
-          Expects(false);
-        }
+        Base operator~(const Real & /*value*/) { Expects(false); }
 
       } // namespace number
     }   // namespace object

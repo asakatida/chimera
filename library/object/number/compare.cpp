@@ -69,9 +69,7 @@ namespace chimera {
         bool operator==(Base left, const Rational &right) {
           return right == left;
         }
-        bool operator==(Base left, const Real &right) {
-          return right == left;
-        }
+        bool operator==(Base left, const Real &right) { return right == left; }
 
         bool operator==(const Natural & /*left*/, std::uint64_t /*right*/) {
           return false;
@@ -89,13 +87,13 @@ namespace chimera {
         bool operator==(const Natural &left, const Positive &right) {
           return right == left;
         }
-        bool operator==(const Natural & left, const Negative &right) {
+        bool operator==(const Natural &left, const Negative &right) {
           return right == left;
         }
         bool operator==(const Natural &left, const Integer &right) {
           return right == left;
         }
-        bool operator==(const Natural & left, const Rational &right) {
+        bool operator==(const Natural &left, const Rational &right) {
           return right == left;
         }
         bool operator==(const Natural &left, const Real &right) {
@@ -103,24 +101,30 @@ namespace chimera {
         }
 
         bool operator==(const Positive &left, std::uint64_t right) {
-          return std::visit([right](const auto &value) { return value == right; }, left.value);
+          return std::visit(
+              [right](const auto &value) { return value == right; },
+              left.value);
         }
         bool operator==(const Positive &left, Base right) {
-          return std::visit([right](const auto &value) { return value == right; }, left.value);
+          return std::visit(
+              [right](const auto &value) { return value == right; },
+              left.value);
         }
         bool operator==(const Positive &left, const Natural &right) {
-          return std::visit([&right](const auto &value) { return value == right; }, left.value);
+          return std::visit(
+              [&right](const auto &value) { return value == right; },
+              left.value);
         }
         bool operator==(const Positive &left, const Positive &right) {
           return std::visit(std::equal_to<>{}, left.value, right.value);
         }
-        bool operator==(const Positive & left, const Negative &right) {
+        bool operator==(const Positive &left, const Negative &right) {
           return right == left;
         }
         bool operator==(const Positive &left, const Integer &right) {
           return right == left;
         }
-        bool operator==(const Positive & left, const Rational &right) {
+        bool operator==(const Positive &left, const Rational &right) {
           return right == left;
         }
         bool operator==(const Positive &left, const Real &right) {
@@ -145,7 +149,7 @@ namespace chimera {
         bool operator==(const Negative &left, const Integer &right) {
           return right == left;
         }
-        bool operator==(const Negative & left, const Rational &right) {
+        bool operator==(const Negative &left, const Rational &right) {
           return right == left;
         }
         bool operator==(const Negative &left, const Real &right) {
@@ -153,24 +157,32 @@ namespace chimera {
         }
 
         bool operator==(const Integer &left, std::uint64_t right) {
-          return std::visit([right](const auto &value) { return value == right; }, left.value);
+          return std::visit(
+              [right](const auto &value) { return value == right; },
+              left.value);
         }
         bool operator==(const Integer &left, Base right) {
-          return std::visit([right](const auto &value) { return value == right; }, left.value);
+          return std::visit(
+              [right](const auto &value) { return value == right; },
+              left.value);
         }
         bool operator==(const Integer &left, const Natural &right) {
-          return std::visit([&right](const auto &value) { return value == right; }, left.value);
+          return std::visit(
+              [&right](const auto &value) { return value == right; },
+              left.value);
         }
         bool operator==(const Integer &left, const Positive &right) {
           return std::visit(std::equal_to<>{}, left.value, right.value);
         }
         bool operator==(const Integer &left, const Negative &right) {
-          return std::visit([&right](const auto &value) { return value == right; }, left.value);
+          return std::visit(
+              [&right](const auto &value) { return value == right; },
+              left.value);
         }
         bool operator==(const Integer &left, const Integer &right) {
           return std::visit(std::equal_to<>{}, left.value, right.value);
         }
-        bool operator==(const Integer & left, const Rational &right) {
+        bool operator==(const Integer &left, const Rational &right) {
           return right == left;
         }
         bool operator==(const Integer &left, const Real &right) {
@@ -206,25 +218,35 @@ namespace chimera {
         }
 
         bool operator==(const Real &left, std::uint64_t right) {
-          return std::visit([right](const auto &value) { return value == right; }, left.value);
+          return std::visit(
+              [right](const auto &value) { return value == right; },
+              left.value);
         }
         bool operator==(const Real &left, Base right) {
-          return std::visit([right](const auto &value) { return value == right; }, left.value);
+          return std::visit(
+              [right](const auto &value) { return value == right; },
+              left.value);
         }
         bool operator==(const Real &left, const Natural &right) {
-          return std::visit([&right](const auto &value) { return value == right; }, left.value);
+          return std::visit(
+              [&right](const auto &value) { return value == right; },
+              left.value);
         }
         bool operator==(const Real &left, const Positive &right) {
           return std::visit(std::equal_to<>{}, left.value, right.value);
         }
         bool operator==(const Real &left, const Negative &right) {
-          return std::visit([&right](const auto &value) { return value == right; }, left.value);
+          return std::visit(
+              [&right](const auto &value) { return value == right; },
+              left.value);
         }
         bool operator==(const Real &left, const Integer &right) {
           return std::visit(std::equal_to<>{}, left.value, right.value);
         }
         bool operator==(const Real &left, const Rational &right) {
-          return std::visit([&right](const auto &value) { return value == right; }, left.value);
+          return std::visit(
+              [&right](const auto &value) { return value == right; },
+              left.value);
         }
         bool operator==(const Real &left, const Real &right) {
           return std::visit(std::equal_to<>{}, left.value, right.value);

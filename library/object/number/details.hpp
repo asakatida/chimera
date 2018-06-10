@@ -67,9 +67,11 @@ namespace chimera {
         struct Positive {
           PositiveValue value;
 
-          // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+          // NOLINTNEXTLINE(google-explicit-constructor,
+          // hicpp-explicit-conversions)
           Positive(Base base);
-          // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+          // NOLINTNEXTLINE(google-explicit-constructor,
+          // hicpp-explicit-conversions)
           Positive(Natural natural);
 
           Positive(const Positive &other) = default;
@@ -91,11 +93,14 @@ namespace chimera {
         struct Negative {
           PositiveValue value;
 
-          // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+          // NOLINTNEXTLINE(google-explicit-constructor,
+          // hicpp-explicit-conversions)
           Negative(Base base);
-          // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+          // NOLINTNEXTLINE(google-explicit-constructor,
+          // hicpp-explicit-conversions)
           Negative(Natural natural);
-          // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+          // NOLINTNEXTLINE(google-explicit-constructor,
+          // hicpp-explicit-conversions)
           Negative(Positive positive);
 
           Negative(const Negative &other) = default;
@@ -118,13 +123,17 @@ namespace chimera {
         struct Integer {
           IntegerValue value;
 
-          // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+          // NOLINTNEXTLINE(google-explicit-constructor,
+          // hicpp-explicit-conversions)
           Integer(Base base);
-          // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+          // NOLINTNEXTLINE(google-explicit-constructor,
+          // hicpp-explicit-conversions)
           Integer(Natural natural);
-          // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+          // NOLINTNEXTLINE(google-explicit-constructor,
+          // hicpp-explicit-conversions)
           Integer(Positive positive);
-          // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+          // NOLINTNEXTLINE(google-explicit-constructor,
+          // hicpp-explicit-conversions)
           Integer(Negative negative);
 
           Integer(const Integer &other) = default;
@@ -145,7 +154,9 @@ namespace chimera {
           IntegerValue denominator;
 
           template <typename Numerator, typename Denominator>
-          Rational(Numerator _numerator, Denominator _denominator) : numerator(Integer(_numerator).value), denominator(Integer(_denominator).value) {}
+          Rational(Numerator _numerator, Denominator _denominator)
+              : numerator(Integer(_numerator).value),
+                denominator(Integer(_denominator).value) {}
 
           Rational(const Rational &other) = default;
           Rational(Rational &&other) noexcept = default;
@@ -169,17 +180,23 @@ namespace chimera {
         struct Real {
           RealValue value;
 
-          // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+          // NOLINTNEXTLINE(google-explicit-constructor,
+          // hicpp-explicit-conversions)
           Real(Base base);
-          // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+          // NOLINTNEXTLINE(google-explicit-constructor,
+          // hicpp-explicit-conversions)
           Real(Natural natural);
-          // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+          // NOLINTNEXTLINE(google-explicit-constructor,
+          // hicpp-explicit-conversions)
           Real(Positive positive);
-          // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+          // NOLINTNEXTLINE(google-explicit-constructor,
+          // hicpp-explicit-conversions)
           Real(Negative negative);
-          // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+          // NOLINTNEXTLINE(google-explicit-constructor,
+          // hicpp-explicit-conversions)
           Real(Integer integer);
-          // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+          // NOLINTNEXTLINE(google-explicit-constructor,
+          // hicpp-explicit-conversions)
           Real(Rational rational);
 
           Real(const Real &other) = default;

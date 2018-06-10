@@ -85,7 +85,8 @@ namespace chimera {
         Base operator<<(const Rational &left, const Positive &right);
         Base operator<<(const Rational &left, const Negative &right);
         Base operator<<(const Rational &left, const Integer &right);
-        Base operator<<(const Rational &left, const Rational &right);        Base operator<<(const Rational &left, const Real &right);
+        Base operator<<(const Rational &left, const Rational &right);
+        Base operator<<(const Rational &left, const Real &right);
         Base operator<<(const Real &left, std::uint64_t right);
         Base operator<<(const Real &left, Base right);
         Base operator<<(const Real &left, const Natural &right);

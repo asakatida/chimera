@@ -85,7 +85,8 @@ namespace chimera {
         Integer floor_div(const Rational &left, const Positive &right);
         Integer floor_div(const Rational &left, const Negative &right);
         Integer floor_div(const Rational &left, const Integer &right);
-        Integer floor_div(const Rational &left, const Rational &right);        Base floor_div(const Rational &left, const Real &right);
+        Integer floor_div(const Rational &left, const Rational &right);
+        Base floor_div(const Rational &left, const Real &right);
         Base floor_div(const Real &left, std::uint64_t right);
         Base floor_div(const Real &left, Base right);
         Base floor_div(const Real &left, const Natural &right);
