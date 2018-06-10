@@ -54,7 +54,7 @@ namespace chimera {
               right.numerator, right.denominator);
         }
 
-        bool operator<(std::uint64_t /*left*/, const Real &/*right*/) {
+        bool operator<(std::uint64_t /*left*/, const Real & /*right*/) {
           Expects(false);
         }
         bool operator<(Base left, std::uint64_t right) {
@@ -83,7 +83,7 @@ namespace chimera {
           return left.value < right;
         }
 
-        bool operator<(Base /*left*/, const Real &/*right*/) {
+        bool operator<(Base /*left*/, const Real & /*right*/) {
           Expects(false);
         }
         bool operator<(const Natural & /*left*/, std::uint64_t /*right*/) {
@@ -121,7 +121,7 @@ namespace chimera {
               right.numerator, right.denominator);
         }
 
-        bool operator<(const Natural &/*left*/, const Real &/*right*/) {
+        bool operator<(const Natural & /*left*/, const Real & /*right*/) {
           Expects(false);
         }
         bool operator<(const Positive & /*left*/, std::uint64_t /*right*/) {
@@ -145,7 +145,7 @@ namespace chimera {
         bool operator<(const Positive & /*left*/, const Rational & /*right*/) {
           Expects(false);
         }
-        bool operator<(const Positive &/*left*/, const Real &/*right*/) {
+        bool operator<(const Positive & /*left*/, const Real & /*right*/) {
           Expects(false);
         }
         bool operator<(const Negative & /*left*/, std::uint64_t /*right*/) {
@@ -179,7 +179,7 @@ namespace chimera {
               right.numerator, right.denominator);
         }
 
-        bool operator<(const Negative &/*left*/, const Real &/*right*/) {
+        bool operator<(const Negative & /*left*/, const Real & /*right*/) {
           Expects(false);
         }
         bool operator<(const Integer & /*left*/, std::uint64_t /*right*/) {
@@ -203,7 +203,7 @@ namespace chimera {
         bool operator<(const Integer & /*left*/, const Rational & /*right*/) {
           Expects(false);
         }
-        bool operator<(const Integer &/*left*/, const Real &/*right*/) {
+        bool operator<(const Integer & /*left*/, const Real & /*right*/) {
           Expects(false);
         }
         bool operator<(const Rational &left, std::uint64_t right) {
@@ -250,32 +250,32 @@ namespace chimera {
               right.denominator);
         }
 
-        bool operator<(const Rational &/*left*/, const Real &/*right*/) {
+        bool operator<(const Rational & /*left*/, const Real & /*right*/) {
           Expects(false);
         }
 
-        bool operator<(const Real &/*left*/, std::uint64_t /*right*/) {
+        bool operator<(const Real & /*left*/, std::uint64_t /*right*/) {
           Expects(false);
         }
-        bool operator<(const Real &/*left*/, Base /*right*/) {
+        bool operator<(const Real & /*left*/, Base /*right*/) {
           Expects(false);
         }
-        bool operator<(const Real &/*left*/, const Natural &/*right*/) {
+        bool operator<(const Real & /*left*/, const Natural & /*right*/) {
           Expects(false);
         }
-        bool operator<(const Real &/*left*/, const Positive &/*right*/) {
+        bool operator<(const Real & /*left*/, const Positive & /*right*/) {
           Expects(false);
         }
-        bool operator<(const Real &/*left*/, const Negative &/*right*/) {
+        bool operator<(const Real & /*left*/, const Negative & /*right*/) {
           Expects(false);
         }
-        bool operator<(const Real &/*left*/, const Integer &/*right*/) {
+        bool operator<(const Real & /*left*/, const Integer & /*right*/) {
           Expects(false);
         }
-        bool operator<(const Real &/*left*/, const Rational &/*right*/) {
+        bool operator<(const Real & /*left*/, const Rational & /*right*/) {
           Expects(false);
         }
-        bool operator<(const Real &/*left*/, const Real &/*right*/) {
+        bool operator<(const Real & /*left*/, const Real & /*right*/) {
           Expects(false);
         }
       } // namespace number

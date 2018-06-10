@@ -53,11 +53,13 @@ namespace chimera {
         }
 
         static IntegerValue integer(Natural &&value) {
-          return std::visit([](auto &&v) { return IntegerValue(v); }, positive(std::move(value)));
+          return std::visit([](auto &&v) { return IntegerValue(v); },
+                            positive(std::move(value)));
         }
 
         static IntegerValue integer(Positive &&value) {
-          return std::visit([](auto &&v) { return IntegerValue(v); }, value.value);
+          return std::visit([](auto &&v) { return IntegerValue(v); },
+                            value.value);
         }
 
         static bool even(std::uint64_t i) { return (i & 1u) == 0u; }
@@ -231,21 +233,20 @@ namespace chimera {
         }
 
         static RealValue real(Natural natural) {
-          return std::visit([](auto &&v) { return RealValue(v); }, positive(std::move(natural)));
+          return std::visit([](auto &&v) { return RealValue(v); },
+                            positive(std::move(natural)));
         }
 
         static RealValue real(Positive positive) {
-          return std::visit(
-              [](const auto &value) { return RealValue(value); },
-              positive.value);
+          return std::visit([](const auto &value) { return RealValue(value); },
+                            positive.value);
         }
 
         static RealValue real(Negative negative) { return negative; }
 
         static RealValue real(Integer integer) {
-          return std::visit(
-              [](const auto &value) { return RealValue(value); },
-              integer.value);
+          return std::visit([](const auto &value) { return RealValue(value); },
+                            integer.value);
         }
 
         static RealValue real(Rational rational) {
@@ -274,10 +275,8 @@ namespace chimera {
         Integer::Integer(Negative negative) : value(std::move(negative)) {}
 
         Real::Real(Base base) : value(base) {}
-        Real::Real(Natural natural)
-            : value(real(std::move(natural))) {}
-        Real::Real(Positive positive)
-            : value(real(std::move(positive))) {}
+        Real::Real(Natural natural) : value(real(std::move(natural))) {}
+        Real::Real(Positive positive) : value(real(std::move(positive))) {}
         Real::Real(Negative negative) : value(real(std::move(negative))) {}
         Real::Real(Integer integer) : value(real(std::move(integer))) {}
         Real::Real(Rational rational) : value(real(std::move(rational))) {}
