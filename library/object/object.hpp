@@ -27,6 +27,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <string_view>
 
 #include "asdl/asdl.hpp"
 #include "container/atomic_map.hpp"
@@ -51,13 +52,13 @@ namespace chimera {
       enum class ObjectMethod { DELATTR, DIR, GETATTRIBUTE, SETATTR };
       struct String {
         String() noexcept = default;
-        explicit String(std::string string);
+        explicit String(std::string_view string);
         String(const String &string) = default;
         String(String &&string) noexcept = default;
         ~String() noexcept = default;
         String &operator=(const String &string) = default;
         String &operator=(String &&string) noexcept = default;
-        std::string value;
+        std::string_view value;
       };
       enum class StringMethod {};
       enum class SysCall {
