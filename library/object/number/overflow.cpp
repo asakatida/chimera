@@ -62,4 +62,4 @@ namespace chimera {
       } // namespace number
     }   // namespace object
   }     // namespace library
-};      // namespace chimera
+} // namespace chimera
