@@ -38,15 +38,16 @@ namespace chimera {
     namespace object {
       namespace number {
         template <typename Left>
-        Rational mod(const Left &left, const Rational &right) {
+        Real mod(const Left &left, const Rational &right) {
           return std::visit(
               [&left](const auto &rN, const auto &rD) {
                 return left - rN * floor_div(left * rD, rN) / rD;
               },
               right.numerator, right.denominator);
         }
+
         template <typename Right>
-        Rational mod(const Rational &left, const Right &right) {
+        Real mod(const Rational &left, const Right &right) {
           return std::visit(
               [&left, &right](const auto &lN, const auto &lD) {
                 return left - right * floor_div(lN, lD * right);
@@ -63,54 +64,61 @@ namespace chimera {
           return {left};
         }
 
-        Base operator%(std::uint64_t /*left*/, const Positive & /*right*/) {
-          Expects(false);
-        }
-        Base operator%(std::uint64_t left, const Negative &right) {
-          return std::visit([&left](const auto &value) { return left % value; },
+        Base operator%(std::uint64_t left, const Positive & right) {
+          return std::visit([left](const auto &value) { return left % value; },
                             right.value);
         }
 
-        Base operator%(std::uint64_t /*left*/, const Integer & /*right*/) {
-          Expects(false);
+        Base operator%(std::uint64_t left, const Negative &right) {
+          return std::visit([left](const auto &value) { return left % value; },
+                            right.value);
         }
-        Rational operator%(std::uint64_t left, const Rational &right) {
+
+        Base operator%(std::uint64_t left, const Integer & right) {
+          return std::visit([left](const auto &value) { return left % value; },
+                            right.value);
+        }
+
+        Real operator%(std::uint64_t left, const Rational &right) {
           return mod(left, right);
         }
 
-        Base operator%(std::uint64_t /*left*/, const Real & /*right*/) {
-          Expects(false);
+        Real operator%(std::uint64_t left, const Real & right) {
+          return std::visit([left](const auto &value) { return Real(left % value); },
+                            right.value);
         }
+
         Base operator%(Base left, std::uint64_t right) {
           Expects(right != 0);
           return {left.value % right};
         }
 
         Base operator%(Base left, Base right) {
-          Expects(right.value != 0);
-          return {left.value % right.value};
+          return left.value % right;
         }
 
         Base operator%(Base left, const Natural & /*right*/) { return left; }
 
-        Base operator%(Base /*left*/, const Positive & /*right*/) {
-          Expects(false);
+        Base operator%(Base left, const Positive & right) {
+          return left.value % right;
         }
+
         Base operator%(Base left, const Negative &right) {
-          return std::visit([&left](const auto &value) { return left % value; },
-                            right.value);
+          return left.value % right;
         }
 
-        Base operator%(Base /*left*/, const Integer & /*right*/) {
-          Expects(false);
-        }
-        Rational operator%(Base left, const Rational &right) {
-          return mod(left, right);
+        Base operator%(Base left, const Integer & right) {
+          return left.value % right;
         }
 
-        Base operator%(Base /*left*/, const Real & /*right*/) {
-          Expects(false);
+        Real operator%(Base left, const Rational &right) {
+          return left.value % right;
         }
+
+        Real operator%(Base left, const Real & right) {
+          return left.value % right;
+        }
+
         Base operator%(const Natural &left, std::uint64_t right) {
           Expects(right != 0);
           Carryover carryover{};
@@ -139,8 +147,10 @@ namespace chimera {
           return a;
         }
 
-        Base operator%(const Natural & /*left*/, const Positive & /*right*/) {
-          Expects(false);
+        Positive operator%(const Natural & left, const Positive & right) {
+          return std::visit(
+              [&left](const auto &value) { return Positive(left % value); },
+              right.value);
         }
 
         Positive operator%(const Natural &left, const Negative &right) {
@@ -149,43 +159,67 @@ namespace chimera {
               right.value);
         }
 
-        Base operator%(const Natural & /*left*/, const Integer & /*right*/) {
-          Expects(false);
+        Positive operator%(const Natural & left, const Integer & right) {
+          return std::visit(
+              [&left](const auto &value) { return Positive(left % value); },
+              right.value);
         }
-        Rational operator%(const Natural &left, const Rational &right) {
+
+        Real operator%(const Natural &left, const Rational &right) {
           return mod(left, right);
         }
 
-        Base operator%(const Natural & /*left*/, const Real & /*right*/) {
-          Expects(false);
+        Real operator%(const Natural & left, const Real & right) {
+          return std::visit([&left](const auto &value) { return Real(left % value); },
+                            right.value);
         }
-        Base operator%(const Positive & /*left*/, std::uint64_t /*right*/) {
-          Expects(false);
+
+        Positive operator%(const Positive & left, std::uint64_t right) {
+          return std::visit(
+              [right](const auto &value) { return Positive(value % right); },
+              left.value);
         }
-        Base operator%(const Positive & /*left*/, Base /*right*/) {
-          Expects(false);
+
+        Positive operator%(const Positive & left, Base right) {
+          return left % right.value;
         }
-        Base operator%(const Positive & /*left*/, const Natural & /*right*/) {
-          Expects(false);
+
+        Positive operator%(const Positive & left, const Natural & right) {
+          return std::visit(
+              [&right](const auto &value) { return Positive(value % right); },
+              left.value);
         }
-        Base operator%(const Positive & /*left*/, const Positive & /*right*/) {
-          Expects(false);
+
+        Positive operator%(const Positive & left, const Positive & right) {
+          return std::visit(
+              [&right](const auto &value) { return Positive(value % right); },
+              left.value);
         }
-        Base operator%(const Positive & /*left*/, const Negative & /*right*/) {
-          Expects(false);
+
+        Positive operator%(const Positive & left, const Negative & right) {
+          return std::visit(
+              [&right](const auto &value) { return Positive(value % right); },
+              left.value);
         }
-        Base operator%(const Positive & /*left*/, const Integer & /*right*/) {
-          Expects(false);
+
+        Positive operator%(const Positive & left, const Integer & right) {
+          return std::visit(
+              [&right](const auto &value) { return Positive(value % right); },
+              left.value);
         }
-        Base operator%(const Positive & /*left*/, const Rational & /*right*/) {
-          Expects(false);
+
+        Real operator%(const Positive & left, const Rational & right) {
+          return mod(left, right);
         }
-        Base operator%(const Positive & /*left*/, const Real & /*right*/) {
-          Expects(false);
+
+        Real operator%(const Positive & left, const Real & right) {
+          return std::visit([&left](const auto &value) { return Real(left % value); },
+                            right.value);
         }
+
         Negative operator%(const Negative &left, std::uint64_t right) {
           return std::visit(
-              [&right](const auto &value) { return -(value % right); },
+              [right](const auto &value) { return -(value % right); },
               left.value);
         }
 
@@ -199,72 +233,101 @@ namespace chimera {
               left.value);
         }
 
-        Base operator%(const Negative & /*left*/, const Positive & /*right*/) {
-          Expects(false);
+        Negative operator%(const Negative & left, const Positive & right) {
+          return std::visit(
+              [&right](const auto &value) { return -(value % right); },
+              left.value);
         }
+
         Positive operator%(const Negative &left, const Negative &right) {
           return std::visit(
               [](const auto &a, const auto &b) { return Positive(a % b); },
               left.value, right.value);
         }
 
-        Base operator%(const Negative & /*left*/, const Integer & /*right*/) {
-          Expects(false);
+        Integer operator%(const Negative & left, const Integer & right) {
+          return std::visit(
+              [&left](const auto &value) { return Integer(left % value); },
+              right.value);
         }
-        Rational operator%(const Negative &left, const Rational &right) {
+
+        Real operator%(const Negative &left, const Rational &right) {
           return mod(left, right);
         }
 
-        Base operator%(const Negative & /*left*/, const Real & /*right*/) {
-          Expects(false);
+        Real operator%(const Negative & left, const Real & right) {
+          return std::visit([&left](const auto &value) { return Real(left % value); },
+                            right.value);
         }
-        Base operator%(const Integer & /*left*/, std::uint64_t /*right*/) {
-          Expects(false);
+
+        Integer operator%(const Integer & left, std::uint64_t right) {
+          return std::visit(
+              [right](const auto &value) { return Integer(value % right); },
+              left.value);
         }
-        Base operator%(const Integer & /*left*/, Base /*right*/) {
-          Expects(false);
+
+        Integer operator%(const Integer & left, Base right) {
+          return left % right.value;
         }
-        Base operator%(const Integer & /*left*/, const Natural & /*right*/) {
-          Expects(false);
+
+        Integer operator%(const Integer & left, const Natural & right) {
+          return std::visit(
+              [&right](const auto &value) { return Integer(value % right); },
+              left.value);
         }
-        Base operator%(const Integer & /*left*/, const Positive & /*right*/) {
-          Expects(false);
+
+        Integer operator%(const Integer & left, const Positive & right) {
+          return std::visit(
+              [&right](const auto &value) { return Integer(value % right); },
+              left.value);
         }
-        Base operator%(const Integer & /*left*/, const Negative & /*right*/) {
-          Expects(false);
+
+        Integer operator%(const Integer & left, const Negative & right) {
+          return std::visit(
+              [&right](const auto &value) { return Integer(value % right); },
+              left.value);
         }
-        Base operator%(const Integer & /*left*/, const Integer & /*right*/) {
-          Expects(false);
+
+        Integer operator%(const Integer & left, const Integer & right) {
+          return std::visit(
+              [&right](const auto &value) { return Integer(value % right); },
+              left.value);
         }
-        Base operator%(const Integer & /*left*/, const Rational & /*right*/) {
-          Expects(false);
-        }
-        Base operator%(const Integer & /*left*/, const Real & /*right*/) {
-          Expects(false);
-        }
-        Rational operator%(const Rational &left, std::uint64_t right) {
+
+        Real operator%(const Integer & left, const Rational & right) {
           return mod(left, right);
         }
 
-        Rational operator%(const Rational &left, Base right) {
+        Real operator%(const Integer & left, const Real & right) {
+          return std::visit([&left](const auto &value) { return Real(left % value); },
+                            right.value);
+        }
+
+        Real operator%(const Rational &left, std::uint64_t right) {
           return mod(left, right);
         }
 
-        Rational operator%(const Rational &left, const Natural &right) {
+        Real operator%(const Rational &left, Base right) {
+          return left % right.value;
+        }
+
+        Real operator%(const Rational &left, const Natural &right) {
           return mod(left, right);
         }
 
-        Base operator%(const Rational & /*left*/, const Positive & /*right*/) {
-          Expects(false);
-        }
-        Rational operator%(const Rational &left, const Negative &right) {
+        Real operator%(const Rational & left, const Positive & right) {
           return mod(left, right);
         }
 
-        Base operator%(const Rational & /*left*/, const Integer & /*right*/) {
-          Expects(false);
+        Real operator%(const Rational &left, const Negative &right) {
+          return mod(left, right);
         }
-        Rational operator%(const Rational &left, const Rational &right) {
+
+        Real operator%(const Rational & left, const Integer & right) {
+          return mod(left, right);
+        }
+
+        Real operator%(const Rational &left, const Rational &right) {
           return std::visit(
               [&left](const auto &lN, const auto &lD, const auto &rN,
                       const auto &rD) {
@@ -273,33 +336,50 @@ namespace chimera {
               left.numerator, left.denominator, right.numerator,
               right.denominator);
         }
-        Base operator%(const Rational & /*left*/, const Real & /*right*/) {
-          Expects(false);
+
+        Real operator%(const Rational & left, const Real & right) {
+          return std::visit([&left](const auto &value) { return Real(left % value); },
+                            right.value);
         }
 
-        Base operator%(const Real & /*left*/, std::uint64_t /*right*/) {
-          Expects(false);
+        Real operator%(const Real & left, std::uint64_t right) {
+          return std::visit([right](const auto &value) { return Real(value % right); },
+                            left.value);
         }
-        Base operator%(const Real & /*left*/, Base /*right*/) {
-          Expects(false);
+
+        Real operator%(const Real & left, Base right) {
+          return std::visit([right](const auto &value) { return Real(value % right); },
+                            left.value);
         }
-        Base operator%(const Real & /*left*/, const Natural & /*right*/) {
-          Expects(false);
+
+        Real operator%(const Real & left, const Natural & right) {
+          return std::visit([&right](const auto &value) { return Real(value % right); },
+                            left.value);
         }
-        Base operator%(const Real & /*left*/, const Positive & /*right*/) {
-          Expects(false);
+
+        Real operator%(const Real & left, const Positive & right) {
+          return std::visit([&right](const auto &value) { return Real(value % right); },
+                            left.value);
         }
-        Base operator%(const Real & /*left*/, const Negative & /*right*/) {
-          Expects(false);
+
+        Real operator%(const Real & left, const Negative & right) {
+          return std::visit([&right](const auto &value) { return Real(value % right); },
+                            left.value);
         }
-        Base operator%(const Real & /*left*/, const Integer & /*right*/) {
-          Expects(false);
+
+        Real operator%(const Real & left, const Integer & right) {
+          return std::visit([&right](const auto &value) { return Real(value % right); },
+                            left.value);
         }
-        Base operator%(const Real & /*left*/, const Rational & /*right*/) {
-          Expects(false);
+
+        Real operator%(const Real & left, const Rational & right) {
+          return std::visit([&right](const auto &value) { return Real(value % right); },
+                            left.value);
         }
-        Base operator%(const Real & /*left*/, const Real & /*right*/) {
-          Expects(false);
+
+        Real operator%(const Real & left, const Real & right) {
+          return std::visit([](const auto &l, const auto &r) { return Real(l % r); },
+                            left.value, right.value);
         }
       } // namespace number
     }   // namespace object
