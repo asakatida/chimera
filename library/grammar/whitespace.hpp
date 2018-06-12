@@ -94,7 +94,7 @@ namespace chimera {
         using Token =
             seq<Rule,
                 Space<flags::mask<Option, flags::DISCARD, flags::IMPLICIT>>>;
-      }; // namespace token
-    }    // namespace grammar
-  }      // namespace library
+      } // namespace token
+    }   // namespace grammar
+  }     // namespace library
 } // namespace chimera

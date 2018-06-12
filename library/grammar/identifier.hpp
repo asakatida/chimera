@@ -43,7 +43,7 @@ namespace chimera {
             stack.push(asdl::Name{in.string()});
           }
         };
-      }; // namespace token
+      } // namespace token
       template <flags::Flag Option>
       struct Name : token::Token<Option, token::Name> {};
     } // namespace grammar
