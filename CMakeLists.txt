@@ -11,41 +11,41 @@ add_compile_options(
   -Wno-padded
   -ftemplate-depth=1536)
 
-  add_library(
-    chimera_grammar
-    library/asdl/asdl.hpp
-    library/grammar/rules/action.hpp
-    library/grammar/rules/captures.hpp
-    library/grammar/rules/control.hpp
-    library/grammar/rules/rules.hpp
-    library/grammar/rules/set.hpp
-    library/grammar/rules/stack.hpp
-    library/grammar/expr.hpp
-    library/grammar/exprfwd.hpp
-    library/grammar/flags.hpp
-    library/grammar/grammar.hpp
-    library/grammar/identifier.hpp
-    library/grammar/input.hpp
-    library/grammar/keys.hpp
-    library/grammar/number.hpp
-    library/grammar/oper.hpp
-    library/grammar/parse.hpp
-    library/grammar/rules.hpp
-    library/grammar/stmt.hpp
-    library/grammar/string.hpp
-    library/grammar/utf8_id_continue.hpp
-    library/grammar/utf8_id_start.hpp
-    library/grammar/utf8_space.hpp
-    library/grammar/whitespace.hpp
-    library/virtual_machine/parse.cpp)
+add_library(
+  chimera_grammar
+  library/asdl/asdl.hpp
+  library/grammar/rules/action.hpp
+  library/grammar/rules/captures.hpp
+  library/grammar/rules/control.hpp
+  library/grammar/rules/rules.hpp
+  library/grammar/rules/set.hpp
+  library/grammar/rules/stack.hpp
+  library/grammar/expr.hpp
+  library/grammar/exprfwd.hpp
+  library/grammar/flags.hpp
+  library/grammar/grammar.hpp
+  library/grammar/identifier.hpp
+  library/grammar/input.hpp
+  library/grammar/keys.hpp
+  library/grammar/number.hpp
+  library/grammar/oper.hpp
+  library/grammar/parse.hpp
+  library/grammar/rules.hpp
+  library/grammar/stmt.hpp
+  library/grammar/string.hpp
+  library/grammar/utf8_id_continue.hpp
+  library/grammar/utf8_id_start.hpp
+  library/grammar/utf8_space.hpp
+  library/grammar/whitespace.hpp
+  library/virtual_machine/parse.cpp)
 
-  target_include_directories(chimera_grammar PUBLIC library include)
-  target_include_directories(
-    chimera_grammar
-    SYSTEM PUBLIC
-    external/GSL/include
-    external/metal/include
-    external/PEGTL/include)
+target_include_directories(chimera_grammar PUBLIC library include)
+target_include_directories(
+  chimera_grammar
+  SYSTEM PUBLIC
+  external/GSL/include
+  external/metal/include
+  external/PEGTL/include)
 
 add_library(
   chimera_object_number
