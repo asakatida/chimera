@@ -21,12 +21,13 @@ matrix:
             - g++-8
       compiler: gcc
       env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8 && CXXFLAGS=-Wpedantic"
 
 before_install:
   - eval "${MATRIX_EVAL}"
+  - export CXXFLAGS="$CXXFLAGS -std=c++17 -Wall -Wextra"
 
 script:
-  - cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-std=c++17 -Wall -Wextra"
+  - cmake -DCMAKE_BUILD_TYPE=Debug
   - make -j3
   - make check
