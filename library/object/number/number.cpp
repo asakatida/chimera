@@ -62,14 +62,14 @@ namespace chimera {
         }
 
         Number::Number(std::uint64_t i) : value(Base{i}) {}
-        Number::Number(Base base) : value(base) {}
-        Number::Number(Natural natural) : value(std::move(natural)) {}
-        Number::Number(Positive positive)
+        Number::Number(Base &&base) : value(base) {}
+        Number::Number(Natural &&natural) : value(std::move(natural)) {}
+        Number::Number(Positive &&positive)
             : value(number(std::move(positive))) {}
-        Number::Number(Negative negative) : value(std::move(negative)) {}
-        Number::Number(Integer integer) : value(number(std::move(integer))) {}
-        Number::Number(Rational rational) : value(std::move(rational)) {}
-        Number::Number(Real real) : value(number(std::move(real))) {}
+        Number::Number(Negative &&negative) : value(std::move(negative)) {}
+        Number::Number(Integer &&integer) : value(number(std::move(integer))) {}
+        Number::Number(Rational &&rational) : value(std::move(rational)) {}
+        Number::Number(Real &&real) : value(number(std::move(real))) {}
 
         Number Number::operator+() const {
           return visit([](auto a) { return Number(+a); });

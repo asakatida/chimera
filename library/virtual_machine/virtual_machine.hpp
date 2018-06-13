@@ -43,7 +43,7 @@ namespace chimera {
 
         ProcessContext process_context() const;
 
-        GlobalContext global_context;
+        GlobalContext global_context{};
       };
     } // namespace virtual_machine
   }   // namespace library

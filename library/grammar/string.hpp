@@ -406,13 +406,15 @@ namespace chimera {
           template <typename Input, typename Top, typename ProcessContext>
           static void apply(const Input &in, Top &&top,
                             ProcessContext &&processContext) {
-            Ensures((tao::pegtl::parse_nested<
-                     FString<flags::list<flags::DISCARD, flags::IMPLICIT>>,
-                     Action, Normal>(
-                in,
-                tao::pegtl::memory_input<>(top.string.c_str(),
-                                           top.string.size(), "<f_string>"),
-                top, processContext)));
+            auto result = tao::pegtl::parse_nested<
+                FString<flags::list<flags::DISCARD, flags::IMPLICIT>>, Action,
+                Normal>(in,
+                        tao::pegtl::memory_input<>(top.string.c_str(),
+                                                   top.string.size(),
+                                                   "<f_string>"),
+                        std::forward<Top>(top),
+                        std::forward<ProcessContext>(processContext));
+            Ensures(result);
           }
         };
         template <flags::Flag Option>
