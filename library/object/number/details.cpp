@@ -127,14 +127,16 @@ namespace chimera {
         static Rational to_rational_pos(Left &&left, Right &&right) {
           return std::visit(
               [](auto &&a, auto &&b) { return to_rational(a, b); },
-              integer(std::move(left)), integer(std::move(right)));
+              integer(std::forward<Left>(left)),
+              integer(std::forward<Right>(right)));
         }
 
         template <typename Left, typename Right>
         static Rational to_rational_neg(Left &&left, Right &&right) {
           return std::visit(
               [](auto &&a, auto &&b) { return to_rational(-a, b); },
-              integer(std::move(left)), integer(std::move(right)));
+              integer(std::forward<Left>(left)),
+              integer(std::forward<Right>(right)));
         }
 
         static RealValue reduce_pos(Positive left, Positive right) {
@@ -143,7 +145,7 @@ namespace chimera {
             right = right >> 1u;
           }
           if (left == 1u) {
-            return to_rational_pos(left, right);
+            return to_rational_pos(std::move(left), std::move(right));
           }
           if (right == 1u) {
             return left;
@@ -161,7 +163,7 @@ namespace chimera {
             }
           }
           if (aPrime == 1u) {
-            return to_rational_pos(left, right);
+            return to_rational_pos(std::move(left), std::move(right));
           }
           if (left == aPrime) {
             return to_rational_pos(Base{1u}, floor_div(right, aPrime));
@@ -179,7 +181,7 @@ namespace chimera {
             right = right >> 1u;
           }
           if (left == 1u) {
-            return to_rational_neg(left, right);
+            return to_rational_neg(std::move(left), std::move(right));
           }
           if (right == 1u) {
             return -left;
@@ -197,7 +199,7 @@ namespace chimera {
             }
           }
           if (aPrime == 1u) {
-            return to_rational_neg(left, right);
+            return to_rational_neg(std::move(left), std::move(right));
           }
           if (left == aPrime) {
             return to_rational_neg(Base{1u}, floor_div(right, aPrime));
