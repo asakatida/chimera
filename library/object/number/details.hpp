@@ -36,7 +36,7 @@ namespace chimera {
 
           template <typename T>
           explicit operator T() const noexcept {
-            if constexpr (std::is_same_v<T, bool>) {
+            if constexpr (std::is_same_v<T, bool>) { // NOLINT
               return value != 0u;
             }
             if (value >= std::uint64_t(std::numeric_limits<T>::max())) {
@@ -50,7 +50,7 @@ namespace chimera {
 
           template <typename T>
           explicit operator T() const noexcept {
-            if constexpr (std::is_same_v<T, bool>) {
+            if constexpr (std::is_same_v<T, bool>) { // NOLINT
               return true;
             }
             if (value.size() > 2) {
@@ -67,12 +67,8 @@ namespace chimera {
         struct Positive {
           PositiveValue value;
 
-          // NOLINTNEXTLINE(google-explicit-constructor,
-          // hicpp-explicit-conversions)
-          Positive(Base base);
-          // NOLINTNEXTLINE(google-explicit-constructor,
-          // hicpp-explicit-conversions)
-          Positive(Natural natural);
+          Positive(Base base);       // NOLINT
+          Positive(Natural natural); // NOLINT
 
           Positive(const Positive &other) = default;
           Positive(Positive &&other) noexcept = default;
@@ -84,7 +80,7 @@ namespace chimera {
 
           template <typename T>
           explicit operator T() const noexcept {
-            if constexpr (std::is_same_v<T, bool>) {
+            if constexpr (std::is_same_v<T, bool>) { // NOLINT
               return std::visit([](const auto &v) { return T(v); }, value);
             }
             return std::visit([](const auto &v) { return T(v); }, value);
@@ -93,15 +89,9 @@ namespace chimera {
         struct Negative {
           PositiveValue value;
 
-          // NOLINTNEXTLINE(google-explicit-constructor,
-          // hicpp-explicit-conversions)
-          Negative(Base base);
-          // NOLINTNEXTLINE(google-explicit-constructor,
-          // hicpp-explicit-conversions)
-          Negative(Natural natural);
-          // NOLINTNEXTLINE(google-explicit-constructor,
-          // hicpp-explicit-conversions)
-          Negative(Positive positive);
+          Negative(Base base);         // NOLINT
+          Negative(Natural natural);   // NOLINT
+          Negative(Positive positive); // NOLINT
 
           Negative(const Negative &other) = default;
           Negative(Negative &&other) noexcept = default;
@@ -113,7 +103,7 @@ namespace chimera {
 
           template <typename T>
           explicit operator T() const noexcept {
-            if constexpr (std::is_same_v<T, bool>) {
+            if constexpr (std::is_same_v<T, bool>) { // NOLINT
               return std::visit([](const auto &v) { return T(v); }, value);
             }
             return std::visit([](const auto &v) { return -T(v); }, value);
@@ -123,18 +113,10 @@ namespace chimera {
         struct Integer {
           IntegerValue value;
 
-          // NOLINTNEXTLINE(google-explicit-constructor,
-          // hicpp-explicit-conversions)
-          Integer(Base base);
-          // NOLINTNEXTLINE(google-explicit-constructor,
-          // hicpp-explicit-conversions)
-          Integer(Natural natural);
-          // NOLINTNEXTLINE(google-explicit-constructor,
-          // hicpp-explicit-conversions)
-          Integer(Positive positive);
-          // NOLINTNEXTLINE(google-explicit-constructor,
-          // hicpp-explicit-conversions)
-          Integer(Negative negative);
+          Integer(Base base);         // NOLINT
+          Integer(Natural natural);   // NOLINT
+          Integer(Positive positive); // NOLINT
+          Integer(Negative negative); // NOLINT
 
           Integer(const Integer &other) = default;
           Integer(Integer &&other) noexcept = default;
@@ -154,9 +136,9 @@ namespace chimera {
           IntegerValue denominator;
 
           template <typename Numerator, typename Denominator>
-          Rational(Numerator _numerator, Denominator _denominator)
-              : numerator(Integer(_numerator).value),
-                denominator(Integer(_denominator).value) {}
+          Rational(Numerator num, Denominator den)
+              : numerator(Integer(num).value), denominator(Integer(den).value) {
+          }
 
           Rational(const Rational &other) = default;
           Rational(Rational &&other) noexcept = default;
@@ -168,7 +150,7 @@ namespace chimera {
 
           template <typename T>
           explicit operator T() const noexcept {
-            if constexpr (std::is_same_v<T, bool>) {
+            if constexpr (std::is_same_v<T, bool>) { // NOLINT
               return true;
             }
             return std::visit(
@@ -180,24 +162,12 @@ namespace chimera {
         struct Real {
           RealValue value;
 
-          // NOLINTNEXTLINE(google-explicit-constructor,
-          // hicpp-explicit-conversions)
-          Real(Base base);
-          // NOLINTNEXTLINE(google-explicit-constructor,
-          // hicpp-explicit-conversions)
-          Real(Natural natural);
-          // NOLINTNEXTLINE(google-explicit-constructor,
-          // hicpp-explicit-conversions)
-          Real(Positive positive);
-          // NOLINTNEXTLINE(google-explicit-constructor,
-          // hicpp-explicit-conversions)
-          Real(Negative negative);
-          // NOLINTNEXTLINE(google-explicit-constructor,
-          // hicpp-explicit-conversions)
-          Real(Integer integer);
-          // NOLINTNEXTLINE(google-explicit-constructor,
-          // hicpp-explicit-conversions)
-          Real(Rational rational);
+          Real(Base base);         // NOLINT
+          Real(Natural natural);   // NOLINT
+          Real(Positive positive); // NOLINT
+          Real(Negative negative); // NOLINT
+          Real(Integer integer);   // NOLINT
+          Real(Rational rational); // NOLINT
 
           Real(const Real &other) = default;
           Real(Real &&other) noexcept = default;

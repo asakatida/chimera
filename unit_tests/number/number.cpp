@@ -10,7 +10,7 @@ operator<<(std::basic_ostream<CharT, Traits> &os,
 }
 
 TEST_CASE("number Number") {
-  chimera::library::object::number::Number number;
+  chimera::library::object::number::Number number{};
   auto other = chimera::library::object::number::Number(2);
   REQUIRE(number < other);
   number = other + other;

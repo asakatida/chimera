@@ -44,7 +44,7 @@ namespace chimera {
                     typename Outer, typename ProcessContext>
           static bool match(Input &in, Outer &&outer,
                             ProcessContext &&processContext) {
-            if constexpr (A == tao::pegtl::apply_mode::ACTION) {
+            if constexpr (A == tao::pegtl::apply_mode::ACTION) { // NOLINT
               typename Rule::Transform state;
 
               if (normal<Rule>::template match<A, M, Action, Control>(
@@ -54,7 +54,7 @@ namespace chimera {
               }
               return false;
             }
-            if constexpr (A != tao::pegtl::apply_mode::ACTION) {
+            if constexpr (A != tao::pegtl::apply_mode::ACTION) { // NOLINT
               return normal<Rule>::template match<A, M, Action, Control>(
                   in, outer, processContext);
             }
