@@ -121,10 +121,7 @@ namespace chimera {
           template <typename CharT, typename Traits>
           std::basic_ostream<CharT, Traits> &
           repr(std::basic_ostream<CharT, Traits> &os) const {
-            visit([/*&os*/](const auto & /*v*/) { /*return number::repr(os, v)*/
-                                                  ;
-            });
-            return os;
+            return visit([&os](const auto &v) { return number::repr(os, v); });
           }
 
         private:

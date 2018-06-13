@@ -45,7 +45,7 @@ namespace chimera {
         Base operator&(Base left, const Real &right);
         Base operator&(const Natural &left, std::uint64_t right);
         Base operator&(const Natural &left, Base right);
-        Natural operator&(const Natural &left, const Natural &right);
+        Positive operator&(const Natural &left, const Natural &right);
         Positive operator&(const Natural &left, const Positive &right);
         Positive operator&(const Natural &left, const Negative &right);
         Positive operator&(const Natural &left, const Integer &right);
