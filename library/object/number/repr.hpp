@@ -46,32 +46,28 @@ namespace chimera {
         template <typename CharT, typename Traits>
         std::basic_ostream<CharT, Traits> &
         repr(std::basic_ostream<CharT, Traits> &os, const Negative &negative) {
-          std::visit([&os](const auto &v) { repr(os << '-', v); },
+          return std::visit([&os](const auto &v) { return repr(os << '-', v); },
                      negative.value);
-          return os;
         }
 
         template <typename CharT, typename Traits>
         std::basic_ostream<CharT, Traits> &
         repr(std::basic_ostream<CharT, Traits> &os, const Integer &integer) {
-          std::visit([&os](const auto &v) { repr(os, v); }, integer.value);
-          return os;
+          return std::visit([&os](const auto &v) { return repr(os, v); }, integer.value);
         }
 
         template <typename CharT, typename Traits>
         std::basic_ostream<CharT, Traits> &
         repr(std::basic_ostream<CharT, Traits> &os, const Rational &rational) {
-          std::visit([&os](const auto &n,
-                           const auto &d) { repr(repr(os, n) << '/', d); },
+          return std::visit([&os](const auto &n,
+                           const auto &d) { return repr(repr(os, n) << '/', d); },
                      rational.numerator, rational.denominator);
-          return os;
         }
 
         template <typename CharT, typename Traits>
         std::basic_ostream<CharT, Traits> &
         repr(std::basic_ostream<CharT, Traits> &os, const Real &real) {
-          std::visit([&os](const auto &v) { repr(os, v); }, real.value);
-          return os;
+          return std::visit([&os](const auto &v) { return repr(os, v); }, real.value);
         }
       } // namespace number
     }   // namespace object
