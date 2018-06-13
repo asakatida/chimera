@@ -102,7 +102,7 @@ namespace chimera {
           return {left.value[0] & right.value};
         }
 
-        Natural operator&(const Natural &left, const Natural &right) {
+        Positive operator&(const Natural &left, const Natural &right) {
           Natural value;
           value.value.resize(std::min(left.value.size(), right.value.size()));
           if (left.value.size() > right.value.size()) {
