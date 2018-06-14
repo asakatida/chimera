@@ -32,7 +32,7 @@ namespace chimera {
 
           OStream &operator()(std::uint64_t i) { return os << i << ','; }
 
-          OStream &operator()(const Base &base) {
+          OStream &operator()(Base base) {
             return os << "Number(" << base.value << ')';
           }
 
