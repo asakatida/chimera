@@ -19,3 +19,13 @@
 // SOFTWARE.
 
 #include "object/number/debug.hpp"
+
+namespace chimera {
+  namespace library {
+    namespace object {
+      namespace number {
+        void f() {}
+      } // namespace number
+    }   // namespace object
+  }     // namespace library
+} // namespace chimera
