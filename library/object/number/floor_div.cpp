@@ -64,31 +64,42 @@ namespace chimera {
           return {};
         }
 
-        Base floor_div(std::uint64_t /*left*/, const Positive & /*right*/) {
-          Expects(false);
+        Base floor_div(std::uint64_t left, const Positive &right) {
+          return std::visit(
+              [left](const auto &value) { return floor_div(left, value); },
+              right.value);
         }
 
         Negative floor_div(std::uint64_t left, const Negative &right) {
           return std::visit(
-              [&left](const auto &value) { return -floor_div(left, value); },
+              [left](const auto &value) { return -floor_div(left, value); },
               right.value);
         }
 
-        Base floor_div(std::uint64_t /*left*/, const Integer & /*right*/) {
-          Expects(false);
+        Integer floor_div(std::uint64_t left, const Integer &right) {
+          return std::visit(
+              [left](const auto &value) {
+                return Integer(floor_div(left, value));
+              },
+              right.value);
         }
 
         Integer floor_div(std::uint64_t left, const Rational &right) {
           return std::visit(
-              [&left](const auto &rN, const auto &rD) {
+              [left](const auto &rN, const auto &rD) {
                 return Integer(floor_div(left * rD, rN));
               },
               right.numerator, right.denominator);
         }
 
-        Base floor_div(std::uint64_t /*left*/, const Real & /*right*/) {
-          Expects(false);
+        Integer floor_div(std::uint64_t left, const Real &right) {
+          return std::visit(
+              [left](const auto &value) {
+                return Integer(floor_div(left, value));
+              },
+              right.value);
         }
+
         Base floor_div(Base left, std::uint64_t right) {
           Expects(right != 0);
           return {left.value / right};
@@ -103,27 +114,38 @@ namespace chimera {
           return Base{};
         }
 
-        Base floor_div(Base /*left*/, const Positive & /*right*/) {
-          Expects(false);
+        Base floor_div(Base left, const Positive &right) {
+          return std::visit(
+              [left](const auto &value) { return floor_div(left, value); },
+              right.value);
         }
 
         Negative floor_div(Base left, const Negative &right) {
           return std::visit(
-              [&left](const auto &r) { return -floor_div(left, r); },
+              [left](const auto &value) { return -floor_div(left, value); },
               right.value);
         }
 
-        Base floor_div(Base /*left*/, const Integer & /*right*/) {
-          Expects(false);
+        Integer floor_div(Base left, const Integer &right) {
+          return std::visit(
+              [left](const auto &value) {
+                return Integer(floor_div(left, value));
+              },
+              right.value);
         }
 
         Integer floor_div(Base left, const Rational &right) {
           return div(left, right);
         }
 
-        Base floor_div(Base /*left*/, const Real & /*right*/) {
-          Expects(false);
+        Integer floor_div(Base left, const Real &right) {
+          return std::visit(
+              [left](const auto &value) {
+                return Integer(floor_div(left, value));
+              },
+              right.value);
         }
+
         Positive floor_div(const Natural &left, std::uint64_t right) {
           Expects(right != 0);
           Natural value;
@@ -155,9 +177,12 @@ namespace chimera {
           return a;
         }
 
-        Positive floor_div(const Natural & /*left*/,
-                           const Positive & /*right*/) {
-          Expects(false);
+        Positive floor_div(const Natural &left, const Positive &right) {
+          return std::visit(
+              [&left](const auto &value) {
+                return Positive(floor_div(left, value));
+              },
+              right.value);
         }
 
         Negative floor_div(const Natural &left, const Negative &right) {
@@ -166,55 +191,89 @@ namespace chimera {
               right.value);
         }
 
-        Integer floor_div(const Natural & /*left*/, const Integer & /*right*/) {
-          Expects(false);
+        Integer floor_div(const Natural &left, const Integer &right) {
+          return std::visit(
+              [&left](const auto &value) {
+                return Integer(floor_div(left, value));
+              },
+              right.value);
         }
 
         Integer floor_div(const Natural &left, const Rational &right) {
           return div(left, right);
         }
 
-        Base floor_div(const Natural & /*left*/, const Real & /*right*/) {
-          Expects(false);
-        }
-        Positive floor_div(const Positive & /*left*/, std::uint64_t /*right*/) {
-          Expects(false);
-        }
-
-        Positive floor_div(const Positive & /*left*/, Base /*right*/) {
-          Expects(false);
+        Integer floor_div(const Natural &left, const Real &right) {
+          return std::visit(
+              [&left](const auto &value) {
+                return Integer(floor_div(left, value));
+              },
+              right.value);
         }
 
-        Positive floor_div(const Positive & /*left*/,
-                           const Natural & /*right*/) {
-          Expects(false);
+        Positive floor_div(const Positive &left, std::uint64_t right) {
+          return std::visit(
+              [right](const auto &value) {
+                return Positive(floor_div(value, right));
+              },
+              left.value);
         }
 
-        Positive floor_div(const Positive & /*left*/,
-                           const Positive & /*right*/) {
-          Expects(false);
+        Positive floor_div(const Positive &left, Base right) {
+          return std::visit(
+              [right](const auto &value) {
+                return Positive(floor_div(value, right));
+              },
+              left.value);
         }
 
-        Negative floor_div(const Positive & /*left*/,
-                           const Negative & /*right*/) {
-          Expects(false);
+        Positive floor_div(const Positive &left, const Natural &right) {
+          return std::visit(
+              [&right](const auto &value) {
+                return Positive(floor_div(value, right));
+              },
+              left.value);
         }
 
-        Integer floor_div(const Positive & /*left*/,
-                          const Integer & /*right*/) {
-          Expects(false);
+        Positive floor_div(const Positive &left, const Positive &right) {
+          return std::visit(
+              [&right](const auto &value) {
+                return Positive(floor_div(value, right));
+              },
+              left.value);
+        }
+
+        Negative floor_div(const Positive &left, const Negative &right) {
+          return std::visit(
+              [&right](const auto &value) {
+                return Negative(floor_div(value, right));
+              },
+              left.value);
+        }
+
+        Integer floor_div(const Positive &left, const Integer &right) {
+          return std::visit(
+              [&right](const auto &value) {
+                return Integer(floor_div(value, right));
+              },
+              left.value);
         }
 
         Integer floor_div(const Positive &left, const Rational &right) {
           return div(left, right);
         }
 
-        Base floor_div(const Positive & /*left*/, const Real & /*right*/) {
-          Expects(false);
+        Integer floor_div(const Positive &left, const Real &right) {
+          return std::visit(
+              [&right](const auto &value) {
+                return Integer(floor_div(value, right));
+              },
+              left.value);
         }
+
         Negative floor_div(const Negative &left, std::uint64_t right) {
           return std::visit(
-              [&right](const auto &value) { return -floor_div(value, right); },
+              [right](const auto &value) { return -floor_div(value, right); },
               left.value);
         }
 
@@ -228,9 +287,10 @@ namespace chimera {
               left.value);
         }
 
-        Negative floor_div(const Negative & /*left*/,
-                           const Positive & /*right*/) {
-          Expects(false);
+        Negative floor_div(const Negative &left, const Positive &right) {
+          return std::visit(
+              [&right](const auto &value) { return -floor_div(value, right); },
+              left.value);
         }
 
         Positive floor_div(const Negative &left, const Negative &right) {
@@ -241,51 +301,86 @@ namespace chimera {
               left.value, right.value);
         }
 
-        Integer floor_div(const Negative & /*left*/,
-                          const Integer & /*right*/) {
-          Expects(false);
+        Integer floor_div(const Negative &left, const Integer &right) {
+          return std::visit(
+              [&right](const auto &value) {
+                return Integer(-floor_div(value, right));
+              },
+              left.value);
         }
 
         Integer floor_div(const Negative &left, const Rational &right) {
           return div(left, right);
         }
 
-        Base floor_div(const Negative & /*left*/, const Real & /*right*/) {
-          Expects(false);
-        }
-        Integer floor_div(const Integer & /*left*/, std::uint64_t /*right*/) {
-          Expects(false);
-        }
-
-        Integer floor_div(const Integer & /*left*/, Base /*right*/) {
-          Expects(false);
+        Integer floor_div(const Negative &left, const Real &right) {
+          return std::visit(
+              [&right](const auto &value) {
+                return Integer(-floor_div(value, right));
+              },
+              left.value);
         }
 
-        Integer floor_div(const Integer & /*left*/, const Natural & /*right*/) {
-          Expects(false);
+        Integer floor_div(const Integer &left, std::uint64_t right) {
+          return std::visit(
+              [right](const auto &value) {
+                return Integer(floor_div(value, right));
+              },
+              left.value);
         }
 
-        Integer floor_div(const Integer & /*left*/,
-                          const Positive & /*right*/) {
-          Expects(false);
+        Integer floor_div(const Integer &left, Base right) {
+          return std::visit(
+              [right](const auto &value) {
+                return Integer(floor_div(value, right));
+              },
+              left.value);
         }
 
-        Integer floor_div(const Integer & /*left*/,
-                          const Negative & /*right*/) {
-          Expects(false);
+        Integer floor_div(const Integer &left, const Natural &right) {
+          return std::visit(
+              [&right](const auto &value) {
+                return Integer(floor_div(value, right));
+              },
+              left.value);
         }
 
-        Integer floor_div(const Integer & /*left*/, const Integer & /*right*/) {
-          Expects(false);
+        Integer floor_div(const Integer &left, const Positive &right) {
+          return std::visit(
+              [&right](const auto &value) {
+                return Integer(floor_div(value, right));
+              },
+              left.value);
+        }
+
+        Integer floor_div(const Integer &left, const Negative &right) {
+          return std::visit(
+              [&right](const auto &value) {
+                return Integer(floor_div(value, right));
+              },
+              left.value);
+        }
+
+        Integer floor_div(const Integer &left, const Integer &right) {
+          return std::visit(
+              [](const auto &l, const auto &r) {
+                return Integer(floor_div(l, r));
+              },
+              left.value, right.value);
         }
 
         Integer floor_div(const Integer &left, const Rational &right) {
           return div(left, right);
         }
 
-        Base floor_div(const Integer & /*left*/, const Real & /*right*/) {
-          Expects(false);
+        Integer floor_div(const Integer &left, const Real &right) {
+          return std::visit(
+              [&right](const auto &value) {
+                return Integer(floor_div(value, right));
+              },
+              left.value);
         }
+
         Integer floor_div(const Rational &left, std::uint64_t right) {
           return div(left, right);
         }
@@ -319,33 +414,77 @@ namespace chimera {
               left.numerator, left.denominator, right.numerator,
               right.denominator);
         }
-        Base floor_div(const Rational & /*left*/, const Real & /*right*/) {
-          Expects(false);
+
+        Integer floor_div(const Rational &left, const Real &right) {
+          return std::visit(
+              [&left](const auto &value) {
+                return Integer(floor_div(left, value));
+              },
+              right.value);
         }
 
-        Base floor_div(const Real & /*left*/, std::uint64_t /*right*/) {
-          Expects(false);
+        Integer floor_div(const Real &left, std::uint64_t right) {
+          return std::visit(
+              [right](const auto &value) {
+                return Integer(floor_div(value, right));
+              },
+              left.value);
         }
-        Base floor_div(const Real & /*left*/, Base /*right*/) {
-          Expects(false);
+
+        Integer floor_div(const Real &left, Base right) {
+          return std::visit(
+              [right](const auto &value) {
+                return Integer(floor_div(value, right));
+              },
+              left.value);
         }
-        Base floor_div(const Real & /*left*/, const Natural & /*right*/) {
-          Expects(false);
+
+        Integer floor_div(const Real &left, const Natural &right) {
+          return std::visit(
+              [&right](const auto &value) {
+                return Integer(floor_div(value, right));
+              },
+              left.value);
         }
-        Base floor_div(const Real & /*left*/, const Positive & /*right*/) {
-          Expects(false);
+
+        Integer floor_div(const Real &left, const Positive &right) {
+          return std::visit(
+              [&right](const auto &value) {
+                return Integer(floor_div(value, right));
+              },
+              left.value);
         }
-        Base floor_div(const Real & /*left*/, const Negative & /*right*/) {
-          Expects(false);
+
+        Integer floor_div(const Real &left, const Negative &right) {
+          return std::visit(
+              [&right](const auto &value) {
+                return Integer(floor_div(value, right));
+              },
+              left.value);
         }
-        Base floor_div(const Real & /*left*/, const Integer & /*right*/) {
-          Expects(false);
+
+        Integer floor_div(const Real &left, const Integer &right) {
+          return std::visit(
+              [&right](const auto &value) {
+                return Integer(floor_div(value, right));
+              },
+              left.value);
         }
-        Base floor_div(const Real & /*left*/, const Rational & /*right*/) {
-          Expects(false);
+
+        Integer floor_div(const Real &left, const Rational &right) {
+          return std::visit(
+              [&right](const auto &value) {
+                return Integer(floor_div(value, right));
+              },
+              left.value);
         }
-        Base floor_div(const Real & /*left*/, const Real & /*right*/) {
-          Expects(false);
+
+        Integer floor_div(const Real &left, const Real &right) {
+          return std::visit(
+              [](const auto &l, const auto &r) {
+                return Integer(floor_div(l, r));
+              },
+              left.value, right.value);
         }
       } // namespace number
     }   // namespace object

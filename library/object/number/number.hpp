@@ -112,14 +112,12 @@ namespace chimera {
           }
 
           template <typename OStream>
-          OStream &
-          debug(OStream &os) const {
+          OStream &debug(OStream &os) const {
             return std::visit(Debug<OStream>{os}, value);
           }
 
           template <typename OStream>
-          OStream &
-          repr(OStream &os) const {
+          OStream &repr(OStream &os) const {
             return std::visit(Repr<OStream>{os}, value);
           }
 
