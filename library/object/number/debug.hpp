@@ -20,54 +20,50 @@
 
 #pragma once
 
-#include <iosfwd>
-
 #include "object/number/details.hpp"
 
 namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        template <typename CharT, typename Traits>
-        std::basic_ostream<CharT, Traits> &
-        debug(std::basic_ostream<CharT, Traits> &os, const Base &base) {
-          return os << base.value;
-        }
+        template <typename OStream>
+        struct Debug {
+          OStream &os;
 
-        template <typename CharT, typename Traits>
-        std::basic_ostream<CharT, Traits> &
-        debug(std::basic_ostream<CharT, Traits> &os, const Natural &natural) {
-          std::for_each(natural.value.begin(), natural.value.end(),
-                        [&os](const auto &v) { os << v; });
-          return os;
-        }
+          OStream &
+          operator()(std::uint64_t i) {
+            return os << i;
+          }
 
-        template <typename CharT, typename Traits>
-        std::basic_ostream<CharT, Traits> &
-        debug(std::basic_ostream<CharT, Traits> &os, const Negative &negative) {
-          return std::visit([&os](const auto &v) { return debug(os << '-', v); },
-                     negative.value);
-        }
+          OStream &
+          operator()(const Base &base) {
+            return os << base.value;
+          }
 
-        template <typename CharT, typename Traits>
-        std::basic_ostream<CharT, Traits> &
-        debug(std::basic_ostream<CharT, Traits> &os, const Integer &integer) {
-          return std::visit([&os](const auto &v) { return debug(os, v); }, integer.value);
-        }
+          OStream &
+          operator()(const Natural &natural) {
+            std::for_each(natural.value.begin(), natural.value.end(), *this);
+            return os;
+          }
 
-        template <typename CharT, typename Traits>
-        std::basic_ostream<CharT, Traits> &
-        debug(std::basic_ostream<CharT, Traits> &os, const Rational &rational) {
-          return std::visit([&os](const auto &n,
-                           const auto &d) { return debug(debug(os, n) << '/', d); },
-                     rational.numerator, rational.denominator);
-        }
+          OStream &
+          operator()(const Negative &negative) {
+            os << '-';
+            return std::visit(*this, negative.value);
+          }
 
-        template <typename CharT, typename Traits>
-        std::basic_ostream<CharT, Traits> &
-        debug(std::basic_ostream<CharT, Traits> &os, const Real &real) {
-          return std::visit([&os](const auto &v) { return debug(os, v); }, real.value);
-        }
+          OStream &
+          operator()(const Integer &integer) {
+            return std::visit(*this, integer.value);
+          }
+
+          OStream &
+          operator()(const Rational &rational) {
+            std::visit(*this, rational.numerator);
+            os << '/';
+            return std::visit(*this, rational.denominator);
+          }
+        };
       } // namespace number
     }   // namespace object
   }     // namespace library

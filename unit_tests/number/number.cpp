@@ -2,9 +2,9 @@
 
 #include <catch.hpp>
 
-template <typename CharT, typename Traits>
-std::basic_ostream<CharT, Traits> &
-operator<<(std::basic_ostream<CharT, Traits> &os,
+template <typename OStream>
+OStream &
+operator<<(OStream &os,
            const chimera::library::object::number::Number &number) {
   return number.debug(os);
 }
