@@ -3,9 +3,8 @@
 #include <catch.hpp>
 
 template <typename OStream>
-OStream &
-operator<<(OStream &os,
-           const chimera::library::object::number::Number &number) {
+OStream &operator<<(OStream &os,
+                    const chimera::library::object::number::Number &number) {
   return number.debug(os);
 }
 

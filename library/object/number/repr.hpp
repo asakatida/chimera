@@ -30,36 +30,28 @@ namespace chimera {
         struct Repr {
           OStream &os;
 
-          OStream &
-          operator()(std::uint64_t i) {
-            return os << i << ',';
-          }
+          OStream &operator()(std::uint64_t i) { return os << i << ','; }
 
-          OStream &
-          operator()(const Base &base) {
+          OStream &operator()(const Base &base) {
             return os << "Number(" << base.value << ')';
           }
 
-          OStream &
-          operator()(const Natural &natural) {
+          OStream &operator()(const Natural &natural) {
             os << "Number({{";
             std::for_each(natural.value.begin(), natural.value.end(), *this);
             return os << "}})";
           }
 
-          OStream &
-          operator()(const Negative &negative) {
+          OStream &operator()(const Negative &negative) {
             os << '-';
             return std::visit(*this, negative.value);
           }
 
-          OStream &
-          operator()(const Integer &integer) {
+          OStream &operator()(const Integer &integer) {
             return std::visit(*this, integer.value);
           }
 
-          OStream &
-          operator()(const Rational &rational) {
+          OStream &operator()(const Rational &rational) {
             std::visit(*this, rational.numerator);
             os << '/';
             return std::visit(*this, rational.denominator);
