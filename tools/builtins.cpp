@@ -127,16 +127,12 @@ namespace chimera {
     };
 
     template <typename OStream>
-    OStream &
-    operator<<(OStream &os,
-               const object::Instance & /*instance*/) {
+    OStream &operator<<(OStream &os, const object::Instance & /*instance*/) {
       return os << "object::Instance{}";
     }
 
     template <typename OStream>
-    OStream &
-    operator<<(OStream &os,
-               const object::Bytes &bytes) {
+    OStream &operator<<(OStream &os, const object::Bytes &bytes) {
       os << "object::Bytes{";
       bool first = true;
       for (const auto &byte : bytes) {
@@ -151,63 +147,48 @@ namespace chimera {
     }
 
     template <typename OStream>
-    OStream &
-    operator<<(OStream &os,
-               const object::BytesMethod &bytesMethod) {
+    OStream &operator<<(OStream &os, const object::BytesMethod &bytesMethod) {
       os << "object::BytesMethod::";
       switch (bytesMethod) {}
       return os;
     }
 
     template <typename OStream>
-    OStream &
-    operator<<(OStream &os,
-               const object::False & /*false*/) {
+    OStream &operator<<(OStream &os, const object::False & /*false*/) {
       return os << "object::False{}";
     }
 
     template <typename OStream>
-    OStream &
-    operator<<(OStream &os,
-               const object::Future & /*future*/) {
+    OStream &operator<<(OStream &os, const object::Future & /*future*/) {
       Expects(false);
       return os;
     }
 
     template <typename OStream>
-    OStream &
-    operator<<(OStream &os,
-               const object::None & /*none*/) {
+    OStream &operator<<(OStream &os, const object::None & /*none*/) {
       return os << "object::None{}";
     }
 
     template <typename OStream>
-    OStream &
-    operator<<(OStream &os,
-               const object::NullFunction & /*nullFunction*/) {
+    OStream &operator<<(OStream &os,
+                        const object::NullFunction & /*nullFunction*/) {
       return os << "object::NullFunction{}";
     }
 
     template <typename OStream>
-    OStream &
-    operator<<(OStream &os,
-               const object::Number &number) {
+    OStream &operator<<(OStream &os, const object::Number &number) {
       return number.repr(os);
     }
 
     template <typename OStream>
-    OStream &
-    operator<<(OStream &os,
-               const object::NumberMethod &numberMethod) {
+    OStream &operator<<(OStream &os, const object::NumberMethod &numberMethod) {
       os << "object::NumberMethod::";
       switch (numberMethod) {}
       return os;
     }
 
     template <typename OStream>
-    OStream &
-    operator<<(OStream &os,
-               const object::ObjectMethod &objectMethod) {
+    OStream &operator<<(OStream &os, const object::ObjectMethod &objectMethod) {
       os << "object::ObjectMethod::";
       switch (objectMethod) {
         case object::ObjectMethod::DELATTR:
@@ -223,32 +204,24 @@ namespace chimera {
     }
 
     template <typename OStream>
-    OStream &
-    operator<<(OStream &os,
-               const object::String &string) {
+    OStream &operator<<(OStream &os, const object::String &string) {
       return os << "object::String(" << std::quoted(string.value) << "s)";
     }
 
     template <typename OStream>
-    OStream &
-    operator<<(OStream &os,
-               const object::StringMethod &stringMethod) {
+    OStream &operator<<(OStream &os, const object::StringMethod &stringMethod) {
       os << "object::StringMethod::";
       switch (stringMethod) {}
       return os;
     }
 
     template <typename OStream>
-    OStream &
-    operator<<(OStream &os,
-               const object::True & /*true*/) {
+    OStream &operator<<(OStream &os, const object::True & /*true*/) {
       return os << "object::True{}";
     }
 
     template <typename OStream>
-    OStream &
-    operator<<(OStream &os,
-               const object::Tuple &tuple) {
+    OStream &operator<<(OStream &os, const object::Tuple &tuple) {
       os << "object::Tuple{";
       bool first = true;
       for (const auto &object : tuple) {
@@ -263,18 +236,14 @@ namespace chimera {
     }
 
     template <typename OStream>
-    OStream &
-    operator<<(OStream &os,
-               const object::TupleMethod &tupleMethod) {
+    OStream &operator<<(OStream &os, const object::TupleMethod &tupleMethod) {
       os << "object::TupleMethod::";
       switch (tupleMethod) {}
       return os;
     }
 
     template <typename OStream>
-    OStream &
-    operator<<(OStream &os,
-               const object::SysCall &sysCall) {
+    OStream &operator<<(OStream &os, const object::SysCall &sysCall) {
       os << "object::SysCall::";
       switch (sysCall) {
         case object::SysCall::COMPILE:
@@ -300,22 +269,17 @@ namespace chimera {
     }
 
     template <typename OStream>
-    OStream &
-    operator<<(OStream &os,
-               const asdl::StmtImpl &stmtImpl) {
+    OStream &operator<<(OStream &os, const asdl::StmtImpl &stmtImpl) {
       return os << &stmtImpl;
     }
 
     template <typename OStream>
-    OStream &
-    operator<<(OStream &os,
-               const asdl::ExprImpl &exprImpl) {
+    OStream &operator<<(OStream &os, const asdl::ExprImpl &exprImpl) {
       return os << &exprImpl;
     }
 
     template <typename OStream>
-    OStream &
-    operator<<(OStream &os, const Work &work) {
+    OStream &operator<<(OStream &os, const Work &work) {
       auto baseName = std::string(work.base_name).append("_").append(work.name);
       auto object = std::visit(IncompleteTuple{}, work.object.value());
       while (object) {
