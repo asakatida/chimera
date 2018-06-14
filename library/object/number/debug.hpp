@@ -32,7 +32,7 @@ namespace chimera {
 
           OStream &operator()(std::uint64_t i) { return os << i; }
 
-          OStream &operator()(const Base &base) { return os << base.value; }
+          OStream &operator()(Base base) { return os << base.value; }
 
           OStream &operator()(const Natural &natural) {
             std::for_each(natural.value.begin(), natural.value.end(), *this);
