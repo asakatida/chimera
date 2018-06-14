@@ -24,10 +24,33 @@
 
 #include "object/number/mult.hpp"
 
+#define lessl(left) [&left](const auto &value) { return left < value; }
+#define lessr(right) [&right](const auto &value) { return value < right; }
+
 namespace chimera {
   namespace library {
     namespace object {
       namespace number {
+        constexpr static auto l = std::less<>{};
+
+        template <typename Left>
+        bool less(const Left &left, const Rational &right) {
+          return std::visit(
+              [&left](const auto &rN, const auto &rD) {
+                return (left * rD) < rN;
+              },
+              right.numerator, right.denominator);
+        }
+
+        template <typename Right>
+        bool less(const Rational &left, const Right &right) {
+          return std::visit(
+              [&right](const auto &lN, const auto &lD) {
+                return lN < (lD * right);
+              },
+              left.numerator, left.denominator);
+        }
+
         bool operator<(std::uint64_t left, Base right) {
           return left < right.value;
         }
@@ -37,8 +60,7 @@ namespace chimera {
         }
 
         bool operator<(std::uint64_t left, const Positive &right) {
-          return std::visit([left](const auto &value) { return left < value; },
-                            right.value);
+          return std::visit(lessl(left), right.value);
         }
 
         bool operator<(std::uint64_t /*left*/, const Negative & /*right*/) {
@@ -46,21 +68,15 @@ namespace chimera {
         }
 
         bool operator<(std::uint64_t left, const Integer &right) {
-          return std::visit([left](const auto &value) { return left < value; },
-                            right.value);
+          return std::visit(lessl(left), right.value);
         }
 
         bool operator<(std::uint64_t left, const Rational &right) {
-          return std::visit(
-              [&left](const auto &rN, const auto &rD) {
-                return (left * rD) < rN;
-              },
-              right.numerator, right.denominator);
+          return less(left, right);
         }
 
         bool operator<(std::uint64_t left, const Real &right) {
-          return std::visit([left](const auto &value) { return left < value; },
-                            right.value);
+          return std::visit(lessl(left), right.value);
         }
 
         bool operator<(Base left, std::uint64_t right) {
@@ -76,8 +92,7 @@ namespace chimera {
         }
 
         bool operator<(Base left, const Positive &right) {
-          return std::visit([left](const auto &value) { return left < value; },
-                            right.value);
+          return left.value < right;
         }
 
         bool operator<(Base /*left*/, const Negative & /*right*/) {
@@ -85,8 +100,7 @@ namespace chimera {
         }
 
         bool operator<(Base left, const Integer &right) {
-          return std::visit([left](const auto &value) { return left < value; },
-                            right.value);
+          return left.value < right;
         }
 
         bool operator<(Base left, const Rational &right) {
@@ -94,8 +108,7 @@ namespace chimera {
         }
 
         bool operator<(Base left, const Real &right) {
-          return std::visit([left](const auto &value) { return left < value; },
-                            right.value);
+          return left.value < right;
         }
 
         bool operator<(const Natural & /*left*/, std::uint64_t /*right*/) {
@@ -116,8 +129,7 @@ namespace chimera {
         }
 
         bool operator<(const Natural &left, const Positive &right) {
-          return std::visit([&left](const auto &value) { return left < value; },
-                            right.value);
+          return std::visit(lessl(left), right.value);
         }
 
         bool operator<(const Natural & /*left*/, const Negative & /*right*/) {
@@ -125,26 +137,19 @@ namespace chimera {
         }
 
         bool operator<(const Natural &left, const Integer &right) {
-          return std::visit([&left](const auto &value) { return left < value; },
-                            right.value);
+          return std::visit(lessl(left), right.value);
         }
 
         bool operator<(const Natural &left, const Rational &right) {
-          return std::visit(
-              [&left](const auto &rN, const auto &rD) {
-                return (left * rD) < rN;
-              },
-              right.numerator, right.denominator);
+          return less(left, right);
         }
 
         bool operator<(const Natural &left, const Real &right) {
-          return std::visit([&left](const auto &value) { return left < value; },
-                            right.value);
+          return std::visit(lessl(left), right.value);
         }
 
         bool operator<(const Positive &left, std::uint64_t right) {
-          return std::visit(
-              [right](const auto &value) { return value < right; }, left.value);
+          return std::visit(lessr(right), left.value);
         }
 
         bool operator<(const Positive &left, Base right) {
@@ -152,12 +157,11 @@ namespace chimera {
         }
 
         bool operator<(const Positive &left, const Natural &right) {
-          return std::visit(
-              [right](const auto &value) { return value < right; }, left.value);
+          return std::visit(lessr(right), left.value);
         }
 
         bool operator<(const Positive &left, const Positive &right) {
-          return std::visit(std::less<>{}, left.value, right.value);
+          return std::visit(l, left.value, right.value);
         }
 
         bool operator<(const Positive & /*left*/, const Negative & /*right*/) {
@@ -165,17 +169,15 @@ namespace chimera {
         }
 
         bool operator<(const Positive &left, const Integer &right) {
-          return std::visit(std::less<>{}, left.value, right.value);
+          return std::visit(l, left.value, right.value);
         }
 
         bool operator<(const Positive &left, const Rational &right) {
-          return std::visit(
-              [&right](const auto &value) { return value < right; },
-              left.value);
+          return less(left, right);
         }
 
         bool operator<(const Positive &left, const Real &right) {
-          return std::visit(std::less<>{}, left.value, right.value);
+          return std::visit(l, left.value, right.value);
         }
 
         bool operator<(const Negative & /*left*/, std::uint64_t /*right*/) {
@@ -195,30 +197,23 @@ namespace chimera {
         }
 
         bool operator<(const Negative &left, const Negative &right) {
-          return std::visit(std::less<>{}, right.value, left.value);
+          return std::visit(l, right.value, left.value);
         }
 
         bool operator<(const Negative &left, const Integer &right) {
-          return std::visit([&left](const auto &value) { return left < value; },
-                            right.value);
+          return std::visit(lessl(left), right.value);
         }
 
         bool operator<(const Negative &left, const Rational &right) {
-          return std::visit(
-              [&left](const auto &rN, const auto &rD) {
-                return (left * rD) < rN;
-              },
-              right.numerator, right.denominator);
+          return less(left, right);
         }
 
         bool operator<(const Negative &left, const Real &right) {
-          return std::visit([&left](const auto &value) { return left < value; },
-                            right.value);
+          return std::visit(lessl(left), right.value);
         }
 
         bool operator<(const Integer &left, std::uint64_t right) {
-          return std::visit(
-              [right](const auto &value) { return value < right; }, left.value);
+          return std::visit(lessr(right), left.value);
         }
 
         bool operator<(const Integer &left, Base right) {
@@ -226,41 +221,31 @@ namespace chimera {
         }
 
         bool operator<(const Integer &left, const Natural &right) {
-          return std::visit(
-              [&right](const auto &value) { return value < right; },
-              left.value);
+          return std::visit(lessr(right), left.value);
         }
 
         bool operator<(const Integer &left, const Positive &right) {
-          return std::visit(std::less<>{}, left.value, right.value);
+          return std::visit(l, left.value, right.value);
         }
 
         bool operator<(const Integer &left, const Negative &right) {
-          return std::visit(
-              [&right](const auto &value) { return value < right; },
-              left.value);
+          return std::visit(lessr(right), left.value);
         }
 
         bool operator<(const Integer &left, const Integer &right) {
-          return std::visit(std::less<>{}, left.value, right.value);
+          return std::visit(l, left.value, right.value);
         }
 
         bool operator<(const Integer &left, const Rational &right) {
-          return std::visit(
-              [&right](const auto &value) { return value < right; },
-              left.value);
+          return less(left, right);
         }
 
         bool operator<(const Integer &left, const Real &right) {
-          return std::visit(std::less<>{}, left.value, right.value);
+          return std::visit(l, left.value, right.value);
         }
 
         bool operator<(const Rational &left, std::uint64_t right) {
-          return std::visit(
-              [right](const auto &lN, const auto &lD) {
-                return lN < (lD * right);
-              },
-              left.numerator, left.denominator);
+          return less(left, right);
         }
 
         bool operator<(const Rational &left, Base right) {
@@ -268,35 +253,19 @@ namespace chimera {
         }
 
         bool operator<(const Rational &left, const Natural &right) {
-          return std::visit(
-              [&right](const auto &lN, const auto &lD) {
-                return lN < (lD * right);
-              },
-              left.numerator, left.denominator);
+          return less(left, right);
         }
 
         bool operator<(const Rational &left, const Positive &right) {
-          return std::visit(
-              [&right](const auto &lN, const auto &lD) {
-                return lN < (lD * right);
-              },
-              left.numerator, left.denominator);
+          return less(left, right);
         }
 
         bool operator<(const Rational &left, const Negative &right) {
-          return std::visit(
-              [&right](const auto &lN, const auto &lD) {
-                return lN < (lD * right);
-              },
-              left.numerator, left.denominator);
+          return less(left, right);
         }
 
         bool operator<(const Rational &left, const Integer &right) {
-          return std::visit(
-              [&right](const auto &lN, const auto &lD) {
-                return lN < (lD * right);
-              },
-              left.numerator, left.denominator);
+          return less(left, right);
         }
 
         bool operator<(const Rational &left, const Rational &right) {
@@ -308,13 +277,11 @@ namespace chimera {
         }
 
         bool operator<(const Rational &left, const Real &right) {
-          return std::visit([&left](const auto &value) { return left < value; },
-                            right.value);
+          return std::visit(lessl(left), right.value);
         }
 
         bool operator<(const Real &left, std::uint64_t right) {
-          return std::visit(
-              [right](const auto &value) { return value < right; }, left.value);
+          return std::visit(lessr(right), left.value);
         }
 
         bool operator<(const Real &left, Base right) {
@@ -322,33 +289,27 @@ namespace chimera {
         }
 
         bool operator<(const Real &left, const Natural &right) {
-          return std::visit(
-              [&right](const auto &value) { return value < right; },
-              left.value);
+          return std::visit(lessr(right), left.value);
         }
 
         bool operator<(const Real &left, const Positive &right) {
-          return std::visit(std::less<>{}, left.value, right.value);
+          return std::visit(l, left.value, right.value);
         }
 
         bool operator<(const Real &left, const Negative &right) {
-          return std::visit(
-              [&right](const auto &value) { return value < right; },
-              left.value);
+          return std::visit(lessr(right), left.value);
         }
 
         bool operator<(const Real &left, const Integer &right) {
-          return std::visit(std::less<>{}, left.value, right.value);
+          return std::visit(l, left.value, right.value);
         }
 
         bool operator<(const Real &left, const Rational &right) {
-          return std::visit(
-              [&right](const auto &value) { return value < right; },
-              left.value);
+          return std::visit(lessr(right), left.value);
         }
 
         bool operator<(const Real &left, const Real &right) {
-          return std::visit(std::less<>{}, left.value, right.value);
+          return std::visit(l, left.value, right.value);
         }
       } // namespace number
     }   // namespace object
