@@ -34,39 +34,45 @@ namespace chimera {
       namespace number {
         Integer operator-(std::uint64_t left, Base right) {
           if (left < right.value) {
-            return Integer{Negative{Base{right.value - left}}};
+            return Negative{Base{right.value - left}};
           }
-          return Integer{Base{left - right.value}};
+          return Base{left - right.value};
         }
 
         Negative operator-(std::uint64_t left, const Natural &right) {
           return -(right - left);
         }
 
-        Integer operator-(std::uint64_t /*left*/, const Positive & /*right*/) {
-          Expects(false);
+        Integer operator-(std::uint64_t left, const Positive & right) {
+          return std::visit(
+              [left](const auto &value) { return Integer(left - value); },
+              right.value);
         }
 
         Positive operator-(std::uint64_t left, const Negative &right) {
           return std::visit(
-              [&left](const auto &value) { return Positive(left + value); },
+              [left](const auto &value) { return Positive(left + value); },
               right.value);
         }
 
-        Integer operator-(std::uint64_t /*left*/, const Integer & /*right*/) {
-          Expects(false);
+        Integer operator-(std::uint64_t left, const Integer & right) {
+          return std::visit(
+              [left](const auto &value) { return Integer(left - value); },
+              right.value);
         }
 
         Rational operator-(std::uint64_t left, const Rational &right) {
           return std::visit(
-              [&left](const auto &rN, const auto &rD) {
+              [left](const auto &rN, const auto &rD) {
                 return Rational{left * rD - rN, rD};
               },
               right.numerator, right.denominator);
         }
 
-        Real operator-(std::uint64_t /*left*/, const Real & /*right*/) {
-          Expects(false);
+        Real operator-(std::uint64_t left, const Real & right) {
+          return std::visit(
+              [left](const auto &value) { return Real(left - value); },
+              right.value);
         }
 
         Integer operator-(Base left, std::uint64_t right) {
@@ -82,30 +88,36 @@ namespace chimera {
           return -(right - left);
         }
 
-        Integer operator-(Base /*left*/, const Positive & /*right*/) {
-          Expects(false);
+        Integer operator-(Base left, const Positive & right) {
+          return std::visit(
+              [left](const auto &value) { return Integer(left - value); },
+              right.value);
         }
 
         Positive operator-(Base left, const Negative &right) {
           return std::visit(
-              [&left](const auto &value) { return Positive(left + value); },
+              [left](const auto &value) { return Positive(left + value); },
               right.value);
         }
 
-        Integer operator-(Base /*left*/, const Integer & /*right*/) {
-          Expects(false);
+        Integer operator-(Base left, const Integer & right) {
+          return std::visit(
+              [left](const auto &value) { return Integer(left - value); },
+              right.value);
         }
 
         Rational operator-(Base left, const Rational &right) {
           return std::visit(
-              [&left](const auto &rN, const auto &rD) {
+              [left](const auto &rN, const auto &rD) {
                 return Rational{left * rD - rN, rD};
               },
               right.numerator, right.denominator);
         }
 
-        Real operator-(Base /*left*/, const Real & /*right*/) {
-          Expects(false);
+        Real operator-(Base left, const Real & right) {
+          return std::visit(
+              [left](const auto &value) { return Real(left - value); },
+              right.value);
         }
 
         Positive operator-(const Natural &left, std::uint64_t right) {
@@ -152,9 +164,11 @@ namespace chimera {
           return Integer{value};
         }
 
-        Integer operator-(const Natural & /*left*/,
-                          const Positive & /*right*/) {
-          Expects(false);
+        Integer operator-(const Natural & left,
+                          const Positive & right) {
+          return std::visit(
+              [&left](const auto &value) { return Integer(left - value); },
+              right.value);
         }
 
         Natural operator-(const Natural &left, const Negative &right) {
@@ -162,8 +176,10 @@ namespace chimera {
                             right.value);
         }
 
-        Integer operator-(const Natural & /*left*/, const Integer & /*right*/) {
-          Expects(false);
+        Integer operator-(const Natural & left, const Integer & right) {
+          return std::visit(
+              [&left](const auto &value) { return Integer(left - value); },
+              right.value);
         }
 
         Rational operator-(const Natural &left, const Rational &right) {
@@ -174,50 +190,68 @@ namespace chimera {
               right.numerator, right.denominator);
         }
 
-        Real operator-(const Natural & /*left*/, const Real & /*right*/) {
-          Expects(false);
+        Real operator-(const Natural & left, const Real & right) {
+          return std::visit(
+              [&left](const auto &value) { return Real(left - value); },
+              right.value);
         }
 
-        Integer operator-(const Positive & /*left*/, std::uint64_t /*right*/) {
-          Expects(false);
+        Integer operator-(const Positive & left, std::uint64_t right) {
+          return std::visit(
+              [right](const auto &value) { return Integer(value - right); },
+              left.value);
         }
 
-        Integer operator-(const Positive & /*left*/, Base /*right*/) {
-          Expects(false);
+        Integer operator-(const Positive & left, Base right) {
+          return left - right.value;
         }
 
-        Integer operator-(const Positive & /*left*/,
-                          const Natural & /*right*/) {
-          Expects(false);
+        Integer operator-(const Positive & left,
+                          const Natural & right) {
+          return std::visit(
+              [&right](const auto &value) { return Integer(value - right); },
+              left.value);
         }
 
-        Integer operator-(const Positive & /*left*/,
-                          const Positive & /*right*/) {
-          Expects(false);
+        Integer operator-(const Positive & left,
+                          const Positive & right) {
+          return std::visit(
+              [&right](const auto &value) { return Integer(value - right); },
+              left.value);
         }
 
-        Positive operator-(const Positive & /*left*/,
-                           const Negative & /*right*/) {
-          Expects(false);
+        Positive operator-(const Positive & left,
+                           const Negative & right) {
+          return std::visit(
+              [&right](const auto &value) { return Positive(value - right); },
+              left.value);
         }
 
-        Integer operator-(const Positive & /*left*/,
-                          const Integer & /*right*/) {
-          Expects(false);
+        Integer operator-(const Positive & left,
+                          const Integer & right) {
+          return std::visit(
+              [&right](const auto &value) { return Integer(value - right); },
+              left.value);
         }
 
-        Rational operator-(const Positive & /*left*/,
-                           const Rational & /*right*/) {
-          Expects(false);
+        Rational operator-(const Positive & left,
+                           const Rational & right) {
+          return std::visit(
+              [&left](const auto &rN, const auto &rD) {
+                return Rational{left * rD - rN, rD};
+              },
+              right.numerator, right.denominator);
         }
 
-        Real operator-(const Positive & /*left*/, const Real & /*right*/) {
-          Expects(false);
+        Real operator-(const Positive & left, const Real & right) {
+          return std::visit(
+              [&left](const auto &value) { return Real(left - value); },
+              right.value);
         }
 
         Negative operator-(const Negative &left, std::uint64_t right) {
           return std::visit(
-              [&right](const auto &value) { return Negative(right - value); },
+              [right](const auto &value) { return Negative(right - value); },
               left.value);
         }
 
@@ -231,9 +265,11 @@ namespace chimera {
               left.value);
         }
 
-        Negative operator-(const Negative & /*left*/,
-                           const Positive & /*right*/) {
-          Expects(false);
+        Negative operator-(const Negative & left,
+                           const Positive & right) {
+          return std::visit(
+              [&left](const auto &value) { return Negative(left - value); },
+              right.value);
         }
 
         Integer operator-(const Negative &left, const Negative &right) {
@@ -242,9 +278,11 @@ namespace chimera {
               left.value, right.value);
         }
 
-        Integer operator-(const Negative & /*left*/,
-                          const Integer & /*right*/) {
-          Expects(false);
+        Integer operator-(const Negative & left,
+                          const Integer & right) {
+          return std::visit(
+              [&left](const auto &value) { return Integer(left - value); },
+              right.value);
         }
 
         Rational operator-(const Negative &left, const Rational &right) {
@@ -255,48 +293,66 @@ namespace chimera {
               right.numerator, right.denominator);
         }
 
-        Real operator-(const Negative & /*left*/, const Real & /*right*/) {
-          Expects(false);
+        Real operator-(const Negative & left, const Real & right) {
+          return std::visit(
+              [&left](const auto &value) { return Real(left - value); },
+              right.value);
         }
 
-        Integer operator-(const Integer & /*left*/, std::uint64_t /*right*/) {
-          Expects(false);
+        Integer operator-(const Integer & left, std::uint64_t right) {
+          return std::visit(
+              [right](const auto &value) { return Integer(value - right); },
+              left.value);
         }
 
-        Integer operator-(const Integer & /*left*/, Base /*right*/) {
-          Expects(false);
+        Integer operator-(const Integer & left, Base right) {
+          return left - right.value;
         }
 
-        Integer operator-(const Integer & /*left*/, const Natural & /*right*/) {
-          Expects(false);
+        Integer operator-(const Integer & left, const Natural & right) {
+          return std::visit(
+              [&right](const auto &value) { return Integer(value - right); },
+              left.value);
         }
 
-        Integer operator-(const Integer & /*left*/,
-                          const Positive & /*right*/) {
-          Expects(false);
+        Integer operator-(const Integer & left,
+                          const Positive & right) {
+          return std::visit(
+              [&right](const auto &value) { return Integer(value - right); },
+              left.value);
         }
 
-        Integer operator-(const Integer & /*left*/,
-                          const Negative & /*right*/) {
-          Expects(false);
+        Integer operator-(const Integer & left,
+                          const Negative & right) {
+          return std::visit(
+              [&right](const auto &value) { return Integer(value - right); },
+              left.value);
         }
 
-        Integer operator-(const Integer & /*left*/, const Integer & /*right*/) {
-          Expects(false);
+        Integer operator-(const Integer & left, const Integer & right) {
+          return std::visit(
+              [&right](const auto &value) { return Integer(value - right); },
+              left.value);
         }
 
-        Rational operator-(const Integer & /*left*/,
-                           const Rational & /*right*/) {
-          Expects(false);
+        Rational operator-(const Integer & left,
+                           const Rational & right) {
+          return std::visit(
+              [&left](const auto &rN, const auto &rD) {
+                return Rational{left * rD - rN, rD};
+              },
+              right.numerator, right.denominator);
         }
 
-        Real operator-(const Integer & /*left*/, const Real & /*right*/) {
-          Expects(false);
+        Real operator-(const Integer & left, const Real & right) {
+          return std::visit(
+              [&left](const auto &value) { return Real(left - value); },
+              right.value);
         }
 
         Rational operator-(const Rational &left, std::uint64_t right) {
           return std::visit(
-              [&right](const auto &lN, const auto &lD) {
+              [right](const auto &lN, const auto &lD) {
                 return Rational{lN - right * lD, lD};
               },
               left.numerator, left.denominator);
@@ -314,9 +370,13 @@ namespace chimera {
               left.numerator, left.denominator);
         }
 
-        Rational operator-(const Rational & /*left*/,
-                           const Positive & /*right*/) {
-          Expects(false);
+        Rational operator-(const Rational & left,
+                           const Positive & right) {
+          return std::visit(
+              [&right](const auto &lN, const auto &lD) {
+                return Rational{lN - right * lD, lD};
+              },
+              left.numerator, left.denominator);
         }
 
         Rational operator-(const Rational &left, const Negative &right) {
@@ -327,9 +387,13 @@ namespace chimera {
               left.numerator, left.denominator);
         }
 
-        Rational operator-(const Rational & /*left*/,
-                           const Integer & /*right*/) {
-          Expects(false);
+        Rational operator-(const Rational & left,
+                           const Integer & right) {
+          return std::visit(
+              [&right](const auto &lN, const auto &lD) {
+                return Rational{lN - right * lD, lD};
+              },
+              left.numerator, left.denominator);
         }
 
         Real operator-(const Rational &left, const Rational &right) {
@@ -342,40 +406,58 @@ namespace chimera {
               right.denominator);
         }
 
-        Real operator-(const Rational & /*left*/, const Real & /*right*/) {
-          Expects(false);
+        Real operator-(const Rational & left, const Real & right) {
+          return std::visit(
+              [&left](const auto &value) { return Real(left - value); },
+              right.value);
         }
 
-        Real operator-(const Real & /*left*/, std::uint64_t /*right*/) {
-          Expects(false);
+        Real operator-(const Real & left, std::uint64_t right) {
+          return std::visit(
+              [right](const auto &value) { return Real(value - right); },
+              left.value);
         }
 
-        Real operator-(const Real & /*left*/, Base /*right*/) {
-          Expects(false);
+        Real operator-(const Real & left, Base right) {
+          return std::visit(
+              [right](const auto &value) { return Real(value - right); },
+              left.value);
         }
 
-        Real operator-(const Real & /*left*/, const Natural & /*right*/) {
-          Expects(false);
+        Real operator-(const Real & left, const Natural & right) {
+          return std::visit(
+              [&right](const auto &value) { return Real(value - right); },
+              left.value);
         }
 
-        Real operator-(const Real & /*left*/, const Positive & /*right*/) {
-          Expects(false);
+        Real operator-(const Real & left, const Positive & right) {
+          return std::visit(
+              [&right](const auto &value) { return Real(value - right); },
+              left.value);
         }
 
-        Real operator-(const Real & /*left*/, const Negative & /*right*/) {
-          Expects(false);
+        Real operator-(const Real & left, const Negative & right) {
+          return std::visit(
+              [&right](const auto &value) { return Real(value - right); },
+              left.value);
         }
 
-        Real operator-(const Real & /*left*/, const Integer & /*right*/) {
-          Expects(false);
+        Real operator-(const Real & left, const Integer & right) {
+          return std::visit(
+              [&right](const auto &value) { return Real(value - right); },
+              left.value);
         }
 
-        Real operator-(const Real & /*left*/, const Rational & /*right*/) {
-          Expects(false);
+        Real operator-(const Real & left, const Rational & right) {
+          return std::visit(
+              [&right](const auto &value) { return Real(value - right); },
+              left.value);
         }
 
-        Real operator-(const Real & /*left*/, const Real & /*right*/) {
-          Expects(false);
+        Real operator-(const Real & left, const Real & right) {
+          return std::visit(
+              [](const auto &l, const auto &r) { return Real(l - r); },
+              left.value, right.value);
         }
       } // namespace number
     }   // namespace object
