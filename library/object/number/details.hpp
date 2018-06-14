@@ -22,7 +22,6 @@
 
 #include <cstdint>
 #include <functional>
-#include <iosfwd>
 #include <numeric>
 #include <variant>
 #include <vector>

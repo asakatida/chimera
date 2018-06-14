@@ -22,7 +22,6 @@
 
 #include <cstdint>
 #include <functional>
-#include <iosfwd>
 #include <numeric>
 #include <variant>
 #include <vector>
@@ -112,16 +111,16 @@ namespace chimera {
                               right.value);
           }
 
-          template <typename CharT, typename Traits>
-          std::basic_ostream<CharT, Traits> &
-          debug(std::basic_ostream<CharT, Traits> &os) const {
-            return visit([&os](const auto &v) { return number::debug(os, v); });
+          template <typename OStream>
+          OStream &
+          debug(OStream &os) const {
+            return std::visit(Debug<OStream>{os}, value);
           }
 
-          template <typename CharT, typename Traits>
-          std::basic_ostream<CharT, Traits> &
-          repr(std::basic_ostream<CharT, Traits> &os) const {
-            return visit([&os](const auto &v) { return number::repr(os, v); });
+          template <typename OStream>
+          OStream &
+          repr(OStream &os) const {
+            return std::visit(Repr<OStream>{os}, value);
           }
 
         private:
