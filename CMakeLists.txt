@@ -264,9 +264,20 @@ target_include_directories(
   external/PEGTL/include)
 target_compile_features(bnf2abnf PUBLIC cxx_std_17)
 
+add_library(modules_tools tools/modules.cpp tools/modules.hpp)
+target_include_directories(modules_tools PUBLIC library include tools)
+target_link_libraries(modules_tools libchimera)
+target_compile_features(modules_tools PUBLIC cxx_std_17)
+
 add_executable(builtins tools/builtins.cpp)
-target_link_libraries(builtins libchimera)
+target_include_directories(builtins PUBLIC library include tools)
+target_link_libraries(builtins libchimera modules_tools)
 target_compile_features(builtins PUBLIC cxx_std_17)
+
+add_executable(importlib tools/importlib.cpp)
+target_include_directories(importlib PUBLIC library include tools)
+target_link_libraries(importlib libchimera modules_tools)
+target_compile_features(importlib PUBLIC cxx_std_17)
 
 add_custom_target(check unit_test VERBATIM USES_TERMINAL)
 add_custom_target(check_rand unit_test --order rand VERBATIM USES_TERMINAL)
