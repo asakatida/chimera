@@ -44,28 +44,20 @@ namespace chimera {
       struct SuiteSeqStmtStar;
       template <flags::Flag Option>
       using SuiteWithDoc = if_must<
-          Colon<flags::mask<Option, flags::IMPLICIT>>,
-          sor<DocString<flags::mask<Option, flags::IMPLICIT>>,
-              SuiteSimpleStmt<flags::mask<Option, flags::IMPLICIT>>,
-              if_must<
-                  INDENT<flags::mask<Option, flags::IMPLICIT>>,
-                  sor<seq<DocString<flags::mask<Option, flags::IMPLICIT>>,
-                          SuiteSeqStmtStar<
-                              flags::mask<Option, flags::IMPLICIT>>>,
-                      SuiteSeqStmtPlus<flags::mask<Option, flags::IMPLICIT>>>,
-                  DEDENT<flags::mask<Option, flags::IMPLICIT>>>>>;
+          Colon<Option>,
+          sor<DocString<Option>, SuiteSimpleStmt<Option>,
+              if_must<INDENT,
+                      sor<seq<DocString<Option>, SuiteSeqStmtStar<Option>>,
+                          SuiteSeqStmtPlus<Option>>,
+                      DEDENT>>>;
       template <flags::Flag Option>
-      using Suite = if_must<
-          Colon<flags::mask<Option, flags::IMPLICIT>>,
-          sor<SuiteSimpleStmt<flags::mask<Option, flags::IMPLICIT>>,
-              if_must<INDENT<flags::mask<Option, flags::IMPLICIT>>,
-                      SuiteSeqStmtPlus<flags::mask<Option, flags::IMPLICIT>>,
-                      DEDENT<flags::mask<Option, flags::IMPLICIT>>>>>;
+      using Suite =
+          if_must<Colon<Option>,
+                  sor<SuiteSimpleStmt<Option>,
+                      if_must<INDENT, SuiteSeqStmtPlus<Option>, DEDENT>>>;
       template <flags::Flag Option>
       struct TFPDef
-          : seq<Name<flags::mask<Option, flags::IMPLICIT>>,
-                opt<Colon<flags::mask<Option, flags::IMPLICIT>>,
-                    must<Test<flags::mask<Option, flags::IMPLICIT>>>>> {
+          : seq<Name<Option>, opt<Colon<Option>, must<Test<Option>>>> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::Name> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -80,9 +72,7 @@ namespace chimera {
       };
       template <flags::Flag Option>
       struct TypedargsListTFPDefEqTest
-          : seq<TFPDef<flags::mask<Option, flags::IMPLICIT>>,
-                opt<Eq<flags::mask<Option, flags::IMPLICIT>>,
-                    must<Test<flags::mask<Option, flags::IMPLICIT>>>>> {
+          : seq<TFPDef<Option>, opt<Eq<Option>, must<Test<Option>>>> {
         struct Transform : rules::Stack<asdl::ExprImpl, asdl::Arg> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -105,8 +95,7 @@ namespace chimera {
       };
       template <flags::Flag Option>
       struct TypedargsListStarTFPDef
-          : seq<StarOp<flags::mask<Option, flags::IMPLICIT>>,
-                opt<TFPDef<flags::mask<Option, flags::IMPLICIT>>>> {
+          : seq<StarOp<Option>, opt<TFPDef<Option>>> {
         struct Transform : rules::Stack<asdl::Arg> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -122,9 +111,7 @@ namespace chimera {
       };
       template <flags::Flag Option>
       struct TypedargsListUnpackTfpdef
-          : if_must<Unpack<flags::mask<Option, flags::IMPLICIT>>,
-                    TFPDef<flags::mask<Option, flags::IMPLICIT>>,
-                    opt<Comma<flags::mask<Option, flags::IMPLICIT>>>> {
+          : if_must<Unpack<Option>, TFPDef<Option>, opt<Comma<Option>>> {
         struct Transform : rules::Stack<asdl::Arg> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -139,55 +126,36 @@ namespace chimera {
       };
       template <flags::Flag Option>
       struct TypedArgsList
-          : sor<seq<TypedargsListTFPDefEqTest<
-                        flags::mask<Option, flags::IMPLICIT>>,
-                    star<Comma<flags::mask<Option, flags::IMPLICIT>>,
-                         TypedargsListTFPDefEqTest<
-                             flags::mask<Option, flags::IMPLICIT>>>,
-                    opt<Comma<flags::mask<Option, flags::IMPLICIT>>,
+          : sor<seq<TypedargsListTFPDefEqTest<Option>,
+                    star<Comma<Option>, TypedargsListTFPDefEqTest<Option>>,
+                    opt<Comma<Option>,
                         opt<sor<
-                            seq<TypedargsListStarTFPDef<
-                                    flags::mask<Option, flags::IMPLICIT>>,
-                                star<
-                                    Comma<flags::mask<Option, flags::IMPLICIT>>,
-                                    TypedargsListTFPDefEqTest<
-                                        flags::mask<Option, flags::IMPLICIT>>>,
-                                opt<Comma<flags::mask<Option, flags::IMPLICIT>>,
-                                    opt<TypedargsListUnpackTfpdef<flags::mask<
-                                        Option, flags::IMPLICIT>>>>>,
-                            TypedargsListUnpackTfpdef<
-                                flags::mask<Option, flags::IMPLICIT>>>>>>,
-                seq<TypedargsListStarTFPDef<
-                        flags::mask<Option, flags::IMPLICIT>>,
-                    star<Comma<flags::mask<Option, flags::IMPLICIT>>,
-                         TypedargsListTFPDefEqTest<
-                             flags::mask<Option, flags::IMPLICIT>>>,
-                    opt<Comma<flags::mask<Option, flags::IMPLICIT>>,
-                        opt<TypedargsListUnpackTfpdef<
-                            flags::mask<Option, flags::IMPLICIT>>>>>,
-                TypedargsListUnpackTfpdef<
-                    flags::mask<Option, flags::IMPLICIT>>> {};
+                            seq<TypedargsListStarTFPDef<Option>,
+                                star<Comma<Option>,
+                                     TypedargsListTFPDefEqTest<Option>>,
+                                opt<Comma<Option>,
+                                    opt<TypedargsListUnpackTfpdef<Option>>>>,
+                            TypedargsListUnpackTfpdef<Option>>>>>,
+                seq<TypedargsListStarTFPDef<Option>,
+                    star<Comma<Option>, TypedargsListTFPDefEqTest<Option>>,
+                    opt<Comma<Option>, opt<TypedargsListUnpackTfpdef<Option>>>>,
+                TypedargsListUnpackTfpdef<Option>> {};
       template <flags::Flag Option>
       using Parameters =
-          if_must<LPar<flags::set<flags::mask<Option, flags::IMPLICIT>,
-                                  flags::IMPLICIT>>,
-                  opt<TypedArgsList<flags::set<
-                      flags::mask<Option, flags::IMPLICIT>, flags::IMPLICIT>>>,
-                  RPar<flags::mask<Option, flags::IMPLICIT>>>;
+          if_must<LPar<flags::set<Option, flags::IMPLICIT>>,
+                  opt<TypedArgsList<flags::set<Option, flags::IMPLICIT>>>,
+                  RPar<Option>>;
       template <flags::Flag Option>
       struct FuncDef
           : if_must<
-                Def<flags::mask<Option, flags::IMPLICIT>>,
-                Name<flags::mask<Option, flags::IMPLICIT>>,
-                Parameters<flags::unSet<flags::mask<Option, flags::IMPLICIT>,
-                                        flags::ASYNC_FLOW, flags::SCOPE_FLOW>>,
-                opt<Arr<flags::mask<Option, flags::IMPLICIT>>,
-                    must<Test<
-                        flags::unSet<flags::mask<Option, flags::IMPLICIT>,
-                                     flags::ASYNC_FLOW, flags::SCOPE_FLOW>>>>,
+                Def<Option>, Name<Option>,
+                Parameters<
+                    flags::unSet<Option, flags::ASYNC_FLOW, flags::SCOPE_FLOW>>,
+                opt<Arr<Option>,
+                    must<Test<flags::unSet<Option, flags::ASYNC_FLOW,
+                                           flags::SCOPE_FLOW>>>>,
                 SuiteWithDoc<flags::set<
-                    flags::unSet<flags::mask<Option, flags::IMPLICIT>,
-                                 flags::LOOP_FLOW, flags::IMPORT_ALL>,
+                    flags::unSet<Option, flags::LOOP_FLOW, flags::IMPORT_ALL>,
                     flags::SCOPE_FLOW>>> {
         struct Transform
             : rules::Stack<asdl::DocString, std::vector<asdl::StmtImpl>,
@@ -213,9 +181,7 @@ namespace chimera {
       };
       template <flags::Flag Option>
       struct AsyncFuncDef
-          : seq<Async<flags::mask<Option, flags::IMPLICIT>>,
-                FuncDef<flags::set<flags::mask<Option, flags::IMPLICIT>,
-                                   flags::ASYNC_FLOW>>> {
+          : seq<Async<Option>, FuncDef<flags::set<Option, flags::ASYNC_FLOW>>> {
         struct Transform : rules::Stack<asdl::FunctionDef> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -229,8 +195,7 @@ namespace chimera {
         };
       };
       template <flags::Flag Option>
-      struct ExprStmtTarget
-          : seq<TestListStarExpr<flags::mask<Option, flags::IMPLICIT>>> {
+      struct ExprStmtTarget : seq<TestListStarExpr<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -246,36 +211,24 @@ namespace chimera {
         };
       };
       template <flags::Flag Option>
-      using AugAssign = sor<AugAdd<flags::mask<Option, flags::IMPLICIT>>,
-                            AugSub<flags::mask<Option, flags::IMPLICIT>>,
-                            AugMult<flags::mask<Option, flags::IMPLICIT>>,
-                            AugMatMult<flags::mask<Option, flags::IMPLICIT>>,
-                            AugDiv<flags::mask<Option, flags::IMPLICIT>>,
-                            AugMod<flags::mask<Option, flags::IMPLICIT>>,
-                            AugBitAnd<flags::mask<Option, flags::IMPLICIT>>,
-                            AugBitOr<flags::mask<Option, flags::IMPLICIT>>,
-                            AugBitXor<flags::mask<Option, flags::IMPLICIT>>,
-                            AugLShift<flags::mask<Option, flags::IMPLICIT>>,
-                            AugRShift<flags::mask<Option, flags::IMPLICIT>>,
-                            AugPow<flags::mask<Option, flags::IMPLICIT>>,
-                            AugFloorDiv<flags::mask<Option, flags::IMPLICIT>>>;
+      using AugAssign =
+          sor<AugAdd<Option>, AugSub<Option>, AugMult<Option>,
+              AugMatMult<Option>, AugDiv<Option>, AugMod<Option>,
+              AugBitAnd<Option>, AugBitOr<Option>, AugBitXor<Option>,
+              AugLShift<Option>, AugRShift<Option>, AugPow<Option>,
+              AugFloorDiv<Option>>;
       template <flags::Flag Option>
       struct ExprStmtAugAssign
-          : if_must<seq<ExprStmtTarget<flags::mask<Option, flags::IMPLICIT>>,
-                        AugAssign<flags::mask<Option, flags::IMPLICIT>>>,
-                    sor<YieldExpr<flags::mask<Option, flags::IMPLICIT>>,
-                        TestList<flags::mask<Option, flags::IMPLICIT>>>> {
+          : if_must<seq<ExprStmtTarget<Option>, AugAssign<Option>>,
+                    sor<YieldExpr<Option>, TestList<Option>>> {
         using Transform = rules::ReshapeCapture<asdl::AugAssign, asdl::ExprImpl,
                                                 asdl::Operator, asdl::ExprImpl>;
       };
       template <flags::Flag Option>
       struct ExprStmtAssign
-          : seq<ExprStmtTarget<flags::mask<Option, flags::IMPLICIT>>,
-                Eq<flags::mask<Option, flags::IMPLICIT>>,
-                list_must<
-                    sor<YieldExpr<flags::mask<Option, flags::IMPLICIT>>,
-                        ExprStmtTarget<flags::mask<Option, flags::IMPLICIT>>>,
-                    Eq<flags::mask<Option, flags::IMPLICIT>>>> {
+          : seq<ExprStmtTarget<Option>, Eq<Option>,
+                list_must<sor<YieldExpr<Option>, ExprStmtTarget<Option>>,
+                          Eq<Option>>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -288,11 +241,8 @@ namespace chimera {
       };
       template <flags::Flag Option>
       struct AnnAssign
-          : if_must<seq<ExprStmtTarget<flags::mask<Option, flags::IMPLICIT>>,
-                        Colon<flags::mask<Option, flags::IMPLICIT>>>,
-                    Test<flags::mask<Option, flags::IMPLICIT>>,
-                    opt<Eq<flags::mask<Option, flags::IMPLICIT>>,
-                        must<Test<flags::mask<Option, flags::IMPLICIT>>>>> {
+          : if_must<seq<ExprStmtTarget<Option>, Colon<Option>>, Test<Option>,
+                    opt<Eq<Option>, must<Test<Option>>>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -307,19 +257,15 @@ namespace chimera {
         };
       };
       template <flags::Flag Option>
-      struct ExprStmtExprStmtTarget
-          : seq<ExprStmtTarget<flags::mask<Option, flags::IMPLICIT>>> {
+      struct ExprStmtExprStmtTarget : seq<ExprStmtTarget<Option>> {
         using Transform = rules::ReshapeCapture<asdl::Expr, asdl::ExprImpl>;
       };
       template <flags::Flag Option>
       using ExprStmt =
-          sor<AnnAssign<flags::mask<Option, flags::IMPLICIT>>,
-              ExprStmtAugAssign<flags::mask<Option, flags::IMPLICIT>>,
-              ExprStmtAssign<flags::mask<Option, flags::IMPLICIT>>,
-              ExprStmtExprStmtTarget<flags::mask<Option, flags::IMPLICIT>>>;
+          sor<AnnAssign<Option>, ExprStmtAugAssign<Option>,
+              ExprStmtAssign<Option>, ExprStmtExprStmtTarget<Option>>;
       template <flags::Flag Option>
-      struct DelStmt : if_must<Del<flags::mask<Option, flags::IMPLICIT>>,
-                               ExprList<flags::mask<Option, flags::IMPLICIT>>> {
+      struct DelStmt : if_must<Del<Option>, ExprList<Option>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -333,8 +279,7 @@ namespace chimera {
       template <flags::Flag Option>
       struct BreakStmt
           : std::conditional_t<flags::get<Option, flags::LOOP_FLOW>,
-                               Break<flags::mask<Option, flags::IMPLICIT>>,
-                               failure> {
+                               Break<Option>, failure> {
         struct Transform {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -345,8 +290,7 @@ namespace chimera {
       template <flags::Flag Option>
       struct ContinueStmt
           : std::conditional_t<flags::get<Option, flags::LOOP_FLOW>,
-                               Continue<flags::mask<Option, flags::IMPLICIT>>,
-                               failure> {
+                               Continue<Option>, failure> {
         struct Transform {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -356,11 +300,9 @@ namespace chimera {
       };
       template <flags::Flag Option>
       struct ReturnStmt
-          : std::conditional_t<
-                flags::get<Option, flags::SCOPE_FLOW>,
-                seq<Return<flags::mask<Option, flags::IMPLICIT>>,
-                    opt<TestList<flags::mask<Option, flags::IMPLICIT>>>>,
-                failure> {
+          : std::conditional_t<flags::get<Option, flags::SCOPE_FLOW>,
+                               seq<Return<Option>, opt<TestList<Option>>>,
+                               failure> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -373,15 +315,13 @@ namespace chimera {
         };
       };
       template <flags::Flag Option>
-      struct YieldStmt : seq<YieldExpr<flags::mask<Option, flags::IMPLICIT>>> {
+      struct YieldStmt : seq<YieldExpr<Option>> {
         using Transform = rules::ReshapeCapture<asdl::Expr, asdl::ExprImpl>;
       };
       template <flags::Flag Option>
       struct RaiseStmt
-          : seq<Raise<flags::mask<Option, flags::IMPLICIT>>,
-                opt<Test<flags::mask<Option, flags::IMPLICIT>>,
-                    opt<From<flags::mask<Option, flags::IMPLICIT>>,
-                        Test<flags::mask<Option, flags::IMPLICIT>>>>> {
+          : seq<Raise<Option>,
+                opt<Test<Option>, opt<From<Option>, Test<Option>>>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -397,8 +337,7 @@ namespace chimera {
         };
       };
       template <flags::Flag Option>
-      struct DottedName : list<Name<flags::mask<Option, flags::IMPLICIT>>,
-                               Period<flags::mask<Option, flags::IMPLICIT>>> {
+      struct DottedName : list<Name<Option>, Period<Option>> {
         struct Transform : rules::Stack<asdl::Name> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -421,9 +360,7 @@ namespace chimera {
       };
       template <flags::Flag Option>
       struct DottedAsName
-          : seq<DottedName<flags::mask<Option, flags::IMPLICIT>>,
-                opt<As<flags::mask<Option, flags::IMPLICIT>>,
-                    Name<flags::mask<Option, flags::IMPLICIT>>>> {
+          : seq<DottedName<Option>, opt<As<Option>, Name<Option>>> {
         struct Transform : rules::Stack<asdl::Name> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -437,13 +374,9 @@ namespace chimera {
         };
       };
       template <flags::Flag Option>
-      using DottedAsNames =
-          list<DottedAsName<flags::mask<Option, flags::IMPLICIT>>,
-               Comma<flags::mask<Option, flags::IMPLICIT>>>;
+      using DottedAsNames = list<DottedAsName<Option>, Comma<Option>>;
       template <flags::Flag Option>
-      struct ImportName
-          : seq<Import<flags::mask<Option, flags::IMPLICIT>>,
-                DottedAsNames<flags::mask<Option, flags::IMPLICIT>>> {
+      struct ImportName : seq<Import<Option>, DottedAsNames<Option>> {
         struct Transform : rules::Stack<asdl::Alias> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -455,8 +388,7 @@ namespace chimera {
         };
       };
       template <flags::Flag Option>
-      struct ImportFromPeriod
-          : seq<token::PeriodImpl<flags::mask<Option, flags::IMPLICIT>>> {
+      struct ImportFromPeriod : seq<token::PeriodImpl<Option>> {
         struct Transform {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -466,8 +398,7 @@ namespace chimera {
       };
       template <flags::Flag Option>
       struct ImportFromModuleName
-          : seq<not_at<Import<flags::mask<Option, flags::IMPLICIT>>>,
-                DottedName<flags::mask<Option, flags::IMPLICIT>>> {
+          : seq<not_at<Import<Option>>, DottedName<Option>> {
         struct Transform : rules::Stack<asdl::Name> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -477,10 +408,7 @@ namespace chimera {
         };
       };
       template <flags::Flag Option>
-      struct ImportAsName
-          : seq<Name<flags::mask<Option, flags::IMPLICIT>>,
-                opt<As<flags::mask<Option, flags::IMPLICIT>>,
-                    Name<flags::mask<Option, flags::IMPLICIT>>>> {
+      struct ImportAsName : seq<Name<Option>, opt<As<Option>, Name<Option>>> {
         struct Transform : rules::Stack<asdl::Name> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -494,9 +422,7 @@ namespace chimera {
         };
       };
       template <flags::Flag Option>
-      struct ImportAsNames
-          : list_tail<ImportAsName<flags::mask<Option, flags::IMPLICIT>>,
-                      Comma<flags::mask<Option, flags::IMPLICIT>>> {
+      struct ImportAsNames : list_tail<ImportAsName<Option>, Comma<Option>> {
         struct Transform : rules::Stack<asdl::Alias> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -511,36 +437,25 @@ namespace chimera {
       template <flags::Flag Option>
       struct ImportFrom
           : if_must<
-                From<flags::mask<Option, flags::IMPLICIT>>,
-                sor<seq<star<ImportFromPeriod<
-                            flags::mask<Option, flags::IMPLICIT>>>,
-                        ImportFromModuleName<
-                            flags::mask<Option, flags::IMPLICIT>>>,
-                    plus<token::PeriodImpl<
-                        flags::mask<Option, flags::IMPLICIT>>>>,
-                Import<flags::mask<Option, flags::IMPLICIT>>,
-                sor<std::conditional_t<
-                        flags::get<Option, flags::IMPORT_ALL>,
-                        StarOp<flags::mask<Option, flags::IMPLICIT>>, failure>,
-                    if_must<
-                        LPar<flags::set<flags::mask<Option, flags::IMPLICIT>,
-                                        flags::IMPLICIT>>,
-                        ImportAsNames<
-                            flags::set<flags::mask<Option, flags::IMPLICIT>,
-                                       flags::IMPLICIT>>,
-                        RPar<flags::mask<Option, flags::IMPLICIT>>>,
-                    ImportAsNames<
-                        flags::unSet<flags::mask<Option, flags::IMPLICIT>,
-                                     flags::ASYNC_FLOW, flags::SCOPE_FLOW>>>> {
+                From<Option>,
+                sor<seq<star<ImportFromPeriod<Option>>,
+                        ImportFromModuleName<Option>>,
+                    plus<token::PeriodImpl<Option>>>,
+                Import<Option>,
+                sor<std::conditional_t<flags::get<Option, flags::IMPORT_ALL>,
+                                       StarOp<Option>, failure>,
+                    if_must<LPar<flags::set<Option, flags::IMPLICIT>>,
+                            ImportAsNames<flags::set<Option, flags::IMPLICIT>>,
+                            RPar<Option>>,
+                    ImportAsNames<flags::unSet<Option, flags::ASYNC_FLOW,
+                                               flags::SCOPE_FLOW>>>> {
         struct Transform : rules::VariantCapture<asdl::ImportFrom> {
           Transform() { push(asdl::ImportFrom{}); }
         };
       };
       template <flags::Flag Option>
       struct GlobalStmt
-          : if_must<Global<flags::mask<Option, flags::IMPLICIT>>,
-                    list_must<Name<flags::mask<Option, flags::IMPLICIT>>,
-                              Comma<flags::mask<Option, flags::IMPLICIT>>>> {
+          : if_must<Global<Option>, list_must<Name<Option>, Comma<Option>>> {
         struct Transform : rules::Stack<asdl::Name> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -553,9 +468,7 @@ namespace chimera {
       };
       template <flags::Flag Option>
       struct NonLocalStmt
-          : if_must<Nonlocal<flags::mask<Option, flags::IMPLICIT>>,
-                    list_must<Name<flags::mask<Option, flags::IMPLICIT>>,
-                              Comma<flags::mask<Option, flags::IMPLICIT>>>> {
+          : if_must<Nonlocal<Option>, list_must<Name<Option>, Comma<Option>>> {
         struct Transform : rules::Stack<asdl::Name> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -567,11 +480,8 @@ namespace chimera {
         };
       };
       template <flags::Flag Option>
-      struct AssertStmt
-          : if_must<Assert<flags::mask<Option, flags::IMPLICIT>>,
-                    Test<flags::mask<Option, flags::IMPLICIT>>,
-                    opt<Comma<flags::mask<Option, flags::IMPLICIT>>,
-                        Test<flags::mask<Option, flags::IMPLICIT>>>> {
+      struct AssertStmt : if_must<Assert<Option>, Test<Option>,
+                                  opt<Comma<Option>, Test<Option>>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -585,32 +495,22 @@ namespace chimera {
         };
       };
       template <flags::Flag Option>
-      struct IfStmtBranch : seq<Test<flags::mask<Option, flags::IMPLICIT>>,
-                                Suite<flags::mask<Option, flags::IMPLICIT>>> {
+      struct IfStmtBranch : seq<Test<Option>, Suite<Option>> {
         using Transform = rules::ReshapeCapture<asdl::IfBranch, asdl::ExprImpl,
                                                 std::vector<asdl::StmtImpl>>;
       };
       template <flags::Flag Option>
-      using IfStmtIf =
-          if_must<If<flags::mask<Option, flags::IMPLICIT>>,
-                  IfStmtBranch<flags::mask<Option, flags::IMPLICIT>>>;
+      using IfStmtIf = if_must<If<Option>, IfStmtBranch<Option>>;
       template <flags::Flag Option>
-      using IfStmtElif =
-          if_must<Elif<flags::mask<Option, flags::IMPLICIT>>,
-                  IfStmtBranch<flags::mask<Option, flags::IMPLICIT>>>;
+      using IfStmtElif = if_must<Elif<Option>, IfStmtBranch<Option>>;
       template <flags::Flag Option>
-      struct IfStmtBranches
-          : seq<IfStmtIf<flags::mask<Option, flags::IMPLICIT>>,
-                star<IfStmtElif<flags::mask<Option, flags::IMPLICIT>>>> {
+      struct IfStmtBranches : seq<IfStmtIf<Option>, star<IfStmtElif<Option>>> {
         using Transform = rules::VectorCapture<asdl::IfBranch>;
       };
       template <flags::Flag Option>
-      using IfStmtElse = if_must<Else<flags::mask<Option, flags::IMPLICIT>>,
-                                 Suite<flags::mask<Option, flags::IMPLICIT>>>;
+      using IfStmtElse = if_must<Else<Option>, Suite<Option>>;
       template <flags::Flag Option>
-      struct IfStmt
-          : seq<IfStmtBranches<flags::mask<Option, flags::IMPLICIT>>,
-                opt<IfStmtElse<flags::mask<Option, flags::IMPLICIT>>>> {
+      struct IfStmt : seq<IfStmtBranches<Option>, opt<IfStmtElse<Option>>> {
         struct Transform : rules::Stack<std::vector<asdl::IfBranch>,
                                         std::vector<asdl::StmtImpl>> {
           template <typename Outer>
@@ -625,13 +525,9 @@ namespace chimera {
         };
       };
       template <flags::Flag Option>
-      struct WhileStmt
-          : if_must<While<flags::mask<Option, flags::IMPLICIT>>,
-                    Test<flags::mask<Option, flags::IMPLICIT>>,
-                    Suite<flags::set<flags::mask<Option, flags::IMPLICIT>,
-                                     flags::LOOP_FLOW>>,
-                    opt<Else<flags::mask<Option, flags::IMPLICIT>>,
-                        must<Suite<flags::mask<Option, flags::IMPLICIT>>>>> {
+      struct WhileStmt : if_must<While<Option>, Test<Option>,
+                                 Suite<flags::set<Option, flags::LOOP_FLOW>>,
+                                 opt<Else<Option>, must<Suite<Option>>>> {
         struct Transform
             : rules::Stack<std::vector<asdl::StmtImpl>, asdl::ExprImpl> {
           template <typename Outer>
@@ -649,14 +545,9 @@ namespace chimera {
       };
       template <flags::Flag Option>
       struct ForStmt
-          : if_must<For<flags::mask<Option, flags::IMPLICIT>>,
-                    ExprList<flags::mask<Option, flags::IMPLICIT>>,
-                    In<flags::mask<Option, flags::IMPLICIT>>,
-                    TestList<flags::mask<Option, flags::IMPLICIT>>,
-                    Suite<flags::set<flags::mask<Option, flags::IMPLICIT>,
-                                     flags::LOOP_FLOW>>,
-                    opt<Else<flags::mask<Option, flags::IMPLICIT>>,
-                        must<Suite<flags::mask<Option, flags::IMPLICIT>>>>> {
+          : if_must<For<Option>, ExprList<Option>, In<Option>, TestList<Option>,
+                    Suite<flags::set<Option, flags::LOOP_FLOW>>,
+                    opt<Else<Option>, must<Suite<Option>>>> {
         struct Transform
             : rules::Stack<std::vector<asdl::StmtImpl>, asdl::ExprImpl> {
           template <typename Outer>
@@ -673,18 +564,13 @@ namespace chimera {
         };
       };
       template <flags::Flag Option>
-      using TryStmtTry = if_must<Try<flags::mask<Option, flags::IMPLICIT>>,
-                                 Suite<flags::mask<Option, flags::IMPLICIT>>>;
+      using TryStmtTry = if_must<Try<Option>, Suite<Option>>;
       template <flags::Flag Option>
       using ExceptClause =
-          seq<Except<flags::mask<Option, flags::IMPLICIT>>,
-              opt<Test<flags::mask<Option, flags::IMPLICIT>>,
-                  opt<As<flags::mask<Option, flags::IMPLICIT>>,
-                      must<Name<flags::mask<Option, flags::IMPLICIT>>>>>>;
+          seq<Except<Option>,
+              opt<Test<Option>, opt<As<Option>, must<Name<Option>>>>>;
       template <flags::Flag Option>
-      struct TryStmtExcept
-          : if_must<ExceptClause<flags::mask<Option, flags::IMPLICIT>>,
-                    Suite<flags::mask<Option, flags::IMPLICIT>>> {
+      struct TryStmtExcept : if_must<ExceptClause<Option>, Suite<Option>> {
         struct Transform : rules::Stack<std::vector<asdl::StmtImpl>,
                                         asdl::ExprImpl, asdl::Name> {
           template <typename Outer>
@@ -710,25 +596,19 @@ namespace chimera {
         };
       };
       template <flags::Flag Option>
-      using TryStmtElse = if_must<Else<flags::mask<Option, flags::IMPLICIT>>,
-                                  Suite<flags::mask<Option, flags::IMPLICIT>>>;
+      using TryStmtElse = if_must<Else<Option>, Suite<Option>>;
       template <flags::Flag Option>
-      using TryStmtFinally =
-          if_must<Finally<flags::mask<Option, flags::IMPLICIT>>,
-                  Suite<flags::mask<Option, flags::IMPLICIT>>>;
+      using TryStmtFinally = if_must<Finally<Option>, Suite<Option>>;
       template <flags::Flag Option>
-      struct TryStmtExcepts
-          : plus<TryStmtExcept<flags::mask<Option, flags::IMPLICIT>>> {
+      struct TryStmtExcepts : plus<TryStmtExcept<Option>> {
         using Transform = rules::VectorCapture<asdl::Excepthandler>;
       };
       template <flags::Flag Option>
       struct TryStmt
-          : seq<TryStmtTry<flags::mask<Option, flags::IMPLICIT>>,
-                sor<seq<TryStmtExcepts<flags::mask<Option, flags::IMPLICIT>>,
-                        opt<TryStmtElse<flags::mask<Option, flags::IMPLICIT>>>,
-                        opt<TryStmtFinally<
-                            flags::mask<Option, flags::IMPLICIT>>>>,
-                    TryStmtFinally<flags::mask<Option, flags::IMPLICIT>>>> {
+          : seq<TryStmtTry<Option>,
+                sor<seq<TryStmtExcepts<Option>, opt<TryStmtElse<Option>>,
+                        opt<TryStmtFinally<Option>>>,
+                    TryStmtFinally<Option>>> {
         struct Transform : rules::Stack<std::vector<asdl::StmtImpl>,
                                         std::vector<asdl::Excepthandler>> {
           template <typename Outer>
@@ -739,9 +619,7 @@ namespace chimera {
         };
       };
       template <flags::Flag Option>
-      struct WithItem : seq<Test<flags::mask<Option, flags::IMPLICIT>>,
-                            opt<As<flags::mask<Option, flags::IMPLICIT>>,
-                                Expr<flags::mask<Option, flags::IMPLICIT>>>> {
+      struct WithItem : seq<Test<Option>, opt<As<Option>, Expr<Option>>> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -756,10 +634,8 @@ namespace chimera {
       };
       template <flags::Flag Option>
       struct WithStmt
-          : if_must<With<flags::mask<Option, flags::IMPLICIT>>,
-                    list_must<WithItem<flags::mask<Option, flags::IMPLICIT>>,
-                              Comma<flags::mask<Option, flags::IMPLICIT>>>,
-                    Suite<flags::mask<Option, flags::IMPLICIT>>> {
+          : if_must<With<Option>, list_must<WithItem<Option>, Comma<Option>>,
+                    Suite<Option>> {
         struct Transform
             : rules::Stack<std::vector<asdl::StmtImpl>, asdl::Withitem> {
           template <typename Outer>
@@ -774,18 +650,13 @@ namespace chimera {
       };
       template <flags::Flag Option>
       struct ClassDef
-          : if_must<
-                Class<flags::mask<Option, flags::IMPLICIT>>,
-                Name<flags::mask<Option, flags::IMPLICIT>>,
-                opt_must<
-                    LPar<flags::set<flags::mask<Option, flags::IMPLICIT>,
-                                    flags::IMPLICIT>>,
-                    opt<ArgList<flags::set<flags::mask<Option, flags::IMPLICIT>,
-                                           flags::IMPLICIT>>>,
-                    RPar<flags::mask<Option, flags::IMPLICIT>>>,
-                SuiteWithDoc<flags::unSet<
-                    flags::mask<Option, flags::IMPLICIT>, flags::ASYNC_FLOW,
-                    flags::IMPORT_ALL, flags::LOOP_FLOW, flags::SCOPE_FLOW>>> {
+          : if_must<Class<Option>, Name<Option>,
+                    opt_must<LPar<flags::set<Option, flags::IMPLICIT>>,
+                             opt<ArgList<flags::set<Option, flags::IMPLICIT>>>,
+                             RPar<Option>>,
+                    SuiteWithDoc<flags::unSet<
+                        Option, flags::ASYNC_FLOW, flags::IMPORT_ALL,
+                        flags::LOOP_FLOW, flags::SCOPE_FLOW>>> {
         struct Transform
             : rules::Stack<asdl::DocString, std::vector<asdl::StmtImpl>,
                            asdl::ExprImpl, asdl::Keyword, asdl::Name> {
@@ -812,44 +683,32 @@ namespace chimera {
         };
       };
       template <flags::Flag Option>
-      using FlowStmt = sor<BreakStmt<flags::mask<Option, flags::IMPLICIT>>,
-                           ContinueStmt<flags::mask<Option, flags::IMPLICIT>>,
-                           ReturnStmt<flags::mask<Option, flags::IMPLICIT>>,
-                           RaiseStmt<flags::mask<Option, flags::IMPLICIT>>,
-                           YieldStmt<flags::mask<Option, flags::IMPLICIT>>>;
+      using FlowStmt =
+          sor<BreakStmt<Option>, ContinueStmt<Option>, ReturnStmt<Option>,
+              RaiseStmt<Option>, YieldStmt<Option>>;
       template <flags::Flag Option>
       using ImportStmt =
-          sor<ImportName<flags::mask<Option, flags::IMPLICIT>>,
-              ImportFrom<flags::unSet<flags::mask<Option, flags::IMPLICIT>,
-                                      flags::ASYNC_FLOW, flags::SCOPE_FLOW>>>;
+          sor<ImportName<Option>,
+              ImportFrom<
+                  flags::unSet<Option, flags::ASYNC_FLOW, flags::SCOPE_FLOW>>>;
       template <flags::Flag Option>
-      using SmallStmt = sor<AssertStmt<flags::mask<Option, flags::IMPLICIT>>,
-                            DelStmt<flags::mask<Option, flags::IMPLICIT>>,
-                            Pass<flags::mask<Option, flags::IMPLICIT>>,
-                            FlowStmt<flags::mask<Option, flags::IMPLICIT>>,
-                            ImportStmt<flags::mask<Option, flags::IMPLICIT>>,
-                            GlobalStmt<flags::mask<Option, flags::IMPLICIT>>,
-                            NonLocalStmt<flags::mask<Option, flags::IMPLICIT>>,
-                            ExprStmt<flags::mask<Option, flags::IMPLICIT>>>;
+      using SmallStmt =
+          sor<AssertStmt<Option>, DelStmt<Option>, Pass<Option>,
+              FlowStmt<Option>, ImportStmt<Option>, GlobalStmt<Option>,
+              NonLocalStmt<Option>, ExprStmt<Option>>;
       template <flags::Flag Option>
-      using SimpleStmt =
-          if_must<list_tail<SmallStmt<flags::mask<Option, flags::IMPLICIT>>,
-                            Semi<flags::mask<Option, flags::IMPLICIT>>>,
-                  sor<NEWLINE<flags::mask<Option, flags::IMPLICIT>>, at<Eolf>>>;
+      using SimpleStmt = if_must<list_tail<SmallStmt<Option>, Semi<Option>>,
+                                 sor<NEWLINE, at<Eolf>>>;
       template <flags::Flag Option>
-      using Decorator = if_must<AtOp<flags::mask<Option, flags::IMPLICIT>>,
-                                Expr<flags::mask<Option, flags::IMPLICIT>>,
-                                NEWLINE<flags::mask<Option, flags::IMPLICIT>>>;
+      using Decorator = if_must<AtOp<Option>, Expr<Option>, NEWLINE>;
       template <flags::Flag Option>
-      using Decorators = plus<Decorator<flags::mask<Option, flags::IMPLICIT>>>;
+      using Decorators = plus<Decorator<Option>>;
       template <flags::Flag Option>
       struct Decorated
-          : if_must<
-                Decorators<flags::mask<Option, flags::IMPLICIT>>,
-                sor<ClassDef<flags::mask<Option, flags::IMPLICIT>>,
-                    FuncDef<flags::unSet<flags::mask<Option, flags::IMPLICIT>,
-                                         flags::ASYNC_FLOW>>,
-                    AsyncFuncDef<flags::mask<Option, flags::IMPLICIT>>>> {
+          : if_must<Decorators<Option>,
+                    sor<ClassDef<Option>,
+                        FuncDef<flags::unSet<Option, flags::ASYNC_FLOW>>,
+                        AsyncFuncDef<Option>>> {
         struct Transform : rules::Stack<asdl::StmtImpl, asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
@@ -872,14 +731,11 @@ namespace chimera {
       };
       template <flags::Flag Option>
       struct AsyncStmt
-          : if_must<Async<flags::mask<Option, flags::IMPLICIT>>,
+          : if_must<Async<Option>,
                     sor<std::conditional_t<
                             flags::get<Option, flags::ASYNC_FLOW>,
-                            sor<WithStmt<flags::mask<Option, flags::IMPLICIT>>,
-                                ForStmt<flags::mask<Option, flags::IMPLICIT>>>,
-                            failure>,
-                        FuncDef<flags::set<flags::mask<Option, flags::IMPLICIT>,
-                                           flags::ASYNC_FLOW>>>> {
+                            sor<WithStmt<Option>, ForStmt<Option>>, failure>,
+                        FuncDef<flags::set<Option, flags::ASYNC_FLOW>>>> {
         struct Transform
             : rules::Stack<asdl::FunctionDef, asdl::With, asdl::For> {
           struct Push {
@@ -914,32 +770,22 @@ namespace chimera {
       };
       template <flags::Flag Option>
       using CompoundStmt =
-          sor<IfStmt<flags::mask<Option, flags::IMPLICIT>>,
-              WhileStmt<flags::mask<Option, flags::IMPLICIT>>,
-              ForStmt<flags::mask<Option, flags::IMPLICIT>>,
-              TryStmt<flags::mask<Option, flags::IMPLICIT>>,
-              WithStmt<flags::mask<Option, flags::IMPLICIT>>,
-              FuncDef<flags::unSet<flags::mask<Option, flags::IMPLICIT>,
-                                   flags::ASYNC_FLOW>>,
-              ClassDef<flags::mask<Option, flags::IMPLICIT>>,
-              Decorated<flags::mask<Option, flags::IMPLICIT>>,
-              AsyncStmt<flags::mask<Option, flags::IMPLICIT>>>;
+          sor<IfStmt<Option>, WhileStmt<Option>, ForStmt<Option>,
+              TryStmt<Option>, WithStmt<Option>,
+              FuncDef<flags::unSet<Option, flags::ASYNC_FLOW>>,
+              ClassDef<Option>, Decorated<Option>, AsyncStmt<Option>>;
       template <flags::Flag Option>
-      using Stmt = sor<CompoundStmt<flags::mask<Option, flags::IMPLICIT>>,
-                       SimpleStmt<flags::mask<Option, flags::IMPLICIT>>>;
+      using Stmt = sor<CompoundStmt<Option>, SimpleStmt<Option>>;
       template <flags::Flag Option>
-      struct SuiteSimpleStmt
-          : seq<SimpleStmt<flags::mask<Option, flags::IMPLICIT>>> {
+      struct SuiteSimpleStmt : seq<SimpleStmt<Option>> {
         using Transform = rules::VectorCapture<asdl::StmtImpl>;
       };
       template <flags::Flag Option>
-      struct SuiteSeqStmtPlus
-          : plus<Stmt<flags::mask<Option, flags::IMPLICIT>>> {
+      struct SuiteSeqStmtPlus : plus<Stmt<Option>> {
         using Transform = rules::VectorCapture<asdl::StmtImpl>;
       };
       template <flags::Flag Option>
-      struct SuiteSeqStmtStar
-          : star<Stmt<flags::mask<Option, flags::IMPLICIT>>> {
+      struct SuiteSeqStmtStar : star<Stmt<Option>> {
         using Transform = rules::VectorCapture<asdl::StmtImpl>;
       };
     } // namespace grammar
