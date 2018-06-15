@@ -36,9 +36,8 @@ namespace chimera {
   namespace library {
     namespace grammar {
       constexpr static flags::Flag option = flags::list<flags::IMPORT_ALL>;
-      struct SingleInput
-          : sor<NEWLINE<option>, if_must<CompoundStmt<option>, NEWLINE<option>>,
-                must<SimpleStmt<option>>> {
+      struct SingleInput : sor<NEWLINE, if_must<CompoundStmt<option>, NEWLINE>,
+                               must<SimpleStmt<option>>> {
         struct Transform : rules::Stack<asdl::StmtImpl> {
           template <typename Top>
           void success(Top &&top) {
@@ -47,7 +46,7 @@ namespace chimera {
           }
         };
       };
-      struct FileInput : must<opt<NEWLINE<option>>, opt<DocString<option>>,
+      struct FileInput : must<opt<NEWLINE>, opt<DocString<option>>,
                               until<eof, Stmt<option>>> {
         struct Transform : rules::Stack<asdl::DocString, asdl::StmtImpl> {
           template <typename Top>
@@ -63,8 +62,7 @@ namespace chimera {
           }
         };
       };
-      struct EvalInput
-          : must<TestList<flags::list<>>, opt<NEWLINE<flags::list<>>>, eof> {
+      struct EvalInput : must<TestList<flags::list<>>, opt<NEWLINE>, eof> {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Top>
           void success(Top &&top) {

@@ -47,7 +47,8 @@ namespace chimera {
         template <Flag Options, auto... Flags>
         constexpr static bool get = mask<Options, Flags...> != 0;
         template <Flag Options, auto... Flags>
-        constexpr static Flag set = ((1 << Flags) | ... | Options);
+        constexpr static Flag set = Options;
+        // constexpr static Flag set = ((1 << Flags) | ... | Options);
         template <Flag Options, auto... Flags>
         constexpr static Flag unSet = ((~(1 << Flags)) & ... & Options);
       } // namespace flags
