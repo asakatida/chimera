@@ -498,8 +498,7 @@ namespace chimera {
         };
       } // namespace token
       template <flags::Flag Option>
-      struct DocString
-          : seq<token::DocString<Option>, sor<NEWLINE<Option>, at<Eolf>>> {
+      struct DocString : seq<token::DocString<Option>, sor<NEWLINE, at<Eolf>>> {
         using Transform =
             rules::ReshapeCapture<asdl::DocString, asdl::Constant>;
       };

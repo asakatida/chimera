@@ -54,7 +54,6 @@ namespace chimera {
           return in.indent();
         }
       };
-      template <flags::Flag Option>
       struct INDENT : seq<BlankLines, IndentCheck, discard> {};
       struct DedentCheck : not_at<one<' ', '\t'>> {
         template <typename Input>
@@ -68,7 +67,6 @@ namespace chimera {
           return in.dedent();
         }
       };
-      template <flags::Flag Option>
       struct DEDENT : sor<seq<eof, DedentConsume>,
                           seq<at<BlankLines, DedentCheck>,
                               opt<BlankLines, DedentConsume, discard>>> {};
@@ -78,7 +76,6 @@ namespace chimera {
           return in.is_newline();
         }
       };
-      template <flags::Flag Option>
       struct NEWLINE : seq<BlankLines, NextIndentCheck, discard> {};
       namespace token {
         template <typename Rule>
@@ -91,9 +88,7 @@ namespace chimera {
           }
         };
         template <flags::Flag Option, typename Rule>
-        using Token =
-            seq<Rule,
-                Space<flags::mask<Option, flags::DISCARD, flags::IMPLICIT>>>;
+        using Token = seq<Rule, Space<Option>>;
       } // namespace token
     }   // namespace grammar
   }     // namespace library
