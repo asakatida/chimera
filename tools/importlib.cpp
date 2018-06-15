@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Adam Grandquist <grandquista@gmail.com>
+// Copyright (c) 2018 Adam Grandquist <grandquista@gmail.com>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! evaluates stdlib/_builtins.py to construct the builtin module.
+//! evaluates importlib to construct the importlib module.
 //! Then prints the module construction.
 
 #include <algorithm>
@@ -47,10 +47,9 @@ namespace chimera {
       auto processContext = virtualMachine.process_context();
       auto module = processContext.parse_file(std::cin, "<input>");
       virtual_machine::ThreadContext threadContext{
-          processContext, processContext.make_module("builtins")};
+          processContext, processContext.make_module("importlib")};
       threadContext.evaluate(module);
-      Printer printer(threadContext.main, "builtins");
-      printer.remap(printer.main, printer.main.get_attribute("__builtins__"));
+      Printer printer(threadContext.main, "importlib");
       std::cout << printer;
     }
   } // namespace library
