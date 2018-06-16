@@ -30,6 +30,7 @@
 #include <optional>
 #include <queue>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <gsl/gsl>
@@ -41,21 +42,22 @@
 
 namespace chimera {
   namespace library {
-    Printer::Printer(object::Object object, std::string name) : main(object) {
-      _printed.try_emplace(id(main), name);
+    Printer::Printer(object::Object object, const std::string &name)
+        : main(std::move(std::move(object))) {
+      m_printed.try_emplace(id(main), name);
     }
 
     std::string Printer::printed(const object::Object &object) {
-      return _printed.at(id(object));
+      return m_printed.at(id(object));
     }
 
     object::Id Printer::id(const object::Object &object) {
-      return _remap.try_emplace(object.id(), object.id()).first->second;
+      return m_remap.try_emplace(object.id(), object.id()).first->second;
     }
 
     void Printer::remap(const object::Object &module,
-                      const object::Object &previous) {
-      if (!_remap.try_emplace(previous.id(), module.id()).second) {
+                        const object::Object &previous) {
+      if (!m_remap.try_emplace(previous.id(), module.id()).second) {
         return;
       }
       for (const auto &name : module.dir()) {
@@ -71,7 +73,7 @@ namespace chimera {
     }
 
     bool Printer::is_printed(const object::Object &object) {
-      return _printed.count(id(object)) != 0;
+      return m_printed.count(id(object)) != 0;
     }
 
     bool Compare::operator()(const SetAttribute &a,
@@ -95,8 +97,8 @@ namespace chimera {
       return a.base_name > b.base_name;
     }
 
-    std::optional<object::Object>
-    IncompleteTuple::operator()(const object::Tuple &tuple) const {
+    std::optional<object::Object> IncompleteTuple::
+    operator()(const object::Tuple &tuple) const {
       for (const auto &object : tuple) {
         if (!printer->is_printed(object)) {
           return {object};
