@@ -122,13 +122,13 @@ namespace chimera {
           return right == left;
         }
         bool operator==(const Positive &left, const Integer &right) {
-          return right == left;
+          return std::visit(std::equal_to<>{}, left.value, right.value);
         }
         bool operator==(const Positive &left, const Rational &right) {
           return right == left;
         }
         bool operator==(const Positive &left, const Real &right) {
-          return right == left;
+          return std::visit(std::equal_to<>{}, left.value, right.value);
         }
 
         bool operator==(const Negative & /*left*/, std::uint64_t /*right*/) {
@@ -186,7 +186,7 @@ namespace chimera {
           return right == left;
         }
         bool operator==(const Integer &left, const Real &right) {
-          return right == left;
+          return std::visit(std::equal_to<>{}, left.value, right.value);
         }
 
         bool operator==(const Rational & /*left*/, std::uint64_t /*right*/) {
