@@ -69,7 +69,7 @@ namespace chimera {
     };
 
     struct Printer {
-      Printer(object::Object object, std::string name);
+      Printer(object::Object object, const std::string &name);
 
       std::string printed(const object::Object &object);
 
@@ -124,7 +124,7 @@ namespace chimera {
 
       template <typename OStream>
       OStream &print(OStream &os,
-                          const object::NullFunction & /*nullFunction*/) {
+                     const object::NullFunction & /*nullFunction*/) {
         return os << "object::NullFunction{}";
       }
 
@@ -233,10 +233,12 @@ namespace chimera {
 
       template <typename OStream>
       OStream &print(OStream &os, const Work &work) {
-        auto baseName = std::string(work.base_name).append("_").append(work.name);
+        auto baseName =
+            std::string(work.base_name).append("_").append(work.name);
         auto object = std::visit(IncompleteTuple{this}, work.object.value());
         while (object) {
-          print(os, Work{this, *object, baseName, std::to_string(_printed.size())});
+          print(os, Work{this, *object, baseName,
+                         std::to_string(m_printed.size())});
           object = std::visit(IncompleteTuple{this}, work.object.value());
         }
         if (is_printed(work.object)) {
@@ -265,7 +267,7 @@ namespace chimera {
           }
           os << "}";
         }
-        _printed.try_emplace(id(work.object), baseName);
+        m_printed.try_emplace(id(work.object), baseName);
         os << "});";
         if (wanted.count(id(work.object)) != 0) {
           auto setAttributes = std::move(wanted.at(id(work.object)));
@@ -273,43 +275,44 @@ namespace chimera {
           std::sort(setAttributes.begin(), setAttributes.end(), Compare{});
           for (const auto &setAttribute : setAttributes) {
             os << setAttribute.base_name << ".set_attribute("
-               << std::quoted(setAttribute.name) << "s,"
-               << printed(work.object) << ");";
+               << std::quoted(setAttribute.name) << "s," << printed(work.object)
+               << ");";
           }
         }
         return os;
       }
 
-      std::map<object::Id, object::Id> _remap;
-      std::map<object::Id, std::string> _printed;
-      std::priority_queue<Work, std::vector<Work>, Compare> queue;
-      std::map<object::Id, std::vector<SetAttribute>> wanted;
+      std::map<object::Id, object::Id> m_remap;
+      std::map<object::Id, std::string> m_printed;
+      std::priority_queue<Work, std::vector<Work>, Compare> queue{};
+      std::map<object::Id, std::vector<SetAttribute>> wanted{};
       object::Object main;
     };
 
     template <typename OStream>
     OStream &operator<<(OStream &os, Printer &printer) {
-      auto module_name = printer.printed(printer.main);
-      os
-          << "//! generated file see tools/" << module_name << ".cpp\n\n"
-             "#include \"virtual_machine/modules/" << module_name << ".hpp\"\n\n"
-             "#include \"object/object.hpp\"\n\n"
-             "using namespace std::literals;\n\n"
-             "namespace chimera {\nnamespace library {\n"
-             "namespace virtual_machine {\nnamespace modules {\n"
-             "void " << module_name << "(const object::Object &module) {auto "
-          << module_name
-          << " = module;";
+      auto moduleName = printer.printed(printer.main);
+      os << "//! generated file see tools/" << moduleName
+         << ".cpp\n\n"
+            "#include \"virtual_machine/modules/"
+         << moduleName
+         << ".hpp\"\n\n"
+            "#include \"object/object.hpp\"\n\n"
+            "using namespace std::literals;\n\n"
+            "namespace chimera {\nnamespace library {\n"
+            "namespace virtual_machine {\nnamespace modules {\n"
+            "void "
+         << moduleName << "(const object::Object &module) {auto " << moduleName
+         << " = module;";
       for (const auto &name : printer.main.dir()) {
         if (printer.is_printed(printer.main.get_attribute(name))) {
-          os << module_name << ".set_attribute(" << std::quoted(name) << "s,"
-                    << printer.printed(printer.main.get_attribute(name))
-                    << ");";
+          os << moduleName << ".set_attribute(" << std::quoted(name) << "s,"
+             << printer.printed(printer.main.get_attribute(name)) << ");";
         } else {
           printer.wanted[printer.id(printer.main.get_attribute(name))]
-              .push_back(SetAttribute{module_name, name});
-          printer.queue.push(
-              Work{&printer, printer.main.get_attribute(name), module_name, name});
+              .push_back(SetAttribute{moduleName, name});
+          printer.queue.push(Work{&printer, printer.main.get_attribute(name),
+                                  moduleName, name});
         }
       }
       while (!printer.queue.empty()) {
