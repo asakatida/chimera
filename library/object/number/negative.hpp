@@ -32,7 +32,7 @@ namespace chimera {
         Positive operator-(const Negative &negative);
         Integer operator-(const Integer &integer);
         Rational operator-(const Rational &rational);
-        Base operator-(const Real &value);
+        Real operator-(const Real &value);
 
       } // namespace number
     }   // namespace object

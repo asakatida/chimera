@@ -63,9 +63,9 @@ namespace chimera {
         Positive operator+(Base left, std::uint64_t right) {
           auto value = sum(left.value, right);
           if (value.overflow == 0) {
-            return Base{value.result};
+            return Positive(Base{value.result});
           }
-          return Natural{{value.result, value.overflow}};
+          return Positive(Natural{{value.result, value.overflow}});
         }
 
         Positive operator+(Base left, Base right) { return left + right.value; }
@@ -330,9 +330,7 @@ namespace chimera {
         Real operator+(const Rational &left, const Rational &right) {
           return std::visit(
               [](const auto &lN, const auto &lD, const auto &rN,
-                 const auto &rD) {
-                return Rational{lN * rD + rN * lD, lD * rD};
-              },
+                 const auto &rD) { return Real(lN * rD + rN * lD, lD * rD); },
               left.numerator, left.denominator, right.numerator,
               right.denominator);
         }
@@ -359,20 +357,20 @@ namespace chimera {
 
         Real operator+(const Real &left, const Positive &right) {
           return std::visit(
-              [&right](const auto &value) { return Real(value + right); },
-              left.value);
+              [](const auto &l, const auto &r) { return Real(l + r); },
+              left.value, right.value);
         }
 
         Real operator+(const Real &left, const Negative &right) {
           return std::visit(
-              [&right](const auto &value) { return Real(value + right); },
-              left.value);
+              [](const auto &l, const auto &r) { return Real(l - r); },
+              left.value, right.value);
         }
 
         Real operator+(const Real &left, const Integer &right) {
           return std::visit(
-              [&right](const auto &value) { return Real(value + right); },
-              left.value);
+              [](const auto &l, const auto &r) { return Real(l + r); },
+              left.value, right.value);
         }
 
         Real operator+(const Real &left, const Rational &right) {
