@@ -79,9 +79,7 @@ namespace chimera {
               left.value, right.value);
         }
 
-        static RealValue real(Base base) {
-          return base;
-        }
+        static RealValue real(Base base) { return base; }
 
         static RealValue real(Natural natural) {
           return std::visit([](auto &&v) { return RealValue(v); },
@@ -109,7 +107,6 @@ namespace chimera {
             return to_rational(sign, std::move(left), std::move(right));
           }
           if (right == 1u) {
-
             if (sign) {
               return real(-left);
             }
@@ -131,7 +128,8 @@ namespace chimera {
             return to_rational(sign, std::move(left), std::move(right));
           }
           if (left == aPrime) {
-            return to_rational(sign, Base{1u}, floor_div(right, aPrime));
+            return to_rational(sign, Positive(Base{1u}),
+                               floor_div(right, aPrime));
           }
           if (right == aPrime) {
             if (sign) {

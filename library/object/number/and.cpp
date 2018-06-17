@@ -118,7 +118,7 @@ namespace chimera {
                            right.value.begin(), value.value.begin(),
                            std::bit_and<std::uint64_t>{});
           }
-          return value;
+          return Positive(value);
         }
 
         Positive operator&(const Natural &left, const Positive &right) {

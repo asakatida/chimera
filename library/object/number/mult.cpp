@@ -60,9 +60,9 @@ namespace chimera {
         Positive operator*(Base left, std::uint64_t right) {
           auto value = mult(left.value, right);
           if (value.overflow == 0u) {
-            return Base{value.result};
+            return Positive(Base{value.result});
           }
-          return Natural{{value.result, value.overflow}};
+          return Positive(Natural{{value.result, value.overflow}});
         }
 
         Positive operator*(Base left, Base right) { return left * right.value; }

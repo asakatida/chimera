@@ -140,7 +140,7 @@ namespace chimera {
             value.value.push_back(carryover.result);
           }
           std::reverse(value.value.begin(), value.value.end());
-          return value;
+          return Positive(value);
         }
 
         Positive floor_div(const Natural &left, Base right) {
@@ -149,10 +149,10 @@ namespace chimera {
 
         Positive floor_div(const Natural &left, const Natural &right) {
           if (left < right) {
-            return Base{};
+            return Positive(Base{0u});
           }
           if (left == right) {
-            return Base{1u};
+            return Positive(Base{1u});
           }
           Positive a{left};
           while (right < a) {

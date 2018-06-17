@@ -50,7 +50,7 @@ namespace chimera {
         Real mod(const Rational &left, const Right &right) {
           return std::visit(
               [&left, &right](const auto &lN, const auto &lD) {
-                return left - right * floor_div(lN, lD * right);
+                return Real(left - right * floor_div(lN, lD * right));
               },
               left.numerator, left.denominator);
         }
@@ -134,10 +134,10 @@ namespace chimera {
 
         Positive operator%(const Natural &left, const Natural &right) {
           if (left < right) {
-            return left;
+            return Positive(left);
           }
           if (left == right) {
-            return Base{};
+            return Positive(Base{0u});
           }
           Positive a(left);
           while (right < a) {
