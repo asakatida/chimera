@@ -186,7 +186,7 @@ namespace chimera {
         }
 
         bool operator<(const Negative &left, const Negative &right) {
-          return LESS;
+          return std::visit(std::less<>{}, right.value, left.value);
         }
 
         bool operator<(const Negative &left, const Integer &right) {
