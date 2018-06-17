@@ -34,9 +34,9 @@ namespace chimera {
       namespace number {
         Integer operator-(std::uint64_t left, Base right) {
           if (left < right.value) {
-            return Negative{Base{right.value - left}};
+            return Integer(Negative(Base{right.value - left}));
           }
-          return Base{left - right.value};
+          return Integer(Base{left - right.value});
         }
 
         Negative operator-(std::uint64_t left, const Natural &right) {
@@ -122,7 +122,7 @@ namespace chimera {
 
         Positive operator-(const Natural &left, std::uint64_t right) {
           if (right == 0) {
-            return left;
+            return Positive(left);
           }
           Natural value{};
           Carryover carryover{0, right};
@@ -130,7 +130,7 @@ namespace chimera {
             carryover = sub(i, carryover.overflow);
             value.value.push_back(carryover.result);
           }
-          return value;
+          return Positive(value);
         }
 
         Positive operator-(const Natural &left, Base right) {
@@ -386,9 +386,7 @@ namespace chimera {
         Real operator-(const Rational &left, const Rational &right) {
           return std::visit(
               [](const auto &lN, const auto &lD, const auto &rN,
-                 const auto &rD) {
-                return Rational{lN * rD - rN * lD, lD * rD};
-              },
+                 const auto &rD) { return Real(lN * rD - rN * lD, lD * rD); },
               left.numerator, left.denominator, right.numerator,
               right.denominator);
         }
@@ -419,20 +417,20 @@ namespace chimera {
 
         Real operator-(const Real &left, const Positive &right) {
           return std::visit(
-              [&right](const auto &value) { return Real(value - right); },
-              left.value);
+              [](const auto &l, const auto &r) { return Real(l - r); },
+              left.value, right.value);
         }
 
         Real operator-(const Real &left, const Negative &right) {
           return std::visit(
-              [&right](const auto &value) { return Real(value - right); },
-              left.value);
+              [](const auto &l, const auto &r) { return -Real(l - r); },
+              left.value, right.value);
         }
 
         Real operator-(const Real &left, const Integer &right) {
           return std::visit(
-              [&right](const auto &value) { return Real(value - right); },
-              left.value);
+              [](const auto &l, const auto &r) { return Real(l - r); },
+              left.value, right.value);
         }
 
         Real operator-(const Real &left, const Rational &right) {

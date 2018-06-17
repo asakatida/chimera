@@ -46,7 +46,7 @@ namespace chimera {
         }
 
         Real operator/(std::uint64_t left, Base right) {
-          return Rational(Base{left}, right);
+          return Real(Base{left}, right);
         }
 
         Rational operator/(std::uint64_t left, const Natural &right) {
@@ -54,15 +54,15 @@ namespace chimera {
         }
 
         Real operator/(std::uint64_t left, const Positive &right) {
-          return Rational(Base{left}, right);
+          return Real(Base{left}, right);
         }
 
         Real operator/(std::uint64_t left, const Negative &right) {
-          return Rational(Base{left}, right);
+          return Real(Base{left}, right);
         }
 
         Real operator/(std::uint64_t left, const Integer &right) {
-          return Rational(Base{left}, right);
+          return Real(Base{left}, right);
         }
 
         Rational operator/(std::uint64_t left, const Rational &right) {
@@ -76,25 +76,25 @@ namespace chimera {
         }
 
         Real operator/(Base left, std::uint64_t right) {
-          return Rational(left, Base{right});
+          return Real(left, Base{right});
         }
 
-        Real operator/(Base left, Base right) { return Rational(left, right); }
+        Real operator/(Base left, Base right) { return Real(left, right); }
 
         Rational operator/(Base left, const Natural &right) {
-          return {left, right};
+          return Rational(left, right);
         }
 
         Real operator/(Base left, const Positive &right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Real operator/(Base left, const Negative &right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Real operator/(Base left, const Integer &right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Rational operator/(Base left, const Rational &right) {
@@ -108,27 +108,27 @@ namespace chimera {
         }
 
         Real operator/(const Natural &left, std::uint64_t right) {
-          return Rational(left, Base{right});
+          return Real(left, Base{right});
         }
 
         Real operator/(const Natural &left, Base right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Real operator/(const Natural &left, const Natural &right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Real operator/(const Natural &left, const Positive &right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Real operator/(const Natural &left, const Negative &right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Real operator/(const Natural &left, const Integer &right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Rational operator/(const Natural &left, const Rational &right) {
@@ -142,27 +142,27 @@ namespace chimera {
         }
 
         Real operator/(const Positive &left, std::uint64_t right) {
-          return Rational(left, Base{right});
+          return Real(left, Base{right});
         }
 
         Real operator/(const Positive &left, Base right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Real operator/(const Positive &left, const Natural &right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Real operator/(const Positive &left, const Positive &right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Real operator/(const Positive &left, const Negative &right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Real operator/(const Positive &left, const Integer &right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Rational operator/(const Positive &left, const Rational &right) {
@@ -176,27 +176,27 @@ namespace chimera {
         }
 
         Real operator/(const Negative &left, std::uint64_t right) {
-          return Rational(left, Base{right});
+          return Real(left, Base{right});
         }
 
         Real operator/(const Negative &left, Base right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Real operator/(const Negative &left, const Natural &right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Real operator/(const Negative &left, const Positive &right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Real operator/(const Negative &left, const Negative &right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Real operator/(const Negative &left, const Integer &right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Rational operator/(const Negative &left, const Rational &right) {
@@ -210,27 +210,27 @@ namespace chimera {
         }
 
         Real operator/(const Integer &left, std::uint64_t right) {
-          return Rational(left, Base{right});
+          return Real(left, Base{right});
         }
 
         Real operator/(const Integer &left, Base right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Real operator/(const Integer &left, const Natural &right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Real operator/(const Integer &left, const Positive &right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Real operator/(const Integer &left, const Negative &right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Real operator/(const Integer &left, const Integer &right) {
-          return Rational(left, right);
+          return Real(left, right);
         }
 
         Rational operator/(const Integer &left, const Rational &right) {
@@ -270,9 +270,7 @@ namespace chimera {
         Real operator/(const Rational &left, const Rational &right) {
           return std::visit(
               [](const auto &lN, const auto &lD, const auto &rN,
-                 const auto &rD) {
-                return Rational{lN * rD, lD * rN};
-              },
+                 const auto &rD) { return Real(lN * rD, lD * rN); },
               left.numerator, left.denominator, right.numerator,
               right.denominator);
         }
@@ -303,20 +301,20 @@ namespace chimera {
 
         Real operator/(const Real &left, const Positive &right) {
           return std::visit(
-              [&right](const auto &value) { return Real(value / right); },
-              left.value);
+              [](const auto &l, const auto &r) { return Real(l / r); },
+              left.value, right.value);
         }
 
         Real operator/(const Real &left, const Negative &right) {
           return std::visit(
-              [&right](const auto &value) { return Real(value / right); },
-              left.value);
+              [](const auto &l, const auto &r) { return -Real(l / r); },
+              left.value, right.value);
         }
 
         Real operator/(const Real &left, const Integer &right) {
           return std::visit(
-              [&right](const auto &value) { return Real(value / right); },
-              left.value);
+              [](const auto &l, const auto &r) { return Real(l / r); },
+              left.value, right.value);
         }
 
         Real operator/(const Real &left, const Rational &right) {

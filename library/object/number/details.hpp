@@ -66,8 +66,8 @@ namespace chimera {
         struct Positive {
           PositiveValue value;
 
-          Positive(Base base);       // NOLINT
-          Positive(Natural natural); // NOLINT
+          explicit Positive(Base base);
+          explicit Positive(Natural natural);
 
           Positive(const Positive &other) = default;
           Positive(Positive &&other) noexcept = default;
@@ -88,9 +88,9 @@ namespace chimera {
         struct Negative {
           PositiveValue value;
 
-          Negative(Base base);         // NOLINT
-          Negative(Natural natural);   // NOLINT
-          Negative(Positive positive); // NOLINT
+          explicit Negative(Base base);
+          explicit Negative(Natural natural);
+          explicit Negative(Positive positive);
 
           Negative(const Negative &other) = default;
           Negative(Negative &&other) noexcept = default;
@@ -112,10 +112,10 @@ namespace chimera {
         struct Integer {
           IntegerValue value;
 
-          Integer(Base base);         // NOLINT
-          Integer(Natural natural);   // NOLINT
-          Integer(Positive positive); // NOLINT
-          Integer(Negative negative); // NOLINT
+          explicit Integer(Base base);
+          explicit Integer(Natural natural);
+          explicit Integer(Positive positive);
+          explicit Integer(Negative negative);
 
           Integer(const Integer &other) = default;
           Integer(Integer &&other) noexcept = default;
@@ -161,12 +161,14 @@ namespace chimera {
         struct Real {
           RealValue value;
 
-          Real(Base base);         // NOLINT
-          Real(Natural natural);   // NOLINT
-          Real(Positive positive); // NOLINT
-          Real(Negative negative); // NOLINT
-          Real(Integer integer);   // NOLINT
-          Real(Rational rational); // NOLINT
+          explicit Real(Base base);
+          explicit Real(Natural natural);
+          explicit Real(Positive positive);
+          explicit Real(Negative negative);
+          explicit Real(Integer integer);
+          explicit Real(Rational rational);
+          template <typename Numerator, typename Denominator>
+          Real(Numerator num, Denominator den) : Real(Rational(num, den)) {}
 
           Real(const Real &other) = default;
           Real(Real &&other) noexcept = default;

@@ -37,7 +37,7 @@ namespace chimera {
         }
 
         Base operator>>(std::uint64_t /*left*/, const Natural & /*right*/) {
-          return Base{};
+          return Base{0u};
         }
 
         Base operator>>(std::uint64_t left, const Positive &right) {
@@ -73,7 +73,7 @@ namespace chimera {
         }
 
         Base operator>>(Base /*left*/, const Natural & /*right*/) {
-          return Base{};
+          return Base{0u};
         }
 
         Base operator>>(Base left, const Positive &right) {
@@ -102,10 +102,10 @@ namespace chimera {
         }
         Positive operator>>(const Natural &left, std::uint64_t right) {
           if (right == 0) {
-            return left;
+            return Positive(left);
           }
           if (std::size_t(right / 64) >= left.value.size()) {
-            return Base{};
+            return Positive(Base{0u});
           }
           auto value = left;
           if (std::ptrdiff_t shift = right / 64; shift != 0) {
@@ -119,9 +119,9 @@ namespace chimera {
               carryover = right_shift(i, shift);
               result.value.push_back(carryover.result | overflow);
             }
-            return result;
+            return Positive(result);
           }
-          return value;
+          return Positive(value);
         }
 
         Positive operator>>(const Natural &left, Base right) {
