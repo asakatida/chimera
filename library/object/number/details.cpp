@@ -43,7 +43,7 @@ namespace chimera {
             value.value.pop_back();
           }
           if (value.value.empty()) {
-            return Base{};
+            return Base{0u};
           }
           if (value.value.size() == 1) {
             return Base{value.value[0]};
@@ -70,168 +70,17 @@ namespace chimera {
                             i.value);
         }
 
-        static Rational to_rational(Base left, Base right) {
-          return Rational{left, right};
-        }
-
-        static Rational to_rational(Base left, const Natural &right) {
-          return Rational{left, right};
-        }
-
-        static Rational to_rational(Base left, const Negative &right) {
-          return Rational{left, right};
-        }
-
-        static Rational to_rational(const Natural &left, Base right) {
-          return Rational{left, right};
-        }
-
-        static Rational to_rational(const Natural &left, const Natural &right) {
-          return Rational{left, right};
-        }
-
-        static Rational to_rational(const Natural &left,
-                                    const Negative &right) {
-          return Rational{left, right};
-        }
-
-        static Rational to_rational(const Negative &left, Base right) {
-          return Rational{left, right};
-        }
-
-        static Rational to_rational(const Negative &left,
-                                    const Natural &right) {
-          return Rational{left, right};
-        }
-
-        static Rational to_rational(const Negative &left,
-                                    const Negative &right) {
-          return Rational{left, right};
-        }
-
-        static Rational to_rational(const Positive &left, Base right) {
-          return Rational{left, right};
-        }
-
-        static Rational to_rational(const Positive &left,
-                                    const Natural &right) {
-          return Rational{left, right};
-        }
-
-        static Rational to_rational(const Positive &left,
-                                    const Negative &right) {
-          return Rational{left, right};
-        }
-
-        template <typename Left, typename Right>
-        static Rational to_rational_pos(Left &&left, Right &&right) {
+        static Rational to_rational(bool sign, Positive &&left,
+                                    Positive &&right) {
           return std::visit(
-              [](auto &&a, auto &&b) { return to_rational(a, b); },
-              integer(std::forward<Left>(left)),
-              integer(std::forward<Right>(right)));
+              [sign](auto &&a, auto &&b) {
+                return sign ? -Rational{a, b} : Rational{a, b};
+              },
+              left.value, right.value);
         }
 
-        template <typename Left, typename Right>
-        static Rational to_rational_neg(Left &&left, Right &&right) {
-          return std::visit(
-              [](auto &&a, auto &&b) { return to_rational(-a, b); },
-              integer(std::forward<Left>(left)),
-              integer(std::forward<Right>(right)));
-        }
-
-        static RealValue reduce_pos(Positive left, Positive right) {
-          while (even(left) && even(right)) {
-            left = left >> 1u;
-            right = right >> 1u;
-          }
-          if (left == 1u) {
-            return to_rational_pos(std::move(left), std::move(right));
-          }
-          if (right == 1u) {
-            return left;
-          }
-          auto aPrime = left, bPrime = right;
-          while (!(aPrime == bPrime)) {
-            if (even(aPrime)) {
-              aPrime = aPrime >> 1u;
-            } else if (even(bPrime)) {
-              bPrime = bPrime >> 1u;
-            } else if (bPrime < aPrime) {
-              aPrime = +(aPrime - bPrime) >> 1u;
-            } else {
-              bPrime = +(bPrime - aPrime) >> 1u;
-            }
-          }
-          if (aPrime == 1u) {
-            return to_rational_pos(std::move(left), std::move(right));
-          }
-          if (left == aPrime) {
-            return to_rational_pos(Base{1u}, floor_div(right, aPrime));
-          }
-          if (right == aPrime) {
-            return floor_div(left, aPrime);
-          }
-          return to_rational_pos(floor_div(left, aPrime),
-                                 floor_div(right, aPrime));
-        }
-
-        static RealValue reduce_neg(Positive left, Positive right) {
-          while (even(left) && even(right)) {
-            left = left >> 1u;
-            right = right >> 1u;
-          }
-          if (left == 1u) {
-            return to_rational_neg(std::move(left), std::move(right));
-          }
-          if (right == 1u) {
-            return -left;
-          }
-          auto aPrime = left, bPrime = right;
-          while (!(aPrime == bPrime)) {
-            if (even(aPrime)) {
-              aPrime = aPrime >> 1u;
-            } else if (even(bPrime)) {
-              bPrime = bPrime >> 1u;
-            } else if (bPrime < aPrime) {
-              aPrime = +(aPrime - bPrime) >> 1u;
-            } else {
-              bPrime = +(bPrime - aPrime) >> 1u;
-            }
-          }
-          if (aPrime == 1u) {
-            return to_rational_neg(std::move(left), std::move(right));
-          }
-          if (left == aPrime) {
-            return to_rational_neg(Base{1u}, floor_div(right, aPrime));
-          }
-          if (right == aPrime) {
-            return -floor_div(left, aPrime);
-          }
-          return to_rational_neg(floor_div(left, aPrime),
-                                 floor_div(right, aPrime));
-        }
-
-        template <typename Left, typename Right>
-        RealValue reduce(Left &&left, Right &&right) {
-          if (left == 0u) {
-            return left;
-          }
-          if (left == right) {
-            return Base{1u};
-          }
-          if (left == 1u) {
-            return Rational{left, right};
-          }
-          if (right == 0u) {
-            return Rational{left, right};
-          }
-          if (right == 1u) {
-            return left;
-          }
-          if ((left < 0) ^ (right < 0)) {
-            return reduce_neg(Positive(+left), Positive(+right));
-          }
-          return reduce_pos(Positive(+left), Positive(+right));
+        static RealValue real(Base base) {
+          return base;
         }
 
         static RealValue real(Natural natural) {
@@ -249,6 +98,67 @@ namespace chimera {
         static RealValue real(Integer integer) {
           return std::visit([](const auto &value) { return RealValue(value); },
                             integer.value);
+        }
+
+        static RealValue reduce(bool sign, Positive left, Positive right) {
+          while (even(left) && even(right)) {
+            left = left >> 1u;
+            right = right >> 1u;
+          }
+          if (left == 1u) {
+            return to_rational(sign, std::move(left), std::move(right));
+          }
+          if (right == 1u) {
+
+            if (sign) {
+              return real(-left);
+            }
+            return real(left);
+          }
+          auto aPrime = left, bPrime = right;
+          while (!(aPrime == bPrime)) {
+            if (even(aPrime)) {
+              aPrime = aPrime >> 1u;
+            } else if (even(bPrime)) {
+              bPrime = bPrime >> 1u;
+            } else if (bPrime < aPrime) {
+              aPrime = +(aPrime - bPrime) >> 1u;
+            } else {
+              bPrime = +(bPrime - aPrime) >> 1u;
+            }
+          }
+          if (aPrime == 1u) {
+            return to_rational(sign, std::move(left), std::move(right));
+          }
+          if (left == aPrime) {
+            return to_rational(sign, Base{1u}, floor_div(right, aPrime));
+          }
+          if (right == aPrime) {
+            if (sign) {
+              return real(-floor_div(left, aPrime));
+            }
+            return real(floor_div(left, aPrime));
+          }
+          return to_rational(sign, floor_div(left, aPrime),
+                             floor_div(right, aPrime));
+        }
+
+        template <typename Left, typename Right>
+        RealValue reduce(const Left &left, const Right &right) {
+          if (left == 0u) {
+            return Base{0u};
+          }
+          if (left == right) {
+            return Base{1u};
+          }
+          if (left == 1u || right == 0u) {
+            return Rational{left, right};
+          }
+          if (right == 1u) {
+            return real(left);
+          }
+          return reduce((left < 0) ^ (right < 0), Positive(+left),
+                        Positive(+right));
         }
 
         static RealValue real(Rational rational) {

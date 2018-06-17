@@ -85,11 +85,7 @@ namespace chimera {
         }
 
         Integer floor_div(std::uint64_t left, const Rational &right) {
-          return std::visit(
-              [left](const auto &rN, const auto &rD) {
-                return Integer(floor_div(left * rD, rN));
-              },
-              right.numerator, right.denominator);
+          return div(left, right);
         }
 
         Integer floor_div(std::uint64_t left, const Real &right) {
@@ -110,40 +106,28 @@ namespace chimera {
           return {left.value / right.value};
         }
 
-        Base floor_div(Base /*left*/, const Natural & /*right*/) {
-          return Base{};
+        Base floor_div(Base left, const Natural &right) {
+          return floor_div(left.value, right);
         }
 
         Base floor_div(Base left, const Positive &right) {
-          return std::visit(
-              [left](const auto &value) { return floor_div(left, value); },
-              right.value);
+          return floor_div(left.value, right);
         }
 
         Negative floor_div(Base left, const Negative &right) {
-          return std::visit(
-              [left](const auto &value) { return -floor_div(left, value); },
-              right.value);
+          return floor_div(left.value, right);
         }
 
         Integer floor_div(Base left, const Integer &right) {
-          return std::visit(
-              [left](const auto &value) {
-                return Integer(floor_div(left, value));
-              },
-              right.value);
+          return floor_div(left.value, right);
         }
 
         Integer floor_div(Base left, const Rational &right) {
-          return div(left, right);
+          return floor_div(left.value, right);
         }
 
         Integer floor_div(Base left, const Real &right) {
-          return std::visit(
-              [left](const auto &value) {
-                return Integer(floor_div(left, value));
-              },
-              right.value);
+          return floor_div(left.value, right);
         }
 
         Positive floor_div(const Natural &left, std::uint64_t right) {
@@ -220,11 +204,7 @@ namespace chimera {
         }
 
         Positive floor_div(const Positive &left, Base right) {
-          return std::visit(
-              [right](const auto &value) {
-                return Positive(floor_div(value, right));
-              },
-              left.value);
+          return floor_div(left, right.value);
         }
 
         Positive floor_div(const Positive &left, const Natural &right) {
@@ -237,26 +217,24 @@ namespace chimera {
 
         Positive floor_div(const Positive &left, const Positive &right) {
           return std::visit(
-              [&right](const auto &value) {
-                return Positive(floor_div(value, right));
+              [](const auto &l, const auto &r) {
+                return Positive(floor_div(l, r));
               },
-              left.value);
+              left.value, right.value);
         }
 
         Negative floor_div(const Positive &left, const Negative &right) {
           return std::visit(
-              [&right](const auto &value) {
-                return Negative(floor_div(value, right));
-              },
-              left.value);
+              [](const auto &l, const auto &r) { return -floor_div(l, r); },
+              left.value, right.value);
         }
 
         Integer floor_div(const Positive &left, const Integer &right) {
           return std::visit(
-              [&right](const auto &value) {
-                return Integer(floor_div(value, right));
+              [](const auto &l, const auto &r) {
+                return Integer(floor_div(l, r));
               },
-              left.value);
+              left.value, right.value);
         }
 
         Integer floor_div(const Positive &left, const Rational &right) {
@@ -265,10 +243,10 @@ namespace chimera {
 
         Integer floor_div(const Positive &left, const Real &right) {
           return std::visit(
-              [&right](const auto &value) {
-                return Integer(floor_div(value, right));
+              [](const auto &l, const auto &r) {
+                return Integer(floor_div(l, r));
               },
-              left.value);
+              left.value, right.value);
         }
 
         Negative floor_div(const Negative &left, std::uint64_t right) {
@@ -289,8 +267,8 @@ namespace chimera {
 
         Negative floor_div(const Negative &left, const Positive &right) {
           return std::visit(
-              [&right](const auto &value) { return -floor_div(value, right); },
-              left.value);
+              [](const auto &l, const auto &r) { return -floor_div(l, r); },
+              left.value, right.value);
         }
 
         Positive floor_div(const Negative &left, const Negative &right) {
@@ -303,10 +281,10 @@ namespace chimera {
 
         Integer floor_div(const Negative &left, const Integer &right) {
           return std::visit(
-              [&right](const auto &value) {
-                return Integer(-floor_div(value, right));
+              [](const auto &l, const auto &r) {
+                return Integer(-floor_div(l, r));
               },
-              left.value);
+              left.value, right.value);
         }
 
         Integer floor_div(const Negative &left, const Rational &right) {
@@ -315,10 +293,10 @@ namespace chimera {
 
         Integer floor_div(const Negative &left, const Real &right) {
           return std::visit(
-              [&right](const auto &value) {
-                return Integer(-floor_div(value, right));
+              [](const auto &l, const auto &r) {
+                return Integer(-floor_div(l, r));
               },
-              left.value);
+              left.value, right.value);
         }
 
         Integer floor_div(const Integer &left, std::uint64_t right) {
@@ -330,11 +308,7 @@ namespace chimera {
         }
 
         Integer floor_div(const Integer &left, Base right) {
-          return std::visit(
-              [right](const auto &value) {
-                return Integer(floor_div(value, right));
-              },
-              left.value);
+          return floor_div(left, right.value);
         }
 
         Integer floor_div(const Integer &left, const Natural &right) {
@@ -347,10 +321,10 @@ namespace chimera {
 
         Integer floor_div(const Integer &left, const Positive &right) {
           return std::visit(
-              [&right](const auto &value) {
-                return Integer(floor_div(value, right));
+              [](const auto &l, const auto &r) {
+                return Integer(floor_div(l, r));
               },
-              left.value);
+              left.value, right.value);
         }
 
         Integer floor_div(const Integer &left, const Negative &right) {
@@ -375,10 +349,10 @@ namespace chimera {
 
         Integer floor_div(const Integer &left, const Real &right) {
           return std::visit(
-              [&right](const auto &value) {
-                return Integer(floor_div(value, right));
+              [](const auto &l, const auto &r) {
+                return Integer(floor_div(l, r));
               },
-              left.value);
+              left.value, right.value);
         }
 
         Integer floor_div(const Rational &left, std::uint64_t right) {
@@ -386,7 +360,7 @@ namespace chimera {
         }
 
         Integer floor_div(const Rational &left, Base right) {
-          return div(left, right);
+          return floor_div(left, right.value);
         }
 
         Integer floor_div(const Rational &left, const Natural &right) {
@@ -432,11 +406,7 @@ namespace chimera {
         }
 
         Integer floor_div(const Real &left, Base right) {
-          return std::visit(
-              [right](const auto &value) {
-                return Integer(floor_div(value, right));
-              },
-              left.value);
+          return floor_div(left, right.value);
         }
 
         Integer floor_div(const Real &left, const Natural &right) {
@@ -449,10 +419,10 @@ namespace chimera {
 
         Integer floor_div(const Real &left, const Positive &right) {
           return std::visit(
-              [&right](const auto &value) {
-                return Integer(floor_div(value, right));
+              [](const auto &l, const auto &r) {
+                return Integer(floor_div(l, r));
               },
-              left.value);
+              left.value, right.value);
         }
 
         Integer floor_div(const Real &left, const Negative &right) {
@@ -465,10 +435,10 @@ namespace chimera {
 
         Integer floor_div(const Real &left, const Integer &right) {
           return std::visit(
-              [&right](const auto &value) {
-                return Integer(floor_div(value, right));
+              [](const auto &l, const auto &r) {
+                return Integer(floor_div(l, r));
               },
-              left.value);
+              left.value, right.value);
         }
 
         Integer floor_div(const Real &left, const Rational &right) {
