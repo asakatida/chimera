@@ -27,75 +27,75 @@ namespace chimera {
     namespace object {
       namespace number {
         Positive operator*(std::uint64_t left, Base right);
-        Natural operator*(std::uint64_t left, const Natural &right);
+        Positive operator*(std::uint64_t left, const Natural &right);
         Positive operator*(std::uint64_t left, const Positive &right);
         Negative operator*(std::uint64_t left, const Negative &right);
         Integer operator*(std::uint64_t left, const Integer &right);
-        Rational operator*(std::uint64_t left, const Rational &right);
+        Real operator*(std::uint64_t left, const Rational &right);
+        Real operator*(std::uint64_t left, const Real &right);
 
-        Base operator*(std::uint64_t left, const Real &right);
         Positive operator*(Base left, std::uint64_t right);
         Positive operator*(Base left, Base right);
-        Natural operator*(Base left, const Natural &right);
+        Positive operator*(Base left, const Natural &right);
         Positive operator*(Base left, const Positive &right);
         Negative operator*(Base left, const Negative &right);
         Integer operator*(Base left, const Integer &right);
-        Rational operator*(Base left, const Rational &right);
+        Real operator*(Base left, const Rational &right);
+        Real operator*(Base left, const Real &right);
 
-        Base operator*(Base left, const Real &right);
-        Natural operator*(const Natural &left, std::uint64_t right);
-        Natural operator*(const Natural &left, Base right);
+        Positive operator*(const Natural &left, std::uint64_t right);
+        Positive operator*(const Natural &left, Base right);
         Natural operator*(const Natural &left, const Natural &right);
-        Natural operator*(const Natural &left, const Positive &right);
+        Positive operator*(const Natural &left, const Positive &right);
         Negative operator*(const Natural &left, const Negative &right);
         Integer operator*(const Natural &left, const Integer &right);
-        Rational operator*(const Natural &left, const Rational &right);
+        Real operator*(const Natural &left, const Rational &right);
+        Real operator*(const Natural &left, const Real &right);
 
-        Base operator*(const Natural &left, const Real &right);
         Positive operator*(const Positive &left, std::uint64_t right);
         Positive operator*(const Positive &left, Base right);
         Positive operator*(const Positive &left, const Natural &right);
         Positive operator*(const Positive &left, const Positive &right);
         Negative operator*(const Positive &left, const Negative &right);
         Integer operator*(const Positive &left, const Integer &right);
-        Rational operator*(const Positive &left, const Rational &right);
+        Real operator*(const Positive &left, const Rational &right);
+        Real operator*(const Positive &left, const Real &right);
 
-        Base operator*(const Positive &left, const Real &right);
         Negative operator*(const Negative &left, std::uint64_t right);
         Negative operator*(const Negative &left, Base right);
         Negative operator*(const Negative &left, const Natural &right);
         Negative operator*(const Negative &left, const Positive &right);
         Positive operator*(const Negative &left, const Negative &right);
         Integer operator*(const Negative &left, const Integer &right);
-        Rational operator*(const Negative &left, const Rational &right);
+        Real operator*(const Negative &left, const Rational &right);
+        Real operator*(const Negative &left, const Real &right);
 
-        Base operator*(const Negative &left, const Real &right);
         Integer operator*(const Integer &left, std::uint64_t right);
         Integer operator*(const Integer &left, Base right);
         Integer operator*(const Integer &left, const Natural &right);
         Integer operator*(const Integer &left, const Positive &right);
         Integer operator*(const Integer &left, const Negative &right);
         Integer operator*(const Integer &left, const Integer &right);
-        Rational operator*(const Integer &left, const Rational &right);
+        Real operator*(const Integer &left, const Rational &right);
+        Real operator*(const Integer &left, const Real &right);
 
-        Base operator*(const Integer &left, const Real &right);
-        Rational operator*(const Rational &left, std::uint64_t right);
-        Rational operator*(const Rational &left, Base right);
-        Rational operator*(const Rational &left, const Natural &right);
-        Base operator*(const Rational &left, const Positive &right);
-        Rational operator*(const Rational &left, const Negative &right);
-        Rational operator*(const Rational &left, const Integer &right);
-        Rational operator*(const Rational &left, const Rational &right);
-        Base operator*(const Rational &left, const Real &right);
-        Base operator*(const Real &left, std::uint64_t right);
-        Base operator*(const Real &left, Base right);
-        Base operator*(const Real &left, const Natural &right);
-        Base operator*(const Real &left, const Positive &right);
-        Base operator*(const Real &left, const Negative &right);
-        Base operator*(const Real &left, const Integer &right);
-        Base operator*(const Real &left, const Rational &right);
-        Base operator*(const Real &left, const Real &right);
+        Real operator*(const Rational &left, std::uint64_t right);
+        Real operator*(const Rational &left, Base right);
+        Real operator*(const Rational &left, const Natural &right);
+        Real operator*(const Rational &left, const Positive &right);
+        Real operator*(const Rational &left, const Negative &right);
+        Real operator*(const Rational &left, const Integer &right);
+        Real operator*(const Rational &left, const Rational &right);
+        Real operator*(const Rational &left, const Real &right);
 
+        Real operator*(const Real &left, std::uint64_t right);
+        Real operator*(const Real &left, Base right);
+        Real operator*(const Real &left, const Natural &right);
+        Real operator*(const Real &left, const Positive &right);
+        Real operator*(const Real &left, const Negative &right);
+        Real operator*(const Real &left, const Integer &right);
+        Real operator*(const Real &left, const Rational &right);
+        Real operator*(const Real &left, const Real &right);
       } // namespace number
     }   // namespace object
   }     // namespace library
