@@ -42,21 +42,16 @@
 
 namespace chimera {
   namespace library {
-    Printer::Printer(object::Object object, const std::string &name)
-        : main(std::move(std::move(object))) {
-      m_printed.try_emplace(id(main), name);
-    }
-
-    std::string Printer::printed(const object::Object &object) {
+    std::string PrintState::printed(const object::Object &object) {
       return m_printed.at(id(object));
     }
 
-    object::Id Printer::id(const object::Object &object) {
+    object::Id PrintState::id(const object::Object &object) {
       return m_remap.try_emplace(object.id(), object.id()).first->second;
     }
 
-    void Printer::remap(const object::Object &module,
-                        const object::Object &previous) {
+    void PrintState::remap(const object::Object &module,
+                           const object::Object &previous) {
       if (!m_remap.try_emplace(previous.id(), module.id()).second) {
         return;
       }
@@ -72,7 +67,7 @@ namespace chimera {
       }
     }
 
-    bool Printer::is_printed(const object::Object &object) {
+    bool PrintState::is_printed(const object::Object &object) {
       return m_printed.count(id(object)) != 0;
     }
 

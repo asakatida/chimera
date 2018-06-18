@@ -1073,8 +1073,8 @@ struct PyModuleDef {
   int (*m_reload)(PyObject *);
   int (*m_traverse)(PyObject *, int (*visit)(PyObject *, void *), void *);
   int (*m_clear)(PyObject *);
-  typedef void (*m_free)(void *);
 };
+typedef void (*m_free)(void *);
 extern PyObject *PyModule_Create(PyModuleDef *def);
 extern PyObject *PyModule_Create2(PyModuleDef *def, int module_api_version);
 extern PyObject *PyModuleDef_Init(PyModuleDef *def);

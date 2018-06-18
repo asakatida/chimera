@@ -24,7 +24,7 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        void f() {}
+        void debug() {}
       } // namespace number
     }   // namespace object
   }     // namespace library

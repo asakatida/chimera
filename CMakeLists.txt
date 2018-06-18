@@ -38,10 +38,11 @@ add_library(
   library/grammar/whitespace.hpp
   library/virtual_machine/parse.cpp)
 
-target_include_directories(chimera_grammar PUBLIC library include)
+target_include_directories(chimera_grammar PUBLIC library)
 target_include_directories(
   chimera_grammar
   SYSTEM PUBLIC
+  include
   external/GSL/include
   external/metal/include
   external/PEGTL/include)

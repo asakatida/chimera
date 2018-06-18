@@ -49,8 +49,8 @@ namespace chimera {
       virtual_machine::ThreadContext threadContext{
           processContext, processContext.make_module("builtins")};
       threadContext.evaluate(module);
-      Printer printer(threadContext.main, "builtins");
-      printer.remap(printer.main, printer.main.get_attribute("__builtins__"));
+      Printer printer{threadContext.main, "builtins",
+                      threadContext.main.get_attribute("__builtins__")};
       std::cout << printer;
     }
   } // namespace library

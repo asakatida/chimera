@@ -28,12 +28,11 @@ namespace chimera {
       namespace number {
         Negative operator-(Base base);
         Negative operator-(const Natural &natural);
-        Negative operator-(const Positive &value);
+        Negative operator-(const Positive &positive);
         Positive operator-(const Negative &negative);
         Integer operator-(const Integer &integer);
         Rational operator-(const Rational &rational);
-        Real operator-(const Real &value);
-
+        Real operator-(const Real &real);
       } // namespace number
     }   // namespace object
   }     // namespace library

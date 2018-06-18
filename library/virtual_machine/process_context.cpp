@@ -167,7 +167,7 @@ namespace chimera {
 
       asdl::Constant ProcessContext::insert_constant(object::String &&string) {
         object::Object object(
-            std::move(string),
+            string,
             {{"__class__", global_context.builtins.get_attribute("str")}});
         auto result = constants.try_emplace(object.id(), object);
         Ensures(result.second);

@@ -39,7 +39,7 @@ namespace chimera {
           return right * left;
         }
 
-        Positive operator*(std::uint64_t left, const Positive & right) {
+        Positive operator*(std::uint64_t left, const Positive &right) {
           return right * left;
         }
 
@@ -47,7 +47,7 @@ namespace chimera {
           return right * left;
         }
 
-        Integer operator*(std::uint64_t left, const Integer & right) {
+        Integer operator*(std::uint64_t left, const Integer &right) {
           return right * left;
         }
 
@@ -55,7 +55,7 @@ namespace chimera {
           return right * left;
         }
 
-        Real operator*(std::uint64_t left, const Real & right) {
+        Real operator*(std::uint64_t left, const Real &right) {
           return right * left;
         }
 
@@ -73,7 +73,7 @@ namespace chimera {
           return left.value * right;
         }
 
-        Positive operator*(Base left, const Positive & right) {
+        Positive operator*(Base left, const Positive &right) {
           return left.value * right;
         }
 
@@ -81,7 +81,7 @@ namespace chimera {
           return left.value * right;
         }
 
-        Integer operator*(Base left, const Integer & right) {
+        Integer operator*(Base left, const Integer &right) {
           return left.value * right;
         }
 
@@ -89,7 +89,7 @@ namespace chimera {
           return left.value * right;
         }
 
-        Real operator*(Base left, const Real & right) {
+        Real operator*(Base left, const Real &right) {
           return left.value * right;
         }
 
@@ -129,8 +129,7 @@ namespace chimera {
           return accumulate;
         }
 
-        Positive operator*(const Natural & left,
-                          const Positive & right) {
+        Positive operator*(const Natural &left, const Positive &right) {
           return right * left;
         }
 
@@ -138,7 +137,7 @@ namespace chimera {
           return right * left;
         }
 
-        Integer operator*(const Natural & left, const Integer & right) {
+        Integer operator*(const Natural &left, const Integer &right) {
           return right * left;
         }
 
@@ -146,50 +145,45 @@ namespace chimera {
           return right * left;
         }
 
-        Real operator*(const Natural & left, const Real & right) {
+        Real operator*(const Natural &left, const Real &right) {
           return right * left;
         }
 
-        Positive operator*(const Positive & left, std::uint64_t right) {
+        Positive operator*(const Positive &left, std::uint64_t right) {
           return std::visit(
               [right](const auto &value) { return (value * right); },
               left.value);
         }
 
-        Positive operator*(const Positive & left, Base right) {
+        Positive operator*(const Positive &left, Base right) {
           return left * right.value;
         }
 
-        Positive operator*(const Positive & left,
-                           const Natural & right) {
+        Positive operator*(const Positive &left, const Natural &right) {
           return std::visit(
               [&right](const auto &value) { return Positive(value * right); },
               left.value);
         }
 
-        Positive operator*(const Positive & left,
-                           const Positive & right) {
+        Positive operator*(const Positive &left, const Positive &right) {
           return std::visit(
               [](const auto &l, const auto &r) { return Positive(l * r); },
               left.value, right.value);
         }
 
-        Negative operator*(const Positive & left,
-                           const Negative & right) {
+        Negative operator*(const Positive &left, const Negative &right) {
           return right * left;
         }
 
-        Integer operator*(const Positive & left,
-                          const Integer & right) {
+        Integer operator*(const Positive &left, const Integer &right) {
           return right * left;
         }
 
-        Real operator*(const Positive & left,
-                           const Rational & right) {
+        Real operator*(const Positive &left, const Rational &right) {
           return right * left;
         }
 
-        Real operator*(const Positive & left, const Real & right) {
+        Real operator*(const Positive &left, const Real &right) {
           return right * left;
         }
 
@@ -209,11 +203,10 @@ namespace chimera {
               left.value);
         }
 
-        Negative operator*(const Negative & left,
-                           const Positive & right) {
+        Negative operator*(const Negative &left, const Positive &right) {
           return std::visit(
-              [](const auto &l, const auto &r) { return -(l * r); },
-              left.value, right.value);
+              [](const auto &l, const auto &r) { return -(l * r); }, left.value,
+              right.value);
         }
 
         Positive operator*(const Negative &left, const Negative &right) {
@@ -222,8 +215,7 @@ namespace chimera {
               left.value, right.value);
         }
 
-        Integer operator*(const Negative & left,
-                          const Integer & right) {
+        Integer operator*(const Negative &left, const Integer &right) {
           return right * left;
         }
 
@@ -231,52 +223,49 @@ namespace chimera {
           return right * left;
         }
 
-        Real operator*(const Negative & left, const Real & right) {
+        Real operator*(const Negative &left, const Real &right) {
           return right * left;
         }
 
-        Integer operator*(const Integer & left, std::uint64_t right) {
+        Integer operator*(const Integer &left, std::uint64_t right) {
           return std::visit(
               [right](const auto &value) { return Integer(value * right); },
               left.value);
         }
 
-        Integer operator*(const Integer & left, Base right) {
+        Integer operator*(const Integer &left, Base right) {
           return left * right.value;
         }
 
-        Integer operator*(const Integer & left, const Natural & right) {
+        Integer operator*(const Integer &left, const Natural &right) {
           return std::visit(
               [&right](const auto &value) { return Integer(value * right); },
               left.value);
         }
 
-        Integer operator*(const Integer & left,
-                          const Positive & right) {
+        Integer operator*(const Integer &left, const Positive &right) {
           return std::visit(
               [](const auto &l, const auto &r) { return Integer(l * r); },
               left.value, right.value);
         }
 
-        Integer operator*(const Integer & left,
-                          const Negative & right) {
+        Integer operator*(const Integer &left, const Negative &right) {
           return std::visit(
               [](const auto &l, const auto &r) { return -Integer(l * r); },
               left.value, right.value);
         }
 
-        Integer operator*(const Integer & left, const Integer & right) {
+        Integer operator*(const Integer &left, const Integer &right) {
           return std::visit(
               [](const auto &l, const auto &r) { return Integer(l * r); },
               left.value, right.value);
         }
 
-        Real operator*(const Integer & left,
-                           const Rational & right) {
+        Real operator*(const Integer &left, const Rational &right) {
           return right * left;
         }
 
-        Real operator*(const Integer & left, const Real & right) {
+        Real operator*(const Integer &left, const Real &right) {
           return right * left;
         }
 
@@ -300,7 +289,7 @@ namespace chimera {
               left.numerator, left.denominator);
         }
 
-        Real operator*(const Rational & left, const Positive & right) {
+        Real operator*(const Rational &left, const Positive &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
                 return Real(lN * right, lD);
@@ -316,8 +305,7 @@ namespace chimera {
               left.numerator, left.denominator);
         }
 
-        Real operator*(const Rational & left,
-                           const Integer & right) {
+        Real operator*(const Rational &left, const Integer &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
                 return Real(lN * right, lD);
@@ -328,58 +316,56 @@ namespace chimera {
         Real operator*(const Rational &left, const Rational &right) {
           return std::visit(
               [](const auto &lN, const auto &lD, const auto &rN,
-                 const auto &rD) {
-                return Real(lN * rN, lD * rD);
-              },
+                 const auto &rD) { return Real(lN * rN, lD * rD); },
               left.numerator, left.denominator, right.numerator,
               right.denominator);
         }
 
-        Real operator*(const Rational & left, const Real & right) {
+        Real operator*(const Rational &left, const Real &right) {
           return right * left;
         }
 
-        Real operator*(const Real & left, std::uint64_t right) {
+        Real operator*(const Real &left, std::uint64_t right) {
           return std::visit(
               [right](const auto &value) { return Real(value * right); },
               left.value);
         }
 
-        Real operator*(const Real & left, Base right) {
+        Real operator*(const Real &left, Base right) {
           return left * right.value;
         }
 
-        Real operator*(const Real & left, const Natural & right) {
+        Real operator*(const Real &left, const Natural &right) {
           return std::visit(
               [&right](const auto &value) { return Real(value * right); },
               left.value);
         }
 
-        Real operator*(const Real & left, const Positive & right) {
+        Real operator*(const Real &left, const Positive &right) {
           return std::visit(
               [](const auto &l, const auto &r) { return Real(l * r); },
               left.value, right.value);
         }
 
-        Real operator*(const Real & left, const Negative & right) {
+        Real operator*(const Real &left, const Negative &right) {
           return std::visit(
               [](const auto &l, const auto &r) { return Real(l * r); },
               left.value, right.value);
         }
 
-        Real operator*(const Real & left, const Integer & right) {
+        Real operator*(const Real &left, const Integer &right) {
           return std::visit(
               [](const auto &l, const auto &r) { return Real(l * r); },
               left.value, right.value);
         }
 
-        Real operator*(const Real & left, const Rational & right) {
+        Real operator*(const Real &left, const Rational &right) {
           return std::visit(
               [&right](const auto &value) { return Real(value * right); },
               left.value);
         }
 
-        Real operator*(const Real & left, const Real & right) {
+        Real operator*(const Real &left, const Real &right) {
           return std::visit(
               [](const auto &l, const auto &r) { return Real(l * r); },
               left.value, right.value);
