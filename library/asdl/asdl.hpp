@@ -151,7 +151,7 @@ namespace chimera {
         std::vector<ExprImpl> values{};
       };
       struct Bin {
-        Operator op;
+        Operator op{};
         std::vector<ExprImpl> values{};
       };
       struct Unary {

@@ -1,4 +1,0 @@
----
-Checks: 'clang-diagnostic-*,clang-analyzer-*,*,-clang-diagnostic-date-time,-fuchsia-*,-cert-err58-cpp,-hicpp-no-assembler,-llvm-header-guard,-cppcoreguidelines-pro-type-reinterpret-cast'
-AnalyzeTemporaryDtors: true
-...

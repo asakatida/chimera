@@ -11,6 +11,7 @@
 #include "options.hpp"
 #include "virtual_machine/virtual_machine.hpp"
 
+// NOLINTNEXTLINE
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
 
 namespace chimera {
@@ -26,6 +27,7 @@ namespace chimera {
         auto processContext = virtualMachine.process_context();
         asdl::Module module;
         std::istringstream in(
+            // NOLINTNEXTLINE
             std::string(reinterpret_cast<const char *>(data), size));
         try {
           module = processContext.parse_file(in, "<fuzz>");
@@ -45,6 +47,7 @@ namespace chimera {
   } // namespace library
 } // namespace chimera
 
+// NOLINTNEXTLINE
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   chimera::library::test(data, size);
   return 0;

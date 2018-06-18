@@ -26,7 +26,7 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        void f();
+        void repr();
 
         template <typename OStream>
         struct Repr {

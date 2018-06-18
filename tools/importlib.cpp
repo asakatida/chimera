@@ -49,7 +49,7 @@ namespace chimera {
       virtual_machine::ThreadContext threadContext{
           processContext, processContext.make_module("importlib")};
       threadContext.evaluate(module);
-      Printer printer(threadContext.main, "importlib");
+      Printer printer{threadContext.main, "importlib"};
       std::cout << printer;
     }
   } // namespace library
