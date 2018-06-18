@@ -38,7 +38,7 @@
 
 namespace chimera {
   namespace library {
-    struct Printer;
+    struct PrintState;
 
     struct SetAttribute {
       std::string base_name;
@@ -46,7 +46,7 @@ namespace chimera {
     };
 
     struct Work {
-      Printer *printer;
+      PrintState *printer;
       object::Object object;
       std::string base_name;
       std::string name;
@@ -58,7 +58,7 @@ namespace chimera {
     };
 
     struct IncompleteTuple {
-      Printer *printer;
+      PrintState *printer;
 
       std::optional<object::Object>
       operator()(const object::Tuple &tuple) const;
@@ -68,9 +68,7 @@ namespace chimera {
       }
     };
 
-    struct Printer {
-      Printer(object::Object object, const std::string &name);
-
+    struct PrintState {
       std::string printed(const object::Object &object);
 
       object::Id id(const object::Object &object);
@@ -289,9 +287,20 @@ namespace chimera {
       object::Object main;
     };
 
+    struct Printer {
+      object::Object main;
+      std::string module;
+      std::optional<object::Object> remap{};
+    };
+
     template <typename OStream>
-    OStream &operator<<(OStream &os, Printer &printer) {
-      auto moduleName = printer.printed(printer.main);
+    OStream &operator<<(OStream &os, const Printer &printer) {
+      PrintState state;
+      state.m_printed.try_emplace(state.id(printer.main), printer.module);
+      if (printer.remap) {
+        state.remap(printer.main, *printer.remap);
+      }
+      auto moduleName = state.printed(state.main);
       os << "//! generated file see tools/" << moduleName
          << ".cpp\n\n"
             "#include \"virtual_machine/modules/"
@@ -304,21 +313,21 @@ namespace chimera {
             "void "
          << moduleName << "(const object::Object &module) {auto " << moduleName
          << " = module;";
-      for (const auto &name : printer.main.dir()) {
-        if (printer.is_printed(printer.main.get_attribute(name))) {
+      for (const auto &name : state.main.dir()) {
+        if (state.is_printed(state.main.get_attribute(name))) {
           os << moduleName << ".set_attribute(" << std::quoted(name) << "s,"
-             << printer.printed(printer.main.get_attribute(name)) << ");";
+             << state.printed(state.main.get_attribute(name)) << ");";
         } else {
-          printer.wanted[printer.id(printer.main.get_attribute(name))]
-              .push_back(SetAttribute{moduleName, name});
-          printer.queue.push(Work{&printer, printer.main.get_attribute(name),
-                                  moduleName, name});
+          state.wanted[state.id(state.main.get_attribute(name))].push_back(
+              SetAttribute{moduleName, name});
+          state.queue.push(
+              Work{&state, state.main.get_attribute(name), moduleName, name});
         }
       }
-      while (!printer.queue.empty()) {
-        auto work = printer.queue.top();
-        printer.queue.pop();
-        printer.print(os, work);
+      while (!state.queue.empty()) {
+        auto work = state.queue.top();
+        state.queue.pop();
+        state.print(os, work);
       }
       return os << "}\n}\n}\n}\n}" << std::endl;
     }
