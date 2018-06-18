@@ -18,10 +18,10 @@ TEST_CASE("grammar construct number (3e3)") {
   REQUIRE_NOTHROW(chimera::library::test_parse("3e3"s));
 }
 
-TEST_CASE("grammar construct number (3e-3)", "[!hide]") {
+TEST_CASE("grammar construct number (3e-3)") {
   REQUIRE_NOTHROW(chimera::library::test_parse("3e-3"s));
 }
 
-TEST_CASE("grammar construct number (3e-333503335)", "[!hide]") {
+TEST_CASE("grammar construct number (3e-333503335)") {
   REQUIRE_NOTHROW(chimera::library::test_parse("3e-333503335"s));
 }
