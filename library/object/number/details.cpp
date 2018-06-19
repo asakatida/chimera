@@ -150,7 +150,7 @@ namespace chimera {
             return Base{1u};
           }
           if (left == 1u || right == 0u) {
-            return Rational{left, right};
+            return Rational(ReducedValue{}, left, right);
           }
           if (right == 1u) {
             return real(left);
@@ -170,11 +170,19 @@ namespace chimera {
         Positive::Positive(Base base) : value(base) {}
         Positive::Positive(Natural natural)
             : value(positive(std::move(natural))) {}
+        Positive::Positive(ReducedValue /*unused*/, Base base) : value(base) {}
+        Positive::Positive(ReducedValue /*unused*/, Natural natural)
+            : value(std::move(natural)) {}
 
         Negative::Negative(Base base) : value(base) {}
         Negative::Negative(Natural natural)
             : value(positive(std::move(natural))) {}
         Negative::Negative(Positive positive)
+            : value(std::move(positive.value)) {}
+        Negative::Negative(ReducedValue /*unused*/, Base base) : value(base) {}
+        Negative::Negative(ReducedValue /*unused*/, Natural natural)
+            : value(std::move(natural)) {}
+        Negative::Negative(ReducedValue /*unused*/, Positive positive)
             : value(std::move(positive.value)) {}
 
         Integer::Integer(Base base) : value(base) {}
@@ -183,6 +191,13 @@ namespace chimera {
         Integer::Integer(Positive positive)
             : value(integer(std::move(positive))) {}
         Integer::Integer(Negative negative) : value(std::move(negative)) {}
+        Integer::Integer(ReducedValue /*unused*/, Base base) : value(base) {}
+        Integer::Integer(ReducedValue /*unused*/, Natural natural)
+            : value(std::move(natural)) {}
+        Integer::Integer(ReducedValue /*unused*/, Positive positive)
+            : value(std::move(positive)) {}
+        Integer::Integer(ReducedValue /*unused*/, Negative negative)
+            : value(std::move(negative)) {}
 
         Real::Real(Base base) : value(base) {}
         Real::Real(Natural natural) : value(real(std::move(natural))) {}
@@ -190,6 +205,17 @@ namespace chimera {
         Real::Real(Negative negative) : value(real(std::move(negative))) {}
         Real::Real(Integer integer) : value(real(std::move(integer))) {}
         Real::Real(Rational rational) : value(real(std::move(rational))) {}
+        Real::Real(ReducedValue /*unused*/, Base base) : value(base) {}
+        Real::Real(ReducedValue /*unused*/, Natural natural)
+            : value(std::move(natural)) {}
+        Real::Real(ReducedValue /*unused*/, Positive positive)
+            : value(std::move(positive)) {}
+        Real::Real(ReducedValue /*unused*/, Negative negative)
+            : value(std::move(negative)) {}
+        Real::Real(ReducedValue /*unused*/, Integer integer)
+            : value(std::move(integer)) {}
+        Real::Real(ReducedValue /*unused*/, Rational rational)
+            : value(std::move(rational)) {}
       } // namespace number
     }   // namespace object
   }     // namespace library

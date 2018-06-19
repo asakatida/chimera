@@ -41,8 +41,7 @@ add_library(
 target_include_directories(chimera_grammar PUBLIC library)
 target_include_directories(
   chimera_grammar
-  SYSTEM PUBLIC
-  include
+  SYSTEM PRIVATE
   external/GSL/include
   external/metal/include
   external/PEGTL/include)
@@ -93,10 +92,10 @@ add_library(
   library/object/number/xor.cpp
   library/object/number/xor.hpp)
 
-target_include_directories(chimera_object_number PUBLIC library include)
+target_include_directories(chimera_object_number PUBLIC library)
 target_include_directories(
   chimera_object_number
-  SYSTEM PUBLIC
+  SYSTEM PRIVATE
   external/GSL/include)
 
 add_library(
@@ -143,44 +142,87 @@ add_library(
   library/virtual_machine/virtual_machine.cpp
   library/virtual_machine/virtual_machine.hpp)
 
-target_include_directories(chimera_virtual_machine PUBLIC library include)
+target_include_directories(chimera_virtual_machine PUBLIC library)
 target_include_directories(
   chimera_virtual_machine
-  SYSTEM PUBLIC
+  SYSTEM PRIVATE
   external/GSL/include
   external/metal/include)
 
 add_library(
-  libchimera
-  library/c-api/chimera.cpp
-  library/container/atomic_container.hpp
-  library/container/atomic_map.hpp
-  library/container/reverse.hpp
+  chimera_object
   library/object/object.cpp
-  library/object/object.hpp
+  library/object/object.hpp)
+
+target_include_directories(chimera_object PUBLIC library)
+target_include_directories(
+  chimera_object
+  SYSTEM PRIVATE
+  external/GSL/include)
+
+add_library(
+  chimera_container
+  library/container/atomic_container.cpp
+  library/container/atomic_container.hpp
+  library/container/atomic_map.cpp
+  library/container/atomic_map.hpp
+  library/container/reverse.cpp
+  library/container/reverse.hpp)
+
+target_include_directories(chimera_container PUBLIC library)
+target_include_directories(
+  chimera_container
+  SYSTEM PRIVATE
+  external/GSL/include)
+
+add_library(
+  chimera_core
+  library/options.cpp
   library/options.hpp
+  library/version.cpp
   library/version.hpp)
 
-target_include_directories(libchimera PUBLIC library include)
-target_include_directories(
-  libchimera
-  SYSTEM PUBLIC
-  external/GSL/include
-  external/metal/include
-  external/PEGTL/include)
+set_target_properties(chimera_core PROPERTIES LINKER_LANGUAGE "CXX")
 
-set_target_properties(libchimera PROPERTIES OUTPUT_NAME "chimera")
+target_include_directories(chimera_core PUBLIC library)
+target_include_directories(
+  chimera_core
+  SYSTEM PRIVATE
+  external/GSL/include)
 target_link_libraries(
-  libchimera
-  pthread
+  chimera_core
+  chimera_container
   chimera_grammar
+  chimera_object
   chimera_object_number
   chimera_virtual_machine)
+
+add_library(
+  libchimera
+  include/chimera.h
+  library/c-api/chimera.cpp)
+
+target_compile_features(libchimera PUBLIC cxx_std_17)
+
+target_include_directories(libchimera PUBLIC library)
+target_include_directories(
+  libchimera
+  SYSTEM PRIVATE
+  include)
+
+set_target_properties(libchimera PROPERTIES OUTPUT_NAME "chimera")
+target_link_libraries(libchimera chimera_core)
 
 target_compile_features(libchimera PUBLIC cxx_std_17)
 
 add_executable(chimera source/main.cpp)
-target_link_libraries(chimera libchimera)
+target_include_directories(chimera PRIVATE library)
+target_include_directories(
+  chimera
+  SYSTEM PUBLIC
+  external/GSL/include
+  external/metal/include)
+target_link_libraries(chimera chimera_core)
 
 target_compile_features(chimera PUBLIC cxx_std_17)
 
@@ -196,8 +238,13 @@ add_executable(
   unit_tests/main.cpp)
 target_include_directories(unit_test PRIVATE unit_tests)
 target_include_directories(
-  unit_test SYSTEM PRIVATE external/Catch/single_include)
-target_link_libraries(unit_test libchimera)
+  unit_test
+  SYSTEM PUBLIC
+  external/Catch/single_include
+  external/GSL/include
+  external/metal/include
+  external/PEGTL/include)
+target_link_libraries(unit_test chimera_core)
 
 target_compile_features(unit_test PUBLIC cxx_std_17)
 
@@ -211,7 +258,7 @@ target_compile_options(
   -fsanitize-coverage=trace-pc-guard
   -fsanitize=address,fuzzer)
 
-target_include_directories(fuzz PUBLIC library include)
+target_include_directories(fuzz PUBLIC library)
 target_include_directories(
   fuzz
   SYSTEM PUBLIC
@@ -221,7 +268,7 @@ target_include_directories(
 
 target_link_libraries(
   fuzz
-  libchimera
+  chimera_core
   -fsanitize-coverage=trace-cmp
   -fsanitize-coverage=trace-pc-guard
   -fsanitize=address,fuzzer
@@ -239,7 +286,7 @@ target_compile_options(
   -fsanitize-coverage=trace-pc-guard
   -fsanitize=address,fuzzer)
 
-target_include_directories(fuzz2 PUBLIC library include)
+target_include_directories(fuzz2 PUBLIC library)
 target_include_directories(
   fuzz2
   SYSTEM PUBLIC
@@ -249,7 +296,7 @@ target_include_directories(
 
 target_link_libraries(
   fuzz2
-  libchimera
+  chimera_core
   -fsanitize-coverage=trace-cmp
   -fsanitize-coverage=trace-pc-guard
   -fsanitize=address,fuzzer
@@ -266,18 +313,33 @@ target_include_directories(
 target_compile_features(bnf2abnf PUBLIC cxx_std_17)
 
 add_library(modules_tools tools/modules.cpp tools/modules.hpp)
-target_include_directories(modules_tools PUBLIC library include tools)
-target_link_libraries(modules_tools libchimera)
+target_include_directories(modules_tools PUBLIC library tools)
+target_include_directories(
+  modules_tools
+  SYSTEM PRIVATE
+  external/GSL/include
+  external/metal/include)
+target_link_libraries(modules_tools chimera_core)
 target_compile_features(modules_tools PUBLIC cxx_std_17)
 
 add_executable(builtins tools/builtins.cpp)
-target_include_directories(builtins PUBLIC library include tools)
-target_link_libraries(builtins libchimera modules_tools)
+target_include_directories(builtins PUBLIC library tools)
+target_include_directories(
+  builtins
+  SYSTEM PRIVATE
+  external/GSL/include
+  external/metal/include)
+target_link_libraries(builtins chimera_core modules_tools)
 target_compile_features(builtins PUBLIC cxx_std_17)
 
 add_executable(importlib tools/importlib.cpp)
-target_include_directories(importlib PUBLIC library include tools)
-target_link_libraries(importlib libchimera modules_tools)
+target_include_directories(importlib PUBLIC library tools)
+target_include_directories(
+  importlib
+  SYSTEM PRIVATE
+  external/GSL/include
+  external/metal/include)
+target_link_libraries(importlib chimera_core modules_tools)
 target_compile_features(importlib PUBLIC cxx_std_17)
 
 add_custom_target(check unit_test VERBATIM USES_TERMINAL)

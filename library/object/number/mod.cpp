@@ -23,7 +23,6 @@
 #include <gsl/gsl>
 
 #include "container/reverse.hpp"
-#include "object/number/compare.hpp"
 #include "object/number/div.hpp"
 #include "object/number/floor_div.hpp"
 #include "object/number/less.hpp"
@@ -136,7 +135,7 @@ namespace chimera {
           if (left < right) {
             return Positive(left);
           }
-          if (left == right) {
+          if (!(right < left)) {
             return Positive(Base{0u});
           }
           Positive a(left);
