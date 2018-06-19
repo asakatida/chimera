@@ -35,9 +35,6 @@ namespace chimera {
         Positive operator<<(std::uint64_t left, Base right) {
           if (right.value <= 64) {
             auto value = left_shift(left, right.value);
-            if (value.overflow == 0u) {
-              return Positive(Base{value.result});
-            }
             return Positive(Natural{{value.result, value.overflow}});
           }
           return Positive(Natural{{left}} << right);
@@ -76,9 +73,6 @@ namespace chimera {
         Positive operator<<(Base left, std::uint64_t right) {
           if (right <= 64) {
             auto value = left_shift(left.value, right);
-            if (value.overflow == 0u) {
-              return Positive(Base{value.result});
-            }
             return Positive(Natural{{value.result, value.overflow}});
           }
           return Positive(Natural{{left.value}} << right);

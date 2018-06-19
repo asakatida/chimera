@@ -29,6 +29,8 @@
 namespace chimera {
   namespace library {
     namespace container {
+      void atomic_map();
+
       template <typename Key, typename Value>
       struct AtomicMap : AtomicContainer<std::map<Key, Value>> {
         using Container = AtomicContainer<std::map<Key, Value>>;

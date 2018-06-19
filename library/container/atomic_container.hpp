@@ -27,6 +27,8 @@
 namespace chimera {
   namespace library {
     namespace container {
+      void atomic_container();
+
       template <typename Value>
       struct AtomicContainer {
         AtomicContainer() noexcept {} // NOLINT

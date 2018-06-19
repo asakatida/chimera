@@ -28,6 +28,8 @@
 
 namespace chimera {
   namespace library {
+    void options();
+
     enum class BytesCompare { NONE, WARN, ERROR };
     enum class Optimize { NONE, BASIC, DISCARD_DOCS };
     enum class VerboseInit { NONE, LOAD, SEARCH };

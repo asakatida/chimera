@@ -105,6 +105,11 @@ namespace chimera {
       }
 
       template <typename OStream>
+      OStream &print(OStream &os, const object::Expr &expr) {
+        return os << &expr;
+      }
+
+      template <typename OStream>
       OStream &print(OStream &os, const object::False & /*false*/) {
         return os << "object::False{}";
       }
@@ -152,6 +157,11 @@ namespace chimera {
             return os << "SETATTR";
         }
         return os;
+      }
+
+      template <typename OStream>
+      OStream &print(OStream &os, const object::Stmt &stmt) {
+        return os << &stmt;
       }
 
       template <typename OStream>
@@ -217,16 +227,6 @@ namespace chimera {
             return os << "OPEN";
         }
         return os;
-      }
-
-      template <typename OStream>
-      OStream &print(OStream &os, const asdl::StmtImpl &stmtImpl) {
-        return os << &stmtImpl;
-      }
-
-      template <typename OStream>
-      OStream &print(OStream &os, const asdl::ExprImpl &exprImpl) {
-        return os << &exprImpl;
       }
 
       template <typename OStream>

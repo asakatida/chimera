@@ -30,11 +30,10 @@
 
 #include <metal.hpp>
 
+#include "object/object.hpp"
+
 namespace chimera {
   namespace library {
-    namespace object {
-      struct Object;
-    } // namespace object
     namespace asdl {
       namespace detail {
         template <typename... Types>

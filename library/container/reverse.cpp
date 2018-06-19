@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Asa Katida <github@holomaplefeline.net>
+// Copyright (c) 2018 Asa Katida <github@holomaplefeline.net>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,44 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! helper to evaluate a std container in reverse
-//! used as
-//! for (auto &&elem : reverse(vector)) {}
-
-#pragma once
-
-#include <type_traits>
+#include "container/reverse.hpp"
 
 namespace chimera {
   namespace library {
     namespace container {
-      void reverse();
-
-      template <typename Container>
-      struct Reverse {
-        auto begin() const noexcept { return container->rbegin(); }
-
-        auto cbegin() const noexcept { return container->crbegin(); }
-
-        auto rbegin() const noexcept { return container->begin(); }
-
-        auto crbegin() const noexcept { return container->cbegin(); }
-
-        auto end() const noexcept { return container->rend(); }
-
-        auto cend() const noexcept { return container->crend(); }
-
-        auto rend() const noexcept { return container->end(); }
-
-        auto crend() const noexcept { return container->cend(); }
-
-        std::add_pointer_t<Container> container;
-      };
-
-      template <typename Container>
-      auto reverse(Container &&container) {
-        return Reverse<Container>{&container};
-      }
-    } // namespace container
-  }   // namespace library
+      void reverse() {}
+    }   // namespace container
+  }     // namespace library
 } // namespace chimera
