@@ -25,7 +25,7 @@
 #include <gsl/gsl>
 
 #include "container/reverse.hpp"
-#include "object/number/compare.hpp"
+#include "object/number/add.hpp"
 #include "object/number/less.hpp"
 #include "object/number/mult.hpp"
 #include "object/number/negative.hpp"
@@ -61,7 +61,7 @@ namespace chimera {
         }
 
         Base floor_div(std::uint64_t /*left*/, const Natural & /*right*/) {
-          return {};
+          return Base{0u};
         }
 
         Base floor_div(std::uint64_t left, const Positive &right) {
@@ -151,14 +151,16 @@ namespace chimera {
           if (left < right) {
             return Positive(Base{0u});
           }
-          if (left == right) {
+          if (!(right < left)) {
             return Positive(Base{1u});
           }
-          Positive a{left};
+          Positive a(left);
+          Positive b(Base{0u});
           while (right < a) {
             a = +(a - right);
+            b = b + 1;
           }
-          return a;
+          return b;
         }
 
         Positive floor_div(const Natural &left, const Positive &right) {

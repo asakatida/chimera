@@ -29,7 +29,6 @@
 #include <string>
 #include <string_view>
 
-#include "asdl/asdl.hpp"
 #include "container/atomic_map.hpp"
 #include "object/number/number.hpp"
 
@@ -43,6 +42,7 @@ namespace chimera {
       struct Instance {};
       using Bytes = std::vector<std::uint8_t>;
       enum class BytesMethod {};
+      struct Expr {};
       struct False {};
       using Future = std::future<Object>;
       struct None {};
@@ -61,6 +61,7 @@ namespace chimera {
         std::string_view value;
       };
       enum class StringMethod {};
+      struct Stmt {};
       enum class SysCall {
         COMPILE,
         EVAL,
@@ -78,10 +79,10 @@ namespace chimera {
 
       struct Object {
         using Value =
-            std::variant<Instance, Bytes, BytesMethod, False, Future, None,
-                         NullFunction, Number, NumberMethod, ObjectMethod,
+            std::variant<Instance, Bytes, BytesMethod, Expr, False, Future, None,
+                         NullFunction, Number, NumberMethod, ObjectMethod, Stmt,
                          String, StringMethod, SysCall, True, Tuple,
-                         TupleMethod, asdl::StmtImpl, asdl::ExprImpl>;
+                         TupleMethod>;
         using Attributes = container::AtomicMap<std::string, Object>;
 
         Object();

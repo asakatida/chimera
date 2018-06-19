@@ -30,6 +30,8 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
+        struct ReducedValue {};
+
         struct Base {
           std::uint64_t value;
 
@@ -68,6 +70,8 @@ namespace chimera {
 
           explicit Positive(Base base);
           explicit Positive(Natural natural);
+          Positive(ReducedValue /*unused*/, Base base);
+          Positive(ReducedValue /*unused*/, Natural natural);
 
           Positive(const Positive &other) = default;
           Positive(Positive &&other) noexcept = default;
@@ -91,6 +95,9 @@ namespace chimera {
           explicit Negative(Base base);
           explicit Negative(Natural natural);
           explicit Negative(Positive positive);
+          Negative(ReducedValue /*unused*/, Base base);
+          Negative(ReducedValue /*unused*/, Natural natural);
+          Negative(ReducedValue /*unused*/, Positive positive);
 
           Negative(const Negative &other) = default;
           Negative(Negative &&other) noexcept = default;
@@ -116,6 +123,10 @@ namespace chimera {
           explicit Integer(Natural natural);
           explicit Integer(Positive positive);
           explicit Integer(Negative negative);
+          Integer(ReducedValue /*unused*/, Base base);
+          Integer(ReducedValue /*unused*/, Natural natural);
+          Integer(ReducedValue /*unused*/, Positive positive);
+          Integer(ReducedValue /*unused*/, Negative negative);
 
           Integer(const Integer &other) = default;
           Integer(Integer &&other) noexcept = default;
@@ -138,6 +149,9 @@ namespace chimera {
           Rational(Numerator num, Denominator den)
               : numerator(Integer(num).value), denominator(Integer(den).value) {
           }
+          template <typename Numerator, typename Denominator>
+          Rational(ReducedValue /*unused*/, Numerator num, Denominator den)
+              : numerator(num), denominator(den) {}
 
           Rational(const Rational &other) = default;
           Rational(Rational &&other) noexcept = default;
@@ -168,7 +182,17 @@ namespace chimera {
           explicit Real(Integer integer);
           explicit Real(Rational rational);
           template <typename Numerator, typename Denominator>
-          Real(Numerator num, Denominator den) : Real(Rational(num, den)) {}
+          Real(Numerator num, Denominator den)
+              : Real(Rational(num, den)) {}
+          Real(ReducedValue /*unused*/, Base base);
+          Real(ReducedValue /*unused*/, Natural natural);
+          Real(ReducedValue /*unused*/, Positive positive);
+          Real(ReducedValue /*unused*/, Negative negative);
+          Real(ReducedValue /*unused*/, Integer integer);
+          Real(ReducedValue /*unused*/, Rational rational);
+          template <typename Numerator, typename Denominator>
+          Real(ReducedValue /*unused*/, Numerator num, Denominator den)
+              : Real(ReducedValue{}, Rational(ReducedValue{}, num, den)) {}
 
           Real(const Real &other) = default;
           Real(Real &&other) noexcept = default;

@@ -27,20 +27,20 @@ namespace chimera {
     namespace object {
       namespace number {
         Real operator/(std::uint64_t left, Base right);
-        Rational operator/(std::uint64_t left, const Natural &right);
+        Real operator/(std::uint64_t left, const Natural &right);
         Real operator/(std::uint64_t left, const Positive &right);
         Real operator/(std::uint64_t left, const Negative &right);
         Real operator/(std::uint64_t left, const Integer &right);
-        Rational operator/(std::uint64_t left, const Rational &right);
+        Real operator/(std::uint64_t left, const Rational &right);
         Real operator/(std::uint64_t left, const Real &right);
 
         Real operator/(Base left, std::uint64_t right);
         Real operator/(Base left, Base right);
-        Rational operator/(Base left, const Natural &right);
+        Real operator/(Base left, const Natural &right);
         Real operator/(Base left, const Positive &right);
         Real operator/(Base left, const Negative &right);
         Real operator/(Base left, const Integer &right);
-        Rational operator/(Base left, const Rational &right);
+        Real operator/(Base left, const Rational &right);
         Real operator/(Base left, const Real &right);
 
         Real operator/(const Natural &left, std::uint64_t right);
@@ -49,7 +49,7 @@ namespace chimera {
         Real operator/(const Natural &left, const Positive &right);
         Real operator/(const Natural &left, const Negative &right);
         Real operator/(const Natural &left, const Integer &right);
-        Rational operator/(const Natural &left, const Rational &right);
+        Real operator/(const Natural &left, const Rational &right);
         Real operator/(const Natural &left, const Real &right);
 
         Real operator/(const Positive &left, std::uint64_t right);
@@ -58,7 +58,7 @@ namespace chimera {
         Real operator/(const Positive &left, const Positive &right);
         Real operator/(const Positive &left, const Negative &right);
         Real operator/(const Positive &left, const Integer &right);
-        Rational operator/(const Positive &left, const Rational &right);
+        Real operator/(const Positive &left, const Rational &right);
         Real operator/(const Positive &left, const Real &right);
 
         Real operator/(const Negative &left, std::uint64_t right);
@@ -67,7 +67,7 @@ namespace chimera {
         Real operator/(const Negative &left, const Positive &right);
         Real operator/(const Negative &left, const Negative &right);
         Real operator/(const Negative &left, const Integer &right);
-        Rational operator/(const Negative &left, const Rational &right);
+        Real operator/(const Negative &left, const Rational &right);
         Real operator/(const Negative &left, const Real &right);
 
         Real operator/(const Integer &left, std::uint64_t right);
@@ -76,15 +76,15 @@ namespace chimera {
         Real operator/(const Integer &left, const Positive &right);
         Real operator/(const Integer &left, const Negative &right);
         Real operator/(const Integer &left, const Integer &right);
-        Rational operator/(const Integer &left, const Rational &right);
+        Real operator/(const Integer &left, const Rational &right);
         Real operator/(const Integer &left, const Real &right);
 
-        Rational operator/(const Rational &left, std::uint64_t right);
-        Rational operator/(const Rational &left, Base right);
-        Rational operator/(const Rational &left, const Natural &right);
-        Rational operator/(const Rational &left, const Positive &right);
-        Rational operator/(const Rational &left, const Negative &right);
-        Rational operator/(const Rational &left, const Integer &right);
+        Real operator/(const Rational &left, std::uint64_t right);
+        Real operator/(const Rational &left, Base right);
+        Real operator/(const Rational &left, const Natural &right);
+        Real operator/(const Rational &left, const Positive &right);
+        Real operator/(const Rational &left, const Negative &right);
+        Real operator/(const Rational &left, const Integer &right);
         Real operator/(const Rational &left, const Rational &right);
         Real operator/(const Rational &left, const Real &right);
 

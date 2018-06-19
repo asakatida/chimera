@@ -23,7 +23,6 @@
 #include <gsl/gsl>
 
 #include "container/reverse.hpp"
-#include "object/number/compare.hpp"
 #include "object/number/left_shift.hpp"
 #include "object/number/negative.hpp"
 #include "object/number/overflow.hpp"
