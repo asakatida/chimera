@@ -21,7 +21,6 @@
 #pragma once
 
 #include <cstdint>
-#include <functional>
 #include <numeric>
 #include <variant>
 #include <vector>
@@ -30,6 +29,56 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
+        template <typename Return, typename Op>
+        struct Operation {
+          template <typename... Args>
+          Return operator()(const Args &... args) const {
+            return Return(Op{}(args...));
+          }
+        };
+
+        template <typename Return>
+        struct Construct {
+          template <typename... Args>
+          Return operator()(Args &&... args) const {
+            return Return(std::forward<Args>(args)...);
+          }
+        };
+
+        template <typename Return, typename Left, typename Op>
+        struct LeftOperation {
+          const Left &left;
+
+          template <typename... Args>
+          Return operator()(const Args &... args) const {
+            return Return(Op{}(left, args...));
+          }
+        };
+
+        template <typename Return, typename Right, typename Op>
+        struct RightOperation {
+          const Right &right;
+
+          template <typename... Args>
+          Return operator()(const Args &... args) const {
+            return Return(Op{}(args..., right));
+          }
+        };
+
+        struct Identity {
+          template <typename Arg>
+          constexpr Arg &&operator()(Arg &&arg) const noexcept {
+            return std::forward<Arg>(arg);
+          }
+        };
+
+        struct UnaryPositive {
+          template <typename Arg>
+          auto operator()(const Arg &arg) const {
+            return +arg;
+          }
+        };
+
         struct ReducedValue {};
 
         struct Base {
@@ -54,14 +103,16 @@ namespace chimera {
             if constexpr (std::is_same_v<T, bool>) { // NOLINT
               return true;
             }
+            auto max = std::numeric_limits<T>::max();
             if (value.size() > 2) {
-              return std::numeric_limits<T>::max();
+              return max;
             }
+            __uint128_t max128 = max;
             auto a = (__uint128_t(value[1]) << 64u) | value[0];
-            if (a >= __uint128_t(std::numeric_limits<T>::max())) {
-              return std::numeric_limits<T>::max();
+            if (a >= max128) {
+              return max;
             }
-            return T(a);
+            return static_cast<T>(a & max128);
           }
         };
         using PositiveValue = std::variant<Base, Natural>;
@@ -69,9 +120,9 @@ namespace chimera {
           PositiveValue value;
 
           explicit Positive(Base base);
-          explicit Positive(Natural natural);
+          explicit Positive(Natural &&natural);
           Positive(ReducedValue /*unused*/, Base base);
-          Positive(ReducedValue /*unused*/, Natural natural);
+          Positive(ReducedValue /*unused*/, Natural &&natural);
 
           Positive(const Positive &other) = default;
           Positive(Positive &&other) noexcept = default;
@@ -93,11 +144,11 @@ namespace chimera {
           PositiveValue value;
 
           explicit Negative(Base base);
-          explicit Negative(Natural natural);
-          explicit Negative(Positive positive);
+          explicit Negative(Natural &&natural);
+          explicit Negative(Positive &&positive);
           Negative(ReducedValue /*unused*/, Base base);
-          Negative(ReducedValue /*unused*/, Natural natural);
-          Negative(ReducedValue /*unused*/, Positive positive);
+          Negative(ReducedValue /*unused*/, Natural &&natural);
+          Negative(ReducedValue /*unused*/, Positive &&positive);
 
           Negative(const Negative &other) = default;
           Negative(Negative &&other) noexcept = default;
@@ -119,14 +170,15 @@ namespace chimera {
         struct Integer {
           IntegerValue value;
 
+          explicit Integer(std::uint64_t i);
           explicit Integer(Base base);
-          explicit Integer(Natural natural);
-          explicit Integer(Positive positive);
-          explicit Integer(Negative negative);
+          explicit Integer(Natural &&natural);
+          explicit Integer(Positive &&positive);
+          explicit Integer(Negative &&negative);
           Integer(ReducedValue /*unused*/, Base base);
-          Integer(ReducedValue /*unused*/, Natural natural);
-          Integer(ReducedValue /*unused*/, Positive positive);
-          Integer(ReducedValue /*unused*/, Negative negative);
+          Integer(ReducedValue /*unused*/, Natural &&natural);
+          Integer(ReducedValue /*unused*/, Positive &&positive);
+          Integer(ReducedValue /*unused*/, Negative &&negative);
 
           Integer(const Integer &other) = default;
           Integer(Integer &&other) noexcept = default;
@@ -146,12 +198,16 @@ namespace chimera {
           IntegerValue denominator;
 
           template <typename Numerator, typename Denominator>
-          Rational(Numerator num, Denominator den)
-              : numerator(Integer(num).value), denominator(Integer(den).value) {
-          }
+          Rational(Numerator &&num, Denominator &&den)
+              : numerator(Integer(std::forward<Numerator>(num)).value),
+                denominator(Integer(std::forward<Denominator>(den)).value) {}
           template <typename Numerator, typename Denominator>
-          Rational(ReducedValue /*unused*/, Numerator num, Denominator den)
-              : numerator(num), denominator(den) {}
+          Rational(ReducedValue /*unused*/, Numerator &&num, Denominator &&den)
+              : numerator(Integer(ReducedValue{}, std::forward<Numerator>(num))
+                              .value),
+                denominator(
+                    Integer(ReducedValue{}, std::forward<Denominator>(den))
+                        .value) {}
 
           Rational(const Rational &other) = default;
           Rational(Rational &&other) noexcept = default;
@@ -176,23 +232,24 @@ namespace chimera {
           RealValue value;
 
           explicit Real(Base base);
-          explicit Real(Natural natural);
-          explicit Real(Positive positive);
-          explicit Real(Negative negative);
-          explicit Real(Integer integer);
-          explicit Real(Rational rational);
-          template <typename Numerator, typename Denominator>
-          Real(Numerator num, Denominator den)
-              : Real(Rational(num, den)) {}
+          explicit Real(Natural &&natural);
+          explicit Real(Positive &&positive);
+          explicit Real(Negative &&negative);
+          explicit Real(Integer &&integer);
+          explicit Real(Rational &&rational);
+          template <typename... Args>
+          explicit Real(Args &&... args)
+              : Real(Rational(std::forward<Args>(args)...)) {}
           Real(ReducedValue /*unused*/, Base base);
-          Real(ReducedValue /*unused*/, Natural natural);
-          Real(ReducedValue /*unused*/, Positive positive);
-          Real(ReducedValue /*unused*/, Negative negative);
-          Real(ReducedValue /*unused*/, Integer integer);
-          Real(ReducedValue /*unused*/, Rational rational);
-          template <typename Numerator, typename Denominator>
-          Real(ReducedValue /*unused*/, Numerator num, Denominator den)
-              : Real(ReducedValue{}, Rational(ReducedValue{}, num, den)) {}
+          Real(ReducedValue /*unused*/, Natural &&natural);
+          Real(ReducedValue /*unused*/, Positive &&positive);
+          Real(ReducedValue /*unused*/, Negative &&negative);
+          Real(ReducedValue /*unused*/, Integer &&integer);
+          Real(ReducedValue /*unused*/, Rational &&rational);
+          template <typename... Args>
+          explicit Real(ReducedValue /*unused*/, Args &&... args)
+              : Real(ReducedValue{},
+                     Rational(ReducedValue{}, std::forward<Args>(args)...)) {}
 
           Real(const Real &other) = default;
           Real(Real &&other) noexcept = default;

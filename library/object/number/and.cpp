@@ -30,6 +30,11 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
+        template <typename T>
+        T copy(const T &t) {
+          return t;
+        }
+
         Base operator&(std::uint64_t left, Base right) {
           return {left & right.value};
         }
@@ -118,7 +123,7 @@ namespace chimera {
                            right.value.begin(), value.value.begin(),
                            std::bit_and<std::uint64_t>{});
           }
-          return Positive(value);
+          return Positive(std::move(value));
         }
 
         Positive operator&(const Natural &left, const Positive &right) {

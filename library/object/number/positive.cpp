@@ -26,12 +26,18 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
+        template <typename T>
+        T copy(const T &t) {
+          return t;
+        }
+
         Base operator+(Base base) { return base; }
         Natural operator+(const Natural &natural) { return natural; }
         Positive operator+(const Positive &positive) { return positive; }
         Positive operator+(const Negative &negative) {
-          return std::visit([](const auto &value) { return Positive(value); },
-                            negative.value);
+          return std::visit(
+              [](const auto &value) { return Positive(copy(value)); },
+              negative.value);
         }
         Positive operator+(const Integer &integer) {
           return std::visit([](const auto &value) { return Positive(+value); },
@@ -40,9 +46,7 @@ namespace chimera {
 
         Rational operator+(const Rational &rational) {
           return std::visit(
-              [](const auto &a, const auto &b) {
-                return Rational{+a, +b};
-              },
+              [](const auto &a, const auto &b) { return Rational(+a, +b); },
               rational.numerator, rational.denominator);
         }
 

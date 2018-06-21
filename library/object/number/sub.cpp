@@ -32,6 +32,11 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
+        template <typename T>
+        T copy(const T &t) {
+          return t;
+        }
+
         Integer operator-(std::uint64_t left, Base right) {
           if (left < right.value) {
             return Integer(Negative(Base{right.value - left}));
@@ -45,26 +50,26 @@ namespace chimera {
 
         Integer operator-(std::uint64_t left, const Positive &right) {
           return std::visit(
-              [left](const auto &value) { return Integer(left - value); },
+              LeftOperation<Integer, std::uint64_t, std::minus<>>{left},
               right.value);
         }
 
         Positive operator-(std::uint64_t left, const Negative &right) {
           return std::visit(
-              [left](const auto &value) { return Positive(left + value); },
+              LeftOperation<Positive, std::uint64_t, std::plus<>>{left},
               right.value);
         }
 
         Integer operator-(std::uint64_t left, const Integer &right) {
           return std::visit(
-              [left](const auto &value) { return Integer(left - value); },
+              LeftOperation<Integer, std::uint64_t, std::minus<>>{left},
               right.value);
         }
 
         Rational operator-(std::uint64_t left, const Rational &right) {
           return std::visit(
               [left](const auto &rN, const auto &rD) {
-                return Rational{left * rD - rN, rD};
+                return Rational(left * rD - rN, copy(rD));
               },
               right.numerator, right.denominator);
         }
@@ -77,9 +82,9 @@ namespace chimera {
 
         Integer operator-(Base left, std::uint64_t right) {
           if (left.value < right) {
-            return Integer{Negative{Base{right - left.value}}};
+            return Integer(Negative(Base{right - left.value}));
           }
-          return Integer{Base{left.value - right}};
+          return Integer(Base{left.value - right});
         }
 
         Integer operator-(Base left, Base right) { return left - right.value; }
@@ -109,7 +114,7 @@ namespace chimera {
         Rational operator-(Base left, const Rational &right) {
           return std::visit(
               [left](const auto &rN, const auto &rD) {
-                return Rational{left * rD - rN, rD};
+                return Rational(left * rD - rN, copy(rD));
               },
               right.numerator, right.denominator);
         }
@@ -122,7 +127,7 @@ namespace chimera {
 
         Positive operator-(const Natural &left, std::uint64_t right) {
           if (right == 0) {
-            return Positive(left);
+            return Positive(copy(left));
           }
           Natural value{};
           Carryover carryover{0, right};
@@ -130,7 +135,7 @@ namespace chimera {
             carryover = sub(i, carryover.overflow);
             value.value.push_back(carryover.result);
           }
-          return Positive(value);
+          return Positive(std::move(value));
         }
 
         Positive operator-(const Natural &left, Base right) {
@@ -161,7 +166,7 @@ namespace chimera {
             value.value.push_back(carryover.result);
           }
           Ensures(carryover.overflow == 0);
-          return Integer{value};
+          return Integer(std::move(value));
         }
 
         Integer operator-(const Natural &left, const Positive &right) {
@@ -184,7 +189,7 @@ namespace chimera {
         Rational operator-(const Natural &left, const Rational &right) {
           return std::visit(
               [&left](const auto &rN, const auto &rD) {
-                return Rational{left * rD - rN, rD};
+                return Rational(left * rD - rN, copy(rD));
               },
               right.numerator, right.denominator);
         }
@@ -232,7 +237,7 @@ namespace chimera {
         Rational operator-(const Positive &left, const Rational &right) {
           return std::visit(
               [&left](const auto &rN, const auto &rD) {
-                return Rational{left * rD - rN, rD};
+                return Rational(left * rD - rN, copy(rD));
               },
               right.numerator, right.denominator);
         }
@@ -245,7 +250,7 @@ namespace chimera {
 
         Negative operator-(const Negative &left, std::uint64_t right) {
           return std::visit(
-              [right](const auto &value) { return Negative(right - value); },
+              [right](const auto &value) { return -(value + right); },
               left.value);
         }
 
@@ -255,40 +260,40 @@ namespace chimera {
 
         Negative operator-(const Negative &left, const Natural &right) {
           return std::visit(
-              [&right](const auto &value) { return Negative(right - value); },
+              [&right](const auto &value) { return -(value + right); },
               left.value);
         }
 
         Negative operator-(const Negative &left, const Positive &right) {
           return std::visit(
-              [&left](const auto &value) { return Negative(left - value); },
+              [](const auto &l, const auto &r) { return -(l + r); }, left.value,
               right.value);
         }
 
         Integer operator-(const Negative &left, const Negative &right) {
           return std::visit(
-              [](const auto &a, const auto &b) { return Integer(b - a); },
+              [](const auto &l, const auto &r) { return Integer(-(l + r)); },
               left.value, right.value);
         }
 
         Integer operator-(const Negative &left, const Integer &right) {
           return std::visit(
-              [&left](const auto &value) { return Integer(left - value); },
-              right.value);
+              [](const auto &l, const auto &r) { return Integer(r - l); },
+              left.value, right.value);
         }
 
         Rational operator-(const Negative &left, const Rational &right) {
           return std::visit(
               [&left](const auto &rN, const auto &rD) {
-                return Rational{left * rD - rN, rD};
+                return Rational(left * rD - rN, copy(rD));
               },
               right.numerator, right.denominator);
         }
 
         Real operator-(const Negative &left, const Real &right) {
           return std::visit(
-              [&left](const auto &value) { return Real(left - value); },
-              right.value);
+              [](const auto &l, const auto &r) { return Real(r - l); },
+              left.value, right.value);
         }
 
         Integer operator-(const Integer &left, std::uint64_t right) {
@@ -328,7 +333,7 @@ namespace chimera {
         Rational operator-(const Integer &left, const Rational &right) {
           return std::visit(
               [&left](const auto &rN, const auto &rD) {
-                return Rational{left * rD - rN, rD};
+                return Rational(left * rD - rN, copy(rD));
               },
               right.numerator, right.denominator);
         }
@@ -342,7 +347,7 @@ namespace chimera {
         Rational operator-(const Rational &left, std::uint64_t right) {
           return std::visit(
               [right](const auto &lN, const auto &lD) {
-                return Rational{lN - right * lD, lD};
+                return Rational(lN - right * lD, copy(lD));
               },
               left.numerator, left.denominator);
         }
@@ -354,7 +359,7 @@ namespace chimera {
         Rational operator-(const Rational &left, const Natural &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Rational{lN - right * lD, lD};
+                return Rational(lN - right * lD, copy(lD));
               },
               left.numerator, left.denominator);
         }
@@ -362,7 +367,7 @@ namespace chimera {
         Rational operator-(const Rational &left, const Positive &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Rational{lN - right * lD, lD};
+                return Rational(lN - right * lD, copy(lD));
               },
               left.numerator, left.denominator);
         }
@@ -370,7 +375,7 @@ namespace chimera {
         Rational operator-(const Rational &left, const Negative &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Rational{lN - right * lD, lD};
+                return Rational(lN - right * lD, copy(lD));
               },
               left.numerator, left.denominator);
         }
@@ -378,7 +383,7 @@ namespace chimera {
         Rational operator-(const Rational &left, const Integer &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Rational{lN - right * lD, lD};
+                return Rational(lN - right * lD, copy(lD));
               },
               left.numerator, left.denominator);
         }
@@ -423,7 +428,7 @@ namespace chimera {
 
         Real operator-(const Real &left, const Negative &right) {
           return std::visit(
-              [](const auto &l, const auto &r) { return -Real(l - r); },
+              [](const auto &l, const auto &r) { return Real(l + r); },
               left.value, right.value);
         }
 

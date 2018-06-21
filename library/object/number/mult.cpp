@@ -31,6 +31,11 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
+        template <typename T>
+        T copy(const T &t) {
+          return t;
+        }
+
         Positive operator*(std::uint64_t left, Base right) {
           return right * left;
         }
@@ -95,7 +100,7 @@ namespace chimera {
             return Positive(Base{0u});
           }
           if (right == 1) {
-            return Positive(left);
+            return Positive(copy(left));
           }
           Natural value{};
           value.value.reserve(left.value.size() + 1);
@@ -110,7 +115,7 @@ namespace chimera {
           if (carryover.result != 0) {
             value.value.push_back(carryover.result);
           }
-          return Positive(value);
+          return Positive(std::move(value));
         }
 
         Positive operator*(const Natural &left, Base right) {
@@ -148,8 +153,7 @@ namespace chimera {
 
         Positive operator*(const Positive &left, std::uint64_t right) {
           return std::visit(
-              [right](const auto &value) { return (value * right); },
-              left.value);
+              [right](const auto &value) { return value * right; }, left.value);
         }
 
         Positive operator*(const Positive &left, Base right) {
@@ -248,7 +252,7 @@ namespace chimera {
 
         Integer operator*(const Integer &left, const Negative &right) {
           return std::visit(
-              [](const auto &l, const auto &r) { return -Integer(l * r); },
+              [](const auto &l, const auto &r) { return Integer(-(l * r)); },
               left.value, right.value);
         }
 
@@ -269,7 +273,7 @@ namespace chimera {
         Real operator*(const Rational &left, std::uint64_t right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Real(lN * right, lD);
+                return Real(lN * right, copy(lD));
               },
               left.numerator, left.denominator);
         }
@@ -281,7 +285,7 @@ namespace chimera {
         Real operator*(const Rational &left, const Natural &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Real(lN * right, lD);
+                return Real(lN * right, copy(lD));
               },
               left.numerator, left.denominator);
         }
@@ -289,7 +293,7 @@ namespace chimera {
         Real operator*(const Rational &left, const Positive &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Real(lN * right, lD);
+                return Real(lN * right, copy(lD));
               },
               left.numerator, left.denominator);
         }
@@ -297,7 +301,7 @@ namespace chimera {
         Real operator*(const Rational &left, const Negative &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Real(lN * right, lD);
+                return Real(lN * right, copy(lD));
               },
               left.numerator, left.denominator);
         }
@@ -305,7 +309,7 @@ namespace chimera {
         Real operator*(const Rational &left, const Integer &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Real(lN * right, lD);
+                return Real(lN * right, copy(lD));
               },
               left.numerator, left.denominator);
         }

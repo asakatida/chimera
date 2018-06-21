@@ -32,6 +32,31 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
+        template <typename T>
+        T copy(const T &t) {
+          return t;
+        }
+
+        struct Plus {
+          template <typename Left>
+          Rational operator()(const Left &left, const Rational &right) {
+            return std::visit(
+                [&left](const auto &rN, const auto &rD) {
+                  return Rational(rN + left * rD, copy(rD));
+                },
+                right.numerator, right.denominator);
+          }
+
+          template <typename Right>
+          Rational operator()(const Rational &left, const Right &right) {
+            return std::visit(
+                [&right](const auto &lN, const auto &lD) {
+                  return Rational(lN + right * lD, copy(lD));
+                },
+                left.numerator, left.denominator);
+          }
+        };
+
         Positive operator+(std::uint64_t left, Base right) {
           return right + left;
         }
@@ -165,7 +190,7 @@ namespace chimera {
 
         Positive operator+(const Positive &left, std::uint64_t right) {
           return std::visit(
-              [right](const auto &value) { return Positive(value + right); },
+              RightOperation<Positive, std::uint64_t, std::plus<>>{right},
               left.value);
         }
 
@@ -285,8 +310,8 @@ namespace chimera {
 
         Rational operator+(const Rational &left, std::uint64_t right) {
           return std::visit(
-              [&right](const auto &lN, const auto &lD) {
-                return Rational{lN + right * lD, lD};
+              [right](const auto &lN, const auto &lD) {
+                return Rational(lN + right * lD, copy(lD));
               },
               left.numerator, left.denominator);
         }
@@ -298,7 +323,7 @@ namespace chimera {
         Rational operator+(const Rational &left, const Natural &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Rational{lN + right * lD, lD};
+                return Rational(lN + right * lD, copy(lD));
               },
               left.numerator, left.denominator);
         }
@@ -306,7 +331,7 @@ namespace chimera {
         Rational operator+(const Rational &left, const Positive &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Rational{lN + right * lD, lD};
+                return Rational(lN + right * lD, copy(lD));
               },
               left.numerator, left.denominator);
         }
@@ -314,7 +339,7 @@ namespace chimera {
         Rational operator+(const Rational &left, const Negative &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Rational{lN + right * lD, lD};
+                return Rational(lN + right * lD, copy(lD));
               },
               left.numerator, left.denominator);
         }
@@ -322,7 +347,7 @@ namespace chimera {
         Rational operator+(const Rational &left, const Integer &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Rational{lN + right * lD, lD};
+                return Rational(lN + right * lD, copy(lD));
               },
               left.numerator, left.denominator);
         }
