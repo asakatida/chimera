@@ -37,8 +37,13 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
+        template <typename T>
+        T copy(const T &t) {
+          return t;
+        }
+
         template <typename Left>
-        Integer div(Left &&left, const Rational &right) {
+        Integer div(const Left &left, const Rational &right) {
           return std::visit(
               [&left](const auto &rN, const auto &rD) {
                 return Integer(floor_div(left * rD, rN));
@@ -47,7 +52,7 @@ namespace chimera {
         }
 
         template <typename Right>
-        Integer div(const Rational &left, Right &&right) {
+        Integer div(const Rational &left, const Right &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
                 return Integer(floor_div(lN, lD * right));
@@ -140,7 +145,7 @@ namespace chimera {
             value.value.push_back(carryover.result);
           }
           std::reverse(value.value.begin(), value.value.end());
-          return Positive(value);
+          return Positive(std::move(value));
         }
 
         Positive floor_div(const Natural &left, Base right) {
@@ -154,7 +159,7 @@ namespace chimera {
           if (!(right < left)) {
             return Positive(Base{1u});
           }
-          Positive a(left);
+          Positive a(copy(left));
           Positive b(Base{0u});
           while (right < a) {
             a = +(a - right);

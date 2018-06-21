@@ -27,42 +27,51 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
+        template <typename T>
+        T copy(const T &t) {
+          return t;
+        }
+
         template <typename Left>
-        Real div(Left &&left, const Rational &right) {
+        Real div(const Left &left, const Rational &right) {
           return std::visit(
               [&left](const auto &rN, const auto &rD) {
-                return Real(left * rD, rN);
+                return Real(left * rD, copy(rN));
               },
               right.numerator, right.denominator);
         }
 
         template <typename Right>
-        Real div(const Rational &left, Right &&right) {
+        Real div(const Rational &left, const Right &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Real(lN, lD * right);
+                return Real(copy(lN), lD * right);
               },
               left.numerator, left.denominator);
         }
 
         Real operator/(std::uint64_t left, Base right) {
-          return Real(Base{left}, right);
+          return Real(left, right);
         }
 
         Real operator/(std::uint64_t left, const Natural &right) {
-          return Real(Base{left}, right);
+          return Real(left, copy(right));
         }
 
         Real operator/(std::uint64_t left, const Positive &right) {
-          return Real(Base{left}, right);
+          return std::visit([left](const auto &value) { return left / value; },
+                            right.value);
         }
 
         Real operator/(std::uint64_t left, const Negative &right) {
-          return Real(Base{left}, right);
+          return std::visit(
+              [left](const auto &value) { return -(left / value); },
+              right.value);
         }
 
         Real operator/(std::uint64_t left, const Integer &right) {
-          return Real(Base{left}, right);
+          return std::visit([left](const auto &value) { return left / value; },
+                            right.value);
         }
 
         Real operator/(std::uint64_t left, const Rational &right) {
@@ -75,25 +84,29 @@ namespace chimera {
         }
 
         Real operator/(Base left, std::uint64_t right) {
-          return Real(left, Base{right});
+          return Real(left, right);
         }
 
         Real operator/(Base left, Base right) { return Real(left, right); }
 
         Real operator/(Base left, const Natural &right) {
-          return Real(left, right);
+          return Real(left, copy(right));
         }
 
         Real operator/(Base left, const Positive &right) {
-          return Real(left, right);
+          return std::visit([left](const auto &value) { return left / value; },
+                            right.value);
         }
 
         Real operator/(Base left, const Negative &right) {
-          return Real(left, right);
+          return std::visit(
+              [left](const auto &value) { return -(left / value); },
+              right.value);
         }
 
         Real operator/(Base left, const Integer &right) {
-          return Real(left, right);
+          return std::visit([left](const auto &value) { return left / value; },
+                            right.value);
         }
 
         Real operator/(Base left, const Rational &right) {
@@ -106,27 +119,31 @@ namespace chimera {
         }
 
         Real operator/(const Natural &left, std::uint64_t right) {
-          return Real(left, Base{right});
+          return Real(copy(left), right);
         }
 
         Real operator/(const Natural &left, Base right) {
-          return Real(left, right);
+          return Real(copy(left), right);
         }
 
         Real operator/(const Natural &left, const Natural &right) {
-          return Real(left, right);
+          return Real(copy(left), copy(right));
         }
 
         Real operator/(const Natural &left, const Positive &right) {
-          return Real(left, right);
+          return std::visit([&left](const auto &value) { return left / value; },
+                            right.value);
         }
 
         Real operator/(const Natural &left, const Negative &right) {
-          return Real(left, right);
+          return std::visit(
+              [&left](const auto &value) { return -(left / value); },
+              right.value);
         }
 
         Real operator/(const Natural &left, const Integer &right) {
-          return Real(left, right);
+          return std::visit([&left](const auto &value) { return left / value; },
+                            right.value);
         }
 
         Real operator/(const Natural &left, const Rational &right) {
@@ -139,102 +156,136 @@ namespace chimera {
         }
 
         Real operator/(const Positive &left, std::uint64_t right) {
-          return Real(left, Base{right});
+          return std::visit(
+              [right](const auto &value) { return value / right; }, left.value);
         }
 
         Real operator/(const Positive &left, Base right) {
-          return Real(left, right);
+          return std::visit(
+              [right](const auto &value) { return value / right; }, left.value);
         }
 
         Real operator/(const Positive &left, const Natural &right) {
-          return Real(left, right);
+          return std::visit(
+              [&right](const auto &value) { return value / right; },
+              left.value);
         }
 
         Real operator/(const Positive &left, const Positive &right) {
-          return Real(left, right);
+          return std::visit([](const auto &l, const auto &r) { return l / r; },
+                            left.value, right.value);
         }
 
         Real operator/(const Positive &left, const Negative &right) {
-          return Real(left, right);
+          return std::visit(
+              [](const auto &l, const auto &r) { return -(l / r); }, left.value,
+              right.value);
         }
 
         Real operator/(const Positive &left, const Integer &right) {
-          return Real(left, right);
+          return std::visit([](const auto &l, const auto &r) { return l / r; },
+                            left.value, right.value);
         }
 
         Real operator/(const Positive &left, const Rational &right) {
-          return div(left, right);
+          return std::visit(
+              [&right](const auto &value) { return div(value, right); },
+              left.value);
         }
 
         Real operator/(const Positive &left, const Real &right) {
-          return std::visit([&left](const auto &value) { return left / value; },
-                            right.value);
+          return std::visit([](const auto &l, const auto &r) { return l / r; },
+                            left.value, right.value);
         }
 
         Real operator/(const Negative &left, std::uint64_t right) {
-          return Real(left, Base{right});
+          return std::visit(
+              [right](const auto &value) { return -(value / right); },
+              left.value);
         }
 
         Real operator/(const Negative &left, Base right) {
-          return Real(left, right);
+          return std::visit(
+              [right](const auto &value) { return -(value / right); },
+              left.value);
         }
 
         Real operator/(const Negative &left, const Natural &right) {
-          return Real(left, right);
+          return std::visit(
+              [&right](const auto &value) { return -(value / right); },
+              left.value);
         }
 
         Real operator/(const Negative &left, const Positive &right) {
-          return Real(left, right);
+          return std::visit(
+              [](const auto &l, const auto &r) { return -(l / r); }, left.value,
+              right.value);
         }
 
         Real operator/(const Negative &left, const Negative &right) {
-          return Real(left, right);
+          return std::visit([](const auto &l, const auto &r) { return l / r; },
+                            left.value, right.value);
         }
 
         Real operator/(const Negative &left, const Integer &right) {
-          return Real(left, right);
+          return std::visit(
+              [](const auto &l, const auto &r) { return -(l / r); }, left.value,
+              right.value);
         }
 
         Real operator/(const Negative &left, const Rational &right) {
-          return div(left, right);
+          return std::visit(
+              [&right](const auto &value) { return -div(value, right); },
+              left.value);
         }
 
         Real operator/(const Negative &left, const Real &right) {
-          return std::visit([&left](const auto &value) { return left / value; },
-                            right.value);
+          return std::visit(
+              [](const auto &l, const auto &r) { return -(l / r); }, left.value,
+              right.value);
         }
 
         Real operator/(const Integer &left, std::uint64_t right) {
-          return Real(left, Base{right});
+          return std::visit(
+              [right](const auto &value) { return value / right; }, left.value);
         }
 
         Real operator/(const Integer &left, Base right) {
-          return Real(left, right);
+          return std::visit(
+              [right](const auto &value) { return value / right; }, left.value);
         }
 
         Real operator/(const Integer &left, const Natural &right) {
-          return Real(left, right);
+          return std::visit(
+              [&right](const auto &value) { return value / right; },
+              left.value);
         }
 
         Real operator/(const Integer &left, const Positive &right) {
-          return Real(left, right);
+          return std::visit([](const auto &l, const auto &r) { return l / r; },
+                            left.value, right.value);
         }
 
         Real operator/(const Integer &left, const Negative &right) {
-          return Real(left, right);
+          return std::visit(
+              [](const auto &l, const auto &r) { return -(l / r); }, left.value,
+              right.value);
         }
 
         Real operator/(const Integer &left, const Integer &right) {
-          return Real(left, right);
+          return std::visit([](const auto &l, const auto &r) { return l / r; },
+                            left.value, right.value);
         }
 
         Real operator/(const Integer &left, const Rational &right) {
-          return div(left, right);
+          return std::visit(
+              [&right](const auto &value) { return div(value, right); },
+              left.value);
         }
 
         Real operator/(const Integer &left, const Real &right) {
-          return std::visit([&left](const auto &value) { return left / value; },
-                            right.value);
+          return std::visit([](const auto &l, const auto &r) { return l / r; },
+                            left.value, right.value);
         }
 
         Real operator/(const Rational &left, std::uint64_t right) {
