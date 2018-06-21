@@ -36,6 +36,11 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
+        template <typename T>
+        T copy(const T &t) {
+          return t;
+        }
+
         template <typename Left>
         Real mod(const Left &left, const Rational &right) {
           return std::visit(
@@ -133,12 +138,12 @@ namespace chimera {
 
         Positive operator%(const Natural &left, const Natural &right) {
           if (left < right) {
-            return Positive(left);
+            return Positive(copy(left));
           }
           if (!(right < left)) {
             return Positive(Base{0u});
           }
-          Positive a(left);
+          Positive a(copy(left));
           while (right < a) {
             a = +(a - right);
           }

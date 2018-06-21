@@ -31,6 +31,11 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
+        template <typename T>
+        T copy(const T &t) {
+          return t;
+        }
+
         Base operator>>(std::uint64_t left, Base right) {
           return {left >> right.value};
         }
@@ -101,7 +106,7 @@ namespace chimera {
         }
         Positive operator>>(const Natural &left, std::uint64_t right) {
           if (right == 0) {
-            return Positive(left);
+            return Positive(copy(left));
           }
           if (std::size_t(right / 64) >= left.value.size()) {
             return Positive(Base{0u});
@@ -118,9 +123,9 @@ namespace chimera {
               carryover = right_shift(i, shift);
               result.value.push_back(carryover.result | overflow);
             }
-            return Positive(result);
+            return Positive(std::move(result));
           }
-          return Positive(value);
+          return Positive(std::move(value));
         }
 
         Positive operator>>(const Natural &left, Base right) {
