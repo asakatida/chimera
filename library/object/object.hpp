@@ -79,9 +79,9 @@ namespace chimera {
 
       struct Object {
         using Value =
-            std::variant<Instance, Bytes, BytesMethod, Expr, False, Future, None,
-                         NullFunction, Number, NumberMethod, ObjectMethod, Stmt,
-                         String, StringMethod, SysCall, True, Tuple,
+            std::variant<Instance, Bytes, BytesMethod, Expr, False, Future,
+                         None, NullFunction, Number, NumberMethod, ObjectMethod,
+                         Stmt, String, StringMethod, SysCall, True, Tuple,
                          TupleMethod>;
         using Attributes = container::AtomicMap<std::string, Object>;
 
