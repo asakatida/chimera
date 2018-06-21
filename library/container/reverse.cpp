@@ -24,6 +24,6 @@ namespace chimera {
   namespace library {
     namespace container {
       void reverse() {}
-    }   // namespace container
-  }     // namespace library
+    } // namespace container
+  }   // namespace library
 } // namespace chimera
