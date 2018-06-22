@@ -26,7 +26,7 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        Carryover div(const Carryover &left, std::uint64_t right) {
+        Carryover div_mod(const Carryover &left, std::uint64_t right) {
           auto a = __uint128_t(left.overflow) << 64u | left.result;
           return {std::uint64_t(a / right), std::uint64_t(a % right)};
         }

@@ -141,7 +141,7 @@ namespace chimera {
           Carryover carryover{};
           for (std::uint64_t i : container::reverse(left.value)) {
             carryover.result = i;
-            carryover = div(carryover, right);
+            carryover = div_mod(carryover, right);
             value.value.push_back(carryover.result);
           }
           std::reverse(value.value.begin(), value.value.end());
