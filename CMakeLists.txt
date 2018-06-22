@@ -62,6 +62,8 @@ add_library(
   library/object/number/div.hpp
   library/object/number/floor_div.cpp
   library/object/number/floor_div.hpp
+  library/object/number/gcd.cpp
+  library/object/number/gcd.hpp
   library/object/number/invert.cpp
   library/object/number/invert.hpp
   library/object/number/left_shift.cpp

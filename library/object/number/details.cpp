@@ -26,6 +26,7 @@
 
 #include "object/number/compare.hpp"
 #include "object/number/floor_div.hpp"
+#include "object/number/gcd.hpp"
 #include "object/number/less.hpp"
 #include "object/number/mod.hpp"
 #include "object/number/mult.hpp"
@@ -64,13 +65,13 @@ namespace chimera {
           return std::visit(Construct<IntegerValue>{}, std::move(value.value));
         }
 
-        static bool even(std::uint64_t i) { return (i & 1u) == 0u; }
-        static bool even(Base i) { return even(i.value); }
-        static bool even(const Natural &i) { return even(i.value[0]); }
-        static bool even(const Positive &i) {
-          return std::visit([](const auto &value) { return even(value); },
-                            i.value);
-        }
+        // static bool even(std::uint64_t i) { return (i & 1u) == 0u; }
+        // static bool even(Base i) { return even(i.value); }
+        // static bool even(const Natural &i) { return even(i.value[0]); }
+        // static bool even(const Positive &i) {
+        //   return std::visit([](const auto &value) { return even(value); },
+        //                     i.value);
+        // }
 
         static Rational to_rational(Positive &&left, Positive &&right) {
           return std::visit(Construct<Rational>{}, std::move(left.value),
@@ -92,50 +93,8 @@ namespace chimera {
           return std::visit(Construct<RealValue>{}, std::move(integer.value));
         }
 
-        // TODO(asakatida)
-        // static Positive prime(const Positive &left, const Positive &right) {
-        //   auto aPrime = left, bPrime = right;
-        //   std::visit(Repr<std::ostream>{std::cout << "left: "}, left.value) << '\n';
-        //   std::visit(Repr<std::ostream>{std::cout << "right: "}, right.value) << '\n';
-        //   while (!(aPrime == bPrime)) {
-        //     std::visit(Repr<std::ostream>{std::cout << "aPrime: "}, aPrime.value) << '\n';
-        //     std::visit(Repr<std::ostream>{std::cout << "bPrime: "}, bPrime.value) << '\n';
-        //     if (even(aPrime)) {
-        //       aPrime = aPrime >> 1u;
-        //     } else if (even(bPrime)) {
-        //       bPrime = bPrime >> 1u;
-        //     } else if (bPrime < aPrime) {
-        //       aPrime = +(aPrime - bPrime) >> 1u;
-        //     } else {
-        //       bPrime = +(bPrime - aPrime) >> 1u;
-        //     }
-        //   }
-        //   std::visit(Repr<std::ostream>{std::cout << "aPrime: "}, aPrime.value) << '\n';
-        //   return aPrime;
-        // }
-
-        static Positive prime(const Positive &left, const Positive &right) {
-          auto aPrime = left, bPrime = right;
-          while (!(bPrime == 0u)) {
-            auto temp = bPrime;
-            bPrime = aPrime % bPrime;
-            aPrime = temp;
-          }
-          return aPrime;
-        }
-
         static RealValue reduce(Positive &&left, Positive &&right) {
-          while (even(left) && even(right)) {
-            left = left >> 1u;
-            right = right >> 1u;
-          }
-          if (left == 1u) {
-            return to_rational(std::move(left), std::move(right));
-          }
-          if (right == 1u) {
-            return real(std::move(left));
-          }
-          auto aPrime = prime(left, right);
+          auto aPrime = gcd(left, right);
           if (aPrime == 1u) {
             return to_rational(std::move(left), std::move(right));
           }

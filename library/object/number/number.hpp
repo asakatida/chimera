@@ -88,6 +88,7 @@ namespace chimera {
           bool operator>=(const Number &right) const;
 
           Number floor_div(const Number &right) const;
+          Number gcd(const Number &right) const;
 
           Number pow(const Number &right) const;
           Number pow(const Number &y, const Number &z) const;

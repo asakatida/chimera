@@ -30,6 +30,7 @@
 #include "object/number/compare.hpp"
 #include "object/number/div.hpp"
 #include "object/number/floor_div.hpp"
+#include "object/number/gcd.hpp"
 #include "object/number/invert.hpp"
 #include "object/number/left_shift.hpp"
 #include "object/number/less.hpp"
@@ -177,6 +178,12 @@ namespace chimera {
         Number Number::floor_div(const Number &right) const {
           return visit(right, [](auto a, auto b) {
             return Number(number::floor_div(a, b));
+          });
+        }
+
+        Number Number::gcd(const Number &right) const {
+          return visit(right, [](auto a, auto b) {
+            return Number(number::gcd(a, b));
           });
         }
 
