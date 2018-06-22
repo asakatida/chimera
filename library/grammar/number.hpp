@@ -38,12 +38,10 @@ namespace chimera {
         struct NumberHolder {
           template <std::uint8_t Base, typename Input>
           void apply(const Input &in) {
-            number =
-                number * object::Number(Base).pow(object::Number(in.size())) +
-                object::Number(std::stoul(in.string(), nullptr, Base));
+            number *= object::Number(Base).pow(in.size()) + std::stoul(in.string(), nullptr, Base);
           }
 
-          object::Number number;
+          object::Number number = 0u;
         };
         struct Nonzerodigit
             : seq<range<'1', '9'>, rep_opt<18, range<'0', '9'>>> {};
@@ -122,7 +120,7 @@ namespace chimera {
           struct Transform : NumberHolder {
             template <typename Top>
             void success(Top &&top) {
-              top.number = object::Number(10).pow(number) * top.number;
+              top.number *= object::Number(10).pow(number);
             }
           };
         };
@@ -131,15 +129,14 @@ namespace chimera {
         using Exponentfloat = seq<sor<Digitpart, Pointfloat>, Exponent>;
         struct Floatnumber : sor<Pointfloat, Exponentfloat> {
           struct Transform : NumberHolder {
-            object::Number denominator = object::Number(1);
+            object::Number denominator = 1;
             template <typename Top>
             void success(Top &&top) {
-              top.number =
-                  number / object::Number(10).pow(denominator) + top.number;
+              top.number += number / object::Number(10).pow(denominator);
             }
             template <std::uint8_t Base, typename Input>
             void apply(const Input &in) {
-              denominator = denominator + object::Number(in.size());
+              denominator += in.size();
               NumberHolder::apply<Base>(in);
             }
           };

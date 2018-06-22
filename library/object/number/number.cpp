@@ -46,29 +46,19 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        static NumberValue number(Positive positive) {
-          return std::visit(
-              [](const auto &value) { return NumberValue(value); },
-              positive.value);
-        }
-        static NumberValue number(Integer integer) {
-          return std::visit(
-              [](const auto &value) { return NumberValue(value); },
-              integer.value);
-        }
-        static NumberValue number(Real real) {
-          return std::visit(
-              [](const auto &value) { return NumberValue(value); }, real.value);
+        template <typename Value>
+        NumberValue number(Value &&value) {
+          return std::visit(Construct<NumberValue>{},  std::forward<Value>(value).value);
         }
 
         Number::Number(std::uint64_t i) : value(Base{i}) {}
         Number::Number(Base base) : value(base) {}
-        Number::Number(const Natural &natural) : value((natural)) {}
-        Number::Number(const Positive &positive) : value(number((positive))) {}
-        Number::Number(const Negative &negative) : value((negative)) {}
-        Number::Number(const Integer &integer) : value(number((integer))) {}
-        Number::Number(const Rational &rational) : value((rational)) {}
-        Number::Number(const Real &real) : value(number((real))) {}
+        Number::Number(Natural &&natural) : value(std::move(natural)) {}
+        Number::Number(Positive &&positive) : value(number(std::move(positive))) {}
+        Number::Number(Negative &&negative) : value(std::move(negative)) {}
+        Number::Number(Integer &&integer) : value(number(std::move(integer))) {}
+        Number::Number(Rational &&rational) : value(std::move(rational)) {}
+        Number::Number(Real &&real) : value(number(std::move(real))) {}
 
         template <typename Op>
         using NOp = Operation<Number, Op>;

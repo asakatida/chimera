@@ -31,7 +31,7 @@ namespace chimera {
           std::uint64_t overflow;
         };
 
-        Carryover div(const Carryover &left, std::uint64_t right);
+        Carryover div_mod(const Carryover &left, std::uint64_t right);
         Carryover left_shift(std::uint64_t left, std::uint64_t right);
         Carryover mult(std::uint64_t left, std::uint64_t right);
         Carryover right_shift(std::uint64_t left, std::uint64_t right);

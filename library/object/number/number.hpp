@@ -35,15 +35,14 @@ namespace chimera {
       namespace number {
         class Number {
         public:
-          Number() noexcept = default;
           Number(std::uint64_t i); // NOLINT
           explicit Number(Base base);
-          explicit Number(const Natural &natural);
-          explicit Number(const Positive &positive);
-          explicit Number(const Negative &negative);
-          explicit Number(const Integer &integer);
-          explicit Number(const Rational &rational);
-          explicit Number(const Real &real);
+          explicit Number(Natural &&natural);
+          explicit Number(Positive &&positive);
+          explicit Number(Negative &&negative);
+          explicit Number(Integer &&integer);
+          explicit Number(Rational &&rational);
+          explicit Number(Real &&real);
 
           Number(const Number &other) = default;
           Number(Number &&other) noexcept = default;
