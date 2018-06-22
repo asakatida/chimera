@@ -89,10 +89,11 @@ namespace chimera {
             if constexpr (std::is_same_v<T, bool>) { // NOLINT
               return value != 0u;
             }
-            if (value >= std::uint64_t(std::numeric_limits<T>::max())) {
-              return std::numeric_limits<T>::max();
+            auto max = std::numeric_limits<T>::max();
+            if (value >= static_cast<std::uint64_t>(max)) {
+              return max;
             }
-            return T(value);
+            return static_cast<T>(value);
           }
         };
         struct Natural {
@@ -107,7 +108,7 @@ namespace chimera {
             if (value.size() > 2) {
               return max;
             }
-            __uint128_t max128 = max;
+            auto max128 = static_cast<__uint128_t>(max);
             auto a = (__uint128_t(value[1]) << 64u) | value[0];
             if (a >= max128) {
               return max;
@@ -134,10 +135,7 @@ namespace chimera {
 
           template <typename T>
           explicit operator T() const noexcept {
-            if constexpr (std::is_same_v<T, bool>) { // NOLINT
-              return std::visit([](const auto &v) { return T(v); }, value);
-            }
-            return std::visit([](const auto &v) { return T(v); }, value);
+            return std::visit(Construct<T>{}, value);
           }
         };
         struct Negative {
@@ -161,9 +159,9 @@ namespace chimera {
           template <typename T>
           explicit operator T() const noexcept {
             if constexpr (std::is_same_v<T, bool>) { // NOLINT
-              return std::visit([](const auto &v) { return T(v); }, value);
+              return std::visit(Construct<T>{}, value);
             }
-            return std::visit([](const auto &v) { return -T(v); }, value);
+            return -std::visit(Construct<T>{}, value);
           }
         };
         using IntegerValue = std::variant<Base, Natural, Negative>;
@@ -190,7 +188,7 @@ namespace chimera {
 
           template <typename T>
           explicit operator T() const noexcept {
-            return std::visit([](const auto &v) { return T(v); }, value);
+            return std::visit(Construct<T>{}, value);
           }
         };
         struct Rational {
@@ -261,7 +259,7 @@ namespace chimera {
 
           template <typename T>
           explicit operator T() const noexcept {
-            return std::visit([](const auto &v) { return T(v); }, value);
+            return std::visit(Construct<T>{}, value);
           }
         };
         using NumberValue = std::variant<Base, Natural, Negative, Rational>;

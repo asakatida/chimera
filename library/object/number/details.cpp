@@ -27,6 +27,7 @@
 #include "object/number/compare.hpp"
 #include "object/number/floor_div.hpp"
 #include "object/number/less.hpp"
+#include "object/number/mod.hpp"
 #include "object/number/mult.hpp"
 #include "object/number/negative.hpp"
 #include "object/number/positive.hpp"
@@ -91,18 +92,34 @@ namespace chimera {
           return std::visit(Construct<RealValue>{}, std::move(integer.value));
         }
 
+        // TODO(grandquista)
+        // static Positive prime(const Positive &left, const Positive &right) {
+        //   auto aPrime = left, bPrime = right;
+        //   std::visit(Repr<std::ostream>{std::cout << "left: "}, left.value) << '\n';
+        //   std::visit(Repr<std::ostream>{std::cout << "right: "}, right.value) << '\n';
+        //   while (!(aPrime == bPrime)) {
+        //     std::visit(Repr<std::ostream>{std::cout << "aPrime: "}, aPrime.value) << '\n';
+        //     std::visit(Repr<std::ostream>{std::cout << "bPrime: "}, bPrime.value) << '\n';
+        //     if (even(aPrime)) {
+        //       aPrime = aPrime >> 1u;
+        //     } else if (even(bPrime)) {
+        //       bPrime = bPrime >> 1u;
+        //     } else if (bPrime < aPrime) {
+        //       aPrime = +(aPrime - bPrime) >> 1u;
+        //     } else {
+        //       bPrime = +(bPrime - aPrime) >> 1u;
+        //     }
+        //   }
+        //   std::visit(Repr<std::ostream>{std::cout << "aPrime: "}, aPrime.value) << '\n';
+        //   return aPrime;
+        // }
+
         static Positive prime(const Positive &left, const Positive &right) {
           auto aPrime = left, bPrime = right;
-          while (!(aPrime == bPrime)) {
-            if (even(aPrime)) {
-              aPrime = aPrime >> 1u;
-            } else if (even(bPrime)) {
-              bPrime = bPrime >> 1u;
-            } else if (bPrime < aPrime) {
-              aPrime = +(aPrime - bPrime) >> 1u;
-            } else {
-              bPrime = +(bPrime - aPrime) >> 1u;
-            }
+          while (!(bPrime == 0u)) {
+            auto temp = bPrime;
+            bPrime = aPrime % bPrime;
+            aPrime = temp;
           }
           return aPrime;
         }
@@ -154,20 +171,22 @@ namespace chimera {
 
         template <>
         struct Reduce<Negative, Negative> {
-          RealValue operator()(Negative && /*left*/, Negative && /*right*/) {
-            Ensures(false);
+          RealValue operator()(Negative &&left, Negative &&right) {
+            return Reduce<Positive, Positive>{}(+left, +right);
           }
         };
+
         template <typename Left>
         struct Reduce<Left, Negative> {
-          RealValue operator()(Left && /*left*/, Negative && /*right*/) {
-            Ensures(false);
+          RealValue operator()(Left &&left, Negative &&right) {
+            return std::visit(Operation<RealValue, std::negate<>>{}, Reduce<Left, Positive>{}(std::forward<Left>(left), +right));
           }
         };
+
         template <typename Right>
         struct Reduce<Negative, Right> {
-          RealValue operator()(Negative && /*left*/, Right && /*right*/) {
-            Ensures(false);
+          RealValue operator()(Negative &&left, Right &&right) {
+            return std::visit(Operation<RealValue, std::negate<>>{}, Reduce<Positive, Right>{}(+left, std::forward<Right>(right)));
           }
         };
 
