@@ -10,6 +10,9 @@
 [submodule "external/metal"]
 	path = external/metal
 	url = https://github.com/brunocodutra/metal.git
+[submodule "external/operators"]
+	path = external/operators
+	url = https://github.com/taocpp/operators.git
 [submodule "external/PEGTL"]
 	path = external/PEGTL
 	url = https://github.com/taocpp/PEGTL.git
