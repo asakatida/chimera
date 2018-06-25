@@ -54,7 +54,6 @@ add_library(
   library/object/number/and.hpp
   library/object/number/compare.cpp
   library/object/number/compare.hpp
-  library/object/number/debug.cpp
   library/object/number/debug.hpp
   library/object/number/details.cpp
   library/object/number/details.hpp
@@ -84,7 +83,6 @@ add_library(
   library/object/number/overflow.hpp
   library/object/number/positive.cpp
   library/object/number/positive.hpp
-  library/object/number/repr.cpp
   library/object/number/repr.hpp
   library/object/number/right_shift.cpp
   library/object/number/right_shift.hpp
@@ -179,9 +177,7 @@ target_include_directories(
 
 add_library(
   chimera_core
-  library/options.cpp
   library/options.hpp
-  library/version.cpp
   library/version.hpp)
 
 set_target_properties(chimera_core PROPERTIES LINKER_LANGUAGE "CXX")
@@ -256,8 +252,6 @@ target_compile_options(
   fuzz
   PUBLIC
   -g
-  -fsanitize-coverage=trace-cmp
-  -fsanitize-coverage=trace-pc-guard
   -fsanitize=address,fuzzer)
 
 target_include_directories(fuzz PUBLIC library)
@@ -284,8 +278,6 @@ target_compile_options(
   fuzz2
   PUBLIC
   -g
-  -fsanitize-coverage=trace-cmp
-  -fsanitize-coverage=trace-pc-guard
   -fsanitize=address,fuzzer)
 
 target_include_directories(fuzz2 PUBLIC library)

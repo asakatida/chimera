@@ -32,23 +32,28 @@ namespace chimera {
     namespace object {
       namespace number {
         Negative operator~(Base base) { return -(base + 1); }
+
         Negative operator~(const Natural &natural) { return -(natural + 1); }
+
         Negative operator~(const Positive &positive) {
           return std::visit([](const auto &value) { return ~value; },
                             positive.value);
         }
+
         Positive operator~(const Negative &negative) {
           return std::visit(
               [](const auto &value) { return Positive(+(value - 1)); },
               negative.value);
         }
+
         Integer operator~(const Integer &integer) {
           return std::visit([](const auto &value) { return Integer(~value); },
                             integer.value);
         }
-        Base operator~(const Rational & /*rational*/) { Expects(false); }
-        Base operator~(const Real & /*value*/) { Expects(false); }
 
+        Base operator~(const Rational & /*rational*/) { Expects(false); }
+
+        Base operator~(const Real & /*value*/) { Expects(false); }
       } // namespace number
     }   // namespace object
   }     // namespace library

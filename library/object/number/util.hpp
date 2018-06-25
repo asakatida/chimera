@@ -31,206 +31,247 @@ namespace chimera {
           return left.visit(
               [&right](const auto &value) { return value + right; });
         }
+
         template <typename Left>
         Number operator+(const Left &left, const Number &right) {
           return right.visit(
               [&left](const auto &value) { return left + value; });
         }
+
         template <typename Right>
         Number &operator+=(Number &left, const Right &right) {
           return left = left.visit(
                      [&right](const auto &value) { return value + right; });
         }
+
         template <typename Right>
         Number operator-(const Number &left, const Right &right) {
           return left.visit(
               [&right](const auto &value) { return value - right; });
         }
+
         template <typename Left>
         Number operator-(const Left &left, const Number &right) {
           return right.visit(
               [&left](const auto &value) { return left - value; });
         }
+
         template <typename Right>
         Number &operator-=(Number &left, const Right &right) {
           return left = left.visit(
                      [&right](const auto &value) { return value - right; });
         }
+
         template <typename Right>
         Number operator*(const Number &left, const Right &right) {
           return left.visit(
               [&right](const auto &value) { return value * right; });
         }
+
         template <typename Left>
         Number operator*(const Left &left, const Number &right) {
           return right.visit(
               [&left](const auto &value) { return left * value; });
         }
+
         template <typename Right>
         Number &operator*=(Number &left, const Right &right) {
           return left = left.visit(
                      [&right](const auto &value) { return value * right; });
         }
+
         template <typename Right>
         Number operator/(const Number &left, const Right &right) {
           return left.visit(
               [&right](const auto &value) { return value / right; });
         }
+
         template <typename Left>
         Number operator/(const Left &left, const Number &right) {
           return right.visit(
               [&left](const auto &value) { return left / value; });
         }
+
         template <typename Right>
         Number &operator/=(Number &left, const Right &right) {
           return left = left.visit(
                      [&right](const auto &value) { return value / right; });
         }
+
         template <typename Right>
         Number operator%(const Number &left, const Right &right) {
           return left.visit(
               [&right](const auto &value) { return value % right; });
         }
+
         template <typename Left>
         Number operator%(const Left &left, const Number &right) {
           return right.visit(
               [&left](const auto &value) { return left % value; });
         }
+
         template <typename Right>
         Number &operator%=(Number &left, const Right &right) {
           return left = left.visit(
                      [&right](const auto &value) { return value % right; });
         }
+
         template <typename Right>
         Number operator&(const Number &left, const Right &right) {
           return left.visit(
               [&right](const auto &value) { return value & right; });
         }
+
         template <typename Left>
         Number operator&(const Left &left, const Number &right) {
           return right.visit(
               [&left](const auto &value) { return left & value; });
         }
+
         template <typename Right>
         Number &operator&=(Number &left, const Right &right) {
           return left = left.visit(
                      [&right](const auto &value) { return value & right; });
         }
+
         template <typename Right>
         Number operator|(const Number &left, const Right &right) {
           return left.visit(
               [&right](const auto &value) { return value | right; });
         }
+
         template <typename Left>
         Number operator|(const Left &left, const Number &right) {
           return right.visit(
               [&left](const auto &value) { return left | value; });
         }
+
         template <typename Right>
         Number &operator|=(Number &left, const Right &right) {
           return left = left.visit(
                      [&right](const auto &value) { return value | right; });
         }
+
         template <typename Right>
         Number operator^(const Number &left, const Right &right) {
           return left.visit(
               [&right](const auto &value) { return value ^ right; });
         }
+
         template <typename Left>
         Number operator^(const Left &left, const Number &right) {
           return right.visit(
               [&left](const auto &value) { return left ^ value; });
         }
+
         template <typename Right>
         Number &operator^=(Number &left, const Right &right) {
           return left = left.visit(
                      [&right](const auto &value) { return value ^ right; });
         }
+
         template <typename Right>
         Number operator<<(const Number &left, const Right &right) {
           return left.visit(
               [&right](const auto &value) { return value << right; });
         }
+
         template <typename Left>
         Number operator<<(const Left &left, const Number &right) {
           return right.visit(
               [&left](const auto &value) { return left << value; });
         }
+
         template <typename Right>
         Number &operator<<=(Number &left, const Right &right) {
           return left = left.visit(
                      [&right](const auto &value) { return value << right; });
         }
+
         template <typename Right>
         Number operator>>(const Number &left, const Right &right) {
           return left.visit(
               [&right](const auto &value) { return value >> right; });
         }
+
         template <typename Left>
         Number operator>>(const Left &left, const Number &right) {
           return right.visit(
               [&left](const auto &value) { return left >> value; });
         }
+
         template <typename Right>
         Number &operator>>=(Number &left, const Right &right) {
           return left = left.visit(
                      [&right](const auto &value) { return value >> right; });
         }
+
         template <typename Right>
         bool operator==(const Number &left, const Right &right) {
           return left.compare(
               [&right](const auto &value) { return value == right; });
         }
+
         template <typename Left>
         bool operator==(const Left &left, const Number &right) {
           return right.compare(
               [&left](const auto &value) { return left == value; });
         }
+
         template <typename Right>
         bool operator!=(const Number &left, const Right &right) {
           return left.compare(
               [&right](const auto &value) { return value != right; });
         }
+
         template <typename Left>
         bool operator!=(const Left &left, const Number &right) {
           return right.compare(
               [&left](const auto &value) { return left != value; });
         }
+
         template <typename Right>
         bool operator<(const Number &left, const Right &right) {
           return left.compare(
               [&right](const auto &value) { return value < right; });
         }
+
         template <typename Left>
         bool operator<(const Left &left, const Number &right) {
           return right.compare(
               [&left](const auto &value) { return left < value; });
         }
+
         template <typename Right>
         bool operator>(const Number &left, const Right &right) {
           return left.compare(
               [&right](const auto &value) { return right < value; });
         }
+
         template <typename Left>
         bool operator>(const Left &left, const Number &right) {
           return right.compare(
               [&left](const auto &value) { return value < left; });
         }
+
         template <typename Right>
         bool operator<=(const Number &left, const Right &right) {
           return left.compare(
               [&right](const auto &value) { return !(right < value); });
         }
+
         template <typename Left>
         bool operator<=(const Left &left, const Number &right) {
           return right.compare(
               [&left](const auto &value) { return !(value < left); });
         }
+
         template <typename Right>
         bool operator>=(const Number &left, const Right &right) {
           return left.compare(
               [&right](const auto &value) { return !(value < right); });
         }
+
         template <typename Left>
         bool operator>=(const Left &left, const Number &right) {
           return right.compare(
