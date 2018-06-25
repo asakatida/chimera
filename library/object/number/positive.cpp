@@ -32,13 +32,17 @@ namespace chimera {
         }
 
         Base operator+(Base base) { return base; }
+
         Natural operator+(const Natural &natural) { return natural; }
+
         Positive operator+(const Positive &positive) { return positive; }
+
         Positive operator+(const Negative &negative) {
           return std::visit(
               [](const auto &value) { return Positive(copy(value)); },
               negative.value);
         }
+
         Positive operator+(const Integer &integer) {
           return std::visit(Operation<Positive, UnaryPositive>{}, integer.value);
         }

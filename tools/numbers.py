@@ -33,6 +33,7 @@ OPERATIONS = {
     'add': 'operator+',
     'div': 'operator/',
     'floor_div': 'floor_div',
+    'gcd': 'gcd',
     'mod': 'operator%',
     'mult': 'operator*',
     'sub': 'operator-',
@@ -67,6 +68,8 @@ TYPES = (
     'Integer',
     'Rational',
     'Real',
+    'Imag',
+    'Complex',
 )
 
 PAIRINGS = tuple(
@@ -82,24 +85,25 @@ NOT_BIT_TYPES = (
 
 TYPE_RE = '|'.join(map(escape, (BASE,) + TYPES))
 
-OP_LINE_RE_START = r'(^(?P<indent> +)(\S.*)'
+OP_LINE_RE_START = r'(^(?P<indent> +)(' + TYPE_RE + r'|bool)(.*)'
+OP_LINE_CLOSE = r')((.+?)(;|^(?P=indent)})|([^\n]+?)[;}])$)\s'
 OP_LINE_RE_END = (
     r'\((const\s+)?(?P<left>'
     + TYPE_RE
     + r')(?s:.+?)(const\s+)?(?P<right>'
     + TYPE_RE
-    + r')(.+?)$)')
+    + OP_LINE_CLOSE)
 OP_UNARY_LINE_RE_END = (
     r'\((const\s+)?(?P<left>'
     + TYPE_RE
-    + r')(.+?)$)')
+    + OP_LINE_CLOSE)
 
 ROOT = Path(__file__).resolve().parent.parent / 'library' / 'object' / 'number'
 
 
 def passing_type(typ: str) -> str:
     """
-    Passing type.
+    Type for passing reference.
     """
     if typ in (BASE, TYPES[0]):
         return f'{ typ } '
@@ -127,6 +131,8 @@ def op_header(
             'left, ',
             passing_type(right),
             'right);\n'))
+        if right == TYPES[-1]:
+            yield '\n'
 
 
 def op_source(
@@ -154,7 +160,7 @@ def op_source(
             indent,
             '  Expects(false);\n',
             indent,
-            '}\n'))
+            '}\n\n'))
 
 
 def op_bit_header(
@@ -181,7 +187,23 @@ def op_comp_header(
     """
     Header operation.
     """
-    return op_header(match, pairs)
+    for pair in pairs:
+        left, right = pair
+        if (
+                match.group('left') == left
+                and match.group('right') == right):
+            return
+        yield from iter((
+            match.group('indent'),
+            'bool ',
+            match.group('op'),
+            '(',
+            passing_type(left),
+            'left, ',
+            passing_type(right),
+            'right);\n'))
+        if right == TYPES[-1]:
+            yield '\n'
 
 
 def op_comp_source(
@@ -190,7 +212,26 @@ def op_comp_source(
     """
     Source operation.
     """
-    return op_source(match, pairs)
+    for pair in pairs:
+        left, right = pair
+        if (
+                match.group('left') == left
+                and match.group('right') == right):
+            return
+        indent = match.group('indent')
+        yield from iter((
+            indent,
+            'bool ',
+            match.group('op'),
+            '(',
+            passing_type(left),
+            '/*left*/, ',
+            passing_type(right),
+            '/*right*/) {\n',
+            indent,
+            '  return false;\n',
+            indent,
+            '}\n\n'))
 
 
 def op_unary_header(match: Match[str], types: Iterable[str]) -> Iterator[str]:
@@ -206,7 +247,8 @@ def op_unary_header(match: Match[str], types: Iterable[str]) -> Iterator[str]:
             match.group('op'),
             '(',
             passing_type(typ),
-            'value);\n'))
+            typ.lower(),
+            ');\n'))
 
 
 def op_unary_source(match: Match[str], types: Iterable[str]) -> Iterator[str]:
@@ -223,11 +265,13 @@ def op_unary_source(match: Match[str], types: Iterable[str]) -> Iterator[str]:
             match.group('op'),
             '(',
             passing_type(typ),
-            '/*value*/) {\n',
+            '/*',
+            typ.lower(),
+            '*/) {\n',
             indent,
             '  Expects(false);\n',
             indent,
-            '}\n'))
+            '}\n\n'))
 
 
 Callback = Callable[[Match[str], Iterable[Tuple[str, str]]], Iterator[str]]
@@ -239,6 +283,7 @@ OPERATIONS_CALLBACK = {
     'compare': (op_comp_header, op_comp_source),
     'div': (op_header, op_source),
     'floor_div': (op_header, op_source),
+    'gcd': (op_header, op_source),
     'left_shift': (op_bit_header, op_bit_source),
     'less': (op_comp_header, op_comp_source),
     'mod': (op_header, op_source),
@@ -254,13 +299,15 @@ def op_line_re(op: str) -> Pattern[str]:
     """
     Operation line regex.
     """
-    return rc(
+    m = rc(
         OP_LINE_RE_START
         + r'(?P<op>'
         + escape(op)
         + ')'
         + OP_LINE_RE_END,
         M)
+    print(m.pattern)
+    return m
 
 
 def op_unary_line_re(op: str) -> Pattern[str]:
@@ -335,11 +382,7 @@ def process_source(op: str, source: Path, callback: Callback) -> None:
     """
     Process header.
     """
-    with cast(TextIO, source.open()) as istream:
-        src = istream.read()
-    matches = iter(op_line_re(op).finditer(src))
-    with cast(TextIO, source.open('w')) as ostream:
-        ostream.writelines(process_lines(src, matches, callback))
+    return process_header(op, source, callback)
 
 
 def process_unary_header(
@@ -363,11 +406,7 @@ def process_unary_source(
     """
     Process header.
     """
-    with cast(TextIO, source.open()) as istream:
-        src = istream.read()
-    matches = iter(op_unary_line_re(op).finditer(src))
-    with cast(TextIO, source.open('w')) as ostream:
-        ostream.writelines(process_unary_lines(src, matches, callback))
+    return process_unary_header(op, source, callback)
 
 
 def process_ops(ops: Dict[str, str]) -> None:
@@ -393,7 +432,7 @@ def process_unary_ops(ops: Dict[str, str]) -> None:
 
 def main() -> None:
     """
-    Main entry.
+    Entry point.
     """
     process_ops(OPERATIONS)
     process_ops(OPERATIONS_COMP)

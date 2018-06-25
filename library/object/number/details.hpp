@@ -262,7 +262,72 @@ namespace chimera {
             return std::visit(Construct<T>{}, value);
           }
         };
-        using NumberValue = std::variant<Base, Natural, Negative, Rational>;
+        struct Imag {
+          RealValue value;
+
+          explicit Imag(Base base);
+          explicit Imag(Natural &&natural);
+          explicit Imag(Positive &&positive);
+          explicit Imag(Negative &&negative);
+          explicit Imag(Integer &&integer);
+          explicit Imag(Rational &&rational);
+          explicit Imag(Real &&real);
+          Imag(ReducedValue /*unused*/, Base base);
+          Imag(ReducedValue /*unused*/, Natural &&natural);
+          Imag(ReducedValue /*unused*/, Positive &&positive);
+          Imag(ReducedValue /*unused*/, Negative &&negative);
+          Imag(ReducedValue /*unused*/, Integer &&integer);
+          Imag(ReducedValue /*unused*/, Rational &&rational);
+          Imag(ReducedValue /*unused*/, Real &&real);
+
+          Imag(const Imag &other) = default;
+          Imag(Imag &&other) noexcept = default;
+
+          ~Imag() noexcept = default;
+
+          Imag &operator=(const Imag &other) = default;
+          Imag &operator=(Imag &&other) noexcept = default;
+
+          template <typename T>
+          explicit operator T() const noexcept {
+            return std::visit(Construct<T>{}, value);
+          }
+        };
+        struct Complex {
+          RealValue real;
+          RealValue imag;
+
+          explicit Complex(Base base);
+          explicit Complex(Natural &&natural);
+          explicit Complex(Positive &&positive);
+          explicit Complex(Negative &&negative);
+          explicit Complex(Integer &&integer);
+          explicit Complex(Rational &&rational);
+          explicit Complex(Real &&real);
+          explicit Complex(Imag &&imag);
+          Complex(ReducedValue /*unused*/, Base base);
+          Complex(ReducedValue /*unused*/, Natural &&natural);
+          Complex(ReducedValue /*unused*/, Positive &&positive);
+          Complex(ReducedValue /*unused*/, Negative &&negative);
+          Complex(ReducedValue /*unused*/, Integer &&integer);
+          Complex(ReducedValue /*unused*/, Rational &&rational);
+          Complex(ReducedValue /*unused*/, Real &&real);
+          Complex(ReducedValue /*unused*/, Imag &&imag);
+
+          Complex(const Complex &other) = default;
+          Complex(Complex &&other) noexcept = default;
+
+          ~Complex() noexcept = default;
+
+          Complex &operator=(const Complex &other) = default;
+          Complex &operator=(Complex &&other) noexcept = default;
+
+          template <typename T>
+          explicit operator T() const noexcept {
+            return T();
+          }
+        };
+        using NumberValue = std::variant<Base, Natural, Negative, Rational, Imag, Complex>;
       } // namespace number
     }   // namespace object
   }     // namespace library

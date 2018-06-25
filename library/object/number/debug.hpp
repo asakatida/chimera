@@ -26,8 +26,6 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        void debug();
-
         template <typename OStream>
         struct Debug {
           OStream &os;
@@ -54,6 +52,15 @@ namespace chimera {
             std::visit(*this, rational.numerator);
             os << '/';
             return std::visit(*this, rational.denominator);
+          }
+
+          OStream &operator()(const Imag &imag) {
+            return std::visit(*this, imag.value) << 'j';
+          }
+
+          OStream &operator()(const Complex &complex) {
+            std::visit(*this, complex.real) << '+';
+            return std::visit(*this, complex.imag) << 'j';
           }
         };
       } // namespace number

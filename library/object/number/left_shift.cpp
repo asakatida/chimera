@@ -37,6 +37,7 @@ namespace chimera {
             auto value = left_shift(left, right.value);
             return Positive(Natural{{value.result, value.overflow}});
           }
+
           return Positive(Natural{{left}} << right);
         }
 
@@ -70,11 +71,13 @@ namespace chimera {
               [left](const auto &value) { return Positive(left << value); },
               right.value);
         }
+
         Positive operator<<(Base left, std::uint64_t right) {
           if (right <= 64) {
             auto value = left_shift(left.value, right);
             return Positive(Natural{{value.result, value.overflow}});
           }
+
           return Positive(Natural{{left.value}} << right);
         }
 
@@ -110,10 +113,12 @@ namespace chimera {
           if (right == 0) {
             return left;
           }
+
           auto value = left;
           if (std::size_t shift = right / 64; shift != 0) {
             value.value.insert(value.value.begin(), shift, 0);
           }
+
           if (std::uint64_t shift = right % 64; shift != 0) {
             Natural result;
             std::uint64_t overflow = 0;
@@ -123,6 +128,7 @@ namespace chimera {
               overflow = carryover.overflow;
             }
           }
+
           return value;
         }
 
@@ -135,6 +141,7 @@ namespace chimera {
           if (auto shift = std::size_t(right / 64); shift != 0) {
             value.value.insert(value.value.begin(), shift, 0);
           }
+
           if (auto shift = std::uint64_t(right % 64); shift != 0) {
             Natural result;
             std::uint64_t overflow = 0;
@@ -144,6 +151,7 @@ namespace chimera {
               overflow = carryover.overflow;
             }
           }
+
           return value;
         }
 

@@ -53,124 +53,159 @@ namespace chimera {
         }
 
         Number::Number(std::uint64_t i) : value(Base{i}) {}
+
         Number::Number(Base base) : value(base) {}
+
         Number::Number(Natural &&natural) : value(std::move(natural)) {}
+
         Number::Number(Positive &&positive) : value(number(std::move(positive))) {}
+
         Number::Number(Negative &&negative) : value(std::move(negative)) {}
+
         Number::Number(Integer &&integer) : value(number(std::move(integer))) {}
+
         Number::Number(Rational &&rational) : value(std::move(rational)) {}
+
         Number::Number(Real &&real) : value(number(std::move(real))) {}
 
         template <typename Op>
         using NOp = Operation<Number, Op>;
 
         Number Number::operator+() const { return visit(NOp<UnaryPositive>{}); }
+
         Number Number::operator-() const { return visit(NOp<std::negate<>>{}); }
+
         Number Number::operator+(const Number &right) const {
           return visit(right, NOp<std::plus<>>{});
         }
+
         Number &Number::operator+=(const Number &right) {
           *this = visit(right, NOp<std::plus<>>{});
           return *this;
         }
+
         Number Number::operator-(const Number &right) const {
           return visit(right, NOp<std::minus<>>{});
         }
+
         Number &Number::operator-=(const Number &right) {
           *this = visit(right, NOp<std::minus<>>{});
           return *this;
         }
+
         Number Number::operator*(const Number &right) const {
           return visit(right, NOp<std::multiplies<>>{});
         }
+
         Number &Number::operator*=(const Number &right) {
           *this = visit(right, NOp<std::multiplies<>>{});
           return *this;
         }
+
         Number Number::operator/(const Number &right) const {
           return visit(right, NOp<std::divides<>>{});
         }
+
         Number &Number::operator/=(const Number &right) {
           *this = visit(right, NOp<std::divides<>>{});
           return *this;
         }
+
         Number Number::operator%(const Number &right) const {
           return visit(right, NOp<std::modulus<>>{});
         }
+
         Number &Number::operator%=(const Number &right) {
           *this = visit(right, NOp<std::modulus<>>{});
           return *this;
         }
+
         Number Number::operator~() const {
           return visit(NOp<std::bit_not<>>{});
         }
+
         Number Number::operator&(const Number &right) const {
           return visit(right, NOp<std::bit_and<>>{});
         }
+
         Number &Number::operator&=(const Number &right) {
           *this = visit(right, NOp<std::bit_and<>>{});
           return *this;
         }
+
         Number Number::operator|(const Number &right) const {
           return visit(right, [](const auto &a, const auto &b) {
             return Number(a | b);
           });
         }
+
         Number &Number::operator|=(const Number &right) {
           *this = visit(right, [](const auto &a, const auto &b) {
             return Number(a | b);
           });
           return *this;
         }
+
         Number Number::operator^(const Number &right) const {
           return visit(right, [](const auto &a, const auto &b) {
             return Number(a ^ b);
           });
         }
+
         Number &Number::operator^=(const Number &right) {
           *this = visit(right, [](const auto &a, const auto &b) {
             return Number(a ^ b);
           });
           return *this;
         }
+
         Number Number::operator<<(const Number &right) const {
           return visit(right, [](const auto &a, const auto &b) {
             return Number(a << b);
           });
         }
+
         Number &Number::operator<<=(const Number &right) {
           *this = visit(right, [](const auto &a, const auto &b) {
             return Number(a << b);
           });
           return *this;
         }
+
         Number Number::operator>>(const Number &right) const {
           return visit(right, [](const auto &a, const auto &b) {
             return Number(a >> b);
           });
         }
+
         Number &Number::operator>>=(const Number &right) {
           *this = visit(right, [](const auto &a, const auto &b) {
             return Number(a >> b);
           });
           return *this;
         }
+
         bool Number::operator==(const Number &right) const {
           return value.index() == right.value.index() &&
                  visit(right, std::equal_to<>{});
         }
+
         bool Number::operator!=(const Number &right) const {
           return !(*this == right);
         }
+
         bool Number::operator<(const Number &right) const {
           return visit(right, std::less<>{});
         }
+
         bool Number::operator>(const Number &right) const {
           return right.visit(*this, std::less<>{});
         }
+
         bool Number::operator<=(const Number &right) const {
           return !right.visit(*this, std::less<>{});
         }
+
         bool Number::operator>=(const Number &right) const {
           return !visit(right, std::less<>{});
         }
@@ -188,6 +223,7 @@ namespace chimera {
         }
 
         Number Number::pow(const Number &right) const { return right; }
+
         Number Number::pow(const Number &y, const Number & /*z*/) const {
           return y;
         }
@@ -200,7 +236,7 @@ namespace chimera {
 
         bool Number::is_complex() const { return false; }
 
-        Number Number::complex() const { Expects(false); }
+        Number Number::complex() const { return visit(NOp<Construct<Complex>>{}); }
       } // namespace number
     }   // namespace object
   }     // namespace library
