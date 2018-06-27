@@ -85,18 +85,43 @@ NOT_BIT_TYPES = (
 
 TYPE_RE = '|'.join(map(escape, (BASE,) + TYPES))
 
-OP_LINE_RE_START = r'(^(?P<indent> +)(' + TYPE_RE + r'|bool)(.*)'
-OP_LINE_CLOSE = r')((.+?)(;|^(?P=indent)})|([^\n]+?)[;}])$)\s'
-OP_LINE_RE_END = (
-    r'\((const\s+)?(?P<left>'
-    + TYPE_RE
-    + r')(?s:.+?)(const\s+)?(?P<right>'
-    + TYPE_RE
-    + OP_LINE_CLOSE)
-OP_UNARY_LINE_RE_END = (
-    r'\((const\s+)?(?P<left>'
-    + TYPE_RE
-    + OP_LINE_CLOSE)
+OP_LINE_RE_START = rf'''
+    (
+        ^
+        (?P<indent> +)
+        ({ TYPE_RE }|bool)
+        (.*)
+'''
+OP_LINE_CLOSE = r'''
+        )
+        (
+            (.+?)
+            (
+                ;
+                |^(?P=indent)}
+            )
+            |([^\n]+?)[;}]
+        )
+        $
+    )\s
+'''
+OP_LINE_RE_END = rf'''
+        \(
+        (const\s+)?
+        (?P<left>{ TYPE_RE })
+        (?s:.+?)
+        (const\s+)?
+        (?P<right>
+            { TYPE_RE }
+            { OP_LINE_CLOSE }
+'''
+OP_UNARY_LINE_RE_END = rf'''
+        \(
+        (const\s+)?
+        (?P<left>
+            { TYPE_RE }
+            { OP_LINE_CLOSE }
+'''
 
 ROOT = Path(__file__).resolve().parent.parent / 'library' / 'object' / 'number'
 
