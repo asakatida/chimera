@@ -93,16 +93,23 @@ TEST_CASE("number Number division huge") {
   auto number = huge * huge;
   REQUIRE(number > huge);
   auto massive = number * other;
+  REQUIRE(massive.is_int());
   REQUIRE(massive > number);
-  REQUIRE(massive.is_int());
   massive = massive / huge;
-  REQUIRE(massive > huge);
   REQUIRE(massive.is_int());
+  REQUIRE(massive > huge);
   auto test = huge * other;
   REQUIRE(massive == test);
-  REQUIRE(massive.is_int());
   massive = massive / other;
+  REQUIRE(massive.is_int());
   REQUIRE(massive == huge);
+}
+
+TEST_CASE("number Number modulus huge") {
+  chimera::library::object::number::Number huge(
+      std::numeric_limits<std::uint64_t>::max());
+  auto number = huge * 3;
+  REQUIRE((number % 2) == 1);
 }
 
 TEST_CASE("number Number multiplication huge a") {
