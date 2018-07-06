@@ -148,9 +148,7 @@ namespace chimera {
       void Evaluator::evaluate(const asdl::Module &module) {
         enter_scope(thread_context.main);
         if (module.doc_string) {
-          self().set_attribute(
-              "__doc__"s, thread_context.process_context
-                              .constants[module.doc_string->constant.constant]);
+          self().set_attribute("__doc__"s, module.doc_string->string);
         } else {
           self().set_attribute("__doc__"s, builtins().get_attribute("None"));
         }
@@ -208,9 +206,7 @@ namespace chimera {
         if (functionDef.doc_string) {
           push([&functionDef](Evaluator *evaluator) {
             evaluator->stack.top().set_attribute(
-                "__doc__"s,
-                evaluator->thread_context.process_context
-                    .constants[functionDef.doc_string->constant.constant]);
+                "__doc__"s, functionDef.doc_string->string);
           });
         }
         push(PushStack{object::Object(

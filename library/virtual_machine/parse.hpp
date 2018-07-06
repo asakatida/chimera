@@ -18,33 +18,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! parse definitions for identifier tokens.
+//! process context attached to a virtual machine thread
 
 #pragma once
 
+#include <iosfwd>
+#include <string_view>
+
 #include "asdl/asdl.hpp"
-#include "grammar/rules.hpp"
-#include "grammar/utf8_id_continue.hpp"
-#include "grammar/utf8_id_start.hpp"
-#include "grammar/whitespace.hpp"
+#include "options.hpp"
 
 namespace chimera {
   namespace library {
-    namespace grammar {
-      namespace token {
-        using XidStart = seq<Utf8IdStart>;
-        using XidContinue = sor<Utf8IdStart, Utf8IdContinue>;
-        struct Name : seq<XidStart, star<XidContinue>> {};
-        template <>
-        struct Action<Name> {
-          template <typename Input, typename Stack>
-          static void apply(const Input &in, Stack &&stack) {
-            stack.push(asdl::Name{in.string()});
-          }
-        };
-      } // namespace token
-      template <flags::Flag Option>
-      struct Name : token::Token<Option, token::Name> {};
-    } // namespace grammar
+    namespace virtual_machine {
+      struct Parse {
+        constexpr static auto bufferSize =
+            std::numeric_limits<std::uint16_t>::max();
+
+        asdl::Module parse_file(const Options &options,
+                                const std::string_view &data,
+                                const char *source);
+
+        asdl::Module parse_file(const Options &options, std::istream &input,
+                                const char *source);
+
+        asdl::Interactive parse_input(const Options &options,
+                                      const std::string_view &data,
+                                      const char *source);
+
+        asdl::Interactive parse_input(const Options &options,
+                                      std::istream &input, const char *source);
+      };
+    } // namespace virtual_machine
   }   // namespace library
 } // namespace chimera

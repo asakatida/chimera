@@ -35,6 +35,7 @@
 #include "object/object.hpp"
 #include "virtual_machine/modules/marshal.hpp"
 #include "virtual_machine/modules/sys.hpp"
+#include "virtual_machine/parse.hpp"
 #include "virtual_machine/thread_context.hpp"
 
 using namespace std::literals;
@@ -147,31 +148,25 @@ namespace chimera {
         return {};
       }
 
-      asdl::Constant ProcessContext::insert_constant(object::Bytes &&bytes) {
-        object::Object object(
-            std::move(bytes),
-            {{"__class__", global_context.builtins.get_attribute("bytes")}});
-        auto result = constants.try_emplace(object.id(), object);
-        Ensures(result.second);
-        return asdl::Constant{result.first->first};
+      asdl::Module ProcessContext::parse_file(const std::string_view &data,
+                                              const char *source) {
+        return Parse{}.parse_file(global_context.options, data, source);
       }
 
-      asdl::Constant ProcessContext::insert_constant(object::Number &&number) {
-        auto cls = global_context.builtins.get_attribute(
-            number.is_int() ? "int" : "float");
-        object::Object object(std::move(number), {{"__class__", cls}});
-        auto result = constants.try_emplace(object.id(), object);
-        Ensures(result.second);
-        return asdl::Constant{result.first->first};
+      asdl::Module ProcessContext::parse_file(std::istream &input,
+                                              const char *source) {
+        return Parse{}.parse_file(global_context.options, input, source);
       }
 
-      asdl::Constant ProcessContext::insert_constant(object::String &&string) {
-        object::Object object(
-            string,
-            {{"__class__", global_context.builtins.get_attribute("str")}});
-        auto result = constants.try_emplace(object.id(), object);
-        Ensures(result.second);
-        return asdl::Constant{result.first->first};
+      asdl::Interactive
+      ProcessContext::parse_input(const std::string_view &data,
+                                  const char *source) {
+        return Parse{}.parse_input(global_context.options, data, source);
+      }
+
+      asdl::Interactive ProcessContext::parse_input(std::istream &input,
+                                                    const char *source) {
+        return Parse{}.parse_input(global_context.options, input, source);
       }
     } // namespace virtual_machine
   }   // namespace library
