@@ -34,6 +34,9 @@ namespace chimera {
         Real operator%(std::uint64_t left, const Rational &right);
         Real operator%(std::uint64_t left, const Real &right);
 
+        Base operator%(std::uint64_t left, const Imag &right);
+        Base operator%(std::uint64_t left, const Complex &right);
+
         Base operator%(Base left, std::uint64_t right);
         Base operator%(Base left, Base right);
         Base operator%(Base left, const Natural &right);
@@ -42,6 +45,9 @@ namespace chimera {
         Base operator%(Base left, const Integer &right);
         Real operator%(Base left, const Rational &right);
         Real operator%(Base left, const Real &right);
+
+        Base operator%(Base left, const Imag &right);
+        Base operator%(Base left, const Complex &right);
 
         Base operator%(const Natural &left, std::uint64_t right);
         Base operator%(const Natural &left, Base right);
@@ -52,6 +58,9 @@ namespace chimera {
         Real operator%(const Natural &left, const Rational &right);
         Real operator%(const Natural &left, const Real &right);
 
+        Base operator%(const Natural &left, const Imag &right);
+        Base operator%(const Natural &left, const Complex &right);
+
         Positive operator%(const Positive &left, std::uint64_t right);
         Positive operator%(const Positive &left, Base right);
         Positive operator%(const Positive &left, const Natural &right);
@@ -60,6 +69,9 @@ namespace chimera {
         Positive operator%(const Positive &left, const Integer &right);
         Real operator%(const Positive &left, const Rational &right);
         Real operator%(const Positive &left, const Real &right);
+
+        Base operator%(const Positive &left, const Imag &right);
+        Base operator%(const Positive &left, const Complex &right);
 
         Negative operator%(const Negative &left, std::uint64_t right);
         Negative operator%(const Negative &left, Base right);
@@ -70,6 +82,9 @@ namespace chimera {
         Real operator%(const Negative &left, const Rational &right);
         Real operator%(const Negative &left, const Real &right);
 
+        Base operator%(const Negative &left, const Imag &right);
+        Base operator%(const Negative &left, const Complex &right);
+
         Integer operator%(const Integer &left, std::uint64_t right);
         Integer operator%(const Integer &left, Base right);
         Integer operator%(const Integer &left, const Natural &right);
@@ -78,6 +93,9 @@ namespace chimera {
         Integer operator%(const Integer &left, const Integer &right);
         Real operator%(const Integer &left, const Rational &right);
         Real operator%(const Integer &left, const Real &right);
+
+        Base operator%(const Integer &left, const Imag &right);
+        Base operator%(const Integer &left, const Complex &right);
 
         Real operator%(const Rational &left, std::uint64_t right);
         Real operator%(const Rational &left, Base right);
@@ -88,6 +106,9 @@ namespace chimera {
         Real operator%(const Rational &left, const Rational &right);
         Real operator%(const Rational &left, const Real &right);
 
+        Base operator%(const Rational &left, const Imag &right);
+        Base operator%(const Rational &left, const Complex &right);
+
         Real operator%(const Real &left, std::uint64_t right);
         Real operator%(const Real &left, Base right);
         Real operator%(const Real &left, const Natural &right);
@@ -96,6 +117,31 @@ namespace chimera {
         Real operator%(const Real &left, const Integer &right);
         Real operator%(const Real &left, const Rational &right);
         Real operator%(const Real &left, const Real &right);
+        Base operator%(const Real &left, const Imag &right);
+        Base operator%(const Real &left, const Complex &right);
+
+        Base operator%(const Imag &left, std::uint64_t right);
+        Base operator%(const Imag &left, Base right);
+        Base operator%(const Imag &left, const Natural &right);
+        Base operator%(const Imag &left, const Positive &right);
+        Base operator%(const Imag &left, const Negative &right);
+        Base operator%(const Imag &left, const Integer &right);
+        Base operator%(const Imag &left, const Rational &right);
+        Base operator%(const Imag &left, const Real &right);
+        Base operator%(const Imag &left, const Imag &right);
+        Base operator%(const Imag &left, const Complex &right);
+
+        Base operator%(const Complex &left, std::uint64_t right);
+        Base operator%(const Complex &left, Base right);
+        Base operator%(const Complex &left, const Natural &right);
+        Base operator%(const Complex &left, const Positive &right);
+        Base operator%(const Complex &left, const Negative &right);
+        Base operator%(const Complex &left, const Integer &right);
+        Base operator%(const Complex &left, const Rational &right);
+        Base operator%(const Complex &left, const Real &right);
+        Base operator%(const Complex &left, const Imag &right);
+        Base operator%(const Complex &left, const Complex &right);
+
       } // namespace number
     }   // namespace object
   }     // namespace library

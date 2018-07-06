@@ -64,6 +64,10 @@ namespace chimera {
         Real operator-(const Real &real) {
           return std::visit(Operation<Real, std::negate<>>{}, real.value);
         }
+        Base operator-(const Imag & /*imag*/) { Expects(false); }
+
+        Base operator-(const Complex & /*complex*/) { Expects(false); }
+
       } // namespace number
     }   // namespace object
   }     // namespace library

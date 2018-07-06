@@ -101,6 +101,14 @@ namespace chimera {
               right.value);
         }
 
+        Base floor_div(std::uint64_t /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(std::uint64_t /*left*/, const Complex & /*right*/) {
+          Expects(false);
+        }
+
         Base floor_div(Base left, std::uint64_t right) {
           Expects(right != 0);
           return {left.value / right};
@@ -133,6 +141,14 @@ namespace chimera {
 
         Integer floor_div(Base left, const Real &right) {
           return floor_div(left.value, right);
+        }
+
+        Base floor_div(Base /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(Base /*left*/, const Complex & /*right*/) {
+          Expects(false);
         }
 
         Positive floor_div(const Natural &left, std::uint64_t right) {
@@ -202,6 +218,14 @@ namespace chimera {
               right.value);
         }
 
+        Base floor_div(const Natural & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Natural & /*left*/, const Complex & /*right*/) {
+          Expects(false);
+        }
+
         Positive floor_div(const Positive &left, std::uint64_t right) {
           return std::visit(
               [right](const auto &value) {
@@ -256,6 +280,14 @@ namespace chimera {
               left.value, right.value);
         }
 
+        Base floor_div(const Positive & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Positive & /*left*/, const Complex & /*right*/) {
+          Expects(false);
+        }
+
         Negative floor_div(const Negative &left, std::uint64_t right) {
           return std::visit(
               [right](const auto &value) { return -floor_div(value, right); },
@@ -304,6 +336,14 @@ namespace chimera {
                 return Integer(-floor_div(l, r));
               },
               left.value, right.value);
+        }
+
+        Base floor_div(const Negative & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Negative & /*left*/, const Complex & /*right*/) {
+          Expects(false);
         }
 
         Integer floor_div(const Integer &left, std::uint64_t right) {
@@ -362,6 +402,14 @@ namespace chimera {
               left.value, right.value);
         }
 
+        Base floor_div(const Integer & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Integer & /*left*/, const Complex & /*right*/) {
+          Expects(false);
+        }
+
         Integer floor_div(const Rational &left, std::uint64_t right) {
           return div(left, right);
         }
@@ -402,6 +450,14 @@ namespace chimera {
                 return Integer(floor_div(left, value));
               },
               right.value);
+        }
+
+        Base floor_div(const Rational & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Rational & /*left*/, const Complex & /*right*/) {
+          Expects(false);
         }
 
         Integer floor_div(const Real &left, std::uint64_t right) {
@@ -463,6 +519,94 @@ namespace chimera {
               },
               left.value, right.value);
         }
+        Base floor_div(const Real & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Real & /*left*/, const Complex & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Imag & /*left*/, std::uint64_t /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Imag & /*left*/, Base /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Imag & /*left*/, const Natural & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Imag & /*left*/, const Positive & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Imag & /*left*/, const Negative & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Imag & /*left*/, const Integer & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Imag & /*left*/, const Rational & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Imag & /*left*/, const Real & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Imag & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Imag & /*left*/, const Complex & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Complex & /*left*/, std::uint64_t /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Complex & /*left*/, Base /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Complex & /*left*/, const Natural & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Complex & /*left*/, const Positive & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Complex & /*left*/, const Negative & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Complex & /*left*/, const Integer & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Complex & /*left*/, const Rational & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Complex & /*left*/, const Real & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Complex & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base floor_div(const Complex & /*left*/, const Complex & /*right*/) {
+          Expects(false);
+        }
+
       } // namespace number
     }   // namespace object
   }     // namespace library

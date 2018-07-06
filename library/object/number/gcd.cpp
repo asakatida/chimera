@@ -89,9 +89,7 @@ namespace chimera {
 
         Integer gcd(std::uint64_t left, const Integer &right) {
           return std::visit(
-              [left](const auto &value) {
-                return Integer(gcd(left, value));
-              },
+              [left](const auto &value) { return Integer(gcd(left, value)); },
               right.value);
         }
 
@@ -101,10 +99,16 @@ namespace chimera {
 
         Integer gcd(std::uint64_t left, const Real &right) {
           return std::visit(
-              [left](const auto &value) {
-                return Integer(gcd(left, value));
-              },
+              [left](const auto &value) { return Integer(gcd(left, value)); },
               right.value);
+        }
+
+        Base gcd(std::uint64_t /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(std::uint64_t /*left*/, const Complex & /*right*/) {
+          Expects(false);
         }
 
         Base gcd(Base left, std::uint64_t right) {
@@ -140,6 +144,10 @@ namespace chimera {
         Integer gcd(Base left, const Real &right) {
           return gcd(left.value, right);
         }
+
+        Base gcd(Base /*left*/, const Imag & /*right*/) { Expects(false); }
+
+        Base gcd(Base /*left*/, const Complex & /*right*/) { Expects(false); }
 
         Base gcd(const Natural &left, std::uint64_t right) {
           Positive aPrime(copy(left)), bPrime(Base{right});
@@ -179,12 +187,12 @@ namespace chimera {
         // TODO(asakatida)
         // static Positive gcd(const Positive &left, const Positive &right) {
         //   auto aPrime = left, bPrime = right;
-        //   std::visit(Repr<std::ostream>{std::cout << "left: "}, left.value) << '\n';
-        //   std::visit(Repr<std::ostream>{std::cout << "right: "}, right.value) << '\n';
-        //   while (!(aPrime == bPrime)) {
-        //     std::visit(Repr<std::ostream>{std::cout << "aPrime: "}, aPrime.value) << '\n';
-        //     std::visit(Repr<std::ostream>{std::cout << "bPrime: "}, bPrime.value) << '\n';
-        //     if (even(aPrime)) {
+        //   std::visit(Repr<std::ostream>{std::cout << "left: "}, left.value)
+        //   << '\n'; std::visit(Repr<std::ostream>{std::cout << "right: "},
+        //   right.value) << '\n'; while (!(aPrime == bPrime)) {
+        //     std::visit(Repr<std::ostream>{std::cout << "aPrime: "},
+        //     aPrime.value) << '\n'; std::visit(Repr<std::ostream>{std::cout <<
+        //     "bPrime: "}, bPrime.value) << '\n'; if (even(aPrime)) {
         //       aPrime = aPrime >> 1u;
         //     } else if (even(bPrime)) {
         //       bPrime = bPrime >> 1u;
@@ -194,29 +202,24 @@ namespace chimera {
         //       bPrime = +(bPrime - aPrime) >> 1u;
         //     }
         //   }
-        //   std::visit(Repr<std::ostream>{std::cout << "aPrime: "}, aPrime.value) << '\n';
-        //   return aPrime;
+        //   std::visit(Repr<std::ostream>{std::cout << "aPrime: "},
+        //   aPrime.value) << '\n'; return aPrime;
         // }
 
         Positive gcd(const Natural &left, const Positive &right) {
           return std::visit(
-              [&left](const auto &value) {
-                return Positive(gcd(left, value));
-              },
+              [&left](const auto &value) { return Positive(gcd(left, value)); },
               right.value);
         }
 
         Negative gcd(const Natural &left, const Negative &right) {
-          return std::visit(
-              [&left](const auto &r) { return -gcd(left, r); },
-              right.value);
+          return std::visit([&left](const auto &r) { return -gcd(left, r); },
+                            right.value);
         }
 
         Integer gcd(const Natural &left, const Integer &right) {
           return std::visit(
-              [&left](const auto &value) {
-                return Integer(gcd(left, value));
-              },
+              [&left](const auto &value) { return Integer(gcd(left, value)); },
               right.value);
         }
 
@@ -226,10 +229,16 @@ namespace chimera {
 
         Integer gcd(const Natural &left, const Real &right) {
           return std::visit(
-              [&left](const auto &value) {
-                return Integer(gcd(left, value));
-              },
+              [&left](const auto &value) { return Integer(gcd(left, value)); },
               right.value);
+        }
+
+        Base gcd(const Natural & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Natural & /*left*/, const Complex & /*right*/) {
+          Expects(false);
         }
 
         Positive gcd(const Positive &left, std::uint64_t right) {
@@ -254,9 +263,7 @@ namespace chimera {
 
         Positive gcd(const Positive &left, const Positive &right) {
           return std::visit(
-              [](const auto &l, const auto &r) {
-                return Positive(gcd(l, r));
-              },
+              [](const auto &l, const auto &r) { return Positive(gcd(l, r)); },
               left.value, right.value);
         }
 
@@ -268,9 +275,7 @@ namespace chimera {
 
         Integer gcd(const Positive &left, const Integer &right) {
           return std::visit(
-              [](const auto &l, const auto &r) {
-                return Integer(gcd(l, r));
-              },
+              [](const auto &l, const auto &r) { return Integer(gcd(l, r)); },
               left.value, right.value);
         }
 
@@ -280,10 +285,16 @@ namespace chimera {
 
         Integer gcd(const Positive &left, const Real &right) {
           return std::visit(
-              [](const auto &l, const auto &r) {
-                return Integer(gcd(l, r));
-              },
+              [](const auto &l, const auto &r) { return Integer(gcd(l, r)); },
               left.value, right.value);
+        }
+
+        Base gcd(const Positive & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Positive & /*left*/, const Complex & /*right*/) {
+          Expects(false);
         }
 
         Negative gcd(const Negative &left, std::uint64_t right) {
@@ -310,17 +321,13 @@ namespace chimera {
 
         Positive gcd(const Negative &left, const Negative &right) {
           return std::visit(
-              [](const auto &l, const auto &r) {
-                return Positive(gcd(l, r));
-              },
+              [](const auto &l, const auto &r) { return Positive(gcd(l, r)); },
               left.value, right.value);
         }
 
         Integer gcd(const Negative &left, const Integer &right) {
           return std::visit(
-              [](const auto &l, const auto &r) {
-                return Integer(-gcd(l, r));
-              },
+              [](const auto &l, const auto &r) { return Integer(-gcd(l, r)); },
               left.value, right.value);
         }
 
@@ -330,17 +337,21 @@ namespace chimera {
 
         Integer gcd(const Negative &left, const Real &right) {
           return std::visit(
-              [](const auto &l, const auto &r) {
-                return Integer(-gcd(l, r));
-              },
+              [](const auto &l, const auto &r) { return Integer(-gcd(l, r)); },
               left.value, right.value);
+        }
+
+        Base gcd(const Negative & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Negative & /*left*/, const Complex & /*right*/) {
+          Expects(false);
         }
 
         Integer gcd(const Integer &left, std::uint64_t right) {
           return std::visit(
-              [right](const auto &value) {
-                return Integer(gcd(value, right));
-              },
+              [right](const auto &value) { return Integer(gcd(value, right)); },
               left.value);
         }
 
@@ -358,9 +369,7 @@ namespace chimera {
 
         Integer gcd(const Integer &left, const Positive &right) {
           return std::visit(
-              [](const auto &l, const auto &r) {
-                return Integer(gcd(l, r));
-              },
+              [](const auto &l, const auto &r) { return Integer(gcd(l, r)); },
               left.value, right.value);
         }
 
@@ -374,9 +383,7 @@ namespace chimera {
 
         Integer gcd(const Integer &left, const Integer &right) {
           return std::visit(
-              [](const auto &l, const auto &r) {
-                return Integer(gcd(l, r));
-              },
+              [](const auto &l, const auto &r) { return Integer(gcd(l, r)); },
               left.value, right.value);
         }
 
@@ -386,10 +393,16 @@ namespace chimera {
 
         Integer gcd(const Integer &left, const Real &right) {
           return std::visit(
-              [](const auto &l, const auto &r) {
-                return Integer(gcd(l, r));
-              },
+              [](const auto &l, const auto &r) { return Integer(gcd(l, r)); },
               left.value, right.value);
+        }
+
+        Base gcd(const Integer & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Integer & /*left*/, const Complex & /*right*/) {
+          Expects(false);
         }
 
         Integer gcd(const Rational &left, std::uint64_t right) {
@@ -419,26 +432,28 @@ namespace chimera {
         Integer gcd(const Rational &left, const Rational &right) {
           return std::visit(
               [](const auto &lN, const auto &lD, const auto &rN,
-                 const auto &rD) {
-                return Integer(gcd(lN * rD, lD * rN));
-              },
+                 const auto &rD) { return Integer(gcd(lN * rD, lD * rN)); },
               left.numerator, left.denominator, right.numerator,
               right.denominator);
         }
 
         Integer gcd(const Rational &left, const Real &right) {
           return std::visit(
-              [&left](const auto &value) {
-                return Integer(gcd(left, value));
-              },
+              [&left](const auto &value) { return Integer(gcd(left, value)); },
               right.value);
+        }
+
+        Base gcd(const Rational & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Rational & /*left*/, const Complex & /*right*/) {
+          Expects(false);
         }
 
         Integer gcd(const Real &left, std::uint64_t right) {
           return std::visit(
-              [right](const auto &value) {
-                return Integer(gcd(value, right));
-              },
+              [right](const auto &value) { return Integer(gcd(value, right)); },
               left.value);
         }
 
@@ -456,9 +471,7 @@ namespace chimera {
 
         Integer gcd(const Real &left, const Positive &right) {
           return std::visit(
-              [](const auto &l, const auto &r) {
-                return Integer(gcd(l, r));
-              },
+              [](const auto &l, const auto &r) { return Integer(gcd(l, r)); },
               left.value, right.value);
         }
 
@@ -472,9 +485,7 @@ namespace chimera {
 
         Integer gcd(const Real &left, const Integer &right) {
           return std::visit(
-              [](const auto &l, const auto &r) {
-                return Integer(gcd(l, r));
-              },
+              [](const auto &l, const auto &r) { return Integer(gcd(l, r)); },
               left.value, right.value);
         }
 
@@ -488,11 +499,93 @@ namespace chimera {
 
         Integer gcd(const Real &left, const Real &right) {
           return std::visit(
-              [](const auto &l, const auto &r) {
-                return Integer(gcd(l, r));
-              },
+              [](const auto &l, const auto &r) { return Integer(gcd(l, r)); },
               left.value, right.value);
         }
+        Base gcd(const Real & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Real & /*left*/, const Complex & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Imag & /*left*/, std::uint64_t /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Imag & /*left*/, Base /*right*/) { Expects(false); }
+
+        Base gcd(const Imag & /*left*/, const Natural & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Imag & /*left*/, const Positive & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Imag & /*left*/, const Negative & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Imag & /*left*/, const Integer & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Imag & /*left*/, const Rational & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Imag & /*left*/, const Real & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Imag & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Imag & /*left*/, const Complex & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Complex & /*left*/, std::uint64_t /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Complex & /*left*/, Base /*right*/) { Expects(false); }
+
+        Base gcd(const Complex & /*left*/, const Natural & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Complex & /*left*/, const Positive & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Complex & /*left*/, const Negative & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Complex & /*left*/, const Integer & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Complex & /*left*/, const Rational & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Complex & /*left*/, const Real & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Complex & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base gcd(const Complex & /*left*/, const Complex & /*right*/) {
+          Expects(false);
+        }
+
       } // namespace number
     }   // namespace object
   }     // namespace library

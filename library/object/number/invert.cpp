@@ -54,6 +54,10 @@ namespace chimera {
         Base operator~(const Rational & /*rational*/) { Expects(false); }
 
         Base operator~(const Real & /*value*/) { Expects(false); }
+        Base operator~(const Imag & /*imag*/) { Expects(false); }
+
+        Base operator~(const Complex & /*complex*/) { Expects(false); }
+
       } // namespace number
     }   // namespace object
   }     // namespace library

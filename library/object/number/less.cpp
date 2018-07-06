@@ -70,6 +70,14 @@ namespace chimera {
           return LESS_LEFT;
         }
 
+        bool operator<(std::uint64_t /*left*/, const Imag & /*right*/) {
+          return false;
+        }
+
+        bool operator<(std::uint64_t /*left*/, const Complex & /*right*/) {
+          return false;
+        }
+
         bool operator<(Base left, std::uint64_t right) {
           return left.value < right;
         }
@@ -100,6 +108,12 @@ namespace chimera {
 
         bool operator<(Base left, const Real &right) {
           return left.value < right;
+        }
+
+        bool operator<(Base /*left*/, const Imag & /*right*/) { return false; }
+
+        bool operator<(Base /*left*/, const Complex & /*right*/) {
+          return false;
         }
 
         bool operator<(const Natural & /*left*/, std::uint64_t /*right*/) {
@@ -139,6 +153,14 @@ namespace chimera {
           return LESS_LEFT;
         }
 
+        bool operator<(const Natural & /*left*/, const Imag & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Natural & /*left*/, const Complex & /*right*/) {
+          return false;
+        }
+
         bool operator<(const Positive &left, std::uint64_t right) {
           return LESS_RIGHT;
         }
@@ -168,6 +190,14 @@ namespace chimera {
         }
 
         bool operator<(const Positive &left, const Real &right) { return LESS; }
+
+        bool operator<(const Positive & /*left*/, const Imag & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Positive & /*left*/, const Complex & /*right*/) {
+          return false;
+        }
 
         bool operator<(const Negative & /*left*/, std::uint64_t /*right*/) {
           return true;
@@ -201,6 +231,14 @@ namespace chimera {
           return LESS_LEFT;
         }
 
+        bool operator<(const Negative & /*left*/, const Imag & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Negative & /*left*/, const Complex & /*right*/) {
+          return false;
+        }
+
         bool operator<(const Integer &left, std::uint64_t right) {
           return LESS_RIGHT;
         }
@@ -230,6 +268,14 @@ namespace chimera {
         }
 
         bool operator<(const Integer &left, const Real &right) { return LESS; }
+
+        bool operator<(const Integer & /*left*/, const Imag & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Integer & /*left*/, const Complex & /*right*/) {
+          return false;
+        }
 
         bool operator<(const Rational &left, std::uint64_t right) {
           return LESS_LEFT_RATIONAL;
@@ -267,6 +313,14 @@ namespace chimera {
           return LESS_LEFT;
         }
 
+        bool operator<(const Rational & /*left*/, const Imag & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Rational & /*left*/, const Complex & /*right*/) {
+          return false;
+        }
+
         bool operator<(const Real &left, std::uint64_t right) {
           return LESS_RIGHT;
         }
@@ -292,6 +346,92 @@ namespace chimera {
         }
 
         bool operator<(const Real &left, const Real &right) { return LESS; }
+        bool operator<(const Real & /*left*/, const Imag & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Real & /*left*/, const Complex & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Imag & /*left*/, std::uint64_t /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Imag & /*left*/, Base /*right*/) { return false; }
+
+        bool operator<(const Imag & /*left*/, const Natural & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Imag & /*left*/, const Positive & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Imag & /*left*/, const Negative & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Imag & /*left*/, const Integer & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Imag & /*left*/, const Rational & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Imag & /*left*/, const Real & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Imag & /*left*/, const Imag & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Imag & /*left*/, const Complex & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Complex & /*left*/, std::uint64_t /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Complex & /*left*/, Base /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Complex & /*left*/, const Natural & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Complex & /*left*/, const Positive & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Complex & /*left*/, const Negative & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Complex & /*left*/, const Integer & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Complex & /*left*/, const Rational & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Complex & /*left*/, const Real & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Complex & /*left*/, const Imag & /*right*/) {
+          return false;
+        }
+
+        bool operator<(const Complex & /*left*/, const Complex & /*right*/) {
+          return false;
+        }
+
       } // namespace number
     }   // namespace object
   }     // namespace library

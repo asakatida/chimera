@@ -33,6 +33,8 @@ namespace chimera {
         Positive operator+(const Integer &integer);
         Rational operator+(const Rational &rational);
         Real operator+(const Real &real);
+        Base operator+(const Imag &imag);
+        Base operator+(const Complex &complex);
       } // namespace number
     }   // namespace object
   }     // namespace library

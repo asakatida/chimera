@@ -20,6 +20,8 @@
 
 #include "object/number/div.hpp"
 
+#include <gsl/gsl>
+
 #include "object/number/mult.hpp"
 #include "object/number/negative.hpp"
 
@@ -83,6 +85,14 @@ namespace chimera {
                             right.value);
         }
 
+        Base operator/(std::uint64_t /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(std::uint64_t /*left*/, const Complex & /*right*/) {
+          Expects(false);
+        }
+
         Real operator/(Base left, std::uint64_t right) {
           return Real(left, right);
         }
@@ -116,6 +126,14 @@ namespace chimera {
         Real operator/(Base left, const Real &right) {
           return std::visit([left](const auto &value) { return left / value; },
                             right.value);
+        }
+
+        Base operator/(Base /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(Base /*left*/, const Complex & /*right*/) {
+          Expects(false);
         }
 
         Real operator/(const Natural &left, std::uint64_t right) {
@@ -153,6 +171,14 @@ namespace chimera {
         Real operator/(const Natural &left, const Real &right) {
           return std::visit([&left](const auto &value) { return left / value; },
                             right.value);
+        }
+
+        Base operator/(const Natural & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Natural & /*left*/, const Complex & /*right*/) {
+          Expects(false);
         }
 
         Real operator/(const Positive &left, std::uint64_t right) {
@@ -196,6 +222,14 @@ namespace chimera {
         Real operator/(const Positive &left, const Real &right) {
           return std::visit([](const auto &l, const auto &r) { return l / r; },
                             left.value, right.value);
+        }
+
+        Base operator/(const Positive & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Positive & /*left*/, const Complex & /*right*/) {
+          Expects(false);
         }
 
         Real operator/(const Negative &left, std::uint64_t right) {
@@ -245,6 +279,14 @@ namespace chimera {
               right.value);
         }
 
+        Base operator/(const Negative & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Negative & /*left*/, const Complex & /*right*/) {
+          Expects(false);
+        }
+
         Real operator/(const Integer &left, std::uint64_t right) {
           return std::visit(
               [right](const auto &value) { return value / right; }, left.value);
@@ -288,6 +330,14 @@ namespace chimera {
                             left.value, right.value);
         }
 
+        Base operator/(const Integer & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Integer & /*left*/, const Complex & /*right*/) {
+          Expects(false);
+        }
+
         Real operator/(const Rational &left, std::uint64_t right) {
           return div(left, right);
         }
@@ -323,6 +373,14 @@ namespace chimera {
         Real operator/(const Rational &left, const Real &right) {
           return std::visit([&left](const auto &value) { return left / value; },
                             right.value);
+        }
+
+        Base operator/(const Rational & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Rational & /*left*/, const Complex & /*right*/) {
+          Expects(false);
         }
 
         Real operator/(const Real &left, std::uint64_t right) {
@@ -367,6 +425,94 @@ namespace chimera {
           return std::visit([](const auto &l, const auto &r) { return l / r; },
                             left.value, right.value);
         }
+        Base operator/(const Real & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Real & /*left*/, const Complex & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Imag & /*left*/, std::uint64_t /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Imag & /*left*/, Base /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Imag & /*left*/, const Natural & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Imag & /*left*/, const Positive & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Imag & /*left*/, const Negative & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Imag & /*left*/, const Integer & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Imag & /*left*/, const Rational & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Imag & /*left*/, const Real & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Imag & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Imag & /*left*/, const Complex & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Complex & /*left*/, std::uint64_t /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Complex & /*left*/, Base /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Complex & /*left*/, const Natural & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Complex & /*left*/, const Positive & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Complex & /*left*/, const Negative & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Complex & /*left*/, const Integer & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Complex & /*left*/, const Rational & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Complex & /*left*/, const Real & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Complex & /*left*/, const Imag & /*right*/) {
+          Expects(false);
+        }
+
+        Base operator/(const Complex & /*left*/, const Complex & /*right*/) {
+          Expects(false);
+        }
+
       } // namespace number
     }   // namespace object
   }     // namespace library

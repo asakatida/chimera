@@ -25,6 +25,8 @@
 #include <variant>
 #include <vector>
 
+#include <tao/operators.hpp>
+
 #include "object/number/debug.hpp"
 #include "object/number/details.hpp"
 #include "object/number/repr.hpp"
@@ -33,7 +35,11 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        class Number {
+        class Number : tao::operators::commutative_bitwise<Number>,
+                       tao::operators::modable<Number>,
+                       tao::operators::ordered_field<Number>,
+                       tao::operators::shiftable<Number>,
+                       tao::operators::unit_steppable<Number> {
         public:
           Number(std::uint64_t i); // NOLINT
           explicit Number(Base base);
@@ -43,6 +49,8 @@ namespace chimera {
           explicit Number(Integer &&integer);
           explicit Number(Rational &&rational);
           explicit Number(Real &&real);
+          explicit Number(Imag &&imag);
+          explicit Number(Complex &&complex);
 
           Number(const Number &other) = default;
           Number(Number &&other) noexcept = default;
@@ -59,33 +67,19 @@ namespace chimera {
 
           Number operator+() const;
           Number operator-() const;
-          Number operator+(const Number &right) const;
           Number &operator+=(const Number &right);
-          Number operator-(const Number &right) const;
           Number &operator-=(const Number &right);
-          Number operator*(const Number &right) const;
           Number &operator*=(const Number &right);
-          Number operator/(const Number &right) const;
           Number &operator/=(const Number &right);
-          Number operator%(const Number &right) const;
           Number &operator%=(const Number &right);
           Number operator~() const;
-          Number operator&(const Number &right) const;
           Number &operator&=(const Number &right);
-          Number operator|(const Number &right) const;
           Number &operator|=(const Number &right);
-          Number operator^(const Number &right) const;
           Number &operator^=(const Number &right);
-          Number operator<<(const Number &right) const;
           Number &operator<<=(const Number &right);
-          Number operator>>(const Number &right) const;
           Number &operator>>=(const Number &right);
           bool operator==(const Number &right) const;
-          bool operator!=(const Number &right) const;
           bool operator<(const Number &right) const;
-          bool operator>(const Number &right) const;
-          bool operator<=(const Number &right) const;
-          bool operator>=(const Number &right) const;
 
           Number floor_div(const Number &right) const;
           Number gcd(const Number &right) const;

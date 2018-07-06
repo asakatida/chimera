@@ -23,7 +23,7 @@ generate_numbers.py.
 """
 
 from pathlib import Path
-from re import M
+from re import M, X
 from re import compile as rc
 from re import escape
 from typing import (Callable, Dict, Iterable, Iterator, Match, Pattern, TextIO,
@@ -86,41 +86,33 @@ NOT_BIT_TYPES = (
 TYPE_RE = '|'.join(map(escape, (BASE,) + TYPES))
 
 OP_LINE_RE_START = rf'''
-    (
-        ^
-        (?P<indent> +)
-        ({ TYPE_RE }|bool)
-        (.*)
+    ^
+    (?P<indent>\ +)
+    ({ '|'.join(TYPES) }|bool)
+    (.*?)
 '''
 OP_LINE_CLOSE = r'''
-        )
-        (
-            (.+?)
-            (
-                ;
-                |^(?P=indent)}
-            )
-            |([^\n]+?)[;}]
-        )
-        $
-    )\s
+    (
+        (.+?)[;}]
+        |
+        (?s:.+?)^(?P=indent)}
+    )
+    $\s
 '''
 OP_LINE_RE_END = rf'''
-        \(
-        (const\s+)?
-        (?P<left>{ TYPE_RE })
-        (?s:.+?)
-        (const\s+)?
-        (?P<right>
-            { TYPE_RE }
-            { OP_LINE_CLOSE }
+    \(
+    (const\s+)?
+    (?P<left>{ TYPE_RE })
+    (?s:.+?)
+    (const\s+)?
+    (?P<right>{ TYPE_RE })
+    { OP_LINE_CLOSE }
 '''
 OP_UNARY_LINE_RE_END = rf'''
-        \(
-        (const\s+)?
-        (?P<left>
-            { TYPE_RE }
-            { OP_LINE_CLOSE }
+    \(
+    (const\s+)?
+    (?P<left>{ TYPE_RE })
+    { OP_LINE_CLOSE }
 '''
 
 ROOT = Path(__file__).resolve().parent.parent / 'library' / 'object' / 'number'
@@ -324,15 +316,13 @@ def op_line_re(op: str) -> Pattern[str]:
     """
     Operation line regex.
     """
-    m = rc(
+    return rc(
         OP_LINE_RE_START
         + r'(?P<op>'
         + escape(op)
         + ')'
         + OP_LINE_RE_END,
-        M)
-    print(m.pattern)
-    return m
+        M | X)
 
 
 def op_unary_line_re(op: str) -> Pattern[str]:
@@ -345,7 +335,7 @@ def op_unary_line_re(op: str) -> Pattern[str]:
         + escape(op)
         + ')'
         + OP_UNARY_LINE_RE_END,
-        M)
+        M | X)
 
 
 def sources(name: str) -> Tuple[Path, Path]:
