@@ -218,10 +218,6 @@ namespace chimera {
         evaluator->push(TupleEvaluator{evaluator->stack.size()});
         evaluator->extend(tuple.elts);
       }
-      void GetEvaluator::evaluate(const asdl::Constant &constant) {
-        evaluator->push(PushStack{evaluator->thread_context.process_context
-                                      .constants[constant.constant]});
-      }
       void GetEvaluator::evaluate(const object::Object &object) {
         evaluator->push(PushStack{object});
       }

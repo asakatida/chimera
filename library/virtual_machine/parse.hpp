@@ -23,47 +23,31 @@
 #pragma once
 
 #include <iosfwd>
-#include <optional>
-#include <string>
 #include <string_view>
 
 #include "asdl/asdl.hpp"
-#include "container/atomic_map.hpp"
-#include "object/object.hpp"
-#include "virtual_machine/garbage.hpp"
-#include "virtual_machine/global_context.hpp"
+#include "options.hpp"
 
 namespace chimera {
   namespace library {
     namespace virtual_machine {
-      struct ProcessContext {
-        std::optional<asdl::Module> import_module(std::string &&module);
+      struct Parse {
+        constexpr static auto bufferSize =
+            std::numeric_limits<std::uint16_t>::max();
 
-        object::Object &import_object(std::string_view &&name,
-                                      std::string_view &&relativeModule);
-
-        object::Object make_module(std::string_view &&name);
-
-        asdl::Module parse_file(const std::string_view &data,
+        asdl::Module parse_file(const Options &options,
+                                const std::string_view &data,
                                 const char *source);
 
-        asdl::Module parse_file(std::istream &input, const char *source);
+        asdl::Module parse_file(const Options &options, std::istream &input,
+                                const char *source);
 
-        asdl::Interactive parse_input(const std::string_view &data,
+        asdl::Interactive parse_input(const Options &options,
+                                      const std::string_view &data,
                                       const char *source);
 
-        asdl::Interactive parse_input(std::istream &input, const char *source);
-
-        const GlobalContext &global_context;
-        // TODO(asakatida)
-        // GarbageCollector garbage_collector{};
-        container::AtomicMap<std::string, object::Object> modules{};
-
-      private:
-        object::Object &import_object(std::string_view &&module);
-
-        std::optional<asdl::Module> import_module(const std::string_view &path,
-                                                  const std::string &module);
+        asdl::Interactive parse_input(const Options &options,
+                                      std::istream &input, const char *source);
       };
     } // namespace virtual_machine
   }   // namespace library

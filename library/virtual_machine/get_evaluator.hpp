@@ -58,7 +58,6 @@ namespace chimera {
         void evaluate(const asdl::Set &set);
         void evaluate(const asdl::List &list);
         void evaluate(const asdl::Tuple &tuple);
-        void evaluate(const asdl::Constant &constant);
         void evaluate(const object::Object &object);
       };
     } // namespace virtual_machine

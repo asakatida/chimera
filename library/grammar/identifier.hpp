@@ -37,9 +37,8 @@ namespace chimera {
         struct Name : seq<XidStart, star<XidContinue>> {};
         template <>
         struct Action<Name> {
-          template <typename Input, typename Stack, typename... Args>
-          static void apply(const Input &in, Stack &&stack,
-                            const Args &... /*args*/) {
+          template <typename Input, typename Stack>
+          static void apply(const Input &in, Stack &&stack) {
             stack.push(asdl::Name{in.string()});
           }
         };

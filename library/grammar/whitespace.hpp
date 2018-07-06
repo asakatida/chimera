@@ -82,8 +82,8 @@ namespace chimera {
         struct Action : tao::pegtl::nothing<Rule> {};
         template <auto Asdl>
         struct ConstantToken {
-          template <typename Top, typename... Args>
-          static void apply0(Top &&top, const Args &... /*args*/) {
+          template <typename Top>
+          static void apply0(Top &&top) {
             top.push(Asdl);
           }
         };

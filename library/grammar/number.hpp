@@ -48,36 +48,32 @@ namespace chimera {
             : seq<range<'1', '9'>, rep_opt<18, range<'0', '9'>>> {};
         template <>
         struct Action<Nonzerodigit> {
-          template <typename Input, typename Top, typename... Args>
-          static void apply(const Input &in, Top &&top,
-                            const Args &... /*args*/) {
+          template <typename Input, typename Top>
+          static void apply(const Input &in, Top &&top) {
             top.template apply<10>(in);
           }
         };
         struct Digit : seq<range<'0', '9'>, rep_opt<18, range<'0', '9'>>> {};
         template <>
         struct Action<Digit> {
-          template <typename Input, typename Top, typename... Args>
-          static void apply(const Input &in, Top &&top,
-                            const Args &... /*args*/) {
+          template <typename Input, typename Top>
+          static void apply(const Input &in, Top &&top) {
             top.template apply<10>(in);
           }
         };
         struct Bindigit : seq<range<'0', '1'>, rep_opt<63, range<'0', '1'>>> {};
         template <>
         struct Action<Bindigit> {
-          template <typename Input, typename Top, typename... Args>
-          static void apply(const Input &in, Top &&top,
-                            const Args &... /*args*/) {
+          template <typename Input, typename Top>
+          static void apply(const Input &in, Top &&top) {
             top.template apply<2>(in);
           }
         };
         struct Octdigit : seq<range<'0', '7'>, rep_opt<31, range<'0', '7'>>> {};
         template <>
         struct Action<Octdigit> {
-          template <typename Input, typename Top, typename... Args>
-          static void apply(const Input &in, Top &&top,
-                            const Args &... /*args*/) {
+          template <typename Input, typename Top>
+          static void apply(const Input &in, Top &&top) {
             top.template apply<8>(in);
           }
         };
@@ -86,9 +82,8 @@ namespace chimera {
                   rep_opt<15, ranges<'0', '9', 'a', 'f', 'A', 'F'>>> {};
         template <>
         struct Action<Hexdigit> {
-          template <typename Input, typename Top, typename... Args>
-          static void apply(const Input &in, Top &&top,
-                            const Args &... /*args*/) {
+          template <typename Input, typename Top>
+          static void apply(const Input &in, Top &&top) {
             top.template apply<16>(in);
           }
         };
@@ -156,9 +151,9 @@ namespace chimera {
         };
         template <>
         struct Action<Numberliteral> {
-          template <typename Top, typename ProcessContext>
-          static void apply0(Top &&top, ProcessContext &&processContext) {
-            top.push(processContext.insert_constant(std::move(top.number)));
+          template <typename Top>
+          static void apply0(Top &&top) {
+            top.push(object::Object(std::move(top.number), {}));
           }
         };
       } // namespace token
