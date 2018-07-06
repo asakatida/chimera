@@ -41,22 +41,21 @@ namespace chimera {
           template <tao::pegtl::apply_mode A, tao::pegtl::rewind_mode M,
                     template <typename...> class Action,
                     template <typename...> class Control, typename Input,
-                    typename Outer, typename ProcessContext>
-          static bool match(Input &in, Outer &&outer,
-                            ProcessContext &&processContext) {
+                    typename Outer>
+          static bool match(Input &in, Outer &&outer) {
             if constexpr (A == tao::pegtl::apply_mode::ACTION) { // NOLINT
               typename Rule::Transform state;
 
-              if (normal<Rule>::template match<A, M, Action, Control>(
-                      in, state, processContext)) {
+              if (normal<Rule>::template match<A, M, Action, Control>(in,
+                                                                      state)) {
                 state.success(outer);
                 return true;
               }
               return false;
             }
             if constexpr (A != tao::pegtl::apply_mode::ACTION) { // NOLINT
-              return normal<Rule>::template match<A, M, Action, Control>(
-                  in, outer, processContext);
+              return normal<Rule>::template match<A, M, Action, Control>(in,
+                                                                         outer);
             }
             Expects(false);
           }

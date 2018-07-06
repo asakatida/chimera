@@ -37,9 +37,6 @@ namespace chimera {
   namespace library {
     namespace virtual_machine {
       struct ProcessContext {
-        constexpr static auto bufferSize =
-            std::numeric_limits<std::uint16_t>::max();
-
         std::optional<asdl::Module> import_module(std::string &&module);
 
         object::Object &import_object(std::string_view &&name,
@@ -47,22 +44,19 @@ namespace chimera {
 
         object::Object make_module(std::string_view &&name);
 
-        asdl::Constant insert_constant(object::Bytes &&bytes);
-        asdl::Constant insert_constant(object::Number &&number);
-        asdl::Constant insert_constant(object::String &&string);
-
         asdl::Module parse_file(const std::string_view &data,
                                 const char *source);
+
         asdl::Module parse_file(std::istream &input, const char *source);
 
         asdl::Interactive parse_input(const std::string_view &data,
                                       const char *source);
+
         asdl::Interactive parse_input(std::istream &input, const char *source);
 
         const GlobalContext &global_context;
         // TODO(grandquista)
         // GarbageCollector garbage_collector{};
-        container::AtomicMap<object::Id, object::Object> constants{};
         container::AtomicMap<std::string, object::Object> modules{};
 
       private:

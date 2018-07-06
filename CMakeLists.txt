@@ -37,7 +37,8 @@ add_library(
   library/grammar/utf8_id_start.hpp
   library/grammar/utf8_space.hpp
   library/grammar/whitespace.hpp
-  library/virtual_machine/parse.cpp)
+  library/virtual_machine/parse.cpp
+  library/virtual_machine/parse.hpp)
 
 target_include_directories(chimera_grammar PUBLIC library)
 target_include_directories(

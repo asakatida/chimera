@@ -65,16 +65,12 @@ namespace chimera {
       } // namespace detail
       using ExprImpl = detail::Impl<
           struct Attribute, struct Await, struct Bin, struct Bool, struct Call,
-          struct Compare, struct Constant, struct Dict, struct DictComp,
-          struct Ellipsis, struct FormattedValue, struct GeneratorExp,
-          struct IfExp, struct JoinedStr, struct Lambda, struct List,
-          struct ListComp, struct Name, struct NameConstant, object::Object,
-          struct Set, struct SetComp, struct Starred, struct Subscript,
-          struct Tuple, struct Unary, struct UnpackDict, struct Yield,
-          struct YieldFrom>;
-      struct Constant {
-        std::uint64_t constant;
-      };
+          struct Compare, struct Dict, struct DictComp, struct Ellipsis,
+          struct FormattedValue, struct GeneratorExp, struct IfExp,
+          struct JoinedStr, struct Lambda, struct List, struct ListComp,
+          struct Name, struct NameConstant, object::Object, struct Set,
+          struct SetComp, struct Starred, struct Subscript, struct Tuple,
+          struct Unary, struct UnpackDict, struct Yield, struct YieldFrom>;
       struct Name {
         std::string value;
       };
@@ -82,7 +78,7 @@ namespace chimera {
         std::string value;
       };
       struct DocString {
-        Constant constant;
+        object::Object string;
       };
       struct Withitem {
         ExprImpl context_expr;

@@ -20,59 +20,62 @@
 
 //! wrapper for tao::pegtl::parse
 
+#include "virtual_machine/parse.hpp"
+
 #include <iostream>
 
 #include <tao/pegtl.hpp>
 
 #include "asdl/asdl.hpp"
 #include "grammar/grammar.hpp"
-#include "virtual_machine/process_context.hpp"
 
 namespace chimera {
   namespace library {
     namespace virtual_machine {
-      asdl::Module ProcessContext::parse_file(const std::string_view &data,
-                                              const char *source) {
+      asdl::Module Parse::parse_file(const Options &options,
+                                     const std::string_view &data,
+                                     const char *source) {
         asdl::Module module;
         grammar::parse<grammar::FileInput>(
-            global_context.options,
+            options,
             grammar::Input<tao::pegtl::memory_input<>>(data.data(), data.size(),
                                                        source),
-            module, *this);
+            module);
         return module;
       }
 
-      asdl::Module ProcessContext::parse_file(std::istream &input,
-                                              const char *source) {
+      asdl::Module Parse::parse_file(const Options &options,
+                                     std::istream &input, const char *source) {
         asdl::Module module;
         grammar::parse<grammar::FileInput>(
-            global_context.options,
+            options,
             grammar::Input<tao::pegtl::istream_input<>>(input, bufferSize,
                                                         source),
-            module, *this);
+            module);
         return module;
       }
 
-      asdl::Interactive
-      ProcessContext::parse_input(const std::string_view &data,
-                                  const char *source) {
+      asdl::Interactive Parse::parse_input(const Options &options,
+                                           const std::string_view &data,
+                                           const char *source) {
         asdl::Interactive interactive;
         grammar::parse<grammar::SingleInput>(
-            global_context.options,
+            options,
             grammar::Input<tao::pegtl::memory_input<>>(data.data(), data.size(),
                                                        source),
-            interactive, *this);
+            interactive);
         return interactive;
       }
 
-      asdl::Interactive ProcessContext::parse_input(std::istream &input,
-                                                    const char *source) {
+      asdl::Interactive Parse::parse_input(const Options &options,
+                                           std::istream &input,
+                                           const char *source) {
         asdl::Interactive interactive;
         grammar::parse<grammar::SingleInput>(
-            global_context.options,
+            options,
             grammar::Input<tao::pegtl::istream_input<>>(input, bufferSize,
                                                         source),
-            interactive, *this);
+            interactive);
         return interactive;
       }
     } // namespace virtual_machine

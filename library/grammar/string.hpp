@@ -39,7 +39,6 @@
 #include "grammar/rules.hpp"
 #include "grammar/whitespace.hpp"
 #include "object/object.hpp"
-#include "virtual_machine/virtual_machine.hpp"
 
 namespace chimera {
   namespace library {
@@ -47,7 +46,7 @@ namespace chimera {
       namespace token {
         using namespace std::literals;
 
-        struct StringHolder : rules::VariantCapture<asdl::Constant> {
+        struct StringHolder : rules::VariantCapture<object::Object> {
           std::string string;
           template <typename String>
           void apply(String &&in) {
@@ -57,9 +56,8 @@ namespace chimera {
         struct LiteralChar : plus<not_one<'\0', '{', '}'>> {};
         template <>
         struct Action<LiteralChar> {
-          template <typename Input, typename Top, typename... Args>
-          static void apply(const Input &in, Top &&top,
-                            const Args &... /*args*/) {
+          template <typename Input, typename Top>
+          static void apply(const Input &in, Top &&top) {
             top.apply(in.string());
           }
         };
@@ -71,9 +69,8 @@ namespace chimera {
         struct Conversion : one<'a', 'r', 's'> {};
         template <>
         struct Action<Conversion> {
-          template <typename Input, typename Top, typename... Args>
-          static void apply(const Input &in, Top &&top,
-                            const Args &... /*args*/) {
+          template <typename Input, typename Top>
+          static void apply(const Input &in, Top &&top) {
             asdl::FormattedValue formattedValue{
                 top.template pop<asdl::ExprImpl>(),
                 asdl::FormattedValue::STR,
@@ -106,8 +103,8 @@ namespace chimera {
             : star<sor<LiteralChar, one<0>, ReplacementField<Option>>> {};
         template <flags::Flag Option>
         struct Action<FormatSpec<Option>> {
-          template <typename Top, typename... Args>
-          static void apply0(Top &&top, const Args &... /*args*/) {
+          template <typename Top>
+          static void apply0(Top &&top) {
             auto formatSpec = top.template pop<asdl::ExprImpl>();
             auto expr = top.template pop<asdl::ExprImpl>();
             if (std::holds_alternative<asdl::FormattedValue>(*expr.value)) {
@@ -124,16 +121,16 @@ namespace chimera {
         struct LeftFLiteral : String<'{', '{'> {};
         template <>
         struct Action<LeftFLiteral> {
-          template <typename Top, typename... Args>
-          static void apply0(Top &&top, const Args &... /*args*/) {
+          template <typename Top>
+          static void apply0(Top &&top) {
             top.apply("{"sv);
           }
         };
         struct RightFLiteral : String<'}', '}'> {};
         template <>
         struct Action<RightFLiteral> {
-          template <typename Top, typename... Args>
-          static void apply0(Top &&top, const Args &... /*args*/) {
+          template <typename Top>
+          static void apply0(Top &&top) {
             top.apply("}"sv);
           }
         };
@@ -142,10 +139,9 @@ namespace chimera {
         };
         template <>
         struct Action<FLiteral> {
-          template <typename Top, typename ProcessContext>
-          static void apply0(Top &&top, ProcessContext &&processContext) {
-            top.push(
-                processContext.insert_constant(object::String(top.string)));
+          template <typename Top>
+          static void apply0(Top &&top) {
+            top.push(object::Object(object::String(top.string), {}));
           }
         };
         template <flags::Flag Option>
@@ -155,9 +151,8 @@ namespace chimera {
         struct SingleChars : plus<Chars> {};
         template <typename Chars>
         struct Action<SingleChars<Chars>> {
-          template <typename Input, typename Top, typename... Args>
-          static void apply(const Input &in, Top &&top,
-                            const Args &... /*args*/) {
+          template <typename Input, typename Top>
+          static void apply(const Input &in, Top &&top) {
             top.apply(in.string());
           }
         };
@@ -165,9 +160,8 @@ namespace chimera {
         struct Hexseq : rep<Len, ranges<'0', '9', 'a', 'f', 'A', 'F'>> {};
         template <unsigned Len>
         struct Action<Hexseq<Len>> {
-          template <typename Input, typename Top, typename... Args>
-          static void apply(const Input &in, Top &&top,
-                            const Args &... /*args*/) {
+          template <typename Input, typename Top>
+          static void apply(const Input &in, Top &&top) {
             std::string string;
             if (tao::pegtl::unescape::utf8_append_utf32(
                     string, tao::pegtl::unescape::unhex_string<std::uint32_t>(
@@ -181,9 +175,8 @@ namespace chimera {
         struct Octseq : seq<range<'0', '7'>, rep_opt<2, range<'0', '7'>>> {};
         template <>
         struct Action<Octseq> {
-          template <typename Input, typename Top, typename... Args>
-          static void apply(const Input &in, Top &&top,
-                            const Args &... /*args*/) {
+          template <typename Input, typename Top>
+          static void apply(const Input &in, Top &&top) {
             std::string string;
             if (tao::pegtl::unescape::utf8_append_utf32(
                     string, std::accumulate(
@@ -199,9 +192,8 @@ namespace chimera {
         struct EscapeControl : one<'a', 'b', 'f', 'n', 'r', 't', 'v'> {};
         template <>
         struct Action<EscapeControl> {
-          template <typename Input, typename Top, typename... Args>
-          static void apply(const Input &in, Top &&top,
-                            const Args &... /*args*/) {
+          template <typename Input, typename Top>
+          static void apply(const Input &in, Top &&top) {
             switch (in.peek_char()) {
               case 'a':
                 top.apply("\a"sv);
@@ -233,9 +225,8 @@ namespace chimera {
         struct EscapeIgnore : seq<Chars> {};
         template <typename Chars>
         struct Action<EscapeIgnore<Chars>> {
-          template <typename Input, typename Top, typename... Args>
-          static void apply(const Input &in, Top &&top,
-                            const Args &... /*args*/) {
+          template <typename Input, typename Top>
+          static void apply(const Input &in, Top &&top) {
             top.apply(R"(\)"sv);
             top.apply(in.string());
           }
@@ -261,9 +252,8 @@ namespace chimera {
                       until<Triple, RawItem<seq<not_at<Triple>, Chars>>>> {};
         template <typename Triple, typename Chars>
         struct Action<LongRaw<Triple, Chars>> {
-          template <typename Input, typename Top, typename... Args>
-          static void apply(const Input &in, Top &&top,
-                            const Args &... /*args*/) {
+          template <typename Input, typename Top>
+          static void apply(const Input &in, Top &&top) {
             std::string_view view(in.begin(), in.size());
             view.remove_prefix(3);
             view.remove_suffix(3);
@@ -282,9 +272,8 @@ namespace chimera {
                             RawItem<minus<seq<not_at<Quote>, Chars>, Eol>>>> {};
         template <typename Quote, typename Chars>
         struct Action<ShortRaw<Quote, Chars>> {
-          template <typename Input, typename Top, typename... Args>
-          static void apply(const Input &in, Top &&top,
-                            const Args &... /*args*/) {
+          template <typename Input, typename Top>
+          static void apply(const Input &in, Top &&top) {
             std::string_view view(in.begin(), in.size());
             view.remove_prefix(1);
             view.remove_suffix(1);
@@ -309,9 +298,8 @@ namespace chimera {
         struct UName : star<not_one<'}'>> {};
         template <>
         struct Action<UName> {
-          template <typename Input, typename Top, typename... Args>
-          static void apply(const Input &in, Top &&top,
-                            const Args &... /*args*/) {
+          template <typename Input, typename Top>
+          static void apply(const Input &in, Top &&top) {
             top.apply(in.string());
           }
         };
@@ -327,7 +315,7 @@ namespace chimera {
         struct Bytes
             : plus<Token<Option, StringImpl<BytesPrefix, BytesRawPrefix,
                                             range<0, 0b1111111>>>> {
-          struct Transform : rules::VariantCapture<asdl::Constant> {
+          struct Transform : rules::VariantCapture<object::Object> {
             object::Bytes bytes;
             template <typename String>
             void apply(String &&in) {
@@ -340,9 +328,9 @@ namespace chimera {
         };
         template <flags::Flag Option>
         struct Action<Bytes<Option>> {
-          template <typename Top, typename ProcessContext>
-          static void apply0(Top &&top, ProcessContext &&processContext) {
-            top.push(processContext.insert_constant(std::move(top.bytes)));
+          template <typename Top>
+          static void apply0(Top &&top) {
+            top.push(object::Object(std::move(top.bytes), {}));
           }
         };
         using StrPrefix = opt<one<'u', 'U'>>;
@@ -356,10 +344,9 @@ namespace chimera {
         };
         template <flags::Flag Option>
         struct Action<DocString<Option>> {
-          template <typename Top, typename ProcessContext>
-          static void apply0(Top &&top, ProcessContext &&processContext) {
-            top.push(
-                processContext.insert_constant(object::String(top.string)));
+          template <typename Top>
+          static void apply0(Top &&top) {
+            top.push(object::Object(object::String(top.string), {}));
           }
         };
         using JoinedStrPrefix = one<'f', 'F'>;
@@ -403,17 +390,15 @@ namespace chimera {
         };
         template <flags::Flag Option>
         struct Action<FormattedString<Option>> {
-          template <typename Input, typename Top, typename ProcessContext>
-          static void apply(const Input &in, Top &&top,
-                            ProcessContext &&processContext) {
+          template <typename Input, typename Top>
+          static void apply(const Input &in, Top &&top) {
             auto result = tao::pegtl::parse_nested<
                 FString<flags::list<flags::DISCARD, flags::IMPLICIT>>, Action,
                 Normal>(in,
                         tao::pegtl::memory_input<>(top.string.c_str(),
                                                    top.string.size(),
                                                    "<f_string>"),
-                        std::forward<Top>(top),
-                        std::forward<ProcessContext>(processContext));
+                        std::forward<Top>(top));
             Ensures(result);
           }
         };
@@ -426,7 +411,6 @@ namespace chimera {
         struct Action<JoinedStrOne<Option>> {
           using State = std::variant<std::string, asdl::JoinedStr>;
           struct Visitor {
-            virtual_machine::ProcessContext &process_context;
             auto operator()(std::string &&value, std::string &&element) {
               value.append(element);
               return State{std::move(value)};
@@ -434,12 +418,12 @@ namespace chimera {
             auto operator()(std::string &&value, asdl::JoinedStr &&joinedStr) {
               joinedStr.values.emplace(
                   joinedStr.values.begin(),
-                  process_context.insert_constant(object::String(value)));
+                  object::Object(object::String(value), {}));
               return State{std::move(joinedStr)};
             }
             auto operator()(asdl::JoinedStr &&value, std::string &&element) {
               value.values.push_back(
-                  process_context.insert_constant(object::String(element)));
+                  object::Object(object::String(element), {}));
               return State{std::move(value)};
             }
             auto operator()(asdl::JoinedStr &&value,
@@ -449,12 +433,11 @@ namespace chimera {
               return State{std::move(value)};
             }
           };
-          template <typename Top, typename ProcessContext>
-          static void apply0(Top &&top, ProcessContext &&processContext) {
+          template <typename Top>
+          static void apply0(Top &&top) {
             State value;
             for (auto &&element : top.vector()) {
-              value = std::visit(Visitor{processContext}, std::move(value),
-                                 std::move(element));
+              value = std::visit(Visitor{}, std::move(value), std::move(element));
             }
             std::visit(top, std::move(value));
           }
@@ -462,14 +445,16 @@ namespace chimera {
         template <flags::Flag Option>
         struct JoinedStr : seq<JoinedStrOne<Option>> {
           struct Transform
-              : rules::Stack<std::string, asdl::JoinedStr, asdl::Constant> {
+              : rules::Stack<std::string, asdl::JoinedStr, object::Object> {
             struct Push {
-              using State = std::variant<asdl::JoinedStr, asdl::Constant>;
+              using State = std::variant<asdl::JoinedStr, object::Object>;
               State operator()(std::string && /*value*/) { Expects(false); }
               auto operator()(asdl::JoinedStr &&value) {
                 return State{std::move(value)};
               }
-              auto operator()(asdl::Constant &&value) { return State{value}; }
+              auto operator()(object::Object &&value) {
+                return State{std::move(value)};
+              }
             };
             template <typename Outer>
             void success(Outer &&outer) {
@@ -480,27 +465,27 @@ namespace chimera {
         template <flags::Flag Option>
         struct Action<JoinedStr<Option>> {
           struct Push {
-            using State = std::variant<asdl::JoinedStr, asdl::Constant>;
-            virtual_machine::ProcessContext &process_context;
+            using State = std::variant<asdl::JoinedStr, object::Object>;
             auto operator()(std::string &&value) {
-              return State{
-                  process_context.insert_constant(object::String(value))};
+              return State{object::Object(object::String(value), {})};
             }
             auto operator()(asdl::JoinedStr &&value) {
               return State{std::move(value)};
             }
-            auto operator()(asdl::Constant value) { return State{value}; }
+            auto operator()(object::Object &&value) {
+              return State{std::move(value)};
+            }
           };
-          template <typename Top, typename ProcessContext>
-          static void apply0(Top &&top, ProcessContext &&processContext) {
-            std::visit(top, std::visit(Push{processContext}, top.pop()));
+          template <typename Top>
+          static void apply0(Top &&top) {
+            std::visit(top, std::visit(Push{}, top.pop()));
           }
         };
       } // namespace token
       template <flags::Flag Option>
       struct DocString : seq<token::DocString<Option>, sor<NEWLINE, at<Eolf>>> {
         using Transform =
-            rules::ReshapeCapture<asdl::DocString, asdl::Constant>;
+            rules::ReshapeCapture<asdl::DocString, object::Object>;
       };
       template <flags::Flag Option>
       struct STRING : sor<token::Bytes<Option>, token::JoinedStr<Option>> {};
