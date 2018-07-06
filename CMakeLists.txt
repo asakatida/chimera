@@ -44,6 +44,7 @@ target_include_directories(
   SYSTEM PRIVATE
   external/GSL/include
   external/metal/include
+  external/operators/include
   external/PEGTL/include)
 
 add_library(
@@ -88,7 +89,6 @@ add_library(
   library/object/number/right_shift.hpp
   library/object/number/sub.cpp
   library/object/number/sub.hpp
-  library/object/number/util.hpp
   library/object/number/xor.cpp
   library/object/number/xor.hpp)
 
@@ -96,7 +96,8 @@ target_include_directories(chimera_object_number PUBLIC library)
 target_include_directories(
   chimera_object_number
   SYSTEM PRIVATE
-  external/GSL/include)
+  external/GSL/include
+  external/operators/include)
 
 add_library(
   chimera_virtual_machine
@@ -147,7 +148,8 @@ target_include_directories(
   chimera_virtual_machine
   SYSTEM PRIVATE
   external/GSL/include
-  external/metal/include)
+  external/metal/include
+  external/operators/include)
 
 add_library(
   chimera_object
@@ -158,7 +160,8 @@ target_include_directories(chimera_object PUBLIC library)
 target_include_directories(
   chimera_object
   SYSTEM PRIVATE
-  external/GSL/include)
+  external/GSL/include
+  external/operators/include)
 
 add_library(
   chimera_container
@@ -219,7 +222,8 @@ target_include_directories(
   chimera
   SYSTEM PUBLIC
   external/GSL/include
-  external/metal/include)
+  external/metal/include
+  external/operators/include)
 target_link_libraries(chimera chimera_core)
 
 target_compile_features(chimera PUBLIC cxx_std_17)
@@ -241,6 +245,7 @@ target_include_directories(
   external/Catch/single_include
   external/GSL/include
   external/metal/include
+  external/operators/include
   external/PEGTL/include)
 target_link_libraries(unit_test chimera_core)
 
@@ -260,6 +265,7 @@ target_include_directories(
   SYSTEM PUBLIC
   external/GSL/include
   external/metal/include
+  external/operators/include
   external/PEGTL/include)
 
 target_link_libraries(
@@ -286,6 +292,7 @@ target_include_directories(
   SYSTEM PUBLIC
   external/GSL/include
   external/metal/include
+  external/operators/include
   external/PEGTL/include)
 
 target_link_libraries(
@@ -312,7 +319,8 @@ target_include_directories(
   modules_tools
   SYSTEM PRIVATE
   external/GSL/include
-  external/metal/include)
+  external/metal/include
+  external/operators/include)
 target_link_libraries(modules_tools chimera_core)
 target_compile_features(modules_tools PUBLIC cxx_std_17)
 
@@ -322,7 +330,8 @@ target_include_directories(
   builtins
   SYSTEM PRIVATE
   external/GSL/include
-  external/metal/include)
+  external/metal/include
+  external/operators/include)
 target_link_libraries(builtins chimera_core modules_tools)
 target_compile_features(builtins PUBLIC cxx_std_17)
 
@@ -332,7 +341,8 @@ target_include_directories(
   importlib
   SYSTEM PRIVATE
   external/GSL/include
-  external/metal/include)
+  external/metal/include
+  external/operators/include)
 target_link_libraries(importlib chimera_core modules_tools)
 target_compile_features(importlib PUBLIC cxx_std_17)
 

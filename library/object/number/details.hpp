@@ -50,8 +50,8 @@ namespace chimera {
           const Left &left;
 
           template <typename... Args>
-          Return operator()(const Args &... args) const {
-            return Return(Op{}(left, args...));
+          Return operator()(Args &&... args) const {
+            return Return(Op{}(left, std::forward<Args>(args)...));
           }
         };
 
@@ -60,8 +60,8 @@ namespace chimera {
           const Right &right;
 
           template <typename... Args>
-          Return operator()(const Args &... args) const {
-            return Return(Op{}(args..., right));
+          Return operator()(Args &&... args) const {
+            return Return(Op{}(std::forward<Args>(args)..., right));
           }
         };
 
@@ -290,7 +290,11 @@ namespace chimera {
 
           template <typename T>
           explicit operator T() const noexcept {
-            return std::visit(Construct<T>{}, value);
+            auto t = std::visit(Construct<T>{}, value);
+            if (t == T()) {
+              return t;
+            }
+            return std::numeric_limits<T>::signaling_NaN();
           }
         };
         struct Complex {
@@ -324,10 +328,15 @@ namespace chimera {
 
           template <typename T>
           explicit operator T() const noexcept {
-            return T();
+            auto t = std::visit(Construct<T>{}, imag);
+            if (t == T()) {
+              return std::visit(Construct<T>{}, real);
+            }
+            return std::numeric_limits<T>::signaling_NaN();
           }
         };
-        using NumberValue = std::variant<Base, Natural, Negative, Rational, Imag, Complex>;
+        using NumberValue =
+            std::variant<Base, Natural, Negative, Rational, Imag, Complex>;
       } // namespace number
     }   // namespace object
   }     // namespace library
