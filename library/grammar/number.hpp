@@ -38,7 +38,8 @@ namespace chimera {
         struct NumberHolder {
           template <std::uint8_t Base, typename Input>
           void apply(const Input &in) {
-            number *= object::Number(Base).pow(in.size()) + std::stoul(in.string(), nullptr, Base);
+            number *= object::Number(Base).pow(in.size()) +
+                      std::stoul(in.string(), nullptr, Base);
           }
 
           object::Number number = 0u;

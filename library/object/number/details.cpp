@@ -149,14 +149,18 @@ namespace chimera {
         template <typename Left>
         struct Reduce<Left, Negative> {
           RealValue operator()(Left &&left, Negative &&right) {
-            return std::visit(Operation<RealValue, std::negate<>>{}, Reduce<Left, Positive>{}(std::forward<Left>(left), +right));
+            return std::visit(
+                Operation<RealValue, std::negate<>>{},
+                Reduce<Left, Positive>{}(std::forward<Left>(left), +right));
           }
         };
 
         template <typename Right>
         struct Reduce<Negative, Right> {
           RealValue operator()(Negative &&left, Right &&right) {
-            return std::visit(Operation<RealValue, std::negate<>>{}, Reduce<Positive, Right>{}(+left, std::forward<Right>(right)));
+            return std::visit(
+                Operation<RealValue, std::negate<>>{},
+                Reduce<Positive, Right>{}(+left, std::forward<Right>(right)));
           }
         };
 

@@ -44,7 +44,8 @@ namespace chimera {
         }
 
         Positive operator+(const Integer &integer) {
-          return std::visit(Operation<Positive, UnaryPositive>{}, integer.value);
+          return std::visit(Operation<Positive, UnaryPositive>{},
+                            integer.value);
         }
 
         Rational operator+(const Rational &rational) {
@@ -53,7 +54,13 @@ namespace chimera {
               rational.numerator, rational.denominator);
         }
 
-        Real operator+(const Real &real) { return std::visit(Operation<Real, UnaryPositive>{}, real.value); }
+        Real operator+(const Real &real) {
+          return std::visit(Operation<Real, UnaryPositive>{}, real.value);
+        }
+        Base operator+(const Imag & /*imag*/) { Expects(false); }
+
+        Base operator+(const Complex & /*complex*/) { Expects(false); }
+
       } // namespace number
     }   // namespace object
   }     // namespace library

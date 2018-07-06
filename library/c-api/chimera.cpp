@@ -146,7 +146,7 @@ extern PyObject *PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems) {
   }
   // NOLINTNEXTLINE
   auto object = reinterpret_cast<PyObject *>(
-    // NOLINTNEXTLINE
+      // NOLINTNEXTLINE
       std::calloc(1, static_cast<size_t>(type->tp_basicsize)));
   if (object == nullptr) {
     return nullptr;
@@ -2217,7 +2217,7 @@ extern int PyModule_AddObject(PyObject * /*module*/, const char * /*name*/,
 
 // NOLINTNEXTLINE
 extern int PyModule_AddIntConstant(PyObject * /*module*/, const char * /*name*/,
-  // NOLINTNEXTLINE
+                                   // NOLINTNEXTLINE
                                    long /*value*/) {
   return 0;
 }
