@@ -47,6 +47,11 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
+        template <typename T>
+        T copy(const T &t) {
+          return t;
+        }
+
         template <typename Value>
         NumberValue number(Value &&value) {
           return std::visit(Construct<NumberValue>{},
@@ -69,6 +74,10 @@ namespace chimera {
         Number::Number(Rational &&rational) : value(std::move(rational)) {}
 
         Number::Number(Real &&real) : value(number(std::move(real))) {}
+
+        Number::Number(Imag &&imag) : value(std::move(imag)) {}
+
+        Number::Number(Complex &&complex) : value(std::move(complex)) {}
 
         template <typename Op>
         using NOp = Operation<Number, Op>;
@@ -177,7 +186,7 @@ namespace chimera {
         }
 
         Number Number::complex() const {
-          return visit(NOp<Construct<Complex>>{});
+          return visit([](const auto &a) { return Number(Complex(copy(a))); });
         }
       } // namespace number
     }   // namespace object
