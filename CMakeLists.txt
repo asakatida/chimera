@@ -6,6 +6,7 @@ project(
 
 add_compile_options(
   -Wno-c++11-extensions
+  -Wno-c++17-extensions
   -Wno-c++98-compat-pedantic
   -Wno-date-time
   -Wno-padded)
@@ -180,7 +181,9 @@ target_include_directories(
 
 add_library(
   chimera_core
+  library/options.cpp
   library/options.hpp
+  library/version.cpp
   library/version.hpp)
 
 set_target_properties(chimera_core PROPERTIES LINKER_LANGUAGE "CXX")
