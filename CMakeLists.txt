@@ -12,8 +12,14 @@ add_compile_options(
   -Wno-padded)
 
 add_library(
-  chimera_grammar
+  chimera_core
   library/asdl/asdl.hpp
+  library/container/atomic_container.cpp
+  library/container/atomic_container.hpp
+  library/container/atomic_map.cpp
+  library/container/atomic_map.hpp
+  library/container/reverse.cpp
+  library/container/reverse.hpp
   library/grammar/rules/action.hpp
   library/grammar/rules/captures.hpp
   library/grammar/rules/control.hpp
@@ -37,20 +43,6 @@ add_library(
   library/grammar/utf8_id_start.hpp
   library/grammar/utf8_space.hpp
   library/grammar/whitespace.hpp
-  library/virtual_machine/parse.cpp
-  library/virtual_machine/parse.hpp)
-
-target_include_directories(chimera_grammar PUBLIC library)
-target_include_directories(
-  chimera_grammar
-  SYSTEM PRIVATE
-  external/GSL/include
-  external/metal/include
-  external/operators/include
-  external/PEGTL/include)
-
-add_library(
-  chimera_object_number
   library/object/number/add.cpp
   library/object/number/add.hpp
   library/object/number/and.cpp
@@ -92,17 +84,9 @@ add_library(
   library/object/number/sub.cpp
   library/object/number/sub.hpp
   library/object/number/xor.cpp
-  library/object/number/xor.hpp)
-
-target_include_directories(chimera_object_number PUBLIC library)
-target_include_directories(
-  chimera_object_number
-  SYSTEM PRIVATE
-  external/GSL/include
-  external/operators/include)
-
-add_library(
-  chimera_virtual_machine
+  library/object/number/xor.hpp
+  library/object/object.cpp
+  library/object/object.hpp
   library/virtual_machine/modules/marshal.cpp
   library/virtual_machine/modules/marshal.hpp
   library/virtual_machine/modules/sys.cpp
@@ -126,6 +110,8 @@ add_library(
   library/virtual_machine/get_evaluator.hpp
   library/virtual_machine/global_context.cpp
   library/virtual_machine/global_context.hpp
+  library/virtual_machine/parse.cpp
+  library/virtual_machine/parse.hpp
   library/virtual_machine/process_context.cpp
   library/virtual_machine/process_context.hpp
   library/virtual_machine/push_stack.cpp
@@ -143,94 +129,36 @@ add_library(
   library/virtual_machine/unary_evaluator.cpp
   library/virtual_machine/unary_evaluator.hpp
   library/virtual_machine/virtual_machine.cpp
-  library/virtual_machine/virtual_machine.hpp)
-
-target_include_directories(chimera_virtual_machine PUBLIC library)
-target_include_directories(
-  chimera_virtual_machine
-  SYSTEM PRIVATE
-  external/GSL/include
-  external/metal/include
-  external/operators/include)
-
-add_library(
-  chimera_object
-  library/object/object.cpp
-  library/object/object.hpp)
-
-target_include_directories(chimera_object PUBLIC library)
-target_include_directories(
-  chimera_object
-  SYSTEM PRIVATE
-  external/GSL/include
-  external/operators/include)
-
-add_library(
-  chimera_container
-  library/container/atomic_container.cpp
-  library/container/atomic_container.hpp
-  library/container/atomic_map.cpp
-  library/container/atomic_map.hpp
-  library/container/reverse.cpp
-  library/container/reverse.hpp)
-
-target_include_directories(chimera_container PUBLIC library)
-target_include_directories(
-  chimera_container
-  SYSTEM PRIVATE
-  external/GSL/include)
-
-add_library(
-  chimera_core
+  library/virtual_machine/virtual_machine.hpp
   library/options.cpp
   library/options.hpp
   library/version.cpp
   library/version.hpp)
 
-set_target_properties(chimera_core PROPERTIES LINKER_LANGUAGE "CXX")
+target_compile_features(chimera_core PUBLIC cxx_std_17)
 
 target_include_directories(chimera_core PUBLIC library)
+
 target_include_directories(
   chimera_core
-  SYSTEM PRIVATE
-  external/GSL/include)
-target_link_libraries(
-  chimera_core
-  chimera_container
-  chimera_grammar
-  chimera_object
-  chimera_object_number
-  chimera_virtual_machine)
+  SYSTEM PUBLIC
+  external/GSL/include
+  external/metal/include
+  external/operators/include
+  external/PEGTL/include)
 
 add_library(
   libchimera
   include/chimera.h
   library/c-api/chimera.cpp)
 
-target_compile_features(libchimera PUBLIC cxx_std_17)
-
-target_include_directories(libchimera PUBLIC library)
-target_include_directories(
-  libchimera
-  SYSTEM PRIVATE
-  include)
+target_include_directories(libchimera SYSTEM PUBLIC include)
 
 set_target_properties(libchimera PROPERTIES OUTPUT_NAME "chimera")
 target_link_libraries(libchimera chimera_core)
 
-target_compile_features(libchimera PUBLIC cxx_std_17)
-
 add_executable(chimera source/main.cpp)
-target_include_directories(chimera PRIVATE library)
-target_include_directories(
-  chimera
-  SYSTEM PUBLIC
-  external/GSL/include
-  external/metal/include
-  external/operators/include)
 target_link_libraries(chimera chimera_core)
-
-target_compile_features(chimera PUBLIC cxx_std_17)
 
 add_executable(
   unit_test
@@ -242,18 +170,12 @@ add_executable(
   unit_tests/number/number.cpp
   unit_tests/virtual_machine/virtual_machine.cpp
   unit_tests/main.cpp)
-target_include_directories(unit_test PRIVATE unit_tests)
+target_include_directories(unit_test PUBLIC unit_tests)
 target_include_directories(
   unit_test
   SYSTEM PUBLIC
-  external/Catch/single_include
-  external/GSL/include
-  external/metal/include
-  external/operators/include
-  external/PEGTL/include)
+  external/Catch/single_include)
 target_link_libraries(unit_test chimera_core)
-
-target_compile_features(unit_test PUBLIC cxx_std_17)
 
 add_executable(fuzz unit_tests/fuzz/target.cpp)
 
@@ -263,15 +185,6 @@ target_compile_options(
   -g
   -fsanitize=address,fuzzer)
 
-target_include_directories(fuzz PUBLIC library)
-target_include_directories(
-  fuzz
-  SYSTEM PUBLIC
-  external/GSL/include
-  external/metal/include
-  external/operators/include
-  external/PEGTL/include)
-
 target_link_libraries(
   fuzz
   chimera_core
@@ -279,8 +192,6 @@ target_link_libraries(
   -fsanitize-coverage=trace-pc-guard
   -fsanitize=address,fuzzer
   -rtlib=compiler-rt)
-
-target_compile_features(fuzz PUBLIC cxx_std_17)
 
 add_executable(fuzz2 unit_tests/fuzz/target2.cpp)
 
@@ -290,15 +201,6 @@ target_compile_options(
   -g
   -fsanitize=address,fuzzer)
 
-target_include_directories(fuzz2 PUBLIC library)
-target_include_directories(
-  fuzz2
-  SYSTEM PUBLIC
-  external/GSL/include
-  external/metal/include
-  external/operators/include
-  external/PEGTL/include)
-
 target_link_libraries(
   fuzz2
   chimera_core
@@ -307,48 +209,22 @@ target_link_libraries(
   -fsanitize=address,fuzzer
   -rtlib=compiler-rt)
 
-target_compile_features(fuzz2 PUBLIC cxx_std_17)
-
 add_executable(bnf2abnf tools/bnf2abnf.cpp)
 target_include_directories(
   bnf2abnf
-  SYSTEM PRIVATE
+  SYSTEM PUBLIC
   external/GSL/include
   external/PEGTL/include)
-target_compile_features(bnf2abnf PUBLIC cxx_std_17)
 
 add_library(modules_tools tools/modules.cpp tools/modules.hpp)
-target_include_directories(modules_tools PUBLIC library tools)
-target_include_directories(
-  modules_tools
-  SYSTEM PRIVATE
-  external/GSL/include
-  external/metal/include
-  external/operators/include)
+target_include_directories(modules_tools PUBLIC tools)
 target_link_libraries(modules_tools chimera_core)
-target_compile_features(modules_tools PUBLIC cxx_std_17)
 
 add_executable(builtins tools/builtins.cpp)
-target_include_directories(builtins PUBLIC library tools)
-target_include_directories(
-  builtins
-  SYSTEM PRIVATE
-  external/GSL/include
-  external/metal/include
-  external/operators/include)
-target_link_libraries(builtins chimera_core modules_tools)
-target_compile_features(builtins PUBLIC cxx_std_17)
+target_link_libraries(builtins modules_tools)
 
 add_executable(importlib tools/importlib.cpp)
-target_include_directories(importlib PUBLIC library tools)
-target_include_directories(
-  importlib
-  SYSTEM PRIVATE
-  external/GSL/include
-  external/metal/include
-  external/operators/include)
-target_link_libraries(importlib chimera_core modules_tools)
-target_compile_features(importlib PUBLIC cxx_std_17)
+target_link_libraries(importlib modules_tools)
 
 add_custom_target(check unit_test VERBATIM USES_TERMINAL)
 add_custom_target(check_rand unit_test --order rand VERBATIM USES_TERMINAL)
@@ -360,7 +236,6 @@ add_custom_target(
   fuzz
   -max_total_time=500
   -shrink=1 -use_value_profile=1
-  -only_ascii=1
   -jobs=8
   -dict="${CMAKE_SOURCE_DIR}/unit_tests/fuzz/chimera.txt"
   ${CMAKE_BINARY_DIR}/corpus
@@ -369,7 +244,6 @@ add_custom_target(
 add_custom_target(
   corpus2
   fuzz2
-  -max_len=8
   -max_total_time=500
   -shrink=1 -use_value_profile=1
   -jobs=8

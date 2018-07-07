@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "object/number/details.hpp"
+#include "object/number/number.hpp"
 
 namespace chimera {
   namespace library {
@@ -63,6 +63,11 @@ namespace chimera {
             return std::visit(*this, complex.imag) << 'j';
           }
         };
+
+        template <typename OStream>
+        OStream &Number::debug(OStream &os) const {
+          return std::visit(Debug<OStream>{os}, value);
+        }
       } // namespace number
     }   // namespace object
   }     // namespace library

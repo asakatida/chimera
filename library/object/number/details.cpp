@@ -40,11 +40,7 @@ namespace chimera {
     namespace object {
       namespace number {
         static PositiveValue positive(Natural &&value) {
-          while (!value.value.empty()) {
-            if (value.value.back() != 0) {
-              break;
-            }
-
+          while ((!value.value.empty()) && value.value.back() == 0) {
             value.value.pop_back();
           }
 
@@ -254,6 +250,66 @@ namespace chimera {
 
         Real::Real(ReducedValue /*unused*/, Rational &&rational)
             : value(std::move(rational)) {}
+
+        Imag::Imag(Base base) : value(Real(base).value) {}
+
+        Imag::Imag(Natural &&natural) : value(Real(std::move(natural)).value) {}
+
+        Imag::Imag(Positive &&positive) : value(Real(std::move(positive)).value) {}
+
+        Imag::Imag(Negative &&negative) : value(Real(std::move(negative)).value) {}
+
+        Imag::Imag(Integer &&integer) : value(Real(std::move(integer)).value) {}
+
+        Imag::Imag(Rational &&rational) : value(Real(std::move(rational)).value) {}
+
+        Imag::Imag(Real &&real) : value(std::move(real.value)) {}
+
+        Imag::Imag(ReducedValue /*unused*/, Base base) : value(Real(ReducedValue{}, base).value) {}
+
+        Imag::Imag(ReducedValue /*unused*/, Natural &&natural) : value(Real(ReducedValue{}, std::move(natural)).value) {}
+
+        Imag::Imag(ReducedValue /*unused*/, Positive &&positive) : value(Real(ReducedValue{}, std::move(positive)).value) {}
+
+        Imag::Imag(ReducedValue /*unused*/, Negative &&negative) : value(Real(ReducedValue{}, std::move(negative)).value) {}
+
+        Imag::Imag(ReducedValue /*unused*/, Integer &&integer) : value(Real(ReducedValue{}, std::move(integer)).value) {}
+
+        Imag::Imag(ReducedValue /*unused*/, Rational &&rational) : value(Real(ReducedValue{}, std::move(rational)).value) {}
+
+        Imag::Imag(ReducedValue /*unused*/, Real &&real) : value(std::move(real.value)) {}
+
+        Complex::Complex(Base base) : real(Real(base).value) {}
+
+        Complex::Complex(Natural &&natural) : real(Real(std::move(natural)).value) {}
+
+        Complex::Complex(Positive &&positive) : real(Real(std::move(positive)).value) {}
+
+        Complex::Complex(Negative &&negative) : real(Real(std::move(negative)).value) {}
+
+        Complex::Complex(Integer &&integer) : real(Real(std::move(integer)).value) {}
+
+        Complex::Complex(Rational &&rational) : real(Real(std::move(rational)).value) {}
+
+        Complex::Complex(Real &&r) : real(std::move(r.value)) {}
+
+        Complex::Complex(Imag &&i) : imag(std::move(i.value)) {}
+
+        Complex::Complex(ReducedValue /*unused*/, Base base) : real(Real(ReducedValue{}, base).value) {}
+
+        Complex::Complex(ReducedValue /*unused*/, Natural &&natural) : real(Real(ReducedValue{}, std::move(natural)).value) {}
+
+        Complex::Complex(ReducedValue /*unused*/, Positive &&positive) : real(Real(ReducedValue{}, std::move(positive)).value) {}
+
+        Complex::Complex(ReducedValue /*unused*/, Negative &&negative) : real(Real(ReducedValue{}, std::move(negative)).value) {}
+
+        Complex::Complex(ReducedValue /*unused*/, Integer &&integer) : real(Real(ReducedValue{}, std::move(integer)).value) {}
+
+        Complex::Complex(ReducedValue /*unused*/, Rational &&rational) : real(Real(ReducedValue{}, std::move(rational)).value) {}
+
+        Complex::Complex(ReducedValue /*unused*/, Real &&r) : real(std::move(r.value)) {}
+
+        Complex::Complex(ReducedValue /*unused*/, Imag &&i) : imag(std::move(i.value)) {}
       } // namespace number
     }   // namespace object
   }     // namespace library
