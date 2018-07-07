@@ -307,16 +307,20 @@ namespace chimera {
           explicit Complex(Negative &&negative);
           explicit Complex(Integer &&integer);
           explicit Complex(Rational &&rational);
-          explicit Complex(Real &&real);
-          explicit Complex(Imag &&imag);
+          explicit Complex(Real &&r);
+          explicit Complex(Imag &&i);
+          template <typename R, typename I>
+          Complex(R &&r, I &&i) : real(Real(std::forward<R>(r)).value), imag(Real(std::forward<I>(i)).value) {}
           Complex(ReducedValue /*unused*/, Base base);
           Complex(ReducedValue /*unused*/, Natural &&natural);
           Complex(ReducedValue /*unused*/, Positive &&positive);
           Complex(ReducedValue /*unused*/, Negative &&negative);
           Complex(ReducedValue /*unused*/, Integer &&integer);
           Complex(ReducedValue /*unused*/, Rational &&rational);
-          Complex(ReducedValue /*unused*/, Real &&real);
-          Complex(ReducedValue /*unused*/, Imag &&imag);
+          Complex(ReducedValue /*unused*/, Real &&r);
+          Complex(ReducedValue /*unused*/, Imag &&i);
+          template <typename R, typename I>
+          Complex(ReducedValue /*unused*/, R &&r, I &&i) : real(Real(ReducedValue{}, std::forward<R>(r)).value), imag(Real(ReducedValue{}, std::forward<I>(i)).value) {}
 
           Complex(const Complex &other) = default;
           Complex(Complex &&other) noexcept = default;
@@ -335,8 +339,6 @@ namespace chimera {
             return std::numeric_limits<T>::signaling_NaN();
           }
         };
-        using NumberValue =
-            std::variant<Base, Natural, Negative, Rational, Imag, Complex>;
       } // namespace number
     }   // namespace object
   }     // namespace library

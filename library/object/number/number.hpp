@@ -20,21 +20,19 @@
 
 #pragma once
 
-#include <cstdint>
-#include <numeric>
 #include <variant>
-#include <vector>
 
 #include <tao/operators.hpp>
 
-#include "object/number/debug.hpp"
 #include "object/number/details.hpp"
-#include "object/number/repr.hpp"
 
 namespace chimera {
   namespace library {
     namespace object {
       namespace number {
+        using NumberValue =
+            std::variant<Base, Natural, Negative, Rational, Imag, Complex>;
+
         class Number : tao::operators::commutative_bitwise<Number>,
                        tao::operators::modable<Number>,
                        tao::operators::ordered_field<Number>,
@@ -52,17 +50,19 @@ namespace chimera {
           explicit Number(Imag &&imag);
           explicit Number(Complex &&complex);
 
-          Number(const Number &other) = default;
-          Number(Number &&other) noexcept = default;
+          Number(const Number &other);
+          Number(Number &&other) noexcept;
 
-          ~Number() noexcept = default;
+          ~Number() noexcept;
 
-          Number &operator=(const Number &other) = default;
-          Number &operator=(Number &&other) noexcept = default;
+          Number &operator=(const Number &other);
+          Number &operator=(Number &&other) noexcept;
+
+          void swap(Number &&other) noexcept;
 
           template <typename T>
           explicit operator T() const noexcept {
-            return visit([](const auto &v) { return T(v); });
+            return std::visit(Construct<T>{}, value);
           }
 
           Number operator+() const;
@@ -93,28 +93,19 @@ namespace chimera {
 
           Number complex() const;
 
-          template <typename Visitor>
-          auto visit(Visitor &&visitor) const {
-            return std::visit(std::forward<Visitor>(visitor), value);
-          }
-
-          template <typename Visitor>
-          auto visit(const Number &right, Visitor &&visitor) const {
-            return std::visit(std::forward<Visitor>(visitor), value,
-                              right.value);
-          }
+          template <typename OStream>
+          OStream &debug(OStream &os) const;
 
           template <typename OStream>
-          OStream &debug(OStream &os) const {
-            return std::visit(Debug<OStream>{os}, value);
-          }
-
-          template <typename OStream>
-          OStream &repr(OStream &os) const {
-            return std::visit(Repr<OStream>{os}, value);
-          }
+          OStream &repr(OStream &os) const;
 
         private:
+          template <typename Visitor>
+          Number visit(Visitor &&visitor) const;
+
+          template <typename Visitor>
+          Number visit(const Number &right, Visitor &&visitor) const;
+
           NumberValue value;
         };
       } // namespace number

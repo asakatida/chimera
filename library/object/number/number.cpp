@@ -47,6 +47,17 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
+        template <typename Visitor>
+        Number Number::visit(Visitor &&visitor) const {
+          return std::visit(std::forward<Visitor>(visitor), value);
+        }
+
+        template <typename Visitor>
+        Number Number::visit(const Number &right, Visitor &&visitor) const {
+          return std::visit(std::forward<Visitor>(visitor), value,
+                            right.value);
+        }
+
         template <typename T>
         T copy(const T &t) {
           return t;
@@ -78,6 +89,33 @@ namespace chimera {
         Number::Number(Imag &&imag) : value(std::move(imag)) {}
 
         Number::Number(Complex &&complex) : value(std::move(complex)) {}
+
+        Number::Number(const Number &other) : value(other.value) {}
+
+        Number::Number(Number &&other) noexcept {
+          swap(std::move(other));
+        }
+
+        Number::~Number() noexcept {
+          value = Base{0u};
+        }
+
+        Number &Number::operator=(const Number &other) {
+          if (this != &other) {
+            value = other.value;
+          }
+          return *this;
+        }
+
+        Number &Number::operator=(Number &&other) noexcept {
+          swap(std::move(other));
+          return *this;
+        }
+
+        void Number::swap(Number &&other) noexcept {
+          using std::swap;
+          swap(value, other.value);
+        }
 
         template <typename Op>
         using NOp = Operation<Number, Op>;
@@ -149,12 +187,11 @@ namespace chimera {
         }
 
         bool Number::operator==(const Number &right) const {
-          return value.index() == right.value.index() &&
-                 visit(right, std::equal_to<>{});
+          return value.index() == right.value.index() && std::visit(std::equal_to<>{}, value, right.value);
         }
 
         bool Number::operator<(const Number &right) const {
-          return visit(right, std::less<>{});
+          return std::visit(std::less<>{}, value, right.value);
         }
 
         Number Number::floor_div(const Number &right) const {
