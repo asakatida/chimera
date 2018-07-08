@@ -20,21 +20,18 @@
 
 #pragma once
 
-#include "object/number/details.hpp"
+#include "object/number/number.hpp"
 
 namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        Negative operator-(Base base);
-        Negative operator-(const Natural &natural);
-        Negative operator-(const Positive &positive);
-        Positive operator-(const Negative &negative);
-        Integer operator-(const Integer &integer);
-        Rational operator-(const Rational &rational);
-        Real operator-(const Real &real);
-        Base operator-(const Imag &imag);
-        Base operator-(const Complex &complex);
+        Number operator-(Base base);
+        Number operator-(const Natural &natural);
+        Number operator-(const Negative &negative);
+        Number operator-(const Rational &rational);
+        Number operator-(const Imag &imag);
+        Number operator-(const Complex &complex);
       } // namespace number
     }   // namespace object
   }     // namespace library
