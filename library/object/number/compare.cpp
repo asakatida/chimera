@@ -34,23 +34,11 @@ namespace chimera {
           return right == left;
         }
 
-        bool operator==(std::uint64_t left, const Positive &right) {
-          return right == left;
-        }
-
         bool operator==(std::uint64_t left, const Negative &right) {
           return right == left;
         }
 
-        bool operator==(std::uint64_t left, const Integer &right) {
-          return right == left;
-        }
-
         bool operator==(std::uint64_t left, const Rational &right) {
-          return right == left;
-        }
-
-        bool operator==(std::uint64_t left, const Real &right) {
           return right == left;
         }
 
@@ -74,23 +62,13 @@ namespace chimera {
           return right == left;
         }
 
-        bool operator==(Base left, const Positive &right) {
-          return right == left;
-        }
-
         bool operator==(Base left, const Negative &right) {
-          return right == left;
-        }
-
-        bool operator==(Base left, const Integer &right) {
           return right == left;
         }
 
         bool operator==(Base left, const Rational &right) {
           return right == left;
         }
-
-        bool operator==(Base left, const Real &right) { return right == left; }
 
         bool operator==(Base /*left*/, const Imag & /*right*/) { return false; }
 
@@ -114,23 +92,11 @@ namespace chimera {
                             right.value.begin());
         }
 
-        bool operator==(const Natural &left, const Positive &right) {
-          return right == left;
-        }
-
         bool operator==(const Natural &left, const Negative &right) {
           return right == left;
         }
 
-        bool operator==(const Natural &left, const Integer &right) {
-          return right == left;
-        }
-
         bool operator==(const Natural &left, const Rational &right) {
-          return right == left;
-        }
-
-        bool operator==(const Natural &left, const Real &right) {
           return right == left;
         }
 
@@ -139,52 +105,6 @@ namespace chimera {
         }
 
         bool operator==(const Natural & /*left*/, const Complex & /*right*/) {
-          return false;
-        }
-
-        bool operator==(const Positive &left, std::uint64_t right) {
-          return std::visit(
-              [right](const auto &value) { return value == right; },
-              left.value);
-        }
-
-        bool operator==(const Positive &left, Base right) {
-          return std::visit(
-              [right](const auto &value) { return value == right; },
-              left.value);
-        }
-
-        bool operator==(const Positive &left, const Natural &right) {
-          return std::visit(
-              [&right](const auto &value) { return value == right; },
-              left.value);
-        }
-
-        bool operator==(const Positive &left, const Positive &right) {
-          return std::visit(std::equal_to<>{}, left.value, right.value);
-        }
-
-        bool operator==(const Positive &left, const Negative &right) {
-          return right == left;
-        }
-
-        bool operator==(const Positive &left, const Integer &right) {
-          return std::visit(std::equal_to<>{}, left.value, right.value);
-        }
-
-        bool operator==(const Positive &left, const Rational &right) {
-          return right == left;
-        }
-
-        bool operator==(const Positive &left, const Real &right) {
-          return std::visit(std::equal_to<>{}, left.value, right.value);
-        }
-
-        bool operator==(const Positive & /*left*/, const Imag & /*right*/) {
-          return false;
-        }
-
-        bool operator==(const Positive & /*left*/, const Complex & /*right*/) {
           return false;
         }
 
@@ -200,23 +120,11 @@ namespace chimera {
           return false;
         }
 
-        bool operator==(const Negative & /*left*/, const Positive & /*right*/) {
-          return false;
-        }
-
         bool operator==(const Negative &left, const Negative &right) {
           return std::visit(std::equal_to<>{}, left.value, right.value);
         }
 
-        bool operator==(const Negative &left, const Integer &right) {
-          return right == left;
-        }
-
         bool operator==(const Negative &left, const Rational &right) {
-          return right == left;
-        }
-
-        bool operator==(const Negative &left, const Real &right) {
           return right == left;
         }
 
@@ -225,54 +133,6 @@ namespace chimera {
         }
 
         bool operator==(const Negative & /*left*/, const Complex & /*right*/) {
-          return false;
-        }
-
-        bool operator==(const Integer &left, std::uint64_t right) {
-          return std::visit(
-              [right](const auto &value) { return value == right; },
-              left.value);
-        }
-
-        bool operator==(const Integer &left, Base right) {
-          return std::visit(
-              [right](const auto &value) { return value == right; },
-              left.value);
-        }
-
-        bool operator==(const Integer &left, const Natural &right) {
-          return std::visit(
-              [&right](const auto &value) { return value == right; },
-              left.value);
-        }
-
-        bool operator==(const Integer &left, const Positive &right) {
-          return std::visit(std::equal_to<>{}, left.value, right.value);
-        }
-
-        bool operator==(const Integer &left, const Negative &right) {
-          return std::visit(
-              [&right](const auto &value) { return value == right; },
-              left.value);
-        }
-
-        bool operator==(const Integer &left, const Integer &right) {
-          return std::visit(std::equal_to<>{}, left.value, right.value);
-        }
-
-        bool operator==(const Integer &left, const Rational &right) {
-          return right == left;
-        }
-
-        bool operator==(const Integer &left, const Real &right) {
-          return std::visit(std::equal_to<>{}, left.value, right.value);
-        }
-
-        bool operator==(const Integer & /*left*/, const Imag & /*right*/) {
-          return false;
-        }
-
-        bool operator==(const Integer & /*left*/, const Complex & /*right*/) {
           return false;
         }
 
@@ -288,15 +148,7 @@ namespace chimera {
           return false;
         }
 
-        bool operator==(const Rational & /*left*/, const Positive & /*right*/) {
-          return false;
-        }
-
         bool operator==(const Rational & /*left*/, const Negative & /*right*/) {
-          return false;
-        }
-
-        bool operator==(const Rational & /*left*/, const Integer & /*right*/) {
           return false;
         }
 
@@ -307,64 +159,11 @@ namespace chimera {
                             right.denominator);
         }
 
-        bool operator==(const Rational &left, const Real &right) {
-          return right == left;
-        }
-
         bool operator==(const Rational & /*left*/, const Imag & /*right*/) {
           return false;
         }
 
         bool operator==(const Rational & /*left*/, const Complex & /*right*/) {
-          return false;
-        }
-
-        bool operator==(const Real &left, std::uint64_t right) {
-          return std::visit(
-              [right](const auto &value) { return value == right; },
-              left.value);
-        }
-
-        bool operator==(const Real &left, Base right) {
-          return std::visit(
-              [right](const auto &value) { return value == right; },
-              left.value);
-        }
-
-        bool operator==(const Real &left, const Natural &right) {
-          return std::visit(
-              [&right](const auto &value) { return value == right; },
-              left.value);
-        }
-
-        bool operator==(const Real &left, const Positive &right) {
-          return std::visit(std::equal_to<>{}, left.value, right.value);
-        }
-
-        bool operator==(const Real &left, const Negative &right) {
-          return std::visit(
-              [&right](const auto &value) { return value == right; },
-              left.value);
-        }
-
-        bool operator==(const Real &left, const Integer &right) {
-          return std::visit(std::equal_to<>{}, left.value, right.value);
-        }
-
-        bool operator==(const Real &left, const Rational &right) {
-          return std::visit(
-              [&right](const auto &value) { return value == right; },
-              left.value);
-        }
-
-        bool operator==(const Real &left, const Real &right) {
-          return std::visit(std::equal_to<>{}, left.value, right.value);
-        }
-        bool operator==(const Real & /*left*/, const Imag & /*right*/) {
-          return false;
-        }
-
-        bool operator==(const Real & /*left*/, const Complex & /*right*/) {
           return false;
         }
 
@@ -378,23 +177,11 @@ namespace chimera {
           return false;
         }
 
-        bool operator==(const Imag & /*left*/, const Positive & /*right*/) {
-          return false;
-        }
-
         bool operator==(const Imag & /*left*/, const Negative & /*right*/) {
           return false;
         }
 
-        bool operator==(const Imag & /*left*/, const Integer & /*right*/) {
-          return false;
-        }
-
         bool operator==(const Imag & /*left*/, const Rational & /*right*/) {
-          return false;
-        }
-
-        bool operator==(const Imag & /*left*/, const Real & /*right*/) {
           return false;
         }
 
@@ -418,23 +205,11 @@ namespace chimera {
           return false;
         }
 
-        bool operator==(const Complex & /*left*/, const Positive & /*right*/) {
-          return false;
-        }
-
         bool operator==(const Complex & /*left*/, const Negative & /*right*/) {
           return false;
         }
 
-        bool operator==(const Complex & /*left*/, const Integer & /*right*/) {
-          return false;
-        }
-
         bool operator==(const Complex & /*left*/, const Rational & /*right*/) {
-          return false;
-        }
-
-        bool operator==(const Complex & /*left*/, const Real & /*right*/) {
           return false;
         }
 
@@ -445,7 +220,6 @@ namespace chimera {
         bool operator==(const Complex & /*left*/, const Complex & /*right*/) {
           return false;
         }
-
       } // namespace number
     }   // namespace object
   }     // namespace library

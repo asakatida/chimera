@@ -28,45 +28,30 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        template <typename T>
-        T copy(const T &t) {
-          return t;
+        Number operator-(Base base) { return Negative{base); }
+
+        Number operator-(const Natural &natural) {
+          return Negative{copy(natural));
         }
 
-        Negative operator-(Base base) { return Negative(base); }
-
-        Negative operator-(const Natural &natural) {
-          return Negative(copy(natural));
+        Number operator-(const Negative &negative) {
+          return std::visit(Construct<Number>{}, negative.value);
         }
 
-        Negative operator-(const Positive &positive) {
-          return Negative(copy(positive));
-        }
-
-        Positive operator-(const Negative &negative) {
-          return std::visit(
-              [](const auto &value) { return Positive(copy(value)); },
-              negative.value);
-        }
-
-        Integer operator-(const Integer &integer) {
-          return std::visit(Operation<Integer, std::negate<>>{}, integer.value);
-        }
-
-        Rational operator-(const Rational &rational) {
+        Number operator-(const Rational &rational) {
           return std::visit(
               [](const auto &a, const auto &b) {
-                return Rational(ReducedValue{}, -a, copy(b));
+                return Rational{ReducedValue{}, -a, copy(b));
               },
               rational.numerator, rational.denominator);
         }
-
-        Real operator-(const Real &real) {
-          return std::visit(Operation<Real, std::negate<>>{}, real.value);
+        Number operator-(const Imag &/*imag*/) {
+          Expects(false);
         }
-        Base operator-(const Imag & /*imag*/) { Expects(false); }
 
-        Base operator-(const Complex & /*complex*/) { Expects(false); }
+        Number operator-(const Complex &/*complex*/) {
+          Expects(false);
+        }
 
       } // namespace number
     }   // namespace object

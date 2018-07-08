@@ -44,10 +44,6 @@ namespace chimera {
             return std::visit(*this, negative.value);
           }
 
-          OStream &operator()(const Integer &integer) {
-            return std::visit(*this, integer.value);
-          }
-
           OStream &operator()(const Rational &rational) {
             std::visit(*this, rational.numerator);
             os << '/';

@@ -20,16 +20,156 @@
 
 #pragma once
 
+#include <cstdint>
+#include <numeric>
 #include <variant>
+#include <vector>
 
 #include <tao/operators.hpp>
-
-#include "object/number/details.hpp"
 
 namespace chimera {
   namespace library {
     namespace object {
       namespace number {
+        template <typename Return, typename Op>
+        struct Operation {
+          template <typename... Args>
+          Return operator()(const Args &... args) const {
+            return Return(Op{}(args...));
+          }
+        };
+
+        template <typename Return>
+        struct Construct {
+          template <typename... Args>
+          Return operator()(Args &&... args) const {
+            return Return(std::forward<Args>(args)...);
+          }
+        };
+
+        template <typename Return, typename Left, typename Op>
+        struct LeftOperation {
+          const Left &left;
+
+          template <typename... Args>
+          Return operator()(Args &&... args) const {
+            return Return(Op{}(left, std::forward<Args>(args)...));
+          }
+        };
+
+        template <typename Return, typename Right, typename Op>
+        struct RightOperation {
+          const Right &right;
+
+          template <typename... Args>
+          Return operator()(Args &&... args) const {
+            return Return(Op{}(std::forward<Args>(args)..., right));
+          }
+        };
+
+        struct Identity {
+          template <typename Arg>
+          constexpr Arg &&operator()(Arg &&arg) const noexcept {
+            return std::forward<Arg>(arg);
+          }
+        };
+
+        struct UnaryPositive {
+          template <typename Arg>
+          auto operator()(const Arg &arg) const {
+            return +arg;
+          }
+        };
+
+        struct Base {
+          std::uint64_t value;
+
+          template <typename T>
+          explicit operator T() const noexcept {
+            if constexpr (std::is_same_v<T, bool>) { // NOLINT
+              return value != 0u;
+            }
+            auto max = std::numeric_limits<T>::max();
+            if (value >= static_cast<std::uint64_t>(max)) {
+              return max;
+            }
+            return static_cast<T>(value);
+          }
+        };
+        struct Natural {
+          std::vector<std::uint64_t> value;
+
+          template <typename T>
+          explicit operator T() const noexcept {
+            if constexpr (std::is_same_v<T, bool>) { // NOLINT
+              return true;
+            }
+            auto max = std::numeric_limits<T>::max();
+            if (value.size() > 2) {
+              return max;
+            }
+            auto max128 = static_cast<__uint128_t>(max);
+            auto a = (__uint128_t(value[1]) << 64u) | value[0];
+            if (a >= max128) {
+              return max;
+            }
+            return static_cast<T>(a & max128);
+          }
+        };
+        using PositiveValue = std::variant<Base, Natural>;
+        struct Negative {
+          PositiveValue value;
+
+          template <typename T>
+          explicit operator T() const noexcept {
+            if constexpr (std::is_same_v<T, bool>) { // NOLINT
+              return std::visit(Construct<T>{}, value);
+            }
+            return -std::visit(Construct<T>{}, value);
+          }
+        };
+        using IntegerValue = std::variant<Base, Natural, Negative>;
+        struct Rational {
+          IntegerValue numerator;
+          IntegerValue denominator;
+
+          template <typename T>
+          explicit operator T() const noexcept {
+            if constexpr (std::is_same_v<T, bool>) { // NOLINT
+              return true;
+            }
+            return std::visit(
+                [](const auto &n, const auto &d) { return T(n) / T(d); },
+                numerator, denominator);
+          }
+        };
+        using RealValue = std::variant<Base, Natural, Negative, Rational>;
+        struct Imag {
+          RealValue value;
+
+          template <typename T>
+          explicit operator T() const noexcept {
+            auto t = std::visit(Construct<T>{}, value);
+            if (t == T()) {
+              return t;
+            }
+            return std::numeric_limits<T>::signaling_NaN();
+          }
+        };
+        struct Complex {
+          RealValue real;
+          RealValue imag;
+
+          template <typename T>
+          explicit operator T() const noexcept {
+            auto t = std::visit(Construct<T>{}, imag);
+            if (t == T()) {
+              return std::visit(Construct<T>{}, real);
+            }
+            return std::numeric_limits<T>::signaling_NaN();
+          }
+        };
+
         using NumberValue =
             std::variant<Base, Natural, Negative, Rational, Imag, Complex>;
 
@@ -40,15 +180,12 @@ namespace chimera {
                        tao::operators::unit_steppable<Number> {
         public:
           Number(std::uint64_t i); // NOLINT
-          explicit Number(Base base);
-          explicit Number(Natural &&natural);
-          explicit Number(Positive &&positive);
-          explicit Number(Negative &&negative);
-          explicit Number(Integer &&integer);
-          explicit Number(Rational &&rational);
-          explicit Number(Real &&real);
-          explicit Number(Imag &&imag);
-          explicit Number(Complex &&complex);
+          Number(Base base); // NOLINT
+          Number(Natural &&natural); // NOLINT
+          Number(Negative &&negative); // NOLINT
+          Number(Rational &&rational); // NOLINT
+          Number(Imag &&imag); // NOLINT
+          Number(Complex &&complex); // NOLINT
 
           Number(const Number &other);
           Number(Number &&other) noexcept;

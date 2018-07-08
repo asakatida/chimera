@@ -31,92 +31,63 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        template <typename T>
-        T copy(const T &t) {
-          return t;
-        }
-
-        Positive operator*(std::uint64_t left, Base right) {
+        Number operator*(std::uint64_t left, Base right) {
           return right * left;
         }
 
-        Positive operator*(std::uint64_t left, const Natural &right) {
+        Number operator*(std::uint64_t left, const Natural &right) {
           return right * left;
         }
 
-        Positive operator*(std::uint64_t left, const Positive &right) {
+        Number operator*(std::uint64_t left, const Negative &right) {
           return right * left;
         }
 
-        Negative operator*(std::uint64_t left, const Negative &right) {
+        Number operator*(std::uint64_t left, const Rational &right) {
           return right * left;
         }
 
-        Integer operator*(std::uint64_t left, const Integer &right) {
-          return right * left;
-        }
-
-        Real operator*(std::uint64_t left, const Rational &right) {
-          return right * left;
-        }
-
-        Real operator*(std::uint64_t left, const Real &right) {
-          return right * left;
-        }
-
-        Base operator*(std::uint64_t /*left*/, const Imag & /*right*/) {
+        Number operator*(std::uint64_t /*left*/, const Imag &/*right*/) {
           Expects(false);
         }
 
-        Base operator*(std::uint64_t /*left*/, const Complex & /*right*/) {
+        Number operator*(std::uint64_t /*left*/, const Complex &/*right*/) {
           Expects(false);
         }
 
-        Positive operator*(Base left, std::uint64_t right) {
+        Number operator*(Base left, std::uint64_t right) {
           auto value = mult(left.value, right);
-          return Positive(Natural{{value.result, value.overflow}});
+          return Natural{{value.result, value.overflow}};
         }
 
-        Positive operator*(Base left, Base right) { return left * right.value; }
+        Number operator*(Base left, Base right) { return left * right.value; }
 
-        Positive operator*(Base left, const Natural &right) {
+        Number operator*(Base left, const Natural &right) {
           return left.value * right;
         }
 
-        Positive operator*(Base left, const Positive &right) {
+        Number operator*(Base left, const Negative &right) {
           return left.value * right;
         }
 
-        Negative operator*(Base left, const Negative &right) {
+        Number operator*(Base left, const Rational &right) {
           return left.value * right;
         }
 
-        Integer operator*(Base left, const Integer &right) {
-          return left.value * right;
-        }
-
-        Real operator*(Base left, const Rational &right) {
-          return left.value * right;
-        }
-
-        Real operator*(Base left, const Real &right) {
-          return left.value * right;
-        }
-
-        Base operator*(Base /*left*/, const Imag & /*right*/) {
+        Number operator*(Base /*left*/, const Imag &/*right*/) {
           Expects(false);
         }
 
-        Base operator*(Base /*left*/, const Complex & /*right*/) {
+        Number operator*(Base /*left*/, const Complex &/*right*/) {
           Expects(false);
         }
 
-        Positive operator*(const Natural &left, std::uint64_t right) {
+        Number operator*(const Natural &left, std::uint64_t right) {
           if (right == 0) {
-            return Positive(Base{0u});
+            return Base{0u};
           }
           if (right == 1) {
-            return Positive(copy(left));
+            return copy(left);
           }
           Natural value{};
           value.value.reserve(left.value.size() + 1);
@@ -131,14 +102,14 @@ namespace chimera {
           if (carryover.result != 0) {
             value.value.push_back(carryover.result);
           }
-          return Positive(std::move(value));
+          return std::move(value);
         }
 
-        Positive operator*(const Natural &left, Base right) {
+        Number operator*(const Natural &left, Base right) {
           return left * right.value;
         }
 
-        Natural operator*(const Natural &left, const Natural &right) {
+        Number operator*(const Natural &left, const Natural &right) {
           Natural accumulate;
           std::size_t size = 0;
           for (std::uint64_t i : right.value) {
@@ -147,371 +118,152 @@ namespace chimera {
           return accumulate;
         }
 
-        Positive operator*(const Natural &left, const Positive &right) {
+        Number operator*(const Natural &left, const Negative &right) {
           return right * left;
         }
 
-        Negative operator*(const Natural &left, const Negative &right) {
+        Number operator*(const Natural &left, const Rational &right) {
           return right * left;
         }
 
-        Integer operator*(const Natural &left, const Integer &right) {
-          return right * left;
-        }
-
-        Real operator*(const Natural &left, const Rational &right) {
-          return right * left;
-        }
-
-        Real operator*(const Natural &left, const Real &right) {
-          return right * left;
-        }
-
-        Base operator*(const Natural & /*left*/, const Imag & /*right*/) {
+        Number operator*(const Natural &/*left*/, const Imag &/*right*/) {
           Expects(false);
         }
 
-        Base operator*(const Natural & /*left*/, const Complex & /*right*/) {
+        Number operator*(const Natural &/*left*/, const Complex &/*right*/) {
           Expects(false);
         }
 
-        Positive operator*(const Positive &left, std::uint64_t right) {
-          return std::visit(
-              [right](const auto &value) { return value * right; }, left.value);
-        }
-
-        Positive operator*(const Positive &left, Base right) {
-          return left * right.value;
-        }
-
-        Positive operator*(const Positive &left, const Natural &right) {
-          return std::visit(
-              [&right](const auto &value) { return Positive(value * right); },
-              left.value);
-        }
-
-        Positive operator*(const Positive &left, const Positive &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return Positive(l * r); },
-              left.value, right.value);
-        }
-
-        Negative operator*(const Positive &left, const Negative &right) {
-          return right * left;
-        }
-
-        Integer operator*(const Positive &left, const Integer &right) {
-          return right * left;
-        }
-
-        Real operator*(const Positive &left, const Rational &right) {
-          return right * left;
-        }
-
-        Real operator*(const Positive &left, const Real &right) {
-          return right * left;
-        }
-
-        Base operator*(const Positive & /*left*/, const Imag & /*right*/) {
-          Expects(false);
-        }
-
-        Base operator*(const Positive & /*left*/, const Complex & /*right*/) {
-          Expects(false);
-        }
-
-        Negative operator*(const Negative &left, std::uint64_t right) {
+        Number operator*(const Negative &left, std::uint64_t right) {
           return std::visit(
               [right](const auto &value) { return -(value * right); },
               left.value);
         }
 
-        Negative operator*(const Negative &left, Base right) {
+        Number operator*(const Negative &left, Base right) {
           return left * right.value;
         }
 
-        Negative operator*(const Negative &left, const Natural &right) {
+        Number operator*(const Negative &left, const Natural &right) {
           return std::visit(
               [&right](const auto &value) { return -(value * right); },
               left.value);
         }
 
-        Negative operator*(const Negative &left, const Positive &right) {
+        Number operator*(const Negative &left, const Negative &right) {
           return std::visit(
-              [](const auto &l, const auto &r) { return -(l * r); }, left.value,
-              right.value);
-        }
-
-        Positive operator*(const Negative &left, const Negative &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return Positive(l * r); },
+              [](const auto &l, const auto &r) { return l * r; },
               left.value, right.value);
         }
 
-        Integer operator*(const Negative &left, const Integer &right) {
+        Number operator*(const Negative &left, const Rational &right) {
           return right * left;
         }
 
-        Real operator*(const Negative &left, const Rational &right) {
-          return right * left;
-        }
-
-        Real operator*(const Negative &left, const Real &right) {
-          return right * left;
-        }
-
-        Base operator*(const Negative & /*left*/, const Imag & /*right*/) {
+        Number operator*(const Negative &/*left*/, const Imag &/*right*/) {
           Expects(false);
         }
 
-        Base operator*(const Negative & /*left*/, const Complex & /*right*/) {
+        Number operator*(const Negative &/*left*/, const Complex &/*right*/) {
           Expects(false);
         }
 
-        Integer operator*(const Integer &left, std::uint64_t right) {
+        Number operator*(const Rational &left, std::uint64_t right) {
           return std::visit(
-              [right](const auto &value) { return Integer(value * right); },
-              left.value);
+              [&right](const auto &lN, const auto &lD) {
+                return lN * right, copy(lD));
+              },
+              left.numerator, left.denominator);
         }
 
-        Integer operator*(const Integer &left, Base right) {
+        Number operator*(const Rational &left, Base right) {
           return left * right.value;
         }
 
-        Integer operator*(const Integer &left, const Natural &right) {
-          return std::visit(
-              [&right](const auto &value) { return Integer(value * right); },
-              left.value);
-        }
-
-        Integer operator*(const Integer &left, const Positive &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return Integer(l * r); },
-              left.value, right.value);
-        }
-
-        Integer operator*(const Integer &left, const Negative &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return Integer(-(l * r)); },
-              left.value, right.value);
-        }
-
-        Integer operator*(const Integer &left, const Integer &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return Integer(l * r); },
-              left.value, right.value);
-        }
-
-        Real operator*(const Integer &left, const Rational &right) {
-          return right * left;
-        }
-
-        Real operator*(const Integer &left, const Real &right) {
-          return right * left;
-        }
-
-        Base operator*(const Integer & /*left*/, const Imag & /*right*/) {
-          Expects(false);
-        }
-
-        Base operator*(const Integer & /*left*/, const Complex & /*right*/) {
-          Expects(false);
-        }
-
-        Real operator*(const Rational &left, std::uint64_t right) {
+        Number operator*(const Rational &left, const Natural &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Real(lN * right, copy(lD));
+                return lN * right, copy(lD));
               },
               left.numerator, left.denominator);
         }
 
-        Real operator*(const Rational &left, Base right) {
-          return left * right.value;
-        }
-
-        Real operator*(const Rational &left, const Natural &right) {
+        Number operator*(const Rational &left, const Negative &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Real(lN * right, copy(lD));
+                return lN * right, copy(lD));
               },
               left.numerator, left.denominator);
         }
 
-        Real operator*(const Rational &left, const Positive &right) {
-          return std::visit(
-              [&right](const auto &lN, const auto &lD) {
-                return Real(lN * right, copy(lD));
-              },
-              left.numerator, left.denominator);
-        }
-
-        Real operator*(const Rational &left, const Negative &right) {
-          return std::visit(
-              [&right](const auto &lN, const auto &lD) {
-                return Real(lN * right, copy(lD));
-              },
-              left.numerator, left.denominator);
-        }
-
-        Real operator*(const Rational &left, const Integer &right) {
-          return std::visit(
-              [&right](const auto &lN, const auto &lD) {
-                return Real(lN * right, copy(lD));
-              },
-              left.numerator, left.denominator);
-        }
-
-        Real operator*(const Rational &left, const Rational &right) {
+        Number operator*(const Rational &left, const Rational &right) {
           return std::visit(
               [](const auto &lN, const auto &lD, const auto &rN,
-                 const auto &rD) { return Real(lN * rN, lD * rD); },
+                 const auto &rD) { return lN * rN, lD * rD); },
               left.numerator, left.denominator, right.numerator,
               right.denominator);
         }
-
-        Real operator*(const Rational &left, const Real &right) {
-          return right * left;
-        }
-
-        Base operator*(const Rational & /*left*/, const Imag & /*right*/) {
+        Number operator*(const Rational &/*left*/, const Imag &/*right*/) {
           Expects(false);
         }
 
-        Base operator*(const Rational & /*left*/, const Complex & /*right*/) {
+        Number operator*(const Rational &/*left*/, const Complex &/*right*/) {
           Expects(false);
         }
 
-        Real operator*(const Real &left, std::uint64_t right) {
-          return std::visit(
-              [right](const auto &value) { return Real(value * right); },
-              left.value);
-        }
-
-        Real operator*(const Real &left, Base right) {
-          return left * right.value;
-        }
-
-        Real operator*(const Real &left, const Natural &right) {
-          return std::visit(
-              [&right](const auto &value) { return Real(value * right); },
-              left.value);
-        }
-
-        Real operator*(const Real &left, const Positive &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return Real(l * r); },
-              left.value, right.value);
-        }
-
-        Real operator*(const Real &left, const Negative &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return Real(l * r); },
-              left.value, right.value);
-        }
-
-        Real operator*(const Real &left, const Integer &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return Real(l * r); },
-              left.value, right.value);
-        }
-
-        Real operator*(const Real &left, const Rational &right) {
-          return std::visit(
-              [&right](const auto &value) { return Real(value * right); },
-              left.value);
-        }
-
-        Real operator*(const Real &left, const Real &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return Real(l * r); },
-              left.value, right.value);
-        }
-        Base operator*(const Real & /*left*/, const Imag & /*right*/) {
+        Number operator*(const Imag &/*left*/, std::uint64_t /*right*/) {
           Expects(false);
         }
 
-        Base operator*(const Real & /*left*/, const Complex & /*right*/) {
+        Number operator*(const Imag &/*left*/, Base /*right*/) {
           Expects(false);
         }
 
-        Base operator*(const Imag & /*left*/, std::uint64_t /*right*/) {
+        Number operator*(const Imag &/*left*/, const Natural &/*right*/) {
           Expects(false);
         }
 
-        Base operator*(const Imag & /*left*/, Base /*right*/) {
+        Number operator*(const Imag &/*left*/, const Negative &/*right*/) {
           Expects(false);
         }
 
-        Base operator*(const Imag & /*left*/, const Natural & /*right*/) {
+        Number operator*(const Imag &/*left*/, const Rational &/*right*/) {
           Expects(false);
         }
 
-        Base operator*(const Imag & /*left*/, const Positive & /*right*/) {
+        Number operator*(const Imag &/*left*/, const Imag &/*right*/) {
           Expects(false);
         }
 
-        Base operator*(const Imag & /*left*/, const Negative & /*right*/) {
+        Number operator*(const Imag &/*left*/, const Complex &/*right*/) {
           Expects(false);
         }
 
-        Base operator*(const Imag & /*left*/, const Integer & /*right*/) {
+        Number operator*(const Complex &/*left*/, std::uint64_t /*right*/) {
           Expects(false);
         }
 
-        Base operator*(const Imag & /*left*/, const Rational & /*right*/) {
+        Number operator*(const Complex &/*left*/, Base /*right*/) {
           Expects(false);
         }
 
-        Base operator*(const Imag & /*left*/, const Real & /*right*/) {
+        Number operator*(const Complex &/*left*/, const Natural &/*right*/) {
           Expects(false);
         }
 
-        Base operator*(const Imag & /*left*/, const Imag & /*right*/) {
+        Number operator*(const Complex &/*left*/, const Negative &/*right*/) {
           Expects(false);
         }
 
-        Base operator*(const Imag & /*left*/, const Complex & /*right*/) {
+        Number operator*(const Complex &/*left*/, const Rational &/*right*/) {
           Expects(false);
         }
 
-        Base operator*(const Complex & /*left*/, std::uint64_t /*right*/) {
+        Number operator*(const Complex &/*left*/, const Imag &/*right*/) {
           Expects(false);
         }
 
-        Base operator*(const Complex & /*left*/, Base /*right*/) {
-          Expects(false);
-        }
-
-        Base operator*(const Complex & /*left*/, const Natural & /*right*/) {
-          Expects(false);
-        }
-
-        Base operator*(const Complex & /*left*/, const Positive & /*right*/) {
-          Expects(false);
-        }
-
-        Base operator*(const Complex & /*left*/, const Negative & /*right*/) {
-          Expects(false);
-        }
-
-        Base operator*(const Complex & /*left*/, const Integer & /*right*/) {
-          Expects(false);
-        }
-
-        Base operator*(const Complex & /*left*/, const Rational & /*right*/) {
-          Expects(false);
-        }
-
-        Base operator*(const Complex & /*left*/, const Real & /*right*/) {
-          Expects(false);
-        }
-
-        Base operator*(const Complex & /*left*/, const Imag & /*right*/) {
-          Expects(false);
-        }
-
-        Base operator*(const Complex & /*left*/, const Complex & /*right*/) {
+        Number operator*(const Complex &/*left*/, const Complex &/*right*/) {
           Expects(false);
         }
 
