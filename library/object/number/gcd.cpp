@@ -38,30 +38,25 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        template <typename T>
-        T copy(const T &t) {
-          return t;
-        }
-
         template <typename Left>
-        Integer div(const Left &left, const Rational &right) {
+        Number div(const Left &left, const Rational &right) {
           return std::visit(
               [&left](const auto &rN, const auto &rD) {
-                return Integer(gcd(left * rD, rN));
+                return gcd(left * rD, rN));
               },
               right.numerator, right.denominator);
         }
 
         template <typename Right>
-        Integer div(const Rational &left, const Right &right) {
+        Number div(const Rational &left, const Right &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Integer(gcd(lN, lD * right));
+                return gcd(lN, lD * right));
               },
               left.numerator, left.denominator);
         }
 
-        Base gcd(std::uint64_t left, Base right) {
+        Number gcd(std::uint64_t left, Base right) {
           Base aPrime{left}, bPrime = right;
           while (0u < bPrime) {
             auto temp = bPrime;
@@ -71,86 +66,60 @@ namespace chimera {
           return aPrime;
         }
 
-        Base gcd(std::uint64_t left, const Natural &right) {
+        Number gcd(std::uint64_t left, const Natural &right) {
           return gcd(right, left);
         }
 
-        Base gcd(std::uint64_t left, const Positive &right) {
-          return std::visit(
-              [left](const auto &value) { return gcd(left, value); },
-              right.value);
-        }
-
-        Negative gcd(std::uint64_t left, const Negative &right) {
+        Number gcd(std::uint64_t left, const Negative &right) {
           return std::visit(
               [left](const auto &value) { return -gcd(left, value); },
               right.value);
         }
 
-        Integer gcd(std::uint64_t left, const Integer &right) {
-          return std::visit(
-              [left](const auto &value) { return Integer(gcd(left, value)); },
-              right.value);
-        }
-
-        Integer gcd(std::uint64_t left, const Rational &right) {
+        Number gcd(std::uint64_t left, const Rational &right) {
           return div(left, right);
         }
 
-        Integer gcd(std::uint64_t left, const Real &right) {
-          return std::visit(
-              [left](const auto &value) { return Integer(gcd(left, value)); },
-              right.value);
-        }
-
-        Base gcd(std::uint64_t /*left*/, const Imag & /*right*/) {
+        Number gcd(std::uint64_t /*left*/, const Imag &/*right*/) {
           Expects(false);
         }
 
-        Base gcd(std::uint64_t /*left*/, const Complex & /*right*/) {
+        Number gcd(std::uint64_t /*left*/, const Complex &/*right*/) {
           Expects(false);
         }
 
-        Base gcd(Base left, std::uint64_t right) {
+        Number gcd(Base left, std::uint64_t right) {
           Expects(right != 0);
           return {left.value / right};
         }
 
-        Base gcd(Base left, Base right) {
+        Number gcd(Base left, Base right) {
           Expects(right.value != 0);
           return {left.value / right.value};
         }
 
-        Base gcd(Base left, const Natural &right) {
+        Number gcd(Base left, const Natural &right) {
           return gcd(left.value, right);
         }
 
-        Base gcd(Base left, const Positive &right) {
+        Number gcd(Base left, const Negative &right) {
           return gcd(left.value, right);
         }
 
-        Negative gcd(Base left, const Negative &right) {
+        Number gcd(Base left, const Rational &right) {
           return gcd(left.value, right);
         }
 
-        Integer gcd(Base left, const Integer &right) {
-          return gcd(left.value, right);
+        Number gcd(Base /*left*/, const Imag &/*right*/) {
+          Expects(false);
         }
 
-        Integer gcd(Base left, const Rational &right) {
-          return gcd(left.value, right);
+        Number gcd(Base /*left*/, const Complex &/*right*/) {
+          Expects(false);
         }
 
-        Integer gcd(Base left, const Real &right) {
-          return gcd(left.value, right);
-        }
-
-        Base gcd(Base /*left*/, const Imag & /*right*/) { Expects(false); }
-
-        Base gcd(Base /*left*/, const Complex & /*right*/) { Expects(false); }
-
-        Base gcd(const Natural &left, std::uint64_t right) {
-          Positive aPrime(copy(left)), bPrime(Base{right});
+        Number gcd(const Natural &left, std::uint64_t right) {
+          Number aPrime(copy(left)), bPrime(Base{right});
           while (0u < bPrime) {
             auto temp = bPrime;
             bPrime = aPrime % bPrime;
@@ -159,11 +128,11 @@ namespace chimera {
           return std::get<Base>(aPrime.value);
         }
 
-        Base gcd(const Natural &left, Base right) {
+        Number gcd(const Natural &left, Base right) {
           return gcd(left, right.value);
         }
 
-        Positive gcd(const Natural &left, const Natural &right) {
+        Number gcd(const Natural &left, const Natural &right) {
           // TODO(grandquista)
           // while (even(left) && even(right)) {
           //   left = left >> 1u;
@@ -175,7 +144,7 @@ namespace chimera {
           // if (right == 1u) {
           //   return real(std::move(left));
           // }
-          Positive aPrime(copy(left)), bPrime(copy(right));
+          Number aPrime(copy(left)), bPrime(copy(right));
           while (0u < bPrime) {
             auto temp = bPrime;
             bPrime = aPrime % bPrime;
@@ -185,7 +154,7 @@ namespace chimera {
         }
 
         // TODO(grandquista)
-        // static Positive gcd(const Positive &left, const Positive &right) {
+        // static Number gcd(const Positive &left, const Positive &right) {
         //   auto aPrime = left, bPrime = right;
         //   std::visit(Repr<std::ostream>{std::cout << "left: "}, left.value)
         //   << '\n'; std::visit(Repr<std::ostream>{std::cout << "right: "},
@@ -206,383 +175,141 @@ namespace chimera {
         //   aPrime.value) << '\n'; return aPrime;
         // }
 
-        Positive gcd(const Natural &left, const Positive &right) {
-          return std::visit(
-              [&left](const auto &value) { return Positive(gcd(left, value)); },
-              right.value);
-        }
-
-        Negative gcd(const Natural &left, const Negative &right) {
+        Number gcd(const Natural &left, const Negative &right) {
           return std::visit([&left](const auto &r) { return -gcd(left, r); },
                             right.value);
         }
 
-        Integer gcd(const Natural &left, const Integer &right) {
-          return std::visit(
-              [&left](const auto &value) { return Integer(gcd(left, value)); },
-              right.value);
-        }
-
-        Integer gcd(const Natural &left, const Rational &right) {
+        Number gcd(const Natural &left, const Rational &right) {
           return div(left, right);
         }
 
-        Integer gcd(const Natural &left, const Real &right) {
-          return std::visit(
-              [&left](const auto &value) { return Integer(gcd(left, value)); },
-              right.value);
-        }
-
-        Base gcd(const Natural & /*left*/, const Imag & /*right*/) {
+        Number gcd(const Natural &/*left*/, const Imag &/*right*/) {
           Expects(false);
         }
 
-        Base gcd(const Natural & /*left*/, const Complex & /*right*/) {
+        Number gcd(const Natural &/*left*/, const Complex &/*right*/) {
           Expects(false);
         }
 
-        Positive gcd(const Positive &left, std::uint64_t right) {
-          return std::visit(
-              [right](const auto &value) {
-                return Positive(gcd(value, right));
-              },
-              left.value);
-        }
-
-        Positive gcd(const Positive &left, Base right) {
-          return gcd(left, right.value);
-        }
-
-        Positive gcd(const Positive &left, const Natural &right) {
-          return std::visit(
-              [&right](const auto &value) {
-                return Positive(gcd(value, right));
-              },
-              left.value);
-        }
-
-        Positive gcd(const Positive &left, const Positive &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return Positive(gcd(l, r)); },
-              left.value, right.value);
-        }
-
-        Negative gcd(const Positive &left, const Negative &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return -gcd(l, r); },
-              left.value, right.value);
-        }
-
-        Integer gcd(const Positive &left, const Integer &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return Integer(gcd(l, r)); },
-              left.value, right.value);
-        }
-
-        Integer gcd(const Positive &left, const Rational &right) {
-          return div(left, right);
-        }
-
-        Integer gcd(const Positive &left, const Real &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return Integer(gcd(l, r)); },
-              left.value, right.value);
-        }
-
-        Base gcd(const Positive & /*left*/, const Imag & /*right*/) {
-          Expects(false);
-        }
-
-        Base gcd(const Positive & /*left*/, const Complex & /*right*/) {
-          Expects(false);
-        }
-
-        Negative gcd(const Negative &left, std::uint64_t right) {
+        Number gcd(const Negative &left, std::uint64_t right) {
           return std::visit(
               [right](const auto &value) { return -gcd(value, right); },
               left.value);
         }
 
-        Negative gcd(const Negative &left, Base right) {
+        Number gcd(const Negative &left, Base right) {
           return gcd(left, right.value);
         }
 
-        Negative gcd(const Negative &left, const Natural &right) {
+        Number gcd(const Negative &left, const Natural &right) {
           return std::visit(
               [&right](const auto &value) { return -gcd(value, right); },
               left.value);
         }
 
-        Negative gcd(const Negative &left, const Positive &right) {
+        Number gcd(const Negative &left, const Negative &right) {
           return std::visit(
-              [](const auto &l, const auto &r) { return -gcd(l, r); },
+              [](const auto &l, const auto &r) { return gcd(l, r); },
               left.value, right.value);
         }
 
-        Positive gcd(const Negative &left, const Negative &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return Positive(gcd(l, r)); },
-              left.value, right.value);
-        }
-
-        Integer gcd(const Negative &left, const Integer &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return Integer(-gcd(l, r)); },
-              left.value, right.value);
-        }
-
-        Integer gcd(const Negative &left, const Rational &right) {
+        Number gcd(const Negative &left, const Rational &right) {
           return div(left, right);
         }
 
-        Integer gcd(const Negative &left, const Real &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return Integer(-gcd(l, r)); },
-              left.value, right.value);
-        }
-
-        Base gcd(const Negative & /*left*/, const Imag & /*right*/) {
+        Number gcd(const Negative &/*left*/, const Imag &/*right*/) {
           Expects(false);
         }
 
-        Base gcd(const Negative & /*left*/, const Complex & /*right*/) {
+        Number gcd(const Negative &/*left*/, const Complex &/*right*/) {
           Expects(false);
         }
 
-        Integer gcd(const Integer &left, std::uint64_t right) {
-          return std::visit(
-              [right](const auto &value) { return Integer(gcd(value, right)); },
-              left.value);
+        Number gcd(const Rational &left, std::uint64_t right) {
+          return div(left, right);
         }
 
-        Integer gcd(const Integer &left, Base right) {
+        Number gcd(const Rational &left, Base right) {
           return gcd(left, right.value);
         }
 
-        Integer gcd(const Integer &left, const Natural &right) {
-          return std::visit(
-              [&right](const auto &value) {
-                return Integer(gcd(value, right));
-              },
-              left.value);
-        }
-
-        Integer gcd(const Integer &left, const Positive &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return Integer(gcd(l, r)); },
-              left.value, right.value);
-        }
-
-        Integer gcd(const Integer &left, const Negative &right) {
-          return std::visit(
-              [&right](const auto &value) {
-                return Integer(gcd(value, right));
-              },
-              left.value);
-        }
-
-        Integer gcd(const Integer &left, const Integer &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return Integer(gcd(l, r)); },
-              left.value, right.value);
-        }
-
-        Integer gcd(const Integer &left, const Rational &right) {
+        Number gcd(const Rational &left, const Natural &right) {
           return div(left, right);
         }
 
-        Integer gcd(const Integer &left, const Real &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return Integer(gcd(l, r)); },
-              left.value, right.value);
-        }
-
-        Base gcd(const Integer & /*left*/, const Imag & /*right*/) {
-          Expects(false);
-        }
-
-        Base gcd(const Integer & /*left*/, const Complex & /*right*/) {
-          Expects(false);
-        }
-
-        Integer gcd(const Rational &left, std::uint64_t right) {
+        Number gcd(const Rational &left, const Negative &right) {
           return div(left, right);
         }
 
-        Integer gcd(const Rational &left, Base right) {
-          return gcd(left, right.value);
-        }
-
-        Integer gcd(const Rational &left, const Natural &right) {
-          return div(left, right);
-        }
-
-        Integer gcd(const Rational &left, const Positive &right) {
-          return div(left, right);
-        }
-
-        Integer gcd(const Rational &left, const Negative &right) {
-          return div(left, right);
-        }
-
-        Integer gcd(const Rational &left, const Integer &right) {
-          return div(left, right);
-        }
-
-        Integer gcd(const Rational &left, const Rational &right) {
+        Number gcd(const Rational &left, const Rational &right) {
           return std::visit(
               [](const auto &lN, const auto &lD, const auto &rN,
-                 const auto &rD) { return Integer(gcd(lN * rD, lD * rN)); },
+                 const auto &rD) { return gcd(lN * rD, lD * rN)); },
               left.numerator, left.denominator, right.numerator,
               right.denominator);
         }
-
-        Integer gcd(const Rational &left, const Real &right) {
-          return std::visit(
-              [&left](const auto &value) { return Integer(gcd(left, value)); },
-              right.value);
-        }
-
-        Base gcd(const Rational & /*left*/, const Imag & /*right*/) {
+        Number gcd(const Rational &/*left*/, const Imag &/*right*/) {
           Expects(false);
         }
 
-        Base gcd(const Rational & /*left*/, const Complex & /*right*/) {
+        Number gcd(const Rational &/*left*/, const Complex &/*right*/) {
           Expects(false);
         }
 
-        Integer gcd(const Real &left, std::uint64_t right) {
-          return std::visit(
-              [right](const auto &value) { return Integer(gcd(value, right)); },
-              left.value);
-        }
-
-        Integer gcd(const Real &left, Base right) {
-          return gcd(left, right.value);
-        }
-
-        Integer gcd(const Real &left, const Natural &right) {
-          return std::visit(
-              [&right](const auto &value) {
-                return Integer(gcd(value, right));
-              },
-              left.value);
-        }
-
-        Integer gcd(const Real &left, const Positive &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return Integer(gcd(l, r)); },
-              left.value, right.value);
-        }
-
-        Integer gcd(const Real &left, const Negative &right) {
-          return std::visit(
-              [&right](const auto &value) {
-                return Integer(gcd(value, right));
-              },
-              left.value);
-        }
-
-        Integer gcd(const Real &left, const Integer &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return Integer(gcd(l, r)); },
-              left.value, right.value);
-        }
-
-        Integer gcd(const Real &left, const Rational &right) {
-          return std::visit(
-              [&right](const auto &value) {
-                return Integer(gcd(value, right));
-              },
-              left.value);
-        }
-
-        Integer gcd(const Real &left, const Real &right) {
-          return std::visit(
-              [](const auto &l, const auto &r) { return Integer(gcd(l, r)); },
-              left.value, right.value);
-        }
-        Base gcd(const Real & /*left*/, const Imag & /*right*/) {
+        Number gcd(const Imag &/*left*/, std::uint64_t /*right*/) {
           Expects(false);
         }
 
-        Base gcd(const Real & /*left*/, const Complex & /*right*/) {
+        Number gcd(const Imag &/*left*/, Base /*right*/) {
           Expects(false);
         }
 
-        Base gcd(const Imag & /*left*/, std::uint64_t /*right*/) {
+        Number gcd(const Imag &/*left*/, const Natural &/*right*/) {
           Expects(false);
         }
 
-        Base gcd(const Imag & /*left*/, Base /*right*/) { Expects(false); }
-
-        Base gcd(const Imag & /*left*/, const Natural & /*right*/) {
+        Number gcd(const Imag &/*left*/, const Negative &/*right*/) {
           Expects(false);
         }
 
-        Base gcd(const Imag & /*left*/, const Positive & /*right*/) {
+        Number gcd(const Imag &/*left*/, const Rational &/*right*/) {
           Expects(false);
         }
 
-        Base gcd(const Imag & /*left*/, const Negative & /*right*/) {
+        Number gcd(const Imag &/*left*/, const Imag &/*right*/) {
           Expects(false);
         }
 
-        Base gcd(const Imag & /*left*/, const Integer & /*right*/) {
+        Number gcd(const Imag &/*left*/, const Complex &/*right*/) {
           Expects(false);
         }
 
-        Base gcd(const Imag & /*left*/, const Rational & /*right*/) {
+        Number gcd(const Complex &/*left*/, std::uint64_t /*right*/) {
           Expects(false);
         }
 
-        Base gcd(const Imag & /*left*/, const Real & /*right*/) {
+        Number gcd(const Complex &/*left*/, Base /*right*/) {
           Expects(false);
         }
 
-        Base gcd(const Imag & /*left*/, const Imag & /*right*/) {
+        Number gcd(const Complex &/*left*/, const Natural &/*right*/) {
           Expects(false);
         }
 
-        Base gcd(const Imag & /*left*/, const Complex & /*right*/) {
+        Number gcd(const Complex &/*left*/, const Negative &/*right*/) {
           Expects(false);
         }
 
-        Base gcd(const Complex & /*left*/, std::uint64_t /*right*/) {
+        Number gcd(const Complex &/*left*/, const Rational &/*right*/) {
           Expects(false);
         }
 
-        Base gcd(const Complex & /*left*/, Base /*right*/) { Expects(false); }
-
-        Base gcd(const Complex & /*left*/, const Natural & /*right*/) {
+        Number gcd(const Complex &/*left*/, const Imag &/*right*/) {
           Expects(false);
         }
 
-        Base gcd(const Complex & /*left*/, const Positive & /*right*/) {
-          Expects(false);
-        }
-
-        Base gcd(const Complex & /*left*/, const Negative & /*right*/) {
-          Expects(false);
-        }
-
-        Base gcd(const Complex & /*left*/, const Integer & /*right*/) {
-          Expects(false);
-        }
-
-        Base gcd(const Complex & /*left*/, const Rational & /*right*/) {
-          Expects(false);
-        }
-
-        Base gcd(const Complex & /*left*/, const Real & /*right*/) {
-          Expects(false);
-        }
-
-        Base gcd(const Complex & /*left*/, const Imag & /*right*/) {
-          Expects(false);
-        }
-
-        Base gcd(const Complex & /*left*/, const Complex & /*right*/) {
+        Number gcd(const Complex &/*left*/, const Complex &/*right*/) {
           Expects(false);
         }
 

@@ -63,11 +63,8 @@ BASE = 'std::uint64_t'
 TYPES = (
     'Base',
     'Natural',
-    'Positive',
     'Negative',
-    'Integer',
     'Rational',
-    'Real',
     'Imag',
     'Complex',
 )
@@ -88,8 +85,8 @@ TYPE_RE = '|'.join(map(escape, (BASE,) + TYPES))
 OP_LINE_RE_START = rf'''
     ^
     (?P<indent>\ +)
-    ({ '|'.join(TYPES) }|bool)
-    (.*?)
+    (?P<type>Number|bool)
+    \ +
 '''
 OP_LINE_CLOSE = r'''
     (
@@ -141,7 +138,8 @@ def op_header(
             return
         yield from iter((
             match.group('indent'),
-            'Base ',
+            match.group('type'),
+            ' ',
             match.group('op'),
             '(',
             passing_type(left),
@@ -167,7 +165,8 @@ def op_source(
         indent = match.group('indent')
         yield from iter((
             indent,
-            'Base ',
+            match.group('type'),
+            ' ',
             match.group('op'),
             '(',
             passing_type(left),
@@ -212,7 +211,8 @@ def op_comp_header(
             return
         yield from iter((
             match.group('indent'),
-            'bool ',
+            match.group('type'),
+            ' ',
             match.group('op'),
             '(',
             passing_type(left),
@@ -238,7 +238,8 @@ def op_comp_source(
         indent = match.group('indent')
         yield from iter((
             indent,
-            'bool ',
+            match.group('type'),
+            ' ',
             match.group('op'),
             '(',
             passing_type(left),
@@ -260,7 +261,8 @@ def op_unary_header(match: Match[str], types: Iterable[str]) -> Iterator[str]:
             return
         yield from iter((
             match.group('indent'),
-            'Base ',
+            match.group('type'),
+            ' ',
             match.group('op'),
             '(',
             passing_type(typ),
@@ -278,7 +280,8 @@ def op_unary_source(match: Match[str], types: Iterable[str]) -> Iterator[str]:
         indent = match.group('indent')
         yield from iter((
             indent,
-            'Base ',
+            match.group('type'),
+            ' ',
             match.group('op'),
             '(',
             passing_type(typ),

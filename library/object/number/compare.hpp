@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "object/number/details.hpp"
+#include "object/number/number.hpp"
 
 namespace chimera {
   namespace library {
@@ -28,116 +28,56 @@ namespace chimera {
       namespace number {
         bool operator==(std::uint64_t left, Base right);
         bool operator==(std::uint64_t left, const Natural &right);
-        bool operator==(std::uint64_t left, const Positive &right);
         bool operator==(std::uint64_t left, const Negative &right);
-        bool operator==(std::uint64_t left, const Integer &right);
         bool operator==(std::uint64_t left, const Rational &right);
-
-        bool operator==(std::uint64_t left, const Real &right);
         bool operator==(std::uint64_t left, const Imag &right);
         bool operator==(std::uint64_t left, const Complex &right);
 
         bool operator==(Base left, std::uint64_t right);
         bool operator==(Base left, Base right);
         bool operator==(Base left, const Natural &right);
-        bool operator==(Base left, const Positive &right);
         bool operator==(Base left, const Negative &right);
-        bool operator==(Base left, const Integer &right);
         bool operator==(Base left, const Rational &right);
-
-        bool operator==(Base left, const Real &right);
         bool operator==(Base left, const Imag &right);
         bool operator==(Base left, const Complex &right);
 
         bool operator==(const Natural &left, std::uint64_t right);
         bool operator==(const Natural &left, Base right);
         bool operator==(const Natural &left, const Natural &right);
-        bool operator==(const Natural &left, const Positive &right);
         bool operator==(const Natural &left, const Negative &right);
-        bool operator==(const Natural &left, const Integer &right);
         bool operator==(const Natural &left, const Rational &right);
-
-        bool operator==(const Natural &left, const Real &right);
         bool operator==(const Natural &left, const Imag &right);
         bool operator==(const Natural &left, const Complex &right);
-
-        bool operator==(const Positive &left, std::uint64_t right);
-        bool operator==(const Positive &left, Base right);
-        bool operator==(const Positive &left, const Natural &right);
-        bool operator==(const Positive &left, const Positive &right);
-        bool operator==(const Positive &left, const Negative &right);
-        bool operator==(const Positive &left, const Integer &right);
-        bool operator==(const Positive &left, const Rational &right);
-        bool operator==(const Positive &left, const Real &right);
-        bool operator==(const Positive &left, const Imag &right);
-        bool operator==(const Positive &left, const Complex &right);
 
         bool operator==(const Negative &left, std::uint64_t right);
         bool operator==(const Negative &left, Base right);
         bool operator==(const Negative &left, const Natural &right);
-        bool operator==(const Negative &left, const Positive &right);
         bool operator==(const Negative &left, const Negative &right);
-        bool operator==(const Negative &left, const Integer &right);
         bool operator==(const Negative &left, const Rational &right);
-
-        bool operator==(const Negative &left, const Real &right);
         bool operator==(const Negative &left, const Imag &right);
         bool operator==(const Negative &left, const Complex &right);
-
-        bool operator==(const Integer &left, std::uint64_t right);
-        bool operator==(const Integer &left, Base right);
-        bool operator==(const Integer &left, const Natural &right);
-        bool operator==(const Integer &left, const Positive &right);
-        bool operator==(const Integer &left, const Negative &right);
-        bool operator==(const Integer &left, const Integer &right);
-        bool operator==(const Integer &left, const Rational &right);
-
-        bool operator==(const Integer &left, const Real &right);
-        bool operator==(const Integer &left, const Imag &right);
-        bool operator==(const Integer &left, const Complex &right);
 
         bool operator==(const Rational &left, std::uint64_t right);
         bool operator==(const Rational &left, Base right);
         bool operator==(const Rational &left, const Natural &right);
-        bool operator==(const Rational &left, const Positive &right);
         bool operator==(const Rational &left, const Negative &right);
-        bool operator==(const Rational &left, const Integer &right);
         bool operator==(const Rational &left, const Rational &right);
-        bool operator==(const Rational &left, const Real &right);
-
         bool operator==(const Rational &left, const Imag &right);
         bool operator==(const Rational &left, const Complex &right);
-
-        bool operator==(const Real &left, std::uint64_t right);
-        bool operator==(const Real &left, Base right);
-        bool operator==(const Real &left, const Natural &right);
-        bool operator==(const Real &left, const Positive &right);
-        bool operator==(const Real &left, const Negative &right);
-        bool operator==(const Real &left, const Integer &right);
-        bool operator==(const Real &left, const Rational &right);
-        bool operator==(const Real &left, const Real &right);
-        bool operator==(const Real &left, const Imag &right);
-        bool operator==(const Real &left, const Complex &right);
 
         bool operator==(const Imag &left, std::uint64_t right);
         bool operator==(const Imag &left, Base right);
         bool operator==(const Imag &left, const Natural &right);
-        bool operator==(const Imag &left, const Positive &right);
         bool operator==(const Imag &left, const Negative &right);
-        bool operator==(const Imag &left, const Integer &right);
         bool operator==(const Imag &left, const Rational &right);
-        bool operator==(const Imag &left, const Real &right);
         bool operator==(const Imag &left, const Imag &right);
         bool operator==(const Imag &left, const Complex &right);
 
         bool operator==(const Complex &left, std::uint64_t right);
         bool operator==(const Complex &left, Base right);
         bool operator==(const Complex &left, const Natural &right);
-        bool operator==(const Complex &left, const Positive &right);
         bool operator==(const Complex &left, const Negative &right);
-        bool operator==(const Complex &left, const Integer &right);
         bool operator==(const Complex &left, const Rational &right);
-        bool operator==(const Complex &left, const Real &right);
         bool operator==(const Complex &left, const Imag &right);
         bool operator==(const Complex &left, const Complex &right);
 
