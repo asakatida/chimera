@@ -50,8 +50,6 @@ add_library(
   library/object/number/compare.cpp
   library/object/number/compare.hpp
   library/object/number/debug.hpp
-  library/object/number/details.cpp
-  library/object/number/details.hpp
   library/object/number/div.cpp
   library/object/number/div.hpp
   library/object/number/floor_div.cpp
