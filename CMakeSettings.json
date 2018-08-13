@@ -4,7 +4,7 @@
       "name": "Debug",
       "generator": "Ninja",
       "configurationType" : "Debug",
-      "buildRoot":  "${projectDir}-build/${name}",
+      "buildRoot":  "${projectDir}-build",
       "cmakeCommandArgs":  "",
       "buildCommandArgs": "",
       "ctestCommandArgs":  "",
@@ -17,7 +17,7 @@
       "name": "Release",
       "generator": "Ninja",
       "configurationType" : "Release",
-      "buildRoot": "${projectDir}-build/${name}"
+      "buildRoot": "${projectDir}-build"
     }
   ]
 }
