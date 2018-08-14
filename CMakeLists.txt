@@ -81,6 +81,7 @@ add_library(
   library/object/number/right_shift.hpp
   library/object/number/sub.cpp
   library/object/number/sub.hpp
+  library/object/number/util.hpp
   library/object/number/xor.cpp
   library/object/number/xor.hpp
   library/object/object.cpp
