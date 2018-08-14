@@ -1,6 +1,6 @@
 #include "grammar/number.hpp"
 
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 
 #include "grammar/test_parse.hpp"
 

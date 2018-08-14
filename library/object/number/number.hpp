@@ -31,14 +31,6 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        template <typename Return, typename Op>
-        struct Operation {
-          template <typename... Args>
-          Return operator()(const Args &... args) const {
-            return Return(Op{}(args...));
-          }
-        };
-
         template <typename Return>
         struct Construct {
           template <typename... Args>
@@ -47,23 +39,23 @@ namespace chimera {
           }
         };
 
-        template <typename Return, typename Left, typename Op>
+        template <typename Left, typename Op>
         struct LeftOperation {
           const Left &left;
 
           template <typename... Args>
-          Return operator()(Args &&... args) const {
-            return Return(Op{}(left, std::forward<Args>(args)...));
+          auto operator()(Args &&... args) const {
+            return Op{}(left, std::forward<Args>(args)...);
           }
         };
 
-        template <typename Return, typename Right, typename Op>
+        template <typename Right, typename Op>
         struct RightOperation {
           const Right &right;
 
           template <typename... Args>
-          Return operator()(Args &&... args) const {
-            return Return(Op{}(std::forward<Args>(args)..., right));
+          auto operator()(Args &&... args) const {
+            return Op{}(std::forward<Args>(args)..., right);
           }
         };
 
@@ -84,7 +76,7 @@ namespace chimera {
         struct Base {
           std::uint64_t value;
 
-          template <typename T>
+          template <typename T, typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
           explicit operator T() const noexcept {
             if constexpr (std::is_same_v<T, bool>) { // NOLINT
               return value != 0u;
@@ -99,7 +91,7 @@ namespace chimera {
         struct Natural {
           std::vector<std::uint64_t> value;
 
-          template <typename T>
+          template <typename T, typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
           explicit operator T() const noexcept {
             if constexpr (std::is_same_v<T, bool>) { // NOLINT
               return true;
@@ -120,7 +112,7 @@ namespace chimera {
         struct Negative {
           PositiveValue value;
 
-          template <typename T>
+          template <typename T, typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
           explicit operator T() const noexcept {
             if constexpr (std::is_same_v<T, bool>) { // NOLINT
               return std::visit(Construct<T>{}, value);
@@ -133,7 +125,7 @@ namespace chimera {
           IntegerValue numerator;
           IntegerValue denominator;
 
-          template <typename T>
+          template <typename T, typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
           explicit operator T() const noexcept {
             if constexpr (std::is_same_v<T, bool>) { // NOLINT
               return true;
@@ -147,7 +139,7 @@ namespace chimera {
         struct Imag {
           RealValue value;
 
-          template <typename T>
+          template <typename T, typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
           explicit operator T() const noexcept {
             auto t = std::visit(Construct<T>{}, value);
             if (t == T()) {
@@ -160,7 +152,7 @@ namespace chimera {
           RealValue real;
           RealValue imag;
 
-          template <typename T>
+          template <typename T, typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
           explicit operator T() const noexcept {
             auto t = std::visit(Construct<T>{}, imag);
             if (t == T()) {
@@ -179,14 +171,13 @@ namespace chimera {
                        tao::operators::shiftable<Number>,
                        tao::operators::unit_steppable<Number> {
         public:
-          Number();
-          Number(std::uint64_t i); // NOLINT
-          Number(Base base); // NOLINT
-          Number(Natural &&natural); // NOLINT
-          Number(Negative &&negative); // NOLINT
-          Number(Rational &&rational); // NOLINT
-          Number(Imag &&imag); // NOLINT
-          Number(Complex &&complex); // NOLINT
+          explicit Number(std::uint64_t i);
+          explicit Number(Base base);
+          explicit Number(Natural &&natural);
+          explicit Number(Negative &&negative);
+          explicit Number(Rational &&rational);
+          explicit Number(Imag &&imag);
+          explicit Number(Complex &&complex);
 
           Number(const Number &other);
           Number(Number &&other) noexcept;
@@ -236,6 +227,8 @@ namespace chimera {
 
           template <typename OStream>
           OStream &repr(OStream &os) const;
+
+          NumberValue unpack() const { return value; }
 
         private:
           template <typename Visitor>

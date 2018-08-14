@@ -35,7 +35,7 @@ namespace chimera {
         Number operator<<(std::uint64_t left, Base right) {
           if (right.value <= 64) {
             auto value = left_shift(left, right.value);
-            return Natural{{value.result, value.overflow}};
+            return Number(Natural{{value.result, value.overflow}});
           }
 
           return Natural{{left}} << right;
@@ -65,7 +65,7 @@ namespace chimera {
         Number operator<<(Base left, std::uint64_t right) {
           if (right <= 64) {
             auto value = left_shift(left.value, right);
-            return Natural{{value.result, value.overflow}};
+            return Number(Natural{{value.result, value.overflow}});
           }
 
           return Natural{{left.value}} << right;
@@ -97,7 +97,7 @@ namespace chimera {
 
         Number operator<<(const Natural &left, std::uint64_t right) {
           if (right == 0) {
-            return Natural(left);
+            return Number(Natural(left));
           }
 
           auto value = left;
@@ -115,7 +115,7 @@ namespace chimera {
             }
           }
 
-          return value;
+          return Number(std::move(value));
         }
 
         Number operator<<(const Natural &left, Base right) {
@@ -138,7 +138,7 @@ namespace chimera {
             }
           }
 
-          return value;
+          return Number(std::move(value));
         }
 
         Number operator<<(const Natural &left, const Negative &right) {

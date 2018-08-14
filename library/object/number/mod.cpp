@@ -57,11 +57,11 @@ namespace chimera {
 
         Number operator%(std::uint64_t left, Base right) {
           Expects(right.value != 0);
-          return {left % right.value};
+          return Number(left % right.value);
         }
 
         Number operator%(std::uint64_t left, const Natural & /*right*/) {
-          return {left};
+          return Number(left);
         }
 
         Number operator%(std::uint64_t left, const Negative &right) {
@@ -83,12 +83,12 @@ namespace chimera {
 
         Number operator%(Base left, std::uint64_t right) {
           Expects(right != 0);
-          return {left.value % right};
+          return Number(left.value % right);
         }
 
         Number operator%(Base left, Base right) { return left.value % right; }
 
-        Number operator%(Base left, const Natural & /*right*/) { return left; }
+        Number operator%(Base left, const Natural & /*right*/) { return Number(left); }
 
         Number operator%(Base left, const Negative &right) {
           return left.value % right;
@@ -113,7 +113,7 @@ namespace chimera {
             carryover.result = i;
             carryover = div_mod(carryover, right);
           }
-          return Base{carryover.overflow};
+          return Number(carryover.overflow);
         }
 
         Number operator%(const Natural &left, Base right) {
@@ -122,10 +122,10 @@ namespace chimera {
 
         Number operator%(const Natural &left, const Natural &right) {
           if (left < right) {
-            return Natural(left);
+            return Number(Natural(left));
           }
           if (!(right < left)) {
-            return Base{0u};
+            return Number(0u);
           }
           Number a(Natural{left});
           Number b(Natural{right});
