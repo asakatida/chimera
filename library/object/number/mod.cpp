@@ -31,6 +31,7 @@
 #include "object/number/overflow.hpp"
 #include "object/number/positive.hpp"
 #include "object/number/sub.hpp"
+#include "object/number/util.hpp"
 
 namespace chimera {
   namespace library {
@@ -49,7 +50,7 @@ namespace chimera {
         Number mod(const Rational &left, const Right &right) {
           return std::visit(
               [&left, &right](const auto &lN, const auto &lD) {
-                return left - right * floor_div(lN, lD * right));
+                return left - right * floor_div(lN, lD * right);
               },
               left.numerator, left.denominator);
         }
@@ -121,13 +122,13 @@ namespace chimera {
 
         Number operator%(const Natural &left, const Natural &right) {
           if (left < right) {
-            return copy(left);
+            return Natural(left);
           }
           if (!(right < left)) {
             return Base{0u};
           }
-          Number a(copy(left));
-          Number b(copy(right));
+          Number a(Natural{left});
+          Number b(Natural{right});
           while (b < a) {
             a -= b;
           }
@@ -206,7 +207,7 @@ namespace chimera {
           return std::visit(
               [&left](const auto &lN, const auto &lD, const auto &rN,
                       const auto &rD) {
-                return left - rN * floor_div(lN * rD, lD * rN) / rD;
+                return left - rN * (lN * rD).floor_div(lD * rN) / rD;
               },
               left.numerator, left.denominator, right.numerator,
               right.denominator);
@@ -274,7 +275,6 @@ namespace chimera {
         Number operator%(const Complex &/*left*/, const Complex &/*right*/) {
           Expects(false);
         }
-
       } // namespace number
     }   // namespace object
   }     // namespace library
