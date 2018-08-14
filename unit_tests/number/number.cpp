@@ -1,16 +1,18 @@
 #include "object/number/number.hpp"
 
-#include <catch.hpp>
+#include <catch2/catch.hpp>
+
+using chimera::library::object::number::Number;
 
 template <typename OStream>
 OStream &operator<<(OStream &os,
-                    const chimera::library::object::number::Number &number) {
+                    const Number &number) {
   return number.debug(os);
 }
 
 TEST_CASE("number Number") {
-  chimera::library::object::number::Number number(0);
-  chimera::library::object::number::Number other(2);
+  Number number(0);
+  Number other(2);
   REQUIRE(number < other);
   number = other + other;
   REQUIRE(std::uint64_t(number) == 4);
@@ -20,15 +22,15 @@ TEST_CASE("number Number") {
   REQUIRE(std::uint64_t(number) == 30);
   number = number - other;
   REQUIRE(std::uint64_t(number) == 28);
-  number = number % 3;
+  number = number % Number(3);
   REQUIRE(std::uint64_t(number) == 1);
-  number = number - 1;
+  number = number - Number(1);
   REQUIRE(std::uint64_t(number) == 0);
 }
 
 TEST_CASE("number Number division") {
-  chimera::library::object::number::Number other(2);
-  chimera::library::object::number::Number huge(8);
+  Number other(2);
+  Number huge(8);
   auto number = huge * huge;
   REQUIRE(number > huge);
   auto massive = number * other;
@@ -45,9 +47,9 @@ TEST_CASE("number Number division") {
 }
 
 TEST_CASE("number Number addition huge a") {
-  chimera::library::object::number::Number two(2);
-  chimera::library::object::number::Number eight(8);
-  chimera::library::object::number::Number huge(
+  Number two(2);
+  Number eight(8);
+  Number huge(
       std::numeric_limits<std::uint64_t>::max());
   auto number = huge + eight;
   auto massive = huge + two;
@@ -59,9 +61,9 @@ TEST_CASE("number Number addition huge a") {
 }
 
 TEST_CASE("number Number addition huge b") {
-  chimera::library::object::number::Number two(2);
-  chimera::library::object::number::Number eight(8);
-  chimera::library::object::number::Number huge(
+  Number two(2);
+  Number eight(8);
+  Number huge(
       std::numeric_limits<std::uint64_t>::max());
   auto number = eight + huge;
   auto massive = two + two;
@@ -73,9 +75,9 @@ TEST_CASE("number Number addition huge b") {
 }
 
 TEST_CASE("number Number addition huge c") {
-  chimera::library::object::number::Number two(2);
-  chimera::library::object::number::Number eight(8);
-  chimera::library::object::number::Number huge(
+  Number two(2);
+  Number eight(8);
+  Number huge(
       std::numeric_limits<std::uint64_t>::max());
   auto number = huge + eight;
   auto massive = two + two;
@@ -87,8 +89,8 @@ TEST_CASE("number Number addition huge c") {
 }
 
 TEST_CASE("number Number division huge") {
-  chimera::library::object::number::Number other(2);
-  chimera::library::object::number::Number huge(
+  Number other(2);
+  Number huge(
       std::numeric_limits<std::uint64_t>::max());
   auto number = huge * huge;
   REQUIRE(number > huge);
@@ -106,16 +108,16 @@ TEST_CASE("number Number division huge") {
 }
 
 TEST_CASE("number Number modulus huge") {
-  chimera::library::object::number::Number huge(
+  Number huge(
       std::numeric_limits<std::uint64_t>::max());
-  auto number = huge * 3;
-  REQUIRE((number % 2) == 1);
+  auto number = huge * Number(3);
+  REQUIRE((number % Number(2)) == Number(1));
 }
 
 TEST_CASE("number Number multiplication huge a") {
-  chimera::library::object::number::Number two(2);
-  chimera::library::object::number::Number eight(8);
-  chimera::library::object::number::Number huge(
+  Number two(2);
+  Number eight(8);
+  Number huge(
       std::numeric_limits<std::uint64_t>::max());
   auto number = huge * eight;
   auto massive = huge * two;
@@ -126,9 +128,9 @@ TEST_CASE("number Number multiplication huge a") {
 }
 
 TEST_CASE("number Number multiplication huge b") {
-  chimera::library::object::number::Number two(2);
-  chimera::library::object::number::Number eight(8);
-  chimera::library::object::number::Number huge(
+  Number two(2);
+  Number eight(8);
+  Number huge(
       std::numeric_limits<std::uint64_t>::max());
   auto number = eight * huge;
   auto massive = two * two;
@@ -139,9 +141,9 @@ TEST_CASE("number Number multiplication huge b") {
 }
 
 TEST_CASE("number Number multiplication huge c") {
-  chimera::library::object::number::Number two(2);
-  chimera::library::object::number::Number eight(8);
-  chimera::library::object::number::Number huge(
+  Number two(2);
+  Number eight(8);
+  Number huge(
       std::numeric_limits<std::uint64_t>::max());
   auto number = huge * eight;
   auto massive = two * two;
@@ -152,8 +154,8 @@ TEST_CASE("number Number multiplication huge c") {
 }
 
 TEST_CASE("number Number naturals") {
-  chimera::library::object::number::Number one(1);
-  chimera::library::object::number::Number huge(
+  Number one(1);
+  Number huge(
       std::numeric_limits<std::uint64_t>::max());
   auto number = huge * huge;
   auto massive = number * number;
@@ -169,7 +171,7 @@ TEST_CASE("number Number naturals") {
 }
 
 TEST_CASE("number Number naturals costly", "[!hide]") {
-  chimera::library::object::number::Number huge(
+  Number huge(
       std::numeric_limits<std::uint64_t>::max());
   auto number = huge * huge;
   auto massive = number * number;
@@ -177,9 +179,9 @@ TEST_CASE("number Number naturals costly", "[!hide]") {
 }
 
 TEST_CASE("number Number subtraction huge") {
-  chimera::library::object::number::Number two(2);
-  chimera::library::object::number::Number eight(8);
-  chimera::library::object::number::Number huge(
+  Number two(2);
+  Number eight(8);
+  Number huge(
       std::numeric_limits<std::uint64_t>::max());
   auto number = huge + eight;
   auto massive = number;

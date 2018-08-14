@@ -1,6 +1,6 @@
 #include "virtual_machine/virtual_machine.hpp"
 
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 
 using namespace std::literals;
 

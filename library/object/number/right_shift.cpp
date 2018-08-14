@@ -34,11 +34,11 @@ namespace chimera {
     namespace object {
       namespace number {
         Number operator>>(std::uint64_t left, Base right) {
-          return {left >> right.value};
+          return Number(left >> right.value);
         }
 
         Number operator>>(std::uint64_t /*left*/, const Natural & /*right*/) {
-          return Base{0u};
+          return Number(0u);
         }
 
         Number operator>>(std::uint64_t left, const Negative &right) {
@@ -60,15 +60,15 @@ namespace chimera {
         }
 
         Number operator>>(Base left, std::uint64_t right) {
-          return {left.value >> right};
+          return Number(left.value >> right);
         }
 
         Number operator>>(Base left, Base right) {
-          return {left.value >> right.value};
+          return Number(left.value >> right.value);
         }
 
         Number operator>>(Base /*left*/, const Natural & /*right*/) {
-          return Base{0u};
+          return Number(0u);
         }
 
         Number operator>>(Base left, const Negative &right) {
@@ -91,10 +91,10 @@ namespace chimera {
 
         Number operator>>(const Natural &left, std::uint64_t right) {
           if (right == 0) {
-            return copy(left);
+            return Number(Natural(left));
           }
           if (std::size_t(right / 64) >= left.value.size()) {
-            return Base{0u};
+            return Number(0u);
           }
           auto value = left;
           if (std::ptrdiff_t shift = right / 64; shift != 0) {
@@ -108,9 +108,9 @@ namespace chimera {
               carryover = right_shift(i, shift);
               result.value.push_back(carryover.result | overflow);
             }
-            return std::move(result);
+            return Number(std::move(result));
           }
-          return std::move(value);
+          return Number(std::move(value));
         }
 
         Number operator>>(const Natural &left, Base right) {
@@ -119,7 +119,7 @@ namespace chimera {
 
         Number operator>>(const Natural &left, const Natural &right) {
           if (std::size_t(floor_div(right, 64)) >= left.value.size()) {
-            return Base{0u};
+            return Number(0u);
           }
           auto value = left;
           if (std::ptrdiff_t shift(floor_div(right, 64)); shift != 0) {
@@ -133,9 +133,9 @@ namespace chimera {
               carryover = right_shift(i, shift);
               result.value.push_back(carryover.result | overflow);
             }
-            return std::move(result);
+            return Number(std::move(result));
           }
-          return std::move(value);
+          return Number(std::move(value));
         }
 
         Number operator>>(const Natural &left, const Negative &right) {
@@ -272,7 +272,6 @@ namespace chimera {
         Number operator>>(const Complex &/*left*/, const Complex &/*right*/) {
           Expects(false);
         }
-
       } // namespace number
     }   // namespace object
   }     // namespace library

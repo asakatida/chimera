@@ -49,11 +49,11 @@ namespace chimera {
         }
 
         Number operator/(std::uint64_t left, Base right) {
-          return Rational{Base{left}, right};
+          return Number(Rational{Base{left}, right});
         }
 
         Number operator/(std::uint64_t left, const Natural &right) {
-          return Rational{Base{left}, right};
+          return Number(Rational{Base{left}, right});
         }
 
         Number operator/(std::uint64_t left, const Negative &right) {
@@ -75,13 +75,13 @@ namespace chimera {
         }
 
         Number operator/(Base left, std::uint64_t right) {
-          return Rational{left, Base{right}};
+          return Number(Rational{left, Base{right}});
         }
 
-        Number operator/(Base left, Base right) { return Rational{left, right}; }
+        Number operator/(Base left, Base right) { return Number(Rational{left, right}); }
 
         Number operator/(Base left, const Natural &right) {
-          return Rational{left, right};
+          return Number(Rational{left, right});
         }
 
         Number operator/(Base left, const Negative &right) {
@@ -103,15 +103,15 @@ namespace chimera {
         }
 
         Number operator/(const Natural &left, std::uint64_t right) {
-          return Rational{left, Base{right}};
+          return Number(Rational{left, Base{right}});
         }
 
         Number operator/(const Natural &left, Base right) {
-          return Rational{left, right};
+          return Number(Rational{left, right});
         }
 
         Number operator/(const Natural &left, const Natural &right) {
-          return Rational{left, right};
+          return Number(Rational{left, right});
         }
 
         Number operator/(const Natural &left, const Negative &right) {
