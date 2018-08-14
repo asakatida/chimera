@@ -27,6 +27,7 @@
 #include "object/number/mult.hpp"
 #include "object/number/negative.hpp"
 #include "object/number/overflow.hpp"
+#include "object/number/util.hpp"
 
 namespace chimera {
   namespace library {
@@ -34,9 +35,9 @@ namespace chimera {
       namespace number {
         Number operator-(std::uint64_t left, Base right) {
           if (left < right.value) {
-            return Negative{Base{right.value - left}));
+            return Number(Negative{Base{right.value - left}});
           }
-          return Base{left - right.value});
+          return Number(left - right.value);
         }
 
         Number operator-(std::uint64_t left, const Natural &right) {
@@ -45,14 +46,14 @@ namespace chimera {
 
         Number operator-(std::uint64_t left, const Negative &right) {
           return std::visit(
-              LeftOperation<Number, std::uint64_t, std::plus<>>{left},
+              LeftOperation<std::uint64_t, std::plus<>>{left},
               right.value);
         }
 
         Number operator-(std::uint64_t left, const Rational &right) {
           return std::visit(
               [left](const auto &rN, const auto &rD) {
-                return Rational{left * rD - rN, copy(rD));
+                return (left * rD - rN) / rD;
               },
               right.numerator, right.denominator);
         }
@@ -67,9 +68,9 @@ namespace chimera {
 
         Number operator-(Base left, std::uint64_t right) {
           if (left.value < right) {
-            return Negative{Base{right - left.value}));
+            return Number(Negative{Base{right - left.value}});
           }
-          return Base{left.value - right});
+          return Number(left.value - right);
         }
 
         Number operator-(Base left, Base right) { return left - right.value; }
@@ -80,14 +81,14 @@ namespace chimera {
 
         Number operator-(Base left, const Negative &right) {
           return std::visit(
-              [left](const auto &value) { return left + value); },
+              [left](const auto &value) { return left + value; },
               right.value);
         }
 
         Number operator-(Base left, const Rational &right) {
           return std::visit(
               [left](const auto &rN, const auto &rD) {
-                return Rational{left * rD - rN, copy(rD));
+                return (left * rD - rN) / rD;
               },
               right.numerator, right.denominator);
         }
@@ -102,7 +103,7 @@ namespace chimera {
 
         Number operator-(const Natural &left, std::uint64_t right) {
           if (right == 0) {
-            return copy(left));
+            return Number(Natural(left));
           }
           Natural value{};
           Carryover carryover{0, right};
@@ -110,7 +111,7 @@ namespace chimera {
             carryover = sub(i, carryover.overflow);
             value.value.push_back(carryover.result);
           }
-          return std::move(value));
+          return Number(std::move(value));
         }
 
         Number operator-(const Natural &left, Base right) {
@@ -141,7 +142,7 @@ namespace chimera {
             value.value.push_back(carryover.result);
           }
           Ensures(carryover.overflow == 0);
-          return std::move(value));
+          return Number(std::move(value));
         }
 
         Number operator-(const Natural &left, const Negative &right) {
@@ -152,7 +153,7 @@ namespace chimera {
         Number operator-(const Natural &left, const Rational &right) {
           return std::visit(
               [&left](const auto &rN, const auto &rD) {
-                return Rational{left * rD - rN, copy(rD));
+                return (left * rD - rN) / rD;
               },
               right.numerator, right.denominator);
         }
@@ -183,14 +184,14 @@ namespace chimera {
 
         Number operator-(const Negative &left, const Negative &right) {
           return std::visit(
-              [](const auto &l, const auto &r) { return -(l + r)); },
+              [](const auto &l, const auto &r) { return -(l + r); },
               left.value, right.value);
         }
 
         Number operator-(const Negative &left, const Rational &right) {
           return std::visit(
               [&left](const auto &rN, const auto &rD) {
-                return Rational{left * rD - rN, copy(rD));
+                return (left * rD - rN) / rD;
               },
               right.numerator, right.denominator);
         }
@@ -206,7 +207,7 @@ namespace chimera {
         Number operator-(const Rational &left, std::uint64_t right) {
           return std::visit(
               [right](const auto &lN, const auto &lD) {
-                return Rational{lN - right * lD, copy(lD));
+                return (lN - right * lD) / lD;
               },
               left.numerator, left.denominator);
         }
@@ -218,7 +219,7 @@ namespace chimera {
         Number operator-(const Rational &left, const Natural &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Rational{lN - right * lD, copy(lD));
+                return (lN - right * lD) / lD;
               },
               left.numerator, left.denominator);
         }
@@ -226,7 +227,7 @@ namespace chimera {
         Number operator-(const Rational &left, const Negative &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Rational{lN - right * lD, copy(lD));
+                return (lN - right * lD) / lD;
               },
               left.numerator, left.denominator);
         }
@@ -234,7 +235,7 @@ namespace chimera {
         Number operator-(const Rational &left, const Rational &right) {
           return std::visit(
               [](const auto &lN, const auto &lD, const auto &rN,
-                 const auto &rD) { return lN * rD - rN * lD, lD * rD); },
+                 const auto &rD) { return (lN * rD - rN * lD) / (lD * rD); },
               left.numerator, left.denominator, right.numerator,
               right.denominator);
         }
@@ -301,7 +302,6 @@ namespace chimera {
         Number operator-(const Complex &/*left*/, const Complex &/*right*/) {
           Expects(false);
         }
-
       } // namespace number
     }   // namespace object
   }     // namespace library

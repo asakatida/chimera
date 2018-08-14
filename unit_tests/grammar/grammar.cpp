@@ -1,6 +1,6 @@
 #include "grammar/grammar.hpp"
 
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include <tao/pegtl/analyze.hpp>
 
 TEST_CASE("grammar analyze (SingleInput)") {

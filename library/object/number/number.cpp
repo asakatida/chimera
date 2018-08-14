@@ -41,14 +41,17 @@
 #include "object/number/positive.hpp"
 #include "object/number/right_shift.hpp"
 #include "object/number/sub.hpp"
-#include "object/number/util.hpp"
 #include "object/number/xor.hpp"
 
 namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        static PositiveValue positive(Natural &&value) {
+        static NumberValue reduce(Base value) {
+          return value;
+        }
+
+        static NumberValue reduce(Natural &&value) {
           while ((!value.value.empty()) && value.value.back() == 0) {
             value.value.pop_back();
           }
@@ -65,103 +68,53 @@ namespace chimera {
           return value;
         }
 
-        static IntegerValue integer(Natural &&value) {
-          return std::visit(Construct<IntegerValue>{},
-                            positive(std::move(value)));
-        }
-
-        // static bool even(std::uint64_t i) { return (i & 1u) == 0u; }
-        // static bool even(Base i) { return even(i.value); }
-        // static bool even(const Natural &i) { return even(i.value[0]); }
+        static NumberValue reduce(Negative && /*negative*/) { return Base{0u}; }
 
         template <typename Left, typename Right>
-        static Rational to_rational(Left &&left, Right &&right) {
-          return Rational{std::forward<Left>(left), std::forward<Right>(right)};
-        }
+        NumberValue reduce(Left &&left, Right &&right) {
+          if (left == Base{0u}) {
+            return Base{0u};
+          }
 
-        static RealValue real(Base base) { return base; }
+          if (left == right) {
+            return Base{1u};
+          }
 
-        static RealValue real(Natural &&natural) {
-          return std::visit(Construct<RealValue>{}, positive(std::move(natural)));
-        }
+          if (left == Base{1u} || right == Base{0u}) {
+            return Rational{std::forward<Left>(left), std::forward<Right>(right)};
+          }
 
-        template <typename Left, typename Right>
-        RealValue reduce(Left &&left, Right &&right) {
+          if (right == Base{1u}) {
+            return reduce(std::forward<Left>(left));
+          }
+
           auto aPrime = gcd(left, right);
-          if (aPrime == 1u) {
-            return to_rational(std::move(left), std::move(right));
+          if (aPrime == Number(1u)) {
+            return Rational{std::forward<Left>(left), std::forward<Right>(right)};
           }
 
-          if (left == aPrime) {
-            return to_rational(Base{1u}, floor_div(right, aPrime));
+          Number nLeft(std::forward<Left>(left)), nRight(std::forward<Right>(right));
+
+          if (nLeft == aPrime) {
+            return (Number(1u) / nRight.floor_div(aPrime)).unpack();
           }
 
-          if (right == aPrime) {
-            return real(floor_div(left, aPrime));
+          if (nRight == aPrime) {
+            return nLeft.floor_div(aPrime).unpack();
           }
 
-          return to_rational(floor_div(left, aPrime), floor_div(right, aPrime));
+          return (nLeft.floor_div(aPrime) / nRight.floor_div(aPrime)).unpack();
         }
 
-        template <typename Left, typename Right>
         struct Reduce {
-          RealValue operator()(Left &&left, Right &&right) {
-            if (left == 0u) {
-              return Base{0u};
-            }
-
-            if (left == right) {
-              return Base{1u};
-            }
-
-            if (left == 1u || right == 0u) {
-              return Rational{std::forward<Left>(left), std::forward<Right>(right)};
-            }
-
-            if (right == 1u) {
-              return real(std::forward<Left>(left));
-            }
-
+          template <typename Left, typename Right>
+          NumberValue operator()(Left &&left, Right &&right) {
             return reduce(std::forward<Left>(left), std::forward<Right>(right));
           }
         };
 
-        struct ReduceVisit {
-          template <typename Left, typename Right>
-          RealValue operator()(Left &&left, Right &&right) {
-            return Reduce<Left, Right>{}(std::forward<Left>(left),
-                                         std::forward<Right>(right));
-          }
-        };
-
-        template <>
-        struct Reduce<Negative, Negative> {
-          RealValue operator()(Negative &&left, Negative &&right) {
-            return std::visit(ReduceVisit{}, left.value, right.value);
-          }
-        };
-
-        template <typename Left>
-        struct Reduce<Left, Negative> {
-          RealValue operator()(Left &&left, Negative &&right) {
-            return std::visit(
-                Operation<RealValue, std::negate<>>{},
-                std::visit(ReduceVisit{}, std::forward<Left>(left), right.value));
-          }
-        };
-
-        template <typename Right>
-        struct Reduce<Negative, Right> {
-          RealValue operator()(Negative &&left, Right &&right) {
-            return std::visit(
-                Operation<RealValue, std::negate<>>{},
-                std::visit(ReduceVisit{}, left.value, std::forward<Right>(right)));
-          }
-        };
-
-        static RealValue real(Rational &&rational) {
-          return std::visit(ReduceVisit{}, std::move(rational.numerator),
-                            std::move(rational.denominator));
+        static NumberValue reduce(Rational &&rational) {
+          return std::visit(Reduce{}, std::move(rational.numerator), std::move(rational.denominator));
         }
 
         template <typename Visitor>
@@ -171,25 +124,18 @@ namespace chimera {
 
         template <typename Visitor>
         Number Number::visit(const Number &right, Visitor &&visitor) const {
-          return std::visit(std::forward<Visitor>(visitor), value,
-                            right.value);
-        }
-
-        template <typename Value>
-        NumberValue number(Value &&value) {
-          return std::visit(Construct<NumberValue>{},
-                            std::forward<Value>(value).value);
+          return std::visit(std::forward<Visitor>(visitor), value, right.value);
         }
 
         Number::Number(std::uint64_t i) : value(Base{i}) {}
 
         Number::Number(Base base) : value(base) {}
 
-        Number::Number(Natural &&natural) : value(std::move(natural)) {}
+        Number::Number(Natural &&natural) : value(reduce(std::move(natural))) {}
 
-        Number::Number(Negative &&negative) : value(std::move(negative)) {}
+        Number::Number(Negative &&negative) : value(reduce(std::move(negative))) {}
 
-        Number::Number(Rational &&rational) : value(std::move(rational)) {}
+        Number::Number(Rational &&rational) : value(reduce(std::move(rational))) {}
 
         Number::Number(Imag &&imag) : value(std::move(imag)) {}
 
@@ -222,51 +168,46 @@ namespace chimera {
           swap(value, other.value);
         }
 
-        template <typename Op>
-        using NOp = Operation<Number, Op>;
+        Number Number::operator+() const { return visit(UnaryPositive{}); }
 
-        Number Number::operator+() const { return visit(NOp<UnaryPositive>{}); }
-
-        Number Number::operator-() const { return visit(NOp<std::negate<>>{}); }
+        Number Number::operator-() const { return visit(std::negate<>{}); }
 
         Number &Number::operator+=(const Number &right) {
-          *this = visit(right, NOp<std::plus<>>{});
+          *this = visit(right, std::plus<>{});
           return *this;
         }
 
         Number &Number::operator-=(const Number &right) {
-          *this = visit(right, NOp<std::minus<>>{});
+          *this = visit(right, std::minus<>{});
           return *this;
         }
 
         Number &Number::operator*=(const Number &right) {
-          *this = visit(right, NOp<std::multiplies<>>{});
+          *this = visit(right, std::multiplies<>{});
           return *this;
         }
 
         Number &Number::operator/=(const Number &right) {
-          *this = visit(right, NOp<std::divides<>>{});
+          *this = visit(right, std::divides<>{});
           return *this;
         }
 
         Number &Number::operator%=(const Number &right) {
-          *this = visit(right, NOp<std::modulus<>>{});
+          *this = visit(right, std::modulus<>{});
           return *this;
         }
 
         Number Number::operator~() const {
-          return visit(NOp<std::bit_not<>>{});
+          return visit(std::bit_not<>{});
         }
 
         Number &Number::operator&=(const Number &right) {
-          *this = visit(right, NOp<std::bit_and<>>{});
+          *this = visit(right, std::bit_and<>{});
           return *this;
         }
 
         Number &Number::operator|=(const Number &right) {
-          *this = visit(right, [](const auto &a, const auto &b) {
-            return Number(a | b);
-          });
+          *this = visit(right, std::bit_or<>{});
           return *this;
         }
 
@@ -327,8 +268,22 @@ namespace chimera {
                  std::holds_alternative<Complex>(value);
         }
 
+        template <typename Arg>
+        struct MakeComplex {
+          Number operator()(Arg &&arg) const noexcept {
+            return Number(std::decay_t<Arg>(arg));
+          }
+        };
+
+        struct MakeComplexVisit {
+          template <typename Arg>
+          Number operator()(Arg &&arg) const noexcept {
+            return MakeComplex<Arg>{}(std::forward<Arg>(arg));
+          }
+        };
+
         Number Number::complex() const {
-          return visit([](const auto &a) { return Number(Complex(copy(a))); });
+          return visit(MakeComplexVisit{});
         }
       } // namespace number
     }   // namespace object

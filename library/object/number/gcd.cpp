@@ -91,12 +91,12 @@ namespace chimera {
 
         Number gcd(Base left, std::uint64_t right) {
           Expects(right != 0);
-          return {left.value / right};
+          return Number(left.value / right);
         }
 
         Number gcd(Base left, Base right) {
           Expects(right.value != 0);
-          return {left.value / right.value};
+          return Number(left.value / right.value);
         }
 
         Number gcd(Base left, const Natural &right) {
@@ -120,7 +120,7 @@ namespace chimera {
         }
 
         Number gcd(const Natural &left, std::uint64_t right) {
-          Number aPrime(Natural{left}), bPrime(Base{right});
+          Number aPrime(Natural{left}), bPrime(right);
           while (0u < bPrime) {
             auto temp = bPrime;
             bPrime = aPrime % bPrime;
@@ -132,6 +132,10 @@ namespace chimera {
         Number gcd(const Natural &left, Base right) {
           return gcd(left, right.value);
         }
+
+        // static bool even(std::uint64_t i) { return (i & 1u) == 0u; }
+        // static bool even(Base i) { return even(i.value); }
+        // static bool even(const Natural &i) { return even(i.value[0]); }
 
         Number gcd(const Natural &left, const Natural &right) {
           // TODO(asakatida)

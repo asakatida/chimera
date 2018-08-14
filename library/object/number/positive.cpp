@@ -26,9 +26,9 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        Number operator+(Base base) { return base; }
+        Number operator+(Base base) { return Number(base); }
 
-        Number operator+(const Natural &natural) { return Natural(natural); }
+        Number operator+(const Natural &natural) { return Number(Natural(natural)); }
 
         Number operator+(const Negative &negative) {
           return std::visit(UnaryPositive{}, negative.value);

@@ -58,7 +58,7 @@ namespace chimera {
 
         Number operator*(Base left, std::uint64_t right) {
           auto value = mult(left.value, right);
-          return Natural{{value.result, value.overflow}};
+          return Number(Natural{{value.result, value.overflow}});
         }
 
         Number operator*(Base left, Base right) { return left * right.value; }
@@ -85,10 +85,10 @@ namespace chimera {
 
         Number operator*(const Natural &left, std::uint64_t right) {
           if (right == 0) {
-            return Base{0u};
+            return Number(0u);
           }
           if (right == 1) {
-            return Natural(left);
+            return Number(Natural(left));
           }
           Natural value{};
           value.value.reserve(left.value.size() + 1);
@@ -103,7 +103,7 @@ namespace chimera {
           if (carryover.result != 0) {
             value.value.push_back(carryover.result);
           }
-          return std::move(value);
+          return Number(std::move(value));
         }
 
         Number operator*(const Natural &left, Base right) {
@@ -111,7 +111,7 @@ namespace chimera {
         }
 
         Number operator*(const Natural &left, const Natural &right) {
-          Number accumulate;
+          Number accumulate(0u);
           std::size_t size = 0;
           for (std::uint64_t i : right.value) {
             accumulate = accumulate + ((left * i) << (64 * (size++)));

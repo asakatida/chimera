@@ -31,14 +31,14 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        Number operator-(Base base) { return Negative(base); }
+        Number operator-(Base base) { return Number(Negative{base}); }
 
         Number operator-(const Natural &natural) {
-          return Negative(natural);
+          return Number(Negative{natural});
         }
 
         Number operator-(const Negative &negative) {
-          return std::visit(Construct<Number>{}, negative.value);
+          return std::visit(Construct<Number>{}, Negative(negative).value);
         }
 
         Number operator-(const Rational &rational) {

@@ -58,11 +58,11 @@ namespace chimera {
 
         Number floor_div(std::uint64_t left, Base right) {
           Expects(right.value != 0);
-          return Base{left / right.value};
+          return Number(left / right.value);
         }
 
         Number floor_div(std::uint64_t /*left*/, const Natural & /*right*/) {
-          return Base{0u};
+          return Number(0u);
         }
 
         Number floor_div(std::uint64_t left, const Negative &right) {
@@ -85,12 +85,12 @@ namespace chimera {
 
         Number floor_div(Base left, std::uint64_t right) {
           Expects(right != 0);
-          return {left.value / right};
+          return Number(left.value / right);
         }
 
         Number floor_div(Base left, Base right) {
           Expects(right.value != 0);
-          return {left.value / right.value};
+          return Number(left.value / right.value);
         }
 
         Number floor_div(Base left, const Natural &right) {
@@ -123,7 +123,7 @@ namespace chimera {
             value.value.push_back(carryover.result);
           }
           std::reverse(value.value.begin(), value.value.end());
-          return std::move(value);
+          return Number(std::move(value));
         }
 
         Number floor_div(const Natural &left, Base right) {
@@ -132,16 +132,16 @@ namespace chimera {
 
         Number floor_div(const Natural &left, const Natural &right) {
           if (left < right) {
-            return Base{0u};
+            return Number(0u);
           }
           if (!(right < left)) {
-            return Base{1u};
+            return Number(1u);
           }
           Number a(Natural{left});
-          Number b(Base{0u});
+          Number b(0u);
           while (right < a) {
-            a = +(a - Natural(right));
-            b = b + 1;
+            a = +(a - Number(Natural{right}));
+            b = b + Number(1u);
           }
           return b;
         }

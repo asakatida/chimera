@@ -29,13 +29,13 @@ namespace chimera {
     namespace object {
       namespace number {
         Number operator|(std::uint64_t left, Base right) {
-          return {left | right.value};
+          return Number(left | right.value);
         }
 
         Number operator|(std::uint64_t left, const Natural &right) {
           auto value = right;
           value.value[0] |= left;
-          return value;
+          return Number(std::move(value));
         }
 
         Number operator|(std::uint64_t left, const Negative &right) {
@@ -57,17 +57,17 @@ namespace chimera {
         }
 
         Number operator|(Base left, std::uint64_t right) {
-          return {left.value | right};
+          return Number(left.value | right);
         }
 
         Number operator|(Base left, Base right) {
-          return {left.value | right.value};
+          return Number(left.value | right.value);
         }
 
         Number operator|(Base left, const Natural &right) {
           auto value = right;
           value.value[0] |= left.value;
-          return value;
+          return Number(std::move(value));
         }
 
         Number operator|(Base left, const Negative &right) {
@@ -91,7 +91,7 @@ namespace chimera {
         Number operator|(const Natural &left, std::uint64_t right) {
           auto value = left;
           value.value[0] |= right;
-          return value;
+          return Number(std::move(value));
         }
 
         Number operator|(const Natural &left, Base right) {
@@ -110,7 +110,7 @@ namespace chimera {
                            right.value.begin(), value.value.begin(),
                            std::bit_or<std::uint64_t>{});
           }
-          return value;
+          return Number(std::move(value));
         }
 
         Number operator|(const Natural &left, const Negative &right) {

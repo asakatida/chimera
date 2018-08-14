@@ -80,9 +80,9 @@ namespace chimera {
         Number operator+(Base left, std::uint64_t right) {
           auto value = sum(left.value, right);
           if (value.overflow == 0) {
-            return Base{value.result};
+            return Number(Base{value.result});
           }
-          return Natural{{value.result, value.overflow}};
+          return Number(Natural{{value.result, value.overflow}});
         }
 
         Number operator+(Base left, Base right) { return left + right.value; }
@@ -109,7 +109,7 @@ namespace chimera {
 
         Number operator+(const Natural &left, std::uint64_t right) {
           if (right == 0) {
-            return Natural(left);
+            return Number(Natural(left));
           }
           Natural value;
           value.value.reserve(left.value.size());
@@ -155,7 +155,7 @@ namespace chimera {
           if (carryover.overflow != 0) {
             value.value.push_back(carryover.overflow);
           }
-          return value;
+          return Number(std::move(value));
         }
 
         Number operator+(const Natural &left, const Negative &right) {

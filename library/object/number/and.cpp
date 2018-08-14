@@ -31,11 +31,11 @@ namespace chimera {
     namespace object {
       namespace number {
         Number operator&(std::uint64_t left, Base right) {
-          return {left & right.value};
+          return Number(left & right.value);
         }
 
         Number operator&(std::uint64_t left, const Natural &right) {
-          return {left & right.value[0]};
+          return Number(left & right.value[0]);
         }
 
         Number operator&(std::uint64_t left, const Negative &right) {
@@ -56,15 +56,15 @@ namespace chimera {
         }
 
         Number operator&(Base left, std::uint64_t right) {
-          return {left.value & right};
+          return Number(left.value & right);
         }
 
         Number operator&(Base left, Base right) {
-          return {left.value & right.value};
+          return Number(left.value & right.value);
         }
 
         Number operator&(Base left, const Natural &right) {
-          return {left.value & right.value[0]};
+          return Number(left.value & right.value[0]);
         }
 
         Number operator&(Base left, const Negative &right) {
@@ -85,11 +85,11 @@ namespace chimera {
         }
 
         Number operator&(const Natural &left, std::uint64_t right) {
-          return {left.value[0] & right};
+          return Number(left.value[0] & right);
         }
 
         Number operator&(const Natural &left, Base right) {
-          return {left.value[0] & right.value};
+          return Number(left.value[0] & right.value);
         }
 
         Number operator&(const Natural &left, const Natural &right) {
@@ -104,7 +104,7 @@ namespace chimera {
                            right.value.begin(), value.value.begin(),
                            std::bit_and<std::uint64_t>{});
           }
-          return std::move(value);
+          return Number(std::move(value));
         }
 
         Number operator&(const Natural &left, const Negative &right) {
