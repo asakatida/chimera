@@ -27,6 +27,7 @@
 #include "object/number/overflow.hpp"
 #include "object/number/positive.hpp"
 #include "object/number/sub.hpp"
+#include "object/number/util.hpp"
 
 namespace chimera {
   namespace library {
@@ -37,7 +38,7 @@ namespace chimera {
           Number operator()(const Left &left, const Rational &right) {
             return std::visit(
                 [&left](const auto &rN, const auto &rD) {
-                  return Rational{rN + left * rD, copy(rD));
+                  return (rN + left * rD) / rD;
                 },
                 right.numerator, right.denominator);
           }
@@ -46,7 +47,7 @@ namespace chimera {
           Number operator()(const Rational &left, const Right &right) {
             return std::visit(
                 [&right](const auto &lN, const auto &lD) {
-                  return Rational{lN + right * lD, copy(lD));
+                  return (lN + right * lD) / lD;
                 },
                 left.numerator, left.denominator);
           }
@@ -210,7 +211,7 @@ namespace chimera {
         Number operator+(const Rational &left, std::uint64_t right) {
           return std::visit(
               [right](const auto &lN, const auto &lD) {
-                return Rational{lN + right * lD, copy(lD));
+                return (lN + right * lD) / lD;
               },
               left.numerator, left.denominator);
         }
@@ -222,7 +223,7 @@ namespace chimera {
         Number operator+(const Rational &left, const Natural &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Rational{lN + right * lD, copy(lD));
+                return (lN + right * lD) / lD;
               },
               left.numerator, left.denominator);
         }
@@ -230,7 +231,7 @@ namespace chimera {
         Number operator+(const Rational &left, const Negative &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return Rational{lN + right * lD, copy(lD));
+                return (lN + right * lD) / lD;
               },
               left.numerator, left.denominator);
         }
@@ -238,7 +239,7 @@ namespace chimera {
         Number operator+(const Rational &left, const Rational &right) {
           return std::visit(
               [](const auto &lN, const auto &lD, const auto &rN,
-                 const auto &rD) { return lN * rD + rN * lD, lD * rD); },
+                 const auto &rD) { return (lN * rD + rN * lD) / (lD * rD); },
               left.numerator, left.denominator, right.numerator,
               right.denominator);
         }

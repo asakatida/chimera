@@ -80,7 +80,6 @@ namespace chimera {
         bool operator<(const Complex &left, const Rational &right);
         bool operator<(const Complex &left, const Imag &right);
         bool operator<(const Complex &left, const Complex &right);
-
       } // namespace number
     }   // namespace object
   }     // namespace library

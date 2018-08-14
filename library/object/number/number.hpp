@@ -179,6 +179,7 @@ namespace chimera {
                        tao::operators::shiftable<Number>,
                        tao::operators::unit_steppable<Number> {
         public:
+          Number();
           Number(std::uint64_t i); // NOLINT
           Number(Base base); // NOLINT
           Number(Natural &&natural); // NOLINT

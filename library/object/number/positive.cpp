@@ -28,7 +28,7 @@ namespace chimera {
       namespace number {
         Number operator+(Base base) { return base; }
 
-        Number operator+(const Natural &natural) { return natural; }
+        Number operator+(const Natural &natural) { return Natural(natural); }
 
         Number operator+(const Negative &negative) {
           return std::visit(UnaryPositive{}, negative.value);
@@ -36,7 +36,7 @@ namespace chimera {
 
         Number operator+(const Rational &rational) {
           return std::visit(
-              [](const auto &a, const auto &b) { return Rational{+a, +b); },
+              [](const auto &a, const auto &b) { return (+a) / (+b); },
               rational.numerator, rational.denominator);
         }
         Number operator+(const Imag &/*imag*/) {
@@ -46,7 +46,6 @@ namespace chimera {
         Number operator+(const Complex &/*complex*/) {
           Expects(false);
         }
-
       } // namespace number
     }   // namespace object
   }     // namespace library

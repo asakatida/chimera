@@ -32,6 +32,7 @@
 #include "object/number/overflow.hpp"
 #include "object/number/positive.hpp"
 #include "object/number/sub.hpp"
+#include "object/number/util.hpp"
 
 namespace chimera {
   namespace library {
@@ -136,10 +137,10 @@ namespace chimera {
           if (!(right < left)) {
             return Base{1u};
           }
-          Number a(copy(left));
+          Number a(Natural{left});
           Number b(Base{0u});
           while (right < a) {
-            a = +(a - right);
+            a = +(a - Natural(right));
             b = b + 1;
           }
           return b;
@@ -219,7 +220,7 @@ namespace chimera {
           return std::visit(
               [](const auto &lN, const auto &lD, const auto &rN,
                  const auto &rD) {
-                return floor_div(lN * rD, lD * rN));
+                return (lN * rD).floor_div(lD * rN);
               },
               left.numerator, left.denominator, right.numerator,
               right.denominator);
@@ -287,7 +288,6 @@ namespace chimera {
         Number floor_div(const Complex &/*left*/, const Complex &/*right*/) {
           Expects(false);
         }
-
       } // namespace number
     }   // namespace object
   }     // namespace library

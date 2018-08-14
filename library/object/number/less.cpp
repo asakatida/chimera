@@ -23,12 +23,8 @@
 #include <functional>
 
 #include "object/number/mult.hpp"
+#include "object/number/util.hpp"
 
-#define LESS std::visit(std::less<>{}, left.value, right.value)
-#define LESS_LEFT                                                              \
-  std::visit([&left](const auto &value) { return left < value; }, right.value)
-#define LESS_RIGHT                                                             \
-  std::visit([&right](const auto &value) { return value < right; }, left.value)
 #define LESS_LEFT_RATIONAL                                                     \
   std::visit(                                                                  \
       [&right](const auto &lN, const auto &lD) { return lN < (lD * right); },  \

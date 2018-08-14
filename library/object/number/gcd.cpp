@@ -33,6 +33,7 @@
 #include "object/number/overflow.hpp"
 #include "object/number/positive.hpp"
 #include "object/number/sub.hpp"
+#include "object/number/util.hpp"
 
 namespace chimera {
   namespace library {
@@ -42,7 +43,7 @@ namespace chimera {
         Number div(const Left &left, const Rational &right) {
           return std::visit(
               [&left](const auto &rN, const auto &rD) {
-                return gcd(left * rD, rN));
+                return gcd(left * rD, rN);
               },
               right.numerator, right.denominator);
         }
@@ -51,13 +52,13 @@ namespace chimera {
         Number div(const Rational &left, const Right &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return gcd(lN, lD * right));
+                return gcd(lN, lD * right);
               },
               left.numerator, left.denominator);
         }
 
         Number gcd(std::uint64_t left, Base right) {
-          Base aPrime{left}, bPrime = right;
+          Number aPrime(left), bPrime(right);
           while (0u < bPrime) {
             auto temp = bPrime;
             bPrime = aPrime % bPrime;
@@ -119,13 +120,13 @@ namespace chimera {
         }
 
         Number gcd(const Natural &left, std::uint64_t right) {
-          Number aPrime(copy(left)), bPrime(Base{right});
+          Number aPrime(Natural{left}), bPrime(Base{right});
           while (0u < bPrime) {
             auto temp = bPrime;
             bPrime = aPrime % bPrime;
             aPrime = temp;
           }
-          return std::get<Base>(aPrime.value);
+          return aPrime;
         }
 
         Number gcd(const Natural &left, Base right) {
@@ -144,7 +145,7 @@ namespace chimera {
           // if (right == 1u) {
           //   return real(std::move(left));
           // }
-          Number aPrime(copy(left)), bPrime(copy(right));
+          Number aPrime(Natural{left}), bPrime(Natural{right});
           while (0u < bPrime) {
             auto temp = bPrime;
             bPrime = aPrime % bPrime;
@@ -245,7 +246,7 @@ namespace chimera {
         Number gcd(const Rational &left, const Rational &right) {
           return std::visit(
               [](const auto &lN, const auto &lD, const auto &rN,
-                 const auto &rD) { return gcd(lN * rD, lD * rN)); },
+                 const auto &rD) { return (lN * rD).gcd(lD * rN); },
               left.numerator, left.denominator, right.numerator,
               right.denominator);
         }
@@ -312,7 +313,6 @@ namespace chimera {
         Number gcd(const Complex &/*left*/, const Complex &/*right*/) {
           Expects(false);
         }
-
       } // namespace number
     }   // namespace object
   }     // namespace library

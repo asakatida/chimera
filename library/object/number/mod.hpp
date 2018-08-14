@@ -80,7 +80,6 @@ namespace chimera {
         Number operator%(const Complex &left, const Rational &right);
         Number operator%(const Complex &left, const Imag &right);
         Number operator%(const Complex &left, const Complex &right);
-
       } // namespace number
     }   // namespace object
   }     // namespace library

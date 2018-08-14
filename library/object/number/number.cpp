@@ -41,6 +41,7 @@
 #include "object/number/positive.hpp"
 #include "object/number/right_shift.hpp"
 #include "object/number/sub.hpp"
+#include "object/number/util.hpp"
 #include "object/number/xor.hpp"
 
 namespace chimera {
@@ -73,16 +74,15 @@ namespace chimera {
         // static bool even(Base i) { return even(i.value); }
         // static bool even(const Natural &i) { return even(i.value[0]); }
 
-        // static Rational to_rational(Positive &&left, Positive &&right) {
-        //   return std::visit(Construct<Rational>{}, std::move(left.value),
-        //                     std::move(right.value));
-        // }
+        template <typename Left, typename Right>
+        static Rational to_rational(Left &&left, Right &&right) {
+          return Rational{std::forward<Left>(left), std::forward<Right>(right)};
+        }
 
         static RealValue real(Base base) { return base; }
 
         static RealValue real(Natural &&natural) {
-          return std::visit(Construct<RealValue>{},
-                            positive(std::move(natural)));
+          return std::visit(Construct<RealValue>{}, positive(std::move(natural)));
         }
 
         template <typename Left, typename Right>
@@ -105,7 +105,7 @@ namespace chimera {
 
         template <typename Left, typename Right>
         struct Reduce {
-          Number operator()(Left &&left, Right &&right) {
+          RealValue operator()(Left &&left, Right &&right) {
             if (left == 0u) {
               return Base{0u};
             }
@@ -115,49 +115,47 @@ namespace chimera {
             }
 
             if (left == 1u || right == 0u) {
-              return Rational{ReducedValue{}, std::forward<Left>(left),
-                              std::forward<Right>(right));
+              return Rational{std::forward<Left>(left), std::forward<Right>(right)};
             }
 
             if (right == 1u) {
               return real(std::forward<Left>(left));
             }
 
-            return reduce(Positive(std::forward<Left>(left)),
-                          Positive(std::forward<Right>(right)));
-          }
-        };
-
-        template <>
-        struct Reduce<Negative, Negative> {
-          Number operator()(Negative &&left, Negative &&right) {
-            return Reduce<Positive, Positive>{}(+left, +right);
-          }
-        };
-
-        template <typename Left>
-        struct Reduce<Left, Negative> {
-          Number operator()(Left &&left, Negative &&right) {
-            return std::visit(
-                Operation<RealValue, std::negate<>>{},
-                Reduce<Left, Positive>{}(std::forward<Left>(left), +right));
-          }
-        };
-
-        template <typename Right>
-        struct Reduce<Negative, Right> {
-          Number operator()(Negative &&left, Right &&right) {
-            return std::visit(
-                Operation<RealValue, std::negate<>>{},
-                Reduce<Positive, Right>{}(+left, std::forward<Right>(right)));
+            return reduce(std::forward<Left>(left), std::forward<Right>(right));
           }
         };
 
         struct ReduceVisit {
           template <typename Left, typename Right>
-          Number operator()(Left &&left, Right &&right) {
+          RealValue operator()(Left &&left, Right &&right) {
             return Reduce<Left, Right>{}(std::forward<Left>(left),
                                          std::forward<Right>(right));
+          }
+        };
+
+        template <>
+        struct Reduce<Negative, Negative> {
+          RealValue operator()(Negative &&left, Negative &&right) {
+            return std::visit(ReduceVisit{}, left.value, right.value);
+          }
+        };
+
+        template <typename Left>
+        struct Reduce<Left, Negative> {
+          RealValue operator()(Left &&left, Negative &&right) {
+            return std::visit(
+                Operation<RealValue, std::negate<>>{},
+                std::visit(ReduceVisit{}, std::forward<Left>(left), right.value));
+          }
+        };
+
+        template <typename Right>
+        struct Reduce<Negative, Right> {
+          RealValue operator()(Negative &&left, Right &&right) {
+            return std::visit(
+                Operation<RealValue, std::negate<>>{},
+                std::visit(ReduceVisit{}, left.value, std::forward<Right>(right)));
           }
         };
 

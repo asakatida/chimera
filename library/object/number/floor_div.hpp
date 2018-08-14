@@ -80,7 +80,6 @@ namespace chimera {
         Number floor_div(const Complex &left, const Rational &right);
         Number floor_div(const Complex &left, const Imag &right);
         Number floor_div(const Complex &left, const Complex &right);
-
       } // namespace number
     }   // namespace object
   }     // namespace library

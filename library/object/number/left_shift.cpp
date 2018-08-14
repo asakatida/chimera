@@ -97,7 +97,7 @@ namespace chimera {
 
         Number operator<<(const Natural &left, std::uint64_t right) {
           if (right == 0) {
-            return left;
+            return Natural(left);
           }
 
           auto value = left;
@@ -275,7 +275,6 @@ namespace chimera {
         Number operator<<(const Complex &/*left*/, const Complex &/*right*/) {
           Expects(false);
         }
-
       } // namespace number
     }   // namespace object
   }     // namespace library

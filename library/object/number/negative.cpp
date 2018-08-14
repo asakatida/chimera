@@ -24,14 +24,17 @@
 
 #include <gsl/gsl>
 
+#include "object/number/div.hpp"
+#include "object/number/util.hpp"
+
 namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        Number operator-(Base base) { return Negative{base); }
+        Number operator-(Base base) { return Negative(base); }
 
         Number operator-(const Natural &natural) {
-          return Negative{copy(natural));
+          return Negative(natural);
         }
 
         Number operator-(const Negative &negative) {
@@ -41,7 +44,7 @@ namespace chimera {
         Number operator-(const Rational &rational) {
           return std::visit(
               [](const auto &a, const auto &b) {
-                return Rational{ReducedValue{}, -a, copy(b));
+                return (-a) / b;
               },
               rational.numerator, rational.denominator);
         }

@@ -26,6 +26,7 @@
 #include "object/number/left_shift.hpp"
 #include "object/number/negative.hpp"
 #include "object/number/overflow.hpp"
+#include "object/number/util.hpp"
 
 namespace chimera {
   namespace library {
@@ -87,7 +88,7 @@ namespace chimera {
             return Base{0u};
           }
           if (right == 1) {
-            return copy(left);
+            return Natural(left);
           }
           Natural value{};
           value.value.reserve(left.value.size() + 1);
@@ -110,7 +111,7 @@ namespace chimera {
         }
 
         Number operator*(const Natural &left, const Natural &right) {
-          Natural accumulate;
+          Number accumulate;
           std::size_t size = 0;
           for (std::uint64_t i : right.value) {
             accumulate = accumulate + ((left * i) << (64 * (size++)));
@@ -171,7 +172,7 @@ namespace chimera {
         Number operator*(const Rational &left, std::uint64_t right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return lN * right, copy(lD));
+                return (lN * right) / lD;
               },
               left.numerator, left.denominator);
         }
@@ -183,7 +184,7 @@ namespace chimera {
         Number operator*(const Rational &left, const Natural &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return lN * right, copy(lD));
+                return (lN * right) / lD;
               },
               left.numerator, left.denominator);
         }
@@ -191,7 +192,7 @@ namespace chimera {
         Number operator*(const Rational &left, const Negative &right) {
           return std::visit(
               [&right](const auto &lN, const auto &lD) {
-                return lN * right, copy(lD));
+                return (lN * right) / lD;
               },
               left.numerator, left.denominator);
         }
@@ -199,7 +200,7 @@ namespace chimera {
         Number operator*(const Rational &left, const Rational &right) {
           return std::visit(
               [](const auto &lN, const auto &lD, const auto &rN,
-                 const auto &rD) { return lN * rN, lD * rD); },
+                 const auto &rD) { return (lN * rN) / (lD * rD); },
               left.numerator, left.denominator, right.numerator,
               right.denominator);
         }
@@ -266,7 +267,6 @@ namespace chimera {
         Number operator*(const Complex &/*left*/, const Complex &/*right*/) {
           Expects(false);
         }
-
       } // namespace number
     }   // namespace object
   }     // namespace library

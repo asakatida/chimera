@@ -80,7 +80,6 @@ namespace chimera {
         Number gcd(const Complex &left, const Rational &right);
         Number gcd(const Complex &left, const Imag &right);
         Number gcd(const Complex &left, const Complex &right);
-
       } // namespace number
     }   // namespace object
   }     // namespace library
