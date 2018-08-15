@@ -1,3 +1,5 @@
+#!/bin/bash
+
 cat stdlib/_builtins.py | \
 eval $1/builtins | \
 clang-format -style=file > library/virtual_machine/builtins.cpp
