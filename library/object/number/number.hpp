@@ -76,7 +76,8 @@ namespace chimera {
         struct Base {
           std::uint64_t value;
 
-          template <typename T, typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
+          template <typename T,
+                    typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
           explicit operator T() const noexcept {
             if constexpr (std::is_same_v<T, bool>) { // NOLINT
               return value != 0u;
@@ -91,7 +92,8 @@ namespace chimera {
         struct Natural {
           std::vector<std::uint64_t> value;
 
-          template <typename T, typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
+          template <typename T,
+                    typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
           explicit operator T() const noexcept {
             if constexpr (std::is_same_v<T, bool>) { // NOLINT
               return true;
@@ -112,7 +114,8 @@ namespace chimera {
         struct Negative {
           PositiveValue value;
 
-          template <typename T, typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
+          template <typename T,
+                    typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
           explicit operator T() const noexcept {
             if constexpr (std::is_same_v<T, bool>) { // NOLINT
               return std::visit(Construct<T>{}, value);
@@ -125,7 +128,8 @@ namespace chimera {
           IntegerValue numerator;
           IntegerValue denominator;
 
-          template <typename T, typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
+          template <typename T,
+                    typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
           explicit operator T() const noexcept {
             if constexpr (std::is_same_v<T, bool>) { // NOLINT
               return true;
@@ -139,7 +143,8 @@ namespace chimera {
         struct Imag {
           RealValue value;
 
-          template <typename T, typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
+          template <typename T,
+                    typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
           explicit operator T() const noexcept {
             auto t = std::visit(Construct<T>{}, value);
             if (t == T()) {
@@ -152,7 +157,8 @@ namespace chimera {
           RealValue real;
           RealValue imag;
 
-          template <typename T, typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
+          template <typename T,
+                    typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
           explicit operator T() const noexcept {
             auto t = std::visit(Construct<T>{}, imag);
             if (t == T()) {

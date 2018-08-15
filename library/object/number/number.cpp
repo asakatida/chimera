@@ -47,9 +47,7 @@ namespace chimera {
   namespace library {
     namespace object {
       namespace number {
-        static NumberValue reduce(Base value) {
-          return value;
-        }
+        static NumberValue reduce(Base value) { return value; }
 
         static NumberValue reduce(Natural &&value) {
           while ((!value.value.empty()) && value.value.back() == 0) {
@@ -81,7 +79,8 @@ namespace chimera {
           }
 
           if (left == Base{1u} || right == Base{0u}) {
-            return Rational{std::forward<Left>(left), std::forward<Right>(right)};
+            return Rational{std::forward<Left>(left),
+                            std::forward<Right>(right)};
           }
 
           if (right == Base{1u}) {
@@ -90,10 +89,12 @@ namespace chimera {
 
           auto aPrime = gcd(left, right);
           if (aPrime == Number(1u)) {
-            return Rational{std::forward<Left>(left), std::forward<Right>(right)};
+            return Rational{std::forward<Left>(left),
+                            std::forward<Right>(right)};
           }
 
-          Number nLeft(std::forward<Left>(left)), nRight(std::forward<Right>(right));
+          Number nLeft(std::forward<Left>(left)),
+              nRight(std::forward<Right>(right));
 
           if (nLeft == aPrime) {
             return (Number(1u) / nRight.floor_div(aPrime)).unpack();
@@ -114,7 +115,8 @@ namespace chimera {
         };
 
         static NumberValue reduce(Rational &&rational) {
-          return std::visit(Reduce{}, std::move(rational.numerator), std::move(rational.denominator));
+          return std::visit(Reduce{}, std::move(rational.numerator),
+                            std::move(rational.denominator));
         }
 
         template <typename Visitor>
@@ -133,9 +135,11 @@ namespace chimera {
 
         Number::Number(Natural &&natural) : value(reduce(std::move(natural))) {}
 
-        Number::Number(Negative &&negative) : value(reduce(std::move(negative))) {}
+        Number::Number(Negative &&negative)
+            : value(reduce(std::move(negative))) {}
 
-        Number::Number(Rational &&rational) : value(reduce(std::move(rational))) {}
+        Number::Number(Rational &&rational)
+            : value(reduce(std::move(rational))) {}
 
         Number::Number(Imag &&imag) : value(std::move(imag)) {}
 
@@ -143,13 +147,9 @@ namespace chimera {
 
         Number::Number(const Number &other) : value(other.value) {}
 
-        Number::Number(Number &&other) noexcept {
-          swap(std::move(other));
-        }
+        Number::Number(Number &&other) noexcept { swap(std::move(other)); }
 
-        Number::~Number() noexcept {
-          value = Base{0u};
-        }
+        Number::~Number() noexcept { value = Base{0u}; }
 
         Number &Number::operator=(const Number &other) {
           if (this != &other) {
@@ -197,9 +197,7 @@ namespace chimera {
           return *this;
         }
 
-        Number Number::operator~() const {
-          return visit(std::bit_not<>{});
-        }
+        Number Number::operator~() const { return visit(std::bit_not<>{}); }
 
         Number &Number::operator&=(const Number &right) {
           *this = visit(right, std::bit_and<>{});
@@ -233,7 +231,8 @@ namespace chimera {
         }
 
         bool Number::operator==(const Number &right) const {
-          return value.index() == right.value.index() && std::visit(std::equal_to<>{}, value, right.value);
+          return value.index() == right.value.index() &&
+                 std::visit(std::equal_to<>{}, value, right.value);
         }
 
         bool Number::operator<(const Number &right) const {
@@ -282,9 +281,7 @@ namespace chimera {
           }
         };
 
-        Number Number::complex() const {
-          return visit(MakeComplexVisit{});
-        }
+        Number Number::complex() const { return visit(MakeComplexVisit{}); }
       } // namespace number
     }   // namespace object
   }     // namespace library

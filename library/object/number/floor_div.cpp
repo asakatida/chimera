@@ -75,11 +75,11 @@ namespace chimera {
           return div(left, right);
         }
 
-        Number floor_div(std::uint64_t /*left*/, const Imag &/*right*/) {
+        Number floor_div(std::uint64_t /*left*/, const Imag & /*right*/) {
           Expects(false);
         }
 
-        Number floor_div(std::uint64_t /*left*/, const Complex &/*right*/) {
+        Number floor_div(std::uint64_t /*left*/, const Complex & /*right*/) {
           Expects(false);
         }
 
@@ -105,11 +105,11 @@ namespace chimera {
           return floor_div(left.value, right);
         }
 
-        Number floor_div(Base /*left*/, const Imag &/*right*/) {
+        Number floor_div(Base /*left*/, const Imag & /*right*/) {
           Expects(false);
         }
 
-        Number floor_div(Base /*left*/, const Complex &/*right*/) {
+        Number floor_div(Base /*left*/, const Complex & /*right*/) {
           Expects(false);
         }
 
@@ -156,11 +156,11 @@ namespace chimera {
           return div(left, right);
         }
 
-        Number floor_div(const Natural &/*left*/, const Imag &/*right*/) {
+        Number floor_div(const Natural & /*left*/, const Imag & /*right*/) {
           Expects(false);
         }
 
-        Number floor_div(const Natural &/*left*/, const Complex &/*right*/) {
+        Number floor_div(const Natural & /*left*/, const Complex & /*right*/) {
           Expects(false);
         }
 
@@ -182,9 +182,7 @@ namespace chimera {
 
         Number floor_div(const Negative &left, const Negative &right) {
           return std::visit(
-              [](const auto &l, const auto &r) {
-                return floor_div(l, r);
-              },
+              [](const auto &l, const auto &r) { return floor_div(l, r); },
               left.value, right.value);
         }
 
@@ -192,11 +190,11 @@ namespace chimera {
           return div(left, right);
         }
 
-        Number floor_div(const Negative &/*left*/, const Imag &/*right*/) {
+        Number floor_div(const Negative & /*left*/, const Imag & /*right*/) {
           Expects(false);
         }
 
-        Number floor_div(const Negative &/*left*/, const Complex &/*right*/) {
+        Number floor_div(const Negative & /*left*/, const Complex & /*right*/) {
           Expects(false);
         }
 
@@ -219,73 +217,71 @@ namespace chimera {
         Number floor_div(const Rational &left, const Rational &right) {
           return std::visit(
               [](const auto &lN, const auto &lD, const auto &rN,
-                 const auto &rD) {
-                return (lN * rD).floor_div(lD * rN);
-              },
+                 const auto &rD) { return (lN * rD).floor_div(lD * rN); },
               left.numerator, left.denominator, right.numerator,
               right.denominator);
         }
-        Number floor_div(const Rational &/*left*/, const Imag &/*right*/) {
+        Number floor_div(const Rational & /*left*/, const Imag & /*right*/) {
           Expects(false);
         }
 
-        Number floor_div(const Rational &/*left*/, const Complex &/*right*/) {
+        Number floor_div(const Rational & /*left*/, const Complex & /*right*/) {
           Expects(false);
         }
 
-        Number floor_div(const Imag &/*left*/, std::uint64_t /*right*/) {
+        Number floor_div(const Imag & /*left*/, std::uint64_t /*right*/) {
           Expects(false);
         }
 
-        Number floor_div(const Imag &/*left*/, Base /*right*/) {
+        Number floor_div(const Imag & /*left*/, Base /*right*/) {
           Expects(false);
         }
 
-        Number floor_div(const Imag &/*left*/, const Natural &/*right*/) {
+        Number floor_div(const Imag & /*left*/, const Natural & /*right*/) {
           Expects(false);
         }
 
-        Number floor_div(const Imag &/*left*/, const Negative &/*right*/) {
+        Number floor_div(const Imag & /*left*/, const Negative & /*right*/) {
           Expects(false);
         }
 
-        Number floor_div(const Imag &/*left*/, const Rational &/*right*/) {
+        Number floor_div(const Imag & /*left*/, const Rational & /*right*/) {
           Expects(false);
         }
 
-        Number floor_div(const Imag &/*left*/, const Imag &/*right*/) {
+        Number floor_div(const Imag & /*left*/, const Imag & /*right*/) {
           Expects(false);
         }
 
-        Number floor_div(const Imag &/*left*/, const Complex &/*right*/) {
+        Number floor_div(const Imag & /*left*/, const Complex & /*right*/) {
           Expects(false);
         }
 
-        Number floor_div(const Complex &/*left*/, std::uint64_t /*right*/) {
+        Number floor_div(const Complex & /*left*/, std::uint64_t /*right*/) {
           Expects(false);
         }
 
-        Number floor_div(const Complex &/*left*/, Base /*right*/) {
+        Number floor_div(const Complex & /*left*/, Base /*right*/) {
           Expects(false);
         }
 
-        Number floor_div(const Complex &/*left*/, const Natural &/*right*/) {
+        Number floor_div(const Complex & /*left*/, const Natural & /*right*/) {
           Expects(false);
         }
 
-        Number floor_div(const Complex &/*left*/, const Negative &/*right*/) {
+        Number floor_div(const Complex & /*left*/, const Negative & /*right*/) {
           Expects(false);
         }
 
-        Number floor_div(const Complex &/*left*/, const Rational &/*right*/) {
+        Number floor_div(const Complex & /*left*/, const Rational & /*right*/) {
           Expects(false);
         }
 
-        Number floor_div(const Complex &/*left*/, const Imag &/*right*/) {
+        Number floor_div(const Complex & /*left*/, const Imag & /*right*/) {
           Expects(false);
         }
 
-        Number floor_div(const Complex &/*left*/, const Complex &/*right*/) {
+        Number floor_div(const Complex & /*left*/, const Complex & /*right*/) {
           Expects(false);
         }
       } // namespace number

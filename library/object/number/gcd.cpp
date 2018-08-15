@@ -81,11 +81,11 @@ namespace chimera {
           return div(left, right);
         }
 
-        Number gcd(std::uint64_t /*left*/, const Imag &/*right*/) {
+        Number gcd(std::uint64_t /*left*/, const Imag & /*right*/) {
           Expects(false);
         }
 
-        Number gcd(std::uint64_t /*left*/, const Complex &/*right*/) {
+        Number gcd(std::uint64_t /*left*/, const Complex & /*right*/) {
           Expects(false);
         }
 
@@ -111,13 +111,9 @@ namespace chimera {
           return gcd(left.value, right);
         }
 
-        Number gcd(Base /*left*/, const Imag &/*right*/) {
-          Expects(false);
-        }
+        Number gcd(Base /*left*/, const Imag & /*right*/) { Expects(false); }
 
-        Number gcd(Base /*left*/, const Complex &/*right*/) {
-          Expects(false);
-        }
+        Number gcd(Base /*left*/, const Complex & /*right*/) { Expects(false); }
 
         Number gcd(const Natural &left, std::uint64_t right) {
           Number aPrime(Natural{left}), bPrime(right);
@@ -189,11 +185,11 @@ namespace chimera {
           return div(left, right);
         }
 
-        Number gcd(const Natural &/*left*/, const Imag &/*right*/) {
+        Number gcd(const Natural & /*left*/, const Imag & /*right*/) {
           Expects(false);
         }
 
-        Number gcd(const Natural &/*left*/, const Complex &/*right*/) {
+        Number gcd(const Natural & /*left*/, const Complex & /*right*/) {
           Expects(false);
         }
 
@@ -223,11 +219,11 @@ namespace chimera {
           return div(left, right);
         }
 
-        Number gcd(const Negative &/*left*/, const Imag &/*right*/) {
+        Number gcd(const Negative & /*left*/, const Imag & /*right*/) {
           Expects(false);
         }
 
-        Number gcd(const Negative &/*left*/, const Complex &/*right*/) {
+        Number gcd(const Negative & /*left*/, const Complex & /*right*/) {
           Expects(false);
         }
 
@@ -254,67 +250,63 @@ namespace chimera {
               left.numerator, left.denominator, right.numerator,
               right.denominator);
         }
-        Number gcd(const Rational &/*left*/, const Imag &/*right*/) {
+        Number gcd(const Rational & /*left*/, const Imag & /*right*/) {
           Expects(false);
         }
 
-        Number gcd(const Rational &/*left*/, const Complex &/*right*/) {
+        Number gcd(const Rational & /*left*/, const Complex & /*right*/) {
           Expects(false);
         }
 
-        Number gcd(const Imag &/*left*/, std::uint64_t /*right*/) {
+        Number gcd(const Imag & /*left*/, std::uint64_t /*right*/) {
           Expects(false);
         }
 
-        Number gcd(const Imag &/*left*/, Base /*right*/) {
+        Number gcd(const Imag & /*left*/, Base /*right*/) { Expects(false); }
+
+        Number gcd(const Imag & /*left*/, const Natural & /*right*/) {
           Expects(false);
         }
 
-        Number gcd(const Imag &/*left*/, const Natural &/*right*/) {
+        Number gcd(const Imag & /*left*/, const Negative & /*right*/) {
           Expects(false);
         }
 
-        Number gcd(const Imag &/*left*/, const Negative &/*right*/) {
+        Number gcd(const Imag & /*left*/, const Rational & /*right*/) {
           Expects(false);
         }
 
-        Number gcd(const Imag &/*left*/, const Rational &/*right*/) {
+        Number gcd(const Imag & /*left*/, const Imag & /*right*/) {
           Expects(false);
         }
 
-        Number gcd(const Imag &/*left*/, const Imag &/*right*/) {
+        Number gcd(const Imag & /*left*/, const Complex & /*right*/) {
           Expects(false);
         }
 
-        Number gcd(const Imag &/*left*/, const Complex &/*right*/) {
+        Number gcd(const Complex & /*left*/, std::uint64_t /*right*/) {
           Expects(false);
         }
 
-        Number gcd(const Complex &/*left*/, std::uint64_t /*right*/) {
+        Number gcd(const Complex & /*left*/, Base /*right*/) { Expects(false); }
+
+        Number gcd(const Complex & /*left*/, const Natural & /*right*/) {
           Expects(false);
         }
 
-        Number gcd(const Complex &/*left*/, Base /*right*/) {
+        Number gcd(const Complex & /*left*/, const Negative & /*right*/) {
           Expects(false);
         }
 
-        Number gcd(const Complex &/*left*/, const Natural &/*right*/) {
+        Number gcd(const Complex & /*left*/, const Rational & /*right*/) {
           Expects(false);
         }
 
-        Number gcd(const Complex &/*left*/, const Negative &/*right*/) {
+        Number gcd(const Complex & /*left*/, const Imag & /*right*/) {
           Expects(false);
         }
 
-        Number gcd(const Complex &/*left*/, const Rational &/*right*/) {
-          Expects(false);
-        }
-
-        Number gcd(const Complex &/*left*/, const Imag &/*right*/) {
-          Expects(false);
-        }
-
-        Number gcd(const Complex &/*left*/, const Complex &/*right*/) {
+        Number gcd(const Complex & /*left*/, const Complex & /*right*/) {
           Expects(false);
         }
       } // namespace number

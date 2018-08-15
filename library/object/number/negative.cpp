@@ -43,18 +43,12 @@ namespace chimera {
 
         Number operator-(const Rational &rational) {
           return std::visit(
-              [](const auto &a, const auto &b) {
-                return (-a) / b;
-              },
+              [](const auto &a, const auto &b) { return (-a) / b; },
               rational.numerator, rational.denominator);
         }
-        Number operator-(const Imag &/*imag*/) {
-          Expects(false);
-        }
+        Number operator-(const Imag & /*imag*/) { Expects(false); }
 
-        Number operator-(const Complex &/*complex*/) {
-          Expects(false);
-        }
+        Number operator-(const Complex & /*complex*/) { Expects(false); }
 
       } // namespace number
     }   // namespace object

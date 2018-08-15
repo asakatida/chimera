@@ -66,11 +66,11 @@ namespace chimera {
           return div(left, right);
         }
 
-        Number operator/(std::uint64_t /*left*/, const Imag &/*right*/) {
+        Number operator/(std::uint64_t /*left*/, const Imag & /*right*/) {
           Expects(false);
         }
 
-        Number operator/(std::uint64_t /*left*/, const Complex &/*right*/) {
+        Number operator/(std::uint64_t /*left*/, const Complex & /*right*/) {
           Expects(false);
         }
 
@@ -78,7 +78,9 @@ namespace chimera {
           return Number(Rational{left, Base{right}});
         }
 
-        Number operator/(Base left, Base right) { return Number(Rational{left, right}); }
+        Number operator/(Base left, Base right) {
+          return Number(Rational{left, right});
+        }
 
         Number operator/(Base left, const Natural &right) {
           return Number(Rational{left, right});
@@ -94,11 +96,11 @@ namespace chimera {
           return div(left, right);
         }
 
-        Number operator/(Base /*left*/, const Imag &/*right*/) {
+        Number operator/(Base /*left*/, const Imag & /*right*/) {
           Expects(false);
         }
 
-        Number operator/(Base /*left*/, const Complex &/*right*/) {
+        Number operator/(Base /*left*/, const Complex & /*right*/) {
           Expects(false);
         }
 
@@ -124,11 +126,11 @@ namespace chimera {
           return div(left, right);
         }
 
-        Number operator/(const Natural &/*left*/, const Imag &/*right*/) {
+        Number operator/(const Natural & /*left*/, const Imag & /*right*/) {
           Expects(false);
         }
 
-        Number operator/(const Natural &/*left*/, const Complex &/*right*/) {
+        Number operator/(const Natural & /*left*/, const Complex & /*right*/) {
           Expects(false);
         }
 
@@ -161,11 +163,11 @@ namespace chimera {
               left.value);
         }
 
-        Number operator/(const Negative &/*left*/, const Imag &/*right*/) {
+        Number operator/(const Negative & /*left*/, const Imag & /*right*/) {
           Expects(false);
         }
 
-        Number operator/(const Negative &/*left*/, const Complex &/*right*/) {
+        Number operator/(const Negative & /*left*/, const Complex & /*right*/) {
           Expects(false);
         }
 
@@ -192,67 +194,67 @@ namespace chimera {
               left.numerator, left.denominator, right.numerator,
               right.denominator);
         }
-        Number operator/(const Rational &/*left*/, const Imag &/*right*/) {
+        Number operator/(const Rational & /*left*/, const Imag & /*right*/) {
           Expects(false);
         }
 
-        Number operator/(const Rational &/*left*/, const Complex &/*right*/) {
+        Number operator/(const Rational & /*left*/, const Complex & /*right*/) {
           Expects(false);
         }
 
-        Number operator/(const Imag &/*left*/, std::uint64_t /*right*/) {
+        Number operator/(const Imag & /*left*/, std::uint64_t /*right*/) {
           Expects(false);
         }
 
-        Number operator/(const Imag &/*left*/, Base /*right*/) {
+        Number operator/(const Imag & /*left*/, Base /*right*/) {
           Expects(false);
         }
 
-        Number operator/(const Imag &/*left*/, const Natural &/*right*/) {
+        Number operator/(const Imag & /*left*/, const Natural & /*right*/) {
           Expects(false);
         }
 
-        Number operator/(const Imag &/*left*/, const Negative &/*right*/) {
+        Number operator/(const Imag & /*left*/, const Negative & /*right*/) {
           Expects(false);
         }
 
-        Number operator/(const Imag &/*left*/, const Rational &/*right*/) {
+        Number operator/(const Imag & /*left*/, const Rational & /*right*/) {
           Expects(false);
         }
 
-        Number operator/(const Imag &/*left*/, const Imag &/*right*/) {
+        Number operator/(const Imag & /*left*/, const Imag & /*right*/) {
           Expects(false);
         }
 
-        Number operator/(const Imag &/*left*/, const Complex &/*right*/) {
+        Number operator/(const Imag & /*left*/, const Complex & /*right*/) {
           Expects(false);
         }
 
-        Number operator/(const Complex &/*left*/, std::uint64_t /*right*/) {
+        Number operator/(const Complex & /*left*/, std::uint64_t /*right*/) {
           Expects(false);
         }
 
-        Number operator/(const Complex &/*left*/, Base /*right*/) {
+        Number operator/(const Complex & /*left*/, Base /*right*/) {
           Expects(false);
         }
 
-        Number operator/(const Complex &/*left*/, const Natural &/*right*/) {
+        Number operator/(const Complex & /*left*/, const Natural & /*right*/) {
           Expects(false);
         }
 
-        Number operator/(const Complex &/*left*/, const Negative &/*right*/) {
+        Number operator/(const Complex & /*left*/, const Negative & /*right*/) {
           Expects(false);
         }
 
-        Number operator/(const Complex &/*left*/, const Rational &/*right*/) {
+        Number operator/(const Complex & /*left*/, const Rational & /*right*/) {
           Expects(false);
         }
 
-        Number operator/(const Complex &/*left*/, const Imag &/*right*/) {
+        Number operator/(const Complex & /*left*/, const Imag & /*right*/) {
           Expects(false);
         }
 
-        Number operator/(const Complex &/*left*/, const Complex &/*right*/) {
+        Number operator/(const Complex & /*left*/, const Complex & /*right*/) {
           Expects(false);
         }
       } // namespace number
