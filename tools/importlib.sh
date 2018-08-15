@@ -1,3 +1,5 @@
+#!/bin/bash
+
 output=library/virtual_machine/importlib.cpp
 
 $1/builtins \
