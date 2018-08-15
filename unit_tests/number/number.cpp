@@ -5,8 +5,7 @@
 using chimera::library::object::number::Number;
 
 template <typename OStream>
-OStream &operator<<(OStream &os,
-                    const Number &number) {
+OStream &operator<<(OStream &os, const Number &number) {
   return number.debug(os);
 }
 
@@ -49,8 +48,7 @@ TEST_CASE("number Number division") {
 TEST_CASE("number Number addition huge a") {
   Number two(2);
   Number eight(8);
-  Number huge(
-      std::numeric_limits<std::uint64_t>::max());
+  Number huge(std::numeric_limits<std::uint64_t>::max());
   auto number = huge + eight;
   auto massive = huge + two;
   massive += two;
@@ -63,8 +61,7 @@ TEST_CASE("number Number addition huge a") {
 TEST_CASE("number Number addition huge b") {
   Number two(2);
   Number eight(8);
-  Number huge(
-      std::numeric_limits<std::uint64_t>::max());
+  Number huge(std::numeric_limits<std::uint64_t>::max());
   auto number = eight + huge;
   auto massive = two + two;
   massive += two;
@@ -77,8 +74,7 @@ TEST_CASE("number Number addition huge b") {
 TEST_CASE("number Number addition huge c") {
   Number two(2);
   Number eight(8);
-  Number huge(
-      std::numeric_limits<std::uint64_t>::max());
+  Number huge(std::numeric_limits<std::uint64_t>::max());
   auto number = huge + eight;
   auto massive = two + two;
   massive += two;
@@ -90,8 +86,7 @@ TEST_CASE("number Number addition huge c") {
 
 TEST_CASE("number Number division huge") {
   Number other(2);
-  Number huge(
-      std::numeric_limits<std::uint64_t>::max());
+  Number huge(std::numeric_limits<std::uint64_t>::max());
   auto number = huge * huge;
   REQUIRE(number > huge);
   auto massive = number * other;
@@ -108,8 +103,7 @@ TEST_CASE("number Number division huge") {
 }
 
 TEST_CASE("number Number modulus huge") {
-  Number huge(
-      std::numeric_limits<std::uint64_t>::max());
+  Number huge(std::numeric_limits<std::uint64_t>::max());
   auto number = huge * Number(3);
   REQUIRE((number % Number(2)) == Number(1));
 }
@@ -117,8 +111,7 @@ TEST_CASE("number Number modulus huge") {
 TEST_CASE("number Number multiplication huge a") {
   Number two(2);
   Number eight(8);
-  Number huge(
-      std::numeric_limits<std::uint64_t>::max());
+  Number huge(std::numeric_limits<std::uint64_t>::max());
   auto number = huge * eight;
   auto massive = huge * two;
   massive *= two;
@@ -130,8 +123,7 @@ TEST_CASE("number Number multiplication huge a") {
 TEST_CASE("number Number multiplication huge b") {
   Number two(2);
   Number eight(8);
-  Number huge(
-      std::numeric_limits<std::uint64_t>::max());
+  Number huge(std::numeric_limits<std::uint64_t>::max());
   auto number = eight * huge;
   auto massive = two * two;
   massive *= two;
@@ -143,8 +135,7 @@ TEST_CASE("number Number multiplication huge b") {
 TEST_CASE("number Number multiplication huge c") {
   Number two(2);
   Number eight(8);
-  Number huge(
-      std::numeric_limits<std::uint64_t>::max());
+  Number huge(std::numeric_limits<std::uint64_t>::max());
   auto number = huge * eight;
   auto massive = two * two;
   massive *= two;
@@ -155,8 +146,7 @@ TEST_CASE("number Number multiplication huge c") {
 
 TEST_CASE("number Number naturals") {
   Number one(1);
-  Number huge(
-      std::numeric_limits<std::uint64_t>::max());
+  Number huge(std::numeric_limits<std::uint64_t>::max());
   auto number = huge * huge;
   auto massive = number * number;
   REQUIRE(massive.is_int());
@@ -171,8 +161,7 @@ TEST_CASE("number Number naturals") {
 }
 
 TEST_CASE("number Number naturals costly", "[!hide]") {
-  Number huge(
-      std::numeric_limits<std::uint64_t>::max());
+  Number huge(std::numeric_limits<std::uint64_t>::max());
   auto number = huge * huge;
   auto massive = number * number;
   REQUIRE((massive / number) == number);
@@ -181,8 +170,7 @@ TEST_CASE("number Number naturals costly", "[!hide]") {
 TEST_CASE("number Number subtraction huge") {
   Number two(2);
   Number eight(8);
-  Number huge(
-      std::numeric_limits<std::uint64_t>::max());
+  Number huge(std::numeric_limits<std::uint64_t>::max());
   auto number = huge + eight;
   auto massive = number;
   massive -= two;
