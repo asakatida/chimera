@@ -40,7 +40,8 @@ namespace chimera {
 
         template <typename ASDL>
         [[noreturn]] void evaluate(const ASDL & /*asdl*/) {
-          throw object::BaseException(evaluator->builtins().get_attribute("RuntimeError"));
+          throw object::BaseException(
+              evaluator->builtins().get_attribute("RuntimeError"));
         }
       };
     } // namespace virtual_machine

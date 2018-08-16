@@ -49,7 +49,6 @@ namespace chimera {
         FibonacciHeap &operator=(const FibonacciHeap &fibonacciHeap) = delete;
         FibonacciHeap &
         operator=(FibonacciHeap &&fibonacciHeap) noexcept = default;
-
         template <typename Compare2>
         void merge(FibonacciHeap<Key, Compare2, Allocator> &&source) {
           if (min == nullptr) {
@@ -105,7 +104,6 @@ namespace chimera {
 
           Node &operator=(const Node &fibonacciHeap) = delete;
           Node &operator=(Node &&fibonacciHeap) noexcept = default;
-
           Key key;
           std::uint64_t degree = 0;
           bool mark = false;
@@ -114,7 +112,6 @@ namespace chimera {
           Node *parent = nullptr;
           Node *child = nullptr;
         };
-
         Node *min = nullptr; //! owned by its own left member
         std::uint64_t n = 0;
       };

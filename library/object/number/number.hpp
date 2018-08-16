@@ -38,44 +38,36 @@ namespace chimera {
             return Return(std::forward<Args>(args)...);
           }
         };
-
         template <typename Left, typename Op>
         struct LeftOperation {
           const Left &left;
-
           template <typename... Args>
           auto operator()(Args &&... args) const {
             return Op{}(left, std::forward<Args>(args)...);
           }
         };
-
         template <typename Right, typename Op>
         struct RightOperation {
           const Right &right;
-
           template <typename... Args>
           auto operator()(Args &&... args) const {
             return Op{}(std::forward<Args>(args)..., right);
           }
         };
-
         struct Identity {
           template <typename Arg>
           constexpr Arg &&operator()(Arg &&arg) const noexcept {
             return std::forward<Arg>(arg);
           }
         };
-
         struct UnaryPositive {
           template <typename Arg>
           auto operator()(const Arg &arg) const {
             return +arg;
           }
         };
-
         struct Base {
           std::uint64_t value;
-
           template <typename T,
                     typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
           explicit operator T() const noexcept {
@@ -91,7 +83,6 @@ namespace chimera {
         };
         struct Natural {
           std::vector<std::uint64_t> value;
-
           template <typename T,
                     typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
           explicit operator T() const noexcept {
@@ -113,7 +104,6 @@ namespace chimera {
         using PositiveValue = std::variant<Base, Natural>;
         struct Negative {
           PositiveValue value;
-
           template <typename T,
                     typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
           explicit operator T() const noexcept {
@@ -127,7 +117,6 @@ namespace chimera {
         struct Rational {
           IntegerValue numerator;
           IntegerValue denominator;
-
           template <typename T,
                     typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
           explicit operator T() const noexcept {
@@ -142,7 +131,6 @@ namespace chimera {
         using RealValue = std::variant<Base, Natural, Negative, Rational>;
         struct Imag {
           RealValue value;
-
           template <typename T,
                     typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
           explicit operator T() const noexcept {
@@ -156,7 +144,6 @@ namespace chimera {
         struct Complex {
           RealValue real;
           RealValue imag;
-
           template <typename T,
                     typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
           explicit operator T() const noexcept {
@@ -167,10 +154,8 @@ namespace chimera {
             return std::numeric_limits<T>::signaling_NaN();
           }
         };
-
         using NumberValue =
             std::variant<Base, Natural, Negative, Rational, Imag, Complex>;
-
         class Number : tao::operators::commutative_bitwise<Number>,
                        tao::operators::modable<Number>,
                        tao::operators::ordered_field<Number>,
@@ -184,17 +169,12 @@ namespace chimera {
           explicit Number(Rational &&rational);
           explicit Number(Imag &&imag);
           explicit Number(Complex &&complex);
-
           Number(const Number &other);
           Number(Number &&other) noexcept;
-
           ~Number() noexcept;
-
           Number &operator=(const Number &other);
           Number &operator=(Number &&other) noexcept;
-
           void swap(Number &&other) noexcept;
-
           template <typename T>
           explicit operator T() const noexcept {
             return std::visit(Construct<T>{}, value);
@@ -215,34 +195,24 @@ namespace chimera {
           Number &operator>>=(const Number &right);
           bool operator==(const Number &right) const;
           bool operator<(const Number &right) const;
-
           Number floor_div(const Number &right) const;
           Number gcd(const Number &right) const;
-
           Number pow(const Number &right) const;
           Number pow(const Number &y, const Number &z) const;
-
           bool is_int() const;
-
           bool is_complex() const;
-
           Number complex() const;
-
           template <typename OStream>
           OStream &debug(OStream &os) const;
-
           template <typename OStream>
           OStream &repr(OStream &os) const;
-
           NumberValue unpack() const { return value; }
 
         private:
           template <typename Visitor>
           Number visit(Visitor &&visitor) const;
-
           template <typename Visitor>
           Number visit(const Number &right, Visitor &&visitor) const;
-
           NumberValue value;
         };
       } // namespace number

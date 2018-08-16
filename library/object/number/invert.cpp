@@ -36,21 +36,14 @@ namespace chimera {
         Number operator~(const Natural &natural) { return -(natural + 1); }
 
         Number operator~(const Negative &negative) {
-          return std::visit(
-              [](const auto &value) { return +(value - 1); },
-              negative.value);
+          return std::visit([](const auto &value) { return +(value - 1); },
+                            negative.value);
         }
-        Number operator~(const Rational &/*rational*/) {
-          Expects(false);
-        }
+        Number operator~(const Rational & /*rational*/) { Expects(false); }
 
-        Number operator~(const Imag &/*imag*/) {
-          Expects(false);
-        }
+        Number operator~(const Imag & /*imag*/) { Expects(false); }
 
-        Number operator~(const Complex &/*complex*/) {
-          Expects(false);
-        }
+        Number operator~(const Complex & /*complex*/) { Expects(false); }
 
       } // namespace number
     }   // namespace object

@@ -188,14 +188,14 @@ namespace chimera {
                 case 'W':
                   ++argChar;
                   if (argChar != argCStr.cend()) {
-                    options.warnings.push_back(&*argChar);
+                    options.warnings.emplace_back(&*argChar);
                     break;
                   }
                   ++arg;
                   if (arg == args.end()) {
                     throw std::runtime_error("missing warning argument");
                   }
-                  options.warnings.push_back(*arg);
+                  options.warnings.emplace_back(*arg);
                   break;
                 case 'x':
                   options.skip_first_line = true;
@@ -203,14 +203,14 @@ namespace chimera {
                 case 'X':
                   ++argChar;
                   if (argChar != argCStr.cend()) {
-                    options.extensions.push_back(&*argChar);
+                    options.extensions.emplace_back(&*argChar);
                     break;
                   }
                   ++arg;
                   if (arg == args.end()) {
                     throw std::runtime_error("missing extension argument");
                   }
-                  options.extensions.push_back(*arg);
+                  options.extensions.emplace_back(*arg);
                   break;
                 default:
                   throw std::runtime_error(
