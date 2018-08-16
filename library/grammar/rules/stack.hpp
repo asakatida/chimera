@@ -40,7 +40,7 @@ namespace chimera {
           using ValueT = std::variant<Types...>;
           template <typename Type>
           void push(Type &&type) {
-            return stack.push_back(ValueT{std::forward<Type>(type)});
+            stack.emplace_back(ValueT{std::forward<Type>(type)});
           }
           const ValueT &top() const { return stack.back(); }
           ValueT &top() { return stack.back(); }

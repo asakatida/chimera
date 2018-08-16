@@ -52,7 +52,6 @@ namespace chimera {
                 left.numerator, left.denominator);
           }
         };
-
         Number operator+(std::uint64_t left, Base right) {
           return right + left;
         }
@@ -116,10 +115,10 @@ namespace chimera {
           Carryover carryover{0, right};
           for (std::uint64_t i : left.value) {
             carryover = sum(i, carryover.overflow);
-            value.value.push_back(carryover.result);
+            value.value.emplace_back(carryover.result);
           }
           if (carryover.overflow != 0) {
-            value.value.push_back(carryover.overflow);
+            value.value.emplace_back(carryover.overflow);
           }
           return Number(std::move(value));
         }
@@ -139,7 +138,7 @@ namespace chimera {
           for (; it1 != end1 && it2 != end2; ++it1, ++it2) {
             auto next = sum(*it1, *it2);
             carryover = sum(carryover.result, next.result);
-            value.value.push_back(carryover.result);
+            value.value.emplace_back(carryover.result);
             carryover = sum(carryover.overflow, next.overflow);
             Ensures(carryover.overflow == 0);
           }
@@ -150,10 +149,10 @@ namespace chimera {
           carryover.overflow = carryover.result;
           for (; it1 != end1; ++it1) {
             carryover = sum(carryover.overflow, *it1);
-            value.value.push_back(carryover.result);
+            value.value.emplace_back(carryover.result);
           }
           if (carryover.overflow != 0) {
-            value.value.push_back(carryover.overflow);
+            value.value.emplace_back(carryover.overflow);
           }
           return Number(std::move(value));
         }

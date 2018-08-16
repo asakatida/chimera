@@ -39,7 +39,6 @@
 #include "virtual_machine/thread_context.hpp"
 
 using namespace std::literals;
-
 static const std::string_view CHIMERA_IMPORT_PATH_VIEW
 #ifdef CHIMERA_PATH
 #define STRINGIFY(ARG) #ARG##sv
@@ -47,7 +46,6 @@ static const std::string_view CHIMERA_IMPORT_PATH_VIEW
 #undef STRINGIFY
 #endif
         ;
-
 namespace chimera {
   namespace library {
     namespace virtual_machine {

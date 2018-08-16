@@ -57,9 +57,9 @@ namespace chimera {
             call.args.reserve(size());
             while (has_value()) {
               if (top_is<asdl::Keyword>()) {
-                call.keywords.push_back(pop<asdl::Keyword>());
+                call.keywords.emplace_back(pop<asdl::Keyword>());
               } else {
-                call.args.push_back(pop<asdl::ExprImpl>());
+                call.args.emplace_back(pop<asdl::ExprImpl>());
               }
             }
             std::reverse(call.args.begin(), call.args.end());
@@ -250,7 +250,7 @@ namespace chimera {
                            asdl::ExprImpl>()}});
             }
             std::get<asdl::Compare>(*expr.value)
-                .comparators.push_back(
+                .comparators.emplace_back(
                     reshape<asdl::CompareExpr, asdl::CompareExpr::Op,
                             asdl::ExprImpl>());
             outer.push(std::move(expr));
@@ -399,8 +399,8 @@ namespace chimera {
               {
                 auto expr = pop<asdl::ExprImpl>();
                 bin.op = pop<asdl::Operator>();
-                bin.values.push_back(pop<asdl::ExprImpl>());
-                bin.values.push_back(std::move(expr));
+                bin.values.emplace_back(pop<asdl::ExprImpl>());
+                bin.values.emplace_back(std::move(expr));
               }
               outer.push(std::move(bin));
             } else {
@@ -462,7 +462,7 @@ namespace chimera {
               }
               arg.name = this->template pop<asdl::Name>();
               (arguments.vararg ? arguments.kwonlyargs : arguments.args)
-                  .push_back(std::move(arg));
+                  .emplace_back(std::move(arg));
             }(outer.template top<asdl::Arguments>());
           }
         };
@@ -556,7 +556,7 @@ namespace chimera {
               std::vector<asdl::Comprehension> generators;
               generators.reserve(size() - 1);
               while (size() > 1) {
-                generators.push_back(pop<asdl::Comprehension>());
+                generators.emplace_back(pop<asdl::Comprehension>());
               }
               outer.push(asdl::GeneratorExp{pop<asdl::ExprImpl>(),
                                             std::move(generators)});
@@ -598,7 +598,7 @@ namespace chimera {
               std::vector<asdl::Comprehension> generators;
               generators.reserve(size() - 1);
               while (size() > 1) {
-                generators.push_back(pop<asdl::Comprehension>());
+                generators.emplace_back(pop<asdl::Comprehension>());
               }
               outer.push(
                   asdl::ListComp{pop<asdl::ExprImpl>(), std::move(generators)});
@@ -695,7 +695,7 @@ namespace chimera {
               std::vector<asdl::Comprehension> generators;
               generators.reserve(size() - 1);
               while (size() > 1) {
-                generators.push_back(pop<asdl::Comprehension>());
+                generators.emplace_back(pop<asdl::Comprehension>());
               }
               outer.push(
                   asdl::SetComp{pop<asdl::ExprImpl>(), std::move(generators)});
@@ -717,7 +717,7 @@ namespace chimera {
               std::vector<asdl::Comprehension> generators;
               generators.reserve(size() - 1);
               while (size() > 1) {
-                generators.push_back(pop<asdl::Comprehension>());
+                generators.emplace_back(pop<asdl::Comprehension>());
               }
               auto value = pop<asdl::ExprImpl>();
               outer.push(asdl::DictComp{pop<asdl::ExprImpl>(), std::move(value),
@@ -728,8 +728,8 @@ namespace chimera {
               dict.keys.reserve(s);
               dict.values.reserve(s);
               while (has_value()) {
-                dict.values.push_back(pop<asdl::ExprImpl>());
-                dict.keys.push_back(pop<asdl::ExprImpl>());
+                dict.values.emplace_back(pop<asdl::ExprImpl>());
+                dict.keys.emplace_back(pop<asdl::ExprImpl>());
               }
               std::reverse(dict.values.begin(), dict.values.end());
               std::reverse(dict.keys.begin(), dict.keys.end());
@@ -747,7 +747,7 @@ namespace chimera {
               std::vector<asdl::Comprehension> generators;
               generators.reserve(size() - 1);
               while (size() > 1) {
-                generators.push_back(pop<asdl::Comprehension>());
+                generators.emplace_back(pop<asdl::Comprehension>());
               }
               outer.push(asdl::GeneratorExp{pop<asdl::ExprImpl>(),
                                             std::move(generators)});
@@ -792,7 +792,7 @@ namespace chimera {
         struct Transform : rules::Stack<asdl::ExprImpl> {
           template <typename Outer>
           void success(Outer &&outer) {
-            outer.template top<asdl::Comprehension>().ifs.push_back(
+            outer.template top<asdl::Comprehension>().ifs.emplace_back(
                 pop<asdl::ExprImpl>());
           }
         };

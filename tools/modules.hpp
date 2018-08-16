@@ -259,7 +259,7 @@ namespace chimera {
             os << printed(work.object.get_attribute(name));
           } else {
             os << "{/*set below*/}";
-            wanted[id(work.object.get_attribute(name))].push_back(
+            wanted[id(work.object.get_attribute(name))].emplace_back(
                 SetAttribute{baseName, name});
             queue.push(
                 Work{this, work.object.get_attribute(name), baseName, name});
@@ -319,7 +319,7 @@ namespace chimera {
           os << moduleName << ".set_attribute(" << std::quoted(name) << "s,"
              << state.printed(state.main.get_attribute(name)) << ");";
         } else {
-          state.wanted[state.id(state.main.get_attribute(name))].push_back(
+          state.wanted[state.id(state.main.get_attribute(name))].emplace_back(
               SetAttribute{moduleName, name});
           state.queue.push(
               Work{&state, state.main.get_attribute(name), moduleName, name});

@@ -96,12 +96,12 @@ namespace chimera {
           for (std::uint64_t i : left.value) {
             auto m = mult(i, right);
             carryover = sum(m.result, carryover.result);
-            value.value.push_back(carryover.result);
+            value.value.emplace_back(carryover.result);
             carryover = sum(m.overflow, carryover.overflow);
             Ensures(carryover.overflow == 0);
           }
           if (carryover.result != 0) {
-            value.value.push_back(carryover.result);
+            value.value.emplace_back(carryover.result);
           }
           return Number(std::move(value));
         }

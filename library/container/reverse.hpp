@@ -30,7 +30,6 @@ namespace chimera {
   namespace library {
     namespace container {
       void reverse();
-
       template <typename Container>
       struct Reverse {
         auto begin() const noexcept { return container->rbegin(); }
@@ -51,7 +50,6 @@ namespace chimera {
 
         std::add_pointer_t<Container> container;
       };
-
       template <typename Container>
       auto reverse(Container &&container) {
         return Reverse<Container>{&container};

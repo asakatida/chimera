@@ -26,12 +26,10 @@
 #include <utility>
 
 using namespace std::literals;
-
 namespace chimera {
   namespace library {
     namespace object {
       String::String(std::string_view string) : value(string){};
-
       Object::Object() : object(std::make_shared<Impl>()) {}
       Object::Object(Value &&value, std::map<std::string, Object> &&attributes)
           : object(std::make_shared<Impl>(
@@ -48,7 +46,7 @@ namespace chimera {
         std::vector<std::string> keys;
         keys.reserve(read.value.size());
         for (const auto &pair : read.value) {
-          keys.push_back(pair.first);
+          keys.emplace_back(pair.first);
         }
         return keys;
       }
@@ -88,9 +86,13 @@ namespace chimera {
         return std::holds_alternative<object::True>(object->value);
       }
 
-      BaseException::BaseException(const Object &anException) : exception(anException) {}
+      BaseException::BaseException(Object anException)
+          : exception(std::move(anException)) {}
 
-      BaseException::BaseException(const BaseException &anException, const std::optional<object::BaseException> &context) : exception(anException.exception) {
+      BaseException::BaseException(
+          const BaseException &anException,
+          const std::optional<object::BaseException> &context)
+          : exception(anException.exception) {
         if (context) {
           exception.set_attribute("__context__"s, context->exception);
         }
@@ -100,9 +102,7 @@ namespace chimera {
         return "BaseException";
       }
 
-      Id BaseException::id() const noexcept {
-        return exception.id();
-      }
+      Id BaseException::id() const noexcept { return exception.id(); }
 
       Id BaseException::class_id() const noexcept {
         return exception.get_attribute("__class__"s).id();

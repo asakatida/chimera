@@ -102,17 +102,17 @@ namespace chimera {
           Natural value;
           value.value.reserve(std::max(left.value.size(), right.value.size()));
           if (left.value.size() > right.value.size()) {
-            auto l_iter = left.value.begin();
+            auto lIter = left.value.begin();
             for (std::uint64_t i : right.value) {
-              value.value.push_back(i | *(l_iter++));
+              value.value.emplace_back(i | *(lIter++));
             }
-            value.value.insert(value.value.end(), l_iter, left.value.end());
+            value.value.insert(value.value.end(), lIter, left.value.end());
           } else {
-            auto r_iter = right.value.begin();
+            auto rIter = right.value.begin();
             for (std::uint64_t i : left.value) {
-              value.value.push_back(i | *(r_iter++));
+              value.value.emplace_back(i | *(rIter++));
             }
-            value.value.insert(value.value.end(), r_iter, right.value.end());
+            value.value.insert(value.value.end(), rIter, right.value.end());
           }
           return Number(std::move(value));
         }

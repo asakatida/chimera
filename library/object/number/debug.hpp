@@ -29,7 +29,6 @@ namespace chimera {
         template <typename OStream>
         struct Debug {
           OStream &os;
-
           OStream &operator()(std::uint64_t i) { return os << i; }
 
           OStream &operator()(Base base) { return os << base.value; }
@@ -59,7 +58,6 @@ namespace chimera {
             return std::visit(*this, complex.imag) << 'j';
           }
         };
-
         template <typename OStream>
         OStream &Number::debug(OStream &os) const {
           return std::visit(Debug<OStream>{os}, value);

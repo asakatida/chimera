@@ -96,14 +96,14 @@ namespace chimera {
           Natural value;
           value.value.reserve(std::min(left.value.size(), right.value.size()));
           if (left.value.size() > right.value.size()) {
-            auto l_iter = left.value.begin();
+            auto lIter = left.value.begin();
             for (std::uint64_t i : right.value) {
-              value.value.push_back(i & *(l_iter++));
+              value.value.emplace_back(i & *(lIter++));
             }
           } else {
-            auto r_iter = right.value.begin();
+            auto rIter = right.value.begin();
             for (std::uint64_t i : left.value) {
-              value.value.push_back(i & *(r_iter++));
+              value.value.emplace_back(i & *(rIter++));
             }
           }
           return Number(std::move(value));

@@ -25,7 +25,6 @@
 #include <csignal>
 
 using namespace std::literals;
-
 extern "C" void interupt_handler(int /*signal*/) { SIG_INT.clear(); }
 
 namespace chimera {

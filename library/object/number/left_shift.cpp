@@ -108,7 +108,7 @@ namespace chimera {
             std::uint64_t overflow = 0;
             for (std::uint64_t i : value.value) {
               auto carryover = left_shift(i, shift);
-              result.value.push_back(carryover.result | overflow);
+              result.value.emplace_back(carryover.result | overflow);
               overflow = carryover.overflow;
             }
           }
@@ -131,7 +131,7 @@ namespace chimera {
             std::uint64_t overflow = 0;
             for (std::uint64_t i : value.value) {
               auto carryover = left_shift(i, shift);
-              result.value.push_back(carryover.result | overflow);
+              result.value.emplace_back(carryover.result | overflow);
               overflow = carryover.overflow;
             }
           }
