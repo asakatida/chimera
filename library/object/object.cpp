@@ -25,6 +25,8 @@
 #include <string>
 #include <utility>
 
+using namespace std::literals;
+
 namespace chimera {
   namespace library {
     namespace object {
@@ -85,10 +87,24 @@ namespace chimera {
         return std::holds_alternative<object::True>(object->value);
       }
 
-      BaseException::BaseException(Object anException)
-          : exception(std::move(anException)) {}
+      BaseException::BaseException(const Object &anException) : exception(anException) {}
+
+      BaseException::BaseException(const BaseException &anException, const std::optional<object::BaseException> &context) : exception(anException.exception) {
+        if (context) {
+          exception.set_attribute("__context__"s, context->exception);
+        }
+      }
+
       const char *BaseException::what() const noexcept {
         return "BaseException";
+      }
+
+      Id BaseException::id() const noexcept {
+        return exception.id();
+      }
+
+      Id BaseException::class_id() const noexcept {
+        return exception.get_attribute("__class__"s).id();
       }
     } // namespace object
   }   // namespace library

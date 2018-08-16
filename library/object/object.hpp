@@ -26,6 +26,7 @@
 #include <future>
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -126,9 +127,18 @@ namespace chimera {
         std::shared_ptr<Impl> object;
       };
 
-      struct BaseException final : std::exception {
-        explicit BaseException(Object anException);
+      class BaseException final : std::exception {
+      public:
+        explicit BaseException(const Object &anException);
+        BaseException(const BaseException &anException, const std::optional<object::BaseException> &context);
+
         const char *what() const noexcept override;
+
+        Id id() const noexcept;
+
+        Id class_id() const noexcept;
+
+      private:
         Object exception;
       };
     } // namespace object

@@ -39,9 +39,10 @@ using namespace std::literals;
 namespace chimera {
   namespace library {
     namespace virtual_machine {
-      struct ReRaise final : std::exception {
+      class ReRaise final : std::exception {
         const char *what() const noexcept override;
       };
+
       const char *ReRaise::what() const noexcept { return "ReRaise"; }
 
       Scopes::operator bool() const { return !scopes.empty(); }
@@ -137,8 +138,7 @@ namespace chimera {
         while (scope) {
           if (!std::atomic_flag_test_and_set(
                   thread_context.process_context.global_context.sig_int)) {
-            throw object::BaseException{
-                builtins().get_attribute("KeyboardInterrupt")};
+            throw object::BaseException(builtins().get_attribute("KeyboardInterrupt"));
           }
           //! where all defered work gets done
           scope.visit([this](const auto &value) { value(this); });
@@ -251,8 +251,7 @@ namespace chimera {
             evaluatorB.get_attribute(evaluatorA->stack.top(), "__next__");
             evaluatorB.evaluate();
           } catch (const object::BaseException &error) {
-            if (error.exception.get_attribute("__class__").id() ==
-                evaluatorA->builtins().get_attribute("StopIteration").id()) {
+            if (error.class_id() == evaluatorA->builtins().get_attribute("StopIteration").id()) {
               evaluatorA->exit();
               evaluatorA->extend(asdlFor.orelse);
             } else {
@@ -381,7 +380,7 @@ namespace chimera {
       void Evaluator::evaluate(const asdl::Raise &raise) {
         if (raise.exc) {
           push([](Evaluator *evaluator) {
-            throw object::BaseException{evaluator->stack.top()};
+            throw object::BaseException{std::move(evaluator->stack.top())};
           });
         } else {
           push([](Evaluator * /*evaluator*/) { throw ReRaise{}; });
@@ -473,23 +472,14 @@ namespace chimera {
           evaluator.extend(body);
           evaluator.evaluate();
         } catch (const object::BaseException &error) {
-          object::Object exception = error.exception;
-          if (context) {
-            exception.set_attribute("__context__"s, context->exception);
-          }
-          return object::BaseException{exception};
+          return object::BaseException(error, context);
         } catch (const ReRaise &) {
           if (context) {
             return context;
           }
-          return object::BaseException{
-              builtins().get_attribute("RuntimeError")};
+          return object::BaseException(object::Object(builtins().get_attribute("RuntimeError")));
         } catch (const std::exception &exc) {
-          object::Object exception(object::String(exc.what()), {});
-          if (context) {
-            exception.set_attribute("__context__"s, context->exception);
-          }
-          return object::BaseException{exception};
+          return object::BaseException(object::BaseException(object::Object(object::String(exc.what()), {})), context);
         }
         return {};
       }

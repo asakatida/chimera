@@ -171,8 +171,7 @@ namespace chimera {
 
       private:
         std::optional<object::BaseException>
-        do_try(const std::vector<asdl::StmtImpl> &body,
-               const std::optional<object::BaseException> &context);
+        do_try(const std::vector<asdl::StmtImpl> &body, const std::optional<object::BaseException> &context);
 
         void get_attribute(const object::Object &object,
                            const object::Object &getAttribute,

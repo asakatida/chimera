@@ -88,14 +88,12 @@ namespace chimera {
                 std::forward<OutputIt>(outputIt));
           }
           template <typename Type, typename OutputIt>
-          auto transform(OutputIt &&outputIt) {
+          void transform(OutputIt &&outputIt) {
             auto finally = gsl::finally([this] { this->stack.clear(); });
-            return std::transform(
-                stack.begin(), stack.end(), std::forward<OutputIt>(outputIt),
-                [](ValueT &value) -> Type {
-                  Ensures(std::holds_alternative<Type>(value));
-                  return std::move(std::get<Type>(value));
-                });
+            for (const auto &value : stack) {
+              Ensures(std::holds_alternative<Type>(value));
+              *(outputIt++) = std::move(std::get<Type>(value));
+            }
           }
           bool has_value() const { return !stack.empty(); }
           template <typename Type>
