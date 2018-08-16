@@ -29,7 +29,7 @@ using namespace std::literals;
 namespace chimera {
   namespace library {
     namespace object {
-      String::String(std::string_view string) : value(string){};
+      String::String(std::string_view string) : value(string) {}
       Object::Object() : object(std::make_shared<Impl>()) {}
       Object::Object(Value &&value, std::map<std::string, Object> &&attributes)
           : object(std::make_shared<Impl>(
