@@ -382,7 +382,7 @@ namespace chimera {
       void Evaluator::evaluate(const asdl::Raise &raise) {
         if (raise.exc) {
           push([](Evaluator *evaluator) {
-            throw object::BaseException{std::move(evaluator->stack.top())};
+            throw object::BaseException(evaluator->stack.top());
           });
         } else {
           push([](Evaluator * /*evaluator*/) { throw ReRaise{}; });
@@ -404,22 +404,16 @@ namespace chimera {
           for (const auto &handler : container::reverse(asdlTry.handlers)) {
             std::visit([](auto &&) {}, handler);
           }
-          if (exception = do_try(asdlTry.finalbody, exception); exception) {
-            throw object::BaseException{*exception};
+          if (auto exc = do_try(asdlTry.finalbody, exception); exc) {
+            throw object::BaseException(*exc);
           }
-          if (exception) {
-            throw object::BaseException{*exception};
-          }
-          return;
+          throw object::BaseException(*exception);
         }
         if (auto exception = do_try(asdlTry.orelse, {}); exception) {
-          if (exception = do_try(asdlTry.finalbody, exception); exception) {
-            throw object::BaseException{*exception};
+          if (auto exc = do_try(asdlTry.finalbody, exception); exc) {
+            throw object::BaseException(*exc);
           }
-          if (exception) {
-            throw object::BaseException{*exception};
-          }
-          return;
+          throw object::BaseException(*exception);
         }
         extend(asdlTry.finalbody);
       }
@@ -431,12 +425,12 @@ namespace chimera {
             }
             evaluatorA->stack.pop();
             if (!assert.msg) {
-              throw object::BaseException{
-                  evaluatorA->builtins().get_attribute("AssertionError")};
+              throw object::BaseException(
+                  evaluatorA->builtins().get_attribute("AssertionError"));
             }
             evaluatorA->push([](Evaluator *evaluatorB) {
-              throw object::BaseException{
-                  evaluatorB->builtins().get_attribute("AssertionError")};
+              throw object::BaseException(
+                  evaluatorB->builtins().get_attribute("AssertionError"));
             });
             evaluatorA->evaluate_get(*assert.msg);
           });
@@ -539,9 +533,9 @@ namespace chimera {
             return push(PushStack{type.get_attribute("__getattr__")});
           }
         }
-        throw object::BaseException{object::Object(
+        throw object::BaseException(object::Object(
             {}, {{"__class__", builtins().get_attribute("AttributeError")},
-                 {"__class__", builtins().get_attribute("AttributeError")}})};
+                 {"__class__", builtins().get_attribute("AttributeError")}}));
       }
     } // namespace virtual_machine
   }   // namespace library
