@@ -27,7 +27,7 @@ TEST_CASE("number Number") {
   REQUIRE(std::uint64_t(number) == 0);
 }
 
-TEST_CASE("number Number division [!shouldfail]") {
+TEST_CASE("number Number division", "[!shouldfail]") {
   Number other(2);
   Number huge(8);
   auto number = huge * huge;
