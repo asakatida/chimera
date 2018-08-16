@@ -99,18 +99,21 @@ namespace chimera {
         }
 
         Number operator^(const Natural &left, const Natural &right) {
-          auto value = left;
-          value.value.resize(std::max(left.value.size(), right.value.size()));
+          Natural value;
+          value.value.reserve(std::max(left.value.size(), right.value.size()));
           if (left.value.size() > right.value.size()) {
-            std::transform(right.value.begin(), right.value.end(),
-                           left.value.begin(), value.value.begin(),
-                           std::bit_xor<std::uint64_t>{});
+            auto l_iter = left.value.begin();
+            for (std::uint64_t i : right.value) {
+              value.value.push_back(i ^ *(l_iter++));
+            }
+            value.value.insert(value.value.end(), l_iter, left.value.end());
           } else {
-            std::transform(left.value.begin(), left.value.end(),
-                           right.value.begin(), value.value.begin(),
-                           std::bit_xor<std::uint64_t>{});
+            auto r_iter = right.value.begin();
+            for (std::uint64_t i : left.value) {
+              value.value.push_back(i ^ *(r_iter++));
+            }
+            value.value.insert(value.value.end(), r_iter, right.value.end());
           }
-
           return Number(std::move(value));
         }
 

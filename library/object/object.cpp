@@ -47,8 +47,9 @@ namespace chimera {
         auto read = object->attributes.read();
         std::vector<std::string> keys;
         keys.reserve(read.value.size());
-        std::transform(read.value.cbegin(), read.value.cend(), keys.begin(),
-                       [](const auto &pair) { return pair.first; });
+        for (const auto &pair : read.value) {
+          keys.push_back(pair.first);
+        }
         return keys;
       }
       Object Object::get_attribute(std::string &&key) const {
