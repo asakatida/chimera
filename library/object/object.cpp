@@ -86,8 +86,8 @@ namespace chimera {
         return std::holds_alternative<object::True>(object->value);
       }
 
-      BaseException::BaseException(Object anException)
-          : exception(std::move(anException)) {}
+      BaseException::BaseException(const Object &anException)
+          : exception(anException) {}
 
       BaseException::BaseException(
           const BaseException &anException,

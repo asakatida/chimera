@@ -116,12 +116,13 @@ namespace chimera {
       };
       class BaseException final : std::exception {
       public:
-        explicit BaseException(Object anException);
+        explicit BaseException(const Object &anException);
         BaseException(const BaseException &anException,
                       const std::optional<object::BaseException> &context);
         const char *what() const noexcept override;
         Id id() const noexcept;
         Id class_id() const noexcept;
+
       private:
         Object exception;
       };
