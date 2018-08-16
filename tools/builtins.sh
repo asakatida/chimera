@@ -1,7 +1,6 @@
 #!/bin/bash
 
-cat stdlib/_builtins.py | \
-eval $1/builtins | \
+eval $1/builtins < stdlib/_builtins.py | \
 clang-format -style=file > library/virtual_machine/builtins.cpp
 
 clang-tidy -p="$1" \
