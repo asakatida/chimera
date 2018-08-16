@@ -37,9 +37,7 @@ namespace chimera {
   namespace library {
     namespace object {
       struct Object;
-
       using Id = std::uint64_t;
-
       struct Instance {};
       using Bytes = std::vector<std::uint8_t>;
       enum class BytesMethod {};
@@ -77,7 +75,6 @@ namespace chimera {
       using Tuple = std::vector<Object>;
       enum class TupleMethod {};
       struct True {};
-
       struct Object {
         using Value =
             std::variant<Instance, Bytes, BytesMethod, Expr, False, Future,
@@ -85,18 +82,13 @@ namespace chimera {
                          Stmt, String, StringMethod, SysCall, True, Tuple,
                          TupleMethod>;
         using Attributes = container::AtomicMap<std::string, Object>;
-
         Object();
         Object(Value &&value, std::map<std::string, Object> &&attributes);
-
         Object(const Object &other) = default;
         Object(Object &&other) noexcept = default;
-
         ~Object() noexcept = default;
-
         Object &operator=(const Object &other) = default;
         Object &operator=(Object &&other) noexcept = default;
-
         void delete_attribute(std::string &&key) noexcept;
         void delete_attribute(const std::string &key) noexcept;
         std::vector<std::string> dir() const;
@@ -110,13 +102,9 @@ namespace chimera {
         }
 
         Id id() const noexcept;
-
         const Value &value() const noexcept;
-
         Object copy(Value &&data) const;
-
         bool get_bool() const noexcept;
-
         auto use_count() const noexcept { return object.use_count(); }
 
       private:
@@ -126,18 +114,14 @@ namespace chimera {
         };
         std::shared_ptr<Impl> object;
       };
-
       class BaseException final : std::exception {
       public:
-        explicit BaseException(const Object &anException);
-        BaseException(const BaseException &anException, const std::optional<object::BaseException> &context);
-
+        explicit BaseException(Object anException);
+        BaseException(const BaseException &anException,
+                      const std::optional<object::BaseException> &context);
         const char *what() const noexcept override;
-
         Id id() const noexcept;
-
         Id class_id() const noexcept;
-
       private:
         Object exception;
       };

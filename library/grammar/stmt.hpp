@@ -84,10 +84,10 @@ namespace chimera {
               outer.push(asdl::Arguments{});
             }
             if (outer.template top<asdl::Arguments>().vararg) {
-              outer.template top<asdl::Arguments>().kwonlyargs.push_back(
+              outer.template top<asdl::Arguments>().kwonlyargs.emplace_back(
                   pop<asdl::Arg>());
             } else {
-              outer.template top<asdl::Arguments>().args.push_back(
+              outer.template top<asdl::Arguments>().args.emplace_back(
                   pop<asdl::Arg>());
             }
           }
@@ -672,9 +672,9 @@ namespace chimera {
             classDef.bases.reserve(size());
             while (size() > 1) {
               if (top_is<asdl::Keyword>()) {
-                classDef.keywords.push_back(pop<asdl::Keyword>());
+                classDef.keywords.emplace_back(pop<asdl::Keyword>());
               } else {
-                classDef.bases.push_back(pop<asdl::ExprImpl>());
+                classDef.bases.emplace_back(pop<asdl::ExprImpl>());
               }
             }
             classDef.name = pop<asdl::Name>();

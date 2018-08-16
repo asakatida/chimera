@@ -107,7 +107,7 @@ namespace chimera {
           Carryover carryover{0, right};
           for (std::uint64_t i : left.value) {
             carryover = sub(i, carryover.overflow);
-            value.value.push_back(carryover.result);
+            value.value.emplace_back(carryover.result);
           }
           return Number(std::move(value));
         }
@@ -130,14 +130,14 @@ namespace chimera {
           for (; it1 != end1 && it2 != end2; ++it1, ++it2) {
             auto next = sub(*it1, *it2);
             carryover = sub(next.result, carryover.result);
-            value.value.push_back(carryover.result);
+            value.value.emplace_back(carryover.result);
             carryover = sum(carryover.overflow, next.overflow);
             Ensures(carryover.overflow == 0);
           }
           carryover.overflow = carryover.result;
           for (; it1 != end1; ++it1) {
             carryover = sub(*it1, carryover.overflow);
-            value.value.push_back(carryover.result);
+            value.value.emplace_back(carryover.result);
           }
           Ensures(carryover.overflow == 0);
           return Number(std::move(value));

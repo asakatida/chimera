@@ -95,7 +95,6 @@ namespace chimera {
 
           Number nLeft(std::forward<Left>(left)),
               nRight(std::forward<Right>(right));
-
           if (nLeft == aPrime) {
             return (Number(1u) / nRight.floor_div(aPrime)).unpack();
           }
@@ -113,7 +112,6 @@ namespace chimera {
             return reduce(std::forward<Left>(left), std::forward<Right>(right));
           }
         };
-
         static NumberValue reduce(Rational &&rational) {
           return std::visit(Reduce{}, std::move(rational.numerator),
                             std::move(rational.denominator));
@@ -273,14 +271,12 @@ namespace chimera {
             return Number(std::decay_t<Arg>(arg));
           }
         };
-
         struct MakeComplexVisit {
           template <typename Arg>
           Number operator()(Arg &&arg) const noexcept {
             return MakeComplex<Arg>{}(std::forward<Arg>(arg));
           }
         };
-
         Number Number::complex() const { return visit(MakeComplexVisit{}); }
       } // namespace number
     }   // namespace object

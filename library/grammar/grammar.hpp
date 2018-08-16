@@ -53,7 +53,7 @@ namespace chimera {
           void success(Top &&top) {
             top.body.reserve(size());
             while (top_is<asdl::StmtImpl>()) {
-              top.body.push_back(pop<asdl::StmtImpl>());
+              top.body.emplace_back(pop<asdl::StmtImpl>());
             }
             std::reverse(top.body.begin(), top.body.end());
             if (has_value()) {

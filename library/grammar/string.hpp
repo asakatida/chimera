@@ -45,7 +45,6 @@ namespace chimera {
     namespace grammar {
       namespace token {
         using namespace std::literals;
-
         struct StringHolder : rules::VariantCapture<object::Object> {
           std::string string;
           template <typename String>
@@ -320,7 +319,7 @@ namespace chimera {
             template <typename String>
             void apply(String &&in) {
               for (const auto &byte : in) {
-                bytes.push_back(static_cast<std::uint8_t>(byte));
+                bytes.emplace_back(static_cast<std::uint8_t>(byte));
               }
             }
           };
@@ -421,7 +420,7 @@ namespace chimera {
               return State{std::move(joinedStr)};
             }
             auto operator()(asdl::JoinedStr &&value, std::string &&element) {
-              value.values.push_back(
+              value.values.emplace_back(
                   object::Object(object::String(element), {}));
               return State{std::move(value)};
             }
@@ -436,7 +435,8 @@ namespace chimera {
           static void apply0(Top &&top) {
             State value;
             for (auto &&element : top.vector()) {
-              value = std::visit(Visitor{}, std::move(value), std::move(element));
+              value =
+                  std::visit(Visitor{}, std::move(value), std::move(element));
             }
             std::visit(top, std::move(value));
           }

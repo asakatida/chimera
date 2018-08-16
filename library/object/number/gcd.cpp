@@ -129,22 +129,18 @@ namespace chimera {
           return gcd(left, right.value);
         }
 
-        // static bool even(std::uint64_t i) { return (i & 1u) == 0u; }
-        // static bool even(Base i) { return even(i.value); }
-        // static bool even(const Natural &i) { return even(i.value[0]); }
+        // static bool even(std::uint64_t i) { return (i & 1u) == 0u;}
+        // static bool even(Base i) { return even(i.value);}
+        // static bool even(const Natural &i) { return even(i.value[0]);}
 
         Number gcd(const Natural &left, const Natural &right) {
           // TODO(grandquista)
           // while (even(left) && even(right)) {
-          //   left = left >> 1u;
-          //   right = right >> 1u;
-          // }
+          //   left = left >> 1u;//   right = right >> 1u;// }
           // if (left == 1u) {
-          //   return to_rational(std::move(left), std::move(right));
-          // }
+          //   return to_rational(std::move(left), std::move(right));// }
           // if (right == 1u) {
-          //   return real(std::move(left));
-          // }
+          //   return real(std::move(left));// }
           Number aPrime(Natural{left}), bPrime(Natural{right});
           while (0u < bPrime) {
             auto temp = bPrime;
@@ -156,25 +152,20 @@ namespace chimera {
 
         // TODO(grandquista)
         // static Number gcd(const Positive &left, const Positive &right) {
-        //   auto aPrime = left, bPrime = right;
+        //   auto aPrime = left, bPrime = right;//
         //   std::visit(Repr<std::ostream>{std::cout << "left: "}, left.value)
-        //   << '\n'; std::visit(Repr<std::ostream>{std::cout << "right: "},
-        //   right.value) << '\n'; while (!(aPrime == bPrime)) {
+        //   << '\n';std::visit(Repr<std::ostream>{std::cout << "right: "},
+        //   right.value) << '\n';while (!(aPrime == bPrime)) {
         //     std::visit(Repr<std::ostream>{std::cout << "aPrime: "},
-        //     aPrime.value) << '\n'; std::visit(Repr<std::ostream>{std::cout <<
-        //     "bPrime: "}, bPrime.value) << '\n'; if (even(aPrime)) {
-        //       aPrime = aPrime >> 1u;
-        //     } else if (even(bPrime)) {
-        //       bPrime = bPrime >> 1u;
-        //     } else if (bPrime < aPrime) {
-        //       aPrime = +(aPrime - bPrime) >> 1u;
-        //     } else {
-        //       bPrime = +(bPrime - aPrime) >> 1u;
-        //     }
+        //     aPrime.value) << '\n';std::visit(Repr<std::ostream>{std::cout <<
+        //     "bPrime: "}, bPrime.value) << '\n';if (even(aPrime)) {
+        //       aPrime = aPrime >> 1u;//     } else if (even(bPrime)) {
+        //       bPrime = bPrime >> 1u;//     } else if (bPrime < aPrime) {
+        //       aPrime = +(aPrime - bPrime) >> 1u;//     } else {
+        //       bPrime = +(bPrime - aPrime) >> 1u;//     }
         //   }
         //   std::visit(Repr<std::ostream>{std::cout << "aPrime: "},
-        //   aPrime.value) << '\n'; return aPrime;
-        // }
+        //   aPrime.value) << '\n';return aPrime;// }
 
         Number gcd(const Natural &left, const Negative &right) {
           return std::visit([&left](const auto &r) { return -gcd(left, r); },

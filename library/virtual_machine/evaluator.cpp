@@ -138,7 +138,8 @@ namespace chimera {
         while (scope) {
           if (!std::atomic_flag_test_and_set(
                   thread_context.process_context.global_context.sig_int)) {
-            throw object::BaseException(builtins().get_attribute("KeyboardInterrupt"));
+            throw object::BaseException(
+                builtins().get_attribute("KeyboardInterrupt"));
           }
           //! where all defered work gets done
           scope.visit([this](const auto &value) { value(this); });
@@ -251,7 +252,8 @@ namespace chimera {
             evaluatorB.get_attribute(evaluatorA->stack.top(), "__next__");
             evaluatorB.evaluate();
           } catch (const object::BaseException &error) {
-            if (error.class_id() == evaluatorA->builtins().get_attribute("StopIteration").id()) {
+            if (error.class_id() ==
+                evaluatorA->builtins().get_attribute("StopIteration").id()) {
               evaluatorA->exit();
               evaluatorA->extend(asdlFor.orelse);
             } else {
@@ -477,9 +479,12 @@ namespace chimera {
           if (context) {
             return context;
           }
-          return object::BaseException(object::Object(builtins().get_attribute("RuntimeError")));
+          return object::BaseException(
+              object::Object(builtins().get_attribute("RuntimeError")));
         } catch (const std::exception &exc) {
-          return object::BaseException(object::BaseException(object::Object(object::String(exc.what()), {})), context);
+          return object::BaseException(object::BaseException(object::Object(
+                                           object::String(exc.what()), {})),
+                                       context);
         }
         return {};
       }
