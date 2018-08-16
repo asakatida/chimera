@@ -98,14 +98,14 @@ class Extract(HTMLParser):
             if not self.div:
                 self.c_code = False
 
-    def handle_data(self, value: str) -> None:
+    def handle_data(self, data: str) -> None:
         """handle_data."""
         if self.code and not self.name:
-            self.name = value.strip()
+            self.name = data.strip()
         elif self.name and self.c_code:
-            self.data += value.strip() or ' '
+            self.data += data.strip() or ' '
         elif self.dl:
-            print('//', value)
+            print('//', data)
 
     def data_act(self) -> None:
         """data_act."""
