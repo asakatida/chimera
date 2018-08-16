@@ -319,10 +319,9 @@ namespace chimera {
             object::Bytes bytes;
             template <typename String>
             void apply(String &&in) {
-              std::transform(in.begin(), in.end(), std::back_inserter(bytes),
-                             [](const auto &byte) {
-                               return static_cast<std::uint8_t>(byte);
-                             });
+              for (const auto &byte : in) {
+                bytes.push_back(static_cast<std::uint8_t>(byte));
+              }
             }
           };
         };

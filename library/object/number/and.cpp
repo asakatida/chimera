@@ -94,15 +94,17 @@ namespace chimera {
 
         Number operator&(const Natural &left, const Natural &right) {
           Natural value;
-          value.value.resize(std::min(left.value.size(), right.value.size()));
+          value.value.reserve(std::min(left.value.size(), right.value.size()));
           if (left.value.size() > right.value.size()) {
-            std::transform(right.value.begin(), right.value.end(),
-                           left.value.begin(), value.value.begin(),
-                           std::bit_and<std::uint64_t>{});
+            auto l_iter = left.value.begin();
+            for (std::uint64_t i : right.value) {
+              value.value.push_back(i & *(l_iter++));
+            }
           } else {
-            std::transform(left.value.begin(), left.value.end(),
-                           right.value.begin(), value.value.begin(),
-                           std::bit_and<std::uint64_t>{});
+            auto r_iter = right.value.begin();
+            for (std::uint64_t i : left.value) {
+              value.value.push_back(i & *(r_iter++));
+            }
           }
           return Number(std::move(value));
         }

@@ -36,14 +36,11 @@ namespace chimera {
         void sys(const Options &options, const object::Object &module) {
           auto sys = module;
           std::vector<object::Object> argv;
-          argv.resize(static_cast<std::size_t>(
+          argv.reserve(static_cast<std::size_t>(
               std::distance(options.argv.begin(), options.argv.end())));
-          std::transform(options.argv.begin(), options.argv.end(), argv.begin(),
-                         [module](const auto &arg) {
-                           return object::Object(
-                               object::String(arg),
-                               {{"__class__", module.get_attribute("str")}});
-                         });
+          for (const auto &arg : options.argv) {
+            argv.push_back(object::Object(object::String(arg), {{"__class__", module.get_attribute("str")}}));
+          }
           sys.set_attribute("__displayhook__"s, object::Object());
           sys.set_attribute("__doc__"s, object::Object());
           sys.set_attribute("__excepthook__"s, object::Object());
