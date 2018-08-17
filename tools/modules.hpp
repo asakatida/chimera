@@ -167,7 +167,8 @@ namespace chimera {
 
       template <typename OStream>
       OStream &print(OStream &os, const object::String &string) {
-        return os << "object::String(" << std::quoted(string.value) << "s)";
+        std::string value(string.value);
+        return os << "object::String(" << std::quoted(value) << "s)";
       }
 
       template <typename OStream>

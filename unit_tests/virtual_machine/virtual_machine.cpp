@@ -34,5 +34,7 @@ TEST_CASE("grammar VirtualMachine (a@b=c)") {
   chimera::library::virtual_machine::ThreadContext threadContext{processContext, processContext.make_module("__main__")};
   try {
     threadContext.evaluate(module);
-  } catch (const std::exception &) {}
+  } catch (const std::exception &) {
+  } catch (...) {
+  }
 }
