@@ -154,10 +154,10 @@ add_library(
 target_include_directories(libchimera SYSTEM PUBLIC include)
 
 set_target_properties(libchimera PROPERTIES OUTPUT_NAME "chimera")
-target_link_libraries(libchimera chimera_core)
+target_link_libraries(libchimera chimera_core pthread)
 
 add_executable(chimera source/main.cpp)
-target_link_libraries(chimera chimera_core)
+target_link_libraries(chimera chimera_core pthread)
 
 add_executable(
   unit_test
@@ -174,7 +174,7 @@ target_include_directories(
   unit_test
   SYSTEM PUBLIC
   external/Catch/single_include)
-target_link_libraries(unit_test chimera_core)
+target_link_libraries(unit_test chimera_core pthread)
 
 add_executable(fuzz unit_tests/fuzz/target.cpp)
 
@@ -187,6 +187,7 @@ target_compile_options(
 target_link_libraries(
   fuzz
   chimera_core
+  pthread
   -fsanitize-coverage=trace-cmp
   -fsanitize-coverage=trace-pc-guard
   -fsanitize=address,fuzzer
@@ -203,6 +204,7 @@ target_compile_options(
 target_link_libraries(
   fuzz2
   chimera_core
+  pthread
   -fsanitize-coverage=trace-cmp
   -fsanitize-coverage=trace-pc-guard
   -fsanitize=address,fuzzer
@@ -217,13 +219,13 @@ target_include_directories(
 
 add_library(modules_tools tools/modules.cpp tools/modules.hpp)
 target_include_directories(modules_tools PUBLIC tools)
-target_link_libraries(modules_tools chimera_core)
+target_link_libraries(modules_tools chimera_core pthread)
 
 add_executable(builtins tools/builtins.cpp)
-target_link_libraries(builtins modules_tools)
+target_link_libraries(builtins modules_tools pthread)
 
 add_executable(importlib tools/importlib.cpp)
-target_link_libraries(importlib modules_tools)
+target_link_libraries(importlib modules_tools pthread)
 
 add_custom_target(check unit_test VERBATIM USES_TERMINAL)
 add_custom_target(check_rand unit_test --order rand VERBATIM USES_TERMINAL)
