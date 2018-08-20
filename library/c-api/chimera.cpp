@@ -77,7 +77,7 @@ static auto &Py_SIZE(PyVarObject *o) { return o->ob_size; }
 #undef PyMem_Del
 
 // NOLINTNEXTLINE
-extern "C" PyObject PyType_Type{PyObject_HEAD_INIT(&PyType_Type)};
+PyObject PyType_Type{PyObject_HEAD_INIT(&PyType_Type)};
 
 // NOLINTNEXTLINE
 extern "C" int PyType_Check(PyObject *o) {
@@ -188,7 +188,7 @@ extern "C" void *PyType_GetSlot(PyTypeObject * /*type*/, int /*slot*/) {
 }
 
 // NOLINTNEXTLINE
-extern "C" PyTypeObject PyBaseObject_Type{
+PyTypeObject PyBaseObject_Type{
     {PyVarObject_HEAD_INIT(&PyType_Type, sizeof(PyTypeObject))},
     "object",
     sizeof(PyTypeObject),
