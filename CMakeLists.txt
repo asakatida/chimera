@@ -145,6 +145,7 @@ target_include_directories(
   external/metal/include
   external/operators/include
   external/PEGTL/include)
+target_link_libraries(chimera_core  pthread)
 
 add_library(
   libchimera
