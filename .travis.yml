@@ -30,5 +30,5 @@ before_install:
 
 script:
   - cmake -DCMAKE_BUILD_TYPE=MinSizeRel
-  - make -j1
+  - make -j1 -k || true
   - make -j1 check
