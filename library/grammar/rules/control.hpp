@@ -43,7 +43,7 @@ namespace chimera {
                     template <typename...> class Control, typename Input,
                     typename Outer>
           static bool match(Input &in, Outer &&outer) {
-            if constexpr (A == tao::pegtl::apply_mode::ACTION) { // NOLINT
+            if constexpr (A == tao::pegtl::apply_mode::action) { // NOLINT
               typename Rule::Transform state;
 
               if (normal<Rule>::template match<A, M, Action, Control>(in,
@@ -53,7 +53,7 @@ namespace chimera {
               }
               return false;
             }
-            if constexpr (A != tao::pegtl::apply_mode::ACTION) { // NOLINT
+            if constexpr (A != tao::pegtl::apply_mode::action) { // NOLINT
               return normal<Rule>::template match<A, M, Action, Control>(in,
                                                                          outer);
             }
