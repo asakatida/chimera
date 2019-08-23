@@ -20,11 +20,11 @@
 
 """extract_doc.py."""
 
-from html.parser import HTMLParser
-from pathlib import Path
-from re import sub
-from sys import argv
-from typing import List, Tuple
+import html.parser
+import pathlib
+import re
+import sys
+from typing import List, Optional, Tuple
 
 
 class Extract(HTMLParser):
@@ -33,66 +33,69 @@ class Extract(HTMLParser):
     def __init__(self) -> None:
         """__init__."""
         super().__init__()
-        self.c_type = ''
+        self.c_type: Optional[str] = None
         self.c_code = False
         self.code = 0
         self.div = 0
         self.dl = 0
-        self.data = ''
+        self.data = ""
         self.enable = False
-        self.name = ''
+        self.name = ""
         self.unclosed_type = False
-        self.actions = {
-            'data': self.data_act,
-            'function': self.function_act,
-            'macro': self.macro_act,
-            'member': self.member_act,
-            'type': self.type_act,
-            'var': self.var_act}
 
-    def handle_starttag(self, tag: str, attrs: List[Tuple[str, str]]) -> None:
+    def handle_starttag(self, tag: str, attrs: List[Tuple[str, Optional[str]]]) -> None:
         """handle_starttag."""
-        if tag == 'body':
+        attr_cls = dict(attrs).get("class", None)
+        if tag == "body":
             self.enable = True
         if not self.enable:
             return
-        if tag == 'dl':
+        if tag == "dl":
             if not self.dl and self.unclosed_type:
-                print('};')
+                print("};")
                 self.unclosed_type = False
             self.dl += 1
-            self.c_type = dict(attrs).get('class', '')
+            self.c_type = attr_cls
         if not self.c_type:
             return
-        if self.dl and tag == 'code':
+        if self.dl and tag == "code":
             self.code += 1
-        elif self.code and tag == 'div':
-            if dict(attrs).get('class', None) == 'highlight-c':
+        elif self.code and tag == "div":
+            if attr_cls == "highlight-c":
                 self.c_code = True
             if self.c_code:
                 self.div += 1
 
     def handle_endtag(self, tag: str) -> None:
         """handle_endtag."""
-        if tag == 'body':
+        if tag == "body":
             self.enable = False
         if not self.enable:
             return
-        if tag == 'dl':
+        if tag == "dl":
             self.dl -= 1
             if not self.dl:
                 self.data = self.data.strip()
-                action = self.actions.get(self.c_type, None)
-                if action:
-                    action()
+                if self.c_type == "data":
+                    self.data_act()
+                elif self.c_type == "function":
+                    self.function_act()
+                elif self.c_type == "macro":
+                    self.macro_act()
+                elif self.c_type == "member":
+                    self.member_act()
+                elif self.c_type == "type":
+                    self.type_act()
+                elif self.c_type == "var":
+                    self.var_act()
                 else:
                     self.print_comment()
-                self.c_type = ''
-                self.data = ''
-                self.name = ''
-        elif self.dl and tag == 'code':
+                self.c_type = None
+                self.data = ""
+                self.name = ""
+        elif self.dl and tag == "code":
             self.code -= 1
-        elif self.code and tag == 'div':
+        elif self.code and tag == "div":
             if self.c_code:
                 self.div -= 1
             if not self.div:
@@ -103,58 +106,58 @@ class Extract(HTMLParser):
         if self.code and not self.name:
             self.name = data.strip()
         elif self.name and self.c_code:
-            self.data += data.strip() or ' '
+            self.data += data.strip() or " "
         elif self.dl:
-            print('//', data)
+            print("//", data)
 
     def data_act(self) -> None:
         """data_act."""
-        print('extern int', self.name, self.data, end=';\n')
+        print("extern int", self.name, self.data, end=";\n")
 
     def print_comment(self) -> None:
         """print_comment."""
-        print('// ', self.c_type, ':', self.name, self.data.replace('\n', ' '))
+        print("// ", self.c_type, ":", self.name, self.data.replace("\n", " "))
 
     def function_act(self) -> None:
         """function_act."""
-        print('extern', self.name, self.data, end=';\n')
+        print("extern", self.name, self.data, end=";\n")
 
     def macro_act(self) -> None:
         """macro_act."""
-        if '\n' in self.data:
-            self.data = self.data.replace('\n', ' ')
-        print('#define', self.name, self.data)
+        if "\n" in self.data:
+            self.data = self.data.replace("\n", " ")
+        print("#define", self.name, self.data)
 
     def member_act(self) -> None:
         """member_act."""
-        print(sub(r'\w+\.', '', self.name), self.data, ';')
+        print(sub(r"\w+\.", "", self.name), self.data, ";")
 
     def type_act(self) -> None:
         """type_act."""
-        if 'struct ' in self.name:
-            self.name = self.name.replace('struct ', '')
-        if 'Py' in self.name:
-            print('typedef struct', self.name, self.name, ';')
-        print('struct', self.name, '{')
+        if "struct " in self.name:
+            self.name = self.name.replace("struct ", "")
+        if "Py" in self.name:
+            print("typedef struct", self.name, self.name, ";")
+        print("struct", self.name, "{")
         self.unclosed_type = True
 
     def var_act(self) -> None:
         """var_act."""
-        print('extern', self.name, self.data, ';')
+        print("extern", self.name, self.data, ";")
 
 
 def mapper(p: Path) -> None:
     """mapper."""
-    print('/* start', p.name, '*/')
+    print("/* start", p.name, "*/")
     extract = Extract()
     extract.feed(p.read_text())
     extract.close()
-    print('/* end', p.name, '*/')
+    print("/* end", p.name, "*/")
 
 
 def main() -> None:
     """main."""
-    header = '''#pragma once
+    header = """#pragma once
 
 #include <assert.h>
 #include <errno.h>
@@ -182,23 +185,20 @@ typedef wchar_t Py_UNICODE;
 typedef void *PyGILState_STATE;
 
 typedef void (*PyOS_sighandler_t)(int);
-'''
+"""
     print(header)
     root = Path(argv[1])
     files = sorted(root.iterdir())
-    start = [
-        root / 'structures.html',
-        root / 'typeobj.html',
-        root / 'type.html']
+    start = [root / "structures.html", root / "typeobj.html", root / "type.html"]
     set(map(files.remove, start))
     set(map(mapper, start))
     set(map(mapper, files))
-    footer = '''
+    footer = """
 #ifdef __cplusplus
 }
-#endif'''
+#endif"""
     print(footer)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

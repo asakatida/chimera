@@ -3,17 +3,48 @@ sudo: false
 
 matrix:
   include:
-    # - addons:
-    #     apt:
-    #       sources:
-    #         - llvm-toolchain-trusty-6.0
-    #         - ubuntu-toolchain-r-test
-    #       packages:
-    #         - clang-6.0
-    #         - libstdc++-8-dev
-    #   compiler: clang
-    #   env:
-    #     - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
+    - addons:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-5.0
+            - ubuntu-toolchain-r-test
+          packages:
+            - clang-5.0
+            - g++-7
+      compiler: clang
+      env:
+        - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
+    - addons:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-6.0
+            - ubuntu-toolchain-r-test
+          packages:
+            - clang-6.0
+            - g++-7
+      compiler: clang
+      env:
+        - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
+    - addons:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-7
+            - ubuntu-toolchain-r-test
+          packages:
+            - clang-7
+            - g++-8
+      compiler: clang
+      env:
+        - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
+    - addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7
+      compiler: gcc
+      env:
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7 && CXXFLAGS=-Wpedantic"
     - addons:
         apt:
           sources:

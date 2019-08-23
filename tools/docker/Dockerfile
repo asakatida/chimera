@@ -1,9 +1,15 @@
 FROM debian:unstable
 
 RUN apt-get update
-RUN apt-get install -y libstdc++-7-dev g++-7 cmake ninja-build
+RUN apt-get install -y libc++-dev clang-6.0 cmake ninja-build
 
-RUN mkdir build
-WORKDIR build
+ENV CHIMERA_PATH ":/app/stdlib"
+ENV CXXFLAG "-stdlib=c++"
 
-CMD cmake -GNinja ../chimera && ninja && ninja spec && ninja corpus
+WORKDIR /app
+ADD . /app
+
+RUN cmake -GNinja -DCMAKE_CXX_COMPILER="clang++-6.0" .
+RUN ninja
+RUN ninja spec
+RUN ninja corpus

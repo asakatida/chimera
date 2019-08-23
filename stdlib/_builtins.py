@@ -1,13 +1,16 @@
 """builtins.py."""
 # pylama:ignore=W0621,W0622
 
+from typing import Callable, Dict, Iterable, TypeVar, List
+
 
 def __build_class__(
-        func: object,
-        name: str,
-        *bases: type,
-        metaclass: type = type,
-        **kwds: object) -> type:
+    func: Callable[[Dict[object, object]], None],
+    name: str,
+    *bases: type,
+    metaclass: type = type,
+    **kwds: object,
+) -> type:
     locals = dict()
     func(locals)
     return type(name, bases, locals)
@@ -314,18 +317,20 @@ class bytearray(object):
 
 def callable(object: object) -> bool:
     """callable."""
-    return hasattr(object, '__call__')
+    return hasattr(object, "__call__")
 
 
 def chr(i: int) -> str:
     """chr."""
-    return '\0'
+    return "\0"
 
 
 def classmethod(method: object) -> object:
     """classmethod."""
+
     def f(self: object, *args: object, **kwargs: object) -> object:
         return method(type(self), *args, **kwargs)
+
     return f
 
 
@@ -338,10 +343,14 @@ def delattr(object: object, name: str) -> None:
     object.__delattr__(name)
 
 
-class dict(object):
+DictKey = TypeVar("DictKey")
+DictValue = TypeVar("DictValue")
+
+
+class dict(Dict[DictKey, DictValue], object):
     """dict."""
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: object, **kwargs: DictValue) -> None:
         """__init__."""
         self.buckets = ()
         if args:
@@ -349,33 +358,35 @@ class dict(object):
         else:
             self.init_kwargs(**kwargs)
 
-    def __contains__(self, key) -> bool:
+    def __contains__(self, key: DictKey) -> bool:
         """__contains__."""
-        return any(
-            k == key for k, _ in self.buckets[hash(key) % len(self.buckets)])
+        return any(k == key for k, _ in self.buckets[hash(key) % len(self.buckets)])
 
-    def __delitem__(self, key) -> None:
+    def __delitem__(self, key: DictKey) -> None:
         """__delitem__."""
         self.buckets[hash(key) % len(self.buckets)] = filter(
-            lambda pair: pair[0] != key,
-            self.buckets[hash(key) % len(self.buckets)])
+            lambda pair: pair[0] != key, self.buckets[hash(key) % len(self.buckets)]
+        )
 
-    def __eq__(self, value) -> bool:
+    def __eq__(self, value: object) -> bool:
         """__eq__."""
         return len(self) == len(value) and all(
-            key in value and self[key] == value[key] for key in self)
+            key in value and self[key] == value[key] for key in self
+        )
 
-    def __ge__(self, value) -> bool:
+    def __ge__(self, value: object) -> bool:
         """__ge__."""
         return False
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: DictKey):
         """__getitem__."""
-        return next(filter(
-            lambda pair: pair[0] == key,
-            self.buckets[hash(key) % len(self.buckets)]))[1]
+        return next(
+            filter(
+                lambda pair: pair[0] == key, self.buckets[hash(key) % len(self.buckets)]
+            )
+        )[1]
 
-    def __gt__(self, value) -> bool:
+    def __gt__(self, value: object) -> bool:
         """__gt__."""
         return False
 
@@ -383,7 +394,7 @@ class dict(object):
         """__iter__."""
         return iter(self.keys())
 
-    def __le__(self, value) -> bool:
+    def __le__(self, value: object) -> bool:
         """__le__."""
         return False
 
@@ -391,23 +402,23 @@ class dict(object):
         """__len__."""
         return sum(map(len, self.buckets))
 
-    def __lt__(self, value) -> bool:
+    def __lt__(self, value: object) -> bool:
         """__lt__."""
         return False
 
-    def __ne__(self, value) -> bool:
+    def __ne__(self, value: object) -> bool:
         """__ne__."""
         return len(self) != len(value) or any(
-            key not in value or self[key] != value[key] for key in self)
+            key not in value or self[key] != value[key] for key in self
+        )
 
     def __repr__(self) -> str:
         """__repr__."""
         return (
-            '{' +
-            ', '.join((f'{key}: {value}' for key, value in self.values())) +
-            '}')
+            "{" + ", ".join((f"{key}: {value}" for key, value in self.values())) + "}"
+        )
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key: DictKey, value: DictValue) -> None:
         """__setitem__."""
         self.buckets[hash(key) % len(self.buckets)].append((key, value))
 
@@ -415,12 +426,12 @@ class dict(object):
         """clear."""
         self.buckets = ()
 
-    def copy(self) -> dict:
+    def copy(self) -> dict[DictKey, DictValue]:
         """copy."""
         return dict(self.items())
 
     @classmethod
-    def fromkeys(cls, iterable, value=None):
+    def fromkeys(cls, iterable: Iterable[DictKey], value=None):
         """fromkeys."""
         return cls((key, value) for key in iterable)
 
@@ -489,7 +500,7 @@ class dict(object):
     __hash__ = None
 
 
-def dir(object: object=None) -> object:
+def dir(object: object = None) -> object:
     """dir."""
     return object.__dir__()
 
@@ -499,7 +510,7 @@ def divmod(a: object, b: object) -> object:
     return a // b, a % b
 
 
-def enumerate(sequence: object, start: object=0) -> object:
+def enumerate(sequence: object, start: object = 0) -> object:
     """enumerate."""
     n = start
     for elem in sequence:
@@ -521,7 +532,7 @@ class frozenset(object):
     """frozenset."""
 
 
-def globals() -> "dict":
+def globals() -> dict[str, object]:
     """globals."""
     return dict()
 
@@ -581,7 +592,7 @@ pow = None
 class property(object):
     """property."""
 
-    def __init__(self, fget=None, fset=None, fdel=None, doc: str=None) -> None:
+    def __init__(self, fget=None, fset=None, fdel=None, doc: str = None) -> None:
         """__init__."""
         self._fget = fget
         self._fset = fset
@@ -604,7 +615,7 @@ class property(object):
 class range(object):
     """range."""
 
-    def __init__(self, start: int, stop: int=None, step: int=None) -> None:
+    def __init__(self, start: int, stop: int = None, step: int = None) -> None:
         """__init__."""
         if stop is None:
             self._start = 0
@@ -656,7 +667,7 @@ def setattr(object: object, name: str, value) -> None:
 class slice(object):
     """slice."""
 
-    def __init__(self, start: int, stop: int=None, step: int=None) -> None:
+    def __init__(self, start: int, stop: int = None, step: int = None) -> None:
         """__init__."""
         if stop is None:
             self._start = None
@@ -683,7 +694,7 @@ class slice(object):
         return self._step
 
 
-def sorted(iterable, *, key=None, reverse=False) -> list:
+def sorted(iterable, *, key=None, reverse=False) -> List[object]:
     """sorted."""
     return list()
 

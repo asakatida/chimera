@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 version="$(git rev-parse --show-toplevel)/library/version.hpp"
 current_branch=$(git rev-parse --abbrev-ref HEAD)
