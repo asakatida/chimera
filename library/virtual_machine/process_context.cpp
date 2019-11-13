@@ -35,7 +35,10 @@
 #include "object/object.hpp"
 #include "virtual_machine/modules/marshal.hpp"
 #include "virtual_machine/modules/sys.hpp"
-#include "virtual_machine/parse.hpp"
+#include "virtual_machine/parse_file_interactive.hpp"
+#include "virtual_machine/parse_file_module.hpp"
+#include "virtual_machine/parse_string_interactive.hpp"
+#include "virtual_machine/parse_string_module.hpp"
 #include "virtual_machine/thread_context.hpp"
 
 using namespace std::literals;
@@ -148,23 +151,23 @@ namespace chimera {
 
       asdl::Module ProcessContext::parse_file(const std::string_view &data,
                                               const char *source) {
-        return Parse{}.parse_file(global_context.options, data, source);
+        return parse_module(global_context.options, data, source);
       }
 
       asdl::Module ProcessContext::parse_file(std::istream &input,
                                               const char *source) {
-        return Parse{}.parse_file(global_context.options, input, source);
+        return parse_module(global_context.options, input, source);
       }
 
       asdl::Interactive
       ProcessContext::parse_input(const std::string_view &data,
                                   const char *source) {
-        return Parse{}.parse_input(global_context.options, data, source);
+        return parse_interactive(global_context.options, data, source);
       }
 
       asdl::Interactive ProcessContext::parse_input(std::istream &input,
                                                     const char *source) {
-        return Parse{}.parse_input(global_context.options, input, source);
+        return parse_interactive(global_context.options, input, source);
       }
     } // namespace virtual_machine
   }   // namespace library

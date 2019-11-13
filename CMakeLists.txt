@@ -109,8 +109,14 @@ add_library(
   library/virtual_machine/get_evaluator.hpp
   library/virtual_machine/global_context.cpp
   library/virtual_machine/global_context.hpp
-  library/virtual_machine/parse.cpp
-  library/virtual_machine/parse.hpp
+  library/virtual_machine/parse_file_interactive.cpp
+  library/virtual_machine/parse_file_interactive.hpp
+  library/virtual_machine/parse_file_module.cpp
+  library/virtual_machine/parse_file_module.hpp
+  library/virtual_machine/parse_string_interactive.cpp
+  library/virtual_machine/parse_string_interactive.hpp
+  library/virtual_machine/parse_string_module.cpp
+  library/virtual_machine/parse_string_module.hpp
   library/virtual_machine/process_context.cpp
   library/virtual_machine/process_context.hpp
   library/virtual_machine/push_stack.cpp

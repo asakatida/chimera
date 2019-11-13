@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Adam Grandquist <grandquista@gmail.com>
+// Copyright (c) 2018 Adam Grandquist <grandquista@gmail.com>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,37 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! process context attached to a virtual machine thread
+//! wrapper for tao::pegtl::parse
 
-#pragma once
+#include "virtual_machine/parse_file_interactive.hpp"
 
-#include <iosfwd>
-#include <string_view>
+#include <iostream>
+
+#include <tao/pegtl.hpp>
 
 #include "asdl/asdl.hpp"
-#include "options.hpp"
+#include "grammar/grammar.hpp"
 
 namespace chimera {
   namespace library {
     namespace virtual_machine {
-      struct Parse {
-        constexpr static auto bufferSize =
-            std::numeric_limits<std::uint16_t>::max();
-
-        asdl::Module parse_file(const Options &options,
-                                const std::string_view &data,
-                                const char *source);
-
-        asdl::Module parse_file(const Options &options, std::istream &input,
-                                const char *source);
-
-        asdl::Interactive parse_input(const Options &options,
-                                      const std::string_view &data,
-                                      const char *source);
-
-        asdl::Interactive parse_input(const Options &options,
-                                      std::istream &input, const char *source);
-      };
+      asdl::Interactive parse_interactive(const Options &options, std::istream &input, const char *source) {
+        constexpr static auto bufferSize = std::numeric_limits<std::uint16_t>::max();
+        asdl::Interactive interactive;
+        grammar::parse<grammar::SingleInput>(options, grammar::Input<tao::pegtl::istream_input<>>(input, bufferSize, source), interactive);
+        return interactive;
+      }
     } // namespace virtual_machine
   }   // namespace library
 } // namespace chimera
