@@ -26,20 +26,23 @@ from json import loads
 from pathlib import Path
 
 print('#include "runtime.hpp"')
-print('')
-print('#include <sstream>')
-print('')
-print('#include <catch2/catch.hpp>')
-print('')
-print('#include <tao/pegtl.hpp>')
-print('')
+print("")
+print("#include <sstream>")
+print("")
+print("#include <catch2/catch.hpp>")
+print("")
+print("#include <tao/pegtl.hpp>")
+print("")
 print('#include "base64.hpp"')
 set(
     starmap(
         lambda n, s: print(
-            '''
-TEST_CASE("BLNS test ''' f'{n}' '''") {
-  ''' f'''{
+            """
+TEST_CASE("BLNS test """
+            f"{n}"
+            """") {
+  """
+            f"""{
     'auto str = Testing::base64_decode("{}")'.format(
         standard_b64encode(s).decode())
     if 0 in s or max(s) > 0x7F else (
@@ -47,7 +50,8 @@ TEST_CASE("BLNS test ''' f'{n}' '''") {
         if 10 in s or 13 in s or 0x22 in s or 0x5C in s else
         'std::string str("{}", {})'
     ).format(s.decode(), len(s))
-  };''' '''
+  };"""
+            """
   chimera::library::grammar::BufferInput<std::istringstream> input(
       "<testing>", chimera::BUFFER_SIZE, str);
   std::variant<chimera::asdl::Module, chimera::asdl::Interactive> top;
@@ -55,7 +59,8 @@ TEST_CASE("BLNS test ''' f'{n}' '''") {
       (tao::pegtl::parse<chimera::library::grammar::FileInput>(
           input, top)),
       tao::pegtl::parse_error &);
-}'''),
+}"""
+        ),
         zip(
             count(),
             filter(
@@ -64,6 +69,11 @@ TEST_CASE("BLNS test ''' f'{n}' '''") {
                     standard_b64decode,
                     loads(
                         Path(
-                            'external/big-list-of-naughty-strings/'
-                            'blns.base64.json')
-                        .read_text()))))))
+                            "external/big-list-of-naughty-strings/" "blns.base64.json"
+                        ).read_text()
+                    ),
+                ),
+            ),
+        ),
+    )
+)

@@ -28,15 +28,15 @@ def _a(key: int, group: Iterable[Tuple[int, int]]) -> Tuple[int, ...]:
     return tuple(e[0] for e in group)
 
 
-print('#pragma once')
-print('')
-print('#include <tao/pegtl.hpp>')
-print('')
-print('namespace chimera {')
-print('namespace library {')
-print('namespace grammar {')
-print('struct Utf8IdStart:')
-print('tao::pegtl::utf8::ranges<')
+print("#pragma once")
+print("")
+print("#include <tao/pegtl.hpp>")
+print("")
+print("namespace chimera {")
+print("namespace library {")
+print("namespace grammar {")
+print("struct Utf8IdStart:")
+print("tao::pegtl::utf8::ranges<")
 print(
     *chain.from_iterable(
         map(
@@ -45,13 +45,17 @@ print(
                 _a,
                 groupby(
                     zip(
-                        filter(
-                            lambda i: chr(i).isidentifier(),
-                            range(0x10FFFF)),
-                        count()),
-                    lambda t: t[0] - t[1])))),
-    sep=', ')
-print('> {};')
-print('}  // namespace grammar')
-print('}  // namespace library')
-print('}  // namespace chimera')
+                        filter(lambda i: chr(i).isidentifier(), range(0x10FFFF)),
+                        count(),
+                    ),
+                    lambda t: t[0] - t[1],
+                ),
+            ),
+        )
+    ),
+    sep=", ",
+)
+print("> {};")
+print("}  // namespace grammar")
+print("}  // namespace library")
+print("}  // namespace chimera")

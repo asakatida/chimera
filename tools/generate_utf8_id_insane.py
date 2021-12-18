@@ -26,21 +26,26 @@ id_start = set(filter(lambda i: chr(i).isidentifier(), range(0x10FFFF)))
 id_continue = set(
     filter(
         lambda i: all(
-            map(lambda j: ''.join((chr(j), chr(i))).isidentifier(), id_start)),
-        set(range(0x10FFFF)) - id_start))
+            map(lambda j: "".join((chr(j), chr(i))).isidentifier(), id_start)
+        ),
+        set(range(0x10FFFF)) - id_start,
+    )
+)
 print(
     list(
         next(
             filter(
                 str.isidentifier,
                 map(
-                    ''.join,
+                    "".join,
                     product(
                         map(chr, id_start),
                         map(
-                            chr,
-                            set(
-                                range(0x10FFFF)).difference(
-                                    id_start,
-                                    id_continue))))))
-        .encode()))
+                            chr, set(range(0x10FFFF)).difference(id_start, id_continue)
+                        ),
+                    ),
+                ),
+            )
+        ).encode()
+    )
+)

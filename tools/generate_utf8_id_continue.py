@@ -28,9 +28,12 @@ def _a(id_start: Set[int]) -> None:
     def b(i: int) -> bool:
         def c() -> Iterable[bool]:
             def d(j: int) -> bool:
-                return ''.join((chr(j), chr(i))).isidentifier()
+                return "".join((chr(j), chr(i))).isidentifier()
+
             return map(d, id_start)
+
         return all(c())
+
     id_continue_pos: Set[int] = set(range(0x10FFFF)) - id_start
     id_continue: Iterator[int] = chain.from_iterable(
         map(
@@ -38,9 +41,12 @@ def _a(id_start: Set[int]) -> None:
             starmap(
                 _b,
                 groupby(
-                    zip(filter(b, id_continue_pos), count()),
-                    lambda t: t[0] - t[1]))))
-    print(next(id_continue), end='')
+                    zip(filter(b, id_continue_pos), count()), lambda t: t[0] - t[1]
+                ),
+            ),
+        )
+    )
+    print(next(id_continue), end="")
     set(map(_c, id_continue))
 
 
@@ -49,24 +55,24 @@ def _b(_: int, group: Iterable[Tuple[int, int]]) -> Tuple[int, ...]:
 
 
 def _c(s: int) -> None:
-    print(',', s, end='')
+    print(",", s, end="")
 
 
 def _d(i: int) -> bool:
     return chr(i).isidentifier()
 
 
-print('#pragma once')
-print('')
-print('#include <tao/pegtl.hpp>')
-print('')
-print('namespace chimera {')
-print('namespace library {')
-print('namespace grammar {')
-print('struct Utf8IdContinue:')
-print('tao::pegtl::utf8::ranges<')
+print("#pragma once")
+print("")
+print("#include <tao/pegtl.hpp>")
+print("")
+print("namespace chimera {")
+print("namespace library {")
+print("namespace grammar {")
+print("struct Utf8IdContinue:")
+print("tao::pegtl::utf8::ranges<")
 _a(set(filter(_d, range(0x10FFFF))))
-print('> {};')
-print('}  // namespace grammar')
-print('}  // namespace library')
-print('}  // namespace chimera')
+print("> {};")
+print("}  // namespace grammar")
+print("}  // namespace library")
+print("}  // namespace chimera")

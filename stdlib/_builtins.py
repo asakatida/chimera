@@ -3,11 +3,8 @@
 
 
 def __build_class__(
-        func: object,
-        name: str,
-        *bases: type,
-        metaclass: type = type,
-        **kwds: object) -> type:
+    func: object, name: str, *bases: type, metaclass: type = type, **kwds: object
+) -> type:
     locals = dict()
     func(locals)
     return type(name, bases, locals)
@@ -314,18 +311,20 @@ class bytearray(object):
 
 def callable(object: object) -> bool:
     """callable."""
-    return hasattr(object, '__call__')
+    return hasattr(object, "__call__")
 
 
 def chr(i: int) -> str:
     """chr."""
-    return '\0'
+    return "\0"
 
 
 def classmethod(method: object) -> object:
     """classmethod."""
+
     def f(self: object, *args: object, **kwargs: object) -> object:
         return method(type(self), *args, **kwargs)
+
     return f
 
 
@@ -351,19 +350,19 @@ class dict(object):
 
     def __contains__(self, key) -> bool:
         """__contains__."""
-        return any(
-            k == key for k, _ in self.buckets[hash(key) % len(self.buckets)])
+        return any(k == key for k, _ in self.buckets[hash(key) % len(self.buckets)])
 
     def __delitem__(self, key) -> None:
         """__delitem__."""
         self.buckets[hash(key) % len(self.buckets)] = filter(
-            lambda pair: pair[0] != key,
-            self.buckets[hash(key) % len(self.buckets)])
+            lambda pair: pair[0] != key, self.buckets[hash(key) % len(self.buckets)]
+        )
 
     def __eq__(self, value) -> bool:
         """__eq__."""
         return len(self) == len(value) and all(
-            key in value and self[key] == value[key] for key in self)
+            key in value and self[key] == value[key] for key in self
+        )
 
     def __ge__(self, value) -> bool:
         """__ge__."""
@@ -371,9 +370,11 @@ class dict(object):
 
     def __getitem__(self, key):
         """__getitem__."""
-        return next(filter(
-            lambda pair: pair[0] == key,
-            self.buckets[hash(key) % len(self.buckets)]))[1]
+        return next(
+            filter(
+                lambda pair: pair[0] == key, self.buckets[hash(key) % len(self.buckets)]
+            )
+        )[1]
 
     def __gt__(self, value) -> bool:
         """__gt__."""
@@ -398,14 +399,14 @@ class dict(object):
     def __ne__(self, value) -> bool:
         """__ne__."""
         return len(self) != len(value) or any(
-            key not in value or self[key] != value[key] for key in self)
+            key not in value or self[key] != value[key] for key in self
+        )
 
     def __repr__(self) -> str:
         """__repr__."""
         return (
-            '{' +
-            ', '.join((f'{key}: {value}' for key, value in self.values())) +
-            '}')
+            "{" + ", ".join((f"{key}: {value}" for key, value in self.values())) + "}"
+        )
 
     def __setitem__(self, key, value) -> None:
         """__setitem__."""
@@ -489,7 +490,7 @@ class dict(object):
     __hash__ = None
 
 
-def dir(object: object=None) -> object:
+def dir(object: object = None) -> object:
     """dir."""
     return object.__dir__()
 
@@ -499,7 +500,7 @@ def divmod(a: object, b: object) -> object:
     return a // b, a % b
 
 
-def enumerate(sequence: object, start: object=0) -> object:
+def enumerate(sequence: object, start: object = 0) -> object:
     """enumerate."""
     n = start
     for elem in sequence:
@@ -581,7 +582,7 @@ pow = None
 class property(object):
     """property."""
 
-    def __init__(self, fget=None, fset=None, fdel=None, doc: str=None) -> None:
+    def __init__(self, fget=None, fset=None, fdel=None, doc: str = None) -> None:
         """__init__."""
         self._fget = fget
         self._fset = fset
@@ -604,7 +605,7 @@ class property(object):
 class range(object):
     """range."""
 
-    def __init__(self, start: int, stop: int=None, step: int=None) -> None:
+    def __init__(self, start: int, stop: int = None, step: int = None) -> None:
         """__init__."""
         if stop is None:
             self._start = 0
@@ -656,7 +657,7 @@ def setattr(object: object, name: str, value) -> None:
 class slice(object):
     """slice."""
 
-    def __init__(self, start: int, stop: int=None, step: int=None) -> None:
+    def __init__(self, start: int, stop: int = None, step: int = None) -> None:
         """__init__."""
         if stop is None:
             self._start = None
