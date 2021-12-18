@@ -1,29 +1,15 @@
-. cflags.sh
+#!/usr/bin/env bash
 
-set -l COMPILE $CXX $CPPFLAGS $CXXFLAGS
-set -l FORMAT clang-format -style=file -i
-set -l TIDY clang-tidy \
-  -p="$SOURCE" \
-  -fix -fix-errors -format-style=file -config='' -header-filter="\.\*"
+set -ex -o pipefail
 
-for file in $SOURCE/{library,source,tools,unit_tests}{/**,}/*.cpp
-  eval $COMPILE -o "$file.o" -c "$file"
-  if test $status -gt 0
-    exit
-  end
-  eval $FORMAT "$file"
-  if test $status -gt 0
-    exit
-  end
-  eval $TIDY "$file"
-  if test $status -gt 0
-    exit
-  end
-end
+find . '(' -not -path './external/*' ')' -and -name '*.sh' -print0 | xargs -0 -- shellcheck
 
-for file in $SOURCE/{include,library,source,tools,unit_tests}{/**,}/*.h{pp,}
-  eval $FORMAT "$file"
-  if test $status -gt 0
-    exit
-  end
-end
+docker build -t chimera/base tools/docker/base/
+docker build -t chimera/clang tools/docker/clang/
+docker build -t chimera/gcc tools/docker/gcc/
+
+docker-exec chimera/clang tools/clang-fix.sh
+docker-exec chimera/gcc tools/gcc-sanity.sh
+
+docker-exec chimera/clang tools/ninja-intense.sh build/clang
+docker-exec chimera/gcc tools/ninja-intense.sh build/gcc
