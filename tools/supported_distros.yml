@@ -1,0 +1,109 @@
+distros:
+- name: alpine
+  package_command: apk add
+  tags:
+  - name: 3.14.3
+    images: &alpine_images [
+      {
+        name: base,
+        dependencies: [
+          {name: cmake},
+          {name: ninja},
+          {name: python3},
+        ],
+        environment: &base_environment {
+          CXX: 'false',
+          CPPFLAG: '',
+          CXXFLAG: -stdlib=c++,
+        },
+      },
+      {
+        name: clang,
+        requires: base,
+        dependencies: [
+          {name: clang},
+        ],
+        environment: &clang_environment {
+          CXX: clang++-13,
+        },
+      },
+      {
+        name: gcc,
+        requires: base,
+        dependencies: [
+          {name: g++},
+        ],
+        environment: &gcc_environment {
+          CXX: g++-11,
+        },
+      },
+    ]
+  - name: 3.15.0
+    images: *alpine_images
+  - name: edge
+    images: *alpine_images
+  - name: latest
+    images: *alpine_images
+- name: debian
+  package_command: &debian_package_command apt-get install -y
+  tags:
+  - name: stretch-backports
+    images: &debian_images [
+      {
+        name: base,
+        dependencies: [
+          {name: cmake},
+          {name: jq},
+          {name: ninja-build},
+          {name: python3},
+        ],
+        environment: *base_environment,
+      },
+      {
+        name: clang,
+        requires: base,
+        dependencies: [
+          {name: clang},
+          {name: clang-format},
+          {name: clang-tidy},
+          {name: libc++-dev},
+        ],
+        environment: *clang_environment,
+      },
+      {
+        name: gcc,
+        requires: base,
+        dependencies: [
+          {name: g++},
+          {name: libstdc++-11-dev},
+        ],
+        environment: *gcc_environment,
+      },
+    ]
+  - name: stretch-slim
+    images: *debian_images
+  - name: stretch
+    images: *debian_images
+  - name: testing-slim
+    images: *debian_images
+  - name: testing
+    images: *debian_images
+  - name: unstable-slim
+    images: *debian_images
+  - name: unstable
+    images: *debian_images
+- name: ubuntu
+  package_command: *debian_package_command
+  tags:
+  - name: devel
+    images: *debian_images
+  - name: focal
+    images: *debian_images
+  - name: impish
+    images: *debian_images
+  - name: jammy
+    images: *debian_images
+  - name: latest
+    images: *debian_images
+  - name: rolling
+    images: *debian_images

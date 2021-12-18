@@ -1,0 +1,10 @@
+FROM {% if item.requires %}chimera/{{ item.requires }}-{{ item.distro }}-{{ item.tag }}{% else %}{{ item.distro }}:{{ item.tag }}{% endif %}
+
+{% if item.distro != 'alpine' %}
+RUN apt-get update
+{% endif %}
+RUN {{ item.package_command }} {{ item.dependencies }}
+
+{% for environ, value in item.environment.items() %}
+ENV {{ environ }} {{ value }}
+{% endfor %}

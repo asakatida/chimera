@@ -1,0 +1,28 @@
+---
+- hosts: localhost
+  vars:
+    supported_distros: << supported_distros | tojson >>
+    min_supported_distros: << min_supported_distros | tojson >>
+  tasks:
+  - name: directory
+    file:
+      path: "../build/{{ item.image }}/{{ item.distro }}/{{ item.tag }}"
+      state: directory
+    loop: "{{ min_supported_distros }}"
+  - name: Dockerfile
+    template:
+      dest: "../build/{{ item.image }}/{{ item.distro }}/{{ item.tag }}/Dockerfile"
+      src: Dockerfile.j2
+    loop: "{{ supported_distros }}"
+  - name: docker build
+    community.docker.docker_image:
+      build:
+        path: "../build/{{ item.image }}/{{ item.distro }}/{{ item.tag }}"
+      name: chimera/{{ item.image }}-{{ item.distro }}-{{ item.tag }}
+      source: build
+    loop: "{{ min_supported_distros }}"
+<% for image in ('clang', 'gcc') %>
+  - name: test << image >>
+    command: "docker-exec 'chimera/<< image >>-{{ item.distro }}-{{ item.tag }}' ./ninja-intense.sh '../build/<< image >>/{{ item.distro }}/{{ item.tag }}'"
+    loop: "{{ min_supported_distros | '<< image >>' }}"
+<% endfor %>
