@@ -43,7 +43,7 @@ namespace chimera {
       enum class BytesMethod {};
       struct Expr {};
       struct False {};
-      using Future = std::future<Object>;
+      using Future = std::unique_ptr<std::future<Object>>;
       struct None {};
       struct NullFunction {};
       using number::Number;

@@ -1,5 +1,7 @@
 #include "object/number/number.hpp"
 
+#include <limits>
+
 #include <catch2/catch.hpp>
 
 using chimera::library::object::number::Number;

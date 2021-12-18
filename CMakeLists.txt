@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8.0)
+cmake_minimum_required(VERSION 3.22.0)
 project(
   chimera
   VERSION 1.0.0
@@ -134,7 +134,7 @@ add_library(
   library/version.cpp
   library/version.hpp)
 
-target_compile_features(chimera_core PUBLIC cxx_std_17)
+target_compile_features(chimera_core PUBLIC cxx_std_20)
 
 target_include_directories(chimera_core PUBLIC library)
 
@@ -145,7 +145,7 @@ target_include_directories(
   external/metal/include
   external/operators/include
   external/PEGTL/include)
-target_link_libraries(chimera_core  pthread)
+target_link_libraries(chimera_core pthread)
 
 add_library(
   libchimera

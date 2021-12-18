@@ -26,7 +26,7 @@ matrix:
 
 before_install:
   - eval "${MATRIX_EVAL}"
-  - export CXXFLAGS="$CXXFLAGS -DNDEBUG -std=c++17 -Wall -Wextra"
+  - export CXXFLAGS="${CXXFLAGS} -DNDEBUG -std=c++20 -Wall -Wextra"
 
 script:
   - cmake -DCMAKE_BUILD_TYPE=MinSizeRel

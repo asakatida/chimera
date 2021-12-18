@@ -14,7 +14,7 @@ The threading model is different.  Garbage collection is a separate set of threa
 
 ### building/installing
 
-The supported build process is cmake, ninja, and clang with support for c++17.  Default settings and target names are used.
+The supported build process is cmake, ninja, and clang with support for c++20.  Default settings and target names are used.
 
 ### working on core
 

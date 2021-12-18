@@ -12,5 +12,3 @@ IncludeCategories:
 IndentCaseLabels: true
 KeepEmptyLinesAtTheStartOfBlocks: false
 NamespaceIndentation: All
-TabWidth: 2
-...

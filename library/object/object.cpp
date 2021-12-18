@@ -22,6 +22,7 @@
 
 #include "object.hpp"
 
+#include <limits>
 #include <string>
 #include <utility>
 

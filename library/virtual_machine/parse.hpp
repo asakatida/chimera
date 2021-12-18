@@ -23,6 +23,7 @@
 #pragma once
 
 #include <iosfwd>
+#include <limits>
 #include <string_view>
 
 #include "asdl/asdl.hpp"
