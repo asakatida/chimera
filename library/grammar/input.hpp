@@ -39,7 +39,7 @@ namespace chimera {
         }
 
         bool indent() {
-          std::uintmax_t i = Base::byte_in_line();
+          std::uintmax_t i = Base::column();
           if (indentStack.top() < i) {
             indentStack.push(i);
             return true;
@@ -48,7 +48,7 @@ namespace chimera {
         }
 
         bool is_dedent() const {
-          return Base::byte_in_line() < indentStack.top();
+          return Base::column() < indentStack.top();
         }
 
         bool dedent() {
@@ -58,7 +58,7 @@ namespace chimera {
           if (Base::empty()) {
             return true;
           }
-          std::uintmax_t i = Base::byte_in_line();
+          std::uintmax_t i = Base::column();
           if (i > indentStack.top()) {
             throw tao::pegtl::parse_error("bad dedent"s, *this);
           }
@@ -66,7 +66,7 @@ namespace chimera {
         }
 
         bool is_newline() const {
-          return Base::byte_in_line() == indentStack.top();
+          return Base::column() == indentStack.top();
         }
 
       private:

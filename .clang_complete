@@ -1,6 +1,8 @@
 -Iinclude
--Iunit_tests
 -Ilibrary
+-Iunit_tests
+-Iexternal/Catch/single_include
 -Iexternal/GSL/include
+-Iexternal/metal/include
+-Iexternal/operators/include
 -Iexternal/PEGTL/include
--Iexternal/Catch/include

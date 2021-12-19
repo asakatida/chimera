@@ -9,7 +9,8 @@ add_compile_options(
   -Wno-c++17-extensions
   -Wno-c++98-compat-pedantic
   -Wno-date-time
-  -Wno-padded)
+  -Wno-padded
+  -fbracket-depth=1024)
 
 add_library(
   chimera_core

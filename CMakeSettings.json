@@ -4,20 +4,16 @@
       "name": "Debug",
       "generator": "Ninja",
       "configurationType" : "Debug",
-      "buildRoot":  "${projectDir}-build",
+      "buildRoot":  "${projectDir}/build/debug",
       "cmakeCommandArgs":  "",
       "buildCommandArgs": "",
-      "ctestCommandArgs":  "",
-      "variables": [{
-        "name": "CHIMERA_PATH",
-        "value": "/usr/local/Cellar/python/3.7.0/Frameworks/Python.framework/Versions/3.7/lib/python3.7/:${projectDir}/stdlib/"
-      }]
+      "ctestCommandArgs":  ""
     },
     {
       "name": "Release",
       "generator": "Ninja",
       "configurationType" : "Release",
-      "buildRoot": "${projectDir}-build"
+      "buildRoot": "${projectDir}/build/release"
     }
   ]
 }

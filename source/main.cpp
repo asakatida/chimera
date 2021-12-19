@@ -46,7 +46,7 @@ namespace chimera {
     }
 
     static int print_help(const Span &args) {
-      std::cout << args.at(0)
+      std::cout << args[0]
                 << " [-bBdEhiIOqsSuvVWx?]"
                    " [-c command | -m module-name | script | - ]"
                    " [args]"
@@ -55,7 +55,7 @@ namespace chimera {
     }
 
     static int print_version(const Span &args) {
-      std::cout << args.at(0)
+      std::cout << args[0]
                 << " " CHIMERA_VERSION " (" CHIMERA_GIT_HEAD ")\n"
                    "[" __VERSION__ "]"
                 << std::endl;
@@ -78,7 +78,7 @@ namespace chimera {
           for (; arg != args.end(); ++arg) {
             auto argLen = std::strlen(*arg);
             gsl::cstring_span<> argCStr{
-                *arg, static_cast<gsl::cstring_span<>::index_type>(argLen)};
+                *arg, static_cast<gsl::cstring_span<>::size_type>(argLen)};
             auto argChar = argCStr.begin();
             if (*argChar != '-') {
               options.script = *arg;
@@ -104,7 +104,7 @@ namespace chimera {
                                            .append(std::to_string(std::distance(
                                                args.begin(), arg))));
             }
-            for (; argChar != argCStr.cend(); ++argChar) {
+            for (; argChar != argCStr.end(); ++argChar) {
               switch (*argChar) {
                 case '?':
                 case 'h':
@@ -120,7 +120,7 @@ namespace chimera {
                   break;
                 case 'c':
                   ++argChar;
-                  if (argChar != argCStr.cend()) {
+                  if (argChar != argCStr.end()) {
                     options.command = &*argChar;
                   } else {
                     ++arg;
@@ -146,7 +146,7 @@ namespace chimera {
                   break;
                 case 'm':
                   ++argChar;
-                  if (argChar != argCStr.cend()) {
+                  if (argChar != argCStr.end()) {
                     options.module_name = &*argChar;
                   } else {
                     ++arg;
@@ -187,7 +187,7 @@ namespace chimera {
                   return print_version(args);
                 case 'W':
                   ++argChar;
-                  if (argChar != argCStr.cend()) {
+                  if (argChar != argCStr.end()) {
                     options.warnings.emplace_back(&*argChar);
                     break;
                   }
@@ -202,7 +202,7 @@ namespace chimera {
                   break;
                 case 'X':
                   ++argChar;
-                  if (argChar != argCStr.cend()) {
+                  if (argChar != argCStr.end()) {
                     options.extensions.emplace_back(&*argChar);
                     break;
                   }
