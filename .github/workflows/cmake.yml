@@ -32,7 +32,7 @@ jobs:
     - run: wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh 14 && rm -rf llvm.sh
     - name: Configure CMake
       working-directory: ${{github.workspace}}
-      run: CC=/usr/bin/clang-14 CXX=/usr/bin/clang++-14 cmake
+      run: CC=/usr/bin/clang-14 CXX=/usr/bin/clang++-14 cmake .
     - name: Build
       working-directory: ${{github.workspace}}
       run: make -k
