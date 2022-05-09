@@ -1,6 +1,6 @@
 # chimera
 
-
+[![CMake](https://github.com/asakatida/chimera/actions/workflows/cmake.yml/badge.svg)](https://github.com/asakatida/chimera/actions/workflows/cmake.yml)
 
 A forkable alternative Python3 interpreter.
 
