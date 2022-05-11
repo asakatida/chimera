@@ -46,7 +46,7 @@ jobs:
       run: make check && make check_rand
     - name: Fuzz Test
       working-directory: ${{github.workspace}}/build
-      run: make corpus && make corpus2
+      run: make corpus && make corpus2 || tree
     - name: Python Test
       working-directory: ${{github.workspace}}/build
       run: make spec
