@@ -2,13 +2,14 @@ name: CMake
 
 on:
   push:
-    branches: [ stable ]
+    branches: [stable]
   pull_request:
-    branches: [ stable ]
+    branches: [stable]
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
+  CLANG_VERSION: 15
 
 jobs:
   build:
@@ -17,40 +18,39 @@ jobs:
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: true
-    - name: Cache
-      uses: actions/cache@v3.0.2
-      with:
-        # A list of files, directories, and wildcard patterns to cache and restore
-        path: build
-        # An explicit key for restoring and saving the cache
-        key: build
-        # An ordered list of keys to use for restoring the cache if no cache hit occurred for key
-        restore-keys: build
-        # The chunk size used to split up large files during upload, in bytes
-        upload-chunk-size: 4000000
-    - run: wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh 14 && rm -rf llvm.sh
-    - name: Configure CMake
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      working-directory: ${{github.workspace}}
-      run: CC=/usr/bin/clang-14 CXX=/usr/bin/clang++-14 cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-    - name: Build dev tools
-      working-directory: ${{github.workspace}}/build
-      run: make -k
-      continue-on-error: true
-    - name: Test
-      working-directory: ${{github.workspace}}/build
-      run: make check && make check_rand
-    - name: Fuzz Test
-      working-directory: ${{github.workspace}}/build
-      run: make corpus && make corpus2 || find ${{github.workspace}} -name 'leak-*' -exec base64 '{}' ';'
-    - name: Python Test
-      working-directory: ${{github.workspace}}/build
-      run: make spec
-    - uses: actions/upload-artifact@v3
-      with:
-        name: my-artifact
-        path: path/to/artifact/world.txt
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Cache
+        uses: actions/cache@v3.0.2
+        with:
+          # A list of files, directories, and wildcard patterns to cache and restore
+          path: build
+          # An explicit key for restoring and saving the cache
+          key: build
+          # An ordered list of keys to use for restoring the cache if no cache hit occurred for key
+          restore-keys: build
+          # The chunk size used to split up large files during upload, in bytes
+          upload-chunk-size: 4000000
+      - run: wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh ${{env.CLANG_VERSION}} && rm -rf llvm.sh
+      - name: Configure CMake
+        # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+        # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+        working-directory: ${{github.workspace}}
+        run: CC=/usr/bin/clang-${{env.CLANG_VERSION}} CXX=/usr/bin/clang++-${{env.CLANG_VERSION}} cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      - name: Build dev tools
+        working-directory: ${{github.workspace}}/build
+        run: make
+      - name: Test
+        working-directory: ${{github.workspace}}/build
+        run: make check && make check_rand
+      - name: Fuzz Test
+        working-directory: ${{github.workspace}}/build
+        run: make corpus && make corpus2 || find ${{github.workspace}} -name 'leak-*' -exec base64 '{}' ';'
+      - name: Python Test
+        working-directory: ${{github.workspace}}/build
+        run: make spec
+      - uses: actions/upload-artifact@v3
+        with:
+          name: my-artifact
+          path: path/to/artifact/world.txt
