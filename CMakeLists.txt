@@ -135,7 +135,7 @@ add_library(
   library/version.cpp
   library/version.hpp)
 
-target_compile_features(chimera_core PUBLIC cxx_std_20)
+target_compile_features(chimera_core PUBLIC c_std_23 cxx_std_23)
 
 target_include_directories(chimera_core PUBLIC library)
 
@@ -146,6 +146,7 @@ target_include_directories(
   external/metal/include
   external/operators/include
   external/PEGTL/include)
+
 target_link_libraries(chimera_core pthread)
 
 add_library(
@@ -153,12 +154,13 @@ add_library(
   include/chimera.h
   library/c-api/chimera.cpp)
 
+target_compile_features(libchimera PUBLIC c_std_23 cxx_std_23)
 target_include_directories(libchimera SYSTEM PUBLIC include)
-
 set_target_properties(libchimera PROPERTIES OUTPUT_NAME "chimera")
 target_link_libraries(libchimera chimera_core pthread)
 
 add_executable(chimera source/main.cpp)
+target_compile_features(chimera PUBLIC c_std_23 cxx_std_23)
 target_link_libraries(chimera chimera_core pthread)
 
 add_executable(
@@ -171,11 +173,16 @@ add_executable(
   unit_tests/number/number.cpp
   unit_tests/virtual_machine/virtual_machine.cpp
   unit_tests/main.cpp)
+
+target_compile_features(unit_test PUBLIC c_std_23 cxx_std_23)
+
 target_include_directories(unit_test PUBLIC unit_tests)
+
 target_include_directories(
   unit_test
   SYSTEM PUBLIC
   external/Catch/single_include)
+
 target_link_libraries(unit_test chimera_core pthread)
 
 add_executable(fuzz unit_tests/fuzz/target.cpp)
@@ -185,6 +192,8 @@ target_compile_options(
   PUBLIC
   -g
   -fsanitize=address,fuzzer)
+
+target_compile_features(fuzz PUBLIC c_std_23 cxx_std_23)
 
 target_link_libraries(
   fuzz
@@ -203,6 +212,8 @@ target_compile_options(
   -g
   -fsanitize=address,fuzzer)
 
+target_compile_features(fuzz2 PUBLIC c_std_23 cxx_std_23)
+
 target_link_libraries(
   fuzz2
   chimera_core
@@ -213,6 +224,9 @@ target_link_libraries(
   -rtlib=compiler-rt)
 
 add_executable(bnf2abnf tools/bnf2abnf.cpp)
+
+target_compile_features(bnf2abnf PUBLIC c_std_23 cxx_std_23)
+
 target_include_directories(
   bnf2abnf
   SYSTEM PUBLIC
@@ -220,13 +234,16 @@ target_include_directories(
   external/PEGTL/include)
 
 add_library(modules_tools tools/modules.cpp tools/modules.hpp)
+target_compile_features(modules_tools PUBLIC c_std_23 cxx_std_23)
 target_include_directories(modules_tools PUBLIC tools)
 target_link_libraries(modules_tools chimera_core pthread)
 
 add_executable(builtins tools/builtins.cpp)
+target_compile_features(builtins PUBLIC c_std_23 cxx_std_23)
 target_link_libraries(builtins modules_tools pthread)
 
 add_executable(importlib tools/importlib.cpp)
+target_compile_features(importlib PUBLIC c_std_23 cxx_std_23)
 target_link_libraries(importlib modules_tools pthread)
 
 add_custom_target(check unit_test VERBATIM USES_TERMINAL)
