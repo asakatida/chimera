@@ -43,7 +43,7 @@ namespace chimera {
         GarbageCollector &operator=(GarbageCollector &&collector) = delete;
 
         template <typename... Args>
-        auto emplace(Args &&... args) {
+        auto emplace(Args &&...args) {
           std::lock_guard<std::mutex> lock(mutex);
           return fibonacciHeap.emplace(std::forward<Args>(args)...);
         }

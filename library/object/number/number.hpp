@@ -35,7 +35,7 @@ namespace chimera {
         template <typename Return>
         struct Construct {
           template <typename... Args>
-          Return operator()(Args &&... args) const {
+          Return operator()(Args &&...args) const {
             return Return(std::forward<Args>(args)...);
           }
         };
@@ -43,7 +43,7 @@ namespace chimera {
         struct LeftOperation {
           const Left &left;
           template <typename... Args>
-          auto operator()(Args &&... args) const {
+          auto operator()(Args &&...args) const {
             return Op{}(left, std::forward<Args>(args)...);
           }
         };
@@ -51,7 +51,7 @@ namespace chimera {
         struct RightOperation {
           const Right &right;
           template <typename... Args>
-          auto operator()(Args &&... args) const {
+          auto operator()(Args &&...args) const {
             return Op{}(std::forward<Args>(args)..., right);
           }
         };

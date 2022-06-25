@@ -92,8 +92,8 @@ namespace chimera {
       return a.base_name > b.base_name;
     }
 
-    std::optional<object::Object> IncompleteTuple::
-    operator()(const object::Tuple &tuple) const {
+    std::optional<object::Object>
+    IncompleteTuple::operator()(const object::Tuple &tuple) const {
       for (const auto &object : tuple) {
         if (!printer->is_printed(object)) {
           return {object};

@@ -2,8 +2,7 @@
 
 set -ex -o pipefail
 
-git diff --stat '@{2.days.ago}' --name-only | \
-  grep -F -e '.h' -e '.hpp' -e '.cpp' | \
-  sort -u | \
-  xargs -n1 -P3 \
+find . '(' -name '*.cpp' -or -name '*.h' -or -name '*.hpp' ')' -print0 | \
+  xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | \
+  xargs -0 -n1 -P3 \
   clang-format -style=file -i

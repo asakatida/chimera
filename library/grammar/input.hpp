@@ -34,7 +34,7 @@ namespace chimera {
       template <typename Base>
       struct Input : Base {
         template <typename... Args>
-        explicit Input(Args &&... args) : Base(std::forward<Args>(args)...) {
+        explicit Input(Args &&...args) : Base(std::forward<Args>(args)...) {
           indentStack.emplace();
         }
 
@@ -47,9 +47,7 @@ namespace chimera {
           return false;
         }
 
-        bool is_dedent() const {
-          return Base::column() < indentStack.top();
-        }
+        bool is_dedent() const { return Base::column() < indentStack.top(); }
 
         bool dedent() {
           using namespace std::literals;
@@ -65,9 +63,7 @@ namespace chimera {
           return i == indentStack.top();
         }
 
-        bool is_newline() const {
-          return Base::column() == indentStack.top();
-        }
+        bool is_newline() const { return Base::column() == indentStack.top(); }
 
       private:
         std::stack<std::uintmax_t> indentStack{};

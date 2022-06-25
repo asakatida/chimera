@@ -97,7 +97,7 @@ namespace chimera {
         bool has_attribute(std::string &&key) const noexcept;
         bool has_attribute(const std::string &key) const noexcept;
         template <typename... Args>
-        void set_attribute(Args &&... args) {
+        void set_attribute(Args &&...args) {
           object->attributes.insert_or_assign(std::forward<Args>(args)...);
         }
 
