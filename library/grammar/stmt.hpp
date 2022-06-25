@@ -227,7 +227,31 @@ namespace chimera::library::grammar {
         asdl::Assign assign{{}, pop<asdl::ExprImpl>()};
         assign.targets.reserve(size());
         transform<asdl::ExprImpl>(std::back_inserter(assign.targets));
+        for (const auto &target : assign.targets) {
+          std::visit(*this, *target.value);
+        }
         outer.push(std::move(assign));
+      }
+      template <typename Target>
+      void operator()(Target &&target) const {}
+      void operator()(const asdl::Bin & /*bin*/) const {
+        throw ExprAssignError();
+      }
+      void operator()(const asdl::Bool & /*bool*/) const {
+        throw ExprAssignError();
+      }
+      void operator()(const asdl::Tuple &tuple) const {
+        for (const auto &elt : tuple.elts) {
+          std::visit(*this, *elt.value);
+        }
+      }
+      void operator()(const asdl::List &list) const {
+        for (const auto &elt : list.elts) {
+          std::visit(*this, *elt.value);
+        }
+      }
+      void operator()(const asdl::Starred &starred) const {
+        std::visit(*this, *starred.value.value);
       }
     };
   };

@@ -30,6 +30,13 @@
 #include "grammar/rules/control.hpp"
 
 namespace chimera::library::grammar::rules {
+  struct SyntaxError : std::exception {};
+  struct ExprAssignError : SyntaxError {
+    [[nodiscard]] auto what() const noexcept -> const char * final {
+      return "SyntaxError: cannot assign to expression here. Maybe you meant "
+             "'==' instead of '='?";
+    }
+  };
   template <typename... Types>
   struct Tuple {};
   template <typename... Types>
@@ -61,3 +68,7 @@ namespace chimera::library::grammar::rules {
     using Type = Variant<>;
   };
 } // namespace chimera::library::grammar::rules
+namespace chimera::library::grammar {
+  using rules::ExprAssignError;
+  using rules::SyntaxError;
+} // namespace chimera::library::grammar
