@@ -114,12 +114,19 @@ namespace chimera::library::virtual_machine {
     void evaluate_get(const asdl::ExprImpl &expr);
     void evaluate_set(const asdl::ExprImpl &expr);
     void evaluate();
+<<<<<<< HEAD
+=======
+    void evaluate(const asdl::Module &module);
+    void evaluate(const asdl::Interactive &interactive);
+    void evaluate(const asdl::Expression &expression);
+>>>>>>> 028e56df6 (WIP)
     void evaluate(const asdl::AnnAssign &annAssign);
     void evaluate(const asdl::Assert &assert);
     void evaluate(const asdl::Assign &assign);
     void evaluate(const asdl::AsyncFor &asyncFor);
     void evaluate(const asdl::AsyncFunctionDef &asyncFunctionDef);
     void evaluate(const asdl::AsyncWith &asyncWith);
+<<<<<<< HEAD
     void evaluate(const asdl::AugAssign &augAssign);
     void evaluate(const asdl::Break &asdlBreak);
     void evaluate(const asdl::ClassDef &classDef);
@@ -142,6 +149,55 @@ namespace chimera::library::virtual_machine {
     void evaluate(const asdl::Try &asdlTry);
     void evaluate(const asdl::While &asdlWhile);
     void evaluate(const asdl::With &with);
+=======
+    void evaluate(const asdl::Attribute &attribute);
+    void evaluate(const asdl::AugAssign &augAssign);
+    void evaluate(const asdl::Await &await);
+    void evaluate(const asdl::Bin &bin);
+    void evaluate(const asdl::Bool &asdlBool);
+    void evaluate(const asdl::Break &asdlBreak);
+    void evaluate(const asdl::Call &call);
+    void evaluate(const asdl::ClassDef &classDef);
+    void evaluate(const asdl::Compare &compare);
+    void evaluate(const asdl::Continue &asdlContinue);
+    void evaluate(const asdl::Delete &asdlDelete);
+    void evaluate(const asdl::Dict &dict);
+    void evaluate(const asdl::DictComp &dictComp);
+    void evaluate(const asdl::Ellipsis &ellipsis);
+    void evaluate(const asdl::Expr &expr);
+    void evaluate(const asdl::ExprImpl &expr);
+    void evaluate(const asdl::For &asdlFor);
+    void evaluate(const asdl::FormattedValue &formattedValue);
+    void evaluate(const asdl::FunctionDef &functionDef);
+    void evaluate(const asdl::GeneratorExp &generatorExp);
+    void evaluate(const asdl::Global &global);
+    void evaluate(const asdl::If &asdlIf);
+    void evaluate(const asdl::IfExp &ifExp);
+    void evaluate(const asdl::Import &import);
+    void evaluate(const asdl::ImportFrom &importFrom);
+    void evaluate(const asdl::JoinedStr &joinedStr);
+    void evaluate(const asdl::Lambda &lambda);
+    void evaluate(const asdl::List &list);
+    void evaluate(const asdl::ListComp &listComp);
+    void evaluate(const asdl::Name &name);
+    void evaluate(const asdl::NameConstant &nameConstant);
+    void evaluate(const asdl::Nonlocal &nonlocal);
+    void evaluate(const asdl::Raise &raise);
+    void evaluate(const asdl::Return &asdlReturn);
+    void evaluate(const asdl::Set &set);
+    void evaluate(const asdl::SetComp &setComp);
+    void evaluate(const asdl::Starred &starred);
+    void evaluate(const asdl::Subscript &subscript);
+    void evaluate(const asdl::Try &asdlTry);
+    void evaluate(const asdl::Tuple &tuple);
+    void evaluate(const asdl::Unary &unary);
+    void evaluate(const asdl::UnpackDict &unpackDict);
+    void evaluate(const asdl::While &asdlWhile);
+    void evaluate(const asdl::With &with);
+    void evaluate(const asdl::Yield &yield);
+    void evaluate(const asdl::YieldFrom &yieldFrom);
+    void evaluate(const object::Object &object);
+>>>>>>> 028e56df6 (WIP)
 
   private:
     auto do_try(const std::vector<asdl::StmtImpl> &body,

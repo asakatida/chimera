@@ -35,18 +35,17 @@ TEST_CASE("number Number") {
 TEST_CASE("number Number division") {
   const Number other(2);
   const Number huge(8);
-  auto number = huge * huge;
+  const auto number = huge * huge;
   REQUIRE(number > huge);
   auto massive = number * other;
   REQUIRE(massive > number);
   REQUIRE(massive.is_int());
   massive = massive / huge;
   REQUIRE(massive > huge);
-  // Test is wrong past this point, but makes sure we don't regress
-  REQUIRE(!massive.is_int());
-  auto test = huge * other;
-  REQUIRE(massive != test);
-  REQUIRE(!massive.is_int());
+  REQUIRE(massive.is_int());
+  const auto test = huge * other;
+  REQUIRE(massive == test);
+  REQUIRE(massive.is_int());
   massive = massive / other;
   REQUIRE(massive != huge);
 }

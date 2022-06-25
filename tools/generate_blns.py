@@ -25,6 +25,8 @@ from itertools import count
 from json import loads
 from pathlib import Path
 
+scripts = Path(__file__).parent.absolute()
+
 print('#include "runtime.hpp"')
 print("")
 print("#include <sstream>")
