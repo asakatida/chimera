@@ -287,7 +287,7 @@ extern "C" int PyArg_VaParse(PyObject * /*args*/, const char * /*format*/,
 extern "C" int PyArg_ParseTupleAndKeywords(PyObject * /*args*/,
                                            PyObject * /*kw*/,
                                            const char * /*format*/,
-                                           char * /*keywords*/ [], ...) {
+                                           char * /*keywords*/[], ...) {
   return 0;
 }
 
@@ -295,7 +295,7 @@ extern "C" int PyArg_ParseTupleAndKeywords(PyObject * /*args*/,
 extern "C" int PyArg_VaParseTupleAndKeywords(PyObject * /*args*/,
                                              PyObject * /*kw*/,
                                              const char * /*format*/,
-                                             char * /*keywords*/ [],
+                                             char * /*keywords*/[],
                                              va_list /*vargs*/) {
   return 0;
 }
@@ -1644,7 +1644,7 @@ extern "C" int PyImport_ImportFrozenModule(const char * /*name*/) { return 0; }
 
 // NOLINTNEXTLINE
 extern "C" int PyImport_AppendInittab(const char * /*name*/,
-                                      PyObject *(*/*initfunc*/)()) {
+                                      PyObject *(* /*initfunc*/)()) {
   return 0;
 }
 
@@ -1812,7 +1812,7 @@ extern "C" PyThreadState *Py_NewInterpreter() { return nullptr; }
 extern "C" void Py_EndInterpreter(PyThreadState * /*tstate*/) {}
 
 // NOLINTNEXTLINE
-extern "C" int Py_AddPendingCall(int (*/*func*/)(void *), void * /*arg*/) {
+extern "C" int Py_AddPendingCall(int (* /*func*/)(void *), void * /*arg*/) {
   return 0;
 }
 
@@ -3099,7 +3099,7 @@ extern "C" void Py_FatalError(const char * /*message*/) {}
 extern "C" void Py_Exit(int /*status*/) {}
 
 // NOLINTNEXTLINE
-extern "C" int Py_AtExit(void (*/*func*/)()) { return 0; }
+extern "C" int Py_AtExit(void (* /*func*/)()) { return 0; }
 
 // NOLINTNEXTLINE
 extern "C" int PyTuple_Check(PyObject * /*p*/) { return 0; }

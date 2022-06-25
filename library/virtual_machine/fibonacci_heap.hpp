@@ -65,7 +65,7 @@ namespace chimera {
         }
 
         template <typename... Args>
-        void emplace(Args &&... args) {
+        void emplace(Args &&...args) {
           auto x =
               std::make_unique<Node>(Node{Key(std::forward<Args>(args)...)});
           if (min == nullptr) {

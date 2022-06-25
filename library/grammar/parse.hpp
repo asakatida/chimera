@@ -32,7 +32,7 @@ namespace chimera {
   namespace library {
     namespace grammar {
       template <typename Grammar, typename... Args>
-      void parse(const Options &options, Args &&... args) {
+      void parse(const Options &options, Args &&...args) {
         Ensures((tao::pegtl::parse<Grammar, token::Action, Normal>(args...)));
         switch (options.optimize) {
           case Optimize::NONE:

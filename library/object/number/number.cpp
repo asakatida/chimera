@@ -66,9 +66,7 @@ namespace chimera {
           return value;
         }
 
-        static NumberValue reduce(Negative &&negative) {
-          return negative;
-        }
+        static NumberValue reduce(Negative &&negative) { return negative; }
 
         template <typename Left, typename Right>
         NumberValue reduce(Left &&left, Right &&right) {

@@ -28,10 +28,12 @@ TEST_CASE("grammar VirtualMachine (a@b=c)") {
   options.script = "test.py";
   chimera::library::object::Object builtins;
   chimera::library::virtual_machine::modules::init(builtins);
-  chimera::library::virtual_machine::VirtualMachine virtualMachine(options, builtins);
+  chimera::library::virtual_machine::VirtualMachine virtualMachine(options,
+                                                                   builtins);
   auto processContext = virtualMachine.process_context();
   auto module = processContext.parse_file("a@b=c"sv, "<test>");
-  chimera::library::virtual_machine::ThreadContext threadContext{processContext, processContext.make_module("__main__")};
+  chimera::library::virtual_machine::ThreadContext threadContext{
+      processContext, processContext.make_module("__main__")};
   try {
     threadContext.evaluate(module);
   } catch (const std::exception &) {
