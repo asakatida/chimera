@@ -37,7 +37,7 @@ find . -name '*.cpp' -print0 | \
   --arg file '{}' \
   -n '
     {
-      "directory": $root + "/build/debug",
+      "directory": ($root + "/build/debug"),
       "command": ([$cxx, $cppflags, $cxxflags, "-o", "CMakeFiles/chimera_core.dir/" + $file + ".o", "-c", $file] | join(" ")),
       "file": $file
     }

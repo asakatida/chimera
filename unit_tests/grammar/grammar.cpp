@@ -4,13 +4,13 @@
 #include <tao/pegtl/contrib/analyze.hpp>
 
 TEST_CASE("grammar analyze (SingleInput)") {
-  REQUIRE(tao::pegtl::analyze<chimera::library::grammar::SingleInput>() == 0);
+  REQUIRE(tao::pegtl::analyze<chimera::library::grammar::SingleInput>(1) == 0);
 }
 
 TEST_CASE("grammar analyze (FileInput)") {
-  REQUIRE(tao::pegtl::analyze<chimera::library::grammar::FileInput>() == 0);
+  REQUIRE(tao::pegtl::analyze<chimera::library::grammar::FileInput>(1) == 0);
 }
 
 TEST_CASE("grammar analyze (EvalInput)") {
-  REQUIRE(tao::pegtl::analyze<chimera::library::grammar::EvalInput>() == 0);
+  REQUIRE(tao::pegtl::analyze<chimera::library::grammar::EvalInput>(1) == 0);
 }

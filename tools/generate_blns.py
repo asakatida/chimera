@@ -21,9 +21,11 @@
 """generate_blns.py."""
 
 from base64 import standard_b64decode, standard_b64encode
-from itertools import count, starmap
+from itertools import count
 from json import loads
 from pathlib import Path
+
+scripts = Path(__file__).parent.absolute()
 
 print('#include "runtime.hpp"')
 print("")
@@ -35,7 +37,7 @@ print("#include <tao/pegtl.hpp>")
 print("")
 print('#include "base64.hpp"')
 set(
-    starmap(
+    map(
         lambda n, s: print(
             """
 TEST_CASE("BLNS test """
@@ -61,18 +63,13 @@ TEST_CASE("BLNS test """
       tao::pegtl::parse_error &);
 }"""
         ),
-        zip(
-            count(),
-            filter(
-                None,
-                map(
-                    standard_b64decode,
-                    loads(
-                        Path(
-                            "external/big-list-of-naughty-strings/blns.base64.json"
-                        ).read_text()
-                    ),
-                ),
+        count(),
+        map(
+            standard_b64decode,
+            loads(
+                Path(
+                    "external/big-list-of-naughty-strings/blns.base64.json"
+                ).read_text()
             ),
         ),
     )

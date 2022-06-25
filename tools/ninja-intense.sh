@@ -8,7 +8,7 @@ tools/cmake.sh "$1"
 
 cd "$1"
 
-if [[ "${CXX:-}" = clang* ]]; then
+if [[ "${CXX:-}" = clang++* ]]; then
   ninja
 fi
 

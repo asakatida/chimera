@@ -32,10 +32,10 @@ TEST_CASE("number Number") {
   REQUIRE(std::uint64_t(number) == 0);
 }
 
-TEST_CASE("number Number division", "[!shouldfail]") {
+TEST_CASE("number Number division") {
   const Number other(2);
   const Number huge(8);
-  auto number = huge * huge;
+  const auto number = huge * huge;
   REQUIRE(number > huge);
   auto massive = number * other;
   REQUIRE(massive > number);
@@ -43,7 +43,7 @@ TEST_CASE("number Number division", "[!shouldfail]") {
   massive = massive / huge;
   REQUIRE(massive > huge);
   REQUIRE(massive.is_int());
-  auto test = huge * other;
+  const auto test = huge * other;
   REQUIRE(massive == test);
   REQUIRE(massive.is_int());
   massive = massive / other;

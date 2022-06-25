@@ -24,6 +24,7 @@
 #include "virtual_machine/evaluator.hpp"
 
 #include <exception>
+#include <iostream>
 #include <istream>
 
 #include <gsl/gsl>
@@ -77,22 +78,35 @@ namespace chimera::library::virtual_machine {
     if (!stmt.value) {
       return;
     }
-    std::visit([this](const auto &value) { this->evaluate(value); },
-               *stmt.value);
+    std::visit(
+        [this](const auto &value) {
+          std::cerr << typeid(value).name() << std::endl;
+          this->evaluate(value);
+        },
+        *stmt.value);
   }
   void Evaluator::evaluate_del(const asdl::ExprImpl &expr) {
     std::visit(
-        [this](const auto &value) { DelEvaluator{this}.evaluate(value); },
+        [this](const auto &value) {
+          std::cerr << typeid(value).name() << std::endl;
+          DelEvaluator{this}.evaluate(value);
+        },
         *expr.value);
   }
   void Evaluator::evaluate_get(const asdl::ExprImpl &expr) {
     std::visit(
-        [this](const auto &value) { GetEvaluator{this}.evaluate(value); },
+        [this](const auto &value) {
+          std::cerr << typeid(value).name() << std::endl;
+          GetEvaluator{this}.evaluate(value);
+        },
         *expr.value);
   }
   void Evaluator::evaluate_set(const asdl::ExprImpl &expr) {
     std::visit(
-        [this](const auto &value) { SetEvaluator{this}.evaluate(value); },
+        [this](const auto &value) {
+          std::cerr << typeid(value).name() << std::endl;
+          SetEvaluator{this}.evaluate(value);
+        },
         *expr.value);
   }
   void Evaluator::get_attribute(const object::Object &object,
@@ -113,40 +127,117 @@ namespace chimera::library::virtual_machine {
         {}, {{"__class__", builtins().get_attribute("AttributeError")},
              {"__class__", builtins().get_attribute("AttributeError")}}));
   }
-  void Evaluator::evaluate() {
-    while (scope) {
-      if (!std::atomic_flag_test_and_set(
-              thread_context.process_context.global_context.sig_int)) {
-        throw object::BaseException(
-            builtins().get_attribute("KeyboardInterrupt"));
-      }
-      //! where all defered work gets done
-      scope.visit([this](const auto &value) { value(this); });
+  void Evaluator::evaluate(const asdl::AnnAssign & /*ann_assign*/) {}
+  void Evaluator::evaluate(const asdl::Assert &assert) {
+    if (builtins().get_attribute("__debug__").get_bool()) {
+      push([&assert](Evaluator *evaluatorA) {
+        if (!evaluatorA->stack.top().get_bool()) {
+          return evaluatorA->stack.pop();
+        }
+        evaluatorA->stack.pop();
+        if (!assert.msg) {
+          throw object::BaseException(
+              evaluatorA->builtins().get_attribute("AssertionError"));
+        }
+        evaluatorA->push([](Evaluator *evaluatorB) {
+          throw object::BaseException(
+              evaluatorB->builtins().get_attribute("AssertionError"));
+        });
+        evaluatorA->evaluate_get(*assert.msg);
+      });
+      evaluate_get(assert.test);
     }
   }
-  void Evaluator::evaluate(const asdl::Module &module) {
-    enter_scope(thread_context.main);
-    if (const auto &doc_string = module.doc(); doc_string) {
-      self().set_attribute("__doc__"s, doc_string->string);
-    } else {
-      self().set_attribute("__doc__"s, builtins().get_attribute("None"));
+  void Evaluator::evaluate(const asdl::Assign &assign) {
+    for (const auto &expr : container::reverse(assign.targets)) {
+      evaluate_set(expr);
     }
-    extend(module.iter());
-    return evaluate();
+    evaluate_get(assign.value);
   }
-  void Evaluator::evaluate(const asdl::Interactive &interactive) {
-    enter_scope(thread_context.main);
-    extend(interactive.iter());
-    return evaluate();
-  }
-  void Evaluator::evaluate(const asdl::Expression &expression) {
-    enter_scope(thread_context.main);
+  void Evaluator::evaluate(const asdl::AsyncFor & /*async_for*/) {}
+  void
+  Evaluator::evaluate(const asdl::AsyncFunctionDef & /*async_function_def*/) {}
+  void Evaluator::evaluate(const asdl::AsyncWith & /*async_with*/) {}
+  void Evaluator::evaluate(const asdl::Attribute &attribute) {}
+  void Evaluator::evaluate(const asdl::AugAssign & /*aug_assign*/) {}
+  void Evaluator::evaluate(const asdl::Await &await) {}
+  void Evaluator::evaluate(const asdl::Bin &bin) {}
+  void Evaluator::evaluate(const asdl::Bool &asdlBool) {}
+  void Evaluator::evaluate(const asdl::Break & /*break*/) {
     push([](Evaluator *evaluator) {
-      evaluator->thread_context.ret = std::move(evaluator->stack.top());
+      evaluator->exit();
+      evaluator->exit();
     });
-    evaluate_get(expression.body);
-    return evaluate();
   }
+  void Evaluator::evaluate(const asdl::Call &call) {}
+  void Evaluator::evaluate(const asdl::ClassDef & /*class_def*/) {}
+  void Evaluator::evaluate(const asdl::Compare &compare) {}
+  void Evaluator::evaluate(const asdl::Continue & /*continue*/) {
+    push([](Evaluator *evaluator) { evaluator->exit(); });
+  }
+  void Evaluator::evaluate(const asdl::Delete &asdlDelete) {
+    for (const auto &target : container::reverse(asdlDelete.targets)) {
+      evaluate_del(target);
+    }
+  }
+  void Evaluator::evaluate(const asdl::Dict &dict) {}
+  void Evaluator::evaluate(const asdl::DictComp &dictComp) {}
+  void Evaluator::evaluate(const asdl::Ellipsis &ellipsis) {}
+  void Evaluator::evaluate(const asdl::Expr &expr) {
+    push([](Evaluator *evaluator) { evaluator->stack.pop(); });
+    evaluate_get(expr.value);
+  }
+  void Evaluator::evaluate(const asdl::ExprImpl &expr) {
+    if (!expr.value) {
+      return;
+    }
+    std::visit(
+        [this](const auto &value) {
+          std::cerr << typeid(value).name() << std::endl;
+          this->evaluate(value);
+        },
+        *expr.value);
+  }
+  void Evaluator::evaluate(const asdl::For &asdlFor) {
+    push([&asdlFor](Evaluator *evaluatorA) {
+      try {
+        Evaluator evaluatorB{evaluatorA->thread_context};
+        evaluatorB.enter_scope(evaluatorA->self());
+        evaluatorB.push([](Evaluator *evaluatorC) {
+          evaluatorC->push(CallEvaluator{evaluatorC->stack.top(), {}, {}});
+          evaluatorC->stack.pop();
+        });
+        evaluatorB.get_attribute(evaluatorA->stack.top(), "__next__");
+        evaluatorB.evaluate();
+      } catch (const object::BaseException &error) {
+        if (error.class_id() ==
+            evaluatorA->builtins().get_attribute("StopIteration").id()) {
+          evaluatorA->exit();
+          evaluatorA->extend(asdlFor.orelse);
+        } else {
+          throw error;
+        }
+      }
+      evaluatorA->enter();
+      evaluatorA->push([&asdlFor](Evaluator *evaluatorB) {
+        evaluatorB->exit();
+        evaluatorB->evaluate(asdlFor);
+      });
+      evaluatorA->extend(asdlFor.body);
+      evaluatorA->evaluate_set(asdlFor.target);
+    });
+    push([](Evaluator *evaluatorA) {
+      evaluatorA->push(CallEvaluator{evaluatorA->stack.top(), {}, {}});
+      evaluatorA->stack.pop();
+    });
+    push([](Evaluator *evaluatorA) {
+      evaluatorA->get_attribute(evaluatorA->stack.top(), "__iter__");
+      evaluatorA->stack.pop();
+    });
+    evaluate_get(asdlFor.iter);
+    push([](Evaluator *evaluatorA) { evaluatorA->enter(); });
+  }
+  void Evaluator::evaluate(const asdl::FormattedValue &formattedValue) {}
   void Evaluator::evaluate(const asdl::FunctionDef &functionDef) {
     for (const auto &expr : container::reverse(functionDef.decorator_list)) {
       push([](Evaluator *evaluator) {
@@ -196,84 +287,8 @@ namespace chimera::library::virtual_machine {
              {"__annotations__", {}},
              {"__kwdefaults__", {}}})});
   }
-  void
-  Evaluator::evaluate(const asdl::AsyncFunctionDef & /*async_function_def*/) {}
-  void Evaluator::evaluate(const asdl::ClassDef & /*class_def*/) {}
-  void Evaluator::evaluate(const asdl::Delete &asdlDelete) {
-    for (const auto &target : container::reverse(asdlDelete.targets)) {
-      evaluate_del(target);
-    }
-  }
-  void Evaluator::evaluate(const asdl::Assign &assign) {
-    for (const auto &expr : container::reverse(assign.targets)) {
-      evaluate_set(expr);
-    }
-    evaluate_get(assign.value);
-  }
-  void Evaluator::evaluate(const asdl::AugAssign & /*aug_assign*/) {}
-  void Evaluator::evaluate(const asdl::AnnAssign & /*ann_assign*/) {}
-  void Evaluator::evaluate(const asdl::For &asdlFor) {
-    push([&asdlFor](Evaluator *evaluatorA) {
-      try {
-        Evaluator evaluatorB{evaluatorA->thread_context};
-        evaluatorB.enter_scope(evaluatorA->self());
-        evaluatorB.push([](Evaluator *evaluatorC) {
-          evaluatorC->push(CallEvaluator{evaluatorC->stack.top(), {}, {}});
-          evaluatorC->stack.pop();
-        });
-        evaluatorB.get_attribute(evaluatorA->stack.top(), "__next__");
-        evaluatorB.evaluate();
-      } catch (const object::BaseException &error) {
-        if (error.class_id() ==
-            evaluatorA->builtins().get_attribute("StopIteration").id()) {
-          evaluatorA->exit();
-          evaluatorA->extend(asdlFor.orelse);
-        } else {
-          throw error;
-        }
-      }
-      evaluatorA->enter();
-      evaluatorA->push([&asdlFor](Evaluator *evaluatorB) {
-        evaluatorB->exit();
-        evaluatorB->evaluate(asdlFor);
-      });
-      evaluatorA->extend(asdlFor.body);
-      evaluatorA->evaluate_set(asdlFor.target);
-    });
-    push([](Evaluator *evaluatorA) {
-      evaluatorA->push(CallEvaluator{evaluatorA->stack.top(), {}, {}});
-      evaluatorA->stack.pop();
-    });
-    push([](Evaluator *evaluatorA) {
-      evaluatorA->get_attribute(evaluatorA->stack.top(), "__iter__");
-      evaluatorA->stack.pop();
-    });
-    evaluate_get(asdlFor.iter);
-    push([](Evaluator *evaluatorA) { evaluatorA->enter(); });
-  }
-  void Evaluator::evaluate(const asdl::AsyncFor & /*async_for*/) {}
-  void Evaluator::evaluate(const asdl::While &asdlWhile) {
-    push([&asdlWhile](Evaluator *evaluatorA) {
-      if (evaluatorA->stack.top().get_bool()) {
-        evaluatorA->enter();
-        evaluatorA->push([&asdlWhile](Evaluator *evaluatorB) {
-          evaluatorB->exit();
-          evaluatorB->evaluate(asdlWhile);
-        });
-        evaluatorA->extend(asdlWhile.body);
-      } else {
-        evaluatorA->exit();
-        evaluatorA->extend(asdlWhile.orelse);
-      }
-      evaluatorA->stack.pop();
-    });
-    push([](Evaluator *evaluatorA) {
-      evaluatorA->push(ToBoolEvaluator{evaluatorA->stack.top()});
-      evaluatorA->stack.pop();
-    });
-    evaluate_get(asdlWhile.test);
-    push([](Evaluator *evaluatorA) { evaluatorA->enter(); });
-  }
+  void Evaluator::evaluate(const asdl::GeneratorExp &generatorExp) {}
+  void Evaluator::evaluate(const asdl::Global & /*global*/) {}
   void Evaluator::evaluate(const asdl::If & /*asdlIf*/) {
     // push([&asdlIf](Evaluator *evaluator) {
     //   if (evaluator->stack.top().get_bool()) {
@@ -289,19 +304,7 @@ namespace chimera::library::virtual_machine {
     // });
     // evaluate_get(asdlIf.test);
   }
-  void Evaluator::evaluate(const asdl::With &with) {
-    push([&with](Evaluator *evaluator) {
-      if (auto exception = evaluator->do_try(with.body, {}); exception) {
-        evaluator->do_try(with.body, exception);
-      } else {
-        evaluator->do_try(with.body, {});
-      }
-    });
-    for (const auto &withItem : container::reverse(with.items)) {
-      evaluate_get(withItem.context_expr);
-    }
-  }
-  void Evaluator::evaluate(const asdl::AsyncWith & /*async_with*/) {}
+  void Evaluator::evaluate(const asdl::IfExp &ifExp) {}
   void Evaluator::evaluate(const asdl::Import &import) {
     for (const auto &alias : container::reverse(import.names)) {
       if (alias.asname) {
@@ -347,12 +350,13 @@ namespace chimera::library::virtual_machine {
               "module_name", importFrom.module.value)});
     });
   }
-  void Evaluator::evaluate(const asdl::Global & /*global*/) {}
+  void Evaluator::evaluate(const asdl::JoinedStr &joinedStr) {}
+  void Evaluator::evaluate(const asdl::Lambda &lambda) {}
+  void Evaluator::evaluate(const asdl::List &list) {}
+  void Evaluator::evaluate(const asdl::ListComp &listComp) {}
+  void Evaluator::evaluate(const asdl::Name &name) {}
+  void Evaluator::evaluate(const asdl::NameConstant &nameConstant) {}
   void Evaluator::evaluate(const asdl::Nonlocal & /*nonlocal*/) {}
-  void Evaluator::evaluate(const asdl::Expr &expr) {
-    push([](Evaluator *evaluator) { evaluator->stack.pop(); });
-    evaluate_get(expr.value);
-  }
   void Evaluator::evaluate(const asdl::Raise &raise) {
     if (raise.exc) {
       push([](Evaluator *evaluator) {
@@ -368,6 +372,22 @@ namespace chimera::library::virtual_machine {
       evaluate_get(*raise.exc);
     }
   }
+  void Evaluator::evaluate(const asdl::Return &asdlReturn) {
+    if (asdlReturn.value) {
+      push([](Evaluator *evaluator) {
+        evaluator->thread_context.ret = std::move(evaluator->stack.top());
+        evaluator->stack.pop();
+        evaluator->exit_scope();
+      });
+      evaluate_get(*asdlReturn.value);
+    } else {
+      exit_scope();
+    }
+  }
+  void Evaluator::evaluate(const asdl::Set &set) {}
+  void Evaluator::evaluate(const asdl::SetComp &setComp) {}
+  void Evaluator::evaluate(const asdl::Starred &starred) {}
+  void Evaluator::evaluate(const asdl::Subscript &subscript) {}
   void Evaluator::evaluate(const asdl::Try &asdlTry) {
     push([](Evaluator *evaluator) {
       if (evaluator->thread_context.ret) {
@@ -391,46 +411,100 @@ namespace chimera::library::virtual_machine {
     }
     extend(asdlTry.finalbody);
   }
-  void Evaluator::evaluate(const asdl::Assert &assert) {
-    if (builtins().get_attribute("__debug__").get_bool()) {
-      push([&assert](Evaluator *evaluatorA) {
-        if (!evaluatorA->stack.top().get_bool()) {
-          return evaluatorA->stack.pop();
-        }
-        evaluatorA->stack.pop();
-        if (!assert.msg) {
-          throw object::BaseException(
-              evaluatorA->builtins().get_attribute("AssertionError"));
-        }
-        evaluatorA->push([](Evaluator *evaluatorB) {
-          throw object::BaseException(
-              evaluatorB->builtins().get_attribute("AssertionError"));
+  void Evaluator::evaluate(const asdl::Tuple &tuple) {}
+  void Evaluator::evaluate(const asdl::Unary &unary) {}
+  void Evaluator::evaluate(const asdl::UnpackDict &unpackDict) {}
+  void Evaluator::evaluate(const asdl::While &asdlWhile) {
+    push([&asdlWhile](Evaluator *evaluatorA) {
+      if (evaluatorA->stack.top().get_bool()) {
+        evaluatorA->enter();
+        evaluatorA->push([&asdlWhile](Evaluator *evaluatorB) {
+          evaluatorB->exit();
+          evaluatorB->evaluate(asdlWhile);
         });
-        evaluatorA->evaluate_get(*assert.msg);
-      });
-      evaluate_get(assert.test);
-    }
-  }
-  void Evaluator::evaluate(const asdl::Return &asdlReturn) {
-    if (asdlReturn.value) {
-      push([](Evaluator *evaluator) {
-        evaluator->thread_context.ret = std::move(evaluator->stack.top());
-        evaluator->stack.pop();
-        evaluator->exit_scope();
-      });
-      evaluate_get(*asdlReturn.value);
-    } else {
-      exit_scope();
-    }
-  }
-  void Evaluator::evaluate(const asdl::Break & /*break*/) {
-    push([](Evaluator *evaluator) {
-      evaluator->exit();
-      evaluator->exit();
+        evaluatorA->extend(asdlWhile.body);
+      } else {
+        evaluatorA->exit();
+        evaluatorA->extend(asdlWhile.orelse);
+      }
+      evaluatorA->stack.pop();
     });
+    push([](Evaluator *evaluatorA) {
+      evaluatorA->push(ToBoolEvaluator{evaluatorA->stack.top()});
+      evaluatorA->stack.pop();
+    });
+    evaluate_get(asdlWhile.test);
+    push([](Evaluator *evaluatorA) { evaluatorA->enter(); });
   }
-  void Evaluator::evaluate(const asdl::Continue & /*continue*/) {
-    push([](Evaluator *evaluator) { evaluator->exit(); });
+  void Evaluator::evaluate(const asdl::With &with) {
+    push([&with](Evaluator *evaluator) {
+      if (auto exception = evaluator->do_try(with.body, {}); exception) {
+        if (auto exception = evaluator->do_try(with.body, exception);
+            exception) {
+          throw exception;
+        }
+      }
+      if (auto exception = evaluator->do_try(with.body, {}); exception) {
+        throw exception;
+      }
+    });
+    for (const auto &withItem : container::reverse(with.items)) {
+      evaluate_get(withItem.context_expr);
+    }
+  }
+  void Evaluator::evaluate(const asdl::Yield &yield) {}
+  void Evaluator::evaluate(const asdl::YieldFrom &yieldFrom) {}
+  void Evaluator::evaluate(const object::Object &object) {}
+  void Evaluator::get_attribute(const object::Object &object,
+                                const std::string &name) {
+    std::string getAttribute("__getattribute__");
+    if (object.has_attribute(getAttribute)) {
+      return get_attribute(object, object.get_attribute(getAttribute), name);
+    }
+    auto mro = object.get_attribute("__class__").get_attribute("__mro__");
+    for (const auto &type : std::get<object::Tuple>(mro.value())) {
+      if (type.has_attribute(getAttribute)) {
+        return get_attribute(object, type.get_attribute(getAttribute), name);
+      }
+    }
+    Ensures(false);
+  }
+  void Evaluator::evaluate() {
+    while (scope) {
+      if (!std::atomic_flag_test_and_set(
+              thread_context.process_context.global_context.sig_int)) {
+        throw object::BaseException(
+            builtins().get_attribute("KeyboardInterrupt"));
+      }
+      //! where all defered work gets done
+      scope.visit([this](const auto &value) {
+        std::cerr << typeid(value).name() << std::endl;
+        value(this);
+      });
+    }
+  }
+  void Evaluator::evaluate(const asdl::Module &module) {
+    enter_scope(thread_context.main);
+    if (const auto &doc_string = module.doc(); doc_string) {
+      self().set_attribute("__doc__"s, doc_string->string);
+    } else {
+      self().set_attribute("__doc__"s, builtins().get_attribute("None"));
+    }
+    extend(module.iter());
+    return evaluate();
+  }
+  void Evaluator::evaluate(const asdl::Interactive &interactive) {
+    enter_scope(thread_context.main);
+    extend(interactive.iter());
+    return evaluate();
+  }
+  void Evaluator::evaluate(const asdl::Expression &expression) {
+    enter_scope(thread_context.main);
+    push([](Evaluator *evaluator) {
+      evaluator->thread_context.ret = std::move(evaluator->stack.top());
+    });
+    evaluate_get(expression.body);
+    return evaluate();
   }
   auto Evaluator::do_try(const std::vector<asdl::StmtImpl> &body,
                          const std::optional<object::BaseException> &context)
