@@ -56,6 +56,8 @@ namespace chimera::library {
       tao::pegtl::parse<Grammar>(std::move(in), std::forward<Args>(args)...);
     } catch (const tao::pegtl::parse_error &) {
       return -1;
+    } catch (const chimera::library::grammar::SyntaxError &) {
+      return -1;
     }
     return 0;
   }
@@ -72,6 +74,8 @@ namespace chimera::library {
     try {
       module = processContext.parse_file(std::move(in), "<fuzz>");
     } catch (const tao::pegtl::parse_error &) {
+      return -1;
+    } catch (const chimera::library::grammar::SyntaxError &) {
       return -1;
     }
     Ensures(module.has_value());

@@ -22,6 +22,8 @@ namespace chimera::library {
       processContext.parse_file(data, "<unit_tests/virtual_machine/parse.cpp>");
     } catch (const tao::pegtl::parse_error &) {
       return false;
+    } catch (const grammar::SyntaxError &) {
+      return false;
     }
     return true;
   }
