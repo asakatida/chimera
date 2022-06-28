@@ -29,55 +29,46 @@
 #include "asdl/asdl.hpp"
 #include "grammar/grammar.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      asdl::Module Parse::parse_file(const Options &options,
-                                     const std::string_view &data,
-                                     const char *source) {
-        asdl::Module module;
-        grammar::parse<grammar::FileInput>(
-            options,
-            grammar::Input<tao::pegtl::memory_input<>>(data.data(), data.size(),
-                                                       source),
-            module);
-        return module;
-      }
+namespace chimera::library::virtual_machine {
+  auto Parse::parse_file(const Options &options, const std::string_view &data,
+                         const char *source) -> asdl::Module {
+    asdl::Module module;
+    grammar::parse<grammar::FileInput>(
+        options,
+        grammar::Input<tao::pegtl::memory_input<>>(data.data(), data.size(),
+                                                   source),
+        module);
+    return module;
+  }
 
-      asdl::Module Parse::parse_file(const Options &options,
-                                     std::istream &input, const char *source) {
-        asdl::Module module;
-        grammar::parse<grammar::FileInput>(
-            options,
-            grammar::Input<tao::pegtl::istream_input<>>(input, bufferSize,
-                                                        source),
-            module);
-        return module;
-      }
+  auto Parse::parse_file(const Options &options, std::istream &input,
+                         const char *source) -> asdl::Module {
+    asdl::Module module;
+    grammar::parse<grammar::FileInput>(
+        options,
+        grammar::Input<tao::pegtl::istream_input<>>(input, bufferSize, source),
+        module);
+    return module;
+  }
 
-      asdl::Interactive Parse::parse_input(const Options &options,
-                                           const std::string_view &data,
-                                           const char *source) {
-        asdl::Interactive interactive;
-        grammar::parse<grammar::SingleInput>(
-            options,
-            grammar::Input<tao::pegtl::memory_input<>>(data.data(), data.size(),
-                                                       source),
-            interactive);
-        return interactive;
-      }
+  auto Parse::parse_input(const Options &options, const std::string_view &data,
+                          const char *source) -> asdl::Interactive {
+    asdl::Interactive interactive;
+    grammar::parse<grammar::SingleInput>(
+        options,
+        grammar::Input<tao::pegtl::memory_input<>>(data.data(), data.size(),
+                                                   source),
+        interactive);
+    return interactive;
+  }
 
-      asdl::Interactive Parse::parse_input(const Options &options,
-                                           std::istream &input,
-                                           const char *source) {
-        asdl::Interactive interactive;
-        grammar::parse<grammar::SingleInput>(
-            options,
-            grammar::Input<tao::pegtl::istream_input<>>(input, bufferSize,
-                                                        source),
-            interactive);
-        return interactive;
-      }
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+  auto Parse::parse_input(const Options &options, std::istream &input,
+                          const char *source) -> asdl::Interactive {
+    asdl::Interactive interactive;
+    grammar::parse<grammar::SingleInput>(
+        options,
+        grammar::Input<tao::pegtl::istream_input<>>(input, bufferSize, source),
+        interactive);
+    return interactive;
+  }
+} // namespace chimera::library::virtual_machine

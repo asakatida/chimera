@@ -20,10 +20,6 @@
 
 #include "container/reverse.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace container {
-      void reverse() {}
-    } // namespace container
-  }   // namespace library
-} // namespace chimera
+namespace chimera::library::container {
+  void reverse() {}
+} // namespace chimera::library::container

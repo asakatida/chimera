@@ -2,9 +2,8 @@
 
 set -ex -o pipefail
 
-git diff --stat '@{2.days.ago}' --name-only | \
-  grep -F -e '.h' -e '.hpp' -e '.cpp' | \
-  sort -u | \
-  xargs -n1 -P1 \
-  clang-tidy -p="$1" \
-  -quiet -fix -fix-errors -format-style=file -config='' -header-filter='.\*'
+root="$(git rev-parse --show-toplevel)"
+
+find "${root}" -name '*.cpp' -print0 | \
+  xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | \
+  xargs -0 -- clang-tidy -p="${root}" -quiet -fix -fix-errors -fix-notes

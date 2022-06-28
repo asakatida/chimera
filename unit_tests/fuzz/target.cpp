@@ -14,38 +14,36 @@
 // NOLINTNEXTLINE
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
 
-namespace chimera {
-  namespace library {
-    static void test(const uint8_t *data, const size_t size) {
+namespace chimera::library {
+  static void test(const uint8_t *data, const size_t size) {
+    try {
+      Options options{};
+      options.chimera = "chimera";
+      options.script = "fuzzer.py";
+      object::Object builtins;
+      virtual_machine::modules::init(builtins);
+      virtual_machine::VirtualMachine virtualMachine(options, builtins);
+      auto processContext = virtualMachine.process_context();
+      asdl::Module module;
+      std::istringstream in(
+          // NOLINTNEXTLINE
+          std::string(reinterpret_cast<const char *>(data), size));
       try {
-        Options options{};
-        options.chimera = "chimera";
-        options.script = "fuzzer.py";
-        object::Object builtins;
-        virtual_machine::modules::init(builtins);
-        virtual_machine::VirtualMachine virtualMachine(options, builtins);
-        auto processContext = virtualMachine.process_context();
-        asdl::Module module;
-        std::istringstream in(
-            // NOLINTNEXTLINE
-            std::string(reinterpret_cast<const char *>(data), size));
-        try {
-          module = processContext.parse_file(in, "<fuzz>");
-        } catch (const tao::pegtl::parse_error &) {
-          return;
-        }
-        virtual_machine::ThreadContext threadContext{
-            processContext, processContext.make_module("__main__")};
-        try {
-          threadContext.evaluate(module);
-        } catch (const std::exception &) {
-        }
-      } catch (...) {
-        Ensures(false);
+        module = processContext.parse_file(in, "<fuzz>");
+      } catch (const tao::pegtl::parse_error &) {
+        return;
       }
+      virtual_machine::ThreadContext threadContext{
+          processContext, processContext.make_module("__main__")};
+      try {
+        threadContext.evaluate(module);
+      } catch (const std::exception &) {
+      }
+    } catch (...) {
+      Ensures(false);
     }
-  } // namespace library
-} // namespace chimera
+  }
+} // namespace chimera::library
 
 // NOLINTNEXTLINE
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {

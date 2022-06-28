@@ -1314,10 +1314,9 @@ extern "C" PyObject *PyUnicodeEncodeError_Create(const char * /*encoding*/,
 }
 
 // NOLINTNEXTLINE
-extern "C" PyObject *
-PyUnicodeTranslateError_Create(const Py_UNICODE * /*object*/,
-                               Py_ssize_t /*length*/, Py_ssize_t /*start*/,
-                               Py_ssize_t /*end*/, const char * /*reason*/) {
+extern "C" auto PyUnicodeTranslateError_Create(
+    const Py_UNICODE * /*object*/, Py_ssize_t /*length*/, Py_ssize_t /*start*/,
+    Py_ssize_t /*end*/, const char * /*reason*/) -> PyObject * {
   return nullptr;
 }
 
@@ -1779,8 +1778,8 @@ extern "C" void PyThreadState_Clear(PyThreadState * /*tstate*/) {}
 extern "C" void PyThreadState_Delete(PyThreadState * /*tstate*/) {}
 
 // NOLINTNEXTLINE
-extern "C" PY_INT64_T
-PyInterpreterState_GetID(PyInterpreterState * /*interp*/) {
+extern "C" auto PyInterpreterState_GetID(PyInterpreterState * /*interp*/)
+    -> PY_INT64_T {
   return 0;
 }
 
@@ -2024,8 +2023,8 @@ extern "C" unsigned long PyLong_AsUnsignedLongMask(PyObject * /*obj*/) {
 }
 
 // NOLINTNEXTLINE
-extern "C" unsigned long long
-PyLong_AsUnsignedLongLongMask(PyObject * /*obj*/) {
+extern "C" auto PyLong_AsUnsignedLongLongMask(PyObject * /*obj*/)
+    -> unsigned long long {
   return 0;
 }
 
@@ -2177,8 +2176,8 @@ extern "C" PyObject *PyMemoryView_FromObject(PyObject * /*obj*/) {
 }
 
 // NOLINTNEXTLINE
-extern "C" PyObject *
-PyMemoryView_FromMemory(char * /*mem*/, Py_ssize_t /*size*/, int /*flags*/) {
+extern "C" auto PyMemoryView_FromMemory(char * /*mem*/, Py_ssize_t /*size*/,
+                                        int /*flags*/) -> PyObject * {
   return nullptr;
 }
 
@@ -3657,8 +3656,8 @@ extern "C" PyObject *PyUnicode_DecodeRawUnicodeEscape(const char * /*s*/,
 }
 
 // NOLINTNEXTLINE
-extern "C" PyObject *
-PyUnicode_AsRawUnicodeEscapeString(PyObject * /*unicode*/) {
+extern "C" auto PyUnicode_AsRawUnicodeEscapeString(PyObject * /*unicode*/)
+    -> PyObject * {
   return nullptr;
 }
 
@@ -3984,9 +3983,10 @@ extern "C" struct _node *PyParser_SimpleParseFile(FILE * /*fp*/,
 }
 
 // NOLINTNEXTLINE
-extern "C" struct _node *
-PyParser_SimpleParseFileFlags(FILE * /*fp*/, const char * /*filename*/,
-                              int /*start*/, int /*flags*/) {
+extern "C" auto PyParser_SimpleParseFileFlags(FILE * /*fp*/,
+                                              const char * /*filename*/,
+                                              int /*start*/, int /*flags*/)
+    -> struct _node * {
   return nullptr;
 }
 
@@ -4075,12 +4075,12 @@ extern "C" PyObject *PyEval_EvalCode(PyObject * /*co*/, PyObject * /*globals*/,
 }
 
 // NOLINTNEXTLINE
-extern "C" PyObject *
-PyEval_EvalCodeEx(PyObject * /*co*/, PyObject * /*globals*/,
-                  PyObject * /*locals*/, PyObject ** /*args*/, int /*argcount*/,
-                  PyObject ** /*kws*/, int /*kwcount*/, PyObject ** /*defs*/,
-                  int /*defcount*/, PyObject * /*kwdefs*/,
-                  PyObject * /*closure*/) {
+extern "C" auto PyEval_EvalCodeEx(PyObject * /*co*/, PyObject * /*globals*/,
+                                  PyObject * /*locals*/, PyObject ** /*args*/,
+                                  int /*argcount*/, PyObject ** /*kws*/,
+                                  int /*kwcount*/, PyObject ** /*defs*/,
+                                  int /*defcount*/, PyObject * /*kwdefs*/,
+                                  PyObject * /*closure*/) -> PyObject * {
   return nullptr;
 }
 

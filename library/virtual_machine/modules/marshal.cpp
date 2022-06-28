@@ -22,13 +22,7 @@
 
 #include "virtual_machine/modules/marshal.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      namespace modules {
-        void marshal(const Options & /*options*/,
-                     const object::Object & /*module*/) {}
-      } // namespace modules
-    }   // namespace virtual_machine
-  }     // namespace library
-} // namespace chimera
+namespace chimera::library::virtual_machine::modules {
+  void marshal(const Options & /*options*/, const object::Object & /*module*/) {
+  }
+} // namespace chimera::library::virtual_machine::modules

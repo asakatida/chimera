@@ -28,39 +28,31 @@
 #include <gsl/gsl>
 #include <tao/pegtl.hpp>
 
-namespace chimera {
-  namespace library {
-    namespace grammar {
-      namespace rules {
-        using tao::pegtl::normal;
-        template <typename Rule, typename = std::void_t<>>
-        struct Normal : normal<Rule> {};
-        template <typename Rule>
-        struct Normal<Rule, std::void_t<decltype(typename Rule::Transform{})>>
-            : normal<Rule> {
-          template <tao::pegtl::apply_mode A, tao::pegtl::rewind_mode M,
-                    template <typename...> class Action,
-                    template <typename...> class Control, typename Input,
-                    typename Outer>
-          static bool match(Input &in, Outer &&outer) {
-            if constexpr (A == tao::pegtl::apply_mode::action) { // NOLINT
-              typename Rule::Transform state;
+namespace chimera::library::grammar::rules {
+  using tao::pegtl::normal;
+  template <typename Rule, typename = std::void_t<>>
+  struct Normal : normal<Rule> {};
+  template <typename Rule>
+  struct Normal<Rule, std::void_t<decltype(typename Rule::Transform{})>>
+      : normal<Rule> {
+    template <tao::pegtl::apply_mode A, tao::pegtl::rewind_mode M,
+              template <typename...> class Action,
+              template <typename...> class Control, typename Input,
+              typename Outer>
+    static auto match(Input &in, Outer &&outer) -> bool {
+      if constexpr (A == tao::pegtl::apply_mode::action) { // NOLINT
+        typename Rule::Transform state;
 
-              if (normal<Rule>::template match<A, M, Action, Control>(in,
-                                                                      state)) {
-                state.success(outer);
-                return true;
-              }
-              return false;
-            }
-            if constexpr (A != tao::pegtl::apply_mode::action) { // NOLINT
-              return normal<Rule>::template match<A, M, Action, Control>(in,
-                                                                         outer);
-            }
-            Expects(false);
-          }
-        };
-      } // namespace rules
-    }   // namespace grammar
-  }     // namespace library
-} // namespace chimera
+        if (normal<Rule>::template match<A, M, Action, Control>(in, state)) {
+          state.success(outer);
+          return true;
+        }
+        return false;
+      }
+      if constexpr (A != tao::pegtl::apply_mode::action) { // NOLINT
+        return normal<Rule>::template match<A, M, Action, Control>(in, outer);
+      }
+      Expects(false);
+    }
+  };
+} // namespace chimera::library::grammar::rules

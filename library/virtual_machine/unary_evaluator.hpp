@@ -27,26 +27,22 @@
 
 #include "asdl/asdl.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      struct Evaluator;
+namespace chimera::library::virtual_machine {
+  struct Evaluator;
 
-      struct UnaryBitNotEvaluator {
-        void operator()(Evaluator *evaluatorA) const;
-      };
+  struct UnaryBitNotEvaluator {
+    void operator()(Evaluator *evaluatorA) const;
+  };
 
-      struct UnaryNotEvaluator {
-        void operator()(Evaluator *evaluatorA) const;
-      };
+  struct UnaryNotEvaluator {
+    void operator()(Evaluator *evaluatorA) const;
+  };
 
-      struct UnaryAddEvaluator {
-        void operator()(Evaluator *evaluatorA) const;
-      };
+  struct UnaryAddEvaluator {
+    void operator()(Evaluator *evaluatorA) const;
+  };
 
-      struct UnarySubEvaluator {
-        void operator()(Evaluator *evaluatorA) const;
-      };
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+  struct UnarySubEvaluator {
+    void operator()(Evaluator *evaluatorA) const;
+  };
+} // namespace chimera::library::virtual_machine

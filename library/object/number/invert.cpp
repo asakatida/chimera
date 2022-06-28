@@ -27,25 +27,19 @@
 #include "object/number/positive.hpp"
 #include "object/number/sub.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace object {
-      namespace number {
-        Number operator~(Base base) { return -(base + 1); }
+namespace chimera::library::object::number {
+  auto operator~(Base base) -> Number { return -(base + 1); }
 
-        Number operator~(const Natural &natural) { return -(natural + 1); }
+  auto operator~(const Natural &natural) -> Number { return -(natural + 1); }
 
-        Number operator~(const Negative &negative) {
-          return std::visit([](const auto &value) { return +(value - 1); },
-                            negative.value);
-        }
-        Number operator~(const Rational & /*rational*/) { Expects(false); }
+  auto operator~(const Negative &negative) -> Number {
+    return std::visit([](const auto &value) { return +(value - 1); },
+                      negative.value);
+  }
+  auto operator~(const Rational & /*rational*/) -> Number { Expects(false); }
 
-        Number operator~(const Imag & /*imag*/) { Expects(false); }
+  auto operator~(const Imag & /*imag*/) -> Number { Expects(false); }
 
-        Number operator~(const Complex & /*complex*/) { Expects(false); }
+  auto operator~(const Complex & /*complex*/) -> Number { Expects(false); }
 
-      } // namespace number
-    }   // namespace object
-  }     // namespace library
-} // namespace chimera
+} // namespace chimera::library::object::number

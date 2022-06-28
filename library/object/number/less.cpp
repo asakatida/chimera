@@ -34,207 +34,204 @@
       [&left](const auto &rN, const auto &rD) { return (left * rD) < rN; },    \
       right.numerator, right.denominator)
 
-namespace chimera {
-  namespace library {
-    namespace object {
-      namespace number {
-        bool operator<(std::uint64_t left, Base right) {
-          return left < right.value;
-        }
+namespace chimera::library::object::number {
+  auto operator<(std::uint64_t left, Base right) -> bool {
+    return left < right.value;
+  }
 
-        bool operator<(std::uint64_t /*left*/, const Natural & /*right*/) {
-          return true;
-        }
+  auto operator<(std::uint64_t /*left*/, const Natural & /*right*/) -> bool {
+    return true;
+  }
 
-        bool operator<(std::uint64_t /*left*/, const Negative & /*right*/) {
-          return false;
-        }
+  auto operator<(std::uint64_t /*left*/, const Negative & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(std::uint64_t left, const Rational &right) {
-          return LESS_RIGHT_RATIONAL;
-        }
+  auto operator<(std::uint64_t left, const Rational &right) -> bool {
+    return LESS_RIGHT_RATIONAL;
+  }
 
-        bool operator<(std::uint64_t /*left*/, const Imag & /*right*/) {
-          return false;
-        }
+  auto operator<(std::uint64_t /*left*/, const Imag & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(std::uint64_t /*left*/, const Complex & /*right*/) {
-          return false;
-        }
+  auto operator<(std::uint64_t /*left*/, const Complex & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(Base left, std::uint64_t right) {
-          return left.value < right;
-        }
+  auto operator<(Base left, std::uint64_t right) -> bool {
+    return left.value < right;
+  }
 
-        bool operator<(Base left, Base right) {
-          return left.value < right.value;
-        }
+  auto operator<(Base left, Base right) -> bool {
+    return left.value < right.value;
+  }
 
-        bool operator<(Base /*left*/, const Natural & /*right*/) {
-          return true;
-        }
+  auto operator<(Base /*left*/, const Natural & /*right*/) -> bool {
+    return true;
+  }
 
-        bool operator<(Base /*left*/, const Negative & /*right*/) {
-          return false;
-        }
+  auto operator<(Base /*left*/, const Negative & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(Base left, const Rational &right) {
-          return left.value < right;
-        }
+  auto operator<(Base left, const Rational &right) -> bool {
+    return left.value < right;
+  }
 
-        bool operator<(Base /*left*/, const Imag & /*right*/) { return false; }
+  auto operator<(Base /*left*/, const Imag & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(Base /*left*/, const Complex & /*right*/) {
-          return false;
-        }
+  auto operator<(Base /*left*/, const Complex & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Natural & /*left*/, std::uint64_t /*right*/) {
-          return false;
-        }
+  auto operator<(const Natural & /*left*/, std::uint64_t /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Natural & /*left*/, Base /*right*/) {
-          return false;
-        }
+  auto operator<(const Natural & /*left*/, Base /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Natural &left, const Natural &right) {
-          if (left.value.size() == right.value.size()) {
-            return std::lexicographical_compare(
-                left.value.rbegin(), left.value.rend(), right.value.rbegin(),
-                right.value.rend());
-          }
-          return left.value.size() < right.value.size();
-        }
+  auto operator<(const Natural &left, const Natural &right) -> bool {
+    if (left.value.size() == right.value.size()) {
+      return std::lexicographical_compare(
+          left.value.rbegin(), left.value.rend(), right.value.rbegin(),
+          right.value.rend());
+    }
+    return left.value.size() < right.value.size();
+  }
 
-        bool operator<(const Natural & /*left*/, const Negative & /*right*/) {
-          return false;
-        }
+  auto operator<(const Natural & /*left*/, const Negative & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Natural &left, const Rational &right) {
-          return LESS_RIGHT_RATIONAL;
-        }
+  auto operator<(const Natural &left, const Rational &right) -> bool {
+    return LESS_RIGHT_RATIONAL;
+  }
 
-        bool operator<(const Natural & /*left*/, const Imag & /*right*/) {
-          return false;
-        }
+  auto operator<(const Natural & /*left*/, const Imag & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Natural & /*left*/, const Complex & /*right*/) {
-          return false;
-        }
+  auto operator<(const Natural & /*left*/, const Complex & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Negative & /*left*/, std::uint64_t /*right*/) {
-          return true;
-        }
+  auto operator<(const Negative & /*left*/, std::uint64_t /*right*/) -> bool {
+    return true;
+  }
 
-        bool operator<(const Negative & /*left*/, Base /*right*/) {
-          return true;
-        }
+  auto operator<(const Negative & /*left*/, Base /*right*/) -> bool {
+    return true;
+  }
 
-        bool operator<(const Negative & /*left*/, const Natural & /*right*/) {
-          return true;
-        }
+  auto operator<(const Negative & /*left*/, const Natural & /*right*/) -> bool {
+    return true;
+  }
 
-        bool operator<(const Negative &left, const Negative &right) {
-          return std::visit(std::less<>{}, right.value, left.value);
-        }
+  auto operator<(const Negative &left, const Negative &right) -> bool {
+    return std::visit(std::less<>{}, right.value, left.value);
+  }
 
-        bool operator<(const Negative &left, const Rational &right) {
-          return LESS_RIGHT_RATIONAL;
-        }
+  auto operator<(const Negative &left, const Rational &right) -> bool {
+    return LESS_RIGHT_RATIONAL;
+  }
 
-        bool operator<(const Negative & /*left*/, const Imag & /*right*/) {
-          return false;
-        }
+  auto operator<(const Negative & /*left*/, const Imag & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Negative & /*left*/, const Complex & /*right*/) {
-          return false;
-        }
+  auto operator<(const Negative & /*left*/, const Complex & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Rational &left, std::uint64_t right) {
-          return LESS_LEFT_RATIONAL;
-        }
+  auto operator<(const Rational &left, std::uint64_t right) -> bool {
+    return LESS_LEFT_RATIONAL;
+  }
 
-        bool operator<(const Rational &left, Base right) {
-          return left < right.value;
-        }
+  auto operator<(const Rational &left, Base right) -> bool {
+    return left < right.value;
+  }
 
-        bool operator<(const Rational &left, const Natural &right) {
-          return LESS_LEFT_RATIONAL;
-        }
+  auto operator<(const Rational &left, const Natural &right) -> bool {
+    return LESS_LEFT_RATIONAL;
+  }
 
-        bool operator<(const Rational &left, const Negative &right) {
-          return LESS_LEFT_RATIONAL;
-        }
+  auto operator<(const Rational &left, const Negative &right) -> bool {
+    return LESS_LEFT_RATIONAL;
+  }
 
-        bool operator<(const Rational &left, const Rational &right) {
-          return std::visit(
-              [](const auto &lN, const auto &lD, const auto &rN,
-                 const auto &rD) { return (lN * rD) < (lD * rN); },
-              left.numerator, left.denominator, right.numerator,
-              right.denominator);
-        }
+  auto operator<(const Rational &left, const Rational &right) -> bool {
+    return std::visit([](const auto &lN, const auto &lD, const auto &rN,
+                         const auto &rD) { return (lN * rD) < (lD * rN); },
+                      left.numerator, left.denominator, right.numerator,
+                      right.denominator);
+  }
 
-        bool operator<(const Rational & /*left*/, const Imag & /*right*/) {
-          return false;
-        }
+  auto operator<(const Rational & /*left*/, const Imag & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Rational & /*left*/, const Complex & /*right*/) {
-          return false;
-        }
+  auto operator<(const Rational & /*left*/, const Complex & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Imag & /*left*/, std::uint64_t /*right*/) {
-          return false;
-        }
+  auto operator<(const Imag & /*left*/, std::uint64_t /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Imag & /*left*/, Base /*right*/) { return false; }
+  auto operator<(const Imag & /*left*/, Base /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Imag & /*left*/, const Natural & /*right*/) {
-          return false;
-        }
+  auto operator<(const Imag & /*left*/, const Natural & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Imag & /*left*/, const Negative & /*right*/) {
-          return false;
-        }
+  auto operator<(const Imag & /*left*/, const Negative & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Imag & /*left*/, const Rational & /*right*/) {
-          return false;
-        }
+  auto operator<(const Imag & /*left*/, const Rational & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Imag & /*left*/, const Imag & /*right*/) {
-          return false;
-        }
+  auto operator<(const Imag & /*left*/, const Imag & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Imag & /*left*/, const Complex & /*right*/) {
-          return false;
-        }
+  auto operator<(const Imag & /*left*/, const Complex & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Complex & /*left*/, std::uint64_t /*right*/) {
-          return false;
-        }
+  auto operator<(const Complex & /*left*/, std::uint64_t /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Complex & /*left*/, Base /*right*/) {
-          return false;
-        }
+  auto operator<(const Complex & /*left*/, Base /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Complex & /*left*/, const Natural & /*right*/) {
-          return false;
-        }
+  auto operator<(const Complex & /*left*/, const Natural & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Complex & /*left*/, const Negative & /*right*/) {
-          return false;
-        }
+  auto operator<(const Complex & /*left*/, const Negative & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Complex & /*left*/, const Rational & /*right*/) {
-          return false;
-        }
+  auto operator<(const Complex & /*left*/, const Rational & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Complex & /*left*/, const Imag & /*right*/) {
-          return false;
-        }
+  auto operator<(const Complex & /*left*/, const Imag & /*right*/) -> bool {
+    return false;
+  }
 
-        bool operator<(const Complex & /*left*/, const Complex & /*right*/) {
-          return false;
-        }
-      } // namespace number
-    }   // namespace object
-  }     // namespace library
-} // namespace chimera
+  auto operator<(const Complex & /*left*/, const Complex & /*right*/) -> bool {
+    return false;
+  }
+} // namespace chimera::library::object::number

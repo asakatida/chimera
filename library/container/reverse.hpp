@@ -26,34 +26,30 @@
 
 #include <type_traits>
 
-namespace chimera {
-  namespace library {
-    namespace container {
-      void reverse();
-      template <typename Container>
-      struct Reverse {
-        auto begin() const noexcept { return container->rbegin(); }
+namespace chimera::library::container {
+  void reverse();
+  template <typename Container>
+  struct Reverse {
+    [[nodiscard]] auto begin() const noexcept { return container->rbegin(); }
 
-        auto cbegin() const noexcept { return container->crbegin(); }
+    [[nodiscard]] auto cbegin() const noexcept { return container->crbegin(); }
 
-        auto rbegin() const noexcept { return container->begin(); }
+    [[nodiscard]] auto rbegin() const noexcept { return container->begin(); }
 
-        auto crbegin() const noexcept { return container->cbegin(); }
+    [[nodiscard]] auto crbegin() const noexcept { return container->cbegin(); }
 
-        auto end() const noexcept { return container->rend(); }
+    [[nodiscard]] auto end() const noexcept { return container->rend(); }
 
-        auto cend() const noexcept { return container->crend(); }
+    [[nodiscard]] auto cend() const noexcept { return container->crend(); }
 
-        auto rend() const noexcept { return container->end(); }
+    [[nodiscard]] auto rend() const noexcept { return container->end(); }
 
-        auto crend() const noexcept { return container->cend(); }
+    [[nodiscard]] auto crend() const noexcept { return container->cend(); }
 
-        std::add_pointer_t<Container> container;
-      };
-      template <typename Container>
-      auto reverse(Container &&container) {
-        return Reverse<Container>{&container};
-      }
-    } // namespace container
-  }   // namespace library
-} // namespace chimera
+    std::add_pointer_t<Container> container;
+  };
+  template <typename Container>
+  auto reverse(Container &&container) {
+    return Reverse<Container>{&container};
+  }
+} // namespace chimera::library::container

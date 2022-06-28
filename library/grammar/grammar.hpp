@@ -32,51 +32,47 @@
 #include "grammar/rules.hpp"
 #include "grammar/stmt.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace grammar {
-      constexpr static flags::Flag option = flags::list<flags::IMPORT_ALL>;
-      struct SingleInput : sor<NEWLINE, if_must<CompoundStmt<option>, NEWLINE>,
-                               must<SimpleStmt<option>>> {
-        struct Transform : rules::Stack<asdl::StmtImpl> {
-          template <typename Top>
-          void success(Top &&top) {
-            top.body.reserve(size());
-            transform<asdl::StmtImpl>(std::back_inserter(top.body));
-          }
-        };
-      };
-      struct FileInput : must<opt<NEWLINE>, opt<DocString<option>>,
-                              until<eof, Stmt<option>>> {
-        struct Transform : rules::Stack<asdl::DocString, asdl::StmtImpl> {
-          template <typename Top>
-          void success(Top &&top) {
-            top.body.reserve(size());
-            while (top_is<asdl::StmtImpl>()) {
-              top.body.emplace_back(pop<asdl::StmtImpl>());
-            }
-            std::reverse(top.body.begin(), top.body.end());
-            if (has_value()) {
-              top.doc_string = pop<asdl::DocString>();
-            }
-          }
-        };
-      };
-      struct EvalInput : must<TestList<flags::list<>>, opt<NEWLINE>, eof> {
-        struct Transform : rules::Stack<asdl::ExprImpl> {
-          template <typename Top>
-          void success(Top &&top) {
-            if (auto s = size(); s > 1) {
-              asdl::Tuple tuple;
-              tuple.elts.reserve(s);
-              transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
-              top.body = std::move(tuple);
-            } else {
-              top.body = pop<asdl::ExprImpl>();
-            }
-          }
-        };
-      };
-    } // namespace grammar
-  }   // namespace library
-} // namespace chimera
+namespace chimera::library::grammar {
+  constexpr static flags::Flag option = flags::list<flags::IMPORT_ALL>;
+  struct SingleInput : sor<NEWLINE, if_must<CompoundStmt<option>, NEWLINE>,
+                           must<SimpleStmt<option>>> {
+    struct Transform : rules::Stack<asdl::StmtImpl> {
+      template <typename Top>
+      void success(Top &&top) {
+        top.body.reserve(size());
+        transform<asdl::StmtImpl>(std::back_inserter(top.body));
+      }
+    };
+  };
+  struct FileInput
+      : must<opt<NEWLINE>, opt<DocString<option>>, until<eof, Stmt<option>>> {
+    struct Transform : rules::Stack<asdl::DocString, asdl::StmtImpl> {
+      template <typename Top>
+      void success(Top &&top) {
+        top.body.reserve(size());
+        while (top_is<asdl::StmtImpl>()) {
+          top.body.emplace_back(pop<asdl::StmtImpl>());
+        }
+        std::reverse(top.body.begin(), top.body.end());
+        if (has_value()) {
+          top.doc_string = pop<asdl::DocString>();
+        }
+      }
+    };
+  };
+  struct EvalInput : must<TestList<flags::list<>>, opt<NEWLINE>, eof> {
+    struct Transform : rules::Stack<asdl::ExprImpl> {
+      template <typename Top>
+      void success(Top &&top) {
+        if (auto s = size(); s > 1) {
+          asdl::Tuple tuple;
+          tuple.elts.reserve(s);
+          transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
+          top.body = std::move(tuple);
+        } else {
+          top.body = pop<asdl::ExprImpl>();
+        }
+      }
+    };
+  };
+} // namespace chimera::library::grammar

@@ -31,37 +31,35 @@
 #include "object/object.hpp"
 #include "virtual_machine/fibonacci_heap.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      struct GarbageCollector {
-        GarbageCollector();
-        GarbageCollector(const GarbageCollector &collector) = delete;
-        GarbageCollector(GarbageCollector &&collector) = delete;
-        ~GarbageCollector() noexcept;
-        GarbageCollector &operator=(const GarbageCollector &collector) = delete;
-        GarbageCollector &operator=(GarbageCollector &&collector) = delete;
+namespace chimera::library::virtual_machine {
+  struct GarbageCollector {
+    GarbageCollector();
+    GarbageCollector(const GarbageCollector &collector) = delete;
+    GarbageCollector(GarbageCollector &&collector) = delete;
+    ~GarbageCollector() noexcept;
+    auto operator=(const GarbageCollector &collector)
+        -> GarbageCollector & = delete;
+    auto operator=(GarbageCollector &&collector) -> GarbageCollector & = delete;
 
-        template <typename... Args>
-        auto emplace(Args &&...args) {
-          std::lock_guard<std::mutex> lock(mutex);
-          return fibonacciHeap.emplace(std::forward<Args>(args)...);
-        }
+    template <typename... Args>
+    auto emplace(Args &&...args) {
+      std::lock_guard<std::mutex> lock(mutex);
+      return fibonacciHeap.emplace(std::forward<Args>(args)...);
+    }
 
-      private:
-        void collect();
+  private:
+    void collect();
 
-        struct Compare {
-          bool operator()(const object::Object &a, const object::Object &b) {
-            return a.id() < b.id();
-          }
-        };
+    struct Compare {
+      auto operator()(const object::Object &a, const object::Object &b)
+          -> bool {
+        return a.id() < b.id();
+      }
+    };
 
-        std::atomic_flag flag = ATOMIC_FLAG_INIT;
-        std::thread thread;
-        std::mutex mutex{};
-        FibonacciHeap<object::Object, Compare> fibonacciHeap{};
-      };
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+    std::atomic_flag flag = ATOMIC_FLAG_INIT;
+    std::thread thread;
+    std::mutex mutex{};
+    FibonacciHeap<object::Object, Compare> fibonacciHeap{};
+  };
+} // namespace chimera::library::virtual_machine

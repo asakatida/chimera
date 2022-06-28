@@ -33,38 +33,35 @@
 #include "virtual_machine/garbage.hpp"
 #include "virtual_machine/global_context.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      struct ProcessContext {
-        std::optional<asdl::Module> import_module(std::string &&module);
+namespace chimera::library::virtual_machine {
+  struct ProcessContext {
+    auto import_module(std::string &&module) -> std::optional<asdl::Module>;
 
-        object::Object &import_object(std::string_view &&name,
-                                      std::string_view &&relativeModule);
+    auto import_object(std::string_view &&name,
+                       std::string_view &&relativeModule) -> object::Object &;
 
-        object::Object make_module(std::string_view &&name);
+    auto make_module(std::string_view &&name) -> object::Object;
 
-        asdl::Module parse_file(const std::string_view &data,
-                                const char *source);
+    auto parse_file(const std::string_view &data, const char *source)
+        -> asdl::Module;
 
-        asdl::Module parse_file(std::istream &input, const char *source);
+    auto parse_file(std::istream &input, const char *source) -> asdl::Module;
 
-        asdl::Interactive parse_input(const std::string_view &data,
-                                      const char *source);
+    auto parse_input(const std::string_view &data, const char *source)
+        -> asdl::Interactive;
 
-        asdl::Interactive parse_input(std::istream &input, const char *source);
+    auto parse_input(std::istream &input, const char *source)
+        -> asdl::Interactive;
 
-        const GlobalContext &global_context;
-        // TODO(asakatida)
-        // GarbageCollector garbage_collector{};
-        container::AtomicMap<std::string, object::Object> modules{};
+    const GlobalContext &global_context;
+    // TODO(asakatida)
+    // GarbageCollector garbage_collector{};
+    container::AtomicMap<std::string, object::Object> modules{};
 
-      private:
-        object::Object &import_object(std::string_view &&module);
+  private:
+    auto import_object(std::string_view &&module) -> object::Object &;
 
-        std::optional<asdl::Module> import_module(const std::string_view &path,
-                                                  const std::string &module);
-      };
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+    auto import_module(const std::string_view &path, const std::string &module)
+        -> std::optional<asdl::Module>;
+  };
+} // namespace chimera::library::virtual_machine

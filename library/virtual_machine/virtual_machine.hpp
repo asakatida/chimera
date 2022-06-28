@@ -35,16 +35,12 @@ static std::atomic_flag SIG_INT;
 
 extern "C" void interupt_handler(int signal);
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      struct VirtualMachine {
-        VirtualMachine(Options options, object::Object builtins);
+namespace chimera::library::virtual_machine {
+  struct VirtualMachine {
+    VirtualMachine(const Options &options, object::Object builtins);
 
-        ProcessContext process_context() const;
+    [[nodiscard]] auto process_context() const -> ProcessContext;
 
-        GlobalContext global_context{};
-      };
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+    GlobalContext global_context{};
+  };
+} // namespace chimera::library::virtual_machine

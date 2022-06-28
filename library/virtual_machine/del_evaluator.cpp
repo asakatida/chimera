@@ -27,25 +27,21 @@
 #include "asdl/asdl.hpp"
 #include "virtual_machine/evaluator.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      void DelEvaluator::evaluate(const asdl::Attribute &attribute) {
-        evaluator->push([&attribute](Evaluator *evaluatorA) {
-          evaluatorA->stack.top().delete_attribute(attribute.attr.value);
-          evaluatorA->stack.pop();
-        });
-        evaluator->evaluate_get(attribute.value);
-      }
-      void DelEvaluator::evaluate(const asdl::Subscript &subscript) {
-        evaluator->evaluate_get(subscript.value);
-      }
-      void DelEvaluator::evaluate(const asdl::Starred &starred) {
-        evaluator->evaluate_get(starred.value);
-      }
-      void DelEvaluator::evaluate(const asdl::Name &name) {
-        evaluator->get_attribute(evaluator->self(), name.value);
-      }
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+namespace chimera::library::virtual_machine {
+  void DelEvaluator::evaluate(const asdl::Attribute &attribute) {
+    evaluator->push([&attribute](Evaluator *evaluatorA) {
+      evaluatorA->stack.top().delete_attribute(attribute.attr.value);
+      evaluatorA->stack.pop();
+    });
+    evaluator->evaluate_get(attribute.value);
+  }
+  void DelEvaluator::evaluate(const asdl::Subscript &subscript) {
+    evaluator->evaluate_get(subscript.value);
+  }
+  void DelEvaluator::evaluate(const asdl::Starred &starred) {
+    evaluator->evaluate_get(starred.value);
+  }
+  void DelEvaluator::evaluate(const asdl::Name &name) {
+    evaluator->get_attribute(evaluator->self(), name.value);
+  }
+} // namespace chimera::library::virtual_machine

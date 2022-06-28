@@ -26,18 +26,14 @@
 
 #include "asdl/asdl.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      struct Evaluator;
+namespace chimera::library::virtual_machine {
+  struct Evaluator;
 
-      struct SliceEvaluator {
-        Evaluator *evaluator;
+  struct SliceEvaluator {
+    Evaluator *evaluator;
 
-        void operator()(const asdl::Slice &slice);
-        void operator()(const asdl::ExtSlice &extSlice);
-        void operator()(const asdl::Index &index);
-      };
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+    void operator()(const asdl::Slice &slice);
+    void operator()(const asdl::ExtSlice &extSlice);
+    void operator()(const asdl::Index &index);
+  };
+} // namespace chimera::library::virtual_machine

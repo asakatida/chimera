@@ -22,8 +22,6 @@
 
 #include "options.hpp"
 
-namespace chimera {
-  namespace library {
-    void options() {}
-  } // namespace library
-} // namespace chimera
+namespace chimera::library {
+  void options() {}
+} // namespace chimera::library

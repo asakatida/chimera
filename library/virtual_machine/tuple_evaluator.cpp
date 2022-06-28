@@ -25,19 +25,14 @@
 #include "object/object.hpp"
 #include "virtual_machine/evaluator.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      void TupleEvaluator::operator()(Evaluator *evaluator) const {
-        object::Tuple tuple(evaluator->stack.size() - size);
-        for (std::size_t i = 0; evaluator->stack.size() > size; ++i) {
-          tuple[tuple.size() - 1 - i] = evaluator->stack.top();
-          evaluator->stack.pop();
-        }
-        evaluator->push(PushStack{object::Object(
-            tuple,
-            {{"__class__", evaluator->builtins().get_attribute("tuple")}})});
-      }
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+namespace chimera::library::virtual_machine {
+  void TupleEvaluator::operator()(Evaluator *evaluator) const {
+    object::Tuple tuple(evaluator->stack.size() - size);
+    for (std::size_t i = 0; evaluator->stack.size() > size; ++i) {
+      tuple[tuple.size() - 1 - i] = evaluator->stack.top();
+      evaluator->stack.pop();
+    }
+    evaluator->push(PushStack{object::Object(
+        tuple, {{"__class__", evaluator->builtins().get_attribute("tuple")}})});
+  }
+} // namespace chimera::library::virtual_machine

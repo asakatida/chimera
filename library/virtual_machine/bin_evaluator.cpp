@@ -25,204 +25,200 @@
 
 #include "virtual_machine/evaluator.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      void BinAddEvaluator::operator()(Evaluator *evaluatorA) const {
-        if (begin != end) {
-          auto &expr = *begin;
-          evaluatorA->push(BinAddEvaluator{begin + 1, end});
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->get_attribute(evaluatorB->stack.top(), "__add__");
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->evaluate_get(expr);
-        }
-      }
-      void BinSubEvaluator::operator()(Evaluator *evaluatorA) const {
-        if (begin != end) {
-          auto &expr = *begin;
-          evaluatorA->push(BinSubEvaluator{begin + 1, end});
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->get_attribute(evaluatorB->stack.top(), "__sub__");
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->evaluate_get(expr);
-        }
-      }
-      void BinMultEvaluator::operator()(Evaluator *evaluatorA) const {
-        if (begin != end) {
-          auto &expr = *begin;
-          evaluatorA->push(BinMultEvaluator{begin + 1, end});
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->get_attribute(evaluatorB->stack.top(), "__mul__");
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->evaluate_get(expr);
-        }
-      }
-      void BinMatMultEvaluator::operator()(Evaluator *evaluatorA) const {
-        if (begin != end) {
-          auto &expr = *begin;
-          evaluatorA->push(BinMatMultEvaluator{begin + 1, end});
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->get_attribute(evaluatorB->stack.top(), "__matmul__");
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->evaluate_get(expr);
-        }
-      }
-      void BinDivEvaluator::operator()(Evaluator *evaluatorA) const {
-        if (begin != end) {
-          auto &expr = *begin;
-          evaluatorA->push(BinDivEvaluator{begin + 1, end});
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->get_attribute(evaluatorB->stack.top(), "__div__");
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->evaluate_get(expr);
-        }
-      }
-      void BinModEvaluator::operator()(Evaluator *evaluatorA) const {
-        if (begin != end) {
-          auto &expr = *begin;
-          evaluatorA->push(BinModEvaluator{begin + 1, end});
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->get_attribute(evaluatorB->stack.top(), "__mod__");
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->evaluate_get(expr);
-        }
-      }
-      void BinPowEvaluator::operator()(Evaluator *evaluatorA) const {
-        if (begin != end) {
-          auto &expr = *begin;
-          evaluatorA->push(BinPowEvaluator{begin + 1, end});
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->get_attribute(evaluatorB->stack.top(), "__pow__");
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->evaluate_get(expr);
-        }
-      }
-      void BinLShiftEvaluator::operator()(Evaluator *evaluatorA) const {
-        if (begin != end) {
-          auto &expr = *begin;
-          evaluatorA->push(BinLShiftEvaluator{begin + 1, end});
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->get_attribute(evaluatorB->stack.top(), "__lshift__");
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->evaluate_get(expr);
-        }
-      }
-      void BinRShiftEvaluator::operator()(Evaluator *evaluatorA) const {
-        if (begin != end) {
-          auto &expr = *begin;
-          evaluatorA->push(BinRShiftEvaluator{begin + 1, end});
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->get_attribute(evaluatorB->stack.top(), "__rshift__");
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->evaluate_get(expr);
-        }
-      }
-      void BinBitOrEvaluator::operator()(Evaluator *evaluatorA) const {
-        if (begin != end) {
-          auto &expr = *begin;
-          evaluatorA->push(BinBitOrEvaluator{begin + 1, end});
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->get_attribute(evaluatorB->stack.top(), "__or__");
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->evaluate_get(expr);
-        }
-      }
-      void BinBitXorEvaluator::operator()(Evaluator *evaluatorA) const {
-        if (begin != end) {
-          auto &expr = *begin;
-          evaluatorA->push(BinBitXorEvaluator{begin + 1, end});
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->get_attribute(evaluatorB->stack.top(), "__xor__");
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->evaluate_get(expr);
-        }
-      }
-      void BinBitAndEvaluator::operator()(Evaluator *evaluatorA) const {
-        if (begin != end) {
-          auto &expr = *begin;
-          evaluatorA->push(BinBitAndEvaluator{begin + 1, end});
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->get_attribute(evaluatorB->stack.top(), "__and__");
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->evaluate_get(expr);
-        }
-      }
-      void BinFloorDivEvaluator::operator()(Evaluator *evaluatorA) const {
-        if (begin != end) {
-          auto &expr = *begin;
-          evaluatorA->push(BinFloorDivEvaluator{begin + 1, end});
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->get_attribute(evaluatorB->stack.top(), "__floordiv__");
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->evaluate_get(expr);
-        }
-      }
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+namespace chimera::library::virtual_machine {
+  void BinAddEvaluator::operator()(Evaluator *evaluatorA) const {
+    if (begin != end) {
+      auto &expr = *begin;
+      evaluatorA->push(BinAddEvaluator{begin + 1, end});
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->get_attribute(evaluatorB->stack.top(), "__add__");
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->evaluate_get(expr);
+    }
+  }
+  void BinSubEvaluator::operator()(Evaluator *evaluatorA) const {
+    if (begin != end) {
+      auto &expr = *begin;
+      evaluatorA->push(BinSubEvaluator{begin + 1, end});
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->get_attribute(evaluatorB->stack.top(), "__sub__");
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->evaluate_get(expr);
+    }
+  }
+  void BinMultEvaluator::operator()(Evaluator *evaluatorA) const {
+    if (begin != end) {
+      auto &expr = *begin;
+      evaluatorA->push(BinMultEvaluator{begin + 1, end});
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->get_attribute(evaluatorB->stack.top(), "__mul__");
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->evaluate_get(expr);
+    }
+  }
+  void BinMatMultEvaluator::operator()(Evaluator *evaluatorA) const {
+    if (begin != end) {
+      auto &expr = *begin;
+      evaluatorA->push(BinMatMultEvaluator{begin + 1, end});
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->get_attribute(evaluatorB->stack.top(), "__matmul__");
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->evaluate_get(expr);
+    }
+  }
+  void BinDivEvaluator::operator()(Evaluator *evaluatorA) const {
+    if (begin != end) {
+      auto &expr = *begin;
+      evaluatorA->push(BinDivEvaluator{begin + 1, end});
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->get_attribute(evaluatorB->stack.top(), "__div__");
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->evaluate_get(expr);
+    }
+  }
+  void BinModEvaluator::operator()(Evaluator *evaluatorA) const {
+    if (begin != end) {
+      auto &expr = *begin;
+      evaluatorA->push(BinModEvaluator{begin + 1, end});
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->get_attribute(evaluatorB->stack.top(), "__mod__");
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->evaluate_get(expr);
+    }
+  }
+  void BinPowEvaluator::operator()(Evaluator *evaluatorA) const {
+    if (begin != end) {
+      auto &expr = *begin;
+      evaluatorA->push(BinPowEvaluator{begin + 1, end});
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->get_attribute(evaluatorB->stack.top(), "__pow__");
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->evaluate_get(expr);
+    }
+  }
+  void BinLShiftEvaluator::operator()(Evaluator *evaluatorA) const {
+    if (begin != end) {
+      auto &expr = *begin;
+      evaluatorA->push(BinLShiftEvaluator{begin + 1, end});
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->get_attribute(evaluatorB->stack.top(), "__lshift__");
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->evaluate_get(expr);
+    }
+  }
+  void BinRShiftEvaluator::operator()(Evaluator *evaluatorA) const {
+    if (begin != end) {
+      auto &expr = *begin;
+      evaluatorA->push(BinRShiftEvaluator{begin + 1, end});
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->get_attribute(evaluatorB->stack.top(), "__rshift__");
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->evaluate_get(expr);
+    }
+  }
+  void BinBitOrEvaluator::operator()(Evaluator *evaluatorA) const {
+    if (begin != end) {
+      auto &expr = *begin;
+      evaluatorA->push(BinBitOrEvaluator{begin + 1, end});
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->get_attribute(evaluatorB->stack.top(), "__or__");
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->evaluate_get(expr);
+    }
+  }
+  void BinBitXorEvaluator::operator()(Evaluator *evaluatorA) const {
+    if (begin != end) {
+      auto &expr = *begin;
+      evaluatorA->push(BinBitXorEvaluator{begin + 1, end});
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->get_attribute(evaluatorB->stack.top(), "__xor__");
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->evaluate_get(expr);
+    }
+  }
+  void BinBitAndEvaluator::operator()(Evaluator *evaluatorA) const {
+    if (begin != end) {
+      auto &expr = *begin;
+      evaluatorA->push(BinBitAndEvaluator{begin + 1, end});
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->get_attribute(evaluatorB->stack.top(), "__and__");
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->evaluate_get(expr);
+    }
+  }
+  void BinFloorDivEvaluator::operator()(Evaluator *evaluatorA) const {
+    if (begin != end) {
+      auto &expr = *begin;
+      evaluatorA->push(BinFloorDivEvaluator{begin + 1, end});
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->get_attribute(evaluatorB->stack.top(), "__floordiv__");
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->evaluate_get(expr);
+    }
+  }
+} // namespace chimera::library::virtual_machine

@@ -22,44 +22,37 @@
 
 #include <limits>
 
-namespace chimera {
-  namespace library {
-    namespace object {
-      namespace number {
-        Carryover div_mod(const Carryover &left, std::uint64_t right) {
-          auto a = __uint128_t(left.overflow) << 64u | left.result;
-          return {std::uint64_t(a / right), std::uint64_t(a % right)};
-        }
+namespace chimera::library::object::number {
+  auto div_mod(const Carryover &left, std::uint64_t right) -> Carryover {
+    auto a = __uint128_t(left.overflow) << 64u | left.result;
+    return {std::uint64_t(a / right), std::uint64_t(a % right)};
+  }
 
-        Carryover left_shift(std::uint64_t left, std::uint64_t right) {
-          auto carryover = __uint128_t(left) << right;
-          return {std::uint64_t(carryover), std::uint64_t(carryover >> 64u)};
-        }
+  auto left_shift(std::uint64_t left, std::uint64_t right) -> Carryover {
+    auto carryover = __uint128_t(left) << right;
+    return {std::uint64_t(carryover), std::uint64_t(carryover >> 64u)};
+  }
 
-        Carryover mult(std::uint64_t left, std::uint64_t right) {
-          auto carryover = __uint128_t(left) * right;
-          return {std::uint64_t(carryover), std::uint64_t(carryover >> 64u)};
-        }
+  auto mult(std::uint64_t left, std::uint64_t right) -> Carryover {
+    auto carryover = __uint128_t(left) * right;
+    return {std::uint64_t(carryover), std::uint64_t(carryover >> 64u)};
+  }
 
-        Carryover right_shift(std::uint64_t left, std::uint64_t right) {
-          auto carryover = __uint128_t(left) << (64u - right);
-          return {std::uint64_t(carryover >> 64u), std::uint64_t(carryover)};
-        }
+  auto right_shift(std::uint64_t left, std::uint64_t right) -> Carryover {
+    auto carryover = __uint128_t(left) << (64u - right);
+    return {std::uint64_t(carryover >> 64u), std::uint64_t(carryover)};
+  }
 
-        Carryover sub(std::uint64_t left, std::uint64_t right) {
-          if (left < right) {
-            return {std::numeric_limits<std::uint64_t>::max() -
-                        ((right - left) - 1),
-                    1u};
-          }
-          return {left - right, 0u};
-        }
+  auto sub(std::uint64_t left, std::uint64_t right) -> Carryover {
+    if (left < right) {
+      return {std::numeric_limits<std::uint64_t>::max() - ((right - left) - 1),
+              1u};
+    }
+    return {left - right, 0u};
+  }
 
-        Carryover sum(std::uint64_t left, std::uint64_t right) {
-          auto carryover = __uint128_t(left) + right;
-          return {std::uint64_t(carryover), std::uint64_t(carryover >> 64u)};
-        }
-      } // namespace number
-    }   // namespace object
-  }     // namespace library
-} // namespace chimera
+  auto sum(std::uint64_t left, std::uint64_t right) -> Carryover {
+    auto carryover = __uint128_t(left) + right;
+    return {std::uint64_t(carryover), std::uint64_t(carryover >> 64u)};
+  }
+} // namespace chimera::library::object::number

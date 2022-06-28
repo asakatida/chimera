@@ -25,18 +25,14 @@
 
 #include "object/object.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      struct Evaluator;
+namespace chimera::library::virtual_machine {
+  struct Evaluator;
 
-      struct CallEvaluator {
-        object::Object object;
-        object::Tuple args;
-        object::Object kwargs;
+  struct CallEvaluator {
+    object::Object object;
+    object::Tuple args;
+    object::Object kwargs;
 
-        void operator()(Evaluator *evaluatorA) const;
-      };
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+    void operator()(Evaluator *evaluatorA) const;
+  };
+} // namespace chimera::library::virtual_machine

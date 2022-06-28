@@ -31,85 +31,82 @@
 
 #include <gsl/gsl>
 
-namespace chimera {
-  namespace library {
-    namespace grammar {
-      namespace rules {
-        template <typename... Types>
-        struct Stack {
-          using ValueT = std::variant<Types...>;
-          template <typename Type>
-          void push(Type &&type) {
-            stack.emplace_back(ValueT{std::forward<Type>(type)});
-          }
-          const ValueT &top() const { return stack.back(); }
-          ValueT &top() { return stack.back(); }
-          template <typename Type>
-          const Type &top() const {
-            Ensures(std::holds_alternative<Type>(top()));
-            return std::get<Type>(top());
-          }
-          template <typename Type>
-          Type &top() {
-            Ensures(std::holds_alternative<Type>(top()));
-            return std::get<Type>(top());
-          }
-          ValueT pop() {
-            auto finally = gsl::finally([this] { this->stack.pop_back(); });
-            return std::move(top());
-          }
-          template <typename Type>
-          Type pop() {
-            auto finally = gsl::finally([this] { this->stack.pop_back(); });
-            return std::move(top<Type>());
-          }
-          template <typename Type, typename... Args>
-          struct Reshape {
-            template <typename Iter, std::size_t... I>
-            static Type reshape(Iter &&it,
-                                std::index_sequence<I...> /*unused*/) {
-              Ensures(std::holds_alternative<Args>(*(it + I)) && ...);
-              return Type{std::move(std::get<Args>(*(it + I)))...};
-            }
-          };
-          template <typename Type, typename... Args>
-          Type reshape() {
-            Expects(sizeof...(Args) == size());
-            auto finally = gsl::finally([this] { this->stack.clear(); });
-            return Reshape<Type, Args...>::reshape(
-                stack.begin(), std::index_sequence_for<Args...>{});
-          }
-          const std::vector<ValueT> &vector() const { return stack; }
-          std::vector<ValueT> &vector() { return stack; }
-          template <typename OutputIt>
-          auto transform(OutputIt &&outputIt) {
-            return transform<
-                typename std::iterator_traits<OutputIt>::value_type>(
-                std::forward<OutputIt>(outputIt));
-          }
-          template <typename Type, typename OutputIt>
-          void transform(OutputIt &&outputIt) {
-            auto finally = gsl::finally([this] { this->stack.clear(); });
-            for (const auto &value : stack) {
-              Ensures(std::holds_alternative<Type>(value));
-              *(outputIt++) = std::move(std::get<Type>(value));
-            }
-          }
-          bool has_value() const { return !stack.empty(); }
-          template <typename Type>
-          bool top_is() const {
-            return has_value() && std::holds_alternative<Type>(top());
-          }
-          std::size_t size() const { return stack.size(); }
-          template <typename Type>
-          void operator()(Type &&type) {
-            return push(std::forward<Type>(type));
-          }
+namespace chimera::library::grammar::rules {
+  template <typename... Types>
+  struct Stack {
+    using ValueT = std::variant<Types...>;
+    template <typename Type>
+    void push(Type &&type) {
+      stack.emplace_back(ValueT{std::forward<Type>(type)});
+    }
+    [[nodiscard]] auto top() const -> const ValueT & { return stack.back(); }
+    auto top() -> ValueT & { return stack.back(); }
+    template <typename Type>
+    [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] auto
+    top() const -> const Type & {
+      Ensures(std::holds_alternative<Type>(top()));
+      return std::get<Type>(top());
+    }
+    template <typename Type>
+    auto top() -> Type & {
+      Ensures(std::holds_alternative<Type>(top()));
+      return std::get<Type>(top());
+    }
+    auto pop() -> ValueT {
+      auto finally = gsl::finally([this] { this->stack.pop_back(); });
+      return std::move(top());
+    }
+    template <typename Type>
+    auto pop() -> Type {
+      auto finally = gsl::finally([this] { this->stack.pop_back(); });
+      return std::move(top<Type>());
+    }
+    template <typename Type, typename... Args>
+    struct Reshape {
+      template <typename Iter, std::size_t... I>
+      static auto reshape(Iter &&it, std::index_sequence<I...> /*unused*/)
+          -> Type {
+        Ensures(std::holds_alternative<Args>(*(it + I)) && ...);
+        return Type{std::move(std::get<Args>(*(it + I)))...};
+      }
+    };
+    template <typename Type, typename... Args>
+    auto reshape() -> Type {
+      Expects(sizeof...(Args) == size());
+      auto finally = gsl::finally([this] { this->stack.clear(); });
+      return Reshape<Type, Args...>::reshape(
+          stack.begin(), std::index_sequence_for<Args...>{});
+    }
+    [[nodiscard]] auto vector() const -> const std::vector<ValueT> & {
+      return stack;
+    }
+    auto vector() -> std::vector<ValueT> & { return stack; }
+    template <typename OutputIt>
+    auto transform(OutputIt &&outputIt) {
+      return transform<typename std::iterator_traits<OutputIt>::value_type>(
+          std::forward<OutputIt>(outputIt));
+    }
+    template <typename Type, typename OutputIt>
+    void transform(OutputIt &&outputIt) {
+      auto finally = gsl::finally([this] { this->stack.clear(); });
+      for (const auto &value : stack) {
+        Ensures(std::holds_alternative<Type>(value));
+        *(outputIt++) = std::move(std::get<Type>(value));
+      }
+    }
+    [[nodiscard]] auto has_value() const -> bool { return !stack.empty(); }
+    template <typename Type>
+    [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] auto
+    top_is() const -> bool {
+      return has_value() && std::holds_alternative<Type>(top());
+    }
+    [[nodiscard]] auto size() const -> std::size_t { return stack.size(); }
+    template <typename Type>
+    void operator()(Type &&type) {
+      return push(std::forward<Type>(type));
+    }
 
-        private:
-          std::vector<ValueT> stack;
-        };
-      } // namespace rules
-    }   // namespace grammar
-  }     // namespace library
-} // namespace chimera
+  private:
+    std::vector<ValueT> stack;
+  };
+} // namespace chimera::library::grammar::rules

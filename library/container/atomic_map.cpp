@@ -20,10 +20,6 @@
 
 #include "container/atomic_map.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace container {
-      void atomic_map() {}
-    } // namespace container
-  }   // namespace library
-} // namespace chimera
+namespace chimera::library::container {
+  void atomic_map() {}
+} // namespace chimera::library::container

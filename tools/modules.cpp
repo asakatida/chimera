@@ -40,66 +40,64 @@
 #include "options.hpp"
 #include "virtual_machine/virtual_machine.hpp"
 
-namespace chimera {
-  namespace library {
-    std::string PrintState::printed(const object::Object &object) {
-      return m_printed.at(id(object));
-    }
+namespace chimera::library {
+  auto PrintState::printed(const object::Object &object) -> std::string {
+    return m_printed.at(id(object));
+  }
 
-    object::Id PrintState::id(const object::Object &object) {
-      return m_remap.try_emplace(object.id(), object.id()).first->second;
-    }
+  auto PrintState::id(const object::Object &object) -> object::Id {
+    return m_remap.try_emplace(object.id(), object.id()).first->second;
+  }
 
-    void PrintState::remap(const object::Object &module,
-                           const object::Object &previous) {
-      if (!m_remap.try_emplace(previous.id(), module.id()).second) {
-        return;
-      }
-      for (const auto &name : module.dir()) {
-        if (previous.has_attribute(name)) {
-          remap(module.get_attribute(name), previous.get_attribute(name));
-        }
-      }
-      for (const auto &name : previous.dir()) {
-        if (module.has_attribute(name)) {
-          remap(module.get_attribute(name), previous.get_attribute(name));
-        }
+  void PrintState::remap(const object::Object &module,
+                         const object::Object &previous) {
+    if (!m_remap.try_emplace(previous.id(), module.id()).second) {
+      return;
+    }
+    for (const auto &name : module.dir()) {
+      if (previous.has_attribute(name)) {
+        remap(module.get_attribute(name), previous.get_attribute(name));
       }
     }
+    for (const auto &name : previous.dir()) {
+      if (module.has_attribute(name)) {
+        remap(module.get_attribute(name), previous.get_attribute(name));
+      }
+    }
+  }
 
-    bool PrintState::is_printed(const object::Object &object) {
-      return m_printed.count(id(object)) != 0;
-    }
+  auto PrintState::is_printed(const object::Object &object) -> bool {
+    return m_printed.count(id(object)) != 0;
+  }
 
-    bool Compare::operator()(const SetAttribute &a,
-                             const SetAttribute &b) const {
-      if (a.base_name == b.base_name) {
-        return a.name < b.name;
-      }
-      return a.base_name < b.base_name;
+  auto Compare::operator()(const SetAttribute &a, const SetAttribute &b) const
+      -> bool {
+    if (a.base_name == b.base_name) {
+      return a.name < b.name;
     }
+    return a.base_name < b.base_name;
+  }
 
-    bool Compare::operator()(const Work &a, const Work &b) const {
-      if (a.printer->is_printed(b.object) && !b.printer->is_printed(a.object)) {
-        return true;
-      }
-      if (b.printer->is_printed(a.object) && !a.printer->is_printed(b.object)) {
-        return false;
-      }
-      if (a.base_name == b.base_name) {
-        return a.name > b.name;
-      }
-      return a.base_name > b.base_name;
+  auto Compare::operator()(const Work &a, const Work &b) const -> bool {
+    if (a.printer->is_printed(b.object) && !b.printer->is_printed(a.object)) {
+      return true;
     }
+    if (b.printer->is_printed(a.object) && !a.printer->is_printed(b.object)) {
+      return false;
+    }
+    if (a.base_name == b.base_name) {
+      return a.name > b.name;
+    }
+    return a.base_name > b.base_name;
+  }
 
-    std::optional<object::Object>
-    IncompleteTuple::operator()(const object::Tuple &tuple) const {
-      for (const auto &object : tuple) {
-        if (!printer->is_printed(object)) {
-          return {object};
-        }
+  auto IncompleteTuple::operator()(const object::Tuple &tuple) const
+      -> std::optional<object::Object> {
+    for (const auto &object : tuple) {
+      if (!printer->is_printed(object)) {
+        return {object};
       }
-      return {};
     }
-  } // namespace library
-} // namespace chimera
+    return {};
+  }
+} // namespace chimera::library

@@ -24,16 +24,12 @@
 
 #include "object/object.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      struct Evaluator;
+namespace chimera::library::virtual_machine {
+  struct Evaluator;
 
-      struct PushStack {
-        object::Object object;
+  struct PushStack {
+    object::Object object;
 
-        void operator()(Evaluator *evaluator) const;
-      };
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+    void operator()(Evaluator *evaluator) const;
+  };
+} // namespace chimera::library::virtual_machine

@@ -28,21 +28,17 @@
 #include "grammar/rules.hpp"
 #include "options.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace grammar {
-      template <typename Grammar, typename... Args>
-      void parse(const Options &options, Args &&...args) {
-        Ensures((tao::pegtl::parse<Grammar, token::Action, Normal>(args...)));
-        switch (options.optimize) {
-          case Optimize::NONE:
-            break;
-          case Optimize::BASIC:
-            break;
-          case Optimize::DISCARD_DOCS:
-            break;
-        }
-      }
-    } // namespace grammar
-  }   // namespace library
-} // namespace chimera
+namespace chimera::library::grammar {
+  template <typename Grammar, typename... Args>
+  void parse(const Options &options, Args &&...args) {
+    Ensures((tao::pegtl::parse<Grammar, token::Action, Normal>(args...)));
+    switch (options.optimize) {
+      case Optimize::NONE:
+        break;
+      case Optimize::BASIC:
+        break;
+      case Optimize::DISCARD_DOCS:
+        break;
+    }
+  }
+} // namespace chimera::library::grammar

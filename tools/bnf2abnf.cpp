@@ -165,7 +165,7 @@ struct Syntax
     : tao::pegtl::seq<OptWhitespace, tao::pegtl::plus<Rule>, tao::pegtl::eof> {
 };
 
-int main() {
+auto main() -> int {
   tao::pegtl::istream_input<> in(std::cin, 1024, "<input>");
   return tao::pegtl::parse<Syntax, BnfAction>(in) ? 0 : 1;
 }

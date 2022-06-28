@@ -29,45 +29,39 @@
 #include "grammar/rules/captures.hpp"
 #include "grammar/rules/control.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace grammar {
-      namespace rules {
-        template <typename... Types>
-        struct Tuple {};
+namespace chimera::library::grammar::rules {
+  template <typename... Types>
+  struct Tuple {};
 
-        template <typename... Types>
-        struct Variant {};
+  template <typename... Types>
+  struct Variant {};
 
-        template <typename Type>
-        struct Vector {};
+  template <typename Type>
+  struct Vector {};
 
-        using tao::pegtl::opt;
-        using tao::pegtl::rep;
-        using tao::pegtl::seq;
-        using tao::pegtl::sor;
+  using tao::pegtl::opt;
+  using tao::pegtl::rep;
+  using tao::pegtl::seq;
+  using tao::pegtl::sor;
 
-        template <typename Rule>
-        struct ASTType {
-          using Type = Tuple<>;
-        };
-        template <typename... Rules>
-        struct ASTType<opt<Rules...>> {
-          using Type = Variant<Tuple<>, Tuple<>>;
-        };
-        template <unsigned Repeat, typename... Rules>
-        struct ASTType<rep<Repeat, Rules...>> {
-          using Type = Tuple<>;
-        };
-        template <typename... Rules>
-        struct ASTType<seq<Rules...>> {
-          using Type = Tuple<>;
-        };
-        template <typename... Rules>
-        struct ASTType<sor<Rules...>> {
-          using Type = Variant<>;
-        };
-      } // namespace rules
-    }   // namespace grammar
-  }     // namespace library
-} // namespace chimera
+  template <typename Rule>
+  struct ASTType {
+    using Type = Tuple<>;
+  };
+  template <typename... Rules>
+  struct ASTType<opt<Rules...>> {
+    using Type = Variant<Tuple<>, Tuple<>>;
+  };
+  template <unsigned Repeat, typename... Rules>
+  struct ASTType<rep<Repeat, Rules...>> {
+    using Type = Tuple<>;
+  };
+  template <typename... Rules>
+  struct ASTType<seq<Rules...>> {
+    using Type = Tuple<>;
+  };
+  template <typename... Rules>
+  struct ASTType<sor<Rules...>> {
+    using Type = Variant<>;
+  };
+} // namespace chimera::library::grammar::rules

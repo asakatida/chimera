@@ -22,65 +22,59 @@
 
 #include "object/number/number.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace object {
-      namespace number {
-        Number gcd(std::uint64_t left, Base right);
-        Number gcd(std::uint64_t left, const Natural &right);
-        Number gcd(std::uint64_t left, const Negative &right);
-        Number gcd(std::uint64_t left, const Rational &right);
-        Number gcd(std::uint64_t left, const Imag &right);
-        Number gcd(std::uint64_t left, const Complex &right);
+namespace chimera::library::object::number {
+  auto gcd(std::uint64_t left, Base right) -> Number;
+  auto gcd(std::uint64_t left, const Natural &right) -> Number;
+  auto gcd(std::uint64_t left, const Negative &right) -> Number;
+  auto gcd(std::uint64_t left, const Rational &right) -> Number;
+  auto gcd(std::uint64_t left, const Imag &right) -> Number;
+  auto gcd(std::uint64_t left, const Complex &right) -> Number;
 
-        Number gcd(Base left, std::uint64_t right);
-        Number gcd(Base left, Base right);
-        Number gcd(Base left, const Natural &right);
-        Number gcd(Base left, const Negative &right);
-        Number gcd(Base left, const Rational &right);
-        Number gcd(Base left, const Imag &right);
-        Number gcd(Base left, const Complex &right);
+  auto gcd(Base left, std::uint64_t right) -> Number;
+  auto gcd(Base left, Base right) -> Number;
+  auto gcd(Base left, const Natural &right) -> Number;
+  auto gcd(Base left, const Negative &right) -> Number;
+  auto gcd(Base left, const Rational &right) -> Number;
+  auto gcd(Base left, const Imag &right) -> Number;
+  auto gcd(Base left, const Complex &right) -> Number;
 
-        Number gcd(const Natural &left, std::uint64_t right);
-        Number gcd(const Natural &left, Base right);
-        Number gcd(const Natural &left, const Natural &right);
-        Number gcd(const Natural &left, const Negative &right);
-        Number gcd(const Natural &left, const Rational &right);
-        Number gcd(const Natural &left, const Imag &right);
-        Number gcd(const Natural &left, const Complex &right);
+  auto gcd(const Natural &left, std::uint64_t right) -> Number;
+  auto gcd(const Natural &left, Base right) -> Number;
+  auto gcd(const Natural &left, const Natural &right) -> Number;
+  auto gcd(const Natural &left, const Negative &right) -> Number;
+  auto gcd(const Natural &left, const Rational &right) -> Number;
+  auto gcd(const Natural &left, const Imag &right) -> Number;
+  auto gcd(const Natural &left, const Complex &right) -> Number;
 
-        Number gcd(const Negative &left, std::uint64_t right);
-        Number gcd(const Negative &left, Base right);
-        Number gcd(const Negative &left, const Natural &right);
-        Number gcd(const Negative &left, const Negative &right);
-        Number gcd(const Negative &left, const Rational &right);
-        Number gcd(const Negative &left, const Imag &right);
-        Number gcd(const Negative &left, const Complex &right);
+  auto gcd(const Negative &left, std::uint64_t right) -> Number;
+  auto gcd(const Negative &left, Base right) -> Number;
+  auto gcd(const Negative &left, const Natural &right) -> Number;
+  auto gcd(const Negative &left, const Negative &right) -> Number;
+  auto gcd(const Negative &left, const Rational &right) -> Number;
+  auto gcd(const Negative &left, const Imag &right) -> Number;
+  auto gcd(const Negative &left, const Complex &right) -> Number;
 
-        Number gcd(const Rational &left, std::uint64_t right);
-        Number gcd(const Rational &left, Base right);
-        Number gcd(const Rational &left, const Natural &right);
-        Number gcd(const Rational &left, const Negative &right);
-        Number gcd(const Rational &left, const Rational &right);
-        Number gcd(const Rational &left, const Imag &right);
-        Number gcd(const Rational &left, const Complex &right);
+  auto gcd(const Rational &left, std::uint64_t right) -> Number;
+  auto gcd(const Rational &left, Base right) -> Number;
+  auto gcd(const Rational &left, const Natural &right) -> Number;
+  auto gcd(const Rational &left, const Negative &right) -> Number;
+  auto gcd(const Rational &left, const Rational &right) -> Number;
+  auto gcd(const Rational &left, const Imag &right) -> Number;
+  auto gcd(const Rational &left, const Complex &right) -> Number;
 
-        Number gcd(const Imag &left, std::uint64_t right);
-        Number gcd(const Imag &left, Base right);
-        Number gcd(const Imag &left, const Natural &right);
-        Number gcd(const Imag &left, const Negative &right);
-        Number gcd(const Imag &left, const Rational &right);
-        Number gcd(const Imag &left, const Imag &right);
-        Number gcd(const Imag &left, const Complex &right);
+  auto gcd(const Imag &left, std::uint64_t right) -> Number;
+  auto gcd(const Imag &left, Base right) -> Number;
+  auto gcd(const Imag &left, const Natural &right) -> Number;
+  auto gcd(const Imag &left, const Negative &right) -> Number;
+  auto gcd(const Imag &left, const Rational &right) -> Number;
+  auto gcd(const Imag &left, const Imag &right) -> Number;
+  auto gcd(const Imag &left, const Complex &right) -> Number;
 
-        Number gcd(const Complex &left, std::uint64_t right);
-        Number gcd(const Complex &left, Base right);
-        Number gcd(const Complex &left, const Natural &right);
-        Number gcd(const Complex &left, const Negative &right);
-        Number gcd(const Complex &left, const Rational &right);
-        Number gcd(const Complex &left, const Imag &right);
-        Number gcd(const Complex &left, const Complex &right);
-      } // namespace number
-    }   // namespace object
-  }     // namespace library
-} // namespace chimera
+  auto gcd(const Complex &left, std::uint64_t right) -> Number;
+  auto gcd(const Complex &left, Base right) -> Number;
+  auto gcd(const Complex &left, const Natural &right) -> Number;
+  auto gcd(const Complex &left, const Negative &right) -> Number;
+  auto gcd(const Complex &left, const Rational &right) -> Number;
+  auto gcd(const Complex &left, const Imag &right) -> Number;
+  auto gcd(const Complex &left, const Complex &right) -> Number;
+} // namespace chimera::library::object::number
