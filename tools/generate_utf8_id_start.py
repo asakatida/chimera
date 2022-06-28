@@ -21,26 +21,20 @@
 """generate_utf8_id_start.py."""
 
 from itertools import chain, count, groupby, starmap
+from pathlib import Path
+from re import MULTILINE, subn
 from typing import Iterable, Tuple
 
 
 def _a(key: int, group: Iterable[Tuple[int, int]]) -> Tuple[int, ...]:
-    return tuple(e[0] for e in group)
+    t = tuple(e[0] for e in group)
+    return (min(t), max(t))
 
 
-print("#pragma once")
-print("")
-print("#include <tao/pegtl.hpp>")
-print("")
-print("namespace chimera {")
-print("namespace library {")
-print("namespace grammar {")
-print("struct Utf8IdStart:")
-print("tao::pegtl::utf8::ranges<")
-print(
-    *chain.from_iterable(
-        map(
-            lambda t: (min(t), max(t)),
+ranges = ",".join(
+    map(
+        str,
+        chain.from_iterable(
             starmap(
                 _a,
                 groupby(
@@ -50,12 +44,18 @@ print(
                     ),
                     lambda t: t[0] - t[1],
                 ),
-            ),
-        )
-    ),
-    sep=", ",
+            )
+        ),
+    )
 )
-print("> {};")
-print("}  // namespace grammar")
-print("}  // namespace library")
-print("}  // namespace chimera")
+
+utf8_id_start = Path("library/grammar/utf8_id_start.hpp")
+utf8_id_start.write_text(
+    subn(
+        r"^.+Utf8IdStart[^;]+;$",
+        f"using Utf8IdStart = ranges<{ranges}>;",
+        utf8_id_start.read_text(),
+        1,
+        MULTILINE,
+    )[0]
+)

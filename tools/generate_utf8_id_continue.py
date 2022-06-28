@@ -21,10 +21,12 @@
 """generate_utf8_id_continue.py."""
 
 from itertools import chain, count, groupby, starmap
+from pathlib import Path
+from re import MULTILINE, subn
 from typing import Iterable, Iterator, Set, Tuple
 
 
-def _a(id_start: Set[int]) -> None:
+def _a(id_start: Set[int]) -> str:
     def b(i: int) -> bool:
         def c() -> Iterable[bool]:
             def d(j: int) -> bool:
@@ -36,43 +38,30 @@ def _a(id_start: Set[int]) -> None:
 
     id_continue_pos: Set[int] = set(range(0x10FFFF)) - id_start
     id_continue: Iterator[int] = chain.from_iterable(
-        map(
-            lambda t: (min(t), max(t)),
-            starmap(
-                _b,
-                groupby(
-                    zip(filter(b, id_continue_pos), count()), lambda t: t[0] - t[1]
-                ),
-            ),
+        starmap(
+            _b,
+            groupby(zip(filter(b, id_continue_pos), count()), lambda t: t[0] - t[1]),
         )
     )
-    print(next(id_continue), end="")
-    set(map(_c, id_continue))
+    return ",".join(map(str, id_continue))
 
 
-def _b(_: int, group: Iterable[Tuple[int, int]]) -> Tuple[int, ...]:
-    return tuple(e[0] for e in group)
-
-
-def _c(s: int) -> None:
-    print(",", s, end="")
+def _b(_: int, group: Iterable[Tuple[int, int]]) -> Tuple[int, int]:
+    t = tuple(e[0] for e in group)
+    return (min(t), max(t))
 
 
 def _d(i: int) -> bool:
     return chr(i).isidentifier()
 
 
-print("#pragma once")
-print("")
-print("#include <tao/pegtl.hpp>")
-print("")
-print("namespace chimera {")
-print("namespace library {")
-print("namespace grammar {")
-print("struct Utf8IdContinue:")
-print("tao::pegtl::utf8::ranges<")
-_a(set(filter(_d, range(0x10FFFF))))
-print("> {};")
-print("}  // namespace grammar")
-print("}  // namespace library")
-print("}  // namespace chimera")
+utf8_id_continue = Path("library/grammar/utf8_id_continue.hpp")
+utf8_id_continue.write_text(
+    subn(
+        r"^.+Utf8IdContinue[^;]+;$",
+        f"using Utf8IdContinue = ranges<{_a(set(filter(_d, range(0x10FFFF))))}>;",
+        utf8_id_continue.read_text(),
+        1,
+        MULTILINE,
+    )[0]
+)

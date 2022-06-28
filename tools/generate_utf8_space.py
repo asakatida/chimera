@@ -21,38 +21,41 @@
 """generate_utf8_space.py."""
 
 from itertools import chain, count, groupby, starmap
+from pathlib import Path
+from re import MULTILINE, subn
 from typing import Iterable, Tuple
 
 
-def _a(key: int, group: Iterable[Tuple[int, int]]) -> Tuple[int, ...]:
-    return tuple(e[0] for e in group)
+def _a(key: int, group: Iterable[Tuple[int, int]]) -> Tuple[int, int]:
+    t = tuple(e[0] for e in group)
+    return (min(t), max(t))
 
 
-print("#pragma once")
-print("")
-print("#include <tao/pegtl.hpp>")
-print("")
-print("namespace chimera {")
-print("namespace library {")
-print("namespace grammar {")
-print("struct Utf8Space:")
-print("tao::pegtl::utf8::ranges<")
-print(
-    *chain.from_iterable(
-        map(
-            lambda t: (min(t), max(t)),
+ranges = ",".join(
+    map(
+        str,
+        chain.from_iterable(
             starmap(
                 _a,
                 groupby(
-                    zip(filter(lambda i: chr(i).isspace(), range(0x10FFFF)), count()),
+                    zip(
+                        filter(lambda i: chr(i).isspace(), range(0x10FFFF)),
+                        count(),
+                    ),
                     lambda t: t[0] - t[1],
                 ),
-            ),
-        )
-    ),
-    sep=", ",
+            )
+        ),
+    )
 )
-print("> {};")
-print("}  // namespace grammar")
-print("}  // namespace library")
-print("}  // namespace chimera")
+
+utf8_space = Path("library/grammar/utf8_space.hpp")
+utf8_space.write_text(
+    subn(
+        r"^.+Utf8Space[^;]+;$",
+        f"using Utf8Space = ranges<{ranges}>;",
+        utf8_space.read_text(),
+        1,
+        MULTILINE,
+    )[0]
+)
