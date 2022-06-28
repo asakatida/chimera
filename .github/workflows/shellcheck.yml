@@ -10,11 +10,11 @@ on:
 
 jobs:
   build:
-    runs-on: koalaman/shellcheck-alpine
+    runs-on: alpine-latest
     steps:
       - uses: actions/checkout@v3
       - name: Build dev tools
-        run: sudo apk add -y git
+        run: sudo apk add -y git shellcheck
       - name: Lint shell
         working-directory: ${{github.workspace}}
         run: tools/shellcheck.sh
