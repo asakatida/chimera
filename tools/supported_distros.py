@@ -34,7 +34,9 @@ def key(item):
 supported_distros = sorted(
     (
         {
-            "dependencies": " ".join(dependency["name"] for dependency in image["dependencies"]),
+            "dependencies": " ".join(
+                dependency["name"] for dependency in image["dependencies"]
+            ),
             "distro": distro["name"],
             "environment": image["environment"],
             "image": image["name"],
