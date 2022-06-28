@@ -7,7 +7,7 @@ current_branch="$(git rev-parse --abbrev-ref HEAD)"
 exact_tag="$(git describe "${current_branch}" --abbrev=0)"
 description="$(git describe "${current_branch}")"
 
-cat <<-VERSION >"${version}""
+cat <<-VERSION >"${version}"
 #pragma once
 
 #define CHIMERA_VERSION "${exact_tag}"

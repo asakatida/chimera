@@ -2,7 +2,7 @@
 
 set -ex -o pipefail
 
-find . '(' -not -path './external/*' ')' -and -name '*.sh' -print0 | xargs -0 -- shellcheck
+tools/shellcheck.sh
 
 docker build -t chimera/base tools/docker/base/
 docker build -t chimera/clang tools/docker/clang/
