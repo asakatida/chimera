@@ -7,7 +7,7 @@
 using chimera::library::object::number::Number;
 
 template <typename OStream>
-OStream &operator<<(OStream &os, const Number &number) {
+auto operator<<(OStream &os, const Number &number) -> OStream & {
   return number.debug(os);
 }
 

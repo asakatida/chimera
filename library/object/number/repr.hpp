@@ -22,50 +22,44 @@
 
 #include "object/number/number.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace object {
-      namespace number {
-        template <typename OStream>
-        struct Repr {
-          OStream &os;
-          OStream &operator()(std::uint64_t i) { return os << i << ','; }
+namespace chimera::library::object::number {
+  template <typename OStream>
+  struct Repr {
+    OStream &os;
+    auto operator()(std::uint64_t i) -> OStream & { return os << i << ','; }
 
-          OStream &operator()(Base base) {
-            return os << "Number(" << base.value << ')';
-          }
+    auto operator()(Base base) -> OStream & {
+      return os << "Number(" << base.value << ')';
+    }
 
-          OStream &operator()(const Natural &natural) {
-            os << "Number({{";
-            std::for_each(natural.value.begin(), natural.value.end(), *this);
-            return os << "}})";
-          }
+    auto operator()(const Natural &natural) -> OStream & {
+      os << "Number({{";
+      std::for_each(natural.value.begin(), natural.value.end(), *this);
+      return os << "}})";
+    }
 
-          OStream &operator()(const Negative &negative) {
-            os << '-';
-            return std::visit(*this, negative.value);
-          }
+    auto operator()(const Negative &negative) -> OStream & {
+      os << '-';
+      return std::visit(*this, negative.value);
+    }
 
-          OStream &operator()(const Rational &rational) {
-            std::visit(*this, rational.numerator);
-            os << '/';
-            return std::visit(*this, rational.denominator);
-          }
+    auto operator()(const Rational &rational) -> OStream & {
+      std::visit(*this, rational.numerator);
+      os << '/';
+      return std::visit(*this, rational.denominator);
+    }
 
-          OStream &operator()(const Imag &imag) {
-            return std::visit(*this, imag.value) << ".complex()";
-          }
+    auto operator()(const Imag &imag) -> OStream & {
+      return std::visit(*this, imag.value) << ".complex()";
+    }
 
-          OStream &operator()(const Complex &complex) {
-            std::visit(*this, complex.real) << '+';
-            return std::visit(*this, complex.imag) << ".complex()";
-          }
-        };
-        template <typename OStream>
-        OStream &Number::repr(OStream &os) const {
-          return std::visit(Repr<OStream>{os}, value);
-        }
-      } // namespace number
-    }   // namespace object
-  }     // namespace library
-} // namespace chimera
+    auto operator()(const Complex &complex) -> OStream & {
+      std::visit(*this, complex.real) << '+';
+      return std::visit(*this, complex.imag) << ".complex()";
+    }
+  };
+  template <typename OStream>
+  auto Number::repr(OStream &os) const -> OStream & {
+    return std::visit(Repr<OStream>{os}, value);
+  }
+} // namespace chimera::library::object::number

@@ -27,26 +27,22 @@
 
 #include "asdl/asdl.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      struct Evaluator;
+namespace chimera::library::virtual_machine {
+  struct Evaluator;
 
-      struct BoolAndEvaluator {
-        using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
-        Iterator begin;
-        Iterator end;
+  struct BoolAndEvaluator {
+    using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
+    Iterator begin;
+    Iterator end;
 
-        void operator()(Evaluator *evaluatorA) const;
-      };
+    void operator()(Evaluator *evaluatorA) const;
+  };
 
-      struct BoolOrEvaluator {
-        using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
-        Iterator begin;
-        Iterator end;
+  struct BoolOrEvaluator {
+    using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
+    Iterator begin;
+    Iterator end;
 
-        void operator()(Evaluator *evaluatorA) const;
-      };
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+    void operator()(Evaluator *evaluatorA) const;
+  };
+} // namespace chimera::library::virtual_machine

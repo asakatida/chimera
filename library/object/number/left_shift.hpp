@@ -22,65 +22,59 @@
 
 #include "object/number/number.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace object {
-      namespace number {
-        Number operator<<(std::uint64_t left, Base right);
-        Number operator<<(std::uint64_t left, const Natural &right);
-        Number operator<<(std::uint64_t left, const Negative &right);
-        Number operator<<(std::uint64_t left, const Rational &right);
-        Number operator<<(std::uint64_t left, const Imag &right);
-        Number operator<<(std::uint64_t left, const Complex &right);
+namespace chimera::library::object::number {
+  auto operator<<(std::uint64_t left, Base right) -> Number;
+  auto operator<<(std::uint64_t left, const Natural &right) -> Number;
+  auto operator<<(std::uint64_t left, const Negative &right) -> Number;
+  auto operator<<(std::uint64_t left, const Rational &right) -> Number;
+  auto operator<<(std::uint64_t left, const Imag &right) -> Number;
+  auto operator<<(std::uint64_t left, const Complex &right) -> Number;
 
-        Number operator<<(Base left, std::uint64_t right);
-        Number operator<<(Base left, Base right);
-        Number operator<<(Base left, const Natural &right);
-        Number operator<<(Base left, const Negative &right);
-        Number operator<<(Base left, const Rational &right);
-        Number operator<<(Base left, const Imag &right);
-        Number operator<<(Base left, const Complex &right);
+  auto operator<<(Base left, std::uint64_t right) -> Number;
+  auto operator<<(Base left, Base right) -> Number;
+  auto operator<<(Base left, const Natural &right) -> Number;
+  auto operator<<(Base left, const Negative &right) -> Number;
+  auto operator<<(Base left, const Rational &right) -> Number;
+  auto operator<<(Base left, const Imag &right) -> Number;
+  auto operator<<(Base left, const Complex &right) -> Number;
 
-        Number operator<<(const Natural &left, std::uint64_t right);
-        Number operator<<(const Natural &left, Base right);
-        Number operator<<(const Natural &left, const Natural &right);
-        Number operator<<(const Natural &left, const Negative &right);
-        Number operator<<(const Natural &left, const Rational &right);
-        Number operator<<(const Natural &left, const Imag &right);
-        Number operator<<(const Natural &left, const Complex &right);
+  auto operator<<(const Natural &left, std::uint64_t right) -> Number;
+  auto operator<<(const Natural &left, Base right) -> Number;
+  auto operator<<(const Natural &left, const Natural &right) -> Number;
+  auto operator<<(const Natural &left, const Negative &right) -> Number;
+  auto operator<<(const Natural &left, const Rational &right) -> Number;
+  auto operator<<(const Natural &left, const Imag &right) -> Number;
+  auto operator<<(const Natural &left, const Complex &right) -> Number;
 
-        Number operator<<(const Negative &left, std::uint64_t right);
-        Number operator<<(const Negative &left, Base right);
-        Number operator<<(const Negative &left, const Natural &right);
-        Number operator<<(const Negative &left, const Negative &right);
-        Number operator<<(const Negative &left, const Rational &right);
-        Number operator<<(const Negative &left, const Imag &right);
-        Number operator<<(const Negative &left, const Complex &right);
+  auto operator<<(const Negative &left, std::uint64_t right) -> Number;
+  auto operator<<(const Negative &left, Base right) -> Number;
+  auto operator<<(const Negative &left, const Natural &right) -> Number;
+  auto operator<<(const Negative &left, const Negative &right) -> Number;
+  auto operator<<(const Negative &left, const Rational &right) -> Number;
+  auto operator<<(const Negative &left, const Imag &right) -> Number;
+  auto operator<<(const Negative &left, const Complex &right) -> Number;
 
-        Number operator<<(const Rational &left, std::uint64_t right);
-        Number operator<<(const Rational &left, Base right);
-        Number operator<<(const Rational &left, const Natural &right);
-        Number operator<<(const Rational &left, const Negative &right);
-        Number operator<<(const Rational &left, const Rational &right);
-        Number operator<<(const Rational &left, const Imag &right);
-        Number operator<<(const Rational &left, const Complex &right);
+  auto operator<<(const Rational &left, std::uint64_t right) -> Number;
+  auto operator<<(const Rational &left, Base right) -> Number;
+  auto operator<<(const Rational &left, const Natural &right) -> Number;
+  auto operator<<(const Rational &left, const Negative &right) -> Number;
+  auto operator<<(const Rational &left, const Rational &right) -> Number;
+  auto operator<<(const Rational &left, const Imag &right) -> Number;
+  auto operator<<(const Rational &left, const Complex &right) -> Number;
 
-        Number operator<<(const Imag &left, std::uint64_t right);
-        Number operator<<(const Imag &left, Base right);
-        Number operator<<(const Imag &left, const Natural &right);
-        Number operator<<(const Imag &left, const Negative &right);
-        Number operator<<(const Imag &left, const Rational &right);
-        Number operator<<(const Imag &left, const Imag &right);
-        Number operator<<(const Imag &left, const Complex &right);
+  auto operator<<(const Imag &left, std::uint64_t right) -> Number;
+  auto operator<<(const Imag &left, Base right) -> Number;
+  auto operator<<(const Imag &left, const Natural &right) -> Number;
+  auto operator<<(const Imag &left, const Negative &right) -> Number;
+  auto operator<<(const Imag &left, const Rational &right) -> Number;
+  auto operator<<(const Imag &left, const Imag &right) -> Number;
+  auto operator<<(const Imag &left, const Complex &right) -> Number;
 
-        Number operator<<(const Complex &left, std::uint64_t right);
-        Number operator<<(const Complex &left, Base right);
-        Number operator<<(const Complex &left, const Natural &right);
-        Number operator<<(const Complex &left, const Negative &right);
-        Number operator<<(const Complex &left, const Rational &right);
-        Number operator<<(const Complex &left, const Imag &right);
-        Number operator<<(const Complex &left, const Complex &right);
-      } // namespace number
-    }   // namespace object
-  }     // namespace library
-} // namespace chimera
+  auto operator<<(const Complex &left, std::uint64_t right) -> Number;
+  auto operator<<(const Complex &left, Base right) -> Number;
+  auto operator<<(const Complex &left, const Natural &right) -> Number;
+  auto operator<<(const Complex &left, const Negative &right) -> Number;
+  auto operator<<(const Complex &left, const Rational &right) -> Number;
+  auto operator<<(const Complex &left, const Imag &right) -> Number;
+  auto operator<<(const Complex &left, const Complex &right) -> Number;
+} // namespace chimera::library::object::number

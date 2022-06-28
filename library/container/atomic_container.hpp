@@ -25,71 +25,67 @@
 #include <mutex>
 #include <shared_mutex>
 
-namespace chimera {
-  namespace library {
-    namespace container {
-      void atomic_container();
+namespace chimera::library::container {
+  void atomic_container();
 
-      template <typename Value>
-      struct AtomicContainer {
-        AtomicContainer() noexcept {} // NOLINT
+  template <typename Value>
+  struct AtomicContainer {
+    AtomicContainer() noexcept {} // NOLINT
 
-        explicit AtomicContainer(const Value &v) : value(v) {}
+    explicit AtomicContainer(const Value &v) : value(v) {}
 
-        explicit AtomicContainer(Value &&v) noexcept : value(std::move(v)) {}
+    explicit AtomicContainer(Value &&v) noexcept : value(std::move(v)) {}
 
-        AtomicContainer(const AtomicContainer &other) {
-          value = other.read().value;
-        }
+    AtomicContainer(const AtomicContainer &other) {
+      value = other.read().value;
+    }
 
-        AtomicContainer(AtomicContainer &&other) noexcept {
-          value = std::move(other.write().value);
-        }
+    AtomicContainer(AtomicContainer &&other) noexcept {
+      value = std::move(other.write().value);
+    }
 
-        ~AtomicContainer() noexcept = default;
+    ~AtomicContainer() noexcept = default;
 
-        AtomicContainer &operator=(const AtomicContainer &other) {
-          if (this != &other) {
-            write().value = other.read().value;
-          }
-          return *this;
-        }
+    auto operator=(const AtomicContainer &other) -> AtomicContainer & {
+      if (this != &other) {
+        write().value = other.read().value;
+      }
+      return *this;
+    }
 
-        AtomicContainer &operator=(AtomicContainer &&other) noexcept {
-          if (this != &other) {
-            write().value = std::move(other.write().value);
-          }
-          return *this;
-        }
+    auto operator=(AtomicContainer &&other) noexcept -> AtomicContainer & {
+      if (this != &other) {
+        write().value = std::move(other.write().value);
+      }
+      return *this;
+    }
 
-        struct Read {
-          const std::shared_lock<std::shared_mutex> lock;
-          const Value &value;
-        };
+    struct Read {
+      const std::shared_lock<std::shared_mutex> lock;
+      const Value &value;
+    };
 
-        struct Write {
-          const std::unique_lock<std::shared_mutex> lock;
-          Value &value;
-        };
+    struct Write {
+      const std::unique_lock<std::shared_mutex> lock;
+      Value &value;
+    };
 
-        Read read() const {
-          return Read{std::shared_lock<std::shared_mutex>(
-                          const_cast<std::shared_mutex &>(mutex)), // NOLINT
-                      value};
-        }
+    [[nodiscard]] auto read() const -> Read {
+      return Read{std::shared_lock<std::shared_mutex>(
+                      const_cast<std::shared_mutex &>(mutex)), // NOLINT
+                  value};
+    }
 
-        Read read() {
-          return Read{std::shared_lock<std::shared_mutex>(mutex), value};
-        }
+    auto read() -> Read {
+      return Read{std::shared_lock<std::shared_mutex>(mutex), value};
+    }
 
-        Write write() {
-          return Write{std::unique_lock<std::shared_mutex>(mutex), value};
-        }
+    auto write() -> Write {
+      return Write{std::unique_lock<std::shared_mutex>(mutex), value};
+    }
 
-      private:
-        std::shared_mutex mutex{};
-        Value value;
-      };
-    } // namespace container
-  }   // namespace library
-} // namespace chimera
+  private:
+    std::shared_mutex mutex{};
+    Value value;
+  };
+} // namespace chimera::library::container

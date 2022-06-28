@@ -24,29 +24,24 @@
 
 #include "virtual_machine/evaluator.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      void ToBoolEvaluator::operator()(Evaluator *evaluatorA) const {
-        if (std::holds_alternative<object::False>(object.value()) ||
-            std::holds_alternative<object::None>(object.value())) {
-          evaluatorA->push(
-              PushStack{evaluatorA->builtins().get_attribute("False")});
-        } else if (std::holds_alternative<object::True>(object.value())) {
-          evaluatorA->push(
-              PushStack{evaluatorA->builtins().get_attribute("True")});
-        } else {
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->push(ToBoolEvaluator{evaluatorB->stack.top()});
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->get_attribute(object, "__bool__");
-        }
-      }
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+namespace chimera::library::virtual_machine {
+  void ToBoolEvaluator::operator()(Evaluator *evaluatorA) const {
+    if (std::holds_alternative<object::False>(object.value()) ||
+        std::holds_alternative<object::None>(object.value())) {
+      evaluatorA->push(
+          PushStack{evaluatorA->builtins().get_attribute("False")});
+    } else if (std::holds_alternative<object::True>(object.value())) {
+      evaluatorA->push(PushStack{evaluatorA->builtins().get_attribute("True")});
+    } else {
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->push(ToBoolEvaluator{evaluatorB->stack.top()});
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->get_attribute(object, "__bool__");
+    }
+  }
+} // namespace chimera::library::virtual_machine

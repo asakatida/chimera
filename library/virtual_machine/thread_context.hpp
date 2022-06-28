@@ -28,18 +28,14 @@
 #include "object/object.hpp"
 #include "virtual_machine/process_context.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      struct ThreadContext {
-        void evaluate(const asdl::Module &module);
-        void evaluate(const asdl::Interactive &interactive);
-        void evaluate(const asdl::Expression &expression);
+namespace chimera::library::virtual_machine {
+  struct ThreadContext {
+    void evaluate(const asdl::Module &module);
+    void evaluate(const asdl::Interactive &interactive);
+    void evaluate(const asdl::Expression &expression);
 
-        ProcessContext &process_context;
-        const object::Object main;
-        std::optional<object::Object> ret{};
-      };
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+    ProcessContext &process_context;
+    const object::Object main;
+    std::optional<object::Object> ret{};
+  };
+} // namespace chimera::library::virtual_machine

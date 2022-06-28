@@ -28,38 +28,32 @@
 #include "object/object.hpp"
 #include "virtual_machine/evaluator.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      struct UnpackCallObject {
-        template <typename Value>
-        [[noreturn]] void evaluate(const Evaluator * /*evaluator*/,
-                                   const Value & /*exprImpl*/) const {
-          Expects(false);
-        }
+namespace chimera::library::virtual_machine {
+  struct UnpackCallObject {
+    template <typename Value>
+    [[noreturn]] void evaluate(const Evaluator * /*evaluator*/,
+                               const Value & /*exprImpl*/) const {
+      Expects(false);
+    }
 
-        void operator()(Evaluator *evaluator) const {
-          auto top = std::move(evaluator->stack.top());
-          evaluator->stack.pop();
-          std::visit(
-              [this, evaluator](const auto &value) {
-                this->evaluate(evaluator, value);
-              },
-              top.value());
-        }
-      };
+    void operator()(Evaluator *evaluator) const {
+      auto top = std::move(evaluator->stack.top());
+      evaluator->stack.pop();
+      std::visit([this, evaluator](
+                     const auto &value) { this->evaluate(evaluator, value); },
+                 top.value());
+    }
+  };
 
-      void CallEvaluator::operator()(Evaluator *evaluatorA) const {
-        if (std::holds_alternative<object::Instance>(object.value())) {
-          evaluatorA->push([](Evaluator *evaluatorB) {
-            auto top = std::move(evaluatorB->stack.top());
-            evaluatorB->stack.pop();
-          });
-          evaluatorA->get_attribute(object, "__call__");
-        } else {
-          evaluatorA->push(UnpackCallObject{});
-        }
-      }
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+  void CallEvaluator::operator()(Evaluator *evaluatorA) const {
+    if (std::holds_alternative<object::Instance>(object.value())) {
+      evaluatorA->push([](Evaluator *evaluatorB) {
+        auto top = std::move(evaluatorB->stack.top());
+        evaluatorB->stack.pop();
+      });
+      evaluatorA->get_attribute(object, "__call__");
+    } else {
+      evaluatorA->push(UnpackCallObject{});
+    }
+  }
+} // namespace chimera::library::virtual_machine

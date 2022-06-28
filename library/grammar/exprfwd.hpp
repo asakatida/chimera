@@ -23,15 +23,11 @@
 
 #pragma once
 
-namespace chimera {
-  namespace library {
-    namespace grammar {
-      template <flags::Flag Option>
-      struct ConditionalExpression;
-      template <flags::Flag Option>
-      struct StarExpr;
-      template <flags::Flag Option>
-      struct YieldExpr;
-    } // namespace grammar
-  }   // namespace library
-} // namespace chimera
+namespace chimera::library::grammar {
+  template <flags::Flag Option>
+  struct ConditionalExpression;
+  template <flags::Flag Option>
+  struct StarExpr;
+  template <flags::Flag Option>
+  struct YieldExpr;
+} // namespace chimera::library::grammar

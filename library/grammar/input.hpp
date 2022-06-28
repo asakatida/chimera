@@ -28,46 +28,46 @@
 
 #include <tao/pegtl.hpp>
 
-namespace chimera {
-  namespace library {
-    namespace grammar {
-      template <typename Base>
-      struct Input : Base {
-        template <typename... Args>
-        explicit Input(Args &&...args) : Base(std::forward<Args>(args)...) {
-          indentStack.emplace();
-        }
+namespace chimera::library::grammar {
+  template <typename Base>
+  struct Input : Base {
+    template <typename... Args>
+    explicit Input(Args &&...args) : Base(std::forward<Args>(args)...) {
+      indentStack.emplace();
+    }
 
-        bool indent() {
-          std::uintmax_t i = Base::column();
-          if (indentStack.top() < i) {
-            indentStack.push(i);
-            return true;
-          }
-          return false;
-        }
+    auto indent() -> bool {
+      std::uintmax_t i = Base::column();
+      if (indentStack.top() < i) {
+        indentStack.push(i);
+        return true;
+      }
+      return false;
+    }
 
-        bool is_dedent() const { return Base::column() < indentStack.top(); }
+    [[nodiscard]] auto is_dedent() const -> bool {
+      return Base::column() < indentStack.top();
+    }
 
-        bool dedent() {
-          using namespace std::literals;
+    auto dedent() -> bool {
+      using namespace std::literals;
 
-          indentStack.pop();
-          if (Base::empty()) {
-            return true;
-          }
-          std::uintmax_t i = Base::column();
-          if (i > indentStack.top()) {
-            throw tao::pegtl::parse_error("bad dedent"s, *this);
-          }
-          return i == indentStack.top();
-        }
+      indentStack.pop();
+      if (Base::empty()) {
+        return true;
+      }
+      std::uintmax_t i = Base::column();
+      if (i > indentStack.top()) {
+        throw tao::pegtl::parse_error("bad dedent"s, *this);
+      }
+      return i == indentStack.top();
+    }
 
-        bool is_newline() const { return Base::column() == indentStack.top(); }
+    [[nodiscard]] auto is_newline() const -> bool {
+      return Base::column() == indentStack.top();
+    }
 
-      private:
-        std::stack<std::uintmax_t> indentStack{};
-      };
-    } // namespace grammar
-  }   // namespace library
-} // namespace chimera
+  private:
+    std::stack<std::uintmax_t> indentStack{};
+  };
+} // namespace chimera::library::grammar

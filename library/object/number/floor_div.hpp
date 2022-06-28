@@ -22,65 +22,59 @@
 
 #include "object/number/number.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace object {
-      namespace number {
-        Number floor_div(std::uint64_t left, Base right);
-        Number floor_div(std::uint64_t left, const Natural &right);
-        Number floor_div(std::uint64_t left, const Negative &right);
-        Number floor_div(std::uint64_t left, const Rational &right);
-        Number floor_div(std::uint64_t left, const Imag &right);
-        Number floor_div(std::uint64_t left, const Complex &right);
+namespace chimera::library::object::number {
+  auto floor_div(std::uint64_t left, Base right) -> Number;
+  auto floor_div(std::uint64_t left, const Natural &right) -> Number;
+  auto floor_div(std::uint64_t left, const Negative &right) -> Number;
+  auto floor_div(std::uint64_t left, const Rational &right) -> Number;
+  auto floor_div(std::uint64_t left, const Imag &right) -> Number;
+  auto floor_div(std::uint64_t left, const Complex &right) -> Number;
 
-        Number floor_div(Base left, std::uint64_t right);
-        Number floor_div(Base left, Base right);
-        Number floor_div(Base left, const Natural &right);
-        Number floor_div(Base left, const Negative &right);
-        Number floor_div(Base left, const Rational &right);
-        Number floor_div(Base left, const Imag &right);
-        Number floor_div(Base left, const Complex &right);
+  auto floor_div(Base left, std::uint64_t right) -> Number;
+  auto floor_div(Base left, Base right) -> Number;
+  auto floor_div(Base left, const Natural &right) -> Number;
+  auto floor_div(Base left, const Negative &right) -> Number;
+  auto floor_div(Base left, const Rational &right) -> Number;
+  auto floor_div(Base left, const Imag &right) -> Number;
+  auto floor_div(Base left, const Complex &right) -> Number;
 
-        Number floor_div(const Natural &left, std::uint64_t right);
-        Number floor_div(const Natural &left, Base right);
-        Number floor_div(const Natural &left, const Natural &right);
-        Number floor_div(const Natural &left, const Negative &right);
-        Number floor_div(const Natural &left, const Rational &right);
-        Number floor_div(const Natural &left, const Imag &right);
-        Number floor_div(const Natural &left, const Complex &right);
+  auto floor_div(const Natural &left, std::uint64_t right) -> Number;
+  auto floor_div(const Natural &left, Base right) -> Number;
+  auto floor_div(const Natural &left, const Natural &right) -> Number;
+  auto floor_div(const Natural &left, const Negative &right) -> Number;
+  auto floor_div(const Natural &left, const Rational &right) -> Number;
+  auto floor_div(const Natural &left, const Imag &right) -> Number;
+  auto floor_div(const Natural &left, const Complex &right) -> Number;
 
-        Number floor_div(const Negative &left, std::uint64_t right);
-        Number floor_div(const Negative &left, Base right);
-        Number floor_div(const Negative &left, const Natural &right);
-        Number floor_div(const Negative &left, const Negative &right);
-        Number floor_div(const Negative &left, const Rational &right);
-        Number floor_div(const Negative &left, const Imag &right);
-        Number floor_div(const Negative &left, const Complex &right);
+  auto floor_div(const Negative &left, std::uint64_t right) -> Number;
+  auto floor_div(const Negative &left, Base right) -> Number;
+  auto floor_div(const Negative &left, const Natural &right) -> Number;
+  auto floor_div(const Negative &left, const Negative &right) -> Number;
+  auto floor_div(const Negative &left, const Rational &right) -> Number;
+  auto floor_div(const Negative &left, const Imag &right) -> Number;
+  auto floor_div(const Negative &left, const Complex &right) -> Number;
 
-        Number floor_div(const Rational &left, std::uint64_t right);
-        Number floor_div(const Rational &left, Base right);
-        Number floor_div(const Rational &left, const Natural &right);
-        Number floor_div(const Rational &left, const Negative &right);
-        Number floor_div(const Rational &left, const Rational &right);
-        Number floor_div(const Rational &left, const Imag &right);
-        Number floor_div(const Rational &left, const Complex &right);
+  auto floor_div(const Rational &left, std::uint64_t right) -> Number;
+  auto floor_div(const Rational &left, Base right) -> Number;
+  auto floor_div(const Rational &left, const Natural &right) -> Number;
+  auto floor_div(const Rational &left, const Negative &right) -> Number;
+  auto floor_div(const Rational &left, const Rational &right) -> Number;
+  auto floor_div(const Rational &left, const Imag &right) -> Number;
+  auto floor_div(const Rational &left, const Complex &right) -> Number;
 
-        Number floor_div(const Imag &left, std::uint64_t right);
-        Number floor_div(const Imag &left, Base right);
-        Number floor_div(const Imag &left, const Natural &right);
-        Number floor_div(const Imag &left, const Negative &right);
-        Number floor_div(const Imag &left, const Rational &right);
-        Number floor_div(const Imag &left, const Imag &right);
-        Number floor_div(const Imag &left, const Complex &right);
+  auto floor_div(const Imag &left, std::uint64_t right) -> Number;
+  auto floor_div(const Imag &left, Base right) -> Number;
+  auto floor_div(const Imag &left, const Natural &right) -> Number;
+  auto floor_div(const Imag &left, const Negative &right) -> Number;
+  auto floor_div(const Imag &left, const Rational &right) -> Number;
+  auto floor_div(const Imag &left, const Imag &right) -> Number;
+  auto floor_div(const Imag &left, const Complex &right) -> Number;
 
-        Number floor_div(const Complex &left, std::uint64_t right);
-        Number floor_div(const Complex &left, Base right);
-        Number floor_div(const Complex &left, const Natural &right);
-        Number floor_div(const Complex &left, const Negative &right);
-        Number floor_div(const Complex &left, const Rational &right);
-        Number floor_div(const Complex &left, const Imag &right);
-        Number floor_div(const Complex &left, const Complex &right);
-      } // namespace number
-    }   // namespace object
-  }     // namespace library
-} // namespace chimera
+  auto floor_div(const Complex &left, std::uint64_t right) -> Number;
+  auto floor_div(const Complex &left, Base right) -> Number;
+  auto floor_div(const Complex &left, const Natural &right) -> Number;
+  auto floor_div(const Complex &left, const Negative &right) -> Number;
+  auto floor_div(const Complex &left, const Rational &right) -> Number;
+  auto floor_div(const Complex &left, const Imag &right) -> Number;
+  auto floor_div(const Complex &left, const Complex &right) -> Number;
+} // namespace chimera::library::object::number

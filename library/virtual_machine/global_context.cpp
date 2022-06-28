@@ -32,59 +32,54 @@
 #include "virtual_machine/thread_context.hpp"
 #include "virtual_machine/virtual_machine.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      int GlobalContext::interactive() {
-        if (!options.dont_display_copyright) {
-          std::cout << "chimera " CHIMERA_VERSION " (default, " __DATE__
-                       ", " __TIME__ ")\n"
-                       "[" __VERSION__ "] on darwin\n"
-                       R"(Type "help", "copyright", "credits" or "license" )"
-                       "for more information.\n";
-        }
-        ProcessContext processContext{*this};
-        auto main = processContext.make_module("__main__");
-        while (!std::cin.eof()) {
-          std::cout << ">>> ";
-          auto interactive = processContext.parse_input(std::cin, "<string>");
-          ThreadContext{processContext, main}.evaluate(interactive);
-        }
-        return 0;
-      }
-      int GlobalContext::execute_script() {
-        std::ifstream input(options.script);
-        ProcessContext processContext{*this};
-        auto module = processContext.parse_file(input, options.script);
-        ThreadContext{processContext, processContext.make_module("__main__")}
-            .evaluate(module);
-        return 0;
-      }
-      int GlobalContext::execute_script_string() {
-        ProcessContext processContext{*this};
-        auto module = processContext.parse_file(options.command, "<string>");
-        ThreadContext{processContext, processContext.make_module("__main__")}
-            .evaluate(module);
-        return 0;
-      }
-      int GlobalContext::execute_script_input() {
-        ProcessContext processContext{*this};
-        auto module = processContext.parse_file(std::cin, "<input>");
-        ThreadContext{processContext, processContext.make_module("__main__")}
-            .evaluate(module);
-        return 0;
-      }
-      int GlobalContext::execute_module() {
-        ProcessContext processContext{*this};
-        if (auto importModule =
-                processContext.import_module(options.module_name);
-            importModule) {
-          auto main = processContext.make_module("__main__");
-          ThreadContext{processContext, main}.evaluate(*importModule);
-          return 0;
-        }
-        return 1;
-      }
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+namespace chimera::library::virtual_machine {
+  auto GlobalContext::interactive() -> int {
+    if (!options.dont_display_copyright) {
+      std::cout << "chimera " CHIMERA_VERSION " (default, " __DATE__
+                   ", " __TIME__ ")\n"
+                   "[" __VERSION__ "] on darwin\n"
+                   R"(Type "help", "copyright", "credits" or "license" )"
+                   "for more information.\n";
+    }
+    ProcessContext processContext{*this};
+    auto main = processContext.make_module("__main__");
+    while (!std::cin.eof()) {
+      std::cout << ">>> ";
+      auto interactive = processContext.parse_input(std::cin, "<string>");
+      ThreadContext{processContext, main}.evaluate(interactive);
+    }
+    return 0;
+  }
+  auto GlobalContext::execute_script() -> int {
+    std::ifstream input(options.script);
+    ProcessContext processContext{*this};
+    auto module = processContext.parse_file(input, options.script);
+    ThreadContext{processContext, processContext.make_module("__main__")}
+        .evaluate(module);
+    return 0;
+  }
+  auto GlobalContext::execute_script_string() -> int {
+    ProcessContext processContext{*this};
+    auto module = processContext.parse_file(options.command, "<string>");
+    ThreadContext{processContext, processContext.make_module("__main__")}
+        .evaluate(module);
+    return 0;
+  }
+  auto GlobalContext::execute_script_input() -> int {
+    ProcessContext processContext{*this};
+    auto module = processContext.parse_file(std::cin, "<input>");
+    ThreadContext{processContext, processContext.make_module("__main__")}
+        .evaluate(module);
+    return 0;
+  }
+  auto GlobalContext::execute_module() -> int {
+    ProcessContext processContext{*this};
+    if (auto importModule = processContext.import_module(options.module_name);
+        importModule) {
+      auto main = processContext.make_module("__main__");
+      ThreadContext{processContext, main}.evaluate(*importModule);
+      return 0;
+    }
+    return 1;
+  }
+} // namespace chimera::library::virtual_machine

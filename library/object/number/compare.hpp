@@ -22,66 +22,60 @@
 
 #include "object/number/number.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace object {
-      namespace number {
-        bool operator==(std::uint64_t left, Base right);
-        bool operator==(std::uint64_t left, const Natural &right);
-        bool operator==(std::uint64_t left, const Negative &right);
-        bool operator==(std::uint64_t left, const Rational &right);
-        bool operator==(std::uint64_t left, const Imag &right);
-        bool operator==(std::uint64_t left, const Complex &right);
+namespace chimera::library::object::number {
+  auto operator==(std::uint64_t left, Base right) -> bool;
+  auto operator==(std::uint64_t left, const Natural &right) -> bool;
+  auto operator==(std::uint64_t left, const Negative &right) -> bool;
+  auto operator==(std::uint64_t left, const Rational &right) -> bool;
+  auto operator==(std::uint64_t left, const Imag &right) -> bool;
+  auto operator==(std::uint64_t left, const Complex &right) -> bool;
 
-        bool operator==(Base left, std::uint64_t right);
-        bool operator==(Base left, Base right);
-        bool operator==(Base left, const Natural &right);
-        bool operator==(Base left, const Negative &right);
-        bool operator==(Base left, const Rational &right);
-        bool operator==(Base left, const Imag &right);
-        bool operator==(Base left, const Complex &right);
+  auto operator==(Base left, std::uint64_t right) -> bool;
+  auto operator==(Base left, Base right) -> bool;
+  auto operator==(Base left, const Natural &right) -> bool;
+  auto operator==(Base left, const Negative &right) -> bool;
+  auto operator==(Base left, const Rational &right) -> bool;
+  auto operator==(Base left, const Imag &right) -> bool;
+  auto operator==(Base left, const Complex &right) -> bool;
 
-        bool operator==(const Natural &left, std::uint64_t right);
-        bool operator==(const Natural &left, Base right);
-        bool operator==(const Natural &left, const Natural &right);
-        bool operator==(const Natural &left, const Negative &right);
-        bool operator==(const Natural &left, const Rational &right);
-        bool operator==(const Natural &left, const Imag &right);
-        bool operator==(const Natural &left, const Complex &right);
+  auto operator==(const Natural &left, std::uint64_t right) -> bool;
+  auto operator==(const Natural &left, Base right) -> bool;
+  auto operator==(const Natural &left, const Natural &right) -> bool;
+  auto operator==(const Natural &left, const Negative &right) -> bool;
+  auto operator==(const Natural &left, const Rational &right) -> bool;
+  auto operator==(const Natural &left, const Imag &right) -> bool;
+  auto operator==(const Natural &left, const Complex &right) -> bool;
 
-        bool operator==(const Negative &left, std::uint64_t right);
-        bool operator==(const Negative &left, Base right);
-        bool operator==(const Negative &left, const Natural &right);
-        bool operator==(const Negative &left, const Negative &right);
-        bool operator==(const Negative &left, const Rational &right);
-        bool operator==(const Negative &left, const Imag &right);
-        bool operator==(const Negative &left, const Complex &right);
+  auto operator==(const Negative &left, std::uint64_t right) -> bool;
+  auto operator==(const Negative &left, Base right) -> bool;
+  auto operator==(const Negative &left, const Natural &right) -> bool;
+  auto operator==(const Negative &left, const Negative &right) -> bool;
+  auto operator==(const Negative &left, const Rational &right) -> bool;
+  auto operator==(const Negative &left, const Imag &right) -> bool;
+  auto operator==(const Negative &left, const Complex &right) -> bool;
 
-        bool operator==(const Rational &left, std::uint64_t right);
-        bool operator==(const Rational &left, Base right);
-        bool operator==(const Rational &left, const Natural &right);
-        bool operator==(const Rational &left, const Negative &right);
-        bool operator==(const Rational &left, const Rational &right);
-        bool operator==(const Rational &left, const Imag &right);
-        bool operator==(const Rational &left, const Complex &right);
+  auto operator==(const Rational &left, std::uint64_t right) -> bool;
+  auto operator==(const Rational &left, Base right) -> bool;
+  auto operator==(const Rational &left, const Natural &right) -> bool;
+  auto operator==(const Rational &left, const Negative &right) -> bool;
+  auto operator==(const Rational &left, const Rational &right) -> bool;
+  auto operator==(const Rational &left, const Imag &right) -> bool;
+  auto operator==(const Rational &left, const Complex &right) -> bool;
 
-        bool operator==(const Imag &left, std::uint64_t right);
-        bool operator==(const Imag &left, Base right);
-        bool operator==(const Imag &left, const Natural &right);
-        bool operator==(const Imag &left, const Negative &right);
-        bool operator==(const Imag &left, const Rational &right);
-        bool operator==(const Imag &left, const Imag &right);
-        bool operator==(const Imag &left, const Complex &right);
+  auto operator==(const Imag &left, std::uint64_t right) -> bool;
+  auto operator==(const Imag &left, Base right) -> bool;
+  auto operator==(const Imag &left, const Natural &right) -> bool;
+  auto operator==(const Imag &left, const Negative &right) -> bool;
+  auto operator==(const Imag &left, const Rational &right) -> bool;
+  auto operator==(const Imag &left, const Imag &right) -> bool;
+  auto operator==(const Imag &left, const Complex &right) -> bool;
 
-        bool operator==(const Complex &left, std::uint64_t right);
-        bool operator==(const Complex &left, Base right);
-        bool operator==(const Complex &left, const Natural &right);
-        bool operator==(const Complex &left, const Negative &right);
-        bool operator==(const Complex &left, const Rational &right);
-        bool operator==(const Complex &left, const Imag &right);
-        bool operator==(const Complex &left, const Complex &right);
+  auto operator==(const Complex &left, std::uint64_t right) -> bool;
+  auto operator==(const Complex &left, Base right) -> bool;
+  auto operator==(const Complex &left, const Natural &right) -> bool;
+  auto operator==(const Complex &left, const Negative &right) -> bool;
+  auto operator==(const Complex &left, const Rational &right) -> bool;
+  auto operator==(const Complex &left, const Imag &right) -> bool;
+  auto operator==(const Complex &left, const Complex &right) -> bool;
 
-      } // namespace number
-    }   // namespace object
-  }     // namespace library
-} // namespace chimera
+} // namespace chimera::library::object::number

@@ -22,29 +22,22 @@
 
 #include <gsl/gsl>
 
-namespace chimera {
-  namespace library {
-    namespace object {
-      namespace number {
-        Number operator+(Base base) { return Number(base); }
+namespace chimera::library::object::number {
+  auto operator+(Base base) -> Number { return Number(base); }
 
-        Number operator+(const Natural &natural) {
-          return Number(Natural(natural));
-        }
+  auto operator+(const Natural &natural) -> Number {
+    return Number(Natural(natural));
+  }
 
-        Number operator+(const Negative &negative) {
-          return std::visit(UnaryPositive{}, negative.value);
-        }
+  auto operator+(const Negative &negative) -> Number {
+    return std::visit(UnaryPositive{}, negative.value);
+  }
 
-        Number operator+(const Rational &rational) {
-          return std::visit(
-              [](const auto &a, const auto &b) { return (+a) / (+b); },
-              rational.numerator, rational.denominator);
-        }
-        Number operator+(const Imag & /*imag*/) { Expects(false); }
+  auto operator+(const Rational &rational) -> Number {
+    return std::visit([](const auto &a, const auto &b) { return (+a) / (+b); },
+                      rational.numerator, rational.denominator);
+  }
+  auto operator+(const Imag & /*imag*/) -> Number { Expects(false); }
 
-        Number operator+(const Complex & /*complex*/) { Expects(false); }
-      } // namespace number
-    }   // namespace object
-  }     // namespace library
-} // namespace chimera
+  auto operator+(const Complex & /*complex*/) -> Number { Expects(false); }
+} // namespace chimera::library::object::number

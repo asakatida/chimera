@@ -22,22 +22,16 @@
 
 #include <cstdint>
 
-namespace chimera {
-  namespace library {
-    namespace object {
-      namespace number {
-        struct Carryover {
-          std::uint64_t result;
-          std::uint64_t overflow;
-        };
+namespace chimera::library::object::number {
+  struct Carryover {
+    std::uint64_t result;
+    std::uint64_t overflow;
+  };
 
-        Carryover div_mod(const Carryover &left, std::uint64_t right);
-        Carryover left_shift(std::uint64_t left, std::uint64_t right);
-        Carryover mult(std::uint64_t left, std::uint64_t right);
-        Carryover right_shift(std::uint64_t left, std::uint64_t right);
-        Carryover sub(std::uint64_t left, std::uint64_t right);
-        Carryover sum(std::uint64_t left, std::uint64_t right);
-      } // namespace number
-    }   // namespace object
-  }     // namespace library
-} // namespace chimera
+  auto div_mod(const Carryover &left, std::uint64_t right) -> Carryover;
+  auto left_shift(std::uint64_t left, std::uint64_t right) -> Carryover;
+  auto mult(std::uint64_t left, std::uint64_t right) -> Carryover;
+  auto right_shift(std::uint64_t left, std::uint64_t right) -> Carryover;
+  auto sub(std::uint64_t left, std::uint64_t right) -> Carryover;
+  auto sum(std::uint64_t left, std::uint64_t right) -> Carryover;
+} // namespace chimera::library::object::number

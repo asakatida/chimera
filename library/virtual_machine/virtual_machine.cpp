@@ -27,29 +27,25 @@
 using namespace std::literals;
 extern "C" void interupt_handler(int /*signal*/) { SIG_INT.clear(); }
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      VirtualMachine::VirtualMachine(Options options, object::Object builtins)
-          : global_context{options, builtins,
-                           builtins.get_attribute("type")
-                               .get_attribute("__dir__")
-                               .get_attribute("__class__")
-                               .id(),
-                           builtins.get_attribute("compile")
-                               .get_attribute("__class__")
-                               .id(),
-                           &SIG_INT} {
-        SIG_INT.test_and_set();
-        std::signal(SIGINT, interupt_handler);
-        builtins.set_attribute("__debug__"s,
-                               options.debug ? builtins.get_attribute("True")
+namespace chimera::library::virtual_machine {
+  VirtualMachine::VirtualMachine(const Options &options,
+                                 object::Object builtins)
+      : global_context{
+            options, builtins,
+            builtins.get_attribute("type")
+                .get_attribute("__dir__")
+                .get_attribute("__class__")
+                .id(),
+            builtins.get_attribute("compile").get_attribute("__class__").id(),
+            &SIG_INT} {
+    SIG_INT.test_and_set();
+    std::signal(SIGINT, interupt_handler);
+    builtins.set_attribute("__debug__"s, options.debug
+                                             ? builtins.get_attribute("True")
                                              : builtins.get_attribute("False"));
-      }
+  }
 
-      ProcessContext VirtualMachine::process_context() const {
-        return ProcessContext{global_context};
-      }
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+  auto VirtualMachine::process_context() const -> ProcessContext {
+    return ProcessContext{global_context};
+  }
+} // namespace chimera::library::virtual_machine

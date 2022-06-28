@@ -24,16 +24,12 @@
 
 #include <cstddef>
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      struct Evaluator;
+namespace chimera::library::virtual_machine {
+  struct Evaluator;
 
-      struct TupleEvaluator {
-        std::size_t size;
+  struct TupleEvaluator {
+    std::size_t size;
 
-        void operator()(Evaluator *evaluator) const;
-      };
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+    void operator()(Evaluator *evaluator) const;
+  };
+} // namespace chimera::library::virtual_machine

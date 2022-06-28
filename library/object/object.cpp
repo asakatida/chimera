@@ -27,87 +27,83 @@
 #include <utility>
 
 using namespace std::literals;
-namespace chimera {
-  namespace library {
-    namespace object {
-      String::String(std::string_view string) : value(string) {}
-      Object::Object() : object(std::make_shared<Impl>()) {}
-      Object::Object(Value &&value, std::map<std::string, Object> &&attributes)
-          : object(std::make_shared<Impl>(
-                Impl{std::move(value), {std::move(attributes)}})) {}
+namespace chimera::library::object {
+  String::String(std::string_view string) : value(string) {}
+  Object::Object() : object(std::make_shared<Impl>()) {}
+  Object::Object(Value &&value, std::map<std::string, Object> &&attributes)
+      : object(std::make_shared<Impl>(
+            Impl{std::move(value), {std::move(attributes)}})) {}
 
-      void Object::delete_attribute(std::string &&key) noexcept {
-        object->attributes.erase(key);
-      }
-      void Object::delete_attribute(const std::string &key) noexcept {
-        object->attributes.erase(key);
-      }
-      std::vector<std::string> Object::dir() const {
-        auto read = object->attributes.read();
-        std::vector<std::string> keys;
-        keys.reserve(read.value.size());
-        for (const auto &pair : read.value) {
-          keys.emplace_back(pair.first);
-        }
-        return keys;
-      }
-      Object Object::get_attribute(std::string &&key) const {
-        try {
-          return object->attributes.at(key);
-        } catch (...) {
-        }
-        return {};
-      }
-      Object Object::get_attribute(const std::string &key) const {
-        try {
-          return object->attributes.at(key);
-        } catch (...) {
-        }
-        return {};
-      }
-      bool Object::has_attribute(std::string &&key) const noexcept {
-        return object->attributes.count(key) != 0;
-      }
-      bool Object::has_attribute(const std::string &key) const noexcept {
-        return object->attributes.count(key) != 0;
-      }
-      Id Object::id() const noexcept {
-        return std::hash<std::shared_ptr<Impl>>{}(
-            object)&std::numeric_limits<Id>::max();
-      }
-      const Object::Value &Object::value() const noexcept {
-        return object->value;
-      }
-      Object Object::copy(Value &&data) const {
-        auto read = object->attributes.read();
-        auto attributes = read.value;
-        return Object(std::move(data), std::move(attributes));
-      }
-      bool Object::get_bool() const noexcept {
-        return std::holds_alternative<object::True>(object->value);
-      }
+  void Object::delete_attribute(std::string &&key) noexcept {
+    object->attributes.erase(key);
+  }
+  void Object::delete_attribute(const std::string &key) noexcept {
+    object->attributes.erase(key);
+  }
+  auto Object::dir() const -> std::vector<std::string> {
+    auto read = object->attributes.read();
+    std::vector<std::string> keys;
+    keys.reserve(read.value.size());
+    for (const auto &pair : read.value) {
+      keys.emplace_back(pair.first);
+    }
+    return keys;
+  }
+  auto Object::get_attribute(std::string &&key) const -> Object {
+    try {
+      return object->attributes.at(key);
+    } catch (...) {
+    }
+    return {};
+  }
+  auto Object::get_attribute(const std::string &key) const -> Object {
+    try {
+      return object->attributes.at(key);
+    } catch (...) {
+    }
+    return {};
+  }
+  auto Object::has_attribute(std::string &&key) const noexcept -> bool {
+    return object->attributes.count(key) != 0;
+  }
+  auto Object::has_attribute(const std::string &key) const noexcept -> bool {
+    return object->attributes.count(key) != 0;
+  }
+  auto Object::id() const noexcept -> Id {
+    return std::hash<std::shared_ptr<Impl>>{}(
+        object)&std::numeric_limits<Id>::max();
+  }
+  auto Object::value() const noexcept -> const Object::Value & {
+    return object->value;
+  }
+  auto Object::copy(Value &&data) const -> Object {
+    auto read = object->attributes.read();
+    auto attributes = read.value;
+    return Object(std::move(data), std::move(attributes));
+  }
+  auto Object::get_bool() const noexcept -> bool {
+    return std::holds_alternative<object::True>(object->value);
+  }
 
-      BaseException::BaseException(const Object &anException)
-          : exception(anException) {}
+  BaseException::BaseException(Object anException)
+      : exception(std::move(anException)) {}
 
-      BaseException::BaseException(
-          const BaseException &anException,
-          const std::optional<object::BaseException> &context)
-          : exception(anException.exception) {
-        if (context) {
-          exception.set_attribute("__context__"s, context->exception);
-        }
-      }
+  BaseException::BaseException(
+      const BaseException &anException,
+      const std::optional<object::BaseException> &context)
+      : exception(anException.exception) {
+    if (context) {
+      exception.set_attribute("__context__"s, context->exception);
+    }
+  }
 
-      const char *BaseException::what() const noexcept {
-        return "BaseException";
-      }
+  auto BaseException::what() const noexcept -> const char * {
+    return "BaseException";
+  }
 
-      Id BaseException::id() const noexcept { return exception.id(); }
+  auto BaseException::id() const noexcept -> Id { return exception.id(); }
 
-      Id BaseException::class_id() const noexcept {
-        return exception.get_attribute("__class__"s).id();
-      }
-    } // namespace object
-  }   // namespace library
-} // namespace chimera
+  auto BaseException::class_id() const noexcept -> Id {
+    return exception.get_attribute("__class__"s).id();
+  }
+} // namespace chimera::library::object

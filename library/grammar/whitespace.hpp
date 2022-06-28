@@ -29,67 +29,62 @@
 #include "grammar/rules.hpp"
 #include "grammar/utf8_space.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace grammar {
-      template <char... Chars>
-      using String = tao::pegtl::utf8::string<Chars...>;
+namespace chimera::library::grammar {
+  template <char... Chars>
+  using String = tao::pegtl::utf8::string<Chars...>;
 
-      using Eol = sor<String<'\r', '\n'>, one<'\r', '\n'>>;
-      using Eolf = sor<eof, Eol>;
+  using Eol = sor<String<'\r', '\n'>, one<'\r', '\n'>>;
+  using Eolf = sor<eof, Eol>;
 
-      template <flags::Flag Option>
-      using Space = star<
-          sor<seq<one<'\\'>, Eol>, seq<one<'#'>, star<not_at<Eolf>, any>>,
-              std::conditional_t<flags::get<Option, flags::IMPLICIT>, Utf8Space,
-                                 minus<Utf8Space, one<'\r', '\n'>>>>,
-          std::conditional_t<flags::get<Option, flags::DISCARD>, discard,
-                             success>>;
-      using BlankLines =
-          seq<plus<Space<0>, Eol>, sor<plus<one<' '>>, star<one<'\t'>>>,
-              must<not_at<one<' ', '\t'>>>>;
-      struct IndentCheck : not_at<one<' ', '\t'>> {
-        template <typename Input>
-        static bool match(Input &&in) {
-          return in.indent();
-        }
-      };
-      struct INDENT : seq<BlankLines, IndentCheck, discard> {};
-      struct DedentCheck : not_at<one<' ', '\t'>> {
-        template <typename Input>
-        static bool match(Input &&in) {
-          return in.is_dedent();
-        }
-      };
-      struct DedentConsume : not_at<one<' ', '\t'>> {
-        template <typename Input>
-        static bool match(Input &&in) {
-          return in.dedent();
-        }
-      };
-      struct DEDENT : sor<seq<eof, DedentConsume>,
-                          seq<at<BlankLines, DedentCheck>,
-                              opt<BlankLines, DedentConsume, discard>>> {};
-      struct NextIndentCheck : not_at<one<' ', '\t'>> {
-        template <typename Input>
-        static bool match(Input &&in) {
-          return in.is_newline();
-        }
-      };
-      struct NEWLINE : seq<BlankLines, NextIndentCheck, discard> {};
-      namespace token {
-        template <typename Rule>
-        struct Action : tao::pegtl::nothing<Rule> {};
-        template <auto Asdl>
-        struct ConstantToken {
-          template <typename Top>
-          static void apply0(Top &&top) {
-            top.push(Asdl);
-          }
-        };
-        template <flags::Flag Option, typename Rule>
-        using Token = seq<Rule, Space<Option>>;
-      } // namespace token
-    }   // namespace grammar
-  }     // namespace library
-} // namespace chimera
+  template <flags::Flag Option>
+  using Space = star<
+      sor<seq<one<'\\'>, Eol>, seq<one<'#'>, star<not_at<Eolf>, any>>,
+          std::conditional_t<flags::get<Option, flags::IMPLICIT>, Utf8Space,
+                             minus<Utf8Space, one<'\r', '\n'>>>>,
+      std::conditional_t<flags::get<Option, flags::DISCARD>, discard, success>>;
+  using BlankLines =
+      seq<plus<Space<0>, Eol>, sor<plus<one<' '>>, star<one<'\t'>>>,
+          must<not_at<one<' ', '\t'>>>>;
+  struct IndentCheck : not_at<one<' ', '\t'>> {
+    template <typename Input>
+    static auto match(Input &&in) -> bool {
+      return in.indent();
+    }
+  };
+  struct INDENT : seq<BlankLines, IndentCheck, discard> {};
+  struct DedentCheck : not_at<one<' ', '\t'>> {
+    template <typename Input>
+    static auto match(Input &&in) -> bool {
+      return in.is_dedent();
+    }
+  };
+  struct DedentConsume : not_at<one<' ', '\t'>> {
+    template <typename Input>
+    static auto match(Input &&in) -> bool {
+      return in.dedent();
+    }
+  };
+  struct DEDENT : sor<seq<eof, DedentConsume>,
+                      seq<at<BlankLines, DedentCheck>,
+                          opt<BlankLines, DedentConsume, discard>>> {};
+  struct NextIndentCheck : not_at<one<' ', '\t'>> {
+    template <typename Input>
+    static auto match(Input &&in) -> bool {
+      return in.is_newline();
+    }
+  };
+  struct NEWLINE : seq<BlankLines, NextIndentCheck, discard> {};
+  namespace token {
+    template <typename Rule>
+    struct Action : tao::pegtl::nothing<Rule> {};
+    template <auto Asdl>
+    struct ConstantToken {
+      template <typename Top>
+      static void apply0(Top &&top) {
+        top.push(Asdl);
+      }
+    };
+    template <flags::Flag Option, typename Rule>
+    using Token = seq<Rule, Space<Option>>;
+  } // namespace token
+} // namespace chimera::library::grammar

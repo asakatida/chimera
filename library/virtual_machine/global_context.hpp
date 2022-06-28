@@ -27,22 +27,18 @@
 #include "object/object.hpp"
 #include "options.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      struct GlobalContext {
-        int interactive();
-        int execute_script();
-        int execute_script_string();
-        int execute_script_input();
-        int execute_module();
+namespace chimera::library::virtual_machine {
+  struct GlobalContext {
+    auto interactive() -> int;
+    auto execute_script() -> int;
+    auto execute_script_string() -> int;
+    auto execute_script_input() -> int;
+    auto execute_module() -> int;
 
-        const Options options;
-        const object::Object builtins;
-        const object::Id method_id;
-        const object::Id function_id;
-        std::atomic_flag *sig_int;
-      };
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+    const Options options;
+    const object::Object builtins;
+    const object::Id method_id;
+    const object::Id function_id;
+    std::atomic_flag *sig_int;
+  };
+} // namespace chimera::library::virtual_machine

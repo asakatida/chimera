@@ -22,17 +22,11 @@
 
 #include "object/number/number.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace object {
-      namespace number {
-        Number operator+(Base base);
-        Number operator+(const Natural &natural);
-        Number operator+(const Negative &negative);
-        Number operator+(const Rational &rational);
-        Number operator+(const Imag &imag);
-        Number operator+(const Complex &complex);
-      } // namespace number
-    }   // namespace object
-  }     // namespace library
-} // namespace chimera
+namespace chimera::library::object::number {
+  auto operator+(Base base) -> Number;
+  auto operator+(const Natural &natural) -> Number;
+  auto operator+(const Negative &negative) -> Number;
+  auto operator+(const Rational &rational) -> Number;
+  auto operator+(const Imag &imag) -> Number;
+  auto operator+(const Complex &complex) -> Number;
+} // namespace chimera::library::object::number

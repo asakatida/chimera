@@ -33,99 +33,95 @@
 #include "container/atomic_map.hpp"
 #include "object/number/number.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace object {
-      struct Object;
-      using Id = std::uint64_t;
-      struct Instance {};
-      using Bytes = std::vector<std::uint8_t>;
-      enum class BytesMethod {};
-      struct Expr {};
-      struct False {};
-      using Future = std::unique_ptr<std::future<Object>>;
-      struct None {};
-      struct NullFunction {};
-      using number::Number;
-      enum class NumberMethod {};
-      enum class ObjectMethod { DELATTR, DIR, GETATTRIBUTE, SETATTR };
-      struct String {
-        String() noexcept = default;
-        explicit String(std::string_view string);
-        String(const String &string) = default;
-        String(String &&string) noexcept = default;
-        ~String() noexcept = default;
-        String &operator=(const String &string) = default;
-        String &operator=(String &&string) noexcept = default;
-        std::string_view value;
-      };
-      enum class StringMethod {};
-      struct Stmt {};
-      enum class SysCall {
-        COMPILE,
-        EVAL,
-        EXEC,
-        GLOBALS,
-        ID,
-        INPUT,
-        LOCALS,
-        PRINT,
-        OPEN
-      };
-      using Tuple = std::vector<Object>;
-      enum class TupleMethod {};
-      struct True {};
-      struct Object {
-        using Value =
-            std::variant<Instance, Bytes, BytesMethod, Expr, False, Future,
-                         None, NullFunction, Number, NumberMethod, ObjectMethod,
-                         Stmt, String, StringMethod, SysCall, True, Tuple,
-                         TupleMethod>;
-        using Attributes = container::AtomicMap<std::string, Object>;
-        Object();
-        Object(Value &&value, std::map<std::string, Object> &&attributes);
-        Object(const Object &other) = default;
-        Object(Object &&other) noexcept = default;
-        ~Object() noexcept = default;
-        Object &operator=(const Object &other) = default;
-        Object &operator=(Object &&other) noexcept = default;
-        void delete_attribute(std::string &&key) noexcept;
-        void delete_attribute(const std::string &key) noexcept;
-        std::vector<std::string> dir() const;
-        Object get_attribute(std::string &&key) const;
-        Object get_attribute(const std::string &key) const;
-        bool has_attribute(std::string &&key) const noexcept;
-        bool has_attribute(const std::string &key) const noexcept;
-        template <typename... Args>
-        void set_attribute(Args &&...args) {
-          object->attributes.insert_or_assign(std::forward<Args>(args)...);
-        }
+namespace chimera::library::object {
+  struct Object;
+  using Id = std::uint64_t;
+  struct Instance {};
+  using Bytes = std::vector<std::uint8_t>;
+  enum class BytesMethod {};
+  struct Expr {};
+  struct False {};
+  using Future = std::unique_ptr<std::future<Object>>;
+  struct None {};
+  struct NullFunction {};
+  using number::Number;
+  enum class NumberMethod {};
+  enum class ObjectMethod { DELATTR, DIR, GETATTRIBUTE, SETATTR };
+  struct String {
+    String() noexcept = default;
+    explicit String(std::string_view string);
+    String(const String &string) = default;
+    String(String &&string) noexcept = default;
+    ~String() noexcept = default;
+    auto operator=(const String &string) -> String & = default;
+    auto operator=(String &&string) noexcept -> String & = default;
+    std::string_view value;
+  };
+  enum class StringMethod {};
+  struct Stmt {};
+  enum class SysCall {
+    COMPILE,
+    EVAL,
+    EXEC,
+    GLOBALS,
+    ID,
+    INPUT,
+    LOCALS,
+    PRINT,
+    OPEN
+  };
+  using Tuple = std::vector<Object>;
+  enum class TupleMethod {};
+  struct True {};
+  struct Object {
+    using Value =
+        std::variant<Instance, Bytes, BytesMethod, Expr, False, Future, None,
+                     NullFunction, Number, NumberMethod, ObjectMethod, Stmt,
+                     String, StringMethod, SysCall, True, Tuple, TupleMethod>;
+    using Attributes = container::AtomicMap<std::string, Object>;
+    Object();
+    Object(Value &&value, std::map<std::string, Object> &&attributes);
+    Object(const Object &other) = default;
+    Object(Object &&other) noexcept = default;
+    ~Object() noexcept = default;
+    auto operator=(const Object &other) -> Object & = default;
+    auto operator=(Object &&other) noexcept -> Object & = default;
+    void delete_attribute(std::string &&key) noexcept;
+    void delete_attribute(const std::string &key) noexcept;
+    [[nodiscard]] auto dir() const -> std::vector<std::string>;
+    auto get_attribute(std::string &&key) const -> Object;
+    [[nodiscard]] auto get_attribute(const std::string &key) const -> Object;
+    auto has_attribute(std::string &&key) const noexcept -> bool;
+    [[nodiscard]] auto has_attribute(const std::string &key) const noexcept
+        -> bool;
+    template <typename... Args>
+    void set_attribute(Args &&...args) {
+      object->attributes.insert_or_assign(std::forward<Args>(args)...);
+    }
 
-        Id id() const noexcept;
-        const Value &value() const noexcept;
-        Object copy(Value &&data) const;
-        bool get_bool() const noexcept;
-        auto use_count() const noexcept { return object.use_count(); }
+    [[nodiscard]] auto id() const noexcept -> Id;
+    [[nodiscard]] auto value() const noexcept -> const Value &;
+    auto copy(Value &&data) const -> Object;
+    [[nodiscard]] auto get_bool() const noexcept -> bool;
+    [[nodiscard]] auto use_count() const noexcept { return object.use_count(); }
 
-      private:
-        struct Impl {
-          Value value;
-          Attributes attributes;
-        };
-        std::shared_ptr<Impl> object;
-      };
-      class BaseException final : std::exception {
-      public:
-        explicit BaseException(const Object &anException);
-        BaseException(const BaseException &anException,
-                      const std::optional<object::BaseException> &context);
-        const char *what() const noexcept override;
-        Id id() const noexcept;
-        Id class_id() const noexcept;
+  private:
+    struct Impl {
+      Value value;
+      Attributes attributes;
+    };
+    std::shared_ptr<Impl> object;
+  };
+  class BaseException final : std::exception {
+  public:
+    explicit BaseException(Object anException);
+    BaseException(const BaseException &anException,
+                  const std::optional<object::BaseException> &context);
+    [[nodiscard]] auto what() const noexcept -> const char * override;
+    [[nodiscard]] auto id() const noexcept -> Id;
+    [[nodiscard]] auto class_id() const noexcept -> Id;
 
-      private:
-        Object exception;
-      };
-    } // namespace object
-  }   // namespace library
-} // namespace chimera
+  private:
+    Object exception;
+  };
+} // namespace chimera::library::object

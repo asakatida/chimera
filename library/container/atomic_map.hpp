@@ -26,72 +26,66 @@
 
 #include "container/atomic_container.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace container {
-      void atomic_map();
+namespace chimera::library::container {
+  void atomic_map();
 
-      template <typename Key, typename Value>
-      struct AtomicMap : AtomicContainer<std::map<Key, Value>> {
-        using Container = AtomicContainer<std::map<Key, Value>>;
+  template <typename Key, typename Value>
+  struct AtomicMap : AtomicContainer<std::map<Key, Value>> {
+    using Container = AtomicContainer<std::map<Key, Value>>;
 
-        template <typename... Args>
-        AtomicMap(Args &&...args) // NOLINT
-            : Container(std::forward<Args>(args)...) {}
+    template <typename... Args>
+    AtomicMap(Args &&...args) // NOLINT
+        : Container(std::forward<Args>(args)...) {}
 
-        template <typename... Args>
-        auto &at(Args &&...args) const {
-          return Container::read().value.at(std::forward<Args>(args)...);
-        }
+    template <typename... Args>
+    [[nodiscard]] auto at(Args &&...args) const -> auto & {
+      return Container::read().value.at(std::forward<Args>(args)...);
+    }
 
-        template <typename... Args>
-        auto &at(Args &&...args) {
-          return Container::read().value.at(std::forward<Args>(args)...);
-        }
+    template <typename... Args>
+    auto at(Args &&...args) -> auto & {
+      return Container::read().value.at(std::forward<Args>(args)...);
+    }
 
-        template <typename... Args>
-        auto cbegin(Args &&...args) const {
-          return Container::read().value.cbegin(std::forward<Args>(args)...);
-        }
+    template <typename... Args>
+    auto cbegin(Args &&...args) const {
+      return Container::read().value.cbegin(std::forward<Args>(args)...);
+    }
 
-        template <typename... Args>
-        auto cend(Args &&...args) const {
-          return Container::read().value.cend(std::forward<Args>(args)...);
-        }
+    template <typename... Args>
+    auto cend(Args &&...args) const {
+      return Container::read().value.cend(std::forward<Args>(args)...);
+    }
 
-        template <typename... Args>
-        auto count(Args &&...args) const {
-          return Container::read().value.count(std::forward<Args>(args)...);
-        }
+    template <typename... Args>
+    [[nodiscard]] auto count(Args &&...args) const {
+      return Container::read().value.count(std::forward<Args>(args)...);
+    }
 
-        template <typename... Args>
-        auto size(Args &&...args) const {
-          return Container::read().value.size(std::forward<Args>(args)...);
-        }
+    template <typename... Args>
+    auto size(Args &&...args) const {
+      return Container::read().value.size(std::forward<Args>(args)...);
+    }
 
-        template <typename... Args>
-        auto &operator[](Args &&...args) {
-          return Container::write().value.operator[](
-              std::forward<Args>(args)...);
-        }
+    template <typename... Args>
+    auto operator[](Args &&...args) -> auto & {
+      return Container::write().value.operator[](std::forward<Args>(args)...);
+    }
 
-        template <typename... Args>
-        auto erase(Args &&...args) {
-          return Container::write().value.erase(std::forward<Args>(args)...);
-        }
+    template <typename... Args>
+    auto erase(Args &&...args) {
+      return Container::write().value.erase(std::forward<Args>(args)...);
+    }
 
-        template <typename... Args>
-        auto insert_or_assign(Args &&...args) {
-          return Container::write().value.insert_or_assign(
-              std::forward<Args>(args)...);
-        }
+    template <typename... Args>
+    auto insert_or_assign(Args &&...args) {
+      return Container::write().value.insert_or_assign(
+          std::forward<Args>(args)...);
+    }
 
-        template <typename... Args>
-        auto try_emplace(Args &&...args) {
-          return Container::write().value.try_emplace(
-              std::forward<Args>(args)...);
-        }
-      };
-    } // namespace container
-  }   // namespace library
-} // namespace chimera
+    template <typename... Args>
+    auto try_emplace(Args &&...args) {
+      return Container::write().value.try_emplace(std::forward<Args>(args)...);
+    }
+  };
+} // namespace chimera::library::container

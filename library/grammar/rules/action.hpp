@@ -23,11 +23,3 @@
 #pragma once
 
 #include <tao/pegtl.hpp>
-
-namespace chimera {
-  namespace library {
-    namespace grammar {
-      namespace rules {} // namespace rules
-    }                    // namespace grammar
-  }                      // namespace library
-} // namespace chimera

@@ -20,8 +20,6 @@
 
 #include "version.hpp"
 
-namespace chimera {
-  namespace library {
-    void version() {}
-  } // namespace library
-} // namespace chimera
+namespace chimera::library {
+  void version() {}
+} // namespace chimera::library

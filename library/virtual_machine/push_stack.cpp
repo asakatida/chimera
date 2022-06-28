@@ -24,12 +24,8 @@
 
 #include "virtual_machine/evaluator.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      void PushStack::operator()(Evaluator *evaluator) const {
-        evaluator->stack.push(object);
-      }
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+namespace chimera::library::virtual_machine {
+  void PushStack::operator()(Evaluator *evaluator) const {
+    evaluator->stack.push(object);
+  }
+} // namespace chimera::library::virtual_machine

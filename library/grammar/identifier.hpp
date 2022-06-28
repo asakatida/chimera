@@ -28,23 +28,19 @@
 #include "grammar/utf8_id_start.hpp"
 #include "grammar/whitespace.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace grammar {
-      namespace token {
-        using XidStart = seq<Utf8IdStart>;
-        using XidContinue = sor<Utf8IdStart, Utf8IdContinue>;
-        struct Name : seq<XidStart, star<XidContinue>> {};
-        template <>
-        struct Action<Name> {
-          template <typename Input, typename Stack>
-          static void apply(const Input &in, Stack &&stack) {
-            stack.push(asdl::Name{in.string()});
-          }
-        };
-      } // namespace token
-      template <flags::Flag Option>
-      struct Name : token::Token<Option, token::Name> {};
-    } // namespace grammar
-  }   // namespace library
-} // namespace chimera
+namespace chimera::library::grammar {
+  namespace token {
+    using XidStart = seq<Utf8IdStart>;
+    using XidContinue = sor<Utf8IdStart, Utf8IdContinue>;
+    struct Name : seq<XidStart, star<XidContinue>> {};
+    template <>
+    struct Action<Name> {
+      template <typename Input, typename Stack>
+      static void apply(const Input &in, Stack &&stack) {
+        stack.push(asdl::Name{in.string()});
+      }
+    };
+  } // namespace token
+  template <flags::Flag Option>
+  struct Name : token::Token<Option, token::Name> {};
+} // namespace chimera::library::grammar

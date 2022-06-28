@@ -27,23 +27,19 @@
 #include "asdl/asdl.hpp"
 #include "virtual_machine/evaluator.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      struct DelEvaluator {
-        Evaluator *evaluator;
+namespace chimera::library::virtual_machine {
+  struct DelEvaluator {
+    Evaluator *evaluator;
 
-        void evaluate(const asdl::Attribute &attribute);
-        void evaluate(const asdl::Subscript &subscript);
-        void evaluate(const asdl::Starred &starred);
-        void evaluate(const asdl::Name &name);
+    void evaluate(const asdl::Attribute &attribute);
+    void evaluate(const asdl::Subscript &subscript);
+    void evaluate(const asdl::Starred &starred);
+    void evaluate(const asdl::Name &name);
 
-        template <typename ASDL>
-        [[noreturn]] void evaluate(const ASDL & /*asdl*/) {
-          throw object::BaseException(
-              evaluator->builtins().get_attribute("RuntimeError"));
-        }
-      };
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+    template <typename ASDL>
+    [[noreturn]] void evaluate(const ASDL & /*asdl*/) {
+      throw object::BaseException(
+          evaluator->builtins().get_attribute("RuntimeError"));
+    }
+  };
+} // namespace chimera::library::virtual_machine

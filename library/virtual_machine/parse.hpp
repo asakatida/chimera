@@ -29,27 +29,21 @@
 #include "asdl/asdl.hpp"
 #include "options.hpp"
 
-namespace chimera {
-  namespace library {
-    namespace virtual_machine {
-      struct Parse {
-        constexpr static auto bufferSize =
-            std::numeric_limits<std::uint16_t>::max();
+namespace chimera::library::virtual_machine {
+  struct Parse {
+    constexpr static auto bufferSize =
+        std::numeric_limits<std::uint16_t>::max();
 
-        asdl::Module parse_file(const Options &options,
-                                const std::string_view &data,
-                                const char *source);
+    auto parse_file(const Options &options, const std::string_view &data,
+                    const char *source) -> asdl::Module;
 
-        asdl::Module parse_file(const Options &options, std::istream &input,
-                                const char *source);
+    auto parse_file(const Options &options, std::istream &input,
+                    const char *source) -> asdl::Module;
 
-        asdl::Interactive parse_input(const Options &options,
-                                      const std::string_view &data,
-                                      const char *source);
+    auto parse_input(const Options &options, const std::string_view &data,
+                     const char *source) -> asdl::Interactive;
 
-        asdl::Interactive parse_input(const Options &options,
-                                      std::istream &input, const char *source);
-      };
-    } // namespace virtual_machine
-  }   // namespace library
-} // namespace chimera
+    auto parse_input(const Options &options, std::istream &input,
+                     const char *source) -> asdl::Interactive;
+  };
+} // namespace chimera::library::virtual_machine
