@@ -1,5 +1,3 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Shellcheck
 
 on:
@@ -10,11 +8,11 @@ on:
 
 jobs:
   build:
-    runs-on: alpine-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Build dev tools
-        run: sudo apk add -y git shellcheck
+        run: sudo apt-get install -y git shellcheck
       - name: Lint shell
         working-directory: ${{github.workspace}}
         run: tools/shellcheck.sh
