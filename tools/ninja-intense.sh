@@ -6,7 +6,7 @@ tools/cmake.sh "$1" -GNinja
 
 pushd "$1"
 
-if [[ "${CXX}" = clang* ]]; then
+if [[ "${CXX:-}" = clang* ]]; then
   ninja
 fi
 

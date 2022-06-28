@@ -2,17 +2,17 @@
 
 set -ex -o pipefail
 
-directory="$(pwd)"
+root="$(git rev-parse --show-toplevel)"
 
 export CPPFLAGS="${CPPFLAGS} \
-  -I ${directory}/include \
-  -I ${directory}/library \
-  -I ${directory}/unit_tests \
-  -isystem ${directory}/external/Catch/single_include \
-  -isystem ${directory}/external/GSL/include \
-  -isystem ${directory}/external/metal/include \
-  -isystem ${directory}/external/operators/include \
-  -isystem ${directory}/external/PEGTL/include"
+  -I ${root}/include \
+  -I ${root}/library \
+  -I ${root}/unit_tests \
+  -isystem ${root}/external/Catch/single_include \
+  -isystem ${root}/external/GSL/include \
+  -isystem ${root}/external/metal/include \
+  -isystem ${root}/external/operators/include \
+  -isystem ${root}/external/PEGTL/include"
 
 export CXXFLAGS="${CXXFLAGS} \
   -std=c++20 \
@@ -25,4 +25,20 @@ export CXXFLAGS="${CXXFLAGS} \
   -fbracket-depth=1024"
 
 # shellcheck disable=SC2016
-find ./{library,source,tools,unit_tests} -name '*.cpp' -print0 | xargs -0 -I'{}' -- jq --arg cxx "${CXX:-clang}" --arg cppflags "${CPPFLAGS}" --arg cxxflags "${CXXFLAGS}" --arg directory "${directory}" --arg file '{}' -n '{"directory": $directory, "command": ([$cxx, $cppflags, $cxxflags, "-c", $file] | join(" ")), "file": $file}' | jq -s
+find "${root}" -name '*.cpp' -print0 | \
+  xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | \
+  xargs -0 -I'{}' -- \
+  jq \
+  --arg cxx "${CXX:-clang}" \
+  --arg cppflags "${CPPFLAGS}" \
+  --arg cxxflags "${CXXFLAGS}" \
+  --arg root "${root}" \
+  --arg file '{}' \
+  -n '
+    {
+      "root": $root,
+      "command": ([$cxx, $cppflags, $cxxflags, "-c", $file] | join(" ")),
+      "file": $file
+    }
+  ' | \
+  jq -s
