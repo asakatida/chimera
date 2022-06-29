@@ -24,7 +24,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 from re import sub
 from sys import argv
-from typing import List, Tuple
+from typing import Optional
 
 
 class Extract(HTMLParser):
@@ -33,7 +33,7 @@ class Extract(HTMLParser):
     def __init__(self) -> None:
         """__init__."""
         super().__init__()
-        self.c_type = ""
+        self.c_type: Optional[str] = ""
         self.c_code = False
         self.code = 0
         self.div = 0
@@ -51,7 +51,7 @@ class Extract(HTMLParser):
             "var": self.var_act,
         }
 
-    def handle_starttag(self, tag: str, attrs: List[Tuple[str, str]]) -> None:
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, Optional[str]]]) -> None:
         """handle_starttag."""
         if tag == "body":
             self.enable = True
@@ -83,7 +83,7 @@ class Extract(HTMLParser):
             self.dl -= 1
             if not self.dl:
                 self.data = self.data.strip()
-                action = self.actions.get(self.c_type, None)
+                action = self.actions.get(self.c_type, None) if self.c_type else None
                 if action:
                     action()
                 else:
