@@ -69,7 +69,7 @@ TEST_CASE("BLNS test """
                     standard_b64decode,
                     loads(
                         Path(
-                            "external/big-list-of-naughty-strings/" "blns.base64.json"
+                            "external/big-list-of-naughty-strings/blns.base64.json"
                         ).read_text()
                     ),
                 ),

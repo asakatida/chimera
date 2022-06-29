@@ -26,17 +26,7 @@ from pathlib import Path
 from re import M, X
 from re import compile as rc
 from re import escape
-from typing import (
-    Callable,
-    Dict,
-    Iterable,
-    Iterator,
-    Match,
-    Pattern,
-    TextIO,
-    Tuple,
-    cast,
-)
+from typing import Callable, Iterator, Match, Pattern, TextIO, cast
 
 OPERATIONS = {
     "add": "operator+",
@@ -121,7 +111,7 @@ def passing_type(typ: str) -> str:
     return f"const { typ } &"
 
 
-def op_header(match: Match[str], pairs: Iterable[Tuple[str, str]]) -> Iterator[str]:
+def op_header(match: Match[str], pairs: Iterator[tuple[str, str]]) -> Iterator[str]:
     """
     Header operation.
     """
@@ -146,7 +136,7 @@ def op_header(match: Match[str], pairs: Iterable[Tuple[str, str]]) -> Iterator[s
             yield "\n"
 
 
-def op_source(match: Match[str], pairs: Iterable[Tuple[str, str]]) -> Iterator[str]:
+def op_source(match: Match[str], pairs: Iterator[tuple[str, str]]) -> Iterator[str]:
     """
     Source operation.
     """
@@ -174,14 +164,14 @@ def op_source(match: Match[str], pairs: Iterable[Tuple[str, str]]) -> Iterator[s
         )
 
 
-def op_bit_header(match: Match[str], pairs: Iterable[Tuple[str, str]]) -> Iterator[str]:
+def op_bit_header(match: Match[str], pairs: Iterator[tuple[str, str]]) -> Iterator[str]:
     """
     Header operation.
     """
     return op_header(match, pairs)
 
 
-def op_bit_source(match: Match[str], pairs: Iterable[Tuple[str, str]]) -> Iterator[str]:
+def op_bit_source(match: Match[str], pairs: Iterator[tuple[str, str]]) -> Iterator[str]:
     """
     Source operation.
     """
@@ -189,7 +179,7 @@ def op_bit_source(match: Match[str], pairs: Iterable[Tuple[str, str]]) -> Iterat
 
 
 def op_comp_header(
-    match: Match[str], pairs: Iterable[Tuple[str, str]]
+    match: Match[str], pairs: Iterator[tuple[str, str]]
 ) -> Iterator[str]:
     """
     Header operation.
@@ -216,7 +206,7 @@ def op_comp_header(
 
 
 def op_comp_source(
-    match: Match[str], pairs: Iterable[Tuple[str, str]]
+    match: Match[str], pairs: Iterator[tuple[str, str]]
 ) -> Iterator[str]:
     """
     Source operation.
@@ -245,7 +235,7 @@ def op_comp_source(
         )
 
 
-def op_unary_header(match: Match[str], types: Iterable[str]) -> Iterator[str]:
+def op_unary_header(match: Match[str], types: Iterator[str]) -> Iterator[str]:
     """
     Header operation.
     """
@@ -266,7 +256,7 @@ def op_unary_header(match: Match[str], types: Iterable[str]) -> Iterator[str]:
         )
 
 
-def op_unary_source(match: Match[str], types: Iterable[str]) -> Iterator[str]:
+def op_unary_source(match: Match[str], types: Iterator[str]) -> Iterator[str]:
     """
     Source operation.
     """
@@ -293,8 +283,8 @@ def op_unary_source(match: Match[str], types: Iterable[str]) -> Iterator[str]:
         )
 
 
-Callback = Callable[[Match[str], Iterable[Tuple[str, str]]], Iterator[str]]
-UnaryCallback = Callable[[Match[str], Iterable[str]], Iterator[str]]
+Callback = Callable[[Match[str], Iterator[tuple[str, str]]], Iterator[str]]
+UnaryCallback = Callable[[Match[str], Iterator[str]], Iterator[str]]
 
 OPERATIONS_CALLBACK = {
     "add": (op_header, op_source),
@@ -330,7 +320,7 @@ def op_unary_line_re(op: str) -> Pattern[str]:
     )
 
 
-def sources(name: str) -> Tuple[Path, Path]:
+def sources(name: str) -> tuple[Path, Path]:
     """
     Header and source for operation name.
     """
@@ -339,7 +329,7 @@ def sources(name: str) -> Tuple[Path, Path]:
 
 
 def process_lines(
-    src: str, matches: Iterable[Match[str]], callback: Callback
+    src: str, matches: Iterator[Match[str]], callback: Callback
 ) -> Iterator[str]:
     """
     Process lines.
@@ -356,7 +346,7 @@ def process_lines(
 
 
 def process_unary_lines(
-    src: str, matches: Iterable[Match[str]], callback: UnaryCallback
+    src: str, matches: Iterator[Match[str]], callback: UnaryCallback
 ) -> Iterator[str]:
     """
     Process lines.
@@ -408,7 +398,7 @@ def process_unary_source(op: str, source: Path, callback: UnaryCallback) -> None
     return process_unary_header(op, source, callback)
 
 
-def process_ops(ops: Dict[str, str]) -> None:
+def process_ops(ops: dict[str, str]) -> None:
     """
     Process operations.
     """
@@ -419,7 +409,7 @@ def process_ops(ops: Dict[str, str]) -> None:
         process_source(op, source, source_callback)
 
 
-def process_unary_ops(ops: Dict[str, str]) -> None:
+def process_unary_ops(ops: dict[str, str]) -> None:
     """
     Process operations.
     """
