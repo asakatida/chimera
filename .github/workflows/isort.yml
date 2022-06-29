@@ -19,4 +19,4 @@ jobs:
           env/bin/pip install -r requirements.txt
       - name: Lint shell
         working-directory: ${{github.workspace}}
-        run: find "${root}" -name '*.py' -print0 | xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | xargs -0 -- env/bin/isort --check-only --python-version auto
+        run: find . -name '*.py' -print0 | xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | xargs -0 -- env/bin/isort --check-only --python-version auto
