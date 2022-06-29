@@ -1,0 +1,22 @@
+name: PyLama
+
+on:
+  push:
+    branches: [stable]
+  pull_request:
+    branches: [stable]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build dev tools
+        working-directory: ${{github.workspace}}
+        run: |
+          sudo apt-get install -y git python3
+          python3 -m venv env
+          env/bin/pip install -r requirements.txt
+      - name: Lint shell
+        working-directory: ${{github.workspace}}
+        run: find . -name '*.py' -print0 | xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | xargs -0 -- env/bin/pylama
