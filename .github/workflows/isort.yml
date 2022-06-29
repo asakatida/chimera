@@ -1,4 +1,4 @@
-name: Shellcheck
+name: ISort
 
 on:
   push:
