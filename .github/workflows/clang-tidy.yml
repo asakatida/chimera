@@ -1,0 +1,26 @@
+name: CMake
+
+on:
+  push:
+    branches: [stable]
+  pull_request:
+    branches: [stable]
+
+env:
+  CLANG_VERSION: 15
+  CMAKE_EXPORT_COMPILE_COMMANDS: YES
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - run: wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh ${{env.CLANG_VERSION}} && rm -rf llvm.sh
+      - name: Configure CMake
+        working-directory: ${{github.workspace}}
+        run: CC=/usr/bin/clang-${{env.CLANG_VERSION}} CXX=/usr/bin/clang++-${{env.CLANG_VERSION}} cmake -B build
+      - name: Lint c++ code
+        working-directory: ${{github.workspace}}
+        run: tools/clang-tidy.sh build
