@@ -23,4 +23,4 @@ jobs:
         run: CC=/usr/bin/clang-${{env.CLANG_VERSION}} CXX=/usr/bin/clang++-${{env.CLANG_VERSION}} cmake -B build
       - name: Lint c++ code
         working-directory: ${{github.workspace}}
-        run: tools/clang-tidy.sh build
+        run: find . -name '*.cpp' -print0 | xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | xargs -0 -- clang-tidy-${{env.CLANG_VERSION}} -p=build
