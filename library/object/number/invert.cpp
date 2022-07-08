@@ -19,23 +19,3 @@
 // SOFTWARE.
 
 #include "object/number/invert.hpp"
-
-#include <gsl/gsl>
-
-#include "object/number/add.hpp"
-#include "object/number/negative.hpp"
-#include "object/number/positive.hpp"
-#include "object/number/sub.hpp"
-
-namespace chimera::library::object::number {
-  auto operator~(Base base) -> Number { return -(base + 1); }
-  auto operator~(const Natural &natural) -> Number { return -(natural + 1); }
-  auto operator~(const Negative &negative) -> Number {
-    return std::visit([](const auto &value) { return +(value - 1); },
-                      negative.value);
-  }
-  auto operator~(const Rational & /*rational*/) -> Number { Expects(false); }
-  auto operator~(const Imag & /*imag*/) -> Number { Expects(false); }
-  auto operator~(const Complex & /*complex*/) -> Number { Expects(false); }
-
-} // namespace chimera::library::object::number

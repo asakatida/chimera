@@ -46,149 +46,91 @@
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 namespace chimera::library::object::number {
-  static auto reduce(Base value) -> NumberValue { return value; }
-  static auto reduce(Natural &&value) -> NumberValue {
-    while ((!value.value.empty()) && value.value.back() == 0) {
-      value.value.pop_back();
-    }
-    if (value.value.empty()) {
-      return Base{0U};
-    }
-    if (value.value.size() == 1) {
-      return Base{value.value[0]};
-    }
-    value.value.shrink_to_fit();
-    return value;
-  }
-  static auto reduce(Negative &&negative) -> NumberValue { return negative; }
-  template <typename Left, typename Right>
-  auto reduce(Left &&left, Right &&right) -> NumberValue {
-    if (left == Base{0U}) {
-      return Base{0U};
-    }
-    if (left == right) {
-      return Base{1U};
-    }
-    if (left == Base{1U} || right == Base{0U}) {
-      return Rational{std::forward<Left>(left), std::forward<Right>(right)};
-    }
-    if (right == Base{1U}) {
-      return reduce(std::forward<Left>(left));
-    }
-    auto aPrime = gcd(left, right);
-    if (aPrime == Number(1U)) {
-      return Rational{std::forward<Left>(left), std::forward<Right>(right)};
-    }
-    const Number nLeft(std::forward<Left>(left));
-    const Number nRight(std::forward<Right>(right));
-    if (nLeft == aPrime) {
-      return (Number(1U) / nRight.floor_div(aPrime)).unpack();
-    }
-    if (nRight == aPrime) {
-      return nLeft.floor_div(aPrime).unpack();
-    }
-    return (nLeft.floor_div(aPrime) / nRight.floor_div(aPrime)).unpack();
-  }
-  struct Reduce {
-    template <typename Left, typename Right>
-    auto operator()(Left &&left, Right &&right) -> NumberValue {
-      return reduce(std::forward<Left>(left), std::forward<Right>(right));
-    }
-  };
-  static auto reduce(Rational &&rational) -> NumberValue {
-    return std::visit(Reduce{}, std::move(rational.numerator),
-                      std::move(rational.denominator));
-  }
-  template <typename Visitor>
-  auto Number::visit(Visitor &&visitor) const -> Number {
-    return std::visit(std::forward<Visitor>(visitor), value);
-  }
-  template <typename Visitor>
-  auto Number::visit(const Number &right, Visitor &&visitor) const -> Number {
-    return std::visit(std::forward<Visitor>(visitor), value, right.value);
-  }
   Number::Number(std::uint64_t i) : value(Base{i}) {}
-  Number::Number(Base base) : value(base) {}
-  Number::Number(Natural &&natural) : value(reduce(std::move(natural))) {}
-  Number::Number(Negative &&negative) : value(reduce(std::move(negative))) {}
-  Number::Number(Rational &&rational) : value(reduce(std::move(rational))) {}
-  Number::Number(Imag &&imag) : value(std::move(imag)) {}
-  Number::Number(Complex &&complex) : value(std::move(complex)) {}
   void Number::swap(Number &&other) noexcept {
     using std::swap;
     swap(value, other.value);
   }
-  auto Number::operator+() const -> Number { return visit(UnaryPositive{}); }
-  auto Number::operator-() const -> Number { return visit(std::negate<>{}); }
-  auto Number::operator+=(const Number &right) -> Number & {
-    *this = visit(right, std::plus<>{});
+  auto Number::operator+() const noexcept -> Number {
+    return visit([](const auto &a) { return +a; });
+  }
+  auto Number::operator-() const noexcept -> Number {
+    return visit(std::negate<>{});
+  }
+  auto Number::operator+=(const Number &right) noexcept -> Number {
+    swap(visit(right, [](auto a, auto b) { return a + b; }));
     return *this;
   }
-  auto Number::operator-=(const Number &right) -> Number & {
-    *this = visit(right, std::minus<>{});
+  auto Number::operator-=(const Number &right) noexcept -> Number {
+    swap(visit(right, [](auto a, auto b) { return a - b; }));
     return *this;
   }
-  auto Number::operator*=(const Number &right) -> Number & {
-    *this = visit(right, std::multiplies<>{});
+  auto Number::operator*=(const Number &right) noexcept -> Number {
+    swap(visit(right, [](auto a, auto b) { return a * b; }));
     return *this;
   }
-  auto Number::operator/=(const Number &right) -> Number & {
-    *this = visit(right, std::divides<>{});
+  auto Number::operator/=(const Number &right) noexcept -> Number {
+    swap(visit(right, [](auto a, auto b) { return a / b; }));
     return *this;
   }
-  auto Number::operator%=(const Number &right) -> Number & {
-    *this = visit(right, std::modulus<>{});
+  auto Number::operator%=(const Number &right) noexcept -> Number {
+    swap(visit(right, [](auto a, auto b) { return a % b; }));
     return *this;
   }
-  auto Number::operator~() const -> Number { return visit(std::bit_not<>{}); }
-  auto Number::operator&=(const Number &right) -> Number & {
-    *this = visit(right, std::bit_and<>{});
+  auto Number::operator~() const noexcept -> Number {
+    return visit(std::bit_not<>{});
+  }
+  auto Number::operator&=(const Number &right) noexcept -> Number {
+    swap(visit(right, [](auto a, auto b) { return a & b; }));
     return *this;
   }
-  auto Number::operator|=(const Number &right) -> Number & {
-    *this = visit(right, std::bit_or<>{});
+  auto Number::operator|=(const Number &right) noexcept -> Number {
+    swap(visit(right, [](auto a, auto b) { return a | b; }));
     return *this;
   }
-  auto Number::operator^=(const Number &right) -> Number & {
-    *this = visit(right,
-                  [](const auto &a, const auto &b) { return Number(a ^ b); });
+  auto Number::operator^=(const Number &right) noexcept -> Number {
+    swap(visit(right, [](auto a, auto b) { return a ^ b; }));
     return *this;
   }
-  auto Number::operator<<=(const Number &right) -> Number & {
-    *this = visit(right,
-                  [](const auto &a, const auto &b) { return Number(a << b); });
+  auto Number::operator<<=(const Number &right) noexcept -> Number {
+    swap(visit(right, [](auto a, auto b) { return a << b; }));
     return *this;
   }
-  auto Number::operator>>=(const Number &right) -> Number & {
-    *this = visit(right,
-                  [](const auto &a, const auto &b) { return Number(a >> b); });
+  auto Number::operator>>=(const Number &right) noexcept -> Number {
+    swap(visit(right, [](auto a, auto b) { return a >> b; }));
     return *this;
   }
-  auto Number::operator==(const Number &right) const -> bool {
-    return value.index() == right.value.index() &&
-           std::visit(std::equal_to<>{}, value, right.value);
+  // auto Number::operator==(const Number &right) const noexcept -> bool {
+  //   return value.index() == right.value.index() &&
+  //          std::visit(std::equal_to<>{}, value, right.value);
+  // }
+  auto Number::operator==(const std::uint64_t right) const noexcept -> bool {
+    if (const Base *base = std::get_if<Base>(&value); base != nullptr) {
+      return (*base) == right;
+    }
+    return false;
   }
-  auto Number::operator<(const Number &right) const -> bool {
+  auto Number::operator<(const Number &right) const noexcept -> bool {
     return std::visit(std::less<>{}, value, right.value);
   }
-  auto Number::floor_div(const Number &right) const -> Number {
-    return visit(
-        right, [](auto a, auto b) { return Number(number::floor_div(a, b)); });
+  auto Number::operator<(const std::uint64_t right) const noexcept -> bool {
+    return std::visit([right](auto a) { return a < right; }, value);
   }
-  auto Number::gcd(const Number &right) const -> Number {
-    return visit(right,
-                 [](auto a, auto b) { return Number(number::gcd(a, b)); });
+  auto Number::floor_div(const Number &right) const noexcept -> Number {
+    return visit(right, [](auto a, auto b) { return a.floor_div(b); });
   }
-  auto Number::pow(const Number &right) -> Number { return right; }
-  auto Number::pow(const Number &y, const Number & /*z*/) -> Number {
-    return y;
+  auto Number::gcd(const Number &right) const noexcept -> Number {
+    return visit(right, [](auto a, auto b) { return a.gcd(b); });
   }
-  auto Number::is_int() const -> bool {
+  auto Number::pow(const Number &right) const noexcept -> Number {
+    return visit(right, [](auto a, auto b) { return a.pow(b); });
+  }
+  auto Number::is_int() const noexcept -> bool {
     return std::holds_alternative<Base>(value) ||
            std::holds_alternative<Natural>(value) ||
            std::holds_alternative<Negative>(value);
   }
-  auto Number::is_complex() const -> bool {
+  auto Number::is_complex() const noexcept -> bool {
     return std::holds_alternative<Imag>(value) ||
            std::holds_alternative<Complex>(value);
   }
@@ -204,7 +146,9 @@ namespace chimera::library::object::number {
       return MakeComplex<Arg>{}(std::forward<Arg>(arg));
     }
   };
-  auto Number::complex() const -> Number { return visit(MakeComplexVisit{}); }
+  auto Number::complex() const noexcept -> Number {
+    return visit(MakeComplexVisit{});
+  }
 } // namespace chimera::library::object::number
 
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

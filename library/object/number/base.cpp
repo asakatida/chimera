@@ -18,4 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "object/number/mod.hpp"
+#include "object/number/base.hpp"
+
+namespace chimera::library::object::number {
+  Base::Base() : value(0) {}
+  Base::Base(std::uint64_t i) : value(i) {}
+  Base::Base(const Base &other) = default;
+  Base::Base(Base &&other) noexcept { swap(std::move(other)); }
+  Base::~Base() = default;
+  auto Base::operator=(const Base &other) -> Base & {
+    if (this != &other) {
+      value = other.value;
+    }
+    return *this;
+  }
+  auto Base::operator=(Base &&other) noexcept -> Base & {
+    swap(std::move(other));
+    return *this;
+  }
+  void Base::swap(Base &&other) noexcept {
+    using std::swap;
+    swap(value, other.value);
+  }
+} // namespace chimera::library::object::number

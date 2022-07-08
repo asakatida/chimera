@@ -19,39 +19,3 @@
 // SOFTWARE.
 
 #include "object/number/overflow.hpp"
-
-#include <limits>
-
-// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-
-namespace chimera::library::object::number {
-  using NumericLimits = std::numeric_limits<std::uint64_t>;
-  auto div_mod(const Carryover &left, std::uint64_t right) -> Carryover {
-    auto a = __uint128_t(left.overflow) << 64U | left.result;
-    return {std::uint64_t(a / right), std::uint64_t(a % right)};
-  }
-  auto left_shift(std::uint64_t left, std::uint64_t right) -> Carryover {
-    auto carryover = __uint128_t(left) << right;
-    return {std::uint64_t(carryover), std::uint64_t(carryover >> 64U)};
-  }
-  auto mult(std::uint64_t left, std::uint64_t right) -> Carryover {
-    auto carryover = __uint128_t(left) * right;
-    return {std::uint64_t(carryover), std::uint64_t(carryover >> 64U)};
-  }
-  auto right_shift(std::uint64_t left, std::uint64_t right) -> Carryover {
-    auto carryover = __uint128_t(left) << (64U - right);
-    return {std::uint64_t(carryover >> 64U), std::uint64_t(carryover)};
-  }
-  auto sub(std::uint64_t left, std::uint64_t right) -> Carryover {
-    if (left < right) {
-      return {NumericLimits::max() - ((right - left) - 1), 1U};
-    }
-    return {left - right, 0U};
-  }
-  auto sum(std::uint64_t left, std::uint64_t right) -> Carryover {
-    auto carryover = __uint128_t(left) + right;
-    return {std::uint64_t(carryover), std::uint64_t(carryover >> 64U)};
-  }
-} // namespace chimera::library::object::number
-
-// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

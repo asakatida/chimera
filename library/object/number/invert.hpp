@@ -21,12 +21,3 @@
 #pragma once
 
 #include "object/number/number.hpp"
-
-namespace chimera::library::object::number {
-  auto operator~(Base base) -> Number;
-  auto operator~(const Natural &natural) -> Number;
-  auto operator~(const Negative &negative) -> Number;
-  auto operator~(const Rational &rational) -> Number;
-  auto operator~(const Imag &imag) -> Number;
-  auto operator~(const Complex &complex) -> Number;
-} // namespace chimera::library::object::number

@@ -29,123 +29,123 @@
 
 namespace chimera::library::object::number {
   template <typename Left>
-  auto operator+(Left &&left, Number &&right) -> Number {
+  auto operator+(Left &&left, Number &&right) noexcept -> Number {
     return Number(std::decay_t<Left>(left)) + right;
   }
   template <typename Right>
-  auto operator+(Number &&left, Right &&right) -> Number {
+  auto operator+(Number &&left, Right &&right) noexcept -> Number {
     return left + Number(std::decay_t<Right>(right));
   }
   template <typename Left>
-  auto operator-(Left &&left, Number &&right) -> Number {
+  auto operator-(Left &&left, Number &&right) noexcept -> Number {
     return Number(std::decay_t<Left>(left)) - right;
   }
   template <typename Right>
-  auto operator-(Number &&left, Right &&right) -> Number {
+  auto operator-(Number &&left, Right &&right) noexcept -> Number {
     return left - Number(std::decay_t<Right>(right));
   }
   template <typename Left>
-  auto operator*(Left &&left, Number &&right) -> Number {
+  auto operator*(Left &&left, Number &&right) noexcept -> Number {
     return Number(std::decay_t<Left>(left)) * right;
   }
   template <typename Right>
-  auto operator*(Number &&left, Right &&right) -> Number {
+  auto operator*(Number &&left, Right &&right) noexcept -> Number {
     return left * Number(std::decay_t<Right>(right));
   }
   template <typename Left>
-  auto operator/(Left &&left, Number &&right) -> Number {
+  auto operator/(Left &&left, Number &&right) noexcept -> Number {
     return Number(std::decay_t<Left>(left)) / right;
   }
   template <typename Right>
-  auto operator/(Number &&left, Right &&right) -> Number {
+  auto operator/(Number &&left, Right &&right) noexcept -> Number {
     return left / Number(std::decay_t<Right>(right));
   }
   template <typename Left>
-  auto operator%(Left &&left, Number &&right) -> Number {
+  auto operator%(Left &&left, Number &&right) noexcept -> Number {
     return Number(std::decay_t<Left>(left)) % right;
   }
   template <typename Right>
-  auto operator%(Number &&left, Right &&right) -> Number {
+  auto operator%(Number &&left, Right &&right) noexcept -> Number {
     return left % Number(std::decay_t<Right>(right));
   }
   template <typename Left>
-  auto operator&(Left &&left, Number &&right) -> Number {
+  auto operator&(Left &&left, Number &&right) noexcept -> Number {
     return Number(std::decay_t<Left>(left)) & right;
   }
   template <typename Right>
-  auto operator&(Number &&left, Right &&right) -> Number {
+  auto operator&(Number &&left, Right &&right) noexcept -> Number {
     return left & Number(std::decay_t<Right>(right));
   }
   template <typename Left>
-  auto operator|(Left &&left, Number &&right) -> Number {
+  auto operator|(Left &&left, Number &&right) noexcept -> Number {
     return Number(std::decay_t<Left>(left)) | right;
   }
   template <typename Right>
-  auto operator|(Number &&left, Right &&right) -> Number {
+  auto operator|(Number &&left, Right &&right) noexcept -> Number {
     return left | Number(std::decay_t<Right>(right));
   }
   template <typename Left>
-  auto operator^(Left &&left, Number &&right) -> Number {
+  auto operator^(Left &&left, Number &&right) noexcept -> Number {
     return Number(std::decay_t<Left>(left)) ^ right;
   }
   template <typename Right>
-  auto operator^(Number &&left, Right &&right) -> Number {
+  auto operator^(Number &&left, Right &&right) noexcept -> Number {
     return left ^ Number(std::decay_t<Right>(right));
   }
   template <typename Left>
-  auto operator<<(Left &&left, Number &&right) -> Number {
+  auto operator<<(Left &&left, Number &&right) noexcept -> Number {
     return Number(std::decay_t<Left>(left)) << right;
   }
   template <typename Right>
-  auto operator<<(Number &&left, Right &&right) -> Number {
+  auto operator<<(Number &&left, Right &&right) noexcept -> Number {
     return left << Number(std::decay_t<Right>(right));
   }
   template <typename Left>
-  auto operator>>(Left &&left, Number &&right) -> Number {
+  auto operator>>(Left &&left, Number &&right) noexcept -> Number {
     return Number(std::decay_t<Left>(left)) >> right;
   }
   template <typename Right>
-  auto operator>>(Number &&left, Right &&right) -> Number {
+  auto operator>>(Number &&left, Right &&right) noexcept -> Number {
     return left >> Number(std::decay_t<Right>(right));
   }
   template <typename Left>
-  auto operator==(const Left &left, const Number &right) -> bool {
+  auto operator==(const Left &left, const Number &right) noexcept -> bool {
     return Number(std::decay_t<Left>(left)) == right;
   }
   template <typename Right>
-  auto operator==(const Number &left, const Right &right) -> bool {
+  auto operator==(const Number &left, const Right &right) noexcept -> bool {
     return left == Number(std::decay_t<Right>(right));
   }
   template <typename Left>
-  auto operator<(const Left &left, const Number &right) -> bool {
+  auto operator<(const Left &left, const Number &right) noexcept -> bool {
     return Number(std::decay_t<Left>(left)) < right;
   }
   template <typename Right>
-  auto operator<(const Number &left, const Right &right) -> bool {
+  auto operator<(const Number &left, const Right &right) noexcept -> bool {
     return left < Number(std::decay_t<Right>(right));
   }
   template <typename Left>
-  auto floor_div(Left &&left, Number &&right) -> Number {
+  auto floor_div(Left &&left, Number &&right) noexcept -> Number {
     return Number(std::decay_t<Left>(left)).floor_div(right);
   }
   template <typename Right>
-  auto floor_div(Number &&left, Right &&right) -> Number {
+  auto floor_div(Number &&left, Right &&right) noexcept -> Number {
     return left.floor_div(Number(std::decay_t<Right>(right)));
   }
   template <typename Left>
-  auto gcd(Left &&left, Number &&right) -> Number {
+  auto gcd(Left &&left, Number &&right) noexcept -> Number {
     return Number(std::decay_t<Left>(left)).gcd(right);
   }
   template <typename Right>
-  auto gcd(Number &&left, Right &&right) -> Number {
+  auto gcd(Number &&left, Right &&right) noexcept -> Number {
     return left.gcd(Number(std::decay_t<Right>(right)));
   }
   template <typename Left>
-  auto pow(Left &&left, Number &&right) -> Number {
+  auto pow(Left &&left, Number &&right) noexcept -> Number {
     return Number(std::decay_t<Left>(left)).pow(right);
   }
   template <typename Right>
-  auto pow(Number &&left, Right &&right) -> Number {
+  auto pow(Number &&left, Right &&right) noexcept -> Number {
     return left.pow(Number(std::decay_t<Right>(right)));
   }
 } // namespace chimera::library::object::number

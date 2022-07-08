@@ -27,27 +27,34 @@
 
 #include "object/number/base.hpp"
 #include "object/number/natural.hpp"
+#include "object/number/negative.hpp"
 
 namespace chimera::library::object::number {
-  using PositiveValue = std::variant<Base, Natural>;
-  class Negative {
+  using IntegerValue = std::variant<Base, Natural, Negative>;
+  class Rational {
   public:
-    explicit Negative(std::uint64_t i);
-    template <typename I>
-    explicit Negative(I &&i) {}
-    Negative(const Negative &other);
-    Negative(Negative &&other) noexcept;
-    ~Negative() noexcept;
-    auto operator=(const Negative &other) -> Negative &;
-    auto operator=(Negative &&other) noexcept -> Negative &;
-    void swap(Negative &&other) noexcept;
+    Rational(std::uint64_t n, std::uint64_t d);
+    template <typename D>
+    Rational(std::uint64_t n, D &&d) {}
+    template <typename N>
+    Rational(N &&n, std::uint64_t d) {}
+    template <typename N, typename D>
+    Rational(N &&n, D &&d) {}
+    Rational(const Rational &other);
+    Rational(Rational &&other) noexcept;
+    ~Rational() noexcept;
+    auto operator=(const Rational &other) -> Rational &;
+    auto operator=(Rational &&other) noexcept -> Rational &;
+    void swap(Rational &&other) noexcept;
     template <typename T,
               typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
     explicit operator T() const noexcept {
       if constexpr (std::is_same_v<T, bool>) { // NOLINT
-        return std::visit(Construct<T>{}, value);
+        return true;
       }
-      return -std::visit(Construct<T>{}, value);
+      return std::visit(
+          [](const auto &n, const auto &d) { return T(n) / T(d); }, numerator,
+          denominator);
     }
     [[nodiscard]] auto floor_div(const Base &right) const noexcept -> Number;
     [[nodiscard]] auto floor_div(const Complex &right) const noexcept
@@ -142,7 +149,7 @@ namespace chimera::library::object::number {
     auto operator<<(const Negative &right) noexcept -> Number;
     auto operator<<(const Rational &right) noexcept -> Number;
     auto operator<<(const std::uint64_t right) noexcept -> Number;
-    auto operator==(const Negative &right) const noexcept -> bool;
+    auto operator==(const Rational &right) const noexcept -> bool;
     template <typename T>
     auto operator==(T && /*right*/) const noexcept -> bool {
       return false;
@@ -164,6 +171,7 @@ namespace chimera::library::object::number {
     auto operator~() const noexcept -> Number;
 
   private:
-    PositiveValue value;
+    IntegerValue numerator;
+    IntegerValue denominator;
   };
 } // namespace chimera::library::object::number

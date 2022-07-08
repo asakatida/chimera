@@ -21,33 +21,41 @@
 #pragma once
 
 #include <cstdint>
+#include <limits>
 #include <variant>
+#include <vector>
 
+#include <gsl/gsl>
 #include <tao/operators.hpp>
 
 #include "object/number/base.hpp"
-#include "object/number/natural.hpp"
 
 namespace chimera::library::object::number {
-  using PositiveValue = std::variant<Base, Natural>;
-  class Negative {
+  class Natural {
   public:
-    explicit Negative(std::uint64_t i);
-    template <typename I>
-    explicit Negative(I &&i) {}
-    Negative(const Negative &other);
-    Negative(Negative &&other) noexcept;
-    ~Negative() noexcept;
-    auto operator=(const Negative &other) -> Negative &;
-    auto operator=(Negative &&other) noexcept -> Negative &;
-    void swap(Negative &&other) noexcept;
+    explicit Natural(std::vector<std::uint64_t> &&i);
+    Natural(const Natural &other);
+    Natural(Natural &&other) noexcept;
+    ~Natural() noexcept;
+    auto operator=(const Natural &other) -> Natural &;
+    auto operator=(Natural &&other) noexcept -> Natural &;
+    void swap(Natural &&other) noexcept;
     template <typename T,
               typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
     explicit operator T() const noexcept {
       if constexpr (std::is_same_v<T, bool>) { // NOLINT
-        return std::visit(Construct<T>{}, value);
+        return true;
       }
-      return -std::visit(Construct<T>{}, value);
+      auto max = std::numeric_limits<T>::max();
+      if (value.size() > 2) {
+        return max;
+      }
+      auto max128 = gsl::narow<__uint128_t>(max);
+      auto a = (__uint128_t(value[1]) << 64u) | value[0];
+      if (a >= max128) {
+        return max;
+      }
+      return gsl::narow<T>(a & max128);
     }
     [[nodiscard]] auto floor_div(const Base &right) const noexcept -> Number;
     [[nodiscard]] auto floor_div(const Complex &right) const noexcept
@@ -142,7 +150,7 @@ namespace chimera::library::object::number {
     auto operator<<(const Negative &right) noexcept -> Number;
     auto operator<<(const Rational &right) noexcept -> Number;
     auto operator<<(const std::uint64_t right) noexcept -> Number;
-    auto operator==(const Negative &right) const noexcept -> bool;
+    auto operator==(const Natural &right) const noexcept -> bool;
     template <typename T>
     auto operator==(T && /*right*/) const noexcept -> bool {
       return false;
@@ -164,6 +172,6 @@ namespace chimera::library::object::number {
     auto operator~() const noexcept -> Number;
 
   private:
-    PositiveValue value;
+    std::vector<std::uint64_t> value;
   };
 } // namespace chimera::library::object::number
