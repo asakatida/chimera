@@ -20,197 +20,98 @@
 
 #pragma once
 
-#include <cstdint>
 #include <limits>
 #include <numeric>
 #include <variant>
-#include <vector>
 
 #include <gsl/gsl>
 #include <tao/operators.hpp>
 
+#include "object/number/base.hpp"
+#include "object/number/complex.hpp"
+#include "object/number/imag.hpp"
+#include "object/number/natural.hpp"
+#include "object/number/negative.hpp"
+#include "object/number/rational.hpp"
+
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 namespace chimera::library::object::number {
-  template <typename Return>
-  struct Construct {
-    template <typename... Args>
-    auto operator()(Args &&...args) const -> Return {
-      return Return(std::forward<Args>(args)...);
-    }
-  };
-  template <typename Left, typename Op>
-  struct LeftOperation {
-    const Left &left;
-    template <typename... Args>
-    auto operator()(Args &&...args) const {
-      return Op{}(left, std::forward<Args>(args)...);
-    }
-  };
-  template <typename Right, typename Op>
-  struct RightOperation {
-    const Right &right;
-    template <typename... Args>
-    auto operator()(Args &&...args) const {
-      return Op{}(std::forward<Args>(args)..., right);
-    }
-  };
-  struct Identity {
-    template <typename Arg>
-    constexpr auto operator()(Arg &&arg) const noexcept -> Arg && {
-      return std::forward<Arg>(arg);
-    }
-  };
-  struct UnaryPositive {
-    template <typename Arg>
-    auto operator()(const Arg &arg) const {
-      return +arg;
-    }
-  };
-  struct Base {
-    std::uint64_t value;
-    template <typename T,
-              typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
-    explicit operator T() const noexcept {
-      using NumericLimits = std::numeric_limits<T>;
-      if constexpr (std::is_same_v<T, bool>) {
-        return value != 0U;
-      }
-      auto max = NumericLimits::max();
-      if (value >= gsl::narrow<std::uint64_t>(max)) {
-        return max;
-      }
-      return gsl::narrow<T>(value);
-    }
-  };
-  struct Natural {
-    std::vector<std::uint64_t> value;
-    template <typename T,
-              typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
-    explicit operator T() const noexcept {
-      using NumericLimits = std::numeric_limits<T>;
-      if constexpr (std::is_same_v<T, bool>) {
-        return true;
-      }
-      auto max = NumericLimits::max();
-      if (value.size() > 2) {
-        return max;
-      }
-      auto max128 = gsl::narrow<__uint128_t>(max);
-      auto a = (__uint128_t(value[1]) << 64U) | value[0];
-      if (a >= max128) {
-        return max;
-      }
-      return gsl::narrow<T>(a & max128);
-    }
-  };
-  using PositiveValue = std::variant<Base, Natural>;
-  struct Negative {
-    PositiveValue value;
-    template <typename T,
-              typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
-    explicit operator T() const noexcept {
-      if constexpr (std::is_same_v<T, bool>) {
-        return std::visit(Construct<T>{}, value);
-      }
-      return -std::visit(Construct<T>{}, value);
-    }
-  };
-  using IntegerValue = std::variant<Base, Natural, Negative>;
-  struct Rational {
-    IntegerValue numerator;
-    IntegerValue denominator;
-    template <typename T,
-              typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
-    explicit operator T() const noexcept {
-      if constexpr (std::is_same_v<T, bool>) {
-        return true;
-      }
-      return std::visit([](auto &&n, auto &&d) { return T(n) / T(d); },
-                        numerator, denominator);
-    }
-  };
-  using RealValue = std::variant<Base, Natural, Negative, Rational>;
-  struct Imag {
-    RealValue value;
-    template <typename T,
-              typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
-    explicit operator T() const noexcept {
-      using NumericLimits = std::numeric_limits<T>;
-      auto t = std::visit(Construct<T>{}, value);
-      if (t == T()) {
-        return t;
-      }
-      return NumericLimits::signaling_NaN();
-    }
-  };
-  struct Complex {
-    RealValue real;
-    RealValue imag;
-    template <typename T,
-              typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
-    explicit operator T() const noexcept {
-      using NumericLimits = std::numeric_limits<T>;
-      auto t = std::visit(Construct<T>{}, imag);
-      if (t == T()) {
-        return std::visit(Construct<T>{}, real);
-      }
-      return NumericLimits::signaling_NaN();
-    }
-  };
   using NumberValue =
       std::variant<Base, Natural, Negative, Rational, Imag, Complex>;
   class Number : tao::operators::commutative_bitwise<Number>,
+                 tao::operators::equivalent<Number>,
+                 tao::operators::field<Number>,
                  tao::operators::modable<Number>,
-                 tao::operators::ordered_field<Number>,
+                 tao::operators::ordered_commutative_ring<Number>,
                  tao::operators::shiftable<Number>,
                  tao::operators::unit_steppable<Number> {
   public:
-    explicit Number(std::uint64_t i);
-    explicit Number(Base base);
-    explicit Number(Natural natural);
-    explicit Number(Negative negative);
-    explicit Number(Rational rational);
-    explicit Number(Imag imag);
-    explicit Number(Complex complex);
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
+    Number(std::uint64_t i);
+    template <typename... Args>
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
+    Number(Args &&...args) : value(std::forward<Args>(args)...) {}
     void swap(Number &&other) noexcept;
     template <typename T>
     explicit operator T() const noexcept {
       return std::visit(Construct<T>{}, value);
     }
-    auto operator+() const -> Number;
-    auto operator-() const -> Number;
-    auto operator+=(const Number &right) -> Number &;
-    auto operator-=(const Number &right) -> Number &;
-    auto operator*=(const Number &right) -> Number &;
-    auto operator/=(const Number &right) -> Number &;
-    auto operator%=(const Number &right) -> Number &;
-    auto operator~() const -> Number;
-    auto operator&=(const Number &right) -> Number &;
-    auto operator|=(const Number &right) -> Number &;
-    auto operator^=(const Number &right) -> Number &;
-    auto operator<<=(const Number &right) -> Number &;
-    auto operator>>=(const Number &right) -> Number &;
-    auto operator==(const Number &right) const -> bool;
-    auto operator<(const Number &right) const -> bool;
-    [[nodiscard]] auto floor_div(const Number &right) const -> Number;
-    [[nodiscard]] auto gcd(const Number &right) const -> Number;
-    [[nodiscard]] static auto pow(const Number &right) -> Number;
-    [[nodiscard]] static auto pow(const Number &y, const Number &z) -> Number;
-    [[nodiscard]] auto is_int() const -> bool;
-    [[nodiscard]] auto is_complex() const -> bool;
-    [[nodiscard]] auto complex() const -> Number;
+    [[nodiscard]] auto complex() const noexcept -> Number;
+    [[nodiscard]] auto floor_div(const Number &right) const noexcept
+        -> Number;
+    [[nodiscard]] auto floor_div(const std::uint64_t right) const noexcept
+        -> Number;
+    [[nodiscard]] auto gcd(const Number &right) const noexcept -> Number;
+    [[nodiscard]] auto gcd(const std::uint64_t right) const noexcept
+        -> Number;
+    [[nodiscard]] auto is_complex() const noexcept -> bool;
+    [[nodiscard]] auto is_int() const noexcept -> bool;
+    [[nodiscard]] auto pow(const Number &right) const noexcept -> Number;
+    [[nodiscard]] auto pow(const std::uint64_t right) const noexcept
+        -> Number;
+    auto operator-() const noexcept -> Number;
+    auto operator-=(const Number &right) noexcept -> Number;
+    auto operator-=(const std::uint64_t right) noexcept -> Number;
+    auto operator*=(const Number &right) noexcept -> Number;
+    auto operator*=(const std::uint64_t right) noexcept -> Number;
+    auto operator/=(const Number &right) noexcept -> Number;
+    auto operator/=(const std::uint64_t right) noexcept -> Number;
+    auto operator&=(const Number &right) noexcept -> Number;
+    auto operator&=(const std::uint64_t right) noexcept -> Number;
+    auto operator%=(const Number &right) noexcept -> Number;
+    auto operator%=(const std::uint64_t right) noexcept -> Number;
+    auto operator^=(const Number &right) noexcept -> Number;
+    auto operator^=(const std::uint64_t right) noexcept -> Number;
+    auto operator+() const noexcept -> Number;
+    auto operator+=(const Number &right) noexcept -> Number;
+    auto operator+=(const std::uint64_t right) noexcept -> Number;
+    auto operator<(const Number &right) const noexcept -> bool;
+    auto operator<(const std::uint64_t right) const noexcept -> bool;
+    auto operator<<=(const Number &right) noexcept -> Number;
+    auto operator<<=(const std::uint64_t right) noexcept -> Number;
+    // auto operator==(const Number &right) const noexcept -> bool;
+    auto operator==(const std::uint64_t right) const noexcept -> bool;
+    auto operator>>=(const Number &right) noexcept -> Number;
+    auto operator>>=(const std::uint64_t right) noexcept -> Number;
+    auto operator|=(const Number &right) noexcept -> Number;
+    auto operator|=(const std::uint64_t right) noexcept -> Number;
+    auto operator~() const noexcept -> Number;
     template <typename OStream>
-    auto debug(OStream &os) const -> OStream &;
+    auto debug(OStream &os) const noexcept -> OStream &;
     template <typename OStream>
-    auto repr(OStream &os) const -> OStream &;
-    [[nodiscard]] auto unpack() const -> NumberValue { return value; }
+    auto repr(OStream &os) const noexcept -> OStream &;
 
   private:
     template <typename Visitor>
-    auto visit(Visitor &&visitor) const -> Number;
+    auto visit(Visitor &&visitor) const noexcept -> Number {
+      return std::visit(std::forward<Visitor>(visitor), value);
+    }
     template <typename Visitor>
-    auto visit(const Number &right, Visitor &&visitor) const -> Number;
+    auto visit(const Number &right, Visitor &&visitor) const noexcept
+        -> Number {
+      return std::visit(std::forward<Visitor>(visitor), value, right.value);
+    }
     NumberValue value;
   };
 } // namespace chimera::library::object::number

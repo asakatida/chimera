@@ -19,21 +19,3 @@
 // SOFTWARE.
 
 #include "object/number/positive.hpp"
-
-#include <gsl/gsl>
-
-namespace chimera::library::object::number {
-  auto operator+(Base base) -> Number { return Number(base); }
-  auto operator+(const Natural &natural) -> Number {
-    return Number(Natural(natural));
-  }
-  auto operator+(const Negative &negative) -> Number {
-    return std::visit(UnaryPositive{}, negative.value);
-  }
-  auto operator+(const Rational &rational) -> Number {
-    return std::visit([](auto &&a, auto &&b) { return (+a) / (+b); },
-                      rational.numerator, rational.denominator);
-  }
-  auto operator+(const Imag & /*imag*/) -> Number { Expects(false); }
-  auto operator+(const Complex & /*complex*/) -> Number { Expects(false); }
-} // namespace chimera::library::object::number

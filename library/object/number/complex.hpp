@@ -21,33 +21,41 @@
 #pragma once
 
 #include <cstdint>
+#include <limits>
 #include <variant>
 
 #include <tao/operators.hpp>
 
 #include "object/number/base.hpp"
+#include "object/number/imag.hpp"
 #include "object/number/natural.hpp"
+#include "object/number/negative.hpp"
+#include "object/number/rational.hpp"
 
 namespace chimera::library::object::number {
-  using PositiveValue = std::variant<Base, Natural>;
-  class Negative {
+  class Complex {
   public:
-    explicit Negative(std::uint64_t i);
+    Complex(std::uint64_t r, std::uint64_t i);
     template <typename I>
-    explicit Negative(I &&i) {}
-    Negative(const Negative &other);
-    Negative(Negative &&other) noexcept;
-    ~Negative() noexcept;
-    auto operator=(const Negative &other) -> Negative &;
-    auto operator=(Negative &&other) noexcept -> Negative &;
-    void swap(Negative &&other) noexcept;
+    Complex(std::uint64_t r, I &&i) {}
+    template <typename R>
+    Complex(R &&r, std::uint64_t i) {}
+    template <typename R, typename I>
+    Complex(R &&r, I &&i) {}
+    Complex(const Complex &other);
+    Complex(Complex &&other) noexcept;
+    ~Complex() noexcept;
+    auto operator=(const Complex &other) -> Complex &;
+    auto operator=(Complex &&other) noexcept -> Complex &;
+    void swap(Complex &&other) noexcept;
     template <typename T,
               typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
     explicit operator T() const noexcept {
-      if constexpr (std::is_same_v<T, bool>) { // NOLINT
-        return std::visit(Construct<T>{}, value);
+      auto t = std::visit(Construct<T>{}, imag);
+      if (t == T()) {
+        return std::visit(Construct<T>{}, real);
       }
-      return -std::visit(Construct<T>{}, value);
+      return std::numeric_limits<T>::signaling_NaN();
     }
     [[nodiscard]] auto floor_div(const Base &right) const noexcept -> Number;
     [[nodiscard]] auto floor_div(const Complex &right) const noexcept
@@ -142,7 +150,7 @@ namespace chimera::library::object::number {
     auto operator<<(const Negative &right) noexcept -> Number;
     auto operator<<(const Rational &right) noexcept -> Number;
     auto operator<<(const std::uint64_t right) noexcept -> Number;
-    auto operator==(const Negative &right) const noexcept -> bool;
+    auto operator==(const Complex &right) const noexcept -> bool;
     template <typename T>
     auto operator==(T && /*right*/) const noexcept -> bool {
       return false;
@@ -164,6 +172,7 @@ namespace chimera::library::object::number {
     auto operator~() const noexcept -> Number;
 
   private:
-    PositiveValue value;
+    RealValue real;
+    RealValue imag;
   };
 } // namespace chimera::library::object::number
