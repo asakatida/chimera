@@ -3,8 +3,14 @@ name: PyLama
 on:
   push:
     branches: [stable]
+    paths:
+      - '.github/workflows/**'
+      - '**.py'
+      - requirements.txt
+      - setup.cfg
   pull_request:
     branches: [stable]
+  workflow_dispatch:
 
 jobs:
   build:
