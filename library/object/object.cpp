@@ -27,13 +27,13 @@
 #include <utility>
 
 using namespace std::literals;
+
 namespace chimera::library::object {
   String::String(std::string_view string) : value(string) {}
   Object::Object() : object(std::make_shared<Impl>()) {}
   Object::Object(Value &&value, std::map<std::string, Object> &&attributes)
       : object(std::make_shared<Impl>(
             Impl{std::move(value), {std::move(attributes)}})) {}
-
   void Object::delete_attribute(std::string &&key) noexcept {
     object->attributes.erase(key);
   }
@@ -79,15 +79,13 @@ namespace chimera::library::object {
   auto Object::copy(Value &&data) const -> Object {
     auto read = object->attributes.read();
     auto attributes = read.value;
-    return Object(std::move(data), std::move(attributes));
+    return {std::move(data), std::move(attributes)};
   }
   auto Object::get_bool() const noexcept -> bool {
-    return std::holds_alternative<object::True>(object->value);
+    return std::holds_alternative<True>(object->value);
   }
-
   BaseException::BaseException(Object anException)
       : exception(std::move(anException)) {}
-
   BaseException::BaseException(
       const BaseException &anException,
       const std::optional<object::BaseException> &context)
@@ -96,13 +94,10 @@ namespace chimera::library::object {
       exception.set_attribute("__context__"s, context->exception);
     }
   }
-
   auto BaseException::what() const noexcept -> const char * {
     return "BaseException";
   }
-
   auto BaseException::id() const noexcept -> Id { return exception.id(); }
-
   auto BaseException::class_id() const noexcept -> Id {
     return exception.get_attribute("__class__"s).id();
   }
