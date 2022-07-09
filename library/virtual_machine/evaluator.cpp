@@ -234,34 +234,33 @@ namespace chimera::library::virtual_machine {
   void Evaluator::evaluate(const asdl::AugAssign & /*aug_assign*/) {}
   void Evaluator::evaluate(const asdl::AnnAssign & /*ann_assign*/) {}
   void Evaluator::evaluate(const asdl::For &asdlFor) {
-    push(
-        [&asdlFor](Evaluator *evaluatorA) {
-          try {
-            Evaluator evaluatorB{evaluatorA->thread_context};
-            evaluatorB.enter_scope(evaluatorA->self());
-            evaluatorB.push([](Evaluator *evaluatorC) {
-              evaluatorC->push(CallEvaluator{evaluatorC->stack.top(), {}, {}});
-              evaluatorC->stack.pop();
-            });
-            evaluatorB.get_attribute(evaluatorA->stack.top(), "__next__");
-            evaluatorB.evaluate();
-          } catch (const object::BaseException &error) {
-            if (error.class_id() ==
-                evaluatorA->builtins().get_attribute("StopIteration").id()) {
-              evaluatorA->exit();
-              evaluatorA->extend(asdlFor.orelse);
-            } else {
-              throw error;
-            }
-          }
-          evaluatorA->enter();
-          evaluatorA->push([&asdlFor](Evaluator *evaluatorB) {
-            evaluatorB->exit();
-            evaluatorB->evaluate(asdlFor);
-          });
-          evaluatorA->extend(asdlFor.body);
-          evaluatorA->evaluate_set(asdlFor.target);
+    push([&asdlFor](Evaluator *evaluatorA) {
+      try {
+        Evaluator evaluatorB{evaluatorA->thread_context};
+        evaluatorB.enter_scope(evaluatorA->self());
+        evaluatorB.push([](Evaluator *evaluatorC) {
+          evaluatorC->push(CallEvaluator{evaluatorC->stack.top(), {}, {}});
+          evaluatorC->stack.pop();
         });
+        evaluatorB.get_attribute(evaluatorA->stack.top(), "__next__");
+        evaluatorB.evaluate();
+      } catch (const object::BaseException &error) {
+        if (error.class_id() ==
+            evaluatorA->builtins().get_attribute("StopIteration").id()) {
+          evaluatorA->exit();
+          evaluatorA->extend(asdlFor.orelse);
+        } else {
+          throw error;
+        }
+      }
+      evaluatorA->enter();
+      evaluatorA->push([&asdlFor](Evaluator *evaluatorB) {
+        evaluatorB->exit();
+        evaluatorB->evaluate(asdlFor);
+      });
+      evaluatorA->extend(asdlFor.body);
+      evaluatorA->evaluate_set(asdlFor.target);
+    });
     push([](Evaluator *evaluatorA) {
       evaluatorA->push(CallEvaluator{evaluatorA->stack.top(), {}, {}});
       evaluatorA->stack.pop();
@@ -275,21 +274,20 @@ namespace chimera::library::virtual_machine {
   }
   void Evaluator::evaluate(const asdl::AsyncFor & /*async_for*/) {}
   void Evaluator::evaluate(const asdl::While &asdlWhile) {
-    push(
-        [&asdlWhile](Evaluator *evaluatorA) {
-          if (evaluatorA->stack.top().get_bool()) {
-            evaluatorA->enter();
-            evaluatorA->push([&asdlWhile](Evaluator *evaluatorB) {
-              evaluatorB->exit();
-              evaluatorB->evaluate(asdlWhile);
-            });
-            evaluatorA->extend(asdlWhile.body);
-          } else {
-            evaluatorA->exit();
-            evaluatorA->extend(asdlWhile.orelse);
-          }
-          evaluatorA->stack.pop();
+    push([&asdlWhile](Evaluator *evaluatorA) {
+      if (evaluatorA->stack.top().get_bool()) {
+        evaluatorA->enter();
+        evaluatorA->push([&asdlWhile](Evaluator *evaluatorB) {
+          evaluatorB->exit();
+          evaluatorB->evaluate(asdlWhile);
         });
+        evaluatorA->extend(asdlWhile.body);
+      } else {
+        evaluatorA->exit();
+        evaluatorA->extend(asdlWhile.orelse);
+      }
+      evaluatorA->stack.pop();
+    });
     push([](Evaluator *evaluatorA) {
       evaluatorA->push(ToBoolEvaluator{evaluatorA->stack.top()});
       evaluatorA->stack.pop();
@@ -338,39 +336,35 @@ namespace chimera::library::virtual_machine {
           evaluator->stack.pop();
         });
       }
-      push(
-          [&alias](Evaluator *evaluator) {
-            evaluator->push(PushStack{
-                evaluator->thread_context.process_context.import_object(
-                    "module_name", alias.name.value)});
-          });
+      push([&alias](Evaluator *evaluator) {
+        evaluator->push(
+            PushStack{evaluator->thread_context.process_context.import_object(
+                "module_name", alias.name.value)});
+      });
     }
   }
   void Evaluator::evaluate(const asdl::ImportFrom &importFrom) {
     push([](Evaluator *evaluator) { evaluator->stack.pop(); });
     for (const auto &alias : container::reverse(importFrom.names)) {
       if (alias.asname) {
-        push(
-            [&alias](Evaluator *evaluator) {
-              evaluator->self().set_attribute(
-                  alias.asname->value,
-                  evaluator->stack.top().get_attribute(alias.name.value));
-            });
+        push([&alias](Evaluator *evaluator) {
+          evaluator->self().set_attribute(
+              alias.asname->value,
+              evaluator->stack.top().get_attribute(alias.name.value));
+        });
       } else {
-        push(
-            [&alias](Evaluator *evaluator) {
-              evaluator->self().set_attribute(
-                  alias.name.value,
-                  evaluator->stack.top().get_attribute(alias.name.value));
-            });
+        push([&alias](Evaluator *evaluator) {
+          evaluator->self().set_attribute(
+              alias.name.value,
+              evaluator->stack.top().get_attribute(alias.name.value));
+        });
       }
     }
-    push(
-        [&importFrom](Evaluator *evaluator) {
-          evaluator->push(
-              PushStack{evaluator->thread_context.process_context.import_object(
-                  "module_name", importFrom.module.value)});
-        });
+    push([&importFrom](Evaluator *evaluator) {
+      evaluator->push(
+          PushStack{evaluator->thread_context.process_context.import_object(
+              "module_name", importFrom.module.value)});
+    });
   }
   void Evaluator::evaluate(const asdl::Global & /*global*/) {}
   void Evaluator::evaluate(const asdl::Nonlocal & /*nonlocal*/) {}
@@ -418,22 +412,21 @@ namespace chimera::library::virtual_machine {
   }
   void Evaluator::evaluate(const asdl::Assert &assert) {
     if (builtins().get_attribute("__debug__").get_bool()) {
-      push(
-          [&assert](Evaluator *evaluatorA) {
-            if (!evaluatorA->stack.top().get_bool()) {
-              return evaluatorA->stack.pop();
-            }
-            evaluatorA->stack.pop();
-            if (!assert.msg) {
-              throw object::BaseException(
-                  evaluatorA->builtins().get_attribute("AssertionError"));
-            }
-            evaluatorA->push([](Evaluator *evaluatorB) {
-              throw object::BaseException(
-                  evaluatorB->builtins().get_attribute("AssertionError"));
-            });
-            evaluatorA->evaluate_get(*assert.msg);
-          });
+      push([&assert](Evaluator *evaluatorA) {
+        if (!evaluatorA->stack.top().get_bool()) {
+          return evaluatorA->stack.pop();
+        }
+        evaluatorA->stack.pop();
+        if (!assert.msg) {
+          throw object::BaseException(
+              evaluatorA->builtins().get_attribute("AssertionError"));
+        }
+        evaluatorA->push([](Evaluator *evaluatorB) {
+          throw object::BaseException(
+              evaluatorB->builtins().get_attribute("AssertionError"));
+        });
+        evaluatorA->evaluate_get(*assert.msg);
+      });
       evaluate_get(assert.test);
     }
   }
@@ -513,16 +506,15 @@ namespace chimera::library::virtual_machine {
 
   void Evaluator::get_attr(const object::Object &object,
                            const std::string &name) {
-    push(
-        [name](Evaluator *evaluator) {
-          evaluator->push(CallEvaluator{
-              evaluator->stack.top(),
-              {object::Object(
-                  object::String(name),
-                  {{"__class__", evaluator->builtins().get_attribute("str")}})},
-              {}});
-          evaluator->stack.pop();
-        });
+    push([name](Evaluator *evaluator) {
+      evaluator->push(CallEvaluator{
+          evaluator->stack.top(),
+          {object::Object(
+              object::String(name),
+              {{"__class__", evaluator->builtins().get_attribute("str")}})},
+          {}});
+      evaluator->stack.pop();
+    });
     if (object.has_attribute("__getattr__")) {
       return push(PushStack{object.get_attribute("__getattr__")});
     }

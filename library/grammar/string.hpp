@@ -172,12 +172,12 @@ namespace chimera::library::grammar {
       static void apply(const Input &in, Top &&top) {
         std::string string;
         if (tao::pegtl::unescape::utf8_append_utf32(
-                string,
-                std::accumulate(in.begin(), in.end(), std::uint32_t(0),
-                                [](const auto init, const auto c) {
-                                  return (init << 2) |
-                                         static_cast<std::uint32_t>(c - '0');
-                                }))) {
+                string, std::accumulate(in.begin(), in.end(), std::uint32_t(0),
+                                        [](const auto init, const auto c) {
+                                          return (init << 2) |
+                                                 static_cast<std::uint32_t>(
+                                                     c - '0');
+                                        }))) {
           top.apply(std::move(string));
         }
       }

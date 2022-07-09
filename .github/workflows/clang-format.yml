@@ -25,9 +25,6 @@ jobs:
         with:
           submodules: true
       - run: wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh ${{env.CLANG_VERSION}} all && rm -rf llvm.sh
-      - name: Configure CMake
-        working-directory: ${{github.workspace}}
-        run: CC=/usr/bin/clang-${{env.CLANG_VERSION}} CXX=/usr/bin/clang++-${{env.CLANG_VERSION}} cmake -B build
       - name: Lint c++ code
         working-directory: ${{github.workspace}}
-        run: find . '(' -name '*.cpp' -or -name '*.h' -or -name '*.hpp' ')' -print0 | xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | xargs -0 -- clang-format-${{env.CLANG_VERSION}} -i -style=file -Werror; git diff
+        run: find . '(' -name '*.cpp' -or -name '*.h' -or -name '*.hpp' ')' -print0 | xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | xargs -0 -- clang-format-${{env.CLANG_VERSION}} -dry-run -style=file -Werror

@@ -694,12 +694,11 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::StmtImpl, asdl::ExprImpl> {
       template <typename Outer>
       void success(Outer &&outer) {
-        auto action =
-            [this](auto &&def) {
-              def.decorator_list.reserve(this->size());
-              this->template transform<asdl::ExprImpl>(
-                  std::back_inserter(def.decorator_list));
-            };
+        auto action = [this](auto &&def) {
+          def.decorator_list.reserve(this->size());
+          this->template transform<asdl::ExprImpl>(
+              std::back_inserter(def.decorator_list));
+        };
         auto stmt = pop<asdl::StmtImpl>();
         if (std::holds_alternative<asdl::ClassDef>(*stmt.value)) {
           action(std::get<asdl::ClassDef>(*stmt.value));
