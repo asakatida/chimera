@@ -204,18 +204,18 @@ target_link_libraries(
   -fsanitize=address,fuzzer
   -rtlib=compiler-rt)
 
-add_executable(fuzz2 unit_tests/fuzz/target2.cpp)
+add_executable(fuzz-num unit_tests/fuzz/target-num.cpp)
 
 target_compile_options(
-  fuzz2
+  fuzz-num
   PUBLIC
   -g
   -fsanitize=address,fuzzer)
 
-target_compile_features(fuzz2 PUBLIC c_std_23 cxx_std_23)
+target_compile_features(fuzz-num PUBLIC c_std_23 cxx_std_23)
 
 target_link_libraries(
-  fuzz2
+  fuzz-num
   chimera_core
   pthread
   -fsanitize-coverage=trace-cmp
@@ -262,8 +262,8 @@ add_custom_target(
   DEPENDS check corpus_dir
   VERBATIM USES_TERMINAL)
 add_custom_target(
-  corpus2
-  fuzz2
+  corpus-num
+  fuzz-num
   -max_total_time=500
   -shrink=1 -use_value_profile=1
   -jobs=8
