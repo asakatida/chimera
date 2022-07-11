@@ -1,6 +1,6 @@
 # chimera
 
-[![CMake](https://github.com/asakatida/chimera/actions/workflows/cmake.yml/badge.svg)](https://github.com/asakatida/chimera/actions/workflows/cmake.yml)
+[![Black](https://github.com/asakatida/chimera/actions/workflows/black.yml/badge.svg)](https://github.com/asakatida/chimera/actions/workflows/black.yml) [![ClangFormat](https://github.com/asakatida/chimera/actions/workflows/clang-format.yml/badge.svg)](https://github.com/asakatida/chimera/actions/workflows/clang-format.yml) [![ClangTidy](https://github.com/asakatida/chimera/actions/workflows/clang-tidy.yml/badge.svg)](https://github.com/asakatida/chimera/actions/workflows/clang-tidy.yml) [![CMake](https://github.com/asakatida/chimera/actions/workflows/cmake.yml/badge.svg)](https://github.com/asakatida/chimera/actions/workflows/cmake.yml) [![Isort](https://github.com/asakatida/chimera/actions/workflows/isort.yml/badge.svg)](https://github.com/asakatida/chimera/actions/workflows/isort.yml) [![MyPy](https://github.com/asakatida/chimera/actions/workflows/mypy.yml/badge.svg)](https://github.com/asakatida/chimera/actions/workflows/mypy.yml) [![Pylama](https://github.com/asakatida/chimera/actions/workflows/pylama.yml/badge.svg)](https://github.com/asakatida/chimera/actions/workflows/pylama.yml) [![Shellcheck](https://github.com/asakatida/chimera/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/asakatida/chimera/actions/workflows/shellcheck.yml)
 
 A forkable alternative Python3 interpreter.
 
