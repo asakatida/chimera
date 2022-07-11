@@ -47,4 +47,4 @@ jobs:
         run: make check && make check_rand
       - name: Fuzz Test
         working-directory: ${{github.workspace}}/build
-        run: make corpus && make corpus2 || find ${{github.workspace}} -name 'leak-*' -exec base64 '{}' ';'
+        run: make corpus-num && make corpus || find ${{github.workspace}} -name 'leak-*' -exec base64 '{}' ';'
