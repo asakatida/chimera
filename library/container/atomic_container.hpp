@@ -30,7 +30,8 @@ namespace chimera::library::container {
 
   template <typename Value>
   struct AtomicContainer {
-    AtomicContainer() noexcept {} // NOLINT
+    // NOLINTNEXTLINE(modernize-use-equals-default)
+    AtomicContainer() noexcept {}
 
     explicit AtomicContainer(const Value &v) : value(v) {}
 
@@ -72,7 +73,7 @@ namespace chimera::library::container {
 
     [[nodiscard]] auto read() const -> Read {
       return Read{std::shared_lock<std::shared_mutex>(
-                      const_cast<std::shared_mutex &>(mutex)), // NOLINT
+                      const_cast<std::shared_mutex &>(mutex)),
                   value};
     }
 

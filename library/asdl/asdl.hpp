@@ -45,7 +45,7 @@ namespace chimera::library::asdl {
 
       template <typename Type,
                 typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
-      Impl(Type &&type) // NOLINT
+      Impl(Type &&type)
           : value(std::make_shared<ValueT>(ValueT(std::forward<Type>(type)))) {}
 
       ~Impl() noexcept = default;

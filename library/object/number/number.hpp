@@ -69,7 +69,7 @@ namespace chimera::library::object::number {
     template <typename T,
               typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
     explicit operator T() const noexcept {
-      if constexpr (std::is_same_v<T, bool>) { // NOLINT
+      if constexpr (std::is_same_v<T, bool>) {
         return value != 0u;
       }
       auto max = std::numeric_limits<T>::max();
@@ -84,7 +84,7 @@ namespace chimera::library::object::number {
     template <typename T,
               typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
     explicit operator T() const noexcept {
-      if constexpr (std::is_same_v<T, bool>) { // NOLINT
+      if constexpr (std::is_same_v<T, bool>) {
         return true;
       }
       auto max = std::numeric_limits<T>::max();
@@ -105,7 +105,7 @@ namespace chimera::library::object::number {
     template <typename T,
               typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
     explicit operator T() const noexcept {
-      if constexpr (std::is_same_v<T, bool>) { // NOLINT
+      if constexpr (std::is_same_v<T, bool>) {
         return std::visit(Construct<T>{}, value);
       }
       return -std::visit(Construct<T>{}, value);
@@ -118,7 +118,7 @@ namespace chimera::library::object::number {
     template <typename T,
               typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
     explicit operator T() const noexcept {
-      if constexpr (std::is_same_v<T, bool>) { // NOLINT
+      if constexpr (std::is_same_v<T, bool>) {
         return true;
       }
       return std::visit(
