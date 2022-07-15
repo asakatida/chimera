@@ -40,7 +40,7 @@ namespace chimera::library::grammar::rules {
               template <typename...> class Control, typename Input,
               typename Outer>
     static auto match(Input &in, Outer &&outer) -> bool {
-      if constexpr (A == tao::pegtl::apply_mode::action) { // NOLINT
+      if constexpr (A == tao::pegtl::apply_mode::action) {
         typename Rule::Transform state;
 
         if (normal<Rule>::template match<A, M, Action, Control>(in, state)) {
@@ -49,7 +49,7 @@ namespace chimera::library::grammar::rules {
         }
         return false;
       }
-      if constexpr (A != tao::pegtl::apply_mode::action) { // NOLINT
+      if constexpr (A != tao::pegtl::apply_mode::action) {
         return normal<Rule>::template match<A, M, Action, Control>(in, outer);
       }
       Expects(false);
