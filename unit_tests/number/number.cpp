@@ -2,7 +2,7 @@
 
 #include <limits>
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 using chimera::library::object::number::Number;
 
@@ -162,7 +162,7 @@ TEST_CASE("number Number naturals") {
   REQUIRE((massive & number) > one);
 }
 
-TEST_CASE("number Number naturals costly", "[!hide]") {
+TEST_CASE("number Number naturals costly", "[.number]") {
   Number huge(std::numeric_limits<std::uint64_t>::max());
   auto number = huge * huge;
   auto massive = number * number;

@@ -1,7 +1,7 @@
 -Iinclude
 -Ilibrary
 -Iunit_tests
--Iexternal/Catch/single_include
+-Iexternal/Catch/src
 -Iexternal/GSL/include
 -Iexternal/metal/include
 -Iexternal/operators/include

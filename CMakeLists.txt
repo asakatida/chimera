@@ -163,6 +163,8 @@ add_executable(chimera source/main.cpp)
 target_compile_features(chimera PUBLIC c_std_23 cxx_std_23)
 target_link_libraries(chimera chimera_core pthread)
 
+add_subdirectory(external/Catch EXCLUDE_FROM_ALL)
+
 add_executable(
   unit_test
   unit_tests/grammar/grammar.cpp
@@ -171,8 +173,7 @@ add_executable(
   unit_tests/grammar/number.cpp
   unit_tests/grammar/test_parse.hpp
   unit_tests/number/number.cpp
-  unit_tests/virtual_machine/virtual_machine.cpp
-  unit_tests/main.cpp)
+  unit_tests/virtual_machine/virtual_machine.cpp)
 
 target_compile_features(unit_test PUBLIC c_std_23 cxx_std_23)
 
@@ -181,9 +182,9 @@ target_include_directories(unit_test PUBLIC unit_tests)
 target_include_directories(
   unit_test
   SYSTEM PUBLIC
-  external/Catch/single_include)
+  external/Catch/src)
 
-target_link_libraries(unit_test chimera_core pthread)
+target_link_libraries(unit_test Catch2WithMain chimera_core pthread)
 
 add_executable(fuzz unit_tests/fuzz/target.cpp)
 

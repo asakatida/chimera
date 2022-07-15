@@ -8,7 +8,7 @@ export CPPFLAGS="${CPPFLAGS} \
   -I ${root}/include \
   -I ${root}/library \
   -I ${root}/unit_tests \
-  -isystem ${root}/external/Catch/single_include \
+  -isystem ${root}/external/Catch/src \
   -isystem ${root}/external/GSL/include \
   -isystem ${root}/external/metal/include \
   -isystem ${root}/external/operators/include \
