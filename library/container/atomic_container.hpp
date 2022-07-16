@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <memory>
 #include <mutex>
 #include <shared_mutex>
 
@@ -31,17 +32,21 @@ namespace chimera::library::container {
   template <typename Value>
   struct AtomicContainer {
     // NOLINTNEXTLINE(modernize-use-equals-default)
-    AtomicContainer() noexcept {}
+    AtomicContainer() noexcept : mutex(std::make_unique<std::shared_mutex>()) {}
 
-    explicit AtomicContainer(const Value &v) : value(v) {}
+    explicit AtomicContainer(const Value &v)
+        : mutex(std::make_unique<std::shared_mutex>()), value(v) {}
 
-    explicit AtomicContainer(Value &&v) noexcept : value(std::move(v)) {}
+    explicit AtomicContainer(Value &&v) noexcept
+        : mutex(std::make_unique<std::shared_mutex>()), value(std::move(v)) {}
 
-    AtomicContainer(const AtomicContainer &other) {
+    AtomicContainer(const AtomicContainer &other)
+        : mutex(std::make_unique<std::shared_mutex>()) {
       value = other.read().value;
     }
 
-    AtomicContainer(AtomicContainer &&other) noexcept {
+    AtomicContainer(AtomicContainer &&other) noexcept
+        : mutex(std::make_unique<std::shared_mutex>()) {
       value = std::move(other.write().value);
     }
 
@@ -72,21 +77,19 @@ namespace chimera::library::container {
     };
 
     [[nodiscard]] auto read() const -> Read {
-      return Read{std::shared_lock<std::shared_mutex>(
-                      const_cast<std::shared_mutex &>(mutex)),
-                  value};
+      return Read{std::shared_lock<std::shared_mutex>(*mutex), value};
     }
 
-    auto read() -> Read {
-      return Read{std::shared_lock<std::shared_mutex>(mutex), value};
+    [[nodiscard]] auto read() -> Read {
+      return Read{std::shared_lock<std::shared_mutex>(*mutex), value};
     }
 
-    auto write() -> Write {
-      return Write{std::unique_lock<std::shared_mutex>(mutex), value};
+    [[nodiscard]] auto write() -> Write {
+      return Write{std::unique_lock<std::shared_mutex>(*mutex), value};
     }
 
   private:
-    std::shared_mutex mutex{};
+    std::unique_ptr<std::shared_mutex> mutex;
     Value value;
   };
 } // namespace chimera::library::container
