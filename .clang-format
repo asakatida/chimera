@@ -2,13 +2,6 @@
 Language: Cpp
 BasedOnStyle: LLVM
 AlwaysBreakTemplateDeclarations: true
-IncludeCategories:
-  - Regex: '^<.*\.\w+>$'
-    Priority: 2
-  - Regex: '^<'
-    Priority: 1
-  - Regex: '.*'
-    Priority: 3
 IndentCaseLabels: true
 KeepEmptyLinesAtTheStartOfBlocks: false
 NamespaceIndentation: All
