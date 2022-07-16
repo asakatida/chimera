@@ -3,6 +3,7 @@ AnalyzeTemporaryDtors: true
 Checks: |
   cert-*,
   clang-*,
+  concurrency-*,
   modernize-*,
   performance-*,
 FormatStyle: file
