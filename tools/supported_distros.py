@@ -19,8 +19,8 @@ supported_distros_matrix = {
 }
 
 
-def key(item):
-    def level(name):
+def key(item: dict[str, str]) -> tuple[int, str, str, str]:
+    def level(name: str) -> int:
         image = supported_distros_matrix[item["distro"]]["tags"][item["tag"]]["images"][
             name
         ]
