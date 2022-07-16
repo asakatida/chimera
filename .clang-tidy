@@ -1,6 +1,9 @@
 ---
-Checks: "clang-*,modernize-*,performance-*"
-WarningsAsErrors: "clang-*,modernize-*,performance-*"
-HeaderFilterRegex: ".*"
 AnalyzeTemporaryDtors: true
+Checks: |
+  clang-*,
+  modernize-*,
+  performance-*,
 FormatStyle: file
+HeaderFilterRegex: ".*"
+WarningsAsErrors: "*"
