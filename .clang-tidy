@@ -1,6 +1,7 @@
 ---
 AnalyzeTemporaryDtors: true
 Checks: |
+  cert-*,
   clang-*,
   modernize-*,
   performance-*,
