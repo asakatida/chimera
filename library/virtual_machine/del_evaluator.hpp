@@ -30,12 +30,10 @@
 namespace chimera::library::virtual_machine {
   struct DelEvaluator {
     Evaluator *evaluator;
-
     void evaluate(const asdl::Attribute &attribute);
     void evaluate(const asdl::Subscript &subscript);
     void evaluate(const asdl::Starred &starred);
     void evaluate(const asdl::Name &name);
-
     template <typename ASDL>
     [[noreturn]] void evaluate(const ASDL & /*asdl*/) {
       throw object::BaseException(

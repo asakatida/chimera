@@ -28,10 +28,8 @@
 
 namespace chimera::library::virtual_machine {
   struct Evaluator;
-
   struct SliceEvaluator {
     Evaluator *evaluator;
-
     void operator()(const asdl::Slice &slice);
     void operator()(const asdl::ExtSlice &extSlice);
     void operator()(const asdl::Index &index);

@@ -26,10 +26,8 @@
 
 namespace chimera::library::virtual_machine {
   struct Evaluator;
-
   struct ToBoolEvaluator {
     object::Object object;
-
     void operator()(Evaluator *evaluatorA) const;
   };
 } // namespace chimera::library::virtual_machine

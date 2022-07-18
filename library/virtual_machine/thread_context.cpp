@@ -28,11 +28,9 @@ namespace chimera::library::virtual_machine {
   void ThreadContext::evaluate(const asdl::Module &module) {
     return Evaluator{*this}.evaluate(module);
   }
-
   void ThreadContext::evaluate(const asdl::Interactive &interactive) {
     return Evaluator{*this}.evaluate(interactive);
   }
-
   void ThreadContext::evaluate(const asdl::Expression &expression) {
     return Evaluator{*this}.evaluate(expression);
   }

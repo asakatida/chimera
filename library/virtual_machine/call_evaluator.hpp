@@ -27,12 +27,10 @@
 
 namespace chimera::library::virtual_machine {
   struct Evaluator;
-
   struct CallEvaluator {
     object::Object object;
     object::Tuple args;
     object::Object kwargs;
-
     void operator()(Evaluator *evaluatorA) const;
   };
 } // namespace chimera::library::virtual_machine

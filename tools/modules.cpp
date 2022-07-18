@@ -44,11 +44,9 @@ namespace chimera::library {
   auto PrintState::printed(const object::Object &object) -> std::string {
     return m_printed.at(id(object));
   }
-
   auto PrintState::id(const object::Object &object) -> object::Id {
     return m_remap.try_emplace(object.id(), object.id()).first->second;
   }
-
   void PrintState::remap(const object::Object &module,
                          const object::Object &previous) {
     if (!m_remap.try_emplace(previous.id(), module.id()).second) {
@@ -65,11 +63,9 @@ namespace chimera::library {
       }
     }
   }
-
   auto PrintState::is_printed(const object::Object &object) -> bool {
     return m_printed.count(id(object)) != 0;
   }
-
   auto Compare::operator()(const SetAttribute &a, const SetAttribute &b) const
       -> bool {
     if (a.base_name == b.base_name) {
@@ -77,7 +73,6 @@ namespace chimera::library {
     }
     return a.base_name < b.base_name;
   }
-
   auto Compare::operator()(const Work &a, const Work &b) const -> bool {
     if (a.printer->is_printed(b.object) && !b.printer->is_printed(a.object)) {
       return true;
@@ -90,7 +85,6 @@ namespace chimera::library {
     }
     return a.base_name > b.base_name;
   }
-
   auto IncompleteTuple::operator()(const object::Tuple &tuple) const
       -> std::optional<object::Object> {
     for (const auto &object : tuple) {

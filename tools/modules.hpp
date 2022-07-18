@@ -39,27 +39,22 @@
 
 namespace chimera::library {
   struct PrintState;
-
   struct SetAttribute {
     std::string base_name;
     std::string name;
   };
-
   struct Work {
     PrintState *printer;
     object::Object object;
     std::string base_name;
     std::string name;
   };
-
   struct Compare {
     auto operator()(const SetAttribute &a, const SetAttribute &b) const -> bool;
     auto operator()(const Work &a, const Work &b) const -> bool;
   };
-
   struct IncompleteTuple {
     PrintState *printer;
-
     auto operator()(const object::Tuple &tuple) const
         -> std::optional<object::Object>;
     template <typename Type>
@@ -68,22 +63,16 @@ namespace chimera::library {
       return {};
     }
   };
-
   struct PrintState {
     auto printed(const object::Object &object) -> std::string;
-
     auto id(const object::Object &object) -> object::Id;
-
     void remap(const object::Object &module, const object::Object &previous);
-
     auto is_printed(const object::Object &object) -> bool;
-
     template <typename OStream>
     auto print(OStream &os, const object::Instance & /*instance*/)
         -> OStream & {
       return os << "object::Instance{}";
     }
-
     template <typename OStream>
     auto print(OStream &os, const object::Bytes &bytes) -> OStream & {
       os << "object::Bytes{";
@@ -98,7 +87,6 @@ namespace chimera::library {
       }
       return os << "}";
     }
-
     template <typename OStream>
     auto print(OStream &os, const object::BytesMethod &bytesMethod)
         -> OStream & {
@@ -106,39 +94,32 @@ namespace chimera::library {
       switch (bytesMethod) {}
       return os;
     }
-
     template <typename OStream>
     auto print(OStream &os, const object::Expr &expr) -> OStream & {
       return os << &expr;
     }
-
     template <typename OStream>
     auto print(OStream &os, const object::False & /*false*/) -> OStream & {
       return os << "object::False{}";
     }
-
     template <typename OStream>
     auto print(OStream &os, const object::Future & /*future*/) -> OStream & {
       Expects(false);
       return os;
     }
-
     template <typename OStream>
     auto print(OStream &os, const object::None & /*none*/) -> OStream & {
       return os << "object::None{}";
     }
-
     template <typename OStream>
     auto print(OStream &os, const object::NullFunction & /*nullFunction*/)
         -> OStream & {
       return os << "object::NullFunction{}";
     }
-
     template <typename OStream>
     auto print(OStream &os, const object::Number &number) -> OStream & {
       return number.repr(os);
     }
-
     template <typename OStream>
     auto print(OStream &os, const object::NumberMethod &numberMethod)
         -> OStream & {
@@ -146,7 +127,6 @@ namespace chimera::library {
       switch (numberMethod) {}
       return os;
     }
-
     template <typename OStream>
     auto print(OStream &os, const object::ObjectMethod &objectMethod)
         -> OStream & {
@@ -163,18 +143,15 @@ namespace chimera::library {
       }
       return os;
     }
-
     template <typename OStream>
     auto print(OStream &os, const object::Stmt &stmt) -> OStream & {
       return os << &stmt;
     }
-
     template <typename OStream>
     auto print(OStream &os, const object::String &string) -> OStream & {
       std::string value(string.value);
       return os << "object::String(" << std::quoted(value) << "s)";
     }
-
     template <typename OStream>
     auto print(OStream &os, const object::StringMethod &stringMethod)
         -> OStream & {
@@ -182,12 +159,10 @@ namespace chimera::library {
       switch (stringMethod) {}
       return os;
     }
-
     template <typename OStream>
     auto print(OStream &os, const object::True & /*true*/) -> OStream & {
       return os << "object::True{}";
     }
-
     template <typename OStream>
     auto print(OStream &os, const object::Tuple &tuple) -> OStream & {
       os << "object::Tuple{";
@@ -202,7 +177,6 @@ namespace chimera::library {
       }
       return os << "}";
     }
-
     template <typename OStream>
     auto print(OStream &os, const object::TupleMethod &tupleMethod)
         -> OStream & {
@@ -210,7 +184,6 @@ namespace chimera::library {
       switch (tupleMethod) {}
       return os;
     }
-
     template <typename OStream>
     auto print(OStream &os, const object::SysCall &sysCall) -> OStream & {
       os << "object::SysCall::";
@@ -236,7 +209,6 @@ namespace chimera::library {
       }
       return os;
     }
-
     template <typename OStream>
     auto print(OStream &os, const Work &work) -> OStream & {
       auto baseName = std::string(work.base_name).append("_").append(work.name);
@@ -286,20 +258,17 @@ namespace chimera::library {
       }
       return os;
     }
-
     std::map<object::Id, object::Id> m_remap;
     std::map<object::Id, std::string> m_printed;
     std::priority_queue<Work, std::vector<Work>, Compare> queue{};
     std::map<object::Id, std::vector<SetAttribute>> wanted{};
     object::Object main;
   };
-
   struct Printer {
     object::Object main;
     std::string module;
     std::optional<object::Object> remap{};
   };
-
   template <typename OStream>
   auto operator<<(OStream &os, const Printer &printer) -> OStream & {
     PrintState state;

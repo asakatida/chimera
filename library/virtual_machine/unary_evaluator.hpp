@@ -29,19 +29,15 @@
 
 namespace chimera::library::virtual_machine {
   struct Evaluator;
-
   struct UnaryBitNotEvaluator {
     void operator()(Evaluator *evaluatorA) const;
   };
-
   struct UnaryNotEvaluator {
     void operator()(Evaluator *evaluatorA) const;
   };
-
   struct UnaryAddEvaluator {
     void operator()(Evaluator *evaluatorA) const;
   };
-
   struct UnarySubEvaluator {
     void operator()(Evaluator *evaluatorA) const;
   };

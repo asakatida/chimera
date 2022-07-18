@@ -32,18 +32,14 @@
 namespace chimera::library::grammar::rules {
   template <typename... Types>
   struct Tuple {};
-
   template <typename... Types>
   struct Variant {};
-
   template <typename Type>
   struct Vector {};
-
   using tao::pegtl::opt;
   using tao::pegtl::rep;
   using tao::pegtl::seq;
   using tao::pegtl::sor;
-
   template <typename Rule>
   struct ASTType {
     using Type = Tuple<>;

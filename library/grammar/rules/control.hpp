@@ -42,7 +42,6 @@ namespace chimera::library::grammar::rules {
     static auto match(Input &in, Outer &&outer) -> bool {
       if constexpr (A == tao::pegtl::apply_mode::action) {
         typename Rule::Transform state;
-
         if (normal<Rule>::template match<A, M, Action, Control>(in, state)) {
           state.success(outer);
           return true;

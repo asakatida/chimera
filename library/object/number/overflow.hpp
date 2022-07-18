@@ -27,7 +27,6 @@ namespace chimera::library::object::number {
     std::uint64_t result;
     std::uint64_t overflow;
   };
-
   auto div_mod(const Carryover &left, std::uint64_t right) -> Carryover;
   auto left_shift(std::uint64_t left, std::uint64_t right) -> Carryover;
   auto mult(std::uint64_t left, std::uint64_t right) -> Carryover;

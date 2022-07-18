@@ -26,10 +26,8 @@
 
 namespace chimera::library::virtual_machine {
   struct Evaluator;
-
   struct PushStack {
     object::Object object;
-
     void operator()(Evaluator *evaluator) const;
   };
 } // namespace chimera::library::virtual_machine

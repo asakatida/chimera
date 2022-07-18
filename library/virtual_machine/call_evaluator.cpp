@@ -35,7 +35,6 @@ namespace chimera::library::virtual_machine {
                                const Value & /*exprImpl*/) const {
       Expects(false);
     }
-
     void operator()(Evaluator *evaluator) const {
       auto top = std::move(evaluator->stack.top());
       evaluator->stack.pop();
@@ -44,7 +43,6 @@ namespace chimera::library::virtual_machine {
                  top.value());
     }
   };
-
   void CallEvaluator::operator()(Evaluator *evaluatorA) const {
     if (std::holds_alternative<object::Instance>(object.value())) {
       evaluatorA->push([](Evaluator *evaluatorB) {

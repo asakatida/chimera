@@ -44,7 +44,6 @@ namespace chimera::library::virtual_machine {
                                              ? builtins.get_attribute("True")
                                              : builtins.get_attribute("False"));
   }
-
   auto VirtualMachine::process_context() const -> ProcessContext {
     return ProcessContext{global_context};
   }
