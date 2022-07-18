@@ -21,31 +21,62 @@
 """generate_utf8_id_insane.py."""
 
 from itertools import product
+from pathlib import Path
+from re import MULTILINE, subn
+
+from tqdm import tqdm  # type: ignore
+
+utf8_id_continue = (
+    Path(__file__).parent.parent / "library" / "grammar" / "utf8_id_continue.hpp"
+).absolute()
 
 id_start = set(filter(lambda i: chr(i).isidentifier(), range(0x10FFFF)))
 id_continue = set(
-    filter(
-        lambda i: all(
-            map(lambda j: "".join((chr(j), chr(i))).isidentifier(), id_start)
+    tqdm(
+        filter(
+            lambda i: all(
+                map(lambda j: "".join((chr(j), chr(i))).isidentifier(), id_start)
+            ),
+            set(range(0x10FFFF)) - id_start,
         ),
-        set(range(0x10FFFF)) - id_start,
+        total=2908,
     )
 )
-print(
-    list(
+
+ranges = ",".join(
+    map(
+        hex,
         next(
-            filter(
-                str.isidentifier,
-                map(
-                    "".join,
-                    product(
-                        map(chr, id_start),
+            iter(
+                tqdm(
+                    filter(
+                        str.isidentifier,
                         map(
-                            chr, set(range(0x10FFFF)).difference(id_start, id_continue)
+                            "".join,
+                            product(
+                                map(chr, id_start),
+                                map(
+                                    chr,
+                                    set(range(0x10FFFF)).difference(
+                                        id_start, id_continue
+                                    ),
+                                ),
+                            ),
                         ),
                     ),
-                ),
+                    total=1234,
+                )
             )
-        ).encode()
+        ).encode(),
     )
+)
+
+utf8_id_continue.write_text(
+    subn(
+        r"\bUtf8IdContinue[^;]+;$",
+        f"Utf8IdContinue = ranges<{ranges}>;",
+        utf8_id_continue.read_text(),
+        1,
+        MULTILINE,
+    )[0]
 )

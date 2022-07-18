@@ -25,8 +25,14 @@ from pathlib import Path
 from re import MULTILINE, subn
 from typing import Iterable, Iterator, Set, Tuple
 
+from tqdm import tqdm  # type: ignore
 
-def _a(id_start: Set[int]) -> str:
+utf8_id_continue = (
+    Path(__file__).parent.parent / "library" / "grammar" / "utf8_id_continue.hpp"
+).absolute()
+
+
+def _a(id_start: Set[int]) -> Iterator[int]:
     def b(i: int) -> bool:
         def c() -> Iterable[bool]:
             def d(j: int) -> bool:
@@ -37,13 +43,12 @@ def _a(id_start: Set[int]) -> str:
         return all(c())
 
     id_continue_pos: Set[int] = set(range(0x10FFFF)) - id_start
-    id_continue: Iterator[int] = chain.from_iterable(
+    return chain.from_iterable(
         starmap(
             _b,
             groupby(zip(filter(b, id_continue_pos), count()), lambda t: t[0] - t[1]),
         )
     )
-    return ",".join(map(str, id_continue))
 
 
 def _b(_: int, group: Iterable[Tuple[int, int]]) -> Tuple[int, int]:
@@ -55,11 +60,12 @@ def _d(i: int) -> bool:
     return chr(i).isidentifier()
 
 
-utf8_id_continue = Path("library/grammar/utf8_id_continue.hpp")
+ranges = ",".join(map(hex, tqdm(_a(set(filter(_d, range(0x10FFFF)))), total=684)))
+
 utf8_id_continue.write_text(
     subn(
-        r"^.+Utf8IdContinue[^;]+;$",
-        f"using Utf8IdContinue = ranges<{_a(set(filter(_d, range(0x10FFFF))))}>;",
+        r"\bUtf8IdContinue[^;]+;$",
+        f"Utf8IdContinue = ranges<{ranges}>;",
         utf8_id_continue.read_text(),
         1,
         MULTILINE,

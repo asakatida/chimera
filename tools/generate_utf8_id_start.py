@@ -25,6 +25,12 @@ from pathlib import Path
 from re import MULTILINE, subn
 from typing import Iterable, Tuple
 
+from tqdm import tqdm  # type: ignore
+
+utf8_id_start = (
+    Path(__file__).parent.parent / "library" / "grammar" / "utf8_id_start.hpp"
+).absolute()
+
 
 def _a(key: int, group: Iterable[Tuple[int, int]]) -> Tuple[int, ...]:
     t = tuple(e[0] for e in group)
@@ -33,27 +39,29 @@ def _a(key: int, group: Iterable[Tuple[int, int]]) -> Tuple[int, ...]:
 
 ranges = ",".join(
     map(
-        str,
-        chain.from_iterable(
-            starmap(
-                _a,
-                groupby(
-                    zip(
-                        filter(lambda i: chr(i).isidentifier(), range(0x10FFFF)),
-                        count(),
+        hex,
+        tqdm(
+            chain.from_iterable(
+                starmap(
+                    _a,
+                    groupby(
+                        zip(
+                            filter(lambda i: chr(i).isidentifier(), range(0x10FFFF)),
+                            count(),
+                        ),
+                        lambda t: t[0] - t[1],
                     ),
-                    lambda t: t[0] - t[1],
-                ),
-            )
+                )
+            ),
+            total=1234,
         ),
     )
 )
 
-utf8_id_start = Path("library/grammar/utf8_id_start.hpp")
 utf8_id_start.write_text(
     subn(
-        r"^.+Utf8IdStart[^;]+;$",
-        f"using Utf8IdStart = ranges<{ranges}>;",
+        r"\bUtf8IdStart[^;]+;$",
+        f"Utf8IdStart = ranges<{ranges}>;",
         utf8_id_start.read_text(),
         1,
         MULTILINE,
