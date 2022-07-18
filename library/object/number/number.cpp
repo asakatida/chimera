@@ -43,6 +43,8 @@
 #include "object/number/sub.hpp"
 #include "object/number/xor.hpp"
 
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+
 namespace chimera::library::object::number {
   static auto reduce(Base value) -> NumberValue { return value; }
   static auto reduce(Natural &&value) -> NumberValue {
@@ -216,3 +218,5 @@ namespace chimera::library::object::number {
   };
   auto Number::complex() const -> Number { return visit(MakeComplexVisit{}); }
 } // namespace chimera::library::object::number
+
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)

@@ -28,6 +28,8 @@
 
 #include <tao/operators.hpp>
 
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+
 namespace chimera::library::object::number {
   template <typename Return>
   struct Construct {
@@ -213,3 +215,5 @@ namespace chimera::library::object::number {
     NumberValue value;
   };
 } // namespace chimera::library::object::number
+
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)

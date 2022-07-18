@@ -4,6 +4,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+
 using chimera::library::object::number::Number;
 
 template <typename OStream>
@@ -185,3 +187,5 @@ TEST_CASE("number Number subtraction huge") {
   REQUIRE(std::uint64_t(massive) == std::numeric_limits<std::uint64_t>::max());
   REQUIRE(std::uint64_t(number) == std::numeric_limits<std::uint64_t>::max());
 }
+
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)

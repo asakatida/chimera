@@ -31,8 +31,6 @@
 #include "virtual_machine/process_context.hpp"
 #include "virtual_machine/thread_context.hpp"
 
-static std::atomic_flag SIG_INT;
-
 extern "C" void interupt_handler(int signal);
 
 namespace chimera::library::virtual_machine {

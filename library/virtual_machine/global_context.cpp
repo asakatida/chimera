@@ -35,11 +35,12 @@
 namespace chimera::library::virtual_machine {
   auto GlobalContext::interactive() -> int {
     if (!options.dont_display_copyright) {
-      std::cout << "chimera " CHIMERA_VERSION " (default, " __DATE__
-                   ", " __TIME__ ")\n"
+      std::cout << "chimera " << CHIMERA_VERSION
+                << " (default, " __DATE__ ", " __TIME__ ")\n"
                    "[" __VERSION__ "] on darwin\n"
                    R"(Type "help", "copyright", "credits" or "license" )"
-                   "for more information.\n";
+                   "for more information."
+                << std::endl;
     }
     ProcessContext processContext{*this};
     auto main = processContext.make_module("__main__");

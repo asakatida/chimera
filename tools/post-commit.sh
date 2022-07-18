@@ -10,6 +10,6 @@ description="$(git describe "${current_branch}")"
 cat <<-VERSION >"${version}"
 #pragma once
 
-#define CHIMERA_VERSION "${exact_tag}"
-#define CHIMERA_GIT_HEAD "${description}"
+constexpr const char *CHIMERA_VERSION = "${exact_tag}";
+constexpr const char *CHIMERA_GIT_HEAD = "${description}";
 VERSION

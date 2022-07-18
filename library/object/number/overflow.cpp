@@ -22,6 +22,8 @@
 
 #include <limits>
 
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+
 namespace chimera::library::object::number {
   auto div_mod(const Carryover &left, std::uint64_t right) -> Carryover {
     auto a = __uint128_t(left.overflow) << 64u | left.result;
@@ -51,3 +53,5 @@ namespace chimera::library::object::number {
     return {std::uint64_t(carryover), std::uint64_t(carryover >> 64u)};
   }
 } // namespace chimera::library::object::number
+
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)

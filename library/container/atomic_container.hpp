@@ -30,20 +30,17 @@ namespace chimera::library::container {
   void atomic_container();
   template <typename Value>
   struct AtomicContainer {
-    // NOLINTNEXTLINE(modernize-use-equals-default)
     AtomicContainer() noexcept : mutex(std::make_unique<std::shared_mutex>()) {}
     explicit AtomicContainer(const Value &v)
         : mutex(std::make_unique<std::shared_mutex>()), value(v) {}
     explicit AtomicContainer(Value &&v) noexcept
         : mutex(std::make_unique<std::shared_mutex>()), value(std::move(v)) {}
     AtomicContainer(const AtomicContainer &other)
-        : mutex(std::make_unique<std::shared_mutex>()) {
-      value = other.read().value;
-    }
+        : mutex(std::make_unique<std::shared_mutex>()),
+          value(other.read().value) {}
     AtomicContainer(AtomicContainer &&other) noexcept
-        : mutex(std::make_unique<std::shared_mutex>()) {
-      value = std::move(other.write().value);
-    }
+        : mutex(std::make_unique<std::shared_mutex>()),
+          value(std::move(other.write().value)) {}
     ~AtomicContainer() noexcept = default;
     auto operator=(const AtomicContainer &other) -> AtomicContainer & {
       if (this != &other) {
