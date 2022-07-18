@@ -71,7 +71,7 @@ namespace chimera::library::object::number {
   }
   auto operator*(const Natural &left, std::uint64_t right) -> Number {
     if (right == 0) {
-      return Number(0u);
+      return Number(0U);
     }
     if (right == 1) {
       return Number(Natural(left));
@@ -95,7 +95,7 @@ namespace chimera::library::object::number {
     return left * right.value;
   }
   auto operator*(const Natural &left, const Natural &right) -> Number {
-    Number accumulate(0u);
+    Number accumulate(0U);
     std::size_t size = 0;
     for (std::uint64_t i : right.value) {
       accumulate = accumulate + ((left * i) << (64 * (size++)));

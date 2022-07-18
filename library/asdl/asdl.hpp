@@ -43,6 +43,7 @@ namespace chimera::library::asdl {
       Impl(Impl &&impl) noexcept = default;
       template <typename Type,
                 typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
+      // NOLINTNEXTLINE(hicpp-explicit-conversions)
       Impl(Type &&type)
           : value(std::make_shared<ValueT>(ValueT(std::forward<Type>(type)))) {}
       ~Impl() noexcept = default;

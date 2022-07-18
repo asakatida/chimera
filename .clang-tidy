@@ -5,6 +5,7 @@ Checks: |
   clang-*,
   concurrency-*,
   cppcoreguidelines-*,
+  hicpp-*,
   modernize-*,
   performance-*,
 FormatStyle: file

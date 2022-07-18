@@ -56,7 +56,7 @@ namespace chimera::library::object::number {
     return Number(left / right.value);
   }
   auto floor_div(std::uint64_t /*left*/, const Natural & /*right*/) -> Number {
-    return Number(0u);
+    return Number(0U);
   }
   auto floor_div(std::uint64_t left, const Negative &right) -> Number {
     return std::visit(
@@ -112,16 +112,16 @@ namespace chimera::library::object::number {
   }
   auto floor_div(const Natural &left, const Natural &right) -> Number {
     if (left < right) {
-      return Number(0u);
+      return Number(0U);
     }
     if (!(right < left)) {
-      return Number(1u);
+      return Number(1U);
     }
     Number a(Natural{left});
-    Number b(0u);
+    Number b(0U);
     while (right < a) {
       a = +(a - Number(Natural{right}));
-      b = b + Number(1u);
+      b = b + Number(1U);
     }
     return b;
   }

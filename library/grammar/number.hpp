@@ -41,7 +41,7 @@ namespace chimera::library::grammar {
         number *= object::Number(Base).pow(object::Number(in.size())) +
                   object::Number(std::stoul(in.string(), nullptr, Base));
       }
-      object::Number number = object::Number(0u);
+      object::Number number = object::Number(0U);
     };
     struct Nonzerodigit : seq<range<'1', '9'>, rep_opt<18, range<'0', '9'>>> {};
     template <>

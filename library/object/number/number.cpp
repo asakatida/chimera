@@ -52,7 +52,7 @@ namespace chimera::library::object::number {
       value.value.pop_back();
     }
     if (value.value.empty()) {
-      return Base{0u};
+      return Base{0U};
     }
     if (value.value.size() == 1) {
       return Base{value.value[0]};
@@ -63,25 +63,25 @@ namespace chimera::library::object::number {
   static auto reduce(Negative &&negative) -> NumberValue { return negative; }
   template <typename Left, typename Right>
   auto reduce(Left &&left, Right &&right) -> NumberValue {
-    if (left == Base{0u}) {
-      return Base{0u};
+    if (left == Base{0U}) {
+      return Base{0U};
     }
     if (left == right) {
-      return Base{1u};
+      return Base{1U};
     }
-    if (left == Base{1u} || right == Base{0u}) {
+    if (left == Base{1U} || right == Base{0U}) {
       return Rational{std::forward<Left>(left), std::forward<Right>(right)};
     }
-    if (right == Base{1u}) {
+    if (right == Base{1U}) {
       return reduce(std::forward<Left>(left));
     }
     auto aPrime = gcd(left, right);
-    if (aPrime == Number(1u)) {
+    if (aPrime == Number(1U)) {
       return Rational{std::forward<Left>(left), std::forward<Right>(right)};
     }
     Number nLeft(std::forward<Left>(left)), nRight(std::forward<Right>(right));
     if (nLeft == aPrime) {
-      return (Number(1u) / nRight.floor_div(aPrime)).unpack();
+      return (Number(1U) / nRight.floor_div(aPrime)).unpack();
     }
     if (nRight == aPrime) {
       return nLeft.floor_div(aPrime).unpack();
@@ -115,7 +115,7 @@ namespace chimera::library::object::number {
   Number::Number(Complex &&complex) : value(std::move(complex)) {}
   Number::Number(const Number &other) : value(other.value) {}
   Number::Number(Number &&other) noexcept { swap(std::move(other)); }
-  Number::~Number() noexcept { value = Base{0u}; }
+  Number::~Number() noexcept { value = Base{0U}; }
   auto Number::operator=(const Number &other) -> Number & {
     if (this != &other) {
       value = other.value;
