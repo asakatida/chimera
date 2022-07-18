@@ -107,7 +107,7 @@ namespace chimera::library::object::number {
       return Number(Natural(left));
     }
     if (!(right < left)) {
-      return Number(0u);
+      return Number(0U);
     }
     Number a(Natural{left});
     Number b(Natural{right});

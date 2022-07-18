@@ -72,7 +72,7 @@ namespace chimera::library::object::number {
               typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
     explicit operator T() const noexcept {
       if constexpr (std::is_same_v<T, bool>) {
-        return value != 0u;
+        return value != 0U;
       }
       auto max = std::numeric_limits<T>::max();
       if (value >= static_cast<std::uint64_t>(max)) {
@@ -94,7 +94,7 @@ namespace chimera::library::object::number {
         return max;
       }
       auto max128 = static_cast<__uint128_t>(max);
-      auto a = (__uint128_t(value[1]) << 64u) | value[0];
+      auto a = (__uint128_t(value[1]) << 64U) | value[0];
       if (a >= max128) {
         return max;
       }

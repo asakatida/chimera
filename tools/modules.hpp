@@ -91,6 +91,7 @@ namespace chimera::library {
     auto print(OStream &os, const object::BytesMethod &bytesMethod)
         -> OStream & {
       os << "object::BytesMethod::";
+      // NOLINTNEXTLINE(hicpp-multiway-paths-covered)
       switch (bytesMethod) {}
       return os;
     }
@@ -124,6 +125,7 @@ namespace chimera::library {
     auto print(OStream &os, const object::NumberMethod &numberMethod)
         -> OStream & {
       os << "object::NumberMethod::";
+      // NOLINTNEXTLINE(hicpp-multiway-paths-covered)
       switch (numberMethod) {}
       return os;
     }
@@ -156,6 +158,7 @@ namespace chimera::library {
     auto print(OStream &os, const object::StringMethod &stringMethod)
         -> OStream & {
       os << "object::StringMethod::";
+      // NOLINTNEXTLINE(hicpp-multiway-paths-covered)
       switch (stringMethod) {}
       return os;
     }
@@ -181,6 +184,7 @@ namespace chimera::library {
     auto print(OStream &os, const object::TupleMethod &tupleMethod)
         -> OStream & {
       os << "object::TupleMethod::";
+      // NOLINTNEXTLINE(hicpp-multiway-paths-covered)
       switch (tupleMethod) {}
       return os;
     }

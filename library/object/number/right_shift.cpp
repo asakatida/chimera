@@ -36,7 +36,7 @@ namespace chimera::library::object::number {
     return Number(left >> right.value);
   }
   auto operator>>(std::uint64_t /*left*/, const Natural & /*right*/) -> Number {
-    return Number(0u);
+    return Number(0U);
   }
   auto operator>>(std::uint64_t left, const Negative &right) -> Number {
     return std::visit([left](const auto &value) { return left << value; },
@@ -59,7 +59,7 @@ namespace chimera::library::object::number {
     return Number(left.value >> right.value);
   }
   auto operator>>(Base /*left*/, const Natural & /*right*/) -> Number {
-    return Number(0u);
+    return Number(0U);
   }
   auto operator>>(Base left, const Negative &right) -> Number {
     return std::visit([left](const auto &value) { return left << value; },
@@ -79,7 +79,7 @@ namespace chimera::library::object::number {
       return Number(Natural(left));
     }
     if (std::size_t(right / 64) >= left.value.size()) {
-      return Number(0u);
+      return Number(0U);
     }
     auto value = left;
     // NOLINTNEXTLINE(cppcoreguidelines-narrowing-conversions)
@@ -103,7 +103,7 @@ namespace chimera::library::object::number {
   }
   auto operator>>(const Natural &left, const Natural &right) -> Number {
     if (std::size_t(floor_div(right, 64)) >= left.value.size()) {
-      return Number(0u);
+      return Number(0U);
     }
     auto value = left;
     if (std::ptrdiff_t shift(floor_div(right, 64)); shift != 0) {

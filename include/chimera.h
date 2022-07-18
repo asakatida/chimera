@@ -51,9 +51,9 @@ struct PyVarObject {
 #define Py_REFCNT(o) (((PyObject *)(o))->ob_refcnt)
 #define Py_SIZE(o) (((PyVarObject *)(o))->ob_size)
 #ifdef Py_TRACE_REFS
-#define PyObject_HEAD_INIT(type) _PyObject_EXTRA_INIT NULL, NULL, 1u, (type),
+#define PyObject_HEAD_INIT(type) _PyObject_EXTRA_INIT NULL, NULL, 1U, (type),
 #else
-#define PyObject_HEAD_INIT(type) _PyObject_EXTRA_INIT 1u, (type),
+#define PyObject_HEAD_INIT(type) _PyObject_EXTRA_INIT 1U, (type),
 #endif
 #define PyVarObject_HEAD_INIT(type, size) {PyObject_HEAD_INIT(type)}, (size),
 typedef PyObject *(PyCFunction)(PyObject *, PyObject *);
@@ -128,21 +128,21 @@ struct PyTypeObject {
   PyTypeObject *tp_next;
 };
 enum {
-  Py_TPFLAGS_HEAPTYPE = 1u << 0u,
-  Py_TPFLAGS_BASETYPE = 1u << 1u,
-  Py_TPFLAGS_READY = 1u << 2u,
-  Py_TPFLAGS_READYING = 1u << 3u,
-  Py_TPFLAGS_HAVE_GC = 1u << 4u,
-  Py_TPFLAGS_DEFAULT = 1u << 5u,
-  Py_TPFLAGS_LONG_SUBCLASS = 1u << 6u,
-  Py_TPFLAGS_LIST_SUBCLASS = 1u << 7u,
-  Py_TPFLAGS_TUPLE_SUBCLASS = 1u << 8u,
-  Py_TPFLAGS_BYTES_SUBCLASS = 1u << 9u,
-  Py_TPFLAGS_UNICODE_SUBCLASS = 1u << 10u,
-  Py_TPFLAGS_DICT_SUBCLASS = 1u << 11u,
-  Py_TPFLAGS_BASE_EXC_SUBCLASS = 1u << 12u,
-  Py_TPFLAGS_TYPE_SUBCLASS = 1u << 13u,
-  Py_TPFLAGS_HAVE_FINALIZE = 1u << 14u
+  Py_TPFLAGS_HEAPTYPE = 1U << 0U,
+  Py_TPFLAGS_BASETYPE = 1U << 1U,
+  Py_TPFLAGS_READY = 1U << 2U,
+  Py_TPFLAGS_READYING = 1U << 3U,
+  Py_TPFLAGS_HAVE_GC = 1U << 4U,
+  Py_TPFLAGS_DEFAULT = 1U << 5U,
+  Py_TPFLAGS_LONG_SUBCLASS = 1U << 6U,
+  Py_TPFLAGS_LIST_SUBCLASS = 1U << 7U,
+  Py_TPFLAGS_TUPLE_SUBCLASS = 1U << 8U,
+  Py_TPFLAGS_BYTES_SUBCLASS = 1U << 9U,
+  Py_TPFLAGS_UNICODE_SUBCLASS = 1U << 10U,
+  Py_TPFLAGS_DICT_SUBCLASS = 1U << 11U,
+  Py_TPFLAGS_BASE_EXC_SUBCLASS = 1U << 12U,
+  Py_TPFLAGS_TYPE_SUBCLASS = 1U << 13U,
+  Py_TPFLAGS_HAVE_FINALIZE = 1U << 14U
 };
 typedef struct PyNumberMethods PyNumberMethods;
 struct PyNumberMethods {
