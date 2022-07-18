@@ -31,6 +31,8 @@
 #include "grammar/whitespace.hpp"
 #include "object/object.hpp"
 
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+
 namespace chimera::library::grammar {
   namespace token {
     struct NumberHolder {
@@ -152,3 +154,5 @@ namespace chimera::library::grammar {
   template <flags::Flag Option>
   struct NUMBER : token::Token<Option, token::Numberliteral> {};
 } // namespace chimera::library::grammar
+
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)

@@ -29,6 +29,8 @@
 #include "object/number/negative.hpp"
 #include "object/number/overflow.hpp"
 
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+
 namespace chimera::library::object::number {
   auto operator>>(std::uint64_t left, Base right) -> Number {
     return Number(left >> right.value);
@@ -80,6 +82,7 @@ namespace chimera::library::object::number {
       return Number(0u);
     }
     auto value = left;
+    // NOLINTNEXTLINE(cppcoreguidelines-narrowing-conversions)
     if (std::ptrdiff_t shift = right / 64; shift != 0) {
       value.value.erase(value.value.begin(), value.value.begin() + shift);
     }
@@ -232,3 +235,5 @@ namespace chimera::library::object::number {
     Expects(false);
   }
 } // namespace chimera::library::object::number
+
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)

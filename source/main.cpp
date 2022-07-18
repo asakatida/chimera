@@ -31,6 +31,8 @@
 #include "version.hpp"
 #include "virtual_machine/virtual_machine.hpp"
 
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+
 using namespace std::literals;
 
 namespace chimera::library {
@@ -51,8 +53,8 @@ namespace chimera::library {
     return 0;
   }
   static auto print_version(const Span &args) -> int {
-    std::cout << args[0]
-              << " " CHIMERA_VERSION " (" CHIMERA_GIT_HEAD ")\n"
+    std::cout << args[0] << " " << CHIMERA_VERSION << " (" << CHIMERA_GIT_HEAD
+              << ")\n"
                  "[" __VERSION__ "]"
               << std::endl;
     return 0;
@@ -228,3 +230,5 @@ namespace chimera::library {
 auto main(int argc, const char *argv[]) -> int {
   return chimera::library::main(gsl::make_span(argv, argc));
 }
+
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)

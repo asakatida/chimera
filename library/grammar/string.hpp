@@ -40,6 +40,8 @@
 #include "grammar/whitespace.hpp"
 #include "object/object.hpp"
 
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+
 namespace chimera::library::grammar {
   namespace token {
     using namespace std::literals;
@@ -475,3 +477,5 @@ namespace chimera::library::grammar {
   template <flags::Flag Option>
   struct STRING : sor<token::Bytes<Option>, token::JoinedStr<Option>> {};
 } // namespace chimera::library::grammar
+
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)

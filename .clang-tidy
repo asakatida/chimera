@@ -4,6 +4,7 @@ Checks: |
   cert-*,
   clang-*,
   concurrency-*,
+  cppcoreguidelines-*,
   modernize-*,
   performance-*,
 FormatStyle: file

@@ -28,6 +28,8 @@
 #include "object/number/overflow.hpp"
 #include "object/number/right_shift.hpp"
 
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+
 namespace chimera::library::object::number {
   auto operator<<(std::uint64_t left, Base right) -> Number {
     if (right.value <= 64) {
@@ -230,3 +232,5 @@ namespace chimera::library::object::number {
     Expects(false);
   }
 } // namespace chimera::library::object::number
+
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
