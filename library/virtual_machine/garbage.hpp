@@ -40,7 +40,6 @@ namespace chimera::library::virtual_machine {
     auto operator=(const GarbageCollector &collector)
         -> GarbageCollector & = delete;
     auto operator=(GarbageCollector &&collector) -> GarbageCollector & = delete;
-
     template <typename... Args>
     auto emplace(Args &&...args) {
       std::lock_guard<std::mutex> lock(mutex);
@@ -49,14 +48,12 @@ namespace chimera::library::virtual_machine {
 
   private:
     void collect();
-
     struct Compare {
       auto operator()(const object::Object &a, const object::Object &b)
           -> bool {
         return a.id() < b.id();
       }
     };
-
     std::atomic_flag flag = ATOMIC_FLAG_INIT;
     std::thread thread;
     std::mutex mutex{};

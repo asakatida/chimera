@@ -28,7 +28,6 @@
 namespace chimera::library::virtual_machine {
   struct GetEvaluator {
     Evaluator *evaluator;
-
     void evaluate(const asdl::Bool &asdlBool);
     void evaluate(const asdl::Bin &bin);
     void evaluate(const asdl::Unary &unary);

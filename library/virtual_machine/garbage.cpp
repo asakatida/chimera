@@ -28,14 +28,12 @@
 
 namespace chimera::library::virtual_machine {
   GarbageCollector::GarbageCollector() : thread([this] { this->collect(); }) {}
-
   GarbageCollector::~GarbageCollector() noexcept {
     if (thread.joinable()) {
       flag.clear();
       thread.join();
     }
   }
-
   void GarbageCollector::collect() {
     flag.test_and_set();
     FibonacciHeap<object::Object, Compare> garbage{};

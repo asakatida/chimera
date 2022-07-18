@@ -38,26 +38,18 @@
 
 namespace chimera::library::virtual_machine {
   struct Evaluator;
-
   struct Scopes {
     explicit operator bool() const;
-
     auto self() -> object::Object &;
-
     void enter_scope(const object::Object &main);
-
     void enter();
-
     void exit();
-
     void exit_scope();
-
     template <typename Instruction>
     void push(Instruction &&instruction) {
       scopes.top().bodies.top().steps.push(
           std::forward<Instruction>(instruction));
     }
-
     template <typename Visitor>
     void visit(Visitor &&visitor) {
       if (scopes.empty()) {
@@ -93,54 +85,33 @@ namespace chimera::library::virtual_machine {
       };
       std::stack<Body> bodies{};
     };
-
     std::stack<Scope> scopes{};
   };
-
   struct Evaluator {
     ThreadContext &thread_context;
     Scopes scope{};
     std::stack<object::Object> stack{};
-
     auto self() -> object::Object &;
-
     [[nodiscard]] auto builtins() const -> const object::Object &;
-
     void enter_scope(const object::Object &object);
-
     void enter();
-
     void exit();
-
     void exit_scope();
-
     void extend(const std::vector<asdl::StmtImpl> &instructions);
-
     void extend(const std::vector<asdl::ExprImpl> &instructions);
-
     template <typename Instruction>
     void push(Instruction &&instruction) {
       scope.push(std::forward<Instruction>(instruction));
     }
-
     void evaluate(const asdl::StmtImpl &stmt);
-
     void evaluate_del(const asdl::ExprImpl &expr);
-
     void evaluate_get(const asdl::ExprImpl &expr);
-
     void evaluate_set(const asdl::ExprImpl &expr);
-
     void get_attribute(const object::Object &object, const std::string &name);
-
     void evaluate();
-
     void evaluate(const asdl::Module &module);
-
     void evaluate(const asdl::Interactive &interactive);
-
     void evaluate(const asdl::Expression &expression);
-
     void evaluate(const asdl::FunctionDef &functionDef);
     void evaluate(const asdl::AsyncFunctionDef &asyncFunctionDef);
     void evaluate(const asdl::ClassDef &classDef);
@@ -170,11 +141,9 @@ namespace chimera::library::virtual_machine {
     auto do_try(const std::vector<asdl::StmtImpl> &body,
                 const std::optional<object::BaseException> &context)
         -> std::optional<object::BaseException>;
-
     void get_attribute(const object::Object &object,
                        const object::Object &getAttribute,
                        const std::string &name);
-
     void get_attr(const object::Object &object, const std::string &name);
   };
 } // namespace chimera::library::virtual_machine

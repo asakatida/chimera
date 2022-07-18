@@ -35,7 +35,6 @@ using namespace std::literals;
 
 namespace chimera::library {
   using Span = gsl::span<const char *>;
-
   template <typename InputIt>
   auto forward_args(InputIt &&begin, const InputIt &end) {
     if (auto distance = std::distance(begin, end); distance > 0) {
@@ -43,7 +42,6 @@ namespace chimera::library {
     }
     return Span{};
   }
-
   static auto print_help(const Span &args) -> int {
     std::cout << args[0]
               << " [-bBdEhiIOqsSuvVWx?]"
@@ -52,7 +50,6 @@ namespace chimera::library {
               << std::endl;
     return 0;
   }
-
   static auto print_version(const Span &args) -> int {
     std::cout << args[0]
               << " " CHIMERA_VERSION " (" CHIMERA_GIT_HEAD ")\n"
@@ -60,7 +57,6 @@ namespace chimera::library {
               << std::endl;
     return 0;
   }
-
   static auto main(Span &&args) noexcept -> int {
     std::cerr.exceptions(std::ios_base::failbit | std::ios_base::badbit);
     std::cin.exceptions(std::ios_base::failbit | std::ios_base::badbit);
@@ -70,10 +66,8 @@ namespace chimera::library {
         Options options{};
         object::Object builtins;
         virtual_machine::modules::init(builtins);
-
         auto arg = args.begin();
         options.chimera = *arg++;
-
         for (; arg != args.end(); ++arg) {
           auto argLen = std::strlen(*arg);
           gsl::cstring_span<> argCStr{

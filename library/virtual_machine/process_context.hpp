@@ -36,23 +36,16 @@
 namespace chimera::library::virtual_machine {
   struct ProcessContext {
     auto import_module(std::string &&module) -> std::optional<asdl::Module>;
-
     auto import_object(std::string_view &&name,
                        std::string_view &&relativeModule) -> object::Object &;
-
     auto make_module(std::string_view &&name) -> object::Object;
-
     auto parse_file(const std::string_view &data, const char *source)
         -> asdl::Module;
-
     auto parse_file(std::istream &input, const char *source) -> asdl::Module;
-
     auto parse_input(const std::string_view &data, const char *source)
         -> asdl::Interactive;
-
     auto parse_input(std::istream &input, const char *source)
         -> asdl::Interactive;
-
     const GlobalContext &global_context;
     // TODO(asakatida)
     // GarbageCollector garbage_collector{};
@@ -60,7 +53,6 @@ namespace chimera::library::virtual_machine {
 
   private:
     auto import_object(std::string_view &&module) -> object::Object &;
-
     auto import_module(const std::string_view &path, const std::string &module)
         -> std::optional<asdl::Module>;
   };

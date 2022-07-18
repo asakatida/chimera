@@ -31,21 +31,13 @@ namespace chimera::library::container {
   template <typename Container>
   struct Reverse {
     [[nodiscard]] auto begin() const noexcept { return container->rbegin(); }
-
     [[nodiscard]] auto cbegin() const noexcept { return container->crbegin(); }
-
     [[nodiscard]] auto rbegin() const noexcept { return container->begin(); }
-
     [[nodiscard]] auto crbegin() const noexcept { return container->cbegin(); }
-
     [[nodiscard]] auto end() const noexcept { return container->rend(); }
-
     [[nodiscard]] auto cend() const noexcept { return container->crend(); }
-
     [[nodiscard]] auto rend() const noexcept { return container->end(); }
-
     [[nodiscard]] auto crend() const noexcept { return container->cend(); }
-
     std::add_pointer_t<Container> container;
   };
   template <typename Container>

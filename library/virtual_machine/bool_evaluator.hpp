@@ -29,20 +29,16 @@
 
 namespace chimera::library::virtual_machine {
   struct Evaluator;
-
   struct BoolAndEvaluator {
     using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
     Iterator begin;
     Iterator end;
-
     void operator()(Evaluator *evaluatorA) const;
   };
-
   struct BoolOrEvaluator {
     using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
     Iterator begin;
     Iterator end;
-
     void operator()(Evaluator *evaluatorA) const;
   };
 } // namespace chimera::library::virtual_machine

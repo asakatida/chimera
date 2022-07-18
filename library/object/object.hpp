@@ -98,7 +98,6 @@ namespace chimera::library::object {
     void set_attribute(Args &&...args) {
       object->attributes.insert_or_assign(std::forward<Args>(args)...);
     }
-
     [[nodiscard]] auto id() const noexcept -> Id;
     [[nodiscard]] auto value() const noexcept -> const Value &;
     auto copy(Value &&data) const -> Object;

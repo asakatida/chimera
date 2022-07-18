@@ -38,9 +38,7 @@ extern "C" void interupt_handler(int signal);
 namespace chimera::library::virtual_machine {
   struct VirtualMachine {
     VirtualMachine(const Options &options, object::Object builtins);
-
     [[nodiscard]] auto process_context() const -> ProcessContext;
-
     GlobalContext global_context{};
   };
 } // namespace chimera::library::virtual_machine

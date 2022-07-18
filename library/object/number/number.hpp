@@ -177,7 +177,6 @@ namespace chimera::library::object::number {
     explicit operator T() const noexcept {
       return std::visit(Construct<T>{}, value);
     }
-
     auto operator+() const -> Number;
     auto operator-() const -> Number;
     auto operator+=(const Number &right) -> Number &;

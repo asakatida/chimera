@@ -32,10 +32,8 @@
 namespace chimera::library::grammar {
   template <char... Chars>
   using String = tao::pegtl::utf8::string<Chars...>;
-
   using Eol = sor<String<'\r', '\n'>, one<'\r', '\n'>>;
   using Eolf = sor<eof, Eol>;
-
   template <flags::Flag Option>
   using Space = star<
       sor<seq<one<'\\'>, Eol>, seq<one<'#'>, star<not_at<Eolf>, any>>,

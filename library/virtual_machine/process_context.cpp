@@ -56,7 +56,6 @@ namespace chimera::library::virtual_machine {
                        {{"__class__"s, module.get_attribute("str"s)}}));
     return module;
   }
-
   auto ProcessContext::import_module(std::string &&module)
       -> std::optional<asdl::Module> {
     std::replace(module.begin(), module.end(), '.', '/');
@@ -79,7 +78,6 @@ namespace chimera::library::virtual_machine {
     }
     return {};
   }
-
   auto ProcessContext::import_object(std::string_view &&name,
                                      std::string_view &&relativeModule)
       -> object::Object & {
@@ -99,7 +97,6 @@ namespace chimera::library::virtual_machine {
     return import_object(std::string(parent).append(1, '.').append(
         relativeModule.substr(index)));
   }
-
   auto ProcessContext::import_object(std::string_view &&module)
       -> object::Object & {
     auto result = modules.try_emplace(std::string(module),
@@ -125,7 +122,6 @@ namespace chimera::library::virtual_machine {
     }
     return result.first->second;
   }
-
   auto ProcessContext::import_module(const std::string_view &path,
                                      const std::string &module)
       -> std::optional<asdl::Module> {
@@ -144,22 +140,18 @@ namespace chimera::library::virtual_machine {
     }
     return {};
   }
-
   auto ProcessContext::parse_file(const std::string_view &data,
                                   const char *source) -> asdl::Module {
     return Parse{}.parse_file(global_context.options, data, source);
   }
-
   auto ProcessContext::parse_file(std::istream &input, const char *source)
       -> asdl::Module {
     return Parse{}.parse_file(global_context.options, input, source);
   }
-
   auto ProcessContext::parse_input(const std::string_view &data,
                                    const char *source) -> asdl::Interactive {
     return Parse{}.parse_input(global_context.options, data, source);
   }
-
   auto ProcessContext::parse_input(std::istream &input, const char *source)
       -> asdl::Interactive {
     return Parse{}.parse_input(global_context.options, input, source);

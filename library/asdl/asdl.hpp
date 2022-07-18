@@ -39,19 +39,15 @@ namespace chimera::library::asdl {
       using List = metal::list<Types...>;
       using ValueT = metal::apply<metal::lambda<std::variant>, List>;
       std::shared_ptr<ValueT> value;
-
       Impl(const Impl &impl) = default;
       Impl(Impl &&impl) noexcept = default;
-
       template <typename Type,
                 typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
       Impl(Type &&type)
           : value(std::make_shared<ValueT>(ValueT(std::forward<Type>(type)))) {}
-
       ~Impl() noexcept = default;
       auto operator=(const Impl &impl) -> Impl & = default;
       auto operator=(Impl &&impl) noexcept -> Impl & = default;
-
       template <typename Type,
                 typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
       auto operator=(Type &&type) -> Impl & {

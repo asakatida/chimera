@@ -30,13 +30,11 @@
 namespace chimera::library::virtual_machine {
   struct SetEvaluator {
     Evaluator *evaluator;
-
     void evaluate(const asdl::Attribute &attribute);
     void evaluate(const asdl::Subscript &subscript);
     void evaluate(const asdl::Name &name);
     void evaluate(const asdl::List &list);
     void evaluate(const asdl::Tuple &tuple);
-
     template <typename ASDL>
     [[noreturn]] void evaluate(const ASDL & /*asdl*/) {
       throw object::BaseException(

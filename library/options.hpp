@@ -28,7 +28,6 @@
 
 namespace chimera::library {
   void options();
-
   enum class BytesCompare { NONE, WARN, ERROR };
   enum class Optimize { NONE, BASIC, DISCARD_DOCS };
   enum class VerboseInit { NONE, LOAD, SEARCH };
@@ -43,15 +42,12 @@ namespace chimera::library {
     bool isolated_mode = false;
     bool skip_first_line = false;
     bool unbuffered_output = false;
-
     BytesCompare bytes_compare = BytesCompare::NONE;
     Optimize optimize = Optimize::NONE;
     VerboseInit verbose_init = VerboseInit::NONE;
-
     gsl::span<const char *> argv{};
     std::vector<const char *> extensions{};
     std::vector<const char *> warnings{};
-
     const char *chimera = nullptr;
     const char *command = nullptr;
     const char *module_name = nullptr;

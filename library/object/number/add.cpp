@@ -39,7 +39,6 @@ namespace chimera::library::object::number {
           },
           right.numerator, right.denominator);
     }
-
     template <typename Right>
     auto operator()(const Rational &left, const Right &right) -> Number {
       return std::visit(
@@ -52,27 +51,21 @@ namespace chimera::library::object::number {
   auto operator+(std::uint64_t left, Base right) -> Number {
     return right + left;
   }
-
   auto operator+(std::uint64_t left, const Natural &right) -> Number {
     return right + left;
   }
-
   auto operator+(std::uint64_t left, const Negative &right) -> Number {
     return right + left;
   }
-
   auto operator+(std::uint64_t left, const Rational &right) -> Number {
     return right + left;
   }
-
   auto operator+(std::uint64_t /*left*/, const Imag & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator+(std::uint64_t /*left*/, const Complex & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator+(Base left, std::uint64_t right) -> Number {
     auto value = sum(left.value, right);
     if (value.overflow == 0) {
@@ -80,29 +73,22 @@ namespace chimera::library::object::number {
     }
     return Number(Natural{{value.result, value.overflow}});
   }
-
   auto operator+(Base left, Base right) -> Number { return left + right.value; }
-
   auto operator+(Base left, const Natural &right) -> Number {
     return right + left;
   }
-
   auto operator+(Base left, const Negative &right) -> Number {
     return right + left;
   }
-
   auto operator+(Base left, const Rational &right) -> Number {
     return right + left;
   }
-
   auto operator+(Base /*left*/, const Imag & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator+(Base /*left*/, const Complex & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator+(const Natural &left, std::uint64_t right) -> Number {
     if (right == 0) {
       return Number(Natural(left));
@@ -119,11 +105,9 @@ namespace chimera::library::object::number {
     }
     return Number(std::move(value));
   }
-
   auto operator+(const Natural &left, Base right) -> Number {
     return left + right.value;
   }
-
   auto operator+(const Natural &left, const Natural &right) -> Number {
     Natural value;
     value.value.reserve(std::max(left.value.size(), right.value.size()));
@@ -153,56 +137,44 @@ namespace chimera::library::object::number {
     }
     return Number(std::move(value));
   }
-
   auto operator+(const Natural &left, const Negative &right) -> Number {
     return right + left;
   }
-
   auto operator+(const Natural &left, const Rational &right) -> Number {
     return right + left;
   }
-
   auto operator+(const Natural & /*left*/, const Imag & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator+(const Natural & /*left*/, const Complex & /*right*/)
       -> Number {
     Expects(false);
   }
-
   auto operator+(const Negative &left, std::uint64_t right) -> Number {
     return std::visit([right](const auto &value) { return right - value; },
                       left.value);
   }
-
   auto operator+(const Negative &left, Base right) -> Number {
     return left + right.value;
   }
-
   auto operator+(const Negative &left, const Natural &right) -> Number {
     return std::visit([&right](const auto &value) { return right - value; },
                       left.value);
   }
-
   auto operator+(const Negative &left, const Negative &right) -> Number {
     return std::visit([](const auto &l, const auto &r) { return -(l + r); },
                       left.value, right.value);
   }
-
   auto operator+(const Negative &left, const Rational &right) -> Number {
     return right + left;
   }
-
   auto operator+(const Negative & /*left*/, const Imag & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator+(const Negative & /*left*/, const Complex & /*right*/)
       -> Number {
     Expects(false);
   }
-
   auto operator+(const Rational &left, std::uint64_t right) -> Number {
     return std::visit(
         [right](const auto &lN, const auto &lD) {
@@ -210,11 +182,9 @@ namespace chimera::library::object::number {
         },
         left.numerator, left.denominator);
   }
-
   auto operator+(const Rational &left, Base right) -> Number {
     return left + right.value;
   }
-
   auto operator+(const Rational &left, const Natural &right) -> Number {
     return std::visit(
         [&right](const auto &lN, const auto &lD) {
@@ -222,7 +192,6 @@ namespace chimera::library::object::number {
         },
         left.numerator, left.denominator);
   }
-
   auto operator+(const Rational &left, const Negative &right) -> Number {
     return std::visit(
         [&right](const auto &lN, const auto &lD) {
@@ -230,7 +199,6 @@ namespace chimera::library::object::number {
         },
         left.numerator, left.denominator);
   }
-
   auto operator+(const Rational &left, const Rational &right) -> Number {
     return std::visit(
         [](const auto &lN, const auto &lD, const auto &rN, const auto &rD) {
@@ -241,67 +209,52 @@ namespace chimera::library::object::number {
   auto operator+(const Rational & /*left*/, const Imag & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator+(const Rational & /*left*/, const Complex & /*right*/)
       -> Number {
     Expects(false);
   }
-
   auto operator+(const Imag & /*left*/, std::uint64_t /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator+(const Imag & /*left*/, Base /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator+(const Imag & /*left*/, const Natural & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator+(const Imag & /*left*/, const Negative & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator+(const Imag & /*left*/, const Rational & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator+(const Imag & /*left*/, const Imag & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator+(const Imag & /*left*/, const Complex & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator+(const Complex & /*left*/, std::uint64_t /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator+(const Complex & /*left*/, Base /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator+(const Complex & /*left*/, const Natural & /*right*/)
       -> Number {
     Expects(false);
   }
-
   auto operator+(const Complex & /*left*/, const Negative & /*right*/)
       -> Number {
     Expects(false);
   }
-
   auto operator+(const Complex & /*left*/, const Rational & /*right*/)
       -> Number {
     Expects(false);
   }
-
   auto operator+(const Complex & /*left*/, const Imag & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator+(const Complex & /*left*/, const Complex & /*right*/)
       -> Number {
     Expects(false);

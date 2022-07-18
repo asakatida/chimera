@@ -34,7 +34,6 @@ namespace chimera::library::virtual_machine {
     auto execute_script_string() -> int;
     auto execute_script_input() -> int;
     auto execute_module() -> int;
-
     const Options options;
     const object::Object builtins;
     const object::Id method_id;

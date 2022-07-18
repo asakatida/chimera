@@ -40,40 +40,26 @@ namespace chimera::library::virtual_machine {
   class ReRaise final : std::exception {
     [[nodiscard]] auto what() const noexcept -> const char * override;
   };
-
   auto ReRaise::what() const noexcept -> const char * { return "ReRaise"; }
-
   Scopes::operator bool() const { return !scopes.empty(); }
-
   auto Scopes::self() -> object::Object & { return scopes.top().self; }
-
   void Scopes::enter_scope(const object::Object &main) {
     scopes.emplace(Scope{main});
     enter();
   }
-
   void Scopes::enter() { scopes.top().bodies.emplace(); }
-
   void Scopes::exit() { scopes.top().bodies.pop(); }
-
   void Scopes::exit_scope() { scopes.pop(); }
-
   auto Evaluator::self() -> object::Object & { return scope.self(); }
-
   auto Evaluator::builtins() const -> const object::Object & {
     return thread_context.process_context.global_context.builtins;
   }
-
   void Evaluator::enter_scope(const object::Object &object) {
     scope.enter_scope(object);
   }
-
   void Evaluator::enter() { scope.enter(); }
-
   void Evaluator::exit() { scope.exit(); }
-
   void Evaluator::exit_scope() { scope.exit_scope(); }
-
   void Evaluator::extend(const std::vector<asdl::StmtImpl> &instructions) {
     if (instructions.empty()) {
       return;
@@ -82,13 +68,11 @@ namespace chimera::library::virtual_machine {
       evaluate(instruction);
     }
   }
-
   void Evaluator::extend(const std::vector<asdl::ExprImpl> &instructions) {
     for (const auto &instruction : container::reverse(instructions)) {
       evaluate_get(instruction);
     }
   }
-
   void Evaluator::evaluate(const asdl::StmtImpl &stmt) {
     if (!stmt.value) {
       return;
@@ -96,25 +80,21 @@ namespace chimera::library::virtual_machine {
     std::visit([this](const auto &value) { this->evaluate(value); },
                *stmt.value);
   }
-
   void Evaluator::evaluate_del(const asdl::ExprImpl &expr) {
     std::visit(
         [this](const auto &value) { DelEvaluator{this}.evaluate(value); },
         *expr.value);
   }
-
   void Evaluator::evaluate_get(const asdl::ExprImpl &expr) {
     std::visit(
         [this](const auto &value) { GetEvaluator{this}.evaluate(value); },
         *expr.value);
   }
-
   void Evaluator::evaluate_set(const asdl::ExprImpl &expr) {
     std::visit(
         [this](const auto &value) { SetEvaluator{this}.evaluate(value); },
         *expr.value);
   }
-
   void Evaluator::get_attribute(const object::Object &object,
                                 const std::string &name) {
     std::string getAttribute("__getattribute__");
@@ -129,7 +109,6 @@ namespace chimera::library::virtual_machine {
     }
     Ensures(false);
   }
-
   void Evaluator::evaluate() {
     while (scope) {
       if (!std::atomic_flag_test_and_set(
@@ -141,7 +120,6 @@ namespace chimera::library::virtual_machine {
       scope.visit([this](const auto &value) { value(this); });
     }
   }
-
   void Evaluator::evaluate(const asdl::Module &module) {
     enter_scope(thread_context.main);
     if (module.doc_string) {
@@ -152,13 +130,11 @@ namespace chimera::library::virtual_machine {
     extend(module.body);
     return evaluate();
   }
-
   void Evaluator::evaluate(const asdl::Interactive &interactive) {
     enter_scope(thread_context.main);
     extend(interactive.body);
     return evaluate();
   }
-
   void Evaluator::evaluate(const asdl::Expression &expression) {
     enter_scope(thread_context.main);
     push([](Evaluator *evaluator) {
@@ -167,7 +143,6 @@ namespace chimera::library::virtual_machine {
     evaluate_get(expression.body);
     return evaluate();
   }
-
   void Evaluator::evaluate(const asdl::FunctionDef &functionDef) {
     for (const auto &expr : container::reverse(functionDef.decorator_list)) {
       push([](Evaluator *evaluator) {
@@ -451,7 +426,6 @@ namespace chimera::library::virtual_machine {
   void Evaluator::evaluate(const asdl::Continue & /*continue*/) {
     push([](Evaluator *evaluator) { evaluator->exit(); });
   }
-
   auto Evaluator::do_try(const std::vector<asdl::StmtImpl> &body,
                          const std::optional<object::BaseException> &context)
       -> std::optional<object::BaseException> {
@@ -475,7 +449,6 @@ namespace chimera::library::virtual_machine {
     }
     return {};
   }
-
   void Evaluator::get_attribute(const object::Object &object,
                                 const object::Object &getAttribute,
                                 const std::string &name) {
@@ -503,7 +476,6 @@ namespace chimera::library::virtual_machine {
                         {{"__class__", builtins().get_attribute("str")}})},
         {}});
   }
-
   void Evaluator::get_attr(const object::Object &object,
                            const std::string &name) {
     push([name](Evaluator *evaluator) {

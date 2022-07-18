@@ -30,29 +30,23 @@ namespace chimera {
         struct Debug {
           OStream &os;
           OStream &operator()(std::uint64_t i) { return os << i; }
-
           OStream &operator()(Base base) { return os << base.value; }
-
           OStream &operator()(const Natural &natural) {
             std::for_each(natural.value.begin(), natural.value.end(), *this);
             return os;
           }
-
           OStream &operator()(const Negative &negative) {
             os << '-';
             return std::visit(*this, negative.value);
           }
-
           OStream &operator()(const Rational &rational) {
             std::visit(*this, rational.numerator);
             os << '/';
             return std::visit(*this, rational.denominator);
           }
-
           OStream &operator()(const Imag &imag) {
             return std::visit(*this, imag.value) << 'j';
           }
-
           OStream &operator()(const Complex &complex) {
             std::visit(*this, complex.real) << '+';
             return std::visit(*this, complex.imag) << 'j';

@@ -43,7 +43,6 @@ namespace chimera::library::virtual_machine {
         ptr.reset();
       }
     }
-
     auto operator=(const FibonacciHeap &fibonacciHeap)
         -> FibonacciHeap & = delete;
     auto operator=(FibonacciHeap &&fibonacciHeap) noexcept
@@ -62,7 +61,6 @@ namespace chimera::library::virtual_machine {
       n += source.n;
       source.n = 0;
     }
-
     template <typename... Args>
     void emplace(Args &&...args) {
       auto x = std::make_unique<Node>(Node{Key(std::forward<Args>(args)...)});
@@ -84,10 +82,8 @@ namespace chimera::library::virtual_machine {
       min->left = std::move(x);
       ++n;
     }
-
     template <typename Predicate>
     void remove_if(Predicate && /*predicate*/) {}
-
     //! Internal node structure
     struct Node {
       Node() = default;
@@ -99,7 +95,6 @@ namespace chimera::library::virtual_machine {
           ptr.reset();
         }
       }
-
       auto operator=(const Node &fibonacciHeap) -> Node & = delete;
       auto operator=(Node &&fibonacciHeap) noexcept -> Node & = default;
       Key key;

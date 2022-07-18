@@ -39,7 +39,6 @@ namespace chimera::library::grammar {
         number *= object::Number(Base).pow(object::Number(in.size())) +
                   object::Number(std::stoul(in.string(), nullptr, Base));
       }
-
       object::Number number = object::Number(0u);
     };
     struct Nonzerodigit : seq<range<'1', '9'>, rep_opt<18, range<'0', '9'>>> {};
@@ -94,7 +93,6 @@ namespace chimera::library::grammar {
     using HexStart = seq<one<'0'>, one<'x', 'X'>>;
     using Hexinteger = if_must<HexStart, plus<opt<one<'_'>>, Hexdigit>>;
     using Integer = sor<Bininteger, Octinteger, Hexinteger, Decinteger>;
-
     using Digitpart = plus<opt<one<'_'>>, Digit>;
     using Fraction = seq<one<'.'>, Digitpart>;
     struct ExponentNegative : seq<one<'-'>, Digitpart> {

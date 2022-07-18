@@ -165,7 +165,6 @@ struct PyNumberMethods {
   PyObject *(*nb_int)(PyObject *);
   void *nb_reserved;
   PyObject *(*nb_float)(PyObject *);
-
   PyObject *(*nb_inplace_add)(PyObject *, PyObject *);
   PyObject *(*nb_inplace_subtract)(PyObject *, PyObject *);
   PyObject *(*nb_inplace_multiply)(PyObject *, PyObject *);
@@ -176,14 +175,11 @@ struct PyNumberMethods {
   PyObject *(*nb_inplace_and)(PyObject *, PyObject *);
   PyObject *(*nb_inplace_xor)(PyObject *, PyObject *);
   PyObject *(*nb_inplace_or)(PyObject *, PyObject *);
-
   PyObject *(*nb_floor_divide)(PyObject *, PyObject *);
   PyObject *(*nb_true_divide)(PyObject *, PyObject *);
   PyObject *(*nb_inplace_floor_divide)(PyObject *, PyObject *);
   PyObject *(*nb_inplace_true_divide)(PyObject *, PyObject *);
-
   PyObject *(*nb_index)(PyObject *);
-
   PyObject *(*nb_matrix_multiply)(PyObject *, PyObject *);
   PyObject *(*nb_inplace_matrix_multiply)(PyObject *, PyObject *);
 };

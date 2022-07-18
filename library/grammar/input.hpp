@@ -35,7 +35,6 @@ namespace chimera::library::grammar {
     explicit Input(Args &&...args) : Base(std::forward<Args>(args)...) {
       indentStack.emplace();
     }
-
     auto indent() -> bool {
       std::uintmax_t i = Base::column();
       if (indentStack.top() < i) {
@@ -44,14 +43,11 @@ namespace chimera::library::grammar {
       }
       return false;
     }
-
     [[nodiscard]] auto is_dedent() const -> bool {
       return Base::column() < indentStack.top();
     }
-
     auto dedent() -> bool {
       using namespace std::literals;
-
       indentStack.pop();
       if (Base::empty()) {
         return true;
@@ -62,7 +58,6 @@ namespace chimera::library::grammar {
       }
       return i == indentStack.top();
     }
-
     [[nodiscard]] auto is_newline() const -> bool {
       return Base::column() == indentStack.top();
     }

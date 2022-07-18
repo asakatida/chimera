@@ -41,7 +41,6 @@ namespace chimera::library::virtual_machine {
       }
     }
   }
-
   void BoolOrEvaluator::operator()(Evaluator *evaluatorA) const {
     if (begin != end) {
       auto object = std::move(evaluatorA->stack.top());

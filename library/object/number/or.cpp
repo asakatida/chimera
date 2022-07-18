@@ -28,71 +28,56 @@ namespace chimera::library::object::number {
   auto operator|(std::uint64_t left, Base right) -> Number {
     return Number(left | right.value);
   }
-
   auto operator|(std::uint64_t left, const Natural &right) -> Number {
     auto value = right;
     value.value[0] |= left;
     return Number(std::move(value));
   }
-
   auto operator|(std::uint64_t left, const Negative &right) -> Number {
     return std::visit([&left](const auto &value) { return -(left | value); },
                       right.value);
   }
-
   auto operator|(std::uint64_t /*left*/, const Rational & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator|(std::uint64_t /*left*/, const Imag & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator|(std::uint64_t /*left*/, const Complex & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator|(Base left, std::uint64_t right) -> Number {
     return Number(left.value | right);
   }
-
   auto operator|(Base left, Base right) -> Number {
     return Number(left.value | right.value);
   }
-
   auto operator|(Base left, const Natural &right) -> Number {
     auto value = right;
     value.value[0] |= left.value;
     return Number(std::move(value));
   }
-
   auto operator|(Base left, const Negative &right) -> Number {
     return std::visit([&left](const auto &value) { return -(left | value); },
                       right.value);
   }
-
   auto operator|(Base /*left*/, const Rational & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator|(Base /*left*/, const Imag & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator|(Base /*left*/, const Complex & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator|(const Natural &left, std::uint64_t right) -> Number {
     auto value = left;
     value.value[0] |= right;
     return Number(std::move(value));
   }
-
   auto operator|(const Natural &left, Base right) -> Number {
     return left | right.value;
   }
-
   auto operator|(const Natural &left, const Natural &right) -> Number {
     Natural value;
     value.value.reserve(std::max(left.value.size(), right.value.size()));
@@ -111,40 +96,32 @@ namespace chimera::library::object::number {
     }
     return Number(std::move(value));
   }
-
   auto operator|(const Natural &left, const Negative &right) -> Number {
     return std::visit([&left](const auto &value) { return -(left | value); },
                       right.value);
   }
-
   auto operator|(const Natural & /*left*/, const Rational & /*right*/)
       -> Number {
     Expects(false);
   }
-
   auto operator|(const Natural & /*left*/, const Imag & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator|(const Natural & /*left*/, const Complex & /*right*/)
       -> Number {
     Expects(false);
   }
-
   auto operator|(const Negative &left, std::uint64_t right) -> Number {
     return std::visit([&right](const auto &value) { return -(value | right); },
                       left.value);
   }
-
   auto operator|(const Negative &left, Base right) -> Number {
     return left | right.value;
   }
-
   auto operator|(const Negative &left, const Natural &right) -> Number {
     return std::visit([&right](const auto &value) { return -(value | right); },
                       left.value);
   }
-
   auto operator|(const Negative &left, const Negative &right) -> Number {
     return std::visit([](const auto &a, const auto &b) { return -(a | b); },
                       left.value, right.value);
@@ -153,103 +130,80 @@ namespace chimera::library::object::number {
       -> Number {
     Expects(false);
   }
-
   auto operator|(const Negative & /*left*/, const Imag & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator|(const Negative & /*left*/, const Complex & /*right*/)
       -> Number {
     Expects(false);
   }
-
   auto operator|(const Rational & /*left*/, std::uint64_t /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator|(const Rational & /*left*/, Base /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator|(const Rational & /*left*/, const Natural & /*right*/)
       -> Number {
     Expects(false);
   }
-
   auto operator|(const Rational & /*left*/, const Negative & /*right*/)
       -> Number {
     Expects(false);
   }
-
   auto operator|(const Rational & /*left*/, const Rational & /*right*/)
       -> Number {
     Expects(false);
   }
-
   auto operator|(const Rational & /*left*/, const Imag & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator|(const Rational & /*left*/, const Complex & /*right*/)
       -> Number {
     Expects(false);
   }
-
   auto operator|(const Imag & /*left*/, std::uint64_t /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator|(const Imag & /*left*/, Base /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator|(const Imag & /*left*/, const Natural & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator|(const Imag & /*left*/, const Negative & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator|(const Imag & /*left*/, const Rational & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator|(const Imag & /*left*/, const Imag & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator|(const Imag & /*left*/, const Complex & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator|(const Complex & /*left*/, std::uint64_t /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator|(const Complex & /*left*/, Base /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator|(const Complex & /*left*/, const Natural & /*right*/)
       -> Number {
     Expects(false);
   }
-
   auto operator|(const Complex & /*left*/, const Negative & /*right*/)
       -> Number {
     Expects(false);
   }
-
   auto operator|(const Complex & /*left*/, const Rational & /*right*/)
       -> Number {
     Expects(false);
   }
-
   auto operator|(const Complex & /*left*/, const Imag & /*right*/) -> Number {
     Expects(false);
   }
-
   auto operator|(const Complex & /*left*/, const Complex & /*right*/)
       -> Number {
     Expects(false);

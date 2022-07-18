@@ -34,7 +34,6 @@ namespace chimera::library::virtual_machine {
     evaluatorA->get_attribute(evaluatorA->stack.top(), "__invert__");
     evaluatorA->stack.pop();
   }
-
   void UnaryNotEvaluator::operator()(Evaluator *evaluatorA) const {
     evaluatorA->push([](Evaluator *evaluatorB) {
       if (evaluatorB->stack.top().get_bool()) {
@@ -46,7 +45,6 @@ namespace chimera::library::virtual_machine {
     evaluatorA->push(ToBoolEvaluator{evaluatorA->stack.top()});
     evaluatorA->stack.pop();
   }
-
   void UnaryAddEvaluator::operator()(Evaluator *evaluatorA) const {
     evaluatorA->push([](Evaluator *evaluatorB) {
       evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
@@ -55,7 +53,6 @@ namespace chimera::library::virtual_machine {
     evaluatorA->get_attribute(evaluatorA->stack.top(), "__pos__");
     evaluatorA->stack.pop();
   }
-
   void UnarySubEvaluator::operator()(Evaluator *evaluatorA) const {
     evaluatorA->push([](Evaluator *evaluatorB) {
       evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
