@@ -5,7 +5,7 @@
 #include "grammar/rules.hpp"
 
 namespace chimera::library::grammar {
-  using Utf8Space =
-      ranges<9, 13, 28, 32, 133, 133, 160, 160, 5760, 5760, 8192, 8202, 8232,
-             8233, 8239, 8239, 8287, 8287, 12288, 12288>;
+  using Utf8Space = ranges<0x9, 0xd, 0x1c, 0x20, 0x85, 0x85, 0xa0, 0xa0, 0x1680,
+                           0x1680, 0x2000, 0x200a, 0x2028, 0x2029, 0x202f,
+                           0x202f, 0x205f, 0x205f, 0x3000, 0x3000>;
 } // namespace chimera::library::grammar

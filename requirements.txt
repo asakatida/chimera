@@ -15,5 +15,6 @@ pyflakes==2.4.0
 pylama==8.3.8
 snowballstemmer==2.2.0
 tomli==2.0.1
+tqdm==4.64.0
 types-PyYAML==6.0.9
 typing-extensions==4.2.0
