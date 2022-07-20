@@ -28,20 +28,20 @@
 #include "virtual_machine/evaluator.hpp"
 
 namespace chimera::library::virtual_machine {
-  void DelEvaluator::evaluate(const asdl::Attribute &attribute) {
+  void DelEvaluator::evaluate(const asdl::Attribute &attribute) const {
     evaluator->push([&attribute](Evaluator *evaluatorA) {
       evaluatorA->stack.top().delete_attribute(attribute.attr.value);
       evaluatorA->stack.pop();
     });
     evaluator->evaluate_get(attribute.value);
   }
-  void DelEvaluator::evaluate(const asdl::Subscript &subscript) {
+  void DelEvaluator::evaluate(const asdl::Subscript &subscript) const {
     evaluator->evaluate_get(subscript.value);
   }
-  void DelEvaluator::evaluate(const asdl::Starred &starred) {
+  void DelEvaluator::evaluate(const asdl::Starred &starred) const {
     evaluator->evaluate_get(starred.value);
   }
-  void DelEvaluator::evaluate(const asdl::Name &name) {
+  void DelEvaluator::evaluate(const asdl::Name &name) const {
     evaluator->get_attribute(evaluator->self(), name.value);
   }
 } // namespace chimera::library::virtual_machine

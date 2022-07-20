@@ -28,7 +28,7 @@
 namespace chimera::library::virtual_machine {
   void BinAddEvaluator::operator()(Evaluator *evaluatorA) const {
     if (begin != end) {
-      auto &expr = *begin;
+      const auto &expr = *begin;
       evaluatorA->push(BinAddEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
         evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
@@ -43,7 +43,7 @@ namespace chimera::library::virtual_machine {
   }
   void BinSubEvaluator::operator()(Evaluator *evaluatorA) const {
     if (begin != end) {
-      auto &expr = *begin;
+      const auto &expr = *begin;
       evaluatorA->push(BinSubEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
         evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
@@ -58,7 +58,7 @@ namespace chimera::library::virtual_machine {
   }
   void BinMultEvaluator::operator()(Evaluator *evaluatorA) const {
     if (begin != end) {
-      auto &expr = *begin;
+      const auto &expr = *begin;
       evaluatorA->push(BinMultEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
         evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
@@ -73,7 +73,7 @@ namespace chimera::library::virtual_machine {
   }
   void BinMatMultEvaluator::operator()(Evaluator *evaluatorA) const {
     if (begin != end) {
-      auto &expr = *begin;
+      const auto &expr = *begin;
       evaluatorA->push(BinMatMultEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
         evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
@@ -88,7 +88,7 @@ namespace chimera::library::virtual_machine {
   }
   void BinDivEvaluator::operator()(Evaluator *evaluatorA) const {
     if (begin != end) {
-      auto &expr = *begin;
+      const auto &expr = *begin;
       evaluatorA->push(BinDivEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
         evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
@@ -103,7 +103,7 @@ namespace chimera::library::virtual_machine {
   }
   void BinModEvaluator::operator()(Evaluator *evaluatorA) const {
     if (begin != end) {
-      auto &expr = *begin;
+      const auto &expr = *begin;
       evaluatorA->push(BinModEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
         evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
@@ -118,7 +118,7 @@ namespace chimera::library::virtual_machine {
   }
   void BinPowEvaluator::operator()(Evaluator *evaluatorA) const {
     if (begin != end) {
-      auto &expr = *begin;
+      const auto &expr = *begin;
       evaluatorA->push(BinPowEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
         evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
@@ -133,7 +133,7 @@ namespace chimera::library::virtual_machine {
   }
   void BinLShiftEvaluator::operator()(Evaluator *evaluatorA) const {
     if (begin != end) {
-      auto &expr = *begin;
+      const auto &expr = *begin;
       evaluatorA->push(BinLShiftEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
         evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
@@ -148,7 +148,7 @@ namespace chimera::library::virtual_machine {
   }
   void BinRShiftEvaluator::operator()(Evaluator *evaluatorA) const {
     if (begin != end) {
-      auto &expr = *begin;
+      const auto &expr = *begin;
       evaluatorA->push(BinRShiftEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
         evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
@@ -163,7 +163,7 @@ namespace chimera::library::virtual_machine {
   }
   void BinBitOrEvaluator::operator()(Evaluator *evaluatorA) const {
     if (begin != end) {
-      auto &expr = *begin;
+      const auto &expr = *begin;
       evaluatorA->push(BinBitOrEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
         evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
@@ -178,7 +178,7 @@ namespace chimera::library::virtual_machine {
   }
   void BinBitXorEvaluator::operator()(Evaluator *evaluatorA) const {
     if (begin != end) {
-      auto &expr = *begin;
+      const auto &expr = *begin;
       evaluatorA->push(BinBitXorEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
         evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
@@ -193,7 +193,7 @@ namespace chimera::library::virtual_machine {
   }
   void BinBitAndEvaluator::operator()(Evaluator *evaluatorA) const {
     if (begin != end) {
-      auto &expr = *begin;
+      const auto &expr = *begin;
       evaluatorA->push(BinBitAndEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
         evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
@@ -208,7 +208,7 @@ namespace chimera::library::virtual_machine {
   }
   void BinFloorDivEvaluator::operator()(Evaluator *evaluatorA) const {
     if (begin != end) {
-      auto &expr = *begin;
+      const auto &expr = *begin;
       evaluatorA->push(BinFloorDivEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
         evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});

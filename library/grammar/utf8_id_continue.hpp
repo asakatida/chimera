@@ -5,7 +5,7 @@
 #include "grammar/rules.hpp"
 
 // this is generated and doesn't need this noise
-// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 namespace chimera::library::grammar {
   using Utf8IdContinue = ranges<
@@ -88,4 +88,4 @@ namespace chimera::library::grammar {
       0x1e959, 0xe0100, 0xe01ef>;
 } // namespace chimera::library::grammar
 
-// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

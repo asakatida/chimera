@@ -43,7 +43,7 @@
 #include "object/number/sub.hpp"
 #include "object/number/xor.hpp"
 
-// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 namespace chimera::library::object::number {
   static auto reduce(Base value) -> NumberValue { return value; }
@@ -79,7 +79,8 @@ namespace chimera::library::object::number {
     if (aPrime == Number(1U)) {
       return Rational{std::forward<Left>(left), std::forward<Right>(right)};
     }
-    Number nLeft(std::forward<Left>(left)), nRight(std::forward<Right>(right));
+    Number nLeft(std::forward<Left>(left));
+    Number nRight(std::forward<Right>(right));
     if (nLeft == aPrime) {
       return (Number(1U) / nRight.floor_div(aPrime)).unpack();
     }
@@ -191,8 +192,8 @@ namespace chimera::library::object::number {
     return visit(right,
                  [](auto a, auto b) { return Number(number::gcd(a, b)); });
   }
-  auto Number::pow(const Number &right) const -> Number { return right; }
-  auto Number::pow(const Number &y, const Number & /*z*/) const -> Number {
+  auto Number::pow(const Number &right) -> Number { return right; }
+  auto Number::pow(const Number &y, const Number & /*z*/) -> Number {
     return y;
   }
   auto Number::is_int() const -> bool {
@@ -219,4 +220,4 @@ namespace chimera::library::object::number {
   auto Number::complex() const -> Number { return visit(MakeComplexVisit{}); }
 } // namespace chimera::library::object::number
 
-// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

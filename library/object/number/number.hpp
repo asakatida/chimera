@@ -28,7 +28,7 @@
 
 #include <tao/operators.hpp>
 
-// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 namespace chimera::library::object::number {
   template <typename Return>
@@ -196,8 +196,8 @@ namespace chimera::library::object::number {
     auto operator<(const Number &right) const -> bool;
     [[nodiscard]] auto floor_div(const Number &right) const -> Number;
     [[nodiscard]] auto gcd(const Number &right) const -> Number;
-    [[nodiscard]] auto pow(const Number &right) const -> Number;
-    [[nodiscard]] auto pow(const Number &y, const Number &z) const -> Number;
+    [[nodiscard]] static auto pow(const Number &right) -> Number;
+    [[nodiscard]] static auto pow(const Number &y, const Number &z) -> Number;
     [[nodiscard]] auto is_int() const -> bool;
     [[nodiscard]] auto is_complex() const -> bool;
     [[nodiscard]] auto complex() const -> Number;
@@ -216,4 +216,4 @@ namespace chimera::library::object::number {
   };
 } // namespace chimera::library::object::number
 
-// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

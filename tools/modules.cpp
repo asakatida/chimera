@@ -64,7 +64,7 @@ namespace chimera::library {
     }
   }
   auto PrintState::is_printed(const object::Object &object) -> bool {
-    return m_printed.count(id(object)) != 0;
+    return m_printed.contains(id(object));
   }
   auto Compare::operator()(const SetAttribute &a, const SetAttribute &b) const
       -> bool {

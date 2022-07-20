@@ -26,7 +26,7 @@
 
 #include <tao/pegtl.hpp>
 
-// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 template <typename Rule>
 struct BnfAction : tao::pegtl::nothing<Rule> {};
@@ -172,4 +172,4 @@ auto main() -> int {
   return tao::pegtl::parse<Syntax, BnfAction>(in) ? 0 : 1;
 }
 
-// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

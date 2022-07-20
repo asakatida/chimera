@@ -31,7 +31,7 @@
 #include "version.hpp"
 #include "virtual_machine/virtual_machine.hpp"
 
-// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 using namespace std::literals;
 
@@ -59,6 +59,7 @@ namespace chimera::library {
               << std::endl;
     return 0;
   }
+  // NOLINTNEXTLINE(readability-function-cognitive-complexity)
   static auto main(Span &&args) noexcept -> int {
     std::cerr.exceptions(std::ios_base::failbit | std::ios_base::badbit);
     std::cin.exceptions(std::ios_base::failbit | std::ios_base::badbit);
@@ -231,4 +232,4 @@ auto main(int argc, const char *argv[]) -> int {
   return chimera::library::main(gsl::make_span(argv, argc));
 }
 
-// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

@@ -25,13 +25,13 @@
 #include "virtual_machine/evaluator.hpp"
 
 namespace chimera::library::virtual_machine {
-  void SliceEvaluator::operator()(const asdl::Slice & /*slice*/) {
+  void SliceEvaluator::operator()(const asdl::Slice & /*slice*/) const {
     evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
   }
-  void SliceEvaluator::operator()(const asdl::ExtSlice & /*ext_slice*/) {
+  void SliceEvaluator::operator()(const asdl::ExtSlice & /*ext_slice*/) const {
     evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
   }
-  void SliceEvaluator::operator()(const asdl::Index & /*index*/) {
+  void SliceEvaluator::operator()(const asdl::Index & /*index*/) const {
     evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
   }
 } // namespace chimera::library::virtual_machine

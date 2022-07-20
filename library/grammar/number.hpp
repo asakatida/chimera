@@ -31,7 +31,7 @@
 #include "grammar/whitespace.hpp"
 #include "object/object.hpp"
 
-// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 namespace chimera::library::grammar {
   namespace token {
@@ -155,4 +155,4 @@ namespace chimera::library::grammar {
   struct NUMBER : token::Token<Option, token::Numberliteral> {};
 } // namespace chimera::library::grammar
 
-// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
