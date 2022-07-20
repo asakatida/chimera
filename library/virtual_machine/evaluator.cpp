@@ -288,7 +288,9 @@ namespace chimera::library::virtual_machine {
   void Evaluator::evaluate(const asdl::With &with) {
     push([&with](Evaluator *evaluator) {
       if (auto exception = evaluator->do_try(with.body, {}); exception) {
+        evaluator->do_try(with.body, exception);
       } else {
+        evaluator->do_try(with.body, {});
       }
     });
     for (const auto &withItem : container::reverse(with.items)) {

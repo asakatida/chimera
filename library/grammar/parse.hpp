@@ -34,9 +34,7 @@ namespace chimera::library::grammar {
     Ensures((tao::pegtl::parse<Grammar, token::Action, Normal>(args...)));
     switch (options.optimize) {
       case Optimize::NONE:
-        break;
       case Optimize::BASIC:
-        break;
       case Optimize::DISCARD_DOCS:
         break;
     }

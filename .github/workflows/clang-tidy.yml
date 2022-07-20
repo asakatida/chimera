@@ -22,6 +22,7 @@ jobs:
     strategy:
       matrix:
         lints:
+          - bugprone-*,-bugprone-easily-swappable-parameters,-bugprone-exception-escape
           - cert-*
           - clang-*
           - concurrency-*
