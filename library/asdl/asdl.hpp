@@ -38,6 +38,7 @@ namespace chimera::library::asdl {
     struct Impl {
       using List = metal::list<Types...>;
       using ValueT = metal::apply<metal::lambda<std::variant>, List>;
+      // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
       std::shared_ptr<ValueT> value;
       Impl(const Impl &impl) = default;
       Impl(Impl &&impl) noexcept = default;

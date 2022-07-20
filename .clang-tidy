@@ -1,13 +1,16 @@
 ---
 AnalyzeTemporaryDtors: true
 Checks: |
+  -*,
   cert-*,
   clang-*,
   concurrency-*,
   cppcoreguidelines-*,
   hicpp-*,
+  misc-*,
   modernize-*,
   performance-*,
+  -misc-no-recursion,
 FormatStyle: file
 HeaderFilterRegex: ".*"
 WarningsAsErrors: "*"

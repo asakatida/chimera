@@ -29,6 +29,7 @@
 
 namespace chimera::library::virtual_machine {
   struct SetEvaluator {
+    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
     Evaluator *evaluator;
     void evaluate(const asdl::Attribute &attribute);
     void evaluate(const asdl::Subscript &subscript);

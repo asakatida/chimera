@@ -97,6 +97,7 @@ namespace chimera::library::virtual_machine {
       }
       auto operator=(const Node &fibonacciHeap) -> Node & = delete;
       auto operator=(Node &&fibonacciHeap) noexcept -> Node & = default;
+      // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
       Key key;
       std::uint64_t degree = 0;
       bool mark = false;
@@ -104,8 +105,11 @@ namespace chimera::library::virtual_machine {
       Node *right = nullptr;
       Node *parent = nullptr;
       Node *child = nullptr;
+      // NOLINTEND(misc-non-private-member-variables-in-classes)
     };
+    // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
     Node *min = nullptr; //! owned by its own left member
     std::uint64_t n = 0;
+    // NOLINTEND(misc-non-private-member-variables-in-classes)
   };
 } // namespace chimera::library::virtual_machine

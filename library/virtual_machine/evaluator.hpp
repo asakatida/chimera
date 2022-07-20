@@ -88,8 +88,11 @@ namespace chimera::library::virtual_machine {
     std::stack<Scope> scopes{};
   };
   struct Evaluator {
+    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
     ThreadContext &thread_context;
+    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
     Scopes scope{};
+    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
     std::stack<object::Object> stack{};
     auto self() -> object::Object &;
     [[nodiscard]] auto builtins() const -> const object::Object &;

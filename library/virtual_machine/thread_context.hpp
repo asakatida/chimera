@@ -33,8 +33,10 @@ namespace chimera::library::virtual_machine {
     void evaluate(const asdl::Module &module);
     void evaluate(const asdl::Interactive &interactive);
     void evaluate(const asdl::Expression &expression);
+    // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
     ProcessContext &process_context;
     const object::Object main;
     std::optional<object::Object> ret{};
+    // NOLINTEND(misc-non-private-member-variables-in-classes)
   };
 } // namespace chimera::library::virtual_machine

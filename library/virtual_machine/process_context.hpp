@@ -46,10 +46,12 @@ namespace chimera::library::virtual_machine {
         -> asdl::Interactive;
     auto parse_input(std::istream &input, const char *source)
         -> asdl::Interactive;
+    // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
     const GlobalContext &global_context;
     // TODO(asakatida)
     // GarbageCollector garbage_collector{};
     container::AtomicMap<std::string, object::Object> modules{};
+    // NOLINTEND(misc-non-private-member-variables-in-classes)
 
   private:
     auto import_object(std::string_view &&module) -> object::Object &;

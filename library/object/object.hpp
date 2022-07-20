@@ -55,6 +55,7 @@ namespace chimera::library::object {
     ~String() noexcept = default;
     auto operator=(const String &string) -> String & = default;
     auto operator=(String &&string) noexcept -> String & = default;
+    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
     std::string_view value;
   };
   enum class StringMethod {};

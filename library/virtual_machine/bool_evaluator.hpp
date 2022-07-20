@@ -27,6 +27,8 @@
 
 #include "asdl/asdl.hpp"
 
+// NOLINTBEGIN(misc-non-private-member-variables-in-classes)
+
 namespace chimera::library::virtual_machine {
   struct Evaluator;
   struct BoolAndEvaluator {
@@ -42,3 +44,5 @@ namespace chimera::library::virtual_machine {
     void operator()(Evaluator *evaluatorA) const;
   };
 } // namespace chimera::library::virtual_machine
+
+// NOLINTEND(misc-non-private-member-variables-in-classes)

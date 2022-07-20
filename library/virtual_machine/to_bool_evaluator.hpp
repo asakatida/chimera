@@ -27,6 +27,7 @@
 namespace chimera::library::virtual_machine {
   struct Evaluator;
   struct ToBoolEvaluator {
+    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
     object::Object object;
     void operator()(Evaluator *evaluatorA) const;
   };
