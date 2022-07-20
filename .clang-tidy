@@ -2,6 +2,7 @@
 AnalyzeTemporaryDtors: true
 Checks: |
   -*,
+  bugprone-*,
   cert-*,
   clang-*,
   concurrency-*,
@@ -12,6 +13,8 @@ Checks: |
   performance-*,
   portability-*,
   readability-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-exception-escape,
   -misc-no-recursion,
   -readability-identifier-length,
   -readability-static-accessed-through-instance

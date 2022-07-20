@@ -82,7 +82,7 @@ namespace chimera::library::object::number {
       return Number(0U);
     }
     auto value = left;
-    // NOLINTNEXTLINE(cppcoreguidelines-narrowing-conversions)
+    // NOLINTNEXTLINE(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
     if (const std::ptrdiff_t shift = right / 64; shift != 0) {
       value.value.erase(value.value.begin(), value.value.begin() + shift);
     }
