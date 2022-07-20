@@ -29,6 +29,7 @@
 namespace chimera::library::virtual_machine {
   struct Evaluator;
   struct SliceEvaluator {
+    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
     Evaluator *evaluator;
     void operator()(const asdl::Slice &slice);
     void operator()(const asdl::ExtSlice &extSlice);

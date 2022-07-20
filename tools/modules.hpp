@@ -54,6 +54,7 @@ namespace chimera::library {
     auto operator()(const Work &a, const Work &b) const -> bool;
   };
   struct IncompleteTuple {
+    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
     PrintState *printer;
     auto operator()(const object::Tuple &tuple) const
         -> std::optional<object::Object>;
@@ -262,11 +263,13 @@ namespace chimera::library {
       }
       return os;
     }
+    // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
     std::map<object::Id, object::Id> m_remap;
     std::map<object::Id, std::string> m_printed;
     std::priority_queue<Work, std::vector<Work>, Compare> queue{};
     std::map<object::Id, std::vector<SetAttribute>> wanted{};
     object::Object main;
+    // NOLINTEND(misc-non-private-member-variables-in-classes)
   };
   struct Printer {
     object::Object main;

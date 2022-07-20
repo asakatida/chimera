@@ -37,6 +37,7 @@ namespace chimera::library::virtual_machine {
   struct VirtualMachine {
     VirtualMachine(const Options &options, object::Object builtins);
     [[nodiscard]] auto process_context() const -> ProcessContext;
+    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
     GlobalContext global_context{};
   };
 } // namespace chimera::library::virtual_machine

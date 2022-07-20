@@ -27,6 +27,7 @@
 namespace chimera::library::virtual_machine {
   struct Evaluator;
   struct TupleEvaluator {
+    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
     std::size_t size;
     void operator()(Evaluator *evaluator) const;
   };

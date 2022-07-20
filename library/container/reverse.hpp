@@ -38,6 +38,7 @@ namespace chimera::library::container {
     [[nodiscard]] auto cend() const noexcept { return container->crend(); }
     [[nodiscard]] auto rend() const noexcept { return container->end(); }
     [[nodiscard]] auto crend() const noexcept { return container->cend(); }
+    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
     std::add_pointer_t<Container> container;
   };
   template <typename Container>

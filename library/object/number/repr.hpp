@@ -25,6 +25,7 @@
 namespace chimera::library::object::number {
   template <typename OStream>
   struct Repr {
+    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
     OStream &os;
     auto operator()(std::uint64_t i) -> OStream & { return os << i << ','; }
     auto operator()(Base base) -> OStream & {
