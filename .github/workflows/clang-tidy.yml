@@ -19,6 +19,19 @@ env:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        lints:
+          - cert-*
+          - clang-*
+          - concurrency-*
+          - cppcoreguidelines-*
+          - hicpp-*
+          - misc-*,-misc-no-recursion
+          - modernize-*
+          - performance-*
+          - portability-*
+          - readability-*,-readability-identifier-length,-readability-static-accessed-through-instance
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -30,4 +43,4 @@ jobs:
         run: CC=/usr/bin/clang-${{env.CLANG_VERSION}} CXX=/usr/bin/clang++-${{env.CLANG_VERSION}} cmake -B build
       - name: Lint c++ code
         working-directory: ${{github.workspace}}
-        run: find . -name '*.cpp' -print0 | xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | xargs -0 -- clang-tidy-${{env.CLANG_VERSION}} -p=build
+        run: find . -name '*.cpp' -print0 | xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | xargs -0 -- clang-tidy-${{env.CLANG_VERSION}} -p=build -checks=-*,${{matrix.lints}}
