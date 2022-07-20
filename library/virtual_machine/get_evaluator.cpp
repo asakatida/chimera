@@ -26,7 +26,7 @@
 #include "virtual_machine/evaluator.hpp"
 
 namespace chimera::library::virtual_machine {
-  void GetEvaluator::evaluate(const asdl::Bool &asdlBool) {
+  void GetEvaluator::evaluate(const asdl::Bool &asdlBool) const {
     auto begin = asdlBool.values.begin();
     ++begin;
     switch (asdlBool.op) {
@@ -42,7 +42,7 @@ namespace chimera::library::virtual_machine {
     });
     evaluator->evaluate_get(asdlBool.values.front());
   }
-  void GetEvaluator::evaluate(const asdl::Bin &bin) {
+  void GetEvaluator::evaluate(const asdl::Bin &bin) const {
     auto begin = bin.values.begin();
     ++begin;
     switch (bin.op) {
@@ -88,7 +88,7 @@ namespace chimera::library::virtual_machine {
     }
     evaluator->evaluate_get(bin.values.front());
   }
-  void GetEvaluator::evaluate(const asdl::Unary &unary) {
+  void GetEvaluator::evaluate(const asdl::Unary &unary) const {
     switch (unary.op) {
       case asdl::Unary::BIT_NOT:
         evaluator->push(UnaryBitNotEvaluator{});
@@ -105,10 +105,10 @@ namespace chimera::library::virtual_machine {
     }
     evaluator->evaluate_get(unary.operand);
   }
-  void GetEvaluator::evaluate(const asdl::Lambda & /*lambda*/) {
+  void GetEvaluator::evaluate(const asdl::Lambda & /*lambda*/) const {
     evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
   }
-  void GetEvaluator::evaluate(const asdl::IfExp &ifExp) {
+  void GetEvaluator::evaluate(const asdl::IfExp &ifExp) const {
     evaluator->push([&ifExp](Evaluator *evaluatorA) {
       evaluatorA->evaluate_get(
           evaluatorA->stack.top().get_bool() ? ifExp.body : ifExp.orelse);
@@ -120,32 +120,33 @@ namespace chimera::library::virtual_machine {
     });
     evaluator->evaluate_get(ifExp.test);
   }
-  void GetEvaluator::evaluate(const asdl::ListComp & /*list_comp*/) {
+  void GetEvaluator::evaluate(const asdl::ListComp & /*list_comp*/) const {
     evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
   }
-  void GetEvaluator::evaluate(const asdl::SetComp & /*set_comp*/) {
+  void GetEvaluator::evaluate(const asdl::SetComp & /*set_comp*/) const {
     evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
   }
-  void GetEvaluator::evaluate(const asdl::UnpackDict & /*unpackDict*/) {}
-  void GetEvaluator::evaluate(const asdl::DictComp & /*dict_comp*/) {
+  void GetEvaluator::evaluate(const asdl::UnpackDict & /*unpackDict*/) const {}
+  void GetEvaluator::evaluate(const asdl::DictComp & /*dict_comp*/) const {
     evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
   }
-  void GetEvaluator::evaluate(const asdl::GeneratorExp & /*generator_exp*/) {
+  void
+  GetEvaluator::evaluate(const asdl::GeneratorExp & /*generator_exp*/) const {
     evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
   }
-  void GetEvaluator::evaluate(const asdl::Await & /*await*/) {
+  void GetEvaluator::evaluate(const asdl::Await & /*await*/) const {
     evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
   }
-  void GetEvaluator::evaluate(const asdl::Yield & /*yield*/) {
+  void GetEvaluator::evaluate(const asdl::Yield & /*yield*/) const {
     evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
   }
-  void GetEvaluator::evaluate(const asdl::YieldFrom & /*yield_from*/) {
+  void GetEvaluator::evaluate(const asdl::YieldFrom & /*yield_from*/) const {
     evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
   }
-  void GetEvaluator::evaluate(const asdl::Compare & /*compare*/) {
+  void GetEvaluator::evaluate(const asdl::Compare & /*compare*/) const {
     evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
   }
-  void GetEvaluator::evaluate(const asdl::Call &call) {
+  void GetEvaluator::evaluate(const asdl::Call &call) const {
     evaluator->push([](Evaluator *evaluatorA) {
       evaluatorA->push(PushStack{
           std::move(evaluatorA->thread_context.ret)
@@ -159,20 +160,20 @@ namespace chimera::library::virtual_machine {
     });
     evaluator->evaluate_get(call.func);
   }
-  void GetEvaluator::evaluate(const asdl::Attribute &attribute) {
+  void GetEvaluator::evaluate(const asdl::Attribute &attribute) const {
     evaluator->push([&attribute](Evaluator *evaluatorA) {
       evaluatorA->get_attribute(evaluatorA->stack.top(), attribute.attr.value);
       evaluatorA->stack.pop();
     });
     evaluator->evaluate_get(attribute.value);
   }
-  void GetEvaluator::evaluate(const asdl::Subscript &subscript) {
+  void GetEvaluator::evaluate(const asdl::Subscript &subscript) const {
     evaluator->evaluate_get(subscript.value);
   }
-  void GetEvaluator::evaluate(const asdl::Starred &starred) {
+  void GetEvaluator::evaluate(const asdl::Starred &starred) const {
     evaluator->evaluate_get(starred.value);
   }
-  void GetEvaluator::evaluate(const asdl::NameConstant &nameConstant) {
+  void GetEvaluator::evaluate(const asdl::NameConstant &nameConstant) const {
     switch (nameConstant.value) {
       case asdl::NameConstant::FALSE:
         evaluator->push(
@@ -186,32 +187,33 @@ namespace chimera::library::virtual_machine {
         break;
     }
   }
-  void GetEvaluator::evaluate(const asdl::Ellipsis & /*ellipsis*/) {
+  void GetEvaluator::evaluate(const asdl::Ellipsis & /*ellipsis*/) const {
     evaluator->push(PushStack{evaluator->builtins().get_attribute("Ellipsis")});
   }
-  void GetEvaluator::evaluate(const asdl::FormattedValue &formattedValue) {
+  void
+  GetEvaluator::evaluate(const asdl::FormattedValue &formattedValue) const {
     evaluator->evaluate_get(formattedValue.value);
   }
-  void GetEvaluator::evaluate(const asdl::JoinedStr & /*joined_str*/) {
+  void GetEvaluator::evaluate(const asdl::JoinedStr & /*joined_str*/) const {
     evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
   }
-  void GetEvaluator::evaluate(const asdl::Name &name) {
+  void GetEvaluator::evaluate(const asdl::Name &name) const {
     evaluator->get_attribute(evaluator->self(), name.value);
   }
-  void GetEvaluator::evaluate(const asdl::Dict & /*dict*/) {
+  void GetEvaluator::evaluate(const asdl::Dict & /*dict*/) const {
     evaluator->push(PushStack{evaluator->builtins().get_attribute("dict")});
   }
-  void GetEvaluator::evaluate(const asdl::Set & /*set*/) {
+  void GetEvaluator::evaluate(const asdl::Set & /*set*/) const {
     evaluator->push(PushStack{evaluator->builtins().get_attribute("set")});
   }
-  void GetEvaluator::evaluate(const asdl::List & /*list*/) {
+  void GetEvaluator::evaluate(const asdl::List & /*list*/) const {
     evaluator->push(PushStack{evaluator->builtins().get_attribute("list")});
   }
-  void GetEvaluator::evaluate(const asdl::Tuple &tuple) {
+  void GetEvaluator::evaluate(const asdl::Tuple &tuple) const {
     evaluator->push(TupleEvaluator{evaluator->stack.size()});
     evaluator->extend(tuple.elts);
   }
-  void GetEvaluator::evaluate(const object::Object &object) {
+  void GetEvaluator::evaluate(const object::Object &object) const {
     evaluator->push(PushStack{object});
   }
 } // namespace chimera::library::virtual_machine

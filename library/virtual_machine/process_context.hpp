@@ -39,10 +39,10 @@ namespace chimera::library::virtual_machine {
     auto import_object(std::string_view &&name,
                        std::string_view &&relativeModule) -> object::Object &;
     auto make_module(std::string_view &&name) -> object::Object;
-    auto parse_file(const std::string_view &data, const char *source)
+    auto parse_file(const std::string_view &data, const char *source) const
         -> asdl::Module;
     auto parse_file(std::istream &input, const char *source) -> asdl::Module;
-    auto parse_input(const std::string_view &data, const char *source)
+    auto parse_input(const std::string_view &data, const char *source) const
         -> asdl::Interactive;
     auto parse_input(std::istream &input, const char *source)
         -> asdl::Interactive;

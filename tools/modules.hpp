@@ -251,7 +251,7 @@ namespace chimera::library {
       }
       m_printed.try_emplace(id(work.object), baseName);
       os << "});";
-      if (wanted.count(id(work.object)) != 0) {
+      if (wanted.contains(id(work.object))) {
         auto setAttributes = std::move(wanted.at(id(work.object)));
         wanted.erase(id(work.object));
         std::sort(setAttributes.begin(), setAttributes.end(), Compare{});

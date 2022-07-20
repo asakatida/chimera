@@ -32,7 +32,7 @@ namespace chimera::library::virtual_machine {
       evaluatorA->stack.pop();
       if (object.get_bool()) {
         evaluatorA->stack.pop();
-        auto &expr = *begin;
+        const auto &expr = *begin;
         evaluatorA->push(BoolAndEvaluator{begin + 1, end});
         evaluatorA->push([](Evaluator *evaluatorB) {
           evaluatorB->push(ToBoolEvaluator{evaluatorB->stack.top()});
@@ -47,7 +47,7 @@ namespace chimera::library::virtual_machine {
       evaluatorA->stack.pop();
       if (!object.get_bool()) {
         evaluatorA->stack.pop();
-        auto &expr = *begin;
+        const auto &expr = *begin;
         evaluatorA->push(BoolOrEvaluator{begin + 1, end});
         evaluatorA->push([](Evaluator *evaluatorB) {
           evaluatorB->push(ToBoolEvaluator{evaluatorB->stack.top()});

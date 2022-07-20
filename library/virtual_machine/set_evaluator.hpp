@@ -31,13 +31,13 @@ namespace chimera::library::virtual_machine {
   struct SetEvaluator {
     // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
     Evaluator *evaluator;
-    void evaluate(const asdl::Attribute &attribute);
-    void evaluate(const asdl::Subscript &subscript);
-    void evaluate(const asdl::Name &name);
-    void evaluate(const asdl::List &list);
-    void evaluate(const asdl::Tuple &tuple);
+    void evaluate(const asdl::Attribute &attribute) const;
+    void evaluate(const asdl::Subscript &subscript) const;
+    void evaluate(const asdl::Name &name) const;
+    void evaluate(const asdl::List &list) const;
+    void evaluate(const asdl::Tuple &tuple) const;
     template <typename ASDL>
-    [[noreturn]] void evaluate(const ASDL & /*asdl*/) {
+    [[noreturn]] void evaluate(const ASDL & /*asdl*/) const {
       throw object::BaseException(
           evaluator->builtins().get_attribute("RuntimeError"));
     }

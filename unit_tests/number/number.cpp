@@ -4,7 +4,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 using chimera::library::object::number::Number;
 
@@ -188,4 +188,4 @@ TEST_CASE("number Number subtraction huge") {
   REQUIRE(std::uint64_t(number) == std::numeric_limits<std::uint64_t>::max());
 }
 
-// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

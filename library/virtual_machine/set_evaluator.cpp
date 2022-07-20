@@ -28,7 +28,7 @@
 #include "virtual_machine/evaluator.hpp"
 
 namespace chimera::library::virtual_machine {
-  void SetEvaluator::evaluate(const asdl::Attribute &attribute) {
+  void SetEvaluator::evaluate(const asdl::Attribute &attribute) const {
     evaluator->push([&attribute](Evaluator *evaluatorA) {
       auto value = std::move(evaluatorA->stack.top());
       evaluatorA->stack.pop();
@@ -38,18 +38,18 @@ namespace chimera::library::virtual_machine {
     });
     evaluator->evaluate_get(attribute.value);
   }
-  void SetEvaluator::evaluate(const asdl::Subscript &subscript) {
+  void SetEvaluator::evaluate(const asdl::Subscript &subscript) const {
     evaluator->evaluate_get(subscript.value);
   }
-  void SetEvaluator::evaluate(const asdl::Name &name) {
+  void SetEvaluator::evaluate(const asdl::Name &name) const {
     evaluator->push([&name](Evaluator *evaluatorA) {
       evaluatorA->self().set_attribute(name.value, evaluatorA->stack.top());
     });
   }
-  void SetEvaluator::evaluate(const asdl::List & /*list*/) {
+  void SetEvaluator::evaluate(const asdl::List & /*list*/) const {
     evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
   }
-  void SetEvaluator::evaluate(const asdl::Tuple & /*tuple*/) {
+  void SetEvaluator::evaluate(const asdl::Tuple & /*tuple*/) const {
     evaluator->push(PushStack{evaluator->builtins().get_attribute("None")});
   }
 } // namespace chimera::library::virtual_machine

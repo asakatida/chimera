@@ -11,7 +11,10 @@ Checks: |
   modernize-*,
   performance-*,
   portability-*,
+  readability-*,
   -misc-no-recursion,
+  -readability-identifier-length,
+  -readability-static-accessed-through-instance,
 FormatStyle: file
 HeaderFilterRegex: ".*"
 WarningsAsErrors: "*"

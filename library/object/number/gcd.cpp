@@ -49,7 +49,8 @@ namespace chimera::library::object::number {
                       left.numerator, left.denominator);
   }
   auto gcd(std::uint64_t left, Base right) -> Number {
-    Number aPrime(left), bPrime(right);
+    Number aPrime(left);
+    Number bPrime(right);
     while (0U < bPrime) {
       auto temp = bPrime;
       bPrime = aPrime % bPrime;
@@ -95,7 +96,8 @@ namespace chimera::library::object::number {
     Expects(false);
   }
   auto gcd(const Natural &left, std::uint64_t right) -> Number {
-    Number aPrime(Natural{left}), bPrime(right);
+    Number aPrime(Natural{left});
+    Number bPrime(right);
     while (0U < bPrime) {
       auto temp = bPrime;
       bPrime = aPrime % bPrime;
@@ -107,7 +109,8 @@ namespace chimera::library::object::number {
     return gcd(left, right.value);
   }
   auto gcd(const Natural &left, const Natural &right) -> Number {
-    Number aPrime(Natural{left}), bPrime(Natural{right});
+    Number aPrime(Natural{left});
+    Number bPrime(Natural{right});
     while (0U < bPrime) {
       auto temp = bPrime;
       bPrime = aPrime % bPrime;

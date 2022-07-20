@@ -22,7 +22,7 @@
 
 #include <limits>
 
-// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 namespace chimera::library::object::number {
   auto div_mod(const Carryover &left, std::uint64_t right) -> Carryover {
@@ -54,4 +54,4 @@ namespace chimera::library::object::number {
   }
 } // namespace chimera::library::object::number
 
-// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

@@ -141,7 +141,7 @@ namespace chimera::library::virtual_machine {
     return {};
   }
   auto ProcessContext::parse_file(const std::string_view &data,
-                                  const char *source) -> asdl::Module {
+                                  const char *source) const -> asdl::Module {
     return Parse{}.parse_file(global_context.options, data, source);
   }
   auto ProcessContext::parse_file(std::istream &input, const char *source)
@@ -149,7 +149,8 @@ namespace chimera::library::virtual_machine {
     return Parse{}.parse_file(global_context.options, input, source);
   }
   auto ProcessContext::parse_input(const std::string_view &data,
-                                   const char *source) -> asdl::Interactive {
+                                   const char *source) const
+      -> asdl::Interactive {
     return Parse{}.parse_input(global_context.options, data, source);
   }
   auto ProcessContext::parse_input(std::istream &input, const char *source)
