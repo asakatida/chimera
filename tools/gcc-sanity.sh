@@ -2,7 +2,8 @@
 
 set -ex -o pipefail
 
-tools/cmake.sh build/gcc-make
+root="$(git rev-parse --show-toplevel)"
 
-cd build/gcc-make
-make "-j$(nproc)"
+"${root}/tools/cmake.sh" "${root}/build/gcc-make"
+
+make -b "${root}/build/gcc-make" "-j$(nproc)" "$@"

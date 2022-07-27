@@ -2,13 +2,13 @@
 
 set -ex -o pipefail
 
-tools/cmake.sh build/clang-make
+root="$(git rev-parse --show-toplevel)"
+build="${root}/build/clang-make"
+scripts="${root}/tools"
 
-pushd build/clang-make
-make "-j$(nproc)"
-popd
-tools/clang-format.sh
-pushd build/clang-make
-make "-j$(nproc)"
-tools/clang-tidy.sh
-popd
+"${scripts}/cmake.sh" "${build}"
+
+make -b "${build}" "-j$(nproc)"
+"${scripts}/clang-format.sh"
+make -b "${build}" "-j$(nproc)"
+"${scripts}/clang-tidy.sh" "${build}"
