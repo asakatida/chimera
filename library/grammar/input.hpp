@@ -36,7 +36,7 @@ namespace chimera::library::grammar {
       indentStack.emplace();
     }
     auto indent() -> bool {
-      std::uintmax_t i = Base::column();
+      const std::uintmax_t i = Base::column();
       if (indentStack.top() < i) {
         indentStack.push(i);
         return true;
@@ -52,7 +52,7 @@ namespace chimera::library::grammar {
       if (Base::empty()) {
         return true;
       }
-      std::uintmax_t i = Base::column();
+      const std::uintmax_t i = Base::column();
       if (i > indentStack.top()) {
         throw tao::pegtl::parse_error("bad dedent"s, *this);
       }

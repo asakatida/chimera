@@ -97,7 +97,7 @@ namespace chimera::library::virtual_machine {
   }
   void Evaluator::get_attribute(const object::Object &object,
                                 const std::string &name) {
-    std::string getAttribute("__getattribute__");
+    const std::string getAttribute("__getattribute__");
     if (object.has_attribute(getAttribute)) {
       return get_attribute(object, object.get_attribute(getAttribute), name);
     }

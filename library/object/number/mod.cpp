@@ -93,7 +93,7 @@ namespace chimera::library::object::number {
   auto operator%(const Natural &left, std::uint64_t right) -> Number {
     Expects(right != 0);
     Carryover carryover{};
-    for (std::uint64_t i : container::reverse(left.value)) {
+    for (const std::uint64_t i : container::reverse(left.value)) {
       carryover.result = i;
       carryover = div_mod(carryover, right);
     }
@@ -110,7 +110,7 @@ namespace chimera::library::object::number {
       return Number(0U);
     }
     Number a(Natural{left});
-    Number b(Natural{right});
+    const Number b(Natural{right});
     while (b < a) {
       a -= b;
     }

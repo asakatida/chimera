@@ -85,13 +85,13 @@ namespace chimera::library::object::number {
       return Number(Natural(left));
     }
     auto value = left;
-    if (std::size_t shift = right / 64; shift != 0) {
+    if (const std::size_t shift = right / 64; shift != 0) {
       value.value.insert(value.value.begin(), shift, 0);
     }
-    if (std::uint64_t shift = right % 64; shift != 0) {
+    if (const std::uint64_t shift = right % 64; shift != 0) {
       Natural result;
       std::uint64_t overflow = 0;
-      for (std::uint64_t i : value.value) {
+      for (const std::uint64_t i : value.value) {
         auto carryover = left_shift(i, shift);
         result.value.emplace_back(carryover.result | overflow);
         overflow = carryover.overflow;
@@ -110,7 +110,7 @@ namespace chimera::library::object::number {
     if (auto shift = std::uint64_t(right % 64); shift != 0) {
       Natural result;
       std::uint64_t overflow = 0;
-      for (std::uint64_t i : value.value) {
+      for (const std::uint64_t i : value.value) {
         auto carryover = left_shift(i, shift);
         result.value.emplace_back(carryover.result | overflow);
         overflow = carryover.overflow;

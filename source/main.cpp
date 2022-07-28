@@ -67,13 +67,13 @@ namespace chimera::library {
     try {
       try {
         Options options{};
-        object::Object builtins;
+        const object::Object builtins;
         virtual_machine::modules::init(builtins);
         auto arg = args.begin();
         options.chimera = *arg++;
         for (; arg != args.end(); ++arg) {
           auto argLen = std::strlen(*arg);
-          gsl::cstring_span<> argCStr{
+          const gsl::cstring_span<> argCStr{
               *arg, static_cast<gsl::cstring_span<>::size_type>(argLen)};
           auto argChar = argCStr.begin();
           if (*argChar != '-') {

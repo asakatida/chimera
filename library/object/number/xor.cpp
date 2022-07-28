@@ -83,13 +83,13 @@ namespace chimera::library::object::number {
     value.value.reserve(std::max(left.value.size(), right.value.size()));
     if (left.value.size() > right.value.size()) {
       auto lIter = left.value.begin();
-      for (std::uint64_t i : right.value) {
+      for (const std::uint64_t i : right.value) {
         value.value.emplace_back(i ^ *(lIter++));
       }
       value.value.insert(value.value.end(), lIter, left.value.end());
     } else {
       auto rIter = right.value.begin();
-      for (std::uint64_t i : left.value) {
+      for (const std::uint64_t i : left.value) {
         value.value.emplace_back(i ^ *(rIter++));
       }
       value.value.insert(value.value.end(), rIter, right.value.end());

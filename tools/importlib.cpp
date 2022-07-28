@@ -40,15 +40,15 @@
 
 namespace chimera::library {
   static void main() {
-    object::Object builtins;
+    const object::Object builtins;
     virtual_machine::modules::init(builtins);
-    virtual_machine::VirtualMachine virtualMachine({}, builtins);
+    const virtual_machine::VirtualMachine virtualMachine({}, builtins);
     auto processContext = virtualMachine.process_context();
     auto module = processContext.parse_file(std::cin, "<input>");
     virtual_machine::ThreadContext threadContext{
         processContext, processContext.make_module("importlib")};
     threadContext.evaluate(module);
-    Printer printer{threadContext.main, "importlib"};
+    const Printer printer{threadContext.main, "importlib"};
     std::cout << printer;
   }
 } // namespace chimera::library

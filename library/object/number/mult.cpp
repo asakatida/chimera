@@ -79,7 +79,7 @@ namespace chimera::library::object::number {
     Natural value{};
     value.value.reserve(left.value.size() + 1);
     Carryover carryover{};
-    for (std::uint64_t i : left.value) {
+    for (const std::uint64_t i : left.value) {
       auto m = mult(i, right);
       carryover = sum(m.result, carryover.result);
       value.value.emplace_back(carryover.result);
@@ -97,7 +97,7 @@ namespace chimera::library::object::number {
   auto operator*(const Natural &left, const Natural &right) -> Number {
     Number accumulate(0U);
     std::size_t size = 0;
-    for (std::uint64_t i : right.value) {
+    for (const std::uint64_t i : right.value) {
       accumulate = accumulate + ((left * i) << (64 * (size++)));
     }
     return accumulate;

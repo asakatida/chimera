@@ -79,12 +79,12 @@ namespace chimera::library::object::number {
     value.value.reserve(std::min(left.value.size(), right.value.size()));
     if (left.value.size() > right.value.size()) {
       auto lIter = left.value.begin();
-      for (std::uint64_t i : right.value) {
+      for (const std::uint64_t i : right.value) {
         value.value.emplace_back(i & *(lIter++));
       }
     } else {
       auto rIter = right.value.begin();
-      for (std::uint64_t i : left.value) {
+      for (const std::uint64_t i : left.value) {
         value.value.emplace_back(i & *(rIter++));
       }
     }

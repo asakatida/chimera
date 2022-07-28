@@ -96,7 +96,7 @@ namespace chimera::library::object::number {
     Natural value;
     value.value.reserve(left.value.size());
     Carryover carryover{0, right};
-    for (std::uint64_t i : left.value) {
+    for (const std::uint64_t i : left.value) {
       carryover = sum(i, carryover.overflow);
       value.value.emplace_back(carryover.result);
     }
