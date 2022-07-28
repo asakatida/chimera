@@ -1,11 +1,11 @@
-name: ISort
+name: Python
 
 on:
   push:
     branches: [stable]
     paths:
-      - '.github/workflows/**'
-      - '**.py'
+      - ".github/workflows/**"
+      - "**.py"
       - requirements.txt
   pull_request:
     branches: [stable]
@@ -13,6 +13,12 @@ on:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        lints:
+          - black --check --diff --preview --target-version py310
+          - isort --check-only --python-version auto
+          - pylama
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -24,4 +30,4 @@ jobs:
           env/bin/pip install -r requirements.txt
       - name: Lint python code
         working-directory: ${{github.workspace}}
-        run: find . -name '*.py' -print0 | xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | xargs -0 -- env/bin/isort --check-only --python-version auto
+        run: find . -name '*.py' -print0 | xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | xargs -0 -- env/bin/${{matrix.lints}}
