@@ -2,10 +2,14 @@
 
 set -ex -o pipefail
 
-output=library/virtual_machine/importlib.cpp
+build="$1"
+shift
+root="$(git rev-parse --show-toplevel)"
+output="${root}/library/virtual_machine/importlib.cpp"
 
-"$1/builtins" clang-format -style=file >"${output}"
+"${build}/builtins" < "${root}/stdlib/_builtins.py" | \
+clang-format -style=file >"${output}"
 
-clang-tidy -p="$1" \
-  -quiet -fix -fix-errors -format-style=file -config='' -header-filter=.* \
+clang-tidy \
+  -p="${build}" -quiet -fix -fix-errors -fix-notes "$@" \
   "${output}"

@@ -15,7 +15,7 @@ export CPPFLAGS="${CPPFLAGS} \
   -isystem ${root}/external/PEGTL/include"
 
 export CXXFLAGS="${CXXFLAGS} \
-  -std=c++20 \
+  -std=c++2b \
   -Werror \
   -Wno-c++11-extensions \
   -Wno-c++17-extensions \

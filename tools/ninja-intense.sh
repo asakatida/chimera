@@ -2,7 +2,10 @@
 
 set -ex -o pipefail
 
-tools/cmake.sh "$1" -GNinja
+root="$(git rev-parse --show-toplevel)"
+scripts="${root}/tools"
+
+"${scripts}/cmake.sh" "$1" -GNinja
 
 pushd "$1"
 
@@ -21,6 +24,6 @@ ninja unit_test
 ninja libchimera
 ninja chimera
 
-ninja spec
-ninja corpus
 ninja corpus-num
+ninja corpus
+ninja spec

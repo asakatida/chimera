@@ -3,7 +3,8 @@
 set -ex -o pipefail
 
 root="$(git rev-parse --show-toplevel)"
+scripts="${root}/tools"
 
 find "${root}" -name '*.sh' -print0 | \
-    xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | \
-    xargs -0 -- shellcheck --severity=info --enable=all
+    "${scripts}/g-ls-tree.sh" | \
+    xargs -0 -- shellcheck --severity=info --enable=all "$@"
