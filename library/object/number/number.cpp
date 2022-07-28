@@ -79,8 +79,8 @@ namespace chimera::library::object::number {
     if (aPrime == Number(1U)) {
       return Rational{std::forward<Left>(left), std::forward<Right>(right)};
     }
-    Number nLeft(std::forward<Left>(left));
-    Number nRight(std::forward<Right>(right));
+    const Number nLeft(std::forward<Left>(left));
+    const Number nRight(std::forward<Right>(right));
     if (nLeft == aPrime) {
       return (Number(1U) / nRight.floor_div(aPrime)).unpack();
     }

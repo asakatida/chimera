@@ -83,13 +83,13 @@ namespace chimera::library::object::number {
     }
     auto value = left;
     // NOLINTNEXTLINE(cppcoreguidelines-narrowing-conversions)
-    if (std::ptrdiff_t shift = right / 64; shift != 0) {
+    if (const std::ptrdiff_t shift = right / 64; shift != 0) {
       value.value.erase(value.value.begin(), value.value.begin() + shift);
     }
-    if (std::size_t shift = right % 64; shift != 0) {
+    if (const std::size_t shift = right % 64; shift != 0) {
       Natural result{};
       Carryover carryover{};
-      for (std::uint64_t i : value.value) {
+      for (const std::uint64_t i : value.value) {
         auto overflow = carryover.overflow;
         carryover = right_shift(i, shift);
         result.value.emplace_back(carryover.result | overflow);
@@ -106,13 +106,13 @@ namespace chimera::library::object::number {
       return Number(0U);
     }
     auto value = left;
-    if (std::ptrdiff_t shift(floor_div(right, 64)); shift != 0) {
+    if (const std::ptrdiff_t shift(floor_div(right, 64)); shift != 0) {
       value.value.erase(value.value.begin(), value.value.begin() + shift);
     }
-    if (std::size_t shift(right % 64); shift != 0) {
+    if (const std::size_t shift(right % 64); shift != 0) {
       Natural result{};
       Carryover carryover{};
-      for (std::uint64_t i : value.value) {
+      for (const std::uint64_t i : value.value) {
         auto overflow = carryover.overflow;
         carryover = right_shift(i, shift);
         result.value.emplace_back(carryover.result | overflow);

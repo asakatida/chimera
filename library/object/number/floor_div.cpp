@@ -99,7 +99,7 @@ namespace chimera::library::object::number {
     Expects(right != 0);
     Natural value;
     Carryover carryover{};
-    for (std::uint64_t i : container::reverse(left.value)) {
+    for (const std::uint64_t i : container::reverse(left.value)) {
       carryover.result = i;
       carryover = div_mod(carryover, right);
       value.value.emplace_back(carryover.result);
