@@ -1,22 +1,3 @@
-name: MyPy
-
-on:
-  push:
-    branches: [stable]
-    paths:
-      - ".github/workflows/**"
-      - "**.py"
-      - requirements.txt
-      - setup.cfg
-  pull_request:
-    branches: [stable]
-    paths:
-      - ".github/workflows/**"
-      - "**.py"
-      - requirements.txt
-      - setup.cfg
-  workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,10 +7,30 @@ jobs:
         with:
           python-version: 3.12-dev
       - name: Build dev tools
-        working-directory: ${{github.workspace}}
         run: |
           python3.12 -m venv env
           env/bin/pip3 install -r requirements.txt
       - name: Lint python code
-        working-directory: ${{github.workspace}}
         run: find . -not -path './stdlib/*' -name '*.py' -print0 | xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | xargs -0 -- env/bin/mypy
+        working-directory: ${{github.workspace}}
+
+name: MyPy
+
+on:
+  pull_request:
+    branches:
+      - stable
+    paths:
+      - .github/workflows/**
+      - "**.py"
+      - requirements.txt
+      - setup.cfg
+  push:
+    branches:
+      - stable
+    paths:
+      - .github/workflows/**
+      - "**.py"
+      - requirements.txt
+      - setup.cfg
+  workflow_dispatch: ~

@@ -2,16 +2,16 @@ gitConfig:
   push.autoSetupRemote: "true"
 github:
   prebuilds:
-    master: true
-    branches: true
-    pullRequests: true
-    pullRequestsFromForks: true
+    addBadge: true
     addCheck: true
     addComment: true
-    addBadge: true
+    branches: true
+    master: true
+    pullRequests: true
+    pullRequestsFromForks: true
 tasks:
-  - init: tools/boot.sh
-    env:
+  - env:
       CC: ccache clang
       CXX: ccache clang++
       CXXFLAGS: -std=c++2b
+    init: tools/boot.sh

@@ -12,16 +12,10 @@ jobs:
           env/bin/pip3 install -r requirements.txt
         working-directory: ${{github.workspace}}
       - name: Lint python code
-        run: find . -name '*.py' -print0 | xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | xargs -0 -- env/bin/${{matrix.lints}}
+        run: find . -name '*.yml' -print0 | xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | xargs -0 -- env/bin/yamllint -f github
         working-directory: ${{github.workspace}}
-    strategy:
-      matrix:
-        lints:
-          - black --check --diff --preview --target-version py311
-          - isort --check-only --python-version auto
-          - pylama
 
-name: Python
+name: YamlLint
 
 on:
   pull_request:
@@ -29,13 +23,13 @@ on:
       - stable
     paths:
       - .github/workflows/**
-      - "**.py"
+      - "**.yml"
       - requirements.txt
   push:
     branches:
       - stable
     paths:
       - .github/workflows/**
-      - "**.py"
+      - "**.yml"
       - requirements.txt
   workflow_dispatch: ~

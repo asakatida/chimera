@@ -1,8 +1,10 @@
 - hosts: localhost
   tasks:
-    - when: ansible_distribution_release in ["focal", "bionic", "xenial"]
-      block:
+    - block:
         - apt_repository:
             repo: ppa:deadsnakes/nightly
         - package:
-            name: ["python3.12-dev", "python3.12-venv"]
+            name:
+              - python3.12-dev
+              - python3.12-venv
+      when: ansible_distribution_release in ["focal", "bionic", "xenial"]
