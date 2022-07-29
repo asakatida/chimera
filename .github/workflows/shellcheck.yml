@@ -4,8 +4,8 @@ on:
   push:
     branches: [stable]
     paths:
-      - '.github/workflows/**'
-      - '**.sh'
+      - ".github/workflows/**"
+      - "**.sh"
   pull_request:
     branches: [stable]
   workflow_dispatch:

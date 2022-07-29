@@ -4,8 +4,8 @@ on:
   push:
     branches: [stable]
     paths:
-      - '.github/workflows/**'
-      - '**.py'
+      - ".github/workflows/**"
+      - "**.py"
       - requirements.txt
       - setup.cfg
   pull_request:

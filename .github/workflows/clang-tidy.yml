@@ -4,10 +4,10 @@ on:
   push:
     branches: [stable]
     paths:
-      - '.github/workflows/**'
-      - '**.cpp'
-      - '**.hpp'
-      - '**.h'
+      - ".github/workflows/**"
+      - "**.cpp"
+      - "**.hpp"
+      - "**.h"
       - CMakeLists.txt
   pull_request:
     branches: [stable]
