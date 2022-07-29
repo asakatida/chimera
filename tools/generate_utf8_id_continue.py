@@ -60,7 +60,7 @@ def _d(i: int) -> bool:
     return chr(i).isidentifier()
 
 
-ranges = ",".join(map(hex, tqdm(_a(set(filter(_d, range(0x10FFFF)))), total=684)))
+ranges = ",".join(map(hex, tqdm(_a(set(filter(_d, range(0x10FFFF)))), total=724)))
 
 utf8_id_continue.write_text(
     subn(
