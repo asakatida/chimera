@@ -6,7 +6,7 @@ SEARCH = compile(r"$\s^$(\s{2,})", MULTILINE)
 
 
 def test(f: Path) -> bool:
-    return f.suffix in (".md", ".py") and bool(SEARCH.search(f.read_text().strip()))
+    return f.suffix not in (".md", ".py") and bool(SEARCH.search(f.read_text().strip()))
 
 
 files = list(filter(test, filter(Path.is_file, map(Path, argv[1:]))))
