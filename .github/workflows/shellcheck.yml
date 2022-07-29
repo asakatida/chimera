@@ -8,6 +8,9 @@ on:
       - "**.sh"
   pull_request:
     branches: [stable]
+    paths:
+      - ".github/workflows/**"
+      - "**.sh"
   workflow_dispatch:
 
 jobs:

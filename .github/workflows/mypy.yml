@@ -10,6 +10,11 @@ on:
       - setup.cfg
   pull_request:
     branches: [stable]
+    paths:
+      - ".github/workflows/**"
+      - "**.py"
+      - requirements.txt
+      - setup.cfg
   workflow_dispatch:
 
 jobs:

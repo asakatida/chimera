@@ -11,6 +11,12 @@ on:
       - CMakeLists.txt
   pull_request:
     branches: [stable]
+    paths:
+      - ".github/workflows/**"
+      - "**.cpp"
+      - "**.hpp"
+      - "**.h"
+      - CMakeLists.txt
   workflow_dispatch:
 
 env:
@@ -28,7 +34,8 @@ jobs:
           - concurrency-*
           - cppcoreguidelines-*
           - hicpp-*
-          - misc-*,-misc-no-recursion
+          - misc-*,-misc-confusable-identifiers,-misc-no-recursion
+          - misc-confusable-identifiers
           - modernize-*
           - performance-*
           - portability-*
