@@ -12,11 +12,13 @@ sudo apt-get install --yes ccache python3.9-venv shellcheck
 
 "${scripts}/shellcheck.sh"
 
-python3.9 -m venv "${root}/env"
+"${scripts}/venv.sh" "$(command -v python3.9)"
+
+sudo "${root}/env/bin/ansible-playbook" "${scripts}/boot.yml"
+
+"${scripts}/venv.sh" "$(command -v python3.12)"
+
 export PATH="${root}/env/bin:${PATH}"
-pip3 install --upgrade pip setuptools wheel
-pip3 install -r "${root}/requirements.txt"
-pip3 freeze | grep -v -e '^pkg_resources==' >"${root}/requirements.txt"
 
 cmakelint
 

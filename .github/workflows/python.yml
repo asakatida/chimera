@@ -16,18 +16,20 @@ jobs:
     strategy:
       matrix:
         lints:
-          - black --check --diff --preview --target-version py310
+          - black --check --diff --preview --target-version py312
           - isort --check-only --python-version auto
           - pylama
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: deadsnakes/action@v2.1.1
+        with:
+          python-version: 3.12-dev
       - name: Build dev tools
         working-directory: ${{github.workspace}}
         run: |
-          sudo apt-get install -y git python3.9-venv
-          python3.9 -m venv env
-          env/bin/pip install -r requirements.txt
+          python3.12 -m venv env
+          env/bin/pip3 install -r requirements.txt
       - name: Lint python code
         working-directory: ${{github.workspace}}
         run: find . -name '*.py' -print0 | xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | xargs -0 -- env/bin/${{matrix.lints}}
