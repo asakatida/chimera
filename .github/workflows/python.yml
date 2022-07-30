@@ -20,7 +20,7 @@ jobs:
     strategy:
       matrix:
         lints:
-          - black --check --diff --preview --target-version py312
+          - black --check --diff --preview --target-version py311
           - isort --check-only --python-version auto
           - pylama
     runs-on: ubuntu-latest

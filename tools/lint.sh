@@ -14,7 +14,7 @@ export PATH="${root}/env/bin:${PATH}"
 cmakelint
 
 find "${root}" -name '*.py' -print0 | "${scripts}/g-ls-tree.sh" | xargs -0 -- isort --python-version auto
-find "${root}" -name '*.py' -print0 | "${scripts}/g-ls-tree.sh" | xargs -0 -- black --preview --target-version py312
+find "${root}" -name '*.py' -print0 | "${scripts}/g-ls-tree.sh" | xargs -0 -- black --preview --target-version py311
 find "${root}" -name '*.py' -print0 | "${scripts}/g-ls-tree.sh" | xargs -0 -- pylama
 find "${root}" -not -path "${root}/stdlib/*" -name '*.py' -print0 | "${scripts}/g-ls-tree.sh" | xargs -0 -- mypy
 
