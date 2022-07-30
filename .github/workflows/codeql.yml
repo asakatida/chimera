@@ -1,0 +1,41 @@
+jobs:
+  analyze:
+    name: Analyze
+    permissions:
+      security-events: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+      - env:
+          CC: clang
+          CXX: clang++
+        name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - cpp
+          - python
+
+name: CodeQL
+
+on:
+  pull_request:
+    branches:
+      - stable
+  push:
+    branches:
+      - stable
+  schedule:
+    - cron: 20 14 * * 5
+  workflow_dispatch: ~

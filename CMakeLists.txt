@@ -135,7 +135,7 @@ add_library(
   library/version.cpp
   library/version.hpp)
 
-target_compile_features(chimera_core PUBLIC c_std_23 cxx_std_23)
+target_compile_features(chimera_core PUBLIC c_std_23 cxx_std_20)
 
 target_include_directories(chimera_core PUBLIC library)
 
@@ -154,13 +154,13 @@ add_library(
   include/chimera.h
   library/c-api/chimera.cpp)
 
-target_compile_features(libchimera PUBLIC c_std_23 cxx_std_23)
+target_compile_features(libchimera PUBLIC c_std_23 cxx_std_20)
 target_include_directories(libchimera SYSTEM PUBLIC include)
 set_target_properties(libchimera PROPERTIES OUTPUT_NAME "chimera")
 target_link_libraries(libchimera chimera_core pthread)
 
 add_executable(chimera source/main.cpp)
-target_compile_features(chimera PUBLIC c_std_23 cxx_std_23)
+target_compile_features(chimera PUBLIC c_std_23 cxx_std_20)
 target_link_libraries(chimera chimera_core pthread)
 
 add_subdirectory(external/Catch EXCLUDE_FROM_ALL)
@@ -175,7 +175,7 @@ add_executable(
   unit_tests/number/number.cpp
   unit_tests/virtual_machine/virtual_machine.cpp)
 
-target_compile_features(unit_test PUBLIC c_std_23 cxx_std_23)
+target_compile_features(unit_test PUBLIC c_std_23 cxx_std_20)
 
 target_include_directories(unit_test PUBLIC unit_tests)
 
@@ -186,7 +186,7 @@ target_include_directories(
 
 target_link_libraries(unit_test Catch2WithMain chimera_core pthread)
 
-add_executable(fuzz unit_tests/fuzz/target.cpp)
+add_executable(fuzz EXCLUDE_FROM_ALL unit_tests/fuzz/target.cpp)
 
 target_compile_options(
   fuzz
@@ -194,7 +194,7 @@ target_compile_options(
   -g
   -fsanitize=address,fuzzer)
 
-target_compile_features(fuzz PUBLIC c_std_23 cxx_std_23)
+target_compile_features(fuzz PUBLIC c_std_23 cxx_std_20)
 
 target_link_libraries(
   fuzz
@@ -205,7 +205,7 @@ target_link_libraries(
   -fsanitize=address,fuzzer
   -rtlib=compiler-rt)
 
-add_executable(fuzz-num unit_tests/fuzz/target-num.cpp)
+add_executable(fuzz-num EXCLUDE_FROM_ALL unit_tests/fuzz/target-num.cpp)
 
 target_compile_options(
   fuzz-num
@@ -213,7 +213,7 @@ target_compile_options(
   -g
   -fsanitize=address,fuzzer)
 
-target_compile_features(fuzz-num PUBLIC c_std_23 cxx_std_23)
+target_compile_features(fuzz-num PUBLIC c_std_23 cxx_std_20)
 
 target_link_libraries(
   fuzz-num
@@ -226,7 +226,7 @@ target_link_libraries(
 
 add_executable(bnf2abnf tools/bnf2abnf.cpp)
 
-target_compile_features(bnf2abnf PUBLIC c_std_23 cxx_std_23)
+target_compile_features(bnf2abnf PUBLIC c_std_23 cxx_std_20)
 
 target_include_directories(
   bnf2abnf
@@ -235,16 +235,16 @@ target_include_directories(
   external/PEGTL/include)
 
 add_library(modules_tools tools/modules.cpp tools/modules.hpp)
-target_compile_features(modules_tools PUBLIC c_std_23 cxx_std_23)
+target_compile_features(modules_tools PUBLIC c_std_23 cxx_std_20)
 target_include_directories(modules_tools PUBLIC tools)
 target_link_libraries(modules_tools chimera_core pthread)
 
 add_executable(builtins tools/builtins.cpp)
-target_compile_features(builtins PUBLIC c_std_23 cxx_std_23)
+target_compile_features(builtins PUBLIC c_std_23 cxx_std_20)
 target_link_libraries(builtins modules_tools pthread)
 
 add_executable(importlib tools/importlib.cpp)
-target_compile_features(importlib PUBLIC c_std_23 cxx_std_23)
+target_compile_features(importlib PUBLIC c_std_23 cxx_std_20)
 target_link_libraries(importlib modules_tools pthread)
 
 add_custom_target(check unit_test VERBATIM USES_TERMINAL)

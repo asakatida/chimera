@@ -2,6 +2,8 @@
 
 set -ex -o pipefail
 
+env
+
 root="$(git rev-parse --show-toplevel)"
 scripts="${root}/tools"
 build_root="${root}/build"
