@@ -1,4 +1,5 @@
-- hosts: localhost
+- become: true
+  hosts: localhost
   tasks:
     - block:
         - apt_repository:

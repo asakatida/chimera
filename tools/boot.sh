@@ -14,7 +14,7 @@ sudo apt-get install --yes ccache python3.9-venv shellcheck
 
 "${scripts}/venv.sh" "$(command -v python3.9)"
 
-sudo "${root}/env/bin/ansible-playbook" "${scripts}/boot.yml"
+"${root}/env/bin/ansible-playbook" "${scripts}/boot.yml"
 
 "${scripts}/venv.sh" "$(command -v python3.12)"
 
@@ -42,4 +42,4 @@ env \
 
 python3 "${scripts}/supported_distros.py"
 
-# ansible-playbook "${scripts}/docker.yml"
+ansible-playbook "${scripts}/docker.yml"
