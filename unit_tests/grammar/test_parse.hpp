@@ -1,3 +1,5 @@
+#pragma once
+
 #include "object/object.hpp"
 #include "options.hpp"
 #include "virtual_machine/virtual_machine.hpp"

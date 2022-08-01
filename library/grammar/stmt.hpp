@@ -753,7 +753,8 @@ namespace chimera::library::grammar {
           WithStmt<Option>, FuncDef<flags::unSet<Option, flags::ASYNC_FLOW>>,
           ClassDef<Option>, Decorated<Option>, AsyncStmt<Option>>;
   template <flags::Flag Option>
-  using Stmt = sor<CompoundStmt<Option>, SimpleStmt<Option>>;
+  using Stmt = seq<sor<CompoundStmt<Option>, SimpleStmt<Option>>,
+                   opt<token::Token<Option, one<';'>>>>;
   template <flags::Flag Option>
   struct SuiteSimpleStmt : seq<SimpleStmt<Option>> {
     using Transform = rules::VectorCapture<asdl::StmtImpl>;

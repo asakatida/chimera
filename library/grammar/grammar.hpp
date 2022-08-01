@@ -34,8 +34,9 @@
 
 namespace chimera::library::grammar {
   constexpr static flags::Flag option = flags::list<flags::IMPORT_ALL>;
-  struct SingleInput : sor<NEWLINE, if_must<CompoundStmt<option>, NEWLINE>,
-                           must<SimpleStmt<option>>> {
+  struct SingleInput : seq<opt<token::Token<option, one<';'>>>,
+                           sor<NEWLINE, if_must<CompoundStmt<option>, NEWLINE>,
+                               must<SimpleStmt<option>>>> {
     struct Transform : rules::Stack<asdl::StmtImpl> {
       template <typename Top>
       void success(Top &&top) {
@@ -44,8 +45,9 @@ namespace chimera::library::grammar {
       }
     };
   };
-  struct FileInput
-      : must<opt<NEWLINE>, opt<DocString<option>>, until<eof, Stmt<option>>> {
+  struct FileInput : must<star<sor<NEWLINE, DocString<option>,
+                                   token::Token<option, one<';'>>>>,
+                          until<eof, Stmt<option>>> {
     struct Transform : rules::Stack<asdl::DocString, asdl::StmtImpl> {
       template <typename Top>
       void success(Top &&top) {
@@ -60,7 +62,9 @@ namespace chimera::library::grammar {
       }
     };
   };
-  struct EvalInput : must<TestList<flags::list<>>, opt<NEWLINE>, eof> {
+  struct EvalInput
+      : must<TestList<flags::list<>>,
+             opt<token::Token<flags::list<>, one<';'>>>, opt<NEWLINE>, eof> {
     struct Transform : rules::Stack<asdl::ExprImpl> {
       template <typename Top>
       void success(Top &&top) {
