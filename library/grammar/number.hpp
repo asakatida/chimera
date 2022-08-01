@@ -38,8 +38,9 @@ namespace chimera::library::grammar {
     struct NumberHolder {
       template <std::uint8_t Base, typename Input>
       void apply(const Input &in) {
-        number *= object::Number(Base).pow(object::Number(in.size())) +
-                  object::Number(std::stoul(in.string(), nullptr, Base));
+        number *= chimera::library::object::number::Number::pow(
+            object::Number(in.size()));
+        number += object::Number(std::stoul(in.string(), nullptr, Base));
       }
       object::Number number = object::Number(0U);
     };
