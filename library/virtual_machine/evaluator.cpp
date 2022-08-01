@@ -102,12 +102,16 @@ namespace chimera::library::virtual_machine {
       return get_attribute(object, object.get_attribute(getAttribute), name);
     }
     auto mro = object.get_attribute("__class__").get_attribute("__mro__");
-    for (const auto &type : std::get<object::Tuple>(mro.value())) {
-      if (type.has_attribute(getAttribute)) {
-        return get_attribute(object, type.get_attribute(getAttribute), name);
+    if (std::holds_alternative<object::Tuple>(mro.value())) {
+      for (const auto &type : std::get<object::Tuple>(mro.value())) {
+        if (type.has_attribute(getAttribute)) {
+          return get_attribute(object, type.get_attribute(getAttribute), name);
+        }
       }
     }
-    Ensures(false);
+    throw object::BaseException(object::Object(
+        {}, {{"__class__", builtins().get_attribute("AttributeError")},
+             {"__class__", builtins().get_attribute("AttributeError")}}));
   }
   void Evaluator::evaluate() {
     while (scope) {
@@ -469,9 +473,11 @@ namespace chimera::library::virtual_machine {
             return push(PushStack{object.get_attribute(name)});
           }
           auto mro = object.get_attribute("__class__").get_attribute("__mro__");
-          for (const auto &type : std::get<object::Tuple>(mro.value())) {
-            if (type.has_attribute(name)) {
-              return push(PushStack{type.get_attribute(name)});
+          if (std::holds_alternative<object::Tuple>(mro.value())) {
+            for (const auto &type : std::get<object::Tuple>(mro.value())) {
+              if (type.has_attribute(name)) {
+                return push(PushStack{type.get_attribute(name)});
+              }
             }
           }
           return get_attr(object, name);
@@ -499,9 +505,11 @@ namespace chimera::library::virtual_machine {
       return push(PushStack{object.get_attribute("__getattr__")});
     }
     auto mro = object.get_attribute("__class__").get_attribute("__mro__");
-    for (const auto &type : std::get<object::Tuple>(mro.value())) {
-      if (type.has_attribute("__getattr__")) {
-        return push(PushStack{type.get_attribute("__getattr__")});
+    if (std::holds_alternative<object::Tuple>(mro.value())) {
+      for (const auto &type : std::get<object::Tuple>(mro.value())) {
+        if (type.has_attribute("__getattr__")) {
+          return push(PushStack{type.get_attribute("__getattr__")});
+        }
       }
     }
     throw object::BaseException(object::Object(

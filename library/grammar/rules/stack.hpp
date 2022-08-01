@@ -42,8 +42,7 @@ namespace chimera::library::grammar::rules {
     [[nodiscard]] auto top() const -> const ValueT & { return stack.back(); }
     auto top() -> ValueT & { return stack.back(); }
     template <typename Type>
-    [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] auto
-    top() const -> const Type & {
+    [[nodiscard]] auto top() const -> const Type & {
       Ensures(std::holds_alternative<Type>(top()));
       return std::get<Type>(top());
     }
@@ -96,8 +95,7 @@ namespace chimera::library::grammar::rules {
     }
     [[nodiscard]] auto has_value() const -> bool { return !stack.empty(); }
     template <typename Type>
-    [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] auto
-    top_is() const -> bool {
+    [[nodiscard]] auto top_is() const -> bool {
       return has_value() && std::holds_alternative<Type>(top());
     }
     [[nodiscard]] auto size() const -> std::size_t { return stack.size(); }

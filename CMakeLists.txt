@@ -173,12 +173,15 @@ add_subdirectory(external/Catch EXCLUDE_FROM_ALL)
 
 add_executable(
   unit_test
+  unit_tests/fuzz/cases.cpp
   unit_tests/grammar/grammar.cpp
   unit_tests/grammar/identifier.cpp
   unit_tests/grammar/number_parse.cpp
   unit_tests/grammar/number.cpp
+  unit_tests/grammar/statement.cpp
   unit_tests/grammar/test_parse.hpp
   unit_tests/number/number.cpp
+  unit_tests/virtual_machine/parse.cpp
   unit_tests/virtual_machine/virtual_machine.cpp)
 
 target_compile_features(unit_test PUBLIC c_std_23 cxx_std_20)
@@ -193,13 +196,17 @@ target_include_directories(
 target_link_libraries(unit_test Catch2WithMain chimera_core pthread)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_executable(fuzz unit_tests/fuzz/target.cpp)
+  add_executable(
+    fuzz
+    unit_tests/fuzz/cases.cpp
+    unit_tests/fuzz/target.cpp)
   target_compile_options(
     fuzz
     PUBLIC
     -g
     -fsanitize=address,fuzzer)
   target_compile_features(fuzz PUBLIC c_std_23 cxx_std_20)
+  target_include_directories(fuzz PUBLIC unit_tests)
   target_link_libraries(
     fuzz
     chimera_core
@@ -208,13 +215,17 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     -fsanitize-coverage=trace-pc-guard
     -fsanitize=address,fuzzer
     -rtlib=compiler-rt)
-  add_executable(fuzz-num unit_tests/fuzz/target-num.cpp)
+  add_executable(
+    fuzz-num
+    unit_tests/fuzz/cases.cpp
+    unit_tests/fuzz/target-num.cpp)
   target_compile_options(
     fuzz-num
     PUBLIC
     -g
     -fsanitize=address,fuzzer)
   target_compile_features(fuzz-num PUBLIC c_std_23 cxx_std_20)
+  target_include_directories(fuzz-num PUBLIC unit_tests)
   target_link_libraries(
     fuzz-num
     chimera_core
@@ -254,7 +265,7 @@ add_custom_target(
   corpus
   fuzz
   -max_total_time=500
-  -shrink=1 -use_value_profile=1
+  -shrink=1 -use_value_profile=1 -detect_leaks=0
   -jobs=8
   -dict="${CMAKE_SOURCE_DIR}/unit_tests/fuzz/chimera.txt"
   ${CMAKE_SOURCE_DIR}/unit_tests/fuzz
@@ -264,7 +275,7 @@ add_custom_target(
   corpus-num
   fuzz-num
   -max_total_time=500
-  -shrink=1 -use_value_profile=1
+  -shrink=1 -use_value_profile=1 -detect_leaks=0
   -jobs=8
   -dict="${CMAKE_SOURCE_DIR}/unit_tests/fuzz/chimera.txt"
   ${CMAKE_SOURCE_DIR}/unit_tests/fuzz

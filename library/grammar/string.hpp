@@ -383,13 +383,13 @@ namespace chimera::library::grammar {
     struct Action<FormattedString<Option>> {
       template <typename Input, typename Top>
       static void apply(const Input &in, Top &&top) {
-        auto result = tao::pegtl::parse_nested<
-            FString<flags::list<flags::DISCARD, flags::IMPLICIT>>, Action,
-            Normal>(in,
-                    tao::pegtl::memory_input<>(top.string.c_str(),
-                                               top.string.size(), "<f_string>"),
-                    std::forward<Top>(top));
-        Ensures(result);
+        Ensures((tao::pegtl::parse_nested<
+                 FString<flags::list<flags::DISCARD, flags::IMPLICIT>>, Action,
+                 Normal>(in,
+                         tao::pegtl::memory_input<>(top.string.c_str(),
+                                                    top.string.size(),
+                                                    "<f_string>"),
+                         std::forward<Top>(top))));
       }
     };
     template <flags::Flag Option>
