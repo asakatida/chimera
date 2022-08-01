@@ -3,17 +3,18 @@
     {
       "name": "Debug",
       "generator": "Ninja",
-      "configurationType" : "Debug",
-      "buildRoot":  "${projectDir}/build/debug",
-      "cmakeCommandArgs":  "",
+      "configurationType": "Debug",
+      "buildRoot": "${projectDir}/build/debug",
+      "cmakeCommandArgs": "-Wdev -Werror=dev",
       "buildCommandArgs": "",
-      "ctestCommandArgs":  ""
+      "ctestCommandArgs": ""
     },
     {
       "name": "Release",
       "generator": "Ninja",
-      "configurationType" : "Release",
-      "buildRoot": "${projectDir}/build/release"
+      "configurationType": "Release",
+      "buildRoot": "${projectDir}/build/release",
+      "cmakeCommandArgs": "-DCMAKE_BUILD_TYPE=MinSizeRel"
     }
   ]
 }
