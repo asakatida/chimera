@@ -30,7 +30,8 @@ jobs:
         # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
         run: CC=/usr/bin/clang-${{env.CLANG_VERSION}} CXX=/usr/bin/clang++-${{env.CLANG_VERSION}} cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
         working-directory: ${{github.workspace}}
-      - name: Build dev tools
+      - if: ${{ matrix.targets == 'check' }}
+        name: Build dev tools
         run: make
         working-directory: ${{github.workspace}}/build
       - name: Test
@@ -39,8 +40,10 @@ jobs:
     strategy:
       matrix:
         targets:
-          - check check_rand
-          - corpus-num corpus
+          - check
+          - check_rand
+          - corpus
+          - corpus-num
 
 name: CMake
 
