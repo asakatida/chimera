@@ -19,8 +19,10 @@ rules:
   float-values: enable
   key-ordering: enable
   line-length:
-    level: warning
-    max: 120
+    ignore: |
+      .github/workflows/*
+    level: error
+    max: 90
   octal-values: enable
   quoted-strings:
     quote-type: double
