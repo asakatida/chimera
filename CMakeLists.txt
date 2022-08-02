@@ -4,13 +4,19 @@ project(
   VERSION 1.0.0
   LANGUAGES CXX)
 
-add_compile_options(
-  -Wno-c++11-extensions
-  -Wno-c++17-extensions
-  -Wno-c++98-compat-pedantic
-  -Wno-date-time
-  -Wno-padded
-  -fbracket-depth=1024)
+if(MSVC)
+  add_compile_options(/W4 /WX)
+else()
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_compile_options(-fbracket-depth=1024)
+  endif()
+  add_compile_options(
+    -Wno-c++11-extensions
+    -Wno-c++17-extensions
+    -Wno-c++98-compat-pedantic
+    -Wno-date-time
+    -Wno-padded)
+endif()
 
 add_library(
   chimera_core
@@ -186,43 +192,45 @@ target_include_directories(
 
 target_link_libraries(unit_test Catch2WithMain chimera_core pthread)
 
-add_executable(fuzz EXCLUDE_FROM_ALL unit_tests/fuzz/target.cpp)
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_executable(fuzz unit_tests/fuzz/target.cpp)
 
-target_compile_options(
-  fuzz
-  PUBLIC
-  -g
-  -fsanitize=address,fuzzer)
+  target_compile_options(
+    fuzz
+    PUBLIC
+    -g
+    -fsanitize=address,fuzzer)
 
-target_compile_features(fuzz PUBLIC c_std_23 cxx_std_20)
+  target_compile_features(fuzz PUBLIC c_std_23 cxx_std_20)
 
-target_link_libraries(
-  fuzz
-  chimera_core
-  pthread
-  -fsanitize-coverage=trace-cmp
-  -fsanitize-coverage=trace-pc-guard
-  -fsanitize=address,fuzzer
-  -rtlib=compiler-rt)
+  target_link_libraries(
+    fuzz
+    chimera_core
+    pthread
+    -fsanitize-coverage=trace-cmp
+    -fsanitize-coverage=trace-pc-guard
+    -fsanitize=address,fuzzer
+    -rtlib=compiler-rt)
 
-add_executable(fuzz-num EXCLUDE_FROM_ALL unit_tests/fuzz/target-num.cpp)
+  add_executable(fuzz-num unit_tests/fuzz/target-num.cpp)
 
-target_compile_options(
-  fuzz-num
-  PUBLIC
-  -g
-  -fsanitize=address,fuzzer)
+  target_compile_options(
+    fuzz-num
+    PUBLIC
+    -g
+    -fsanitize=address,fuzzer)
 
-target_compile_features(fuzz-num PUBLIC c_std_23 cxx_std_20)
+  target_compile_features(fuzz-num PUBLIC c_std_23 cxx_std_20)
 
-target_link_libraries(
-  fuzz-num
-  chimera_core
-  pthread
-  -fsanitize-coverage=trace-cmp
-  -fsanitize-coverage=trace-pc-guard
-  -fsanitize=address,fuzzer
-  -rtlib=compiler-rt)
+  target_link_libraries(
+    fuzz-num
+    chimera_core
+    pthread
+    -fsanitize-coverage=trace-cmp
+    -fsanitize-coverage=trace-pc-guard
+    -fsanitize=address,fuzzer
+    -rtlib=compiler-rt)
+endif()
 
 add_executable(bnf2abnf tools/bnf2abnf.cpp)
 

@@ -15,16 +15,13 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
+          config-file: ./.github/codeql/codeql-config.yml
           languages: ${{ matrix.language }}
-      - env:
-          CC: clang
-          CXX: clang++
-        name: Autobuild
+      - name: Autobuild
         uses: github/codeql-action/autobuild@v2
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
     strategy:
-      fail-fast: false
       matrix:
         language:
           - cpp
