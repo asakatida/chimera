@@ -1,5 +1,27 @@
 gitConfig:
+  advice.detachedHead: "true"
+  advice.ignoredHook: "false"
+  advice.skippedCherryPicks: "false"
+  checkout.defaultRemote: origin
+  core.ignorecase: "true"
+  diff "hex".binary: "true"
+  diff "hex".cachetextconv: "true"
+  diff "hex".textconv: hexdump
+  diff "json".textconv: jq --sort-keys '.'
+  diff.renameLimit: "1522"
+  diff.submodule: diff
+  fetch.recurseSubmodules: "false"
+  init.defaultBranch: stable
+  pull.rebase: "true"
   push.autoSetupRemote: "true"
+  push.default: simple
+  push.recurseSubmodules: "false"
+  rebase.autoSquash: "true"
+  rebase.autoStash: "true"
+  rebase.backend: apply
+  rebase.missingCommitsCheck: error
+  status.submoduleSummary: "true"
+  submodule.recurse: "true"
 github:
   prebuilds:
     addBadge: true
