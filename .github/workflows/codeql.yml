@@ -1,5 +1,8 @@
 jobs:
-  analyze:
+  codeql:
+    concurrency:
+      cancel-in-progress: true
+      group: ${{ matrix.language }}-${{ github.workflow }}-${{ github.ref }}
     name: Analyze
     permissions:
       security-events: write

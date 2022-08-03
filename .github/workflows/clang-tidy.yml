@@ -3,7 +3,21 @@ env:
   CMAKE_EXPORT_COMPILE_COMMANDS: "YES"
 
 jobs:
-  build:
+  clangformat:
+    concurrency:
+      cancel-in-progress: true
+      group: clangformat-${{ github.workflow }}-${{ github.ref }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: DoozyX/clang-format-lint-action@v0.14
+        with:
+          clangFormatVersion: 14
+          extensions: cpp,h,hpp
+  clangtidy:
+    concurrency:
+      cancel-in-progress: true
+      group: clangtidy-${{ matrix.lints }}-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
