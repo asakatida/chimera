@@ -38,6 +38,7 @@ jobs:
         run: make ${{matrix.targets}}
         working-directory: ${{github.workspace}}/build
     strategy:
+      fail-fast: false
       matrix:
         targets:
           - check
