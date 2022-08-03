@@ -26,7 +26,6 @@
 #include <future>
 #include <map>
 #include <memory>
-#include <optional>
 #include <string>
 #include <string_view>
 
@@ -116,7 +115,7 @@ namespace chimera::library::object {
   public:
     explicit BaseException(Object anException);
     BaseException(const BaseException &anException,
-                  const std::optional<object::BaseException> &context);
+                  const BaseException &context);
     [[nodiscard]] auto what() const noexcept -> const char * override;
     [[nodiscard]] auto id() const noexcept -> Id;
     [[nodiscard]] auto class_id() const noexcept -> Id;

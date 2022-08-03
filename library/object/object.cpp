@@ -86,13 +86,10 @@ namespace chimera::library::object {
   }
   BaseException::BaseException(Object anException)
       : exception(std::move(anException)) {}
-  BaseException::BaseException(
-      const BaseException &anException,
-      const std::optional<object::BaseException> &context)
+  BaseException::BaseException(const BaseException &anException,
+                               const BaseException &context)
       : exception(anException.exception) {
-    if (context) {
-      exception.set_attribute("__context__"s, context->exception);
-    }
+    exception.set_attribute("__context__"s, context.exception);
   }
   auto BaseException::what() const noexcept -> const char * {
     return "BaseException";
