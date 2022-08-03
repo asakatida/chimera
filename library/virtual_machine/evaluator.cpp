@@ -375,13 +375,13 @@ namespace chimera::library::virtual_machine {
         std::visit([](auto &&) {}, handler);
       }
       if (auto exc = do_try(asdlTry.finalbody, exception); exc) {
-        throw object::BaseException(*exc);
+        throw object::BaseException(*exc, *exception);
       }
       throw object::BaseException(*exception);
     }
     if (auto exception = do_try(asdlTry.orelse, {}); exception) {
       if (auto exc = do_try(asdlTry.finalbody, exception); exc) {
-        throw object::BaseException(*exc);
+        throw object::BaseException(*exc, *exception);
       }
       throw object::BaseException(*exception);
     }
@@ -437,7 +437,10 @@ namespace chimera::library::virtual_machine {
       evaluator.extend(body);
       evaluator.evaluate();
     } catch (const object::BaseException &error) {
-      return object::BaseException(error, context);
+      if (context) {
+        return object::BaseException(error, *context);
+      }
+      return error;
     } catch (const ReRaise &) {
       if (context) {
         return context;
@@ -445,9 +448,12 @@ namespace chimera::library::virtual_machine {
       return object::BaseException(
           object::Object(builtins().get_attribute("RuntimeError")));
     } catch (const std::exception &exc) {
-      return object::BaseException(
-          object::BaseException(object::Object(object::String(exc.what()), {})),
-          context);
+      object::BaseException error(
+          object::Object(object::String(exc.what()), {}));
+      if (context) {
+        return object::BaseException(error, *context);
+      }
+      return error;
     }
     return {};
   }
