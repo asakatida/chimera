@@ -4,10 +4,10 @@ gitConfig:
   advice.skippedCherryPicks: "false"
   checkout.defaultRemote: origin
   core.ignorecase: "true"
-  diff "hex".binary: "true"
-  diff "hex".cachetextconv: "true"
-  diff "hex".textconv: hexdump
-  diff "json".textconv: jq --sort-keys '.'
+  # diff "hex".binary: "true"
+  # diff "hex".cachetextconv: "true"
+  # diff "hex".textconv: hexdump
+  # diff "json".textconv: jq --sort-keys '.'
   diff.renameLimit: "1522"
   diff.submodule: diff
   fetch.recurseSubmodules: "false"
