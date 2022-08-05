@@ -1,7 +1,6 @@
 ---
 AnalyzeTemporaryDtors: true
 Checks: |
-  -*,
   bugprone-*,
   cert-*,
   clang-*,
