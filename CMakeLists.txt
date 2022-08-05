@@ -255,17 +255,14 @@ target_link_libraries(importlib modules_tools pthread)
 add_custom_target(check unit_test VERBATIM USES_TERMINAL)
 add_custom_target(check_rand unit_test --order rand VERBATIM USES_TERMINAL)
 add_custom_target(
-  corpus_dir
-  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/corpus)
-add_custom_target(
   corpus
   fuzz
   -max_total_time=500
   -shrink=1 -use_value_profile=1
   -jobs=8
   -dict="${CMAKE_SOURCE_DIR}/unit_tests/fuzz/chimera.txt"
-  ${CMAKE_BINARY_DIR}/corpus
-  DEPENDS check corpus_dir
+  ${CMAKE_SOURCE_DIR}/unit_tests/fuzz
+  DEPENDS check
   VERBATIM USES_TERMINAL)
 add_custom_target(
   corpus-num
@@ -274,8 +271,8 @@ add_custom_target(
   -shrink=1 -use_value_profile=1
   -jobs=8
   -dict="${CMAKE_SOURCE_DIR}/unit_tests/fuzz/chimera.txt"
-  ${CMAKE_BINARY_DIR}/corpus
-  DEPENDS check corpus_dir
+  ${CMAKE_SOURCE_DIR}/unit_tests/fuzz
+  DEPENDS check
   VERBATIM USES_TERMINAL)
 add_custom_target(
   spec
