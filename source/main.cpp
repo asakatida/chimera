@@ -73,8 +73,8 @@ namespace chimera::library {
         options.chimera = *arg++;
         for (; arg != args.end(); ++arg) {
           auto argLen = std::strlen(*arg);
-          const gsl::cstring_span<> argCStr{
-              *arg, static_cast<gsl::cstring_span<>::size_type>(argLen)};
+          const gsl::span<const char> argCStr{
+              *arg, static_cast<gsl::span<const char>::size_type>(argLen)};
           auto argChar = argCStr.begin();
           if (*argChar != '-') {
             options.script = *arg;
@@ -82,7 +82,7 @@ namespace chimera::library {
             return virtual_machine::VirtualMachine(options, builtins)
                 .global_context.execute_script();
           }
-          if (argCStr.length() == 1) {
+          if (argLen == 1) {
             options.argv = forward_args(std::next(arg), args.end());
             return virtual_machine::VirtualMachine(options, builtins)
                 .global_context.execute_script_input();
