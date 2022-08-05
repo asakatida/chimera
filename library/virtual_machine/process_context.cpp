@@ -41,6 +41,7 @@
 using namespace std::literals;
 static const std::string_view CHIMERA_IMPORT_PATH_VIEW
 #ifdef CHIMERA_PATH
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define STRINGIFY(ARG) #ARG##sv
     (STRINGIFY(CHIMERA_PATH))
 #undef STRINGIFY

@@ -12,7 +12,8 @@ export CPPFLAGS="${CPPFLAGS} \
   -isystem ${root}/external/GSL/include \
   -isystem ${root}/external/metal/include \
   -isystem ${root}/external/operators/include \
-  -isystem ${root}/external/PEGTL/include"
+  -isystem ${root}/external/PEGTL/include \
+  -DCHIMERA_PATH=${root}/stdlib"
 
 export CXXFLAGS="${CXXFLAGS} \
   -std=c++2b \
