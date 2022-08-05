@@ -21,8 +21,7 @@ export CXXFLAGS="${CXXFLAGS} \
   -Wno-c++17-extensions \
   -Wno-c++98-compat-pedantic \
   -Wno-date-time \
-  -Wno-padded \
-  -fbracket-depth=1024"
+  -Wno-padded"
 
 # shellcheck disable=SC2016
 find "${root}" -name '*.cpp' -print0 | \

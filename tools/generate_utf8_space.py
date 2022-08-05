@@ -20,10 +20,10 @@
 
 """generate_utf8_space.py."""
 
-from itertools import chain, count, groupby, starmap
+from itertools import chain, count, groupby, islice, repeat, starmap, takewhile
 from pathlib import Path
 from re import MULTILINE, subn
-from typing import Iterable, Tuple
+from typing import Iterator, Tuple
 
 from tqdm import tqdm  # type: ignore
 
@@ -32,36 +32,48 @@ utf8_space = (
 ).absolute()
 
 
-def _a(key: int, group: Iterable[Tuple[int, int]]) -> Tuple[int, int]:
+def _slices(total: int, it: Iterator[int]) -> Iterator[Iterator[str]]:
+    return map(islice, repeat(iter(tqdm(map(hex, it), total=total))), repeat(64))
+
+
+def _ranges(total: int, it: Iterator[int]) -> str:
+    ranges = ">, ranges<".join(
+        takewhile(
+            lambda r: r,
+            map(",".join, _slices(total, it)),
+        )
+    )
+    return f"sor<ranges<{ranges}>>"
+
+
+def _a(key: int, group: Iterator[Tuple[int, int]]) -> Tuple[int, int]:
     t = tuple(e[0] for e in group)
     return (min(t), max(t))
 
 
-ranges = ",".join(
-    map(
-        hex,
-        tqdm(
-            chain.from_iterable(
-                starmap(
-                    _a,
-                    groupby(
-                        zip(
-                            filter(lambda i: chr(i).isspace(), range(0x10FFFF)),
-                            count(),
-                        ),
-                        lambda t: t[0] - t[1],
+ranges = _ranges(
+    20,
+    chain.from_iterable(
+        starmap(
+            _a,
+            groupby(
+                zip(
+                    filter(
+                        lambda i: chr(i).isspace(),
+                        range(0x10FFFF),
                     ),
-                )
+                    count(),
+                ),
+                lambda t: t[0] - t[1],
             ),
-            total=20,
-        ),
-    )
+        )
+    ),
 )
 
 utf8_space.write_text(
     subn(
-        r"\bUtf8Space[^;]+;$",
-        f"Utf8Space = ranges<{ranges}>;",
+        r"\bUtf8Space\b[^;]+",
+        f"Utf8Space = {ranges}",
         utf8_space.read_text(),
         1,
         MULTILINE,
