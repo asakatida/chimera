@@ -14,7 +14,6 @@ rules:
     level: error
   comments-indentation:
     level: error
-  document-start: disable
   empty-values: enable
   float-values: enable
   key-ordering: enable
