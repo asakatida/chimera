@@ -1,3 +1,4 @@
+---
 gitConfig:
   advice.detachedHead: "true"
   advice.ignoredHook: "false"
