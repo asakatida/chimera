@@ -20,10 +20,10 @@
 
 """generate_utf8_id_continue.py."""
 
-from itertools import chain, count, groupby, starmap
+from itertools import chain, count, groupby, islice, repeat, starmap, takewhile
 from pathlib import Path
 from re import MULTILINE, subn
-from typing import Iterable, Iterator, Set, Tuple
+from typing import Iterator, Set, Tuple
 
 from tqdm import tqdm  # type: ignore
 
@@ -32,9 +32,23 @@ utf8_id_continue = (
 ).absolute()
 
 
+def _slices(total: int, it: Iterator[int]) -> Iterator[Iterator[str]]:
+    return map(islice, repeat(iter(tqdm(map(hex, it), total=total))), repeat(64))
+
+
+def _ranges(total: int, it: Iterator[int]) -> str:
+    ranges = ">, ranges<".join(
+        takewhile(
+            lambda r: r,
+            map(",".join, _slices(total, it)),
+        )
+    )
+    return f"sor<ranges<{ranges}>>"
+
+
 def _a(id_start: Set[int]) -> Iterator[int]:
     def b(i: int) -> bool:
-        def c() -> Iterable[bool]:
+        def c() -> Iterator[bool]:
             def d(j: int) -> bool:
                 return "".join((chr(j), chr(i))).isidentifier()
 
@@ -51,7 +65,7 @@ def _a(id_start: Set[int]) -> Iterator[int]:
     )
 
 
-def _b(_: int, group: Iterable[Tuple[int, int]]) -> Tuple[int, int]:
+def _b(_: int, group: Iterator[Tuple[int, int]]) -> Tuple[int, int]:
     t = tuple(e[0] for e in group)
     return (min(t), max(t))
 
@@ -60,12 +74,12 @@ def _d(i: int) -> bool:
     return chr(i).isidentifier()
 
 
-ranges = ",".join(map(hex, tqdm(_a(set(filter(_d, range(0x10FFFF)))), total=724)))
+ranges = _ranges(724, _a(set(filter(_d, range(0x10FFFF)))))
 
 utf8_id_continue.write_text(
     subn(
-        r"\bUtf8IdContinue[^;]+;$",
-        f"Utf8IdContinue = ranges<{ranges}>;",
+        r"\bUtf8IdContinue\b[^;]+",
+        f"Utf8IdContinue = {ranges}",
         utf8_id_continue.read_text(),
         1,
         MULTILINE,

@@ -20,11 +20,27 @@
 
 """generate_utf8_id_insane.py."""
 
-from itertools import product
+from itertools import islice, product, repeat, takewhile
 from pathlib import Path
 from re import MULTILINE, subn
+from typing import Iterator
 
 from tqdm import tqdm  # type: ignore
+
+
+def _slices(total: int, it: Iterator[int]) -> Iterator[Iterator[str]]:
+    return map(islice, repeat(iter(tqdm(map(hex, it), total=total))), repeat(64))
+
+
+def _ranges(total: int, it: Iterator[int]) -> str:
+    ranges = ">, ranges<".join(
+        takewhile(
+            lambda r: r,
+            map(",".join, _slices(total, it)),
+        )
+    )
+    return f"sor<ranges<{ranges}>>"
+
 
 utf8_id_continue = (
     Path(__file__).parent.parent / "library" / "grammar" / "utf8_id_continue.hpp"
@@ -43,38 +59,34 @@ id_continue = set(
     )
 )
 
-ranges = ",".join(
-    map(
-        hex,
-        next(
-            iter(
-                tqdm(
-                    filter(
-                        str.isidentifier,
-                        map(
-                            "".join,
-                            product(
-                                map(chr, id_start),
-                                map(
-                                    chr,
-                                    set(range(0x10FFFF)).difference(
-                                        id_start, id_continue
-                                    ),
-                                ),
+ranges = _ranges(
+    1234,
+    next(
+        iter(
+            tqdm(
+                filter(
+                    str.isidentifier,
+                    map(
+                        "".join,
+                        product(
+                            map(chr, id_start),
+                            map(
+                                chr,
+                                set(range(0x10FFFF)).difference(id_start, id_continue),
                             ),
                         ),
                     ),
-                    total=1234,
-                )
+                ),
+                total=1,
             )
-        ).encode(),
-    )
+        )
+    ).encode(),
 )
 
 utf8_id_continue.write_text(
     subn(
-        r"\bUtf8IdContinue[^;]+;$",
-        f"Utf8IdContinue = ranges<{ranges}>;",
+        r"\bUtf8IdContinue\b[^;]+",
+        f"Utf8IdContinue = {ranges}",
         utf8_id_continue.read_text(),
         1,
         MULTILINE,
