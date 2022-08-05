@@ -7,4 +7,4 @@ scripts="${root}/tools"
 
 find "${root}" -name '*.sh' -print0 | \
     "${scripts}/g-ls-tree.sh" | \
-    xargs -0 -- shellcheck --severity=info --enable=all "$@"
+    xargs -0 -- shellcheck --enable=all --severity=style --shell=bash --exclude=SC2096 "$@"
