@@ -36,5 +36,5 @@ tasks:
   - env:
       CC: ccache clang
       CXX: ccache clang++
-      CXXFLAGS: -std=c++2b
+      CXXFLAGS: -std=c++20
     init: tools/boot.sh

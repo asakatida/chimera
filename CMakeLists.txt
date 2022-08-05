@@ -7,10 +7,13 @@ project(
 if(MSVC)
   add_compile_options(/W4 /WX)
 else()
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_compile_options(
+      -Wno-c++11-extensions
+      -Wno-c++17-extensions
+      -Wno-c++98-compat-pedantic)
+  endif()
   add_compile_options(
-    -Wno-c++11-extensions
-    -Wno-c++17-extensions
-    -Wno-c++98-compat-pedantic
     -Wno-date-time
     -Wno-padded)
 endif()

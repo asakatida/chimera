@@ -16,8 +16,9 @@ export CPPFLAGS="${CPPFLAGS} \
   -DCHIMERA_PATH=${root}/stdlib"
 
 export CXXFLAGS="${CXXFLAGS} \
-  -std=c++2b \
-  -Werror \
+  -std=c++20 \
+  -Wall -Wpedantic -Werror \
+  -g \
   -Wno-c++11-extensions \
   -Wno-c++17-extensions \
   -Wno-c++98-compat-pedantic \
@@ -29,15 +30,15 @@ find "${root}" -name '*.cpp' -print0 | \
   xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | \
   xargs -0 -I'{}' -- \
   jq \
-  --arg cxx "${CXX:-clang}" \
+  --arg cxx "${CXX:-clang++}" \
   --arg cppflags "${CPPFLAGS}" \
   --arg cxxflags "${CXXFLAGS}" \
   --arg root "${root}" \
   --arg file '{}' \
   -n '
     {
-      "root": $root,
-      "command": ([$cxx, $cppflags, $cxxflags, "-c", $file] | join(" ")),
+      "directory": $root + "/build/debug",
+      "command": ([$cxx, $cppflags, $cxxflags, "-o", "CMakeFiles/chimera_core.dir/" + $file + ".o", "-c", $file] | join(" ")),
       "file": $file
     }
   ' | \

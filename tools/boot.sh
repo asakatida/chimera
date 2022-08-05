@@ -24,8 +24,8 @@ cmakelint
 
 chimera_path="${root}/stdlib:$(python3 "${scripts}/chimera_path.py")"
 
-export CC='ccache clang' CFLAGS="${CFLAGS} -DCHIMERA_PATH=${chimera_path}"
-export CXX='ccache clang++' CXXFLAGS="${CFLAGS} ${CXXFLAGS} -std=c++2b"
+export CC="${CC:-clang}" CFLAGS="${CFLAGS} -DCHIMERA_PATH=${chimera_path}"
+export CXX="${CXX:-clang++}" CXXFLAGS="${CXXFLAGS} -DCHIMERA_PATH=${chimera_path}"
 
 env \
   CFLAGS="${CFLAGS} -Wall -Wpedantic -Werror" \
