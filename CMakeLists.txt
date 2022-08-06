@@ -191,15 +191,12 @@ target_link_libraries(unit_test Catch2WithMain chimera_core pthread)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_executable(fuzz unit_tests/fuzz/target.cpp)
-
   target_compile_options(
     fuzz
     PUBLIC
     -g
     -fsanitize=address,fuzzer)
-
   target_compile_features(fuzz PUBLIC c_std_23 cxx_std_20)
-
   target_link_libraries(
     fuzz
     chimera_core
@@ -208,17 +205,13 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     -fsanitize-coverage=trace-pc-guard
     -fsanitize=address,fuzzer
     -rtlib=compiler-rt)
-
   add_executable(fuzz-num unit_tests/fuzz/target-num.cpp)
-
   target_compile_options(
     fuzz-num
     PUBLIC
     -g
     -fsanitize=address,fuzzer)
-
   target_compile_features(fuzz-num PUBLIC c_std_23 cxx_std_20)
-
   target_link_libraries(
     fuzz-num
     chimera_core
