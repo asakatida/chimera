@@ -27,5 +27,4 @@ rules:
     quote-type: double
     required: only-when-needed
   truthy:
-    check-keys: false
     level: error

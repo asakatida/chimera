@@ -15,6 +15,7 @@ jobs:
 
 name: Shellcheck
 
+# yamllint disable-line rule:truthy
 on:
   pull_request:
     branches:
