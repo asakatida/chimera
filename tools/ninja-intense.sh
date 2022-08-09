@@ -15,7 +15,7 @@ fi
 
 ninja bnf2abnf
 ninja builtins
-ninja fuzz-num
+ninja fuzz-number
 ninja fuzz
 ninja importlib
 ninja modules_tools
@@ -24,6 +24,6 @@ ninja unit_test
 ninja libchimera
 ninja chimera
 
-ninja corpus-num
+ninja corpus-number
 ninja corpus
 ninja spec

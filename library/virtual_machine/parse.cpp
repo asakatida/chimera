@@ -40,7 +40,7 @@ namespace chimera::library::virtual_machine {
         module);
     return module;
   }
-  auto Parse::parse_file(const Options &options, std::istream &input,
+  auto Parse::parse_file(const Options &options, std::istream &&input,
                          const char *source) -> asdl::Module {
     asdl::Module module;
     grammar::parse<grammar::FileInput>(
@@ -59,7 +59,7 @@ namespace chimera::library::virtual_machine {
         interactive);
     return interactive;
   }
-  auto Parse::parse_input(const Options &options, std::istream &input,
+  auto Parse::parse_input(const Options &options, std::istream &&input,
                           const char *source) -> asdl::Interactive {
     asdl::Interactive interactive;
     grammar::parse<grammar::SingleInput>(

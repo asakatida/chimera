@@ -38,9 +38,16 @@ jobs:
         name: Build dev tools
         run: make
         working-directory: ${{github.workspace}}/build
-      - name: Test
+      - continue-on-error: ${{ github.ref == 'refs/heads/stable' && matrix.targets != 'check' && matrix.targets != 'check_rand' }}
+        name: Test
         run: make ${{matrix.targets}}
         working-directory: ${{github.workspace}}/build
+      - if: ${{ github.ref == 'refs/heads/stable' }}
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          branch: stable
+          commit_message: Update fuzzing corpus.
+          file_pattern: unit_tests/fuzzing/corpus/*
     strategy:
       fail-fast: false
       matrix:
@@ -48,7 +55,14 @@ jobs:
           - check
           - check_rand
           - corpus
-          - corpus-num
+          - corpus-ellipsis
+          - corpus-false
+          - corpus-keywords
+          - corpus-name
+          - corpus-none
+          - corpus-number
+          - corpus-string
+          - corpus-true
 
 name: CMake
 
