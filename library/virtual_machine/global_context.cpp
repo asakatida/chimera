@@ -46,7 +46,8 @@ namespace chimera::library::virtual_machine {
     auto main = processContext.make_module("__main__");
     while (!std::cin.eof()) {
       std::cout << ">>> ";
-      auto interactive = processContext.parse_input(std::cin, "<string>");
+      auto interactive =
+          processContext.parse_input(std::move(std::cin), "<string>");
       ThreadContext{processContext, main}.evaluate(interactive);
     }
     return 0;
@@ -54,7 +55,7 @@ namespace chimera::library::virtual_machine {
   auto GlobalContext::execute_script() -> int {
     std::ifstream input(options.script);
     ProcessContext processContext{*this};
-    auto module = processContext.parse_file(input, options.script);
+    auto module = processContext.parse_file(std::move(input), options.script);
     ThreadContext{processContext, processContext.make_module("__main__")}
         .evaluate(module);
     return 0;
@@ -68,7 +69,7 @@ namespace chimera::library::virtual_machine {
   }
   auto GlobalContext::execute_script_input() -> int {
     ProcessContext processContext{*this};
-    auto module = processContext.parse_file(std::cin, "<input>");
+    auto module = processContext.parse_file(std::move(std::cin), "<input>");
     ThreadContext{processContext, processContext.make_module("__main__")}
         .evaluate(module);
     return 0;

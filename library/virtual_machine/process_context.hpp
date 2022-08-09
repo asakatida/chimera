@@ -41,10 +41,10 @@ namespace chimera::library::virtual_machine {
     auto make_module(std::string_view &&name) -> object::Object;
     auto parse_file(const std::string_view &data, const char *source) const
         -> asdl::Module;
-    auto parse_file(std::istream &input, const char *source) -> asdl::Module;
+    auto parse_file(std::istream &&input, const char *source) -> asdl::Module;
     auto parse_input(const std::string_view &data, const char *source) const
         -> asdl::Interactive;
-    auto parse_input(std::istream &input, const char *source)
+    auto parse_input(std::istream &&input, const char *source)
         -> asdl::Interactive;
     // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
     const GlobalContext &global_context;
