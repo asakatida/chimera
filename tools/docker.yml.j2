@@ -5,11 +5,13 @@
     min_supported_distros: << min_supported_distros | tojson >>
   tasks:
   - name: directory
+    diff: true
     file:
       path: "../build/{{ item.image }}/{{ item.distro }}/{{ item.tag }}"
       state: directory
     loop: "{{ min_supported_distros }}"
   - name: Dockerfile
+    diff: true
     template:
       dest: "../build/{{ item.image }}/{{ item.distro }}/{{ item.tag }}/Dockerfile"
       src: Dockerfile.j2
@@ -23,6 +25,6 @@
     loop: "{{ min_supported_distros }}"
 <% for image in ('clang', 'gcc') %>
   - name: test << image >>
-    command: "docker-exec 'chimera/<< image >>-{{ item.distro }}-{{ item.tag }}' ./ninja-intense.sh '../build/<< image >>/{{ item.distro }}/{{ item.tag }}'"
+    command: "docker run 'chimera/<< image >>-{{ item.distro }}-{{ item.tag }}' ./ninja-intense.sh '../build/<< image >>/{{ item.distro }}/{{ item.tag }}'"
     loop: "{{ min_supported_distros | '<< image >>' }}"
 <% endfor %>

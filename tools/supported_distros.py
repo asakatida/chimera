@@ -3,27 +3,14 @@ import pathlib
 import jinja2
 import yaml
 
-supported_distros_matrix = {
-    distro["name"]: dict(
-        distro,
-        tags={
-            tag["name"]: dict(
-                tag, images={image["name"]: image for image in tag["images"]}
-            )
-            for tag in distro["tags"]
-        },
-    )
-    for distro in yaml.safe_load(
-        pathlib.Path("tools/supported_distros.yml").read_text()
-    )["distros"]
-}
+supported_distros_matrix = yaml.safe_load(
+    pathlib.Path("tools/supported_distros.yml").read_text()
+)
 
 
 def key(item: dict[str, str]) -> tuple[int, str, str, str]:
     def level(name: str) -> int:
-        image = supported_distros_matrix[item["distro"]]["tags"][item["tag"]]["images"][
-            name
-        ]
+        image = supported_distros_matrix[item["distro"]]["tags"][item["tag"]][name]
         if "requires" in image:
             return 1 + level(image["requires"])
         return 1
@@ -34,19 +21,17 @@ def key(item: dict[str, str]) -> tuple[int, str, str, str]:
 supported_distros = sorted(
     (
         {
-            "dependencies": " ".join(
-                dependency["name"] for dependency in image["dependencies"]
-            ),
-            "distro": distro["name"],
+            "dependencies": " ".join(image["dependencies"]),
+            "distro": distro_name,
             "environment": image["environment"],
-            "image": image["name"],
+            "image": image_name,
             "package_command": distro["package_command"],
             "requires": image.get("requires"),
-            "tag": tag["name"],
+            "tag": tag_name,
         }
-        for distro in supported_distros_matrix.values()
-        for tag in distro["tags"].values()
-        for image in tag["images"].values()
+        for distro_name, distro in supported_distros_matrix.items()
+        for tag_name, tag in distro["tags"].items()
+        for image_name, image in tag.items()
     ),
     key=key,
 )

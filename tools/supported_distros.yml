@@ -1,87 +1,69 @@
 ---
-distros:
-  - name: alpine
-    package_command: apk add
-    tags:
-      - images: &alpine_images
-          - dependencies:
-              - name: cmake
-              - name: ninja
-              - name: python3
-            environment: &base_environment
-              CPPFLAG: ""
-              CXX: "false"
-              CXXFLAG: -stdlib=c++
-            name: base
-          - dependencies:
-              - name: clang
-            environment: &clang_environment
-              CXX: clang++-13
-            name: clang
-            requires: base
-          - dependencies:
-              - name: g++
-            environment: &gcc_environment
-              CXX: g++-11
-            name: gcc
-            requires: base
-        name: 3.14.3
-      - images: *alpine_images
-        name: 3.15.0
-      - images: *alpine_images
-        name: edge
-      - images: *alpine_images
-        name: latest
-  - name: debian
-    package_command: &debian_package_command apt-get install -y
-    tags:
-      - images: &debian_images
-          - dependencies:
-              - name: cmake
-              - name: jq
-              - name: ninja-build
-              - name: python3
-            environment: *base_environment
-            name: base
-          - dependencies:
-              - name: clang
-              - name: clang-format
-              - name: clang-tidy
-              - name: libc++-dev
-            environment: *clang_environment
-            name: clang
-            requires: base
-          - dependencies:
-              - name: g++
-              - name: libstdc++-11-dev
-            environment: *gcc_environment
-            name: gcc
-            requires: base
-        name: stretch-backports
-      - images: *debian_images
-        name: stretch-slim
-      - images: *debian_images
-        name: stretch
-      - images: *debian_images
-        name: testing-slim
-      - images: *debian_images
-        name: testing
-      - images: *debian_images
-        name: unstable-slim
-      - images: *debian_images
-        name: unstable
-  - name: ubuntu
-    package_command: *debian_package_command
-    tags:
-      - images: *debian_images
-        name: devel
-      - images: *debian_images
-        name: focal
-      - images: *debian_images
-        name: impish
-      - images: *debian_images
-        name: jammy
-      - images: *debian_images
-        name: latest
-      - images: *debian_images
-        name: rolling
+alpine:
+  package_command: apk add
+  tags:
+    3.14.3: &alpine_images
+      base:
+        dependencies:
+          - cmake
+          - ninja
+          - python3
+        environment: &base_environment
+          CPPFLAG: ""
+          CXX: "false"
+          CXXFLAG: -stdlib=c++
+      clang:
+        dependencies:
+          - clang
+        environment: &clang_environment
+          CXX: clang++-13
+        requires: base
+      gcc:
+        dependencies:
+          - g++
+        environment: &gcc_environment
+          CXX: g++-11
+        requires: base
+    3.15.0: *alpine_images
+    edge: *alpine_images
+    latest: *alpine_images
+debian:
+  package_command: &debian_package_command apt-get install -y
+  tags:
+    stretch: &debian_images
+      base:
+        dependencies:
+          - cmake
+          - jq
+          - ninja-build
+          - python3
+        environment: *base_environment
+      clang:
+        dependencies:
+          - clang
+          - clang-format
+          - clang-tidy
+          - libc++-dev
+        environment: *clang_environment
+        requires: base
+      gcc:
+        dependencies:
+          - g++
+          - libstdc++-11-dev
+        environment: *gcc_environment
+        requires: base
+    stretch-backports: *debian_images
+    stretch-slim: *debian_images
+    testing: *debian_images
+    testing-slim: *debian_images
+    unstable: *debian_images
+    unstable-slim: *debian_images
+ubuntu:
+  package_command: *debian_package_command
+  tags:
+    devel: *debian_images
+    focal: *debian_images
+    impish: *debian_images
+    jammy: *debian_images
+    latest: *debian_images
+    rolling: *debian_images
