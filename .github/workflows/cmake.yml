@@ -47,7 +47,8 @@ jobs:
         with:
           branch: stable
           commit_message: Update fuzzing corpus.
-          file_pattern: unit_tests/fuzzing/corpus/*
+          file_pattern: unit_tests/fuzz/corpus/*
+          repository: ${{ github.workspace }}
     strategy:
       fail-fast: false
       matrix:
