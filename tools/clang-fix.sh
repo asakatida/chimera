@@ -8,7 +8,7 @@ scripts="${root}/tools"
 
 "${scripts}/cmake.sh" "${build}"
 
-make -b "${build}" "-j$(nproc)"
+make --directory "${build}" --jobs 3
 "${scripts}/clang-format.sh"
-make -b "${build}" "-j$(nproc)"
+make --directory "${build}" --jobs 3
 "${scripts}/clang-tidy.sh" "${build}"

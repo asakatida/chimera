@@ -12,11 +12,13 @@ sudo apt-get install --yes ccache python3.9-venv shellcheck
 
 "${scripts}/shellcheck.sh"
 
-"${scripts}/venv.sh" "$(command -v python3.9)"
+python_bin="$(command -v python3.9)"
+"${scripts}/venv.sh" "${python_bin}"
 
 "${root}/env/bin/ansible-playbook" "${scripts}/boot.yml"
 
-"${scripts}/venv.sh" "$(command -v python3.12)"
+python_bin="$(command -v python3.12)"
+"${scripts}/venv.sh" "${python_bin}"
 
 export PATH="${root}/env/bin:${PATH}"
 
