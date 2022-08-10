@@ -287,7 +287,7 @@ add_custom_target(check unit_test VERBATIM USES_TERMINAL)
 add_custom_target(check_rand unit_test --order rand VERBATIM USES_TERMINAL)
 add_custom_target(
   spec
-  chimera -m test -j3
+  chimera -m test --multiprocess 3
   DEPENDS check
   VERBATIM USES_TERMINAL)
 
