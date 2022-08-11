@@ -39,14 +39,11 @@
 #include "virtual_machine/thread_context.hpp"
 
 using namespace std::literals;
-static const std::string_view CHIMERA_IMPORT_PATH_VIEW
-#ifdef CHIMERA_PATH
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define STRINGIFY(ARG) #ARG##sv
-    (STRINGIFY(CHIMERA_PATH))
+static const std::string_view CHIMERA_IMPORT_PATH_VIEW(STRINGIFY(CHIMERA_PATH));
 #undef STRINGIFY
-#endif
-        ;
+
 namespace chimera::library::virtual_machine {
   auto ProcessContext::make_module(std::string_view &&name) -> object::Object {
     auto result = modules.try_emplace("builtins"s, global_context.builtins);
