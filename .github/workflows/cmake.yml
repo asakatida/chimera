@@ -34,7 +34,7 @@ jobs:
         # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
         run: CC=/usr/bin/clang-${{env.CLANG_VERSION}} CXX=/usr/bin/clang++-${{env.CLANG_VERSION}} cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
         working-directory: ${{github.workspace}}
-      - if: ${{ matrix.targets == 'check' }}
+      - if: matrix.targets == 'check'
         name: Build dev tools
         run: make
         working-directory: ${{github.workspace}}/build
@@ -42,11 +42,12 @@ jobs:
         name: Test
         run: make ${{matrix.targets}}
         working-directory: ${{github.workspace}}/build
-      - if: ${{ github.ref == 'refs/heads/stable' }}
+      - if: github.ref == 'refs/heads/stable'
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          branch: stable
+          branch: ${{ hashFiles(unit_tests/fuzz/corpus/*) }}
           commit_message: Update fuzzing corpus.
+          create_branch: true
           file_pattern: unit_tests/fuzz/corpus/*
           repository: ${{ github.workspace }}
     strategy:
