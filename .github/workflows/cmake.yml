@@ -45,7 +45,7 @@ jobs:
       - if: github.ref == 'refs/heads/stable'
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          branch: ${{ hashFiles(unit_tests/fuzz/corpus/*) }}
+          branch: ${{ hashFiles('unit_tests/fuzz/corpus/*') }}
           commit_message: Update fuzzing corpus.
           create_branch: true
           file_pattern: unit_tests/fuzz/corpus/*
