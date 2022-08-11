@@ -4,7 +4,7 @@ jobs:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
       group: ${{ github.workflow }}-${{ github.ref }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - uses: deadsnakes/action@v2.1.1
