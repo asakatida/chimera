@@ -6,5 +6,5 @@ RUN apt-get update
 RUN {{ item.package_command }} {{ item.dependencies }}
 
 {% for environ, value in item.environment.items() %}
-ENV {{ environ }} {{ value }}
+ENV {{ environ }} "{{ value }}"
 {% endfor %}
