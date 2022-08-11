@@ -1,4 +1,4 @@
-FROM {% if item.requires %}chimera/{{ item.requires }}-{{ item.distro }}-{{ item.tag }}{% else %}{{ item.distro }}:{{ item.tag }}{% endif %}
+FROM {% if item.requires %}chimera/{{ item.requires }}-{% endif %}{{ item.distro }}:{{ item.tag }}
 
 {% if item.distro != 'alpine' %}
 RUN apt-get update

@@ -2,6 +2,9 @@
 
 set -ex -o pipefail
 
+env | cut -f1 -d= | sort -u
+export PREBUILD_CHECK="${GITPOD_WORKSPACE_URL:-}"
+
 git submodule update --init
 
 root="$(git rev-parse --show-toplevel)"

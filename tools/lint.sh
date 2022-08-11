@@ -24,5 +24,7 @@ python3 "${scripts}/generate_utf8_space.py"
 
 git ls-tree --full-tree --name-only -r -z HEAD | xargs -0 -- python3 "${scripts}/trim.py"
 
-"${scripts}/clang-format.sh"
-"${scripts}/clang-tidy.sh" "${debug_root}"
+if [[ -z "${PREBUILD_CHECK}" ]]; then
+  "${scripts}/clang-format.sh"
+  "${scripts}/clang-tidy.sh" "${debug_root}"
+fi
