@@ -8,8 +8,25 @@ root="$(git rev-parse --show-toplevel)"
 scripts="${root}/tools"
 build_root="${root}/build"
 
-sudo apt-get install --yes ccache python3.9-venv shellcheck
-
+case "$(uname)" in
+  Darwin )
+    brew install python3 shellcheck
+    sudo true
+    ;;
+  Linux )
+    if command -v apt; then
+      sudo apt-get install --yes ccache python3.9-venv shellcheck
+    else
+      echo 'No apt found, failed installation'
+      exit
+    fi
+    ;;
+  * )
+    uname
+    echo 'unknown os, failed installation'
+    exit
+    ;;
+esac
 "${scripts}/shellcheck.sh"
 
 python_bin="$(command -v python3.9)"
