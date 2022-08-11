@@ -8,7 +8,7 @@ jobs:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
       group: ${{ github.workflow }}-${{ github.ref }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - uses: DoozyX/clang-format-lint-action@v0.14
@@ -19,7 +19,7 @@ jobs:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
       group: ${{ matrix.lints }}-${{ github.workflow }}-${{ github.ref }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:
