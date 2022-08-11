@@ -10,12 +10,12 @@ build_root="${root}/build"
 
 case "$(uname)" in
   Darwin )
-    brew install python3 shellcheck
+    brew install --update python3 shellcheck
     sudo true
     ;;
   Linux )
     if command -v apt; then
-      sudo apt-get install --yes ccache python3.9-venv shellcheck
+      echo 'Apt found, expecting Dockerfile is used'
     else
       echo 'No apt found, failed installation'
       exit
@@ -27,9 +27,10 @@ case "$(uname)" in
     exit
     ;;
 esac
+
 "${scripts}/shellcheck.sh"
 
-python_bin="$(command -v python3.9)"
+python_bin="$(command -v python3)"
 "${scripts}/venv.sh" "${python_bin}"
 
 "${root}/env/bin/ansible-playbook" "${scripts}/boot.yml"

@@ -9,8 +9,8 @@
             name:
               - python3.12-dev
               - python3.12-venv
-      when: ansible_distribution_release in ['focal', 'bionic', 'xenial']
+      when: ansible_facts.os_family == 'Debian'
     - block:
         - command: brew install pyenv
         - command: pyenv install 3.12.0
-      when: ansible_facts.os_family == 'Debian'
+      when: ansible_facts.os_family == 'Darwin'
