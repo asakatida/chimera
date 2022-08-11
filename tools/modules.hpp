@@ -40,14 +40,14 @@
 namespace chimera::library {
   struct PrintState;
   struct SetAttribute {
-    std::string base_name;
-    std::string name;
+    std::string base_name{};
+    std::string name{};
   };
   struct Work {
-    PrintState *printer;
+    PrintState *printer{};
     object::Object object;
-    std::string base_name;
-    std::string name;
+    std::string base_name{};
+    std::string name{};
   };
   struct Compare {
     auto operator()(const SetAttribute &a, const SetAttribute &b) const -> bool;
@@ -264,8 +264,8 @@ namespace chimera::library {
       return os;
     }
     // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
-    std::map<object::Id, object::Id> m_remap;
-    std::map<object::Id, std::string> m_printed;
+    std::map<object::Id, object::Id> m_remap{};
+    std::map<object::Id, std::string> m_printed{};
     std::priority_queue<Work, std::vector<Work>, Compare> queue{};
     std::map<object::Id, std::vector<SetAttribute>> wanted{};
     object::Object main;
@@ -273,7 +273,7 @@ namespace chimera::library {
   };
   struct Printer {
     object::Object main;
-    std::string module;
+    std::string module{};
     std::optional<object::Object> remap{};
   };
   template <typename OStream>
