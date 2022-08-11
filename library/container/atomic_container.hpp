@@ -65,9 +65,6 @@ namespace chimera::library::container {
     [[nodiscard]] auto read() const -> Read {
       return Read{std::shared_lock<std::shared_mutex>(*mutex), value};
     }
-    [[nodiscard]] auto read() -> Read {
-      return Read{std::shared_lock<std::shared_mutex>(*mutex), value};
-    }
     [[nodiscard]] auto write() -> Write {
       return Write{std::unique_lock<std::shared_mutex>(*mutex), value};
     }
