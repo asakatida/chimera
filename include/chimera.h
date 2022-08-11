@@ -21,6 +21,9 @@ extern "C" {
 #endif
 #pragma clang diagnostic pop
 
+// maintain some level of API compatability with upstream
+// NOLINTBEGIN(cppcoreguidelines-macro-usage)
+
 typedef int64_t PY_INT64_T;
 typedef int64_t Py_ssize_t;
 typedef int64_t Py_hash_t;
@@ -1676,6 +1679,8 @@ extern PyObject *PyWeakref_NewProxy(PyObject *ob, PyObject *callback);
 extern PyObject *PyWeakref_GetObject(PyObject *ref);
 extern PyObject *PyWeakref_GET_OBJECT(PyObject *ref);
 /* end weakref.rst */
+
+// NOLINTEND(cppcoreguidelines-macro-usage)
 
 #ifdef __cplusplus
 }
