@@ -8,7 +8,7 @@ root="$(git rev-parse --show-toplevel)"
 output="${root}/library/virtual_machine/importlib.cpp"
 
 "${build}/builtins" "$@" < "${root}/stdlib/_builtins.py" | \
-clang-format -style=file >"${output}"
+  clang-format -style=file >"${output}"
 
 clang-tidy \
   -p="${build}" -quiet -fix -fix-errors -fix-notes \
