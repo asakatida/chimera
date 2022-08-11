@@ -1,4 +1,4 @@
-ansible==6.1.0
+ansible==6.2.0
 ansible-core==2.13.2
 black==22.6.0
 certifi==2022.6.15
