@@ -23,13 +23,14 @@
 #include "virtual_machine/virtual_machine.hpp"
 
 #include <csignal>
+#include <queue>
 
 using namespace std::literals;
 
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-static std::atomic_flag SIG_INT{};
+static std::queue<int> SIGNALS{};
 
-extern "C" void interupt_handler(int /*signal*/) { SIG_INT.clear(); }
+extern "C" void interupt_handler(int signal) { SIGNALS.emplace(signal); }
 
 namespace chimera::library::virtual_machine {
   VirtualMachine::VirtualMachine(const Options &options,
@@ -41,9 +42,8 @@ namespace chimera::library::virtual_machine {
                 .get_attribute("__class__")
                 .id(),
             builtins.get_attribute("compile").get_attribute("__class__").id(),
-            &SIG_INT} {
-    SIG_INT.test_and_set();
-    std::ignore = std::signal(SIGINT, interupt_handler);
+            SIGNALS} {
+    std::signal(SIGINT, interupt_handler);
     builtins.set_attribute("__debug__"s, options.debug
                                              ? builtins.get_attribute("True")
                                              : builtins.get_attribute("False"));

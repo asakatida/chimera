@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <atomic>
+#include <queue>
 
 #include "object/object.hpp"
 #include "options.hpp"
@@ -39,7 +39,7 @@ namespace chimera::library::virtual_machine {
     const object::Object builtins;
     const object::Id method_id;
     const object::Id function_id;
-    std::atomic_flag *sig_int;
+    std::queue<int> &signals;
     // NOLINTEND(misc-non-private-member-variables-in-classes)
   };
 } // namespace chimera::library::virtual_machine

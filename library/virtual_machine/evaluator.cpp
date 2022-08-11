@@ -115,10 +115,30 @@ namespace chimera::library::virtual_machine {
   }
   void Evaluator::evaluate() {
     while (scope) {
-      if (!std::atomic_flag_test_and_set(
-              thread_context.process_context.global_context.sig_int)) {
+      if (!thread_context.process_context.global_context.signals.empty()) {
+        const auto signal = thread_context.process_context.global_context.signals.front();
+        thread_context.process_context.global_context.signals.pop();
+        switch (signal) {
+        case SIGABRT:
+        case SIGFPE:
+        case SIGILL:
+        throw object::BaseException(
+            builtins().get_attribute("SystemExit"));
+          break;
+        case SIGINT:
         throw object::BaseException(
             builtins().get_attribute("KeyboardInterrupt"));
+          break;
+        case SIGSEGV:
+        case SIGTERM:
+        throw object::BaseException(
+            builtins().get_attribute("SystemExit"));
+          break;
+        default:
+        throw object::BaseException(
+            builtins().get_attribute("SystemExit"));
+          break;
+        }
       }
       //! where all defered work gets done
       scope.visit([this](const auto &value) { value(this); });
