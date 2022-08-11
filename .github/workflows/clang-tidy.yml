@@ -32,7 +32,7 @@ jobs:
         name: Lint c++ code
         run: find . -name '*.cpp' -print0 | xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | xargs -0 -- clang-tidy-${{env.CLANG_VERSION}} -p=build -checks=-*,${{matrix.lints}}
         working-directory: ${{github.workspace}}
-      - if: !matrix.lints
+      - if: ${{ !matrix.lints }}
         name: Lint c++ code
         run: find . -name '*.cpp' -print0 | xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | xargs -0 -- clang-tidy-${{ env.CLANG_VERSION }} -p=build
         working-directory: ${{ github.workspace }}
