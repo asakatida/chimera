@@ -9,20 +9,20 @@ alpine:
           - ninja
           - python3
         environment: &base_environment
-          CPPFLAG: ""
           CXX: "false"
-          CXXFLAG: -stdlib=c++
       clang:
         dependencies:
           - clang
         environment: &clang_environment
           CXX: clang++-13
+          CXXFLAG: -stdlib=c++
         requires: base
       gcc:
         dependencies:
           - g++
         environment: &gcc_environment
           CXX: g++-11
+          CXXFLAG: -stdlib=stdc++
         requires: base
     3.15.0: *alpine_images
     edge: *alpine_images
@@ -30,15 +30,16 @@ alpine:
 debian:
   package_command: &debian_package_command apt-get install -y
   tags:
-    stretch: &debian_images
-      base:
+    stretch: &debian_images_old
+      base: &debian_base_images
         dependencies:
+          - build-essential
           - cmake
           - jq
           - ninja-build
           - python3
         environment: *base_environment
-      clang:
+      clang: &debian_clang_images
         dependencies:
           - clang
           - clang-format
@@ -49,12 +50,20 @@ debian:
       gcc:
         dependencies:
           - g++
-          - libstdc++-11-dev
+          - libstdc++-dev
         environment: *gcc_environment
         requires: base
-    stretch-backports: *debian_images
-    stretch-slim: *debian_images
-    testing: *debian_images
+    stretch-backports: *debian_images_old
+    stretch-slim: *debian_images_old
+    testing: &debian_images
+      base: *debian_base_images
+      clang: *debian_clang_images
+      gcc:
+        dependencies:
+          - g++
+          - libstdc++-dev
+        environment: *gcc_environment
+        requires: base
     testing-slim: *debian_images
     unstable: *debian_images
     unstable-slim: *debian_images
@@ -63,7 +72,6 @@ ubuntu:
   tags:
     devel: *debian_images
     focal: *debian_images
-    impish: *debian_images
     jammy: *debian_images
     latest: *debian_images
     rolling: *debian_images

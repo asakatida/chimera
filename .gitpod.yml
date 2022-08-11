@@ -26,15 +26,33 @@ gitConfig:
 github:
   prebuilds:
     addBadge: true
-    addCheck: true
+    addCheck: prevent-merge-on-error
     addComment: true
     branches: true
     master: true
     pullRequests: true
     pullRequestsFromForks: true
+image: asakatida/chimera:latest
 tasks:
   - env:
       CC: ccache clang
       CXX: ccache clang++
-      CXXFLAGS: -std=c++20
+      CXXFLAGS: -std=c++20 -stdlib=libc++
     init: tools/boot.sh
+vscode:
+  extensions:
+    - cschlosser.doxdocgen
+    - DavidAnson.vscode-markdownlint
+    - GitHub.copilot
+    - jeff-hykin.better-cpp-syntax
+    - ms-azuretools.vscode-docker
+    - ms-python.python
+    - ms-python.vscode-pylance
+    - ms-toolsai.jupyter
+    - ms-toolsai.jupyter-keymap
+    - ms-toolsai.jupyter-renderers
+    - ms-vscode.cmake-tools
+    - ms-vscode.cpptools
+    - ms-vscode.cpptools-extension-pack
+    - ms-vscode.cpptools-themes
+    - twxs.cmake
