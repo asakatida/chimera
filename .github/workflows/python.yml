@@ -11,16 +11,19 @@ jobs:
         with:
           python-version: 3.12-dev
       - name: Build dev tools
-        run: |
-          python3.12 -m venv env
+        run: >
+          python3.12 -m venv env &&
           env/bin/pip3 install -r requirements.txt
       - name: Lint python code
-        run: find . -not -path './stdlib/*' -name '*.py' -print0 | xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | xargs -0 -- env/bin/mypy
-        working-directory: ${{github.workspace}}
+        run: >
+          find . -not -path './stdlib/*' -name '*.py' -print0 |
+          xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- |
+          xargs -0 -- env/bin/mypy
+        working-directory: ${{ github.workspace }}
   python:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: python-${{ matrix.lints }}-${{ github.workflow }}-${{ github.ref }}
+      group: ${{ matrix.lints }}-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -28,13 +31,16 @@ jobs:
         with:
           python-version: 3.12-dev
       - name: Build dev tools
-        run: |
-          python3.12 -m venv env
+        run: >
+          python3.12 -m venv env &&
           env/bin/pip3 install -r requirements.txt
-        working-directory: ${{github.workspace}}
+        working-directory: ${{ github.workspace }}
       - name: Lint python code
-        run: find . -name '*.py' -print0 | xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | xargs -0 -- env/bin/${{matrix.lints}}
-        working-directory: ${{github.workspace}}
+        run: >
+          find . -name '*.py' -print0 |
+          xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- |
+          xargs -0 -- env/bin/${{ matrix.lints }}
+        working-directory: ${{ github.workspace }}
     strategy:
       matrix:
         lints:

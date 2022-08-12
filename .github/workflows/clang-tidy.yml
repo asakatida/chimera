@@ -7,7 +7,7 @@ jobs:
   clangformat:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: clangformat-${{ github.workflow }}-${{ github.ref }}
+      group: ${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -18,23 +18,37 @@ jobs:
   clangtidy:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: clangtidy-${{ matrix.lints }}-${{ github.workflow }}-${{ github.ref }}
+      group: ${{ matrix.lints }}-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: true
-      - run: wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh ${{env.CLANG_VERSION}} all && rm -rf llvm.sh
-      - name: Configure CMake
-        run: CC=/usr/bin/clang-${{env.CLANG_VERSION}} CXX=/usr/bin/clang++-${{env.CLANG_VERSION}} cmake -B build
-        working-directory: ${{github.workspace}}
+      - run: >
+          wget https://apt.llvm.org/llvm.sh &&
+          chmod +x llvm.sh &&
+          sudo ./llvm.sh ${{ env.CLANG_VERSION }} all &&
+          rm -rf llvm.sh
+      - env:
+          CC: /usr/bin/clang-${{ env.CLANG_VERSION }}
+          CXX: /usr/bin/clang++-${{ env.CLANG_VERSION }}
+        name: Configure CMake
+        run: cmake -B build
+        working-directory: ${{ github.workspace }}
       - if: matrix.lints
         name: Lint c++ code
-        run: find . -name '*.cpp' -print0 | xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | xargs -0 -- clang-tidy-${{env.CLANG_VERSION}} -p=build -checks=-*,${{matrix.lints}}
-        working-directory: ${{github.workspace}}
+        run: >
+          find . -name '*.cpp' -print0 |
+          xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- |
+          xargs -0 --
+          clang-tidy-${{ env.CLANG_VERSION }} -p=build -checks=-*,${{ matrix.lints }}
+        working-directory: ${{ github.workspace }}
       - if: ${{ !matrix.lints }}
         name: Lint c++ code
-        run: find . -name '*.cpp' -print0 | xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | xargs -0 -- clang-tidy-${{ env.CLANG_VERSION }} -p=build
+        run: >
+          find . -name '*.cpp' -print0 |
+          xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- |
+          xargs -0 -- clang-tidy-${{ env.CLANG_VERSION }} -p=build
         working-directory: ${{ github.workspace }}
     strategy:
       matrix:

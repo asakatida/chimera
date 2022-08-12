@@ -18,8 +18,6 @@ rules:
   float-values: enable
   key-ordering: enable
   line-length:
-    ignore: |
-      .github/workflows/*
     level: error
     max: 90
   octal-values: enable

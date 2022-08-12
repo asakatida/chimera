@@ -11,13 +11,16 @@ jobs:
         with:
           python-version: 3.12-dev
       - name: Build dev tools
-        run: |
-          python3.12 -m venv env
+        run: >
+          python3.12 -m venv env &&
           env/bin/pip3 install -r requirements.txt
-        working-directory: ${{github.workspace}}
+        working-directory: ${{ github.workspace }}
       - name: Lint python code
-        run: find . -name '*.yml' -print0 | xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | xargs -0 -- env/bin/yamllint -f github
-        working-directory: ${{github.workspace}}
+        run: >
+          find . -name '*.yml' -print0 |
+          xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- |
+          xargs -0 -- env/bin/yamllint -f github
+        working-directory: ${{ github.workspace }}
 
 name: YamlLint
 
