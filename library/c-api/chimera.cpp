@@ -27,6 +27,8 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <gsl/gsl>
+
 #undef Py_TYPE
 
 // maintain some level of API compatability with upstream
@@ -79,23 +81,23 @@ static auto Py_SIZE(PyVarObject *o) -> auto & { return o->ob_size; }
 PyObject PyType_Type{PyObject_HEAD_INIT(&PyType_Type)};
 
 extern "C" auto PyType_Check(PyObject *o) -> int {
-  return static_cast<int>(Py_TYPE(o) == &PyType_Type);
+  return gsl::narrow<int>(Py_TYPE(o) == &PyType_Type);
 }
 
 extern "C" auto PyType_CheckExact(PyObject *o) -> int {
-  return static_cast<int>(Py_TYPE(o) == &PyType_Type);
+  return gsl::narrow<int>(Py_TYPE(o) == &PyType_Type);
 }
 
 extern "C" auto PyType_ClearCache() -> unsigned int { return 0; }
 
 extern "C" auto PyType_GetFlags(PyTypeObject *type) -> long {
-  return static_cast<long>(type->tp_flags);
+  return gsl::narrow<long>(type->tp_flags);
 }
 
 extern "C" void PyType_Modified(PyTypeObject * /*type*/) {}
 
 extern "C" auto PyType_HasFeature(PyTypeObject *o, int feature) -> int {
-  return static_cast<int>((o->tp_flags & static_cast<size_t>(feature)) != 0);
+  return gsl::narrow<int>((o->tp_flags & gsl::narrow<size_t>(feature)) != 0);
 }
 
 extern "C" auto PyType_IS_GC(PyTypeObject *o) -> int {
@@ -118,21 +120,21 @@ extern "C" auto PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)
     -> PyObject * {
   if (type->tp_itemsize != 0) {
     auto *object = reinterpret_cast<PyVarObject *>(std::calloc(
-        (static_cast<size_t>(type->tp_basicsize) +
-         static_cast<size_t>(nitems) * static_cast<size_t>(type->tp_itemsize)) /
+        (gsl::narrow<size_t>(type->tp_basicsize) +
+         gsl::narrow<size_t>(nitems) * gsl::narrow<size_t>(type->tp_itemsize)) /
                 sizeof(PyVarObject) +
             1,
         sizeof(PyVarObject)));
     if (object == nullptr) {
       return nullptr;
     }
-    Py_SIZE(object) = static_cast<size_t>(nitems);
+    Py_SIZE(object) = gsl::narrow<size_t>(nitems);
     Py_REFCNT(object) = 1;
     Py_TYPE(object) = reinterpret_cast<PyObject *>(type);
     return reinterpret_cast<PyObject *>(object);
   }
   auto *object = reinterpret_cast<PyObject *>(
-      std::calloc(1, static_cast<size_t>(type->tp_basicsize)));
+      std::calloc(1, gsl::narrow<size_t>(type->tp_basicsize)));
   if (object == nullptr) {
     return nullptr;
   }
@@ -237,7 +239,7 @@ extern "C" auto PyObject_InitVar(PyVarObject *op, PyTypeObject *type,
                                  Py_ssize_t size) -> PyVarObject * {
   op = reinterpret_cast<PyVarObject *>(
       PyObject_Init(reinterpret_cast<PyObject *>(op), type));
-  Py_SIZE(op) = static_cast<size_t>(size);
+  Py_SIZE(op) = gsl::narrow<size_t>(size);
   return op;
 }
 

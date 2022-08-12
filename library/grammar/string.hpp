@@ -177,7 +177,7 @@ namespace chimera::library::grammar {
                 string, std::accumulate(in.begin(), in.end(), std::uint32_t(0),
                                         [](const auto init, const auto c) {
                                           return (init << 2U) |
-                                                 static_cast<std::uint32_t>(
+                                                 gsl::narrow<std::uint32_t>(
                                                      c - '0');
                                         }))) {
           top.apply(std::move(string));
@@ -312,7 +312,7 @@ namespace chimera::library::grammar {
         template <typename String>
         void apply(String &&in) {
           for (const auto &byte : in) {
-            bytes.emplace_back(static_cast<std::uint8_t>(byte));
+            bytes.emplace_back(gsl::narrow<std::uint8_t>(byte));
           }
         }
       };

@@ -40,7 +40,7 @@ namespace chimera::library {
   template <typename InputIt>
   auto forward_args(InputIt &&begin, const InputIt &end) {
     if (auto distance = std::distance(begin, end); distance > 0) {
-      return gsl::make_span(&*begin, static_cast<Span::size_type>(distance));
+      return gsl::make_span(&*begin, gsl::narrow<Span::size_type>(distance));
     }
     return Span{};
   }
@@ -74,7 +74,7 @@ namespace chimera::library {
         for (; arg != args.end(); ++arg) {
           auto argLen = std::strlen(*arg);
           const gsl::span<const char> argCStr{
-              *arg, static_cast<gsl::span<const char>::size_type>(argLen)};
+              *arg, gsl::narrow<gsl::span<const char>::size_type>(argLen)};
           auto argChar = argCStr.begin();
           if (*argChar != '-') {
             options.script = *arg;

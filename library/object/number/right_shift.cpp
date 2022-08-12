@@ -82,8 +82,8 @@ namespace chimera::library::object::number {
       return Number(0U);
     }
     auto value = left;
-    // NOLINTNEXTLINE(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
-    if (const std::ptrdiff_t shift = right / 64; shift != 0) {
+    if (const auto shift = gsl::narrow<std::ptrdiff_t>(right / 64);
+        shift != 0) {
       value.value.erase(value.value.begin(), value.value.begin() + shift);
     }
     if (const std::size_t shift = right % 64; shift != 0) {
