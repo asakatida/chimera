@@ -33,10 +33,11 @@ namespace chimera::library::grammar::rules {
   using UniqueStack = metal::apply<metal::lambda<Stack>, Set<Types...>>;
   template <typename Type>
   struct OptionalCapture : Stack<Type> {
+    using _Stack = Stack<Type>;
     template <typename Outer>
     void success(Outer &&outer) {
-      if (Stack<Type>::has_value()) {
-        std::visit(outer, Stack<Type>::pop());
+      if (_Stack::has_value()) {
+        std::visit(outer, _Stack::pop());
       } else {
         outer.push(std::optional<Type>{});
       }
@@ -44,10 +45,11 @@ namespace chimera::library::grammar::rules {
   };
   template <typename Type>
   struct OptionalCapture<std::optional<Type>> : Stack<std::optional<Type>> {
+    using _Stack = Stack<std::optional<Type>>;
     template <typename Outer>
     void success(Outer &&outer) {
-      if (Stack<std::optional<Type>>::has_value()) {
-        std::visit(outer, Stack<std::optional<Type>>::pop());
+      if (_Stack::has_value()) {
+        std::visit(outer, _Stack::pop());
       } else {
         outer.push(std::optional<Type>{});
       }
@@ -55,25 +57,28 @@ namespace chimera::library::grammar::rules {
   };
   template <typename Type, typename... Types>
   struct ReshapeCapture : UniqueStack<Types...> {
+    using _Stack = UniqueStack<Types...>;
     template <typename Outer>
     void success(Outer &&outer) {
-      outer.push(UniqueStack<Types...>::template reshape<Type, Types...>());
+      outer.push(_Stack::template reshape<Type, Types...>());
     }
   };
   template <typename... Types>
   struct VariantCapture : Stack<Types...> {
+    using _Stack = Stack<Types...>;
     template <typename Outer>
     void success(Outer &&outer) {
-      std::visit(outer, Stack<Types...>::pop());
+      std::visit(outer, _Stack::pop());
     }
   };
   template <typename Type>
   struct VectorCapture : Stack<Type> {
+    using _Stack = Stack<Type>;
     template <typename Outer>
     void success(Outer &&outer) {
       std::vector<Type> vector;
-      vector.reserve(Stack<Type>::size());
-      Stack<Type>::template transform<Type>(std::back_inserter(vector));
+      vector.reserve(_Stack::size());
+      _Stack::template transform<Type>(std::back_inserter(vector));
       outer.push(std::move(vector));
     }
   };

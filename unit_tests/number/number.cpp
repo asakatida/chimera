@@ -7,6 +7,7 @@
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 using chimera::library::object::number::Number;
+using NumericLimits = std::numeric_limits<std::uint64_t>;
 
 template <typename OStream>
 auto operator<<(OStream &os, const Number &number) -> OStream & {
@@ -52,7 +53,7 @@ TEST_CASE("number Number division", "[!shouldfail]") {
 TEST_CASE("number Number addition huge a") {
   const Number two(2);
   const Number eight(8);
-  const Number huge(std::numeric_limits<std::uint64_t>::max());
+  const Number huge(NumericLimits::max());
   auto number = huge + eight;
   auto massive = huge + two;
   massive += two;
@@ -65,7 +66,7 @@ TEST_CASE("number Number addition huge a") {
 TEST_CASE("number Number addition huge b") {
   const Number two(2);
   const Number eight(8);
-  const Number huge(std::numeric_limits<std::uint64_t>::max());
+  const Number huge(NumericLimits::max());
   auto number = eight + huge;
   auto massive = two + two;
   massive += two;
@@ -78,7 +79,7 @@ TEST_CASE("number Number addition huge b") {
 TEST_CASE("number Number addition huge c") {
   const Number two(2);
   const Number eight(8);
-  const Number huge(std::numeric_limits<std::uint64_t>::max());
+  const Number huge(NumericLimits::max());
   const auto number = huge + eight;
   auto massive = two + two;
   massive += two;
@@ -90,7 +91,7 @@ TEST_CASE("number Number addition huge c") {
 
 TEST_CASE("number Number division huge") {
   const Number other(2);
-  const Number huge(std::numeric_limits<std::uint64_t>::max());
+  const Number huge(NumericLimits::max());
   auto number = huge * huge;
   REQUIRE(number > huge);
   auto massive = number * other;
@@ -107,7 +108,7 @@ TEST_CASE("number Number division huge") {
 }
 
 TEST_CASE("number Number modulus huge") {
-  const Number huge(std::numeric_limits<std::uint64_t>::max());
+  const Number huge(NumericLimits::max());
   const auto number = huge * Number(3);
   REQUIRE((number % Number(2)) == Number(1));
 }
@@ -115,7 +116,7 @@ TEST_CASE("number Number modulus huge") {
 TEST_CASE("number Number multiplication huge a") {
   const Number two(2);
   const Number eight(8);
-  const Number huge(std::numeric_limits<std::uint64_t>::max());
+  const Number huge(NumericLimits::max());
   const auto number = huge * eight;
   auto massive = huge * two;
   massive *= two;
@@ -127,7 +128,7 @@ TEST_CASE("number Number multiplication huge a") {
 TEST_CASE("number Number multiplication huge b") {
   const Number two(2);
   const Number eight(8);
-  const Number huge(std::numeric_limits<std::uint64_t>::max());
+  const Number huge(NumericLimits::max());
   const auto number = eight * huge;
   auto massive = two * two;
   massive *= two;
@@ -139,7 +140,7 @@ TEST_CASE("number Number multiplication huge b") {
 TEST_CASE("number Number multiplication huge c") {
   const Number two(2);
   const Number eight(8);
-  const Number huge(std::numeric_limits<std::uint64_t>::max());
+  const Number huge(NumericLimits::max());
   const auto number = huge * eight;
   auto massive = two * two;
   massive *= two;
@@ -150,7 +151,7 @@ TEST_CASE("number Number multiplication huge c") {
 
 TEST_CASE("number Number naturals") {
   const Number one(1);
-  const Number huge(std::numeric_limits<std::uint64_t>::max());
+  const Number huge(NumericLimits::max());
   const auto number = huge * huge;
   const auto massive = number * number;
   REQUIRE(massive.is_int());
@@ -165,7 +166,7 @@ TEST_CASE("number Number naturals") {
 }
 
 TEST_CASE("number Number naturals costly", "[.number]") {
-  const Number huge(std::numeric_limits<std::uint64_t>::max());
+  const Number huge(NumericLimits::max());
   const auto number = huge * huge;
   const auto massive = number * number;
   REQUIRE((massive / number) == number);
@@ -174,7 +175,7 @@ TEST_CASE("number Number naturals costly", "[.number]") {
 TEST_CASE("number Number subtraction huge") {
   const Number two(2);
   const Number eight(8);
-  const Number huge(std::numeric_limits<std::uint64_t>::max());
+  const Number huge(NumericLimits::max());
   auto number = huge + eight;
   auto massive = number;
   massive -= two;
@@ -184,8 +185,8 @@ TEST_CASE("number Number subtraction huge") {
   number -= eight;
   REQUIRE(massive.is_int());
   REQUIRE(massive == number);
-  REQUIRE(std::uint64_t(massive) == std::numeric_limits<std::uint64_t>::max());
-  REQUIRE(std::uint64_t(number) == std::numeric_limits<std::uint64_t>::max());
+  REQUIRE(std::uint64_t(massive) == NumericLimits::max());
+  REQUIRE(std::uint64_t(number) == NumericLimits::max());
 }
 
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

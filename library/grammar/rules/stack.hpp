@@ -71,10 +71,10 @@ namespace chimera::library::grammar::rules {
     };
     template <typename Type, typename... Args>
     auto reshape() -> Type {
+      using _Stack = Reshape<Type, Args...>;
       Expects(sizeof...(Args) == size());
       auto finally = gsl::finally([this] { this->stack.clear(); });
-      return Reshape<Type, Args...>::reshape(
-          stack.begin(), std::index_sequence_for<Args...>{});
+      return _Stack::reshape(stack.begin(), std::index_sequence_for<Args...>{});
     }
     [[nodiscard]] auto vector() const -> const std::vector<ValueT> & {
       return stack;
@@ -82,7 +82,8 @@ namespace chimera::library::grammar::rules {
     auto vector() -> std::vector<ValueT> & { return stack; }
     template <typename OutputIt>
     auto transform(OutputIt &&outputIt) {
-      return transform<typename std::iterator_traits<OutputIt>::value_type>(
+      using IteratorTraits = std::iterator_traits<OutputIt>;
+      return transform<typename IteratorTraits::value_type>(
           std::forward<OutputIt>(outputIt));
     }
     template <typename Type, typename OutputIt>

@@ -31,8 +31,8 @@
 
 namespace chimera::library::virtual_machine {
   struct Parse {
-    constexpr static auto bufferSize =
-        std::numeric_limits<std::uint16_t>::max();
+    using NumbericLimits = std::numeric_limits<std::uint16_t>;
+    constexpr static auto bufferSize = NumbericLimits::max();
     static auto parse_file(const Options &options, const std::string_view &data,
                            const char *source) -> asdl::Module;
     static auto parse_file(const Options &options, std::istream &&input,

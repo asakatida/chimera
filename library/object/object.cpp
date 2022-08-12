@@ -70,8 +70,8 @@ namespace chimera::library::object {
     return object->attributes.count(key) != 0;
   }
   auto Object::id() const noexcept -> Id {
-    return std::hash<std::shared_ptr<Impl>>{}(
-        object)&std::numeric_limits<Id>::max();
+    using NumericLimits = std::numeric_limits<Id>;
+    return std::hash<std::shared_ptr<Impl>>{}(object)&NumericLimits::max();
   }
   auto Object::value() const noexcept -> const Object::Value & {
     return object->value;
