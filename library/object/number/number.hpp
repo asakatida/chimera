@@ -26,6 +26,7 @@
 #include <variant>
 #include <vector>
 
+#include <gsl/gsl>
 #include <tao/operators.hpp>
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
@@ -75,10 +76,10 @@ namespace chimera::library::object::number {
         return value != 0U;
       }
       auto max = std::numeric_limits<T>::max();
-      if (value >= static_cast<std::uint64_t>(max)) {
+      if (value >= gsl::narrow<std::uint64_t>(max)) {
         return max;
       }
-      return static_cast<T>(value);
+      return gsl::narrow<T>(value);
     }
   };
   struct Natural {
@@ -93,12 +94,12 @@ namespace chimera::library::object::number {
       if (value.size() > 2) {
         return max;
       }
-      auto max128 = static_cast<__uint128_t>(max);
+      auto max128 = gsl::narrow<__uint128_t>(max);
       auto a = (__uint128_t(value[1]) << 64U) | value[0];
       if (a >= max128) {
         return max;
       }
-      return static_cast<T>(a & max128);
+      return gsl::narrow<T>(a & max128);
     }
   };
   using PositiveValue = std::variant<Base, Natural>;

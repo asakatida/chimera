@@ -25,15 +25,18 @@
 #include <algorithm>
 #include <vector>
 
+#include <gsl/gsl>
+
 #include "options.hpp"
 
 using namespace std::literals;
 
 namespace chimera::library::virtual_machine::modules {
+  using Argv = std::vector<object::Object>;
   void sys(const Options &options, const object::Object &module) {
     auto sys = module;
-    std::vector<object::Object> argv;
-    argv.reserve(static_cast<std::size_t>(
+    Argv argv;
+    argv.reserve(gsl::narrow<Argv::size_type>(
         std::distance(options.argv.begin(), options.argv.end())));
     for (const auto &arg : options.argv) {
       argv.emplace_back(object::Object(
