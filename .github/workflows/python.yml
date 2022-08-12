@@ -2,7 +2,7 @@
 jobs:
   mypy:
     concurrency:
-      cancel-in-progress: true
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
       group: mypy-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-latest
     steps:
@@ -19,7 +19,7 @@ jobs:
         working-directory: ${{github.workspace}}
   python:
     concurrency:
-      cancel-in-progress: true
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
       group: python-${{ matrix.lints }}-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-latest
     steps:

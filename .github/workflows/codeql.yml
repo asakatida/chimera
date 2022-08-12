@@ -2,7 +2,7 @@
 jobs:
   codeql:
     concurrency:
-      cancel-in-progress: true
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
       group: ${{ matrix.language }}-${{ github.workflow }}-${{ github.ref }}
     name: Analyze
     permissions:

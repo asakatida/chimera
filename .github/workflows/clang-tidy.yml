@@ -6,7 +6,7 @@ env:
 jobs:
   clangformat:
     concurrency:
-      cancel-in-progress: true
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
       group: clangformat-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-latest
     steps:
@@ -17,7 +17,7 @@ jobs:
           extensions: cpp,h,hpp
   clangtidy:
     concurrency:
-      cancel-in-progress: true
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
       group: clangtidy-${{ matrix.lints }}-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-latest
     steps:
