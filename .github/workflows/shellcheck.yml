@@ -2,7 +2,7 @@
 jobs:
   shellcheck:
     concurrency:
-      cancel-in-progress: true
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
       group: ${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-latest
     steps:
