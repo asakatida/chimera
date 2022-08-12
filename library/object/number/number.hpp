@@ -72,10 +72,11 @@ namespace chimera::library::object::number {
     template <typename T,
               typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
     explicit operator T() const noexcept {
+      using NumericLimits = std::numeric_limits<T>;
       if constexpr (std::is_same_v<T, bool>) {
         return value != 0U;
       }
-      auto max = std::numeric_limits<T>::max();
+      auto max = NumericLimits::max();
       if (value >= gsl::narrow<std::uint64_t>(max)) {
         return max;
       }
@@ -87,10 +88,11 @@ namespace chimera::library::object::number {
     template <typename T,
               typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
     explicit operator T() const noexcept {
+      using NumericLimits = std::numeric_limits<T>;
       if constexpr (std::is_same_v<T, bool>) {
         return true;
       }
-      auto max = std::numeric_limits<T>::max();
+      auto max = NumericLimits::max();
       if (value.size() > 2) {
         return max;
       }
@@ -135,11 +137,12 @@ namespace chimera::library::object::number {
     template <typename T,
               typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
     explicit operator T() const noexcept {
+      using NumericLimits = std::numeric_limits<T>;
       auto t = std::visit(Construct<T>{}, value);
       if (t == T()) {
         return t;
       }
-      return std::numeric_limits<T>::signaling_NaN();
+      return NumericLimits::signaling_NaN();
     }
   };
   struct Complex {
@@ -148,11 +151,12 @@ namespace chimera::library::object::number {
     template <typename T,
               typename _ = std::enable_if_t<std::is_arithmetic_v<T>>>
     explicit operator T() const noexcept {
+      using NumericLimits = std::numeric_limits<T>;
       auto t = std::visit(Construct<T>{}, imag);
       if (t == T()) {
         return std::visit(Construct<T>{}, real);
       }
-      return std::numeric_limits<T>::signaling_NaN();
+      return NumericLimits::signaling_NaN();
     }
   };
   using NumberValue =

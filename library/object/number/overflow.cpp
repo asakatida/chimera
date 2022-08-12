@@ -25,6 +25,7 @@
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 namespace chimera::library::object::number {
+  using NumericLimits = std::numeric_limits<std::uint64_t>;
   auto div_mod(const Carryover &left, std::uint64_t right) -> Carryover {
     auto a = __uint128_t(left.overflow) << 64U | left.result;
     return {std::uint64_t(a / right), std::uint64_t(a % right)};
@@ -43,8 +44,7 @@ namespace chimera::library::object::number {
   }
   auto sub(std::uint64_t left, std::uint64_t right) -> Carryover {
     if (left < right) {
-      return {std::numeric_limits<std::uint64_t>::max() - ((right - left) - 1),
-              1U};
+      return {NumericLimits::max() - ((right - left) - 1), 1U};
     }
     return {left - right, 0U};
   }

@@ -59,6 +59,7 @@ namespace chimera::library {
               << std::endl;
     return 0;
   }
+  using Argv = gsl::span<const char>;
   // NOLINTNEXTLINE(readability-function-cognitive-complexity)
   static auto main(Span &&args) noexcept -> int {
     std::cerr.exceptions(std::ios_base::failbit | std::ios_base::badbit);
@@ -73,8 +74,7 @@ namespace chimera::library {
         options.chimera = *arg++;
         for (; arg != args.end(); ++arg) {
           auto argLen = std::strlen(*arg);
-          const gsl::span<const char> argCStr{
-              *arg, gsl::narrow<gsl::span<const char>::size_type>(argLen)};
+          const Argv argCStr{*arg, gsl::narrow<Argv::size_type>(argLen)};
           auto argChar = argCStr.begin();
           if (*argChar != '-') {
             options.script = *arg;

@@ -18,7 +18,8 @@
 #include "virtual_machine/virtual_machine.hpp"
 
 namespace chimera::library {
-  constexpr static auto bufferSize = std::numeric_limits<std::uint16_t>::max();
+  using NumericLimits = std::numeric_limits<std::uint16_t>;
+  constexpr static auto bufferSize = NumericLimits::max();
   auto fuzz_istream(const std::uint8_t *data, std::size_t size)
       -> std::istringstream;
   auto fuzz_input(std::istream &in) -> Input {
