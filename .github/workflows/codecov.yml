@@ -1,0 +1,83 @@
+---
+env:
+  CLANG_VERSION: 15
+  CMAKE_BUILD_TYPE: Release
+  CXXFLAGS: >
+    -fcoverage-mapping
+    -fprofile-instr-generate
+    -mllvm
+    -runtime-counter-relocation
+  # yamllint disable-line rule:line-length
+  LLVM_PROFILE_FILE: ${{ github.workspace }}/build/coverage/llvm-profile.%c%p.profraw
+
+jobs:
+  codecov:
+    concurrency:
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      group: ${{ github.workflow }}-${{ github.ref }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Cache
+        uses: actions/cache@v3.0.8
+        with:
+          key: ${{ github.ref }}-${{ github.workflow }}
+          path: build
+          restore-keys: >
+            ${{ github.ref }}-${{ github.workflow }}
+            refs/heads/stable-${{ github.workflow }}
+            refs/heads/stable
+      - run: >
+          wget https://apt.llvm.org/llvm.sh &&
+          chmod +x llvm.sh &&
+          sudo ./llvm.sh ${{env.CLANG_VERSION}} &&
+          rm -rf llvm.sh &&
+          sudo apt-get install -y ninja-build
+      - env:
+          CC: /usr/bin/clang-${{ env.CLANG_VERSION }}
+          CXX: /usr/bin/clang++-${{ env.CLANG_VERSION }}
+        name: Configure CMake
+        run: >
+          git -C external/Catch/ apply ${{ github.workspace }}/patches/Catch &&
+          rm -f build/CMakeCache.txt &&
+          cmake -GNinja -B build -S .
+        working-directory: ${{github.workspace}}
+      - continue-on-error: true
+        env:
+          CC: /usr/bin/clang-${{ env.CLANG_VERSION }}
+          CXX: /usr/bin/clang++-${{ env.CLANG_VERSION }}
+        name: Test
+        run: >
+          rm -rf "$(dirname "${LLVM_PROFILE_FILE}")" &&
+          mkdir -p "$(dirname "${LLVM_PROFILE_FILE}")" &&
+          ninja -k0 check check_rand corpus
+        working-directory: ${{github.workspace}}/build
+      - name: merge raw profile
+        run: >
+          find "$(dirname "${LLVM_PROFILE_FILE}")" -type f -print0 |
+          xargs -0 -t -- llvm-profdata-${{ env.CLANG_VERSION }} merge
+          -sparse --output llvm-profile.profdata
+        working-directory: ${{github.workspace}}/build/coverage
+      - name: export profile
+        run: >
+          llvm-cov-${{ env.CLANG_VERSION }} export ./bnf2abnf
+          --instr-profile coverage/llvm-profile.profdata
+          --format=lcov > coverage/llvm-profile.lcov
+        working-directory: ${{github.workspace}}/build
+      - uses: codecov/codecov-action@v3.1.0
+        with:
+          directory: ${{ github.workspace }}/build/coverage
+
+name: CodeCov
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    branches:
+      - stable
+  push:
+    branches:
+      - stable
+  workflow_dispatch: ~
