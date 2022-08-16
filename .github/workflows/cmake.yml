@@ -36,10 +36,8 @@ jobs:
         name: Build dev tools
         run: make
         working-directory: ${{ github.workspace }}/build
-      - continue-on-error: >
-          ${{ github.ref == 'refs/heads/stable' &&
-              matrix.targets != 'check' &&
-              matrix.targets != 'check_rand' }}
+      # yamllint disable-line rule:line-length
+      - continue-on-error: ${{ github.ref == 'refs/heads/stable' && matrix.targets != 'check' && matrix.targets != 'check_rand' }}
         name: Test
         run: make ${{ matrix.targets }}
         working-directory: ${{ github.workspace }}/build
