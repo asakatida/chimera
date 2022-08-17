@@ -12,6 +12,7 @@ apt-get install --yes \
   cmake \
   curl \
   docker \
+  fish \
   git \
   gnupg \
   gnupg-agent \
@@ -24,6 +25,10 @@ apt-get install --yes \
   wget
 apt-get clean
 rm -rf /var/cache/apt/* /var/lib/apt/lists/*
+
+fish_cmd="$(command -v fish)"
+chsh -s "${fish_cmd}"
+fish -c 'exit'
 
 curl https://apt.llvm.org/llvm.sh -o llvm.sh
 chmod +x llvm.sh
