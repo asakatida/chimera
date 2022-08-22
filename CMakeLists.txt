@@ -171,16 +171,9 @@ target_link_libraries(chimera chimera_core pthread)
 
 add_subdirectory(external/Catch EXCLUDE_FROM_ALL)
 
-add_library(chimerafuzz unit_tests/fuzz/cases.cpp)
-
-target_compile_features(chimerafuzz PUBLIC c_std_23 cxx_std_20)
-
-target_include_directories(chimerafuzz PUBLIC unit_tests)
-
-target_link_libraries(chimerafuzz chimera_core pthread)
-
 add_executable(
   unit_test
+  unit_tests/fuzz/cases.cpp
   unit_tests/grammar/grammar.cpp
   unit_tests/grammar/identifier.cpp
   unit_tests/grammar/number_parse.cpp
@@ -200,42 +193,26 @@ target_include_directories(
   SYSTEM PUBLIC
   external/Catch/src)
 
-target_link_libraries(unit_test Catch2WithMain chimera_core chimerafuzz pthread)
+target_link_libraries(unit_test Catch2WithMain chimera_core pthread)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_executable(fuzz unit_tests/fuzz/target.cpp)
+  add_library(chimerafuzz unit_tests/fuzz/cases.cpp)
   target_compile_options(
-    fuzz
-    PUBLIC
-    -g
-    -fsanitize=address,fuzzer)
-  target_compile_features(fuzz PUBLIC c_std_23 cxx_std_20)
-  target_include_directories(fuzz PUBLIC unit_tests)
-  target_link_libraries(
-    fuzz
-    chimera_core
     chimerafuzz
-    pthread
-    -fsanitize-coverage=trace-cmp
-    -fsanitize-coverage=trace-pc-guard
-    -fsanitize=address,fuzzer
-    -rtlib=compiler-rt)
-  add_custom_target(
-    corpus
-    fuzz
-    -max_total_time=500
-    -shrink=1 -use_value_profile=1 -detect_leaks=0
-    -jobs=8
-    ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/corpus
-    DEPENDS check
-    VERBATIM USES_TERMINAL)
-  set(FUZZERS ellipsis false keywords name none number string true)
+    PUBLIC
+    -fsanitize-coverage=no-prune,trace-cmp,trace-div,trace-gep,trace-loads,trace-stores
+    -fsanitize=address)
+  target_compile_features(chimerafuzz PUBLIC c_std_23 cxx_std_20)
+  target_include_directories(chimerafuzz PUBLIC unit_tests)
+  target_link_libraries(chimerafuzz chimera_core pthread)
+  add_custom_target(corpus)
+  set(FUZZERS ellipsis false keywords name none number string true vm)
   foreach(fuzzer IN LISTS FUZZERS)
     add_executable(fuzz-${fuzzer} unit_tests/fuzz/target-${fuzzer}.cpp)
     target_compile_options(
       fuzz-${fuzzer}
       PUBLIC
-      -g
+      -fsanitize-coverage=no-prune,trace-cmp,trace-div,trace-gep,trace-loads,trace-stores
       -fsanitize=address,fuzzer)
     target_compile_features(fuzz-${fuzzer} PUBLIC c_std_23 cxx_std_20)
     target_include_directories(fuzz-${fuzzer} PUBLIC unit_tests)
@@ -244,19 +221,24 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       chimera_core
       chimerafuzz
       pthread
-      -fsanitize-coverage=trace-cmp
-      -fsanitize-coverage=trace-pc-guard
+      -fsanitize-coverage=no-prune,trace-cmp,trace-div,trace-gep,trace-loads,trace-stores
       -fsanitize=address,fuzzer
       -rtlib=compiler-rt)
     add_custom_target(
       corpus-${fuzzer}
       fuzz-${fuzzer}
+      -detect_leaks=1
+      -dict=${CMAKE_SOURCE_DIR}/unit_tests/fuzz/dictionaries/${fuzzer}.dict
+      -max_len=16384
       -max_total_time=500
-      -shrink=1 -use_value_profile=1 -detect_leaks=0
-      -jobs=8
+      -print_final_stats=1
+      -reduce_inputs=1
+      -shrink=1
+      -use_value_profile=1
       ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/corpus
       DEPENDS check
-      VERBATIM USES_TERMINAL)
+      VERBATIM)
+    add_dependencies(corpus corpus-${fuzzer})
   endforeach()
 endif()
 
@@ -283,13 +265,13 @@ add_executable(importlib tools/importlib.cpp)
 target_compile_features(importlib PUBLIC c_std_23 cxx_std_20)
 target_link_libraries(importlib modules_tools pthread)
 
-add_custom_target(check unit_test VERBATIM USES_TERMINAL)
-add_custom_target(check_rand unit_test --order rand VERBATIM USES_TERMINAL)
+add_custom_target(check unit_test VERBATIM)
+add_custom_target(check_rand unit_test --order rand VERBATIM)
 add_custom_target(
   spec
   chimera -m test --multiprocess 3
   DEPENDS check
-  VERBATIM USES_TERMINAL)
+  VERBATIM)
 
 install(
   TARGETS chimera libchimera
