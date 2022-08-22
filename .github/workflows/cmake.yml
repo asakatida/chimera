@@ -1,7 +1,8 @@
 ---
 env:
-  BUILD_TYPE: Release
   CLANG_VERSION: 15
+  CMAKE_BUILD_TYPE: Release
+  CXXFLAGS: -g -O0 -DNDEBUG -Wall -Wextra -Werror
 
 jobs:
   cmake:
@@ -27,7 +28,6 @@ jobs:
           rm -rf llvm.sh
       - env:
           CC: /usr/bin/clang-${{ env.CLANG_VERSION }}
-          CMAKE_BUILD_TYPE: ${{ env.BUILD_TYPE }}
           CXX: /usr/bin/clang++-${{ env.CLANG_VERSION }}
         name: Configure CMake
         run: cmake -B build -S .
@@ -55,7 +55,6 @@ jobs:
         targets:
           - check
           - check_rand
-          - corpus
           - corpus-ellipsis
           - corpus-false
           - corpus-keywords
@@ -64,6 +63,7 @@ jobs:
           - corpus-number
           - corpus-string
           - corpus-true
+          - corpus-vm
 
 name: CMake
 

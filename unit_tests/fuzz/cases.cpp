@@ -65,7 +65,7 @@ namespace chimera::library {
   auto fuzz_file_eval(std::istream &&in) -> int {
     auto options = fuzz_options();
     const object::Object builtins;
-    virtual_machine::modules::init(builtins);
+    // virtual_machine::modules::init(builtins);
     const virtual_machine::VirtualMachine virtualMachine(options, builtins);
     auto processContext = virtualMachine.process_context();
     asdl::Module module;
