@@ -200,7 +200,12 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   target_compile_options(
     chimerafuzz
     PUBLIC
-    -fsanitize-coverage=no-prune,trace-cmp,trace-div,trace-gep,trace-loads,trace-stores
+    -fsanitize-coverage=no-prune
+    -fsanitize-coverage=trace-cmp
+    -fsanitize-coverage=trace-div
+    -fsanitize-coverage=trace-gep
+    -fsanitize-coverage=trace-loads
+    -fsanitize-coverage=trace-stores
     -fsanitize=address)
   target_compile_features(chimerafuzz PUBLIC c_std_23 cxx_std_20)
   target_include_directories(chimerafuzz PUBLIC unit_tests)
@@ -212,7 +217,12 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     target_compile_options(
       fuzz-${fuzzer}
       PUBLIC
-      -fsanitize-coverage=no-prune,trace-cmp,trace-div,trace-gep,trace-loads,trace-stores
+      -fsanitize-coverage=no-prune
+      -fsanitize-coverage=trace-cmp
+      -fsanitize-coverage=trace-div
+      -fsanitize-coverage=trace-gep
+      -fsanitize-coverage=trace-loads
+      -fsanitize-coverage=trace-stores
       -fsanitize=address,fuzzer)
     target_compile_features(fuzz-${fuzzer} PUBLIC c_std_23 cxx_std_20)
     target_include_directories(fuzz-${fuzzer} PUBLIC unit_tests)
@@ -221,7 +231,12 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       chimera_core
       chimerafuzz
       pthread
-      -fsanitize-coverage=no-prune,trace-cmp,trace-div,trace-gep,trace-loads,trace-stores
+      -fsanitize-coverage=no-prune
+      -fsanitize-coverage=trace-cmp
+      -fsanitize-coverage=trace-div
+      -fsanitize-coverage=trace-gep
+      -fsanitize-coverage=trace-loads
+      -fsanitize-coverage=trace-stores
       -fsanitize=address,fuzzer
       -rtlib=compiler-rt)
     add_custom_target(

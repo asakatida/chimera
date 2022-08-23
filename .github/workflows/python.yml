@@ -1,5 +1,18 @@
 ---
 jobs:
+  cmakelint:
+    concurrency:
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      group: cmakelint-${{ github.workflow }}-${{ github.ref }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build dev tools
+        run: pip3 install -r requirements.txt
+        working-directory: ${{ github.workspace }}
+      - name: Lint CMakeList.txt
+        run: cmakelint
+        working-directory: ${{ github.workspace }}
   mypy:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
@@ -58,6 +71,8 @@ on:
     paths:
       - .github/workflows/**
       - "**.py"
+      - cmake/**
+      - CMakeList.txt
       - requirements.txt
   push:
     branches:
@@ -65,5 +80,7 @@ on:
     paths:
       - .github/workflows/**
       - "**.py"
+      - cmake/**
+      - CMakeList.txt
       - requirements.txt
   workflow_dispatch: ~
