@@ -53,16 +53,14 @@ export CXX="${CXX:-clang++}" CXXFLAGS="${CXXFLAGS} -DCHIMERA_PATH=${chimera_path
 env \
   CFLAGS="${CFLAGS} -Wall -Wpedantic -Werror" \
   CMAKE_BUILD_TYPE=Debug \
-  CMAKE_EXPORT_COMPILE_COMMANDS=YES \
   CXXFLAGS="${CXXFLAGS} -Wall -Wpedantic -Werror" \
-  cmake -DBUILD_SHARED_LIBS=OFF -Wdev -Werror=dev -GNinja -S "${root}" -B "${build_root}/debug"
+  "${scripts}/cmake.sh" "${build_root}/debug" -Wdev -Werror=dev
 
 env \
   CFLAGS="${CFLAGS} -DNDEBUG" \
   CMAKE_BUILD_TYPE=MinSizeRel \
-  CMAKE_BUILD_TYPE=Release \
   CXXFLAGS="${CXXFLAGS} -DNDEBUG" \
-  cmake -GNinja -S "${root}" -B "${build_root}/release"
+  "${scripts}/cmake.sh" "${build_root}/release"
 
 "${scripts}/lint.sh"
 

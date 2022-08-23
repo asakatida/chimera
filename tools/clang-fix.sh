@@ -3,12 +3,12 @@
 set -ex -o pipefail
 
 root="$(git rev-parse --show-toplevel)"
-build="${root}/build/clang-make"
+build="${root}/build/clang-ninja"
 scripts="${root}/tools"
 
 "${scripts}/cmake.sh" "${build}"
 
-make --directory "${build}" --jobs 3
+ninja -C "${build}"
 "${scripts}/clang-format.sh"
-make --directory "${build}" --jobs 3
+ninja -C "${build}"
 "${scripts}/clang-tidy.sh" "${build}"

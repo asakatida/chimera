@@ -6,13 +6,11 @@ build="$1"
 shift
 root="$(git rev-parse --show-toplevel)"
 
-export CXXFLAGS
-export LDFLAGS
-
-cmake \
-  -DCMAKE_BUILD_TYPE=Debug \
-  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+env \
+  CMAKE_EXPORT_COMPILE_COMMANDS=YES \
+  cmake \
   -DBUILD_SHARED_LIBS=OFF \
+  -GNinja \
   -S "${root}" \
   -B "${build}" \
   "$@"

@@ -4,6 +4,6 @@ set -ex -o pipefail
 
 root="$(git rev-parse --show-toplevel)"
 
-"${root}/tools/cmake.sh" "${root}/build/gcc-make"
+"${root}/tools/cmake.sh" "${root}/build/gcc-ninja"
 
-make --directory "${root}/build/gcc-make" --jobs 3 "$@"
+ninja -C "${root}/build/gcc-ninja" "$@"
