@@ -1,0 +1,40 @@
+diff --git a/extras/catch_amalgamated.cpp b/extras/catch_amalgamated.cpp
+index ecda2301..de38f1da 100644
+--- a/extras/catch_amalgamated.cpp
++++ b/extras/catch_amalgamated.cpp
+@@ -882,7 +882,6 @@ namespace Catch {
+                 multi->addListener(listener->create(config));
+             }
+ 
+-            std::size_t reporterIdx = 0;
+             for ( auto const& reporterSpec : config->getProcessedReporterSpecs() ) {
+                 multi->addReporter( createReporter(
+                     reporterSpec.name,
+@@ -890,7 +889,6 @@ namespace Catch {
+                                     makeStream( reporterSpec.outputFilename ),
+                                     reporterSpec.colourMode,
+                                     reporterSpec.customOptions ) ) );
+-                reporterIdx++;
+             }
+ 
+             return multi;
+diff --git a/src/catch2/catch_session.cpp b/src/catch2/catch_session.cpp
+index df92559b..d6c4c19b 100644
+--- a/src/catch2/catch_session.cpp
++++ b/src/catch2/catch_session.cpp
+@@ -61,7 +61,6 @@ namespace Catch {
+                 multi->addListener(listener->create(config));
+             }
+ 
+-            std::size_t reporterIdx = 0;
+             for ( auto const& reporterSpec : config->getProcessedReporterSpecs() ) {
+                 multi->addReporter( createReporter(
+                     reporterSpec.name,
+@@ -69,7 +68,6 @@ namespace Catch {
+                                     makeStream( reporterSpec.outputFilename ),
+                                     reporterSpec.colourMode,
+                                     reporterSpec.customOptions ) ) );
+-                reporterIdx++;
+             }
+ 
+             return multi;

@@ -5,7 +5,7 @@ set -ex -o pipefail
 root="$(git rev-parse --show-toplevel)"
 scripts="${root}/tools"
 
-"${scripts}/cmake.sh" "$1" -GNinja
+"${scripts}/cmake.sh" "$1"
 
 pushd "$1"
 

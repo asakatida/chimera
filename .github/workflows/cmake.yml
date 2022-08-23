@@ -17,29 +17,34 @@ jobs:
       - name: Cache
         uses: actions/cache@v3.0.8
         with:
-          key: build
+          key: ${{ github.ref }}-${{ github.workflow }}
           path: build
-          restore-keys: build
-          upload-chunk-size: 4000000
+          restore-keys: >
+            ${{ github.ref }}-${{ github.workflow }}
+            refs/heads/stable-${{ github.workflow }}
+            refs/heads/stable
       - run: >
           wget https://apt.llvm.org/llvm.sh &&
           chmod +x llvm.sh &&
           sudo ./llvm.sh ${{ env.CLANG_VERSION }} &&
-          rm -rf llvm.sh
+          rm -rf llvm.sh &&
+          sudo apt-get install -y ninja-build
       - env:
           CC: /usr/bin/clang-${{ env.CLANG_VERSION }}
           CXX: /usr/bin/clang++-${{ env.CLANG_VERSION }}
         name: Configure CMake
-        run: cmake -B build -S .
+        run: >
+          git -C external/Catch/ apply ${{ github.workspace }}/patches/Catch &&
+          cmake -GNinja -B build -S .
         working-directory: ${{ github.workspace }}
       - if: matrix.targets == 'check'
         name: Build dev tools
-        run: make
+        run: ninja
         working-directory: ${{ github.workspace }}/build
       # yamllint disable-line rule:line-length
       - continue-on-error: ${{ github.ref == 'refs/heads/stable' && matrix.targets != 'check' && matrix.targets != 'check_rand' }}
         name: Test
-        run: make ${{ matrix.targets }}
+        run: ninja ${{ matrix.targets }}
         working-directory: ${{ github.workspace }}/build
       - if: github.ref == 'refs/heads/stable'
         uses: stefanzweifel/git-auto-commit-action@v4
