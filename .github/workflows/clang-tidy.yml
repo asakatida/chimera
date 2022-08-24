@@ -27,6 +27,7 @@ jobs:
       - name: Cache
         uses: actions/cache@v3.0.8
         with:
+          # yamllint disable-line rule:line-length
           key: ${{ hashFiles('CMakeLists.txt') }}-${{ env.CLANG_VERSION }}-${{ env.CMAKE_EXPORT_COMPILE_COMMANDS }}
           path: build
       - run: >
