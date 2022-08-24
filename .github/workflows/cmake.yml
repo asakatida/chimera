@@ -45,7 +45,7 @@ jobs:
         working-directory: ${{ github.workspace }}
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          branch: ${{ hashFiles('unit_tests/fuzz/corpus/*') }}
+          branch: ${{ matrix.targets }}-${{ github.workflow }}-${{ github.ref }}/${{ job.container.id }}
           commit_message: Update fuzzing corpus.
           create_branch: true
           file_pattern: unit_tests/fuzz/corpus
