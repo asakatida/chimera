@@ -16,8 +16,14 @@ jobs:
       - name: Cache
         uses: actions/cache@v3.0.8
         with:
-          key: ${{ github.ref }}-${{ github.workflow }}
-          path: build
+          key: ${{ github.ref }}-${{ github.workflow }}-${{ hashFiles('CMakeLists.txt') }}
+          path: |
+            build.ninja
+            cmake_install.cmake
+            CMakeCache.txt
+            CMakeFiles/
+            generated-includes/
+            Makefile
           restore-keys: >
             ${{ github.ref }}-${{ github.workflow }}
             refs/heads/stable-${{ github.workflow }}
