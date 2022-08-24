@@ -41,18 +41,17 @@ jobs:
         name: Build dev tools
         run: ninja
         working-directory: ${{ github.workspace }}/build
-      # yamllint disable-line rule:line-length
-      - continue-on-error: ${{ github.ref == 'refs/heads/stable' && matrix.targets != 'check' && matrix.targets != 'check_rand' }}
-        name: Test
+      - name: Test
         run: ninja ${{ matrix.targets }}
         working-directory: ${{ github.workspace }}/build
-      - if: github.ref == 'refs/heads/stable'
-        uses: stefanzweifel/git-auto-commit-action@v4
+      - run: tools/corpus_trim.sh
+        working-directory: ${{ github.workspace }}
+      - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           branch: ${{ hashFiles('unit_tests/fuzz/corpus/*') }}
           commit_message: Update fuzzing corpus.
           create_branch: true
-          file_pattern: unit_tests/fuzz/corpus/*
+          file_pattern: unit_tests/fuzz/corpus
           repository: ${{ github.workspace }}
     strategy:
       fail-fast: false
