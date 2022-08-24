@@ -30,14 +30,14 @@ on:
     branches:
       - stable
     paths:
-      - .github/workflows/**
+      - .github/workflows/yamllint.yml
       - "**.yml"
       - requirements.txt
   push:
     branches:
       - stable
     paths:
-      - .github/workflows/**
+      - .github/workflows/yamllint.yml
       - "**.yml"
       - requirements.txt
   workflow_dispatch: ~

@@ -24,7 +24,7 @@ on:
       - stable
     paths:
       - .dockerignore
-      - .github/workflows/**
+      - .github/workflows/docker.yml
       - Dockerfile
       - tools/docker.sh
   push:
@@ -32,6 +32,6 @@ on:
       - stable
     paths:
       - .dockerignore
-      - .github/workflows/**
+      - .github/workflows/docker.yml
       - Dockerfile
       - tools/docker.sh
