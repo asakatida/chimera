@@ -96,7 +96,7 @@ on:
     branches:
       - stable
     paths:
-      - .github/workflows/**
+      - .github/workflows/python.yml
       - "**.py"
       - cmake/**
       - CMakeList.txt
@@ -105,7 +105,7 @@ on:
     branches:
       - stable
     paths:
-      - .github/workflows/**
+      - .github/workflows/python.yml
       - "**.py"
       - cmake/**
       - CMakeList.txt

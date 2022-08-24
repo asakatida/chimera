@@ -25,12 +25,12 @@ on:
     branches:
       - stable
     paths:
-      - .github/workflows/**
+      - .github/workflows/shellcheck.yml
       - "**.sh"
   push:
     branches:
       - stable
     paths:
-      - .github/workflows/**
+      - .github/workflows/shellcheck.yml
       - "**.sh"
   workflow_dispatch: ~
