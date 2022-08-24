@@ -2,6 +2,10 @@
 
 set -ex -o pipefail
 
+if [[ "$(uname || true)" = Darwin ]]; then
+  exit
+fi
+
 build="$1"
 shift
 root="$(git rev-parse --show-toplevel)"

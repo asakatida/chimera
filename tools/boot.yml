@@ -1,16 +1,22 @@
 ---
-- become: true
-  hosts: localhost
+- hosts: localhost
   tasks:
-    - block:
+    - set_fact:
+        py_version: 3.12
+    - become: true
+      block:
         - apt_repository:
             repo: ppa:deadsnakes/nightly
         - package:
             name:
-              - python3.12-dev
-              - python3.12-venv
+              - python{{ py_version }}-dev
+              - python{{ py_version }}-venv
       when: ansible_facts.os_family == 'Debian'
     - block:
-        - command: brew install pyenv
-        - command: pyenv install 3.12.0
+        - args:
+            creates: /opt/homebrew/Cellar/pyenv
+          command: brew install pyenv
+        - args:
+            creates: "{{ lookup('env', 'HOME') }}/.pyenv/versions/{{ py_version }}-dev"
+          command: pyenv install {{ py_version }}-dev
       when: ansible_facts.os_family == 'Darwin'

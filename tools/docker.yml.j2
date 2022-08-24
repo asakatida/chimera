@@ -23,10 +23,15 @@
       name: chimera/{{ item.image }}-{{ item.distro }}:{{ item.tag }}
       source: build
     loop: "{{ min_supported_distros }}"
-    when: prebuild_check or ( item.distro == 'alpine' and item.image == 'base' )
+    when:
+    - ansible_facts.os_family != 'Darwin'
+    - prebuild_check or ( item.distro == 'alpine' and item.image == 'base' )
 <% for image in ('clang', 'gcc') %>
   - name: test << image >>
     command: "docker run 'chimera/<< image >>-{{ item.distro }}:{{ item.tag }}' ./ninja-intense.sh '../build/<< image >>/{{ item.distro }}/{{ item.tag }}'"
     loop: "{{ min_supported_distros }}"
-    when: prebuild_check and item.image == '<< image >>'
+    when:
+    - ansible_facts.os_family != 'Darwin'
+    - item.image == '<< image >>'
+    - prebuild_check
 <% endfor %>

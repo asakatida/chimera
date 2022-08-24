@@ -21,9 +21,12 @@ def sub(match: Match[str]) -> str:
 
 def test(f: Path) -> bool:
     # markdown is ignored
+    # patches need to stay
     # python linting is covered elsewhere
-    return f.suffix not in (".md", ".py") and any(
-        map(lambda search: search.search(f.read_text()), SEARCHES)
+    return (
+        f.suffix not in (".md", ".py")
+        and "patches" not in f.parts
+        and any(map(lambda search: search.search(f.read_text()), SEARCHES))
     )
 
 
