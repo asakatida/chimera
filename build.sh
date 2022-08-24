@@ -2,7 +2,7 @@
 
 set -ex -o pipefail
 
-env
+env | cut -f1 -d= | sort -u
 
 root="$(git rev-parse --show-toplevel)"
 scripts="${root}/tools"

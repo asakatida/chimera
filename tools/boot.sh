@@ -13,8 +13,9 @@ build_root="${root}/build"
 
 case "$(uname)" in
   Darwin )
-    brew install --update python3 shellcheck
+    brew install python3 shellcheck
     sudo true
+    export PATH="${PATH}:${HOME}/.pyenv/shims"
     ;;
   Linux )
     if command -v apt; then
