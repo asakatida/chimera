@@ -59,7 +59,7 @@ jobs:
         working-directory: ${{github.workspace}}/build/coverage
       - name: export profile
         run: >
-          llvm-cov-${{ env.CLANG_VERSION }} export ./bnf2abnf
+          llvm-cov-${{ env.CLANG_VERSION }} export ./unit_test
           --instr-profile coverage/llvm-profile.profdata
           --format=lcov > coverage/llvm-profile.lcov
         working-directory: ${{github.workspace}}/build
