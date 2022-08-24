@@ -10,11 +10,8 @@ jobs:
       - name: Cache
         uses: actions/cache@v3.0.8
         with:
-          key: ${{ github.ref }}-python3-${{ hashFiles('requirements.txt') }}
+          key: python3-${{ hashFiles('requirements.txt') }}
           path: env
-          restore-keys: >
-            ${{ github.ref }}
-            refs/heads/stable
       - name: Build dev tools
         run: >
           python3 -m venv --upgrade --upgrade-deps env &&
@@ -33,11 +30,8 @@ jobs:
       - name: Cache
         uses: actions/cache@v3.0.8
         with:
-          key: ${{ github.ref }}-python3.12-${{ hashFiles('requirements.txt') }}
+          key: python3.12-${{ hashFiles('requirements.txt') }}
           path: env
-          restore-keys: >
-            ${{ github.ref }}
-            refs/heads/stable
       - uses: deadsnakes/action@v2.1.1
         with:
           python-version: 3.12-dev
@@ -62,11 +56,8 @@ jobs:
       - name: Cache
         uses: actions/cache@v3.0.8
         with:
-          key: ${{ github.ref }}-python3.12-${{ hashFiles('requirements.txt') }}
+          key: python3.12-${{ hashFiles('requirements.txt') }}
           path: env
-          restore-keys: >
-            ${{ github.ref }}
-            refs/heads/stable
       - uses: deadsnakes/action@v2.1.1
         with:
           python-version: 3.12-dev

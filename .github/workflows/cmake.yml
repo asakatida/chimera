@@ -17,12 +17,8 @@ jobs:
       - name: Cache
         uses: actions/cache@v3.0.8
         with:
-          key: ${{ github.ref }}-${{ github.workflow }}
+          key: ${{ hashFiles('CMakeLists.txt') }}-${{ env.CLANG_VERSION }}-${{ env.CMAKE_BUILD_TYPE }}-${{ env.CXXFLAGS }}
           path: build
-          restore-keys: >
-            ${{ github.ref }}-${{ github.workflow }}
-            refs/heads/stable-${{ github.workflow }}
-            refs/heads/stable
       - run: >
           wget https://apt.llvm.org/llvm.sh &&
           chmod +x llvm.sh &&

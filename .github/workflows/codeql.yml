@@ -16,7 +16,7 @@ jobs:
       - name: Cache
         uses: actions/cache@v3.0.8
         with:
-          key: ${{ github.ref }}-${{ github.workflow }}-${{ hashFiles('CMakeLists.txt') }}
+          key: ${{ hashFiles('CMakeLists.txt') }}
           path: |
             build.ninja
             cmake_install.cmake
@@ -24,10 +24,6 @@ jobs:
             CMakeFiles/
             generated-includes/
             Makefile
-          restore-keys: >
-            ${{ github.ref }}-${{ github.workflow }}
-            refs/heads/stable-${{ github.workflow }}
-            refs/heads/stable
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
