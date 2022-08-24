@@ -7,15 +7,20 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-      - uses: deadsnakes/action@v2.1.1
+      - name: Cache
+        uses: actions/cache@v3.0.8
         with:
-          python-version: 3.12-dev
+          key: ${{ github.ref }}-python3-${{ hashFiles('requirements.txt') }}
+          path: env
+          restore-keys: >
+            ${{ github.ref }}
+            refs/heads/stable
       - name: Build dev tools
         run: >
-          python3.12 -m venv env &&
+          python3 -m venv --upgrade --upgrade-deps env &&
           env/bin/pip3 install -r requirements.txt
         working-directory: ${{ github.workspace }}
-      - name: Lint python code
+      - name: Lint yaml code
         run: >
           find . -name '*.yml' -print0 |
           xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- |

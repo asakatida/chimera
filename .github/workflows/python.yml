@@ -7,11 +7,21 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
+      - name: Cache
+        uses: actions/cache@v3.0.8
+        with:
+          key: ${{ github.ref }}-python3-${{ hashFiles('requirements.txt') }}
+          path: env
+          restore-keys: >
+            ${{ github.ref }}
+            refs/heads/stable
       - name: Build dev tools
-        run: pip3 install -r requirements.txt
+        run: >
+          python3 -m venv --upgrade --upgrade-deps env &&
+          env/bin/pip3 install -r requirements.txt
         working-directory: ${{ github.workspace }}
       - name: Lint CMakeList.txt
-        run: cmakelint
+        run: env/bin/cmakelint
         working-directory: ${{ github.workspace }}
   mypy:
     concurrency:
@@ -20,13 +30,22 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
+      - name: Cache
+        uses: actions/cache@v3.0.8
+        with:
+          key: ${{ github.ref }}-python3.12-${{ hashFiles('requirements.txt') }}
+          path: env
+          restore-keys: >
+            ${{ github.ref }}
+            refs/heads/stable
       - uses: deadsnakes/action@v2.1.1
         with:
           python-version: 3.12-dev
       - name: Build dev tools
         run: >
-          python3.12 -m venv env &&
+          python3.12 -m venv --upgrade --upgrade-deps env &&
           env/bin/pip3 install -r requirements.txt
+        working-directory: ${{ github.workspace }}
       - name: Lint python code
         run: >
           find . -not -path './stdlib/*' -name '*.py' -print0 |
@@ -40,12 +59,20 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
+      - name: Cache
+        uses: actions/cache@v3.0.8
+        with:
+          key: ${{ github.ref }}-python3.12-${{ hashFiles('requirements.txt') }}
+          path: env
+          restore-keys: >
+            ${{ github.ref }}
+            refs/heads/stable
       - uses: deadsnakes/action@v2.1.1
         with:
           python-version: 3.12-dev
       - name: Build dev tools
         run: >
-          python3.12 -m venv env &&
+          python3.12 -m venv --upgrade --upgrade-deps env &&
           env/bin/pip3 install -r requirements.txt
         working-directory: ${{ github.workspace }}
       - name: Lint python code
