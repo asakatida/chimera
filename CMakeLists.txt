@@ -253,6 +253,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       -shrink=1
       -use_value_profile=1
       ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/corpus
+      ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/crashes
       DEPENDS check
       VERBATIM)
     add_dependencies(corpus corpus-${fuzzer})
