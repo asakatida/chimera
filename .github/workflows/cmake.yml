@@ -1,8 +1,8 @@
 ---
 env:
   CLANG_VERSION: 15
-  CMAKE_BUILD_TYPE: Release
-  CXXFLAGS: -g -O0 -DNDEBUG -Wall -Wextra -Werror
+  CMAKE_BUILD_TYPE: Debug
+  CXXFLAGS: -g -O0 -DNDEBUG -Wall -Wextra -Wpedantic -Werror
 
 jobs:
   cmake:

@@ -52,14 +52,14 @@ export CC="${CC:-clang}" CFLAGS="${CFLAGS} -DCHIMERA_PATH=${chimera_path}"
 export CXX="${CXX:-clang++}" CXXFLAGS="${CXXFLAGS} -DCHIMERA_PATH=${chimera_path}"
 
 env \
-  CFLAGS="${CFLAGS} -Wall -Wpedantic -Werror" \
+  CFLAGS="${CFLAGS} -Wall -Wextra -Wpedantic -Werror" \
   CMAKE_BUILD_TYPE=Debug \
-  CXXFLAGS="${CXXFLAGS} -Wall -Wpedantic -Werror" \
+  CXXFLAGS="${CXXFLAGS} -Wall -Wextra -Wpedantic -Werror" \
   "${scripts}/cmake.sh" "${build_root}/debug" -Wdev -Werror=dev
 
 env \
   CFLAGS="${CFLAGS} -DNDEBUG" \
-  CMAKE_BUILD_TYPE=MinSizeRel \
+  CMAKE_BUILD_TYPE="{CMAKE_BUILD_TYPE:-MinSizeRel}" \
   CXXFLAGS="${CXXFLAGS} -DNDEBUG" \
   "${scripts}/cmake.sh" "${build_root}/release"
 
