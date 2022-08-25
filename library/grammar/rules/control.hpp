@@ -35,7 +35,7 @@ namespace chimera::library::grammar::rules {
   template <typename Rule>
   struct Normal<Rule, std::void_t<decltype(typename Rule::Transform{})>>
       : normal<Rule> {
-    using _Control = normal<Rule>;
+    using LocalControl = normal<Rule>;
     template <tao::pegtl::apply_mode A, tao::pegtl::rewind_mode M,
               template <typename...> class Action,
               template <typename...> class Control, typename Input,
@@ -43,14 +43,14 @@ namespace chimera::library::grammar::rules {
     static auto match(Input &in, Outer &&outer) -> bool {
       if constexpr (A == tao::pegtl::apply_mode::action) {
         typename Rule::Transform state;
-        if (_Control::template match<A, M, Action, Control>(in, state)) {
+        if (LocalControl::template match<A, M, Action, Control>(in, state)) {
           state.success(outer);
           return true;
         }
         return false;
       }
       if constexpr (A != tao::pegtl::apply_mode::action) {
-        return _Control::template match<A, M, Action, Control>(in, outer);
+        return LocalControl::template match<A, M, Action, Control>(in, outer);
       }
       Expects(false);
     }
