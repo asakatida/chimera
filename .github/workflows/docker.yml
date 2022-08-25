@@ -35,3 +35,4 @@ on:
       - .github/workflows/docker.yml
       - Dockerfile
       - tools/docker.sh
+  workflow_dispatch: ~
