@@ -3,6 +3,7 @@ env:
   CLANG_VERSION: 15
   CMAKE_BUILD_TYPE: Release
   CXXFLAGS: >
+    -DNDEBUG
     -fcoverage-mapping
     -fprofile-instr-generate
     -mllvm
@@ -49,7 +50,8 @@ jobs:
         run: >
           rm -rf "$(dirname "${LLVM_PROFILE_FILE}")" &&
           mkdir -p "$(dirname "${LLVM_PROFILE_FILE}")" &&
-          ninja -k0 check check_rand corpus
+          ninja -j1 unit_test &&
+          ninja -k0 corpus
         working-directory: ${{github.workspace}}/build
       - name: merge raw profile
         run: >
