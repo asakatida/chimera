@@ -48,11 +48,12 @@ jobs:
             ninja -C build unit_test
           '
         working-directory: ${{ github.workspace }}
-      - if: matrix.targets == 'check'
+      - if: matrix.targets != 'scan-build'
         name: Build dev tools
         run: ninja
         working-directory: ${{ github.workspace }}/build
-      - if: matrix.targets != 'scan-build'
+      - continue-on-error: ${{ startsWith(matrix.targets, 'corpus-') }}
+        if: matrix.targets != 'scan-build'
         name: Test
         run: ninja ${{ matrix.targets }}
         working-directory: ${{ github.workspace }}/build
@@ -64,7 +65,7 @@ jobs:
           branch: ${{ matrix.targets }}-${{ github.workflow }}-${{ github.ref }}/${{ github.run_id }}
           commit_message: Update fuzzing corpus.
           create_branch: true
-          file_pattern: unit_tests/fuzz/corpus
+          file_pattern: unit_tests/fuzz
           repository: ${{ github.workspace }}
     strategy:
       fail-fast: false
