@@ -46,9 +46,19 @@ on:
   pull_request:
     branches:
       - stable
+    paths-ignore:
+      - .dockerignore
+      - "**.md"
+      - Dockerfile
+      - tools/docker.sh
   push:
     branches:
       - stable
+    paths-ignore:
+      - .dockerignore
+      - "**.md"
+      - Dockerfile
+      - tools/docker.sh
   schedule:
     - cron: 20 14 * * 5
   workflow_dispatch: ~
