@@ -28,7 +28,7 @@ rm -rf /var/cache/apt/* /var/lib/apt/lists/*
 
 fish_cmd="$(command -v fish)"
 chsh -s "${fish_cmd}"
-fish -c 'exit'
+fish -c 'set -U fish_user_paths /usr/local/bin'
 
 curl https://apt.llvm.org/llvm.sh -o llvm.sh
 chmod +x llvm.sh
