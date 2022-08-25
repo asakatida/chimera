@@ -211,6 +211,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   target_include_directories(chimerafuzz PUBLIC unit_tests)
   target_link_libraries(chimerafuzz chimera_core pthread)
   add_custom_target(corpus)
+  add_custom_target(fuzzers DEPENDS check)
   set(FUZZERS ellipsis false keywords name none number string true vm)
   foreach(fuzzer IN LISTS FUZZERS)
     add_executable(fuzz-${fuzzer} unit_tests/fuzz/target-${fuzzer}.cpp)
@@ -251,9 +252,10 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       -shrink=1
       -use_value_profile=1
       ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/corpus
-      DEPENDS check
+      DEPENDS fuzzers
       VERBATIM)
     add_dependencies(corpus corpus-${fuzzer})
+    add_dependencies(fuzzers fuzz-${fuzzer})
   endforeach()
 endif()
 
