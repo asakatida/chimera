@@ -74,7 +74,8 @@ namespace chimera::library::grammar::rules {
       using LocalStack = Reshape<Type, Args...>;
       Expects(sizeof...(Args) == size());
       auto finally = gsl::finally([this] { this->stack.clear(); });
-      return LocalStack::reshape(stack.begin(), std::index_sequence_for<Args...>{});
+      return LocalStack::reshape(stack.begin(),
+                                 std::index_sequence_for<Args...>{});
     }
     [[nodiscard]] auto vector() const -> const std::vector<ValueT> & {
       return stack;
