@@ -60,12 +60,15 @@ jobs:
       - name: export profile
         run: >
           llvm-cov-${{ env.CLANG_VERSION }} export ./unit_test
+          --ignore-filename-regex='.*/(external|unit_tests)/.*'
           --instr-profile coverage/llvm-profile.profdata
+          --region-coverage-gt=2
           --format=lcov > coverage/llvm-profile.lcov
         working-directory: ${{github.workspace}}/build
       - uses: codecov/codecov-action@v3.1.0
         with:
           directory: ${{ github.workspace }}/build/coverage
+          files: llvm-profile.lcov
 
 name: CodeCov
 
