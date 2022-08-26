@@ -120,7 +120,8 @@ namespace chimera::library::virtual_machine {
         }
       }
     }
-    throw object::BaseException(builtins().get_attribute("AttributeError"));
+    throw object::BaseException(
+        builtins().get_attribute("AssertionError").weak());
   }
   void Evaluator::evaluate() {
     while (scope) {
@@ -358,14 +359,16 @@ namespace chimera::library::virtual_machine {
     if (raise.exc) {
       if (raise.cause) {
         push([](Evaluator *evaluator) {
-          const auto cause = object::BaseException(evaluator->stack_remove());
-          const auto exception = object::BaseException(evaluator->stack_top());
+          const auto cause =
+              object::BaseException(evaluator->stack_remove().weak());
+          const auto exception =
+              object::BaseException(evaluator->stack_top().weak());
           throw object::BaseException(exception, cause);
         });
         evaluate_get(*raise.cause);
       } else {
         push([](Evaluator *evaluator) {
-          throw object::BaseException(evaluator->stack_top());
+          throw object::BaseException(evaluator->stack_top().weak());
         });
       }
       evaluate_get(*raise.exc);
@@ -405,11 +408,11 @@ namespace chimera::library::virtual_machine {
         evaluatorA->stack_pop();
         if (!assert.msg) {
           throw object::BaseException(
-              evaluatorA->builtins().get_attribute("AssertionError"));
+              evaluatorA->builtins().get_attribute("AssertionError").weak());
         }
         evaluatorA->push([](Evaluator *evaluatorB) {
           throw object::BaseException(
-              evaluatorB->builtins().get_attribute("AssertionError"));
+              evaluatorB->builtins().get_attribute("AssertionError").weak());
         });
         evaluatorA->evaluate_get(*assert.msg);
       });
@@ -454,10 +457,10 @@ namespace chimera::library::virtual_machine {
       if (context) {
         return context;
       }
-      return object::BaseException(builtins().get_attribute("RuntimeError"));
+      return object::BaseException(
+          builtins().get_attribute("RuntimeError").weak());
     } catch (const std::exception &exc) {
-      auto exception = object::Object{object::String{exc.what()}, {}};
-      object::BaseException error(exception);
+      object::BaseException error(object::String{exc.what()});
       if (context) {
         return object::BaseException(error, *context);
       }
@@ -510,6 +513,7 @@ namespace chimera::library::virtual_machine {
         }
       }
     }
-    throw object::BaseException(builtins().get_attribute("AttributeError"));
+    throw object::BaseException(
+        builtins().get_attribute("AssertionError").weak());
   }
 } // namespace chimera::library::virtual_machine

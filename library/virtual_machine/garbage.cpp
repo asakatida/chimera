@@ -27,7 +27,8 @@
 #include <thread>
 
 namespace chimera::library::virtual_machine {
-  GarbageCollector::GarbageCollector() : thread([this] { this->collect(); }) {}
+  GarbageCollector::GarbageCollector(const object::Object &root)
+      : root(root), fibonacciHeap(root), thread([this] { this->collect(); }) {}
   GarbageCollector::~GarbageCollector() noexcept {
     if (thread.joinable()) {
       flag.clear();
@@ -36,10 +37,10 @@ namespace chimera::library::virtual_machine {
   }
   void GarbageCollector::collect() {
     flag.test_and_set();
-    FibonacciHeap<object::Object, Compare> garbage{};
+    FibonacciHeap<object::Object, Compare> garbage(root);
     while (flag.test_and_set()) {
       garbage.remove_if([](auto &&node) { return node.use_count() <= 1; });
-      FibonacciHeap<object::Object, Compare> moving{};
+      FibonacciHeap<object::Object, Compare> moving(root);
       {
         const std::lock_guard<std::mutex> lock(mutex);
         using std::swap;

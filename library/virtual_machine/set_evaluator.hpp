@@ -38,7 +38,7 @@ namespace chimera::library::virtual_machine {
     template <typename ASDL>
     [[noreturn]] void evaluate(const ASDL & /*asdl*/) const {
       throw object::BaseException(
-          evaluator->builtins().get_attribute("RuntimeError"));
+          evaluator->builtins().get_attribute("RuntimeError").weak());
     }
 
   private:
