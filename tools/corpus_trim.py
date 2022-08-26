@@ -24,17 +24,25 @@ from hashlib import sha256
 from pathlib import Path
 
 LENGTH = 6
+DIRECTORIES = ("corpus", "crashes")
 
 
 def sha(path: Path) -> str:
     return sha256(path.read_bytes()).hexdigest()
 
 
-corpus = (Path(__file__).parent.parent / "unit_tests" / "fuzz" / "corpus").absolute()
+corpus = (Path(__file__).parent.parent / "unit_tests" / "fuzz").absolute()
 
-for file in corpus.glob("*"):
-    name = file.name[:LENGTH].ljust(LENGTH, "0")
-    if (corpus / name).exists() and sha(file) != sha(corpus / name):
+for file in corpus.glob("*/*"):
+    if file.parent.name not in DIRECTORIES:
+        continue
+    name = file.name[:LENGTH].rjust(LENGTH, "0")
+    if any(
+        map(
+            lambda other: other.exists() and sha(file) != sha(other),
+            map(lambda directory: corpus / directory / name, DIRECTORIES),
+        )
+    ):
         print("Collision found, update corpus_trim.py `LENGTH`:", LENGTH)
         exit(1)
-    file.rename(corpus / name)
+    file.rename(file.parent / name)
