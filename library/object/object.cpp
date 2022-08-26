@@ -28,66 +28,39 @@
 
 using namespace std::literals;
 
-namespace chimera::library::object {
-  Object::Object() : object(std::make_shared<Impl>()) {}
-  Object::Object(std::map<std::string, Object> &&attributes)
-      : object(std::make_shared<Impl>(
-            Impl{{}, Attributes{std::move(attributes)}})) {}
-  void Object::delete_attribute(std::string &&key) noexcept {
-    object->attributes.erase(key);
-  }
-  void Object::delete_attribute(const std::string &key) noexcept {
-    object->attributes.erase(key);
-  }
-  auto Object::dir() const -> std::vector<std::string> {
-    auto read = object->attributes.read();
-    std::vector<std::string> keys;
-    keys.reserve(read.value.size());
-    for (const auto &pair : read.value) {
-      keys.emplace_back(pair.first);
+namespace chimera::library::object::internal {
+  struct BaseWhat {
+    auto operator()(const object::String &what) const noexcept -> const char * {
+      return what.c_str();
     }
-    return keys;
-  }
-  auto Object::get_attribute(const std::string &key) const -> const Object & {
-    if (object->attributes.contains(key)) {
-      return object->attributes.at(key);
+    template <typename Type>
+    auto operator()(const Type & /*what*/) const noexcept -> const char * {
+      return "BaseException";
     }
-    throw AttributeError("object", key);
-  }
-  auto Object::has_attribute(std::string &&key) const noexcept -> bool {
-    return object->attributes.count(key) != 0;
-  }
-  auto Object::has_attribute(const std::string &key) const noexcept -> bool {
-    return object->attributes.count(key) != 0;
-  }
-  auto Object::id() const noexcept -> Id {
-    using NumericLimits = std::numeric_limits<Id>;
-    return std::hash<std::shared_ptr<Impl>>{}(object)&NumericLimits::max();
-  }
-  auto Object::get_bool() const noexcept -> bool {
-    return std::holds_alternative<True>(object->value);
-  }
-  BaseException::BaseException(Object anException)
+  };
+  AttributeError::AttributeError(const std::string &type,
+                                 const std::string &key)
+      // NOLINTNEXTLINE(bugprone-throw-keyword-missing)
+      : BaseException("AttributeError: '"s + type + "' has no attribute '" +
+                      key + "'") {}
+  BaseException::BaseException(std::string &&anException)
+      : exception(ObjectRef(std::move(anException), {})) {}
+  BaseException::BaseException(WeakObject &&anException)
       : exception(std::move(anException)) {}
   BaseException::BaseException(const BaseException &anException,
                                const BaseException &context)
       : exception(anException.exception) {
-    exception.set_attribute("__context__"s, context.exception);
+    ObjectRef object(anException.exception);
+    object.set_attribute("__context__"s, context.exception);
   }
-  auto BaseException::what() const noexcept -> const char * {
-    return "BaseException";
-  }
-  auto BaseException::id() const noexcept -> Id { return exception.id(); }
   auto BaseException::class_id() const noexcept -> Id {
     return exception.get_attribute("__class__"s).id();
   }
-  // NOLINTBEGIN(bugprone-throw-keyword-missing)
-  AttributeError::AttributeError(const std::string &type,
-                                 const std::string &key)
-      : BaseException(Object{"AttributeError: type object '" + type +
-                                 "' has no attribute '" + key + "'",
-                             {}}) {}
+  auto BaseException::id() const noexcept -> Id { return exception.id(); }
+  auto BaseException::what() const noexcept -> const char * {
+    return exception.visit(BaseWhat{});
+  }
   KeyboardInterrupt::KeyboardInterrupt()
-      : BaseException(Object(String(""), {})) {}
-  // NOLINTEND(bugprone-throw-keyword-missing)
-} // namespace chimera::library::object
+      // NOLINTNEXTLINE(bugprone-throw-keyword-missing)
+      : BaseException("KeyboardInterrupt"s) {}
+} // namespace chimera::library::object::internal

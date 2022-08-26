@@ -37,8 +37,9 @@ namespace chimera::library::virtual_machine {
     FibonacciHeap() noexcept = default;
     template <typename... Args>
     explicit FibonacciHeap(Args &&...args) {
-      Node node{std::forward<Args>(args)...};
-      min = &node;
+      auto x = std::make_unique<Node>(std::forward<Args>(args)...);
+      min = x.get();
+      min->set_left(std::move(x));
     }
     FibonacciHeap(const FibonacciHeap &fibonacciHeap) = delete;
     FibonacciHeap(FibonacciHeap &&fibonacciHeap) noexcept = default;
@@ -73,23 +74,21 @@ namespace chimera::library::virtual_machine {
     [[nodiscard]] auto emplace(Args &&...args) -> const Key & {
       auto x = std::make_unique<Node>(Key{std::forward<Args>(args)...});
       if (min == nullptr) {
-        min = (x->left = std::move(x)).get_left();
-        min->right = min;
+        auto *ptr = x.get();
+        ptr->set_left(std::move(x));
+        min = ptr->get_left();
         ++n;
-        return min->key;
+        return min->get();
       }
-      if (x < min) {
-        min = (x->left = std::move(x)).get_left();
-        min->right = min;
+      if (*x < *min) {
+        min = x->get_left();
+        x->set_left(std::move(x));
         ++n;
-        return min->key;
+        return min->get();
       }
-      x->left = std::move(min->left);
-      x->left->right = x.get();
-      x->right = min;
-      min->left = std::move(x);
+      min->emplace(std::move(x));
       ++n;
-      return min->key;
+      return min->get_left()->get();
     }
     template <typename Predicate>
     void remove_if(Predicate && /*predicate*/) {}
@@ -106,8 +105,15 @@ namespace chimera::library::virtual_machine {
       }
       auto operator=(const Node &node) -> Node & = delete;
       auto operator=(Node &&node) noexcept -> Node & = default;
-      auto operator<(const Node &node) -> bool;
-      [[nodiscard]] auto get_left() const -> const Node * { return left.get(); }
+      auto operator<(const Node &node) -> bool {
+        return key.id() < node.key.id();
+      }
+      void emplace(std::unique_ptr<Node> &&node) {
+        node->set_left(std::move(left));
+        set_left(std::move(node));
+      }
+      [[nodiscard]] auto get() const -> const Key & { return key; }
+      [[nodiscard]] auto get_left() -> Node * { return left.get(); }
       void remove_left() { std::ignore = std::move(left); }
       void reset_left() {
         if (left) {
@@ -115,12 +121,16 @@ namespace chimera::library::virtual_machine {
           ptr.reset();
         }
       }
+      void set_left(std::unique_ptr<Node> &&node) {
+        left = std::move(node);
+        left->right = this;
+      }
 
     private:
       Key key;
       std::uint64_t degree = 0;
       bool mark = false;
-      std::unique_ptr<Node> left{};
+      std::unique_ptr<Node> left = nullptr;
       Node *right = nullptr;
       Node *parent = nullptr;
       Node *child = nullptr;

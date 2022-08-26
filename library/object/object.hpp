@@ -32,22 +32,107 @@
 
 #include "container/atomic_map.hpp"
 #include "object/number/number.hpp"
+#include "object/reference.hpp"
 
-namespace chimera::library::object {
-  struct Object;
+namespace chimera::library::object::internal {
   using Id = std::uint64_t;
+  struct Object;
+  template <template <typename...> class Pointer>
+  struct ObjectPointer {
+    using BasicAttributes = std::map<std::string, ObjectPointer<Reference>>;
+    ObjectPointer() = default;
+    explicit ObjectPointer(BasicAttributes &&attributes)
+        : object(std::move(attributes)) {}
+    template <typename Type>
+    ObjectPointer(Type &&value, BasicAttributes &&attributes)
+        : object(std::move(attributes), std::forward<Type>(value)) {}
+    template <template <typename...> class Other,
+              typename = EnableIfMismatch<Pointer<void>, Other<void>>>
+    explicit ObjectPointer(const ObjectPointer<Other> &other)
+        : object(other.object){};
+    ObjectPointer(const ObjectPointer<Pointer> &other) = default;
+    template <template <typename...> class Other,
+              typename = EnableIfMismatch<Pointer<void>, Other<void>>>
+    explicit ObjectPointer(ObjectPointer<Other> &&other) noexcept
+        : object(std::move(other.object)){};
+    ObjectPointer(ObjectPointer<Pointer> &&other) noexcept = default;
+    ~ObjectPointer() noexcept = default;
+    template <template <typename...> class Other,
+              typename = EnableIfMismatch<Pointer<void>, Other<void>>>
+    auto operator=(const ObjectPointer<Other> &other) -> ObjectPointer & {
+      object = other.object;
+      return *this;
+    };
+    auto operator=(const ObjectPointer<Pointer> &other)
+        -> ObjectPointer & = default;
+    template <template <typename...> class Other,
+              typename = EnableIfMismatch<Pointer<void>, Other<void>>>
+    auto operator=(ObjectPointer<Other> &&other) noexcept -> ObjectPointer & {
+      object = std::move(other.object);
+      return *this;
+    };
+    auto operator=(ObjectPointer<Pointer> &&other) noexcept
+        -> ObjectPointer & = default;
+    void delete_attribute(std::string &&key) noexcept { object->erase(key); }
+    void delete_attribute(const std::string &key) noexcept {
+      object->erase(key);
+    }
+    [[nodiscard]] auto dir() const -> std::vector<std::string> {
+      return object->dir();
+    }
+    template <typename Type>
+    [[nodiscard]] auto get() const noexcept -> std::optional<const Type> {
+      return object->template get<Type>();
+    }
+    [[nodiscard]] auto get_attribute(std::string &&key) const
+        -> const ObjectPointer<Reference> &;
+    [[nodiscard]] auto get_attribute(const std::string &key) const
+        -> const ObjectPointer<Reference> &;
+    [[nodiscard]] auto get_bool() const noexcept -> bool;
+    [[nodiscard]] auto has_attribute(std::string &&key) const noexcept -> bool {
+      return object->contains(key);
+    }
+    [[nodiscard]] auto has_attribute(const std::string &key) const noexcept
+        -> bool {
+      return object->contains(key);
+    }
+    [[nodiscard]] auto id() const noexcept -> Id {
+      using NumericLimits = std::numeric_limits<Id>;
+      return NumericLimits::max();
+    }
+    template <typename... Args>
+    void set_attribute(Args &&...args) {
+      object->insert_or_assign(std::forward<Args>(args)...);
+    }
+    [[nodiscard]] auto use_count() const noexcept { return object.use_count(); }
+    template <typename Visitor>
+    auto visit(Visitor &&visitor) const -> decltype(auto) {
+      return object->visit(std::forward<Visitor>(visitor));
+    }
+    [[nodiscard]] auto weak() const noexcept -> ObjectPointer<WeakReference> {
+      return ObjectPointer<WeakReference>(*this);
+    }
+
+  private:
+    friend ObjectPointer<Reference>;
+    friend ObjectPointer<WeakReference>;
+    Pointer<Object> object;
+  };
+  using ObjectRef = ObjectPointer<Reference>;
+  using WeakObject = ObjectPointer<WeakReference>;
+  class BaseException;
   struct Instance {};
   using Bytes = std::vector<std::uint8_t>;
   enum class BytesMethod {};
   struct Expr {};
   struct False {};
-  using Future = std::unique_ptr<std::future<Object>>;
+  using Future = std::future<ObjectRef>;
   struct None {};
   struct NullFunction {};
   using number::Number;
   enum class NumberMethod {};
   enum class ObjectMethod { DELATTR, DIR, GETATTRIBUTE, SETATTR };
-  using String = std::string_view;
+  using String = std::string;
   enum class StringMethod {};
   struct Stmt {};
   enum class SysCall {
@@ -61,66 +146,85 @@ namespace chimera::library::object {
     PRINT,
     OPEN
   };
-  using Tuple = std::vector<Object>;
   enum class TupleMethod {};
   struct True {};
+  using Tuple = std::vector<ObjectRef>;
   struct Object {
     using Value =
         std::variant<Instance, Bytes, BytesMethod, Expr, False, Future, None,
                      NullFunction, Number, NumberMethod, ObjectMethod, Stmt,
                      String, StringMethod, SysCall, True, Tuple, TupleMethod>;
-    using Attributes = container::AtomicMap<std::string, Object>;
-    Object();
-    explicit Object(std::map<std::string, Object> &&attributes);
+    using BasicAttributes = std::map<std::string, ObjectRef>;
+    using Attributes = container::AtomicMap<std::string, ObjectRef>;
+    Object() = default;
+    explicit Object(BasicAttributes &&attributes)
+        : attributes(std::move(attributes)) {}
     template <typename Type>
-    Object(Type &&value, std::map<std::string, Object> &&attributes)
-        : object(std::make_shared<Impl>(Impl{
-              std::forward<Type>(value), Attributes{std::move(attributes)}})) {}
-    void delete_attribute(std::string &&key) noexcept;
-    void delete_attribute(const std::string &key) noexcept;
-    [[nodiscard]] auto dir() const -> std::vector<std::string>;
-    [[nodiscard]] auto get_attribute(const std::string &key) const
-        -> const Object &;
-    auto has_attribute(std::string &&key) const noexcept -> bool;
-    [[nodiscard]] auto has_attribute(const std::string &key) const noexcept
-        -> bool;
-    template <typename... Args>
-    void set_attribute(Args &&...args) {
-      object->attributes.insert_or_assign(std::forward<Args>(args)...);
+    Object(BasicAttributes &&attributes, Type &&value)
+        : attributes(std::move(attributes)), value(std::forward<Type>(value)) {}
+    Object(const Object &other) = delete;
+    Object(Object &&other) = delete;
+    ~Object() noexcept = default;
+    auto operator=(const Object &other) -> Object & = delete;
+    auto operator=(Object &&other) noexcept -> Object & = delete;
+    [[nodiscard]] auto at(const std::string &key) const -> const ObjectRef & {
+      return attributes.at(key);
     }
-    [[nodiscard]] auto id() const noexcept -> Id;
+    [[nodiscard]] auto contains(const std::string &key) const -> bool {
+      return attributes.contains(key);
+    }
+    [[nodiscard]] auto dir() const -> std::vector<std::string> {
+      auto read = attributes.read();
+      std::vector<std::string> keys;
+      keys.reserve(read.value.size());
+      for (const auto &pair : read.value) {
+        keys.emplace_back(pair.first);
+      }
+      return keys;
+    }
+    void erase(const std::string &key) { attributes.erase(key); }
     template <typename Type>
-    [[nodiscard]] auto get() const -> std::optional<Type> {
-      if (std::holds_alternative<Type>(object->value)) {
-        return std::get<Type>(object->value);
+    [[nodiscard]] auto get() const noexcept -> std::optional<const Type> {
+      if (auto *result = std::get_if<Type>(&value); result != nullptr) {
+        return *result;
       }
       return {};
     }
-    [[nodiscard]] auto get_bool() const noexcept -> bool;
-    [[nodiscard]] auto use_count() const noexcept { return object.use_count(); }
+    [[nodiscard]] auto get_bool() const -> bool {
+      return std::holds_alternative<True>(value);
+    }
+    template <typename... Args>
+    void insert_or_assign(Args &&...args) {
+      attributes.insert_or_assign(std::forward<Args>(args)...);
+    }
     template <typename Visitor>
-    void visit(Visitor &&visitor) const {
-      std::visit(std::forward<Visitor>(visitor), object->value);
+    auto visit(Visitor &&visitor) const -> decltype(auto) {
+      return std::visit(std::forward<Visitor>(visitor), value);
     }
 
   private:
-    struct Impl {
-      Value value;
-      Attributes attributes;
-    };
-    std::shared_ptr<Impl> object;
+    Attributes attributes;
+    Value value;
   };
   class BaseException : virtual public std::exception {
   public:
-    explicit BaseException(Object anException);
+    BaseException() = default;
+    explicit BaseException(std::string &&anException);
+    explicit BaseException(WeakObject &&anException);
     BaseException(const BaseException &anException,
                   const BaseException &context);
-    [[nodiscard]] auto what() const noexcept -> const char * override;
-    [[nodiscard]] auto id() const noexcept -> Id;
+    BaseException(const BaseException &other) noexcept = default;
+    BaseException(BaseException &&other) noexcept = default;
+    ~BaseException() noexcept override = default;
+    auto operator=(const BaseException &other) noexcept
+        -> BaseException & = default;
+    auto operator=(BaseException &&other) noexcept -> BaseException & = default;
     [[nodiscard]] auto class_id() const noexcept -> Id;
+    [[nodiscard]] auto id() const noexcept -> Id;
+    [[nodiscard]] auto what() const noexcept -> const char * override;
 
   private:
-    Object exception;
+    WeakObject exception;
   };
   class AttributeError final : virtual public BaseException {
   public:
@@ -130,4 +234,51 @@ namespace chimera::library::object {
   public:
     KeyboardInterrupt();
   };
+  template <template <typename...> class Pointer>
+  [[nodiscard]] auto
+  ObjectPointer<Pointer>::get_attribute(std::string &&key) const
+      -> const ObjectRef & {
+    return get_attribute(key);
+  }
+  template <template <typename...> class Pointer>
+  [[nodiscard]] auto
+  ObjectPointer<Pointer>::get_attribute(const std::string &key) const
+      -> const ObjectRef & {
+    if (!object->contains(key)) {
+      throw AttributeError("object", key);
+    }
+    return object->at(key);
+  }
+  template <template <typename...> class Pointer>
+  [[nodiscard]] auto ObjectPointer<Pointer>::get_bool() const noexcept -> bool {
+    return object->get_bool();
+  }
+} // namespace chimera::library::object::internal
+namespace chimera::library::object {
+  using internal::AttributeError;
+  using internal::BaseException;
+  using internal::Bytes;
+  using internal::BytesMethod;
+  using internal::Expr;
+  using internal::False;
+  using internal::Future;
+  using internal::Id;
+  using internal::Instance;
+  using internal::KeyboardInterrupt;
+  using internal::None;
+  using internal::NullFunction;
+  using internal::Number;
+  using internal::NumberMethod;
+  using internal::ObjectMethod;
+  using internal::Stmt;
+  using internal::String;
+  using internal::StringMethod;
+  using internal::SysCall;
+  using internal::True;
+  using internal::Tuple;
+  using internal::TupleMethod;
+  using Object = internal::ObjectRef;
 } // namespace chimera::library::object
+namespace chimera {
+  using library::object::Object;
+} // namespace chimera
