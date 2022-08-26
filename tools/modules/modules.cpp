@@ -42,6 +42,9 @@
 
 namespace chimera::library {
   auto PrintState::printed(const object::Object &object) -> std::string {
+    if (!m_printed.contains(id(object))) {
+      return "";
+    }
     return m_printed.at(id(object));
   }
   auto PrintState::id(const object::Object &object) -> object::Id {

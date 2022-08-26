@@ -36,7 +36,7 @@ namespace chimera::library::virtual_machine {
     auto execute_module() -> int;
     // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
     const Options options;
-    const object::Object builtins;
+    const object::Object builtins{};
     const object::Id method_id;
     const object::Id function_id;
     std::atomic_flag *sig_int;

@@ -51,6 +51,10 @@ namespace chimera::library::container {
       return read().value.cend(std::forward<Args>(args)...);
     }
     template <typename... Args>
+    [[nodiscard]] auto contains(Args &&...args) const {
+      return Container::read().value.contains(std::forward<Args>(args)...);
+    }
+    template <typename... Args>
     [[nodiscard]] auto count(Args &&...args) const {
       return read().value.count(std::forward<Args>(args)...);
     }

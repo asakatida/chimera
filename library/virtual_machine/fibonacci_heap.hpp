@@ -34,7 +34,12 @@ namespace chimera::library::virtual_machine {
   template <typename Key, typename Compare = std::less<Key>,
             typename Allocator = std::allocator<Key>>
   struct FibonacciHeap {
-    FibonacciHeap() noexcept = default;
+    FibonacciHeap() = default;
+    template <typename Type>
+    explicit FibonacciHeap(Type &&key) {
+      Node node{std::forward<Type>(key)};
+      min = &node;
+    }
     FibonacciHeap(const FibonacciHeap &fibonacciHeap) = delete;
     FibonacciHeap(FibonacciHeap &&fibonacciHeap) noexcept = default;
     ~FibonacciHeap() noexcept {
@@ -50,8 +55,7 @@ namespace chimera::library::virtual_machine {
         -> FibonacciHeap & = delete;
     auto operator=(FibonacciHeap &&fibonacciHeap) noexcept
         -> FibonacciHeap & = default;
-    template <typename Compare2>
-    void merge(FibonacciHeap<Key, Compare2, Allocator> &&source) {
+    void merge(FibonacciHeap &&source) {
       if (min == nullptr) {
         using std::swap;
         swap(min, source.min);
@@ -66,18 +70,18 @@ namespace chimera::library::virtual_machine {
     }
     template <typename... Args>
     void emplace(Args &&...args) {
-      auto x = std::make_unique<Node>(Node{Key(std::forward<Args>(args)...)});
+      auto x = std::make_unique<Node>(Key{std::forward<Args>(args)...});
       if (min == nullptr) {
         min = (x->left = std::move(x)).get();
         min->right = min;
         ++n;
-        return min->key;
+        return;
       }
       if (Compare{}(x->key, min->key)) {
         min = (x->left = std::move(x)).get();
         min->right = min;
         ++n;
-        return min->key;
+        return;
       }
       x->left = std::move(min->left);
       x->left->right = x.get();
@@ -89,6 +93,9 @@ namespace chimera::library::virtual_machine {
     void remove_if(Predicate && /*predicate*/) {}
     //! Internal node structure
     struct Node {
+      Node() = default;
+      template <typename Type>
+      explicit Node(Type &&key) : key(std::forward<Type>(key)) {}
       Node(const Node &fibonacciHeap) = delete;
       Node(Node &&fibonacciHeap) noexcept = default;
       ~Node() noexcept {

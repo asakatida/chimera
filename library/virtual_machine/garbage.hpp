@@ -33,17 +33,17 @@
 
 namespace chimera::library::virtual_machine {
   struct GarbageCollector {
-    GarbageCollector();
+    GarbageCollector() = default;
+    explicit GarbageCollector(const object::Object &root);
     GarbageCollector(const GarbageCollector &collector) = delete;
     GarbageCollector(GarbageCollector &&collector) = delete;
     ~GarbageCollector() noexcept;
     auto operator=(const GarbageCollector &collector)
         -> GarbageCollector & = delete;
     auto operator=(GarbageCollector &&collector) -> GarbageCollector & = delete;
-    template <typename... Args>
-    auto emplace(Args &&...args) {
+    auto emplace(const object::Object &object) {
       const std::lock_guard<std::mutex> lock(mutex);
-      return fibonacciHeap.emplace(std::forward<Args>(args)...);
+      return fibonacciHeap.emplace(object);
     }
 
   private:
@@ -55,8 +55,9 @@ namespace chimera::library::virtual_machine {
       }
     };
     std::atomic_flag flag = ATOMIC_FLAG_INIT;
-    std::thread thread;
     std::mutex mutex{};
-    FibonacciHeap<object::Object, Compare> fibonacciHeap{};
+    const object::Object root{};
+    FibonacciHeap<object::Object, Compare> fibonacciHeap;
+    std::thread thread;
   };
 } // namespace chimera::library::virtual_machine

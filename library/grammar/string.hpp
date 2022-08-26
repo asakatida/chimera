@@ -103,9 +103,11 @@ namespace chimera::library::grammar {
       static void apply0(Top &&top) {
         auto formatSpec = top.template pop<asdl::ExprImpl>();
         auto expr = top.template pop<asdl::ExprImpl>();
-        if (std::holds_alternative<asdl::FormattedValue>(*expr.value)) {
-          std::get<asdl::FormattedValue>(*expr.value).format_spec =
-              std::move(formatSpec);
+        if (expr.template update_if<asdl::FormattedValue>(
+                [&formatSpec](auto &&formatted_value) {
+                  formatted_value.format_spec = std::move(formatSpec);
+                  return formatted_value;
+                })) {
           top.push(std::move(expr));
         } else {
           top.push(asdl::FormattedValue{std::move(expr),

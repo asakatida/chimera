@@ -72,7 +72,7 @@ namespace chimera::library {
     template <typename OStream>
     auto print(OStream &os, const object::Instance & /*instance*/)
         -> OStream & {
-      return os << "object::Instance{}";
+      return os;
     }
     template <typename OStream>
     auto print(OStream &os, const object::Bytes &bytes) -> OStream & {
@@ -86,7 +86,7 @@ namespace chimera::library {
         }
         os << byte;
       }
-      return os << "}";
+      return os << "},";
     }
     template <typename OStream>
     auto print(OStream &os, const object::BytesMethod &bytesMethod)
@@ -94,7 +94,7 @@ namespace chimera::library {
       os << "object::BytesMethod::";
       // NOLINTNEXTLINE(hicpp-multiway-paths-covered)
       switch (bytesMethod) {}
-      return os;
+      return os << ",";
     }
     template <typename OStream>
     auto print(OStream &os, const object::Expr &expr) -> OStream & {
@@ -102,7 +102,7 @@ namespace chimera::library {
     }
     template <typename OStream>
     auto print(OStream &os, const object::False & /*false*/) -> OStream & {
-      return os << "object::False{}";
+      return os << "object::False{},";
     }
     template <typename OStream>
     auto print(OStream &os, const object::Future & /*future*/) -> OStream & {
@@ -111,12 +111,12 @@ namespace chimera::library {
     }
     template <typename OStream>
     auto print(OStream &os, const object::None & /*none*/) -> OStream & {
-      return os << "object::None{}";
+      return os << "object::None{},";
     }
     template <typename OStream>
     auto print(OStream &os, const object::NullFunction & /*nullFunction*/)
         -> OStream & {
-      return os << "object::NullFunction{}";
+      return os << "object::NullFunction{},";
     }
     template <typename OStream>
     auto print(OStream &os, const object::Number &number) -> OStream & {
@@ -128,7 +128,7 @@ namespace chimera::library {
       os << "object::NumberMethod::";
       // NOLINTNEXTLINE(hicpp-multiway-paths-covered)
       switch (numberMethod) {}
-      return os;
+      return os << ",";
     }
     template <typename OStream>
     auto print(OStream &os, const object::ObjectMethod &objectMethod)
@@ -144,7 +144,7 @@ namespace chimera::library {
         case object::ObjectMethod::SETATTR:
           return os << "SETATTR";
       }
-      return os;
+      return os << ",";
     }
     template <typename OStream>
     auto print(OStream &os, const object::Stmt &stmt) -> OStream & {
@@ -152,7 +152,7 @@ namespace chimera::library {
     }
     template <typename OStream>
     auto print(OStream &os, const object::String &string) -> OStream & {
-      return os << "object::String(" << std::quoted(string) << "s)";
+      return os << "object::String(" << std::quoted(string) << "s),";
     }
     template <typename OStream>
     auto print(OStream &os, const object::StringMethod &stringMethod)
@@ -160,11 +160,11 @@ namespace chimera::library {
       os << "object::StringMethod::";
       // NOLINTNEXTLINE(hicpp-multiway-paths-covered)
       switch (stringMethod) {}
-      return os;
+      return os << ",";
     }
     template <typename OStream>
     auto print(OStream &os, const object::True & /*true*/) -> OStream & {
-      return os << "object::True{}";
+      return os << "object::True{},";
     }
     template <typename OStream>
     auto print(OStream &os, const object::Tuple &tuple) -> OStream & {
@@ -178,7 +178,7 @@ namespace chimera::library {
         }
         os << printed(object);
       }
-      return os << "}";
+      return os << "},";
     }
     template <typename OStream>
     auto print(OStream &os, const object::TupleMethod &tupleMethod)
@@ -186,7 +186,7 @@ namespace chimera::library {
       os << "object::TupleMethod::";
       // NOLINTNEXTLINE(hicpp-multiway-paths-covered)
       switch (tupleMethod) {}
-      return os;
+      return os << ",";
     }
     template <typename OStream>
     auto print(OStream &os, const object::SysCall &sysCall) -> OStream & {
@@ -211,24 +211,24 @@ namespace chimera::library {
         case object::SysCall::OPEN:
           return os << "OPEN";
       }
-      return os;
+      return os << ",";
     }
     template <typename OStream>
     auto print(OStream &os, const Work &work) -> OStream & {
       auto baseName = std::string(work.base_name).append("_").append(work.name);
-      auto object = std::visit(IncompleteTuple{this}, work.object.value());
+      auto object = work.object.visit(IncompleteTuple{this});
       while (object) {
         print(os,
               Work{this, *object, baseName, std::to_string(m_printed.size())});
-        object = std::visit(IncompleteTuple{this}, work.object.value());
+        object = work.object.visit(IncompleteTuple{this});
       }
       if (is_printed(work.object)) {
         return os;
       }
       os << "object::Object " << baseName << "(";
-      std::visit([this, &os](const auto &value) { this->print(os, value); },
-                 work.object.value());
-      os << ",{";
+      work.object.visit(
+          [this, &os](const auto &value) { this->print(os, value); });
+      os << "{";
       bool first = true;
       for (const auto &name : work.object.dir()) {
         if (!first) {

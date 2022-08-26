@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Asa Katida <github@holomaplefeline.net>
+// Copyright (c) 2022 Asa Katida <github@holomaplefeline.net>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,21 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! controller to set up GlobalContext.
+//! Python object reference as a c++ struct
 
-#pragma once
+#include "reference.hpp"
 
-#include "object/object.hpp"
-#include "options.hpp"
-#include "virtual_machine/global_context.hpp"
-#include "virtual_machine/process_context.hpp"
-
-namespace chimera::library::virtual_machine {
-  struct VirtualMachine {
-    VirtualMachine() = default;
-    VirtualMachine(const Options &options, object::Object builtins);
-    [[nodiscard]] auto process_context() const -> ProcessContext;
-    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-    GlobalContext global_context{};
-  };
-} // namespace chimera::library::virtual_machine
+namespace chimera::library::object {} // namespace chimera::library::object

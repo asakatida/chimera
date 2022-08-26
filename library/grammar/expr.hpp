@@ -238,17 +238,18 @@ namespace chimera::library::grammar {
       template <typename Outer>
       void success(Outer &&outer) {
         auto expr = outer.template pop<asdl::ExprImpl>();
-        if (!std::holds_alternative<asdl::Compare>(*expr.value)) {
-          return outer.push(
-              asdl::Compare{std::move(expr),
-                            {reshape<asdl::CompareExpr, asdl::CompareExpr::Op,
-                                     asdl::ExprImpl>()}});
+        if (expr.template update_if<asdl::Compare>([this](auto &&compare) {
+              compare.comparators.emplace_back(
+                  reshape<asdl::CompareExpr, asdl::CompareExpr::Op,
+                          asdl::ExprImpl>());
+              return compare;
+            })) {
+          return outer.push(std::move(expr));
         }
-        std::get<asdl::Compare>(*expr.value)
-            .comparators.emplace_back(
-                reshape<asdl::CompareExpr, asdl::CompareExpr::Op,
-                        asdl::ExprImpl>());
-        outer.push(std::move(expr));
+        outer.push(
+            asdl::Compare{std::move(expr),
+                          {reshape<asdl::CompareExpr, asdl::CompareExpr::Op,
+                                   asdl::ExprImpl>()}});
       }
     };
   };

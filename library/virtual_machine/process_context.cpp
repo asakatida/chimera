@@ -47,7 +47,7 @@ static const std::string_view CHIMERA_IMPORT_PATH_VIEW(STRINGIFY(CHIMERA_PATH));
 namespace chimera::library::virtual_machine {
   auto ProcessContext::make_module(std::string_view &&name) -> object::Object {
     auto result = modules.try_emplace("builtins"s, global_context.builtins);
-    auto module = result.first->second.copy({});
+    auto module = result.first->second;
     module.set_attribute(
         "__name__"s,
         object::Object(object::String(std::string(name)),
@@ -79,7 +79,7 @@ namespace chimera::library::virtual_machine {
   auto ProcessContext::import_object(std::string_view &&name,
                                      std::string_view &&relativeModule)
       -> object::Object & {
-    if (relativeModule.at(0) != '.') {
+    if (relativeModule.empty() || relativeModule.at(0) != '.') {
       return import_object(std::string_view{relativeModule});
     }
     auto parent = name;

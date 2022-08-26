@@ -41,6 +41,7 @@ tasks:
       CXX: clang++
       CXXFLAGS: >
         -fcoverage-mapping
+        -ferror-limit=1
         -fprofile-instr-generate
         -fsanitize-coverage=no-prune
         -fsanitize-coverage=trace-cmp
@@ -48,6 +49,7 @@ tasks:
         -fsanitize-coverage=trace-gep
         -fsanitize-coverage=trace-loads
         -fsanitize-coverage=trace-stores
+        -std=c++20
     init: tools/boot.sh
 vscode:
   extensions:

@@ -39,14 +39,12 @@ namespace chimera::library::virtual_machine::modules {
     object::Object builtinsTrue(object::True{},
                                 {{"__class__", {/*set below*/}}});
     builtins.set_attribute("True"s, builtinsTrue);
-    object::Object builtinsClass(object::Instance{},
-                                 {{"__class__", {/*set below*/}}});
+    object::Object builtinsClass({{"__class__", {/*set below*/}}});
     builtins.set_attribute("__class__"s, builtinsClass);
     object::Object builtinsName(object::String("builtins"s),
                                 {{"__class__", {/*set below*/}}});
     builtins.set_attribute("__name__"s, builtinsName);
     object::Object builtinsBool(
-        object::Instance{},
         {{"__abs__", builtinsNone},        {"__add__", builtinsNone},
          {"__and__", builtinsNone},        {"__bool__", builtinsNone},
          {"__ceil__", builtinsNone},       {"__class__", {/*set below*/}},
@@ -81,8 +79,7 @@ namespace chimera::library::virtual_machine::modules {
     builtins.set_attribute("bool"s, builtinsBool);
     builtinsFalse.set_attribute("__class__"s, builtinsBool);
     builtinsTrue.set_attribute("__class__"s, builtinsBool);
-    object::Object builtinsBytes(object::Instance{},
-                                 {{"__add__", builtinsNone},
+    object::Object builtinsBytes({{"__add__", builtinsNone},
                                   {"__class__", {/*set below*/}},
                                   {"__contains__", builtinsNone},
                                   {"__doc__", builtinsNone},
@@ -165,8 +162,7 @@ namespace chimera::library::virtual_machine::modules {
                                  {"__name__", builtinsNone},
                                  {"__qualname__", builtinsNone}});
     builtins.set_attribute("exec"s, builtinsExec);
-    object::Object builtinsFloat(object::Instance{},
-                                 {{"__abs__", builtinsNone},
+    object::Object builtinsFloat({{"__abs__", builtinsNone},
                                   {"__add__", builtinsNone},
                                   {"__bool__", builtinsNone},
                                   {"__class__", {/*set below*/}},
@@ -235,7 +231,6 @@ namespace chimera::library::virtual_machine::modules {
                                   {"__qualname__", builtinsNone}});
     builtins.set_attribute("input"s, builtinsInput);
     object::Object builtinsInt(
-        object::Instance{},
         {{"__abs__", builtinsNone},        {"__add__", builtinsNone},
          {"__and__", builtinsNone},        {"__bool__", builtinsNone},
          {"__ceil__", builtinsNone},       {"__class__", {/*set below*/}},
@@ -274,8 +269,7 @@ namespace chimera::library::virtual_machine::modules {
                                    {"__name__", builtinsNone},
                                    {"__qualname__", builtinsNone}});
     builtins.set_attribute("locals"s, builtinsLocals);
-    object::Object builtinsObject(object::Instance{},
-                                  {{"__abstractmethods__", builtinsNone},
+    object::Object builtinsObject({{"__abstractmethods__", builtinsNone},
                                    {"__base__", {/*set below*/}},
                                    {"__basicsize__", builtinsNone},
                                    {"__call__", builtinsNone},
@@ -330,8 +324,7 @@ namespace chimera::library::virtual_machine::modules {
                                   {"__name__", builtinsNone},
                                   {"__qualname__", builtinsNone}});
     builtins.set_attribute("print"s, builtinsPrint);
-    object::Object builtinsStr(object::Instance{},
-                               {{"__add__", builtinsNone},
+    object::Object builtinsStr({{"__add__", builtinsNone},
                                 {"__class__", {/*set below*/}},
                                 {"__contains__", builtinsNone},
                                 {"__doc__", builtinsNone},
@@ -402,8 +395,7 @@ namespace chimera::library::virtual_machine::modules {
                                 {"zfill", builtinsNone}});
     builtins.set_attribute("str"s, builtinsStr);
     builtinsName.set_attribute("__class__"s, builtinsStr);
-    object::Object builtinsTuple(object::Instance{},
-                                 {{"__add__", builtinsNone},
+    object::Object builtinsTuple({{"__add__", builtinsNone},
                                   {"__class__", {/*set below*/}},
                                   {"__contains__", builtinsNone},
                                   {"__doc__", builtinsNone},
@@ -430,8 +422,7 @@ namespace chimera::library::virtual_machine::modules {
                                   {"count", builtinsNone},
                                   {"index", builtinsNone}});
     builtins.set_attribute("tuple"s, builtinsTuple);
-    object::Object builtinsType(object::Instance{},
-                                {{"__base__", builtinsObject},
+    object::Object builtinsType({{"__base__", builtinsObject},
                                  {"__bases__", builtinsNone},
                                  {"__class__", {/*set below*/}},
                                  {"__doc__", builtinsNone},
@@ -448,8 +439,7 @@ namespace chimera::library::virtual_machine::modules {
     builtinsStr.set_attribute("__class__"s, builtinsType);
     builtinsTuple.set_attribute("__class__"s, builtinsType);
     builtinsType.set_attribute("__class__"s, builtinsType);
-    object::Object builtinsCompileClass(object::Instance{},
-                                        {{"__call__", builtinsNone},
+    object::Object builtinsCompileClass({{"__call__", builtinsNone},
                                          {"__class__", builtinsType},
                                          {"__doc__", builtinsNone},
                                          {"__eq__", builtinsNone},
@@ -479,8 +469,7 @@ namespace chimera::library::virtual_machine::modules {
     builtinsLocals.set_attribute("__class__"s, builtinsCompileClass);
     builtinsOpen.set_attribute("__class__"s, builtinsCompileClass);
     builtinsPrint.set_attribute("__class__"s, builtinsCompileClass);
-    object::Object builtinsObjectClass(object::Instance{},
-                                       {{"__bool__", builtinsNone},
+    object::Object builtinsObjectClass({{"__bool__", builtinsNone},
                                         {"__class__", builtinsType},
                                         {"__doc__", builtinsNone},
                                         {"__eq__", builtinsNone},

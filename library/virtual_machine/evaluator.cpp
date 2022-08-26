@@ -74,26 +74,19 @@ namespace chimera::library::virtual_machine {
     }
   }
   void Evaluator::evaluate(const asdl::StmtImpl &stmt) {
-    if (!stmt.value) {
-      return;
-    }
-    std::visit([this](const auto &value) { this->evaluate(value); },
-               *stmt.value);
+    stmt.visit([this](const auto &value) { this->evaluate(value); });
   }
   void Evaluator::evaluate_del(const asdl::ExprImpl &expr) {
-    std::visit(
-        [this](const auto &value) { DelEvaluator{this}.evaluate(value); },
-        *expr.value);
+    expr.visit(
+        [this](const auto &value) { DelEvaluator{this}.evaluate(value); });
   }
   void Evaluator::evaluate_get(const asdl::ExprImpl &expr) {
-    std::visit(
-        [this](const auto &value) { GetEvaluator{this}.evaluate(value); },
-        *expr.value);
+    expr.visit(
+        [this](const auto &value) { GetEvaluator{this}.evaluate(value); });
   }
   void Evaluator::evaluate_set(const asdl::ExprImpl &expr) {
-    std::visit(
-        [this](const auto &value) { SetEvaluator{this}.evaluate(value); },
-        *expr.value);
+    expr.visit(
+        [this](const auto &value) { SetEvaluator{this}.evaluate(value); });
   }
   void Evaluator::get_attribute(const object::Object &object,
                                 const std::string &name) {
@@ -102,16 +95,17 @@ namespace chimera::library::virtual_machine {
       return get_attribute(object, object.get_attribute(getAttribute), name);
     }
     auto mro = object.get_attribute("__class__").get_attribute("__mro__");
-    if (std::holds_alternative<object::Tuple>(mro.value())) {
-      for (const auto &type : std::get<object::Tuple>(mro.value())) {
+    if (const auto tuple = mro.get<object::Tuple>()) {
+      for (const auto &type : *tuple) {
         if (type.has_attribute(getAttribute)) {
           return get_attribute(object, type.get_attribute(getAttribute), name);
         }
       }
     }
-    throw object::BaseException(object::Object(
-        {}, {{"__class__", builtins().get_attribute("AttributeError")},
-             {"__class__", builtins().get_attribute("AttributeError")}}));
+    object::Object exception(
+        {{"__class__", builtins().get_attribute("AttributeError")},
+         {"__class__", builtins().get_attribute("AttributeError")}});
+    throw object::BaseException(exception);
   }
   void Evaluator::evaluate() {
     while (scope) {
@@ -183,18 +177,18 @@ namespace chimera::library::virtual_machine {
       });
     }
     push(PushStack{object::Object(
-        {}, {{"__doc__", builtins().get_attribute("None")},
-             {"__name__",
-              object::Object(object::String(functionDef.name.value), {})},
-             {"__qualname__",
-              object::Object(object::String(functionDef.name.value), {})},
-             {"__module__", thread_context.main.get_attribute("__name__")},
-             {"__defaults__", builtins().get_attribute("None")},
-             {"__code__", object::Object({}, {})},
-             {"__globals__", thread_context.main},
-             {"__closure__", self()},
-             {"__annotations__", {}},
-             {"__kwdefaults__", {}}})});
+        {{"__doc__", builtins().get_attribute("None")},
+         {"__name__",
+          object::Object(object::String(functionDef.name.value), {})},
+         {"__qualname__",
+          object::Object(object::String(functionDef.name.value), {})},
+         {"__module__", thread_context.main.get_attribute("__name__")},
+         {"__defaults__", builtins().get_attribute("None")},
+         {"__code__", {}},
+         {"__globals__", thread_context.main},
+         {"__closure__", self()},
+         {"__annotations__", {}},
+         {"__kwdefaults__", {}}})});
   }
   void
   Evaluator::evaluate(const asdl::AsyncFunctionDef & /*async_function_def*/) {}
@@ -464,17 +458,16 @@ namespace chimera::library::virtual_machine {
   void Evaluator::get_attribute(const object::Object &object,
                                 const object::Object &getAttribute,
                                 const std::string &name) {
-    if (std::holds_alternative<object::ObjectMethod>(getAttribute.value())) {
-      if (std::get<object::ObjectMethod>(getAttribute.value()) ==
-          object::ObjectMethod::GETATTRIBUTE) {
+    if (const auto method = getAttribute.get<object::ObjectMethod>()) {
+      if (*method == object::ObjectMethod::GETATTRIBUTE) {
         if (getAttribute.get_attribute("__class__").id() ==
             thread_context.process_context.global_context.method_id) {
           if (object.has_attribute(name)) {
             return push(PushStack{object.get_attribute(name)});
           }
           auto mro = object.get_attribute("__class__").get_attribute("__mro__");
-          if (std::holds_alternative<object::Tuple>(mro.value())) {
-            for (const auto &type : std::get<object::Tuple>(mro.value())) {
+          if (const auto tuple = mro.get<object::Tuple>()) {
+            for (const auto &type : *tuple) {
               if (type.has_attribute(name)) {
                 return push(PushStack{type.get_attribute(name)});
               }
@@ -505,15 +498,15 @@ namespace chimera::library::virtual_machine {
       return push(PushStack{object.get_attribute("__getattr__")});
     }
     auto mro = object.get_attribute("__class__").get_attribute("__mro__");
-    if (std::holds_alternative<object::Tuple>(mro.value())) {
-      for (const auto &type : std::get<object::Tuple>(mro.value())) {
+    if (const auto tuple = mro.get<object::Tuple>()) {
+      for (const auto &type : *tuple) {
         if (type.has_attribute("__getattr__")) {
           return push(PushStack{type.get_attribute("__getattr__")});
         }
       }
     }
     throw object::BaseException(object::Object(
-        {}, {{"__class__", builtins().get_attribute("AttributeError")},
-             {"__class__", builtins().get_attribute("AttributeError")}}));
+        {{"__class__", builtins().get_attribute("AttributeError")},
+         {"__class__", builtins().get_attribute("AttributeError")}}));
   }
 } // namespace chimera::library::virtual_machine

@@ -722,14 +722,14 @@ namespace chimera::library::grammar {
           def.decorator_list.reserve(this->size());
           this->template transform<asdl::ExprImpl>(
               std::back_inserter(def.decorator_list));
+          return def;
         };
         auto stmt = pop<asdl::StmtImpl>();
-        if (std::holds_alternative<asdl::ClassDef>(*stmt.value)) {
-          action(std::get<asdl::ClassDef>(*stmt.value));
-        } else if (std::holds_alternative<asdl::FunctionDef>(*stmt.value)) {
-          action(std::get<asdl::FunctionDef>(*stmt.value));
+        if (stmt.template update_if<asdl::ClassDef>(action)) {
+        } else if (stmt.template update_if<asdl::FunctionDef>(action)) {
+        } else if (stmt.template update_if<asdl::AsyncFunctionDef>(action)) {
         } else {
-          action(std::get<asdl::AsyncFunctionDef>(*stmt.value));
+          throw std::runtime_error("unexpected");
         }
         outer.push(std::move(stmt));
       }

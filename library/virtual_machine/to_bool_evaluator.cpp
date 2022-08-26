@@ -26,11 +26,10 @@
 
 namespace chimera::library::virtual_machine {
   void ToBoolEvaluator::operator()(Evaluator *evaluatorA) const {
-    if (std::holds_alternative<object::False>(object.value()) ||
-        std::holds_alternative<object::None>(object.value())) {
+    if (object.get<object::False>() || object.get<object::None>()) {
       evaluatorA->push(
           PushStack{evaluatorA->builtins().get_attribute("False")});
-    } else if (std::holds_alternative<object::True>(object.value())) {
+    } else if (object.get<object::True>()) {
       evaluatorA->push(PushStack{evaluatorA->builtins().get_attribute("True")});
     } else {
       evaluatorA->push([](Evaluator *evaluatorB) {
