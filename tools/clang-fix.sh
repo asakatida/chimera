@@ -2,13 +2,12 @@
 
 set -ex -o pipefail
 
-root="$(git rev-parse --show-toplevel)"
-build="${root}/build/clang-ninja"
-scripts="${root}/tools"
+cd "$(git rev-parse --show-toplevel || true)"
+build=build/clang-ninja
 
-"${scripts}/cmake.sh" "${build}"
+tools/cmake.sh "${PWD}/${build}"
 
 ninja -C "${build}"
-"${scripts}/clang-format.sh"
+tools/clang-format.sh
 ninja -C "${build}"
-"${scripts}/clang-tidy.sh" "${build}"
+tools/clang-tidy.sh "${build}"

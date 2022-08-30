@@ -8,9 +8,9 @@ fi
 
 build="$1"
 shift
-root="$(git rev-parse --show-toplevel)"
+cd "$(git rev-parse --show-toplevel || true)"
 
-find "${root}" -name '*.cpp' -print0 | \
-  "${root}/tools/g-ls-tree.sh" | \
+find . -name '*.cpp' -print0 | \
+  tools/g-ls-tree.sh | \
   xargs -0 -- clang-tidy -p="${build}" -quiet -fix -fix-errors -fix-notes "$@" \
   >"${build}/clang-tidy.log"

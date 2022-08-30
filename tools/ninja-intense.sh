@@ -2,12 +2,11 @@
 
 set -ex -o pipefail
 
-root="$(git rev-parse --show-toplevel)"
-scripts="${root}/tools"
+cd "$(git rev-parse --show-toplevel || true)"
 
-"${scripts}/cmake.sh" "$1"
+tools/cmake.sh "$1"
 
-pushd "$1"
+cd "$1"
 
 if [[ "${CXX:-}" = clang* ]]; then
   ninja

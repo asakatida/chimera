@@ -2,9 +2,8 @@
 
 set -ex -o pipefail
 
-root="$(git rev-parse --show-toplevel)"
-scripts="${root}/tools"
+cd "$(git rev-parse --show-toplevel || true)"
 
-find "${root}" -name '*.sh' -print0 | \
-    "${scripts}/g-ls-tree.sh" | \
+find . -name '*.sh' -print0 | \
+    tools/g-ls-tree.sh | \
     xargs -0 -- shellcheck --enable=all --severity=style --shell=bash --exclude=SC2096 "$@"

@@ -2,18 +2,18 @@
 
 set -ex -o pipefail
 
-root="$(git rev-parse --show-toplevel)"
+cd "$(git rev-parse --show-toplevel || true)"
 
 export CPPFLAGS="${CPPFLAGS} \
-  -I ${root}/include \
-  -I ${root}/library \
-  -I ${root}/unit_tests \
-  -isystem ${root}/external/Catch/src \
-  -isystem ${root}/external/GSL/include \
-  -isystem ${root}/external/metal/include \
-  -isystem ${root}/external/operators/include \
-  -isystem ${root}/external/PEGTL/include \
-  -DCHIMERA_PATH=${root}/stdlib"
+  -I ${PWD}/include \
+  -I ${PWD}/library \
+  -I ${PWD}/unit_tests \
+  -isystem ${PWD}/external/Catch/src \
+  -isystem ${PWD}/external/GSL/include \
+  -isystem ${PWD}/external/metal/include \
+  -isystem ${PWD}/external/operators/include \
+  -isystem ${PWD}/external/PEGTL/include \
+  -DCHIMERA_PATH=${PWD}/stdlib"
 
 export CXXFLAGS="${CXXFLAGS} \
   -std=c++20 \
@@ -26,14 +26,14 @@ export CXXFLAGS="${CXXFLAGS} \
   -Wno-padded"
 
 # shellcheck disable=SC2016
-find "${root}" -name '*.cpp' -print0 | \
-  xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- | \
+find . -name '*.cpp' -print0 | \
+  tools/g-ls-tree.sh | \
   xargs -0 -I'{}' -- \
   jq \
   --arg cxx "${CXX:-clang++}" \
   --arg cppflags "${CPPFLAGS}" \
   --arg cxxflags "${CXXFLAGS}" \
-  --arg root "${root}" \
+  --arg root "${PWD}" \
   --arg file '{}' \
   -n '
     {

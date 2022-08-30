@@ -2,15 +2,13 @@
 
 set -ex -o pipefail
 
-root="$(git rev-parse --show-toplevel)"
-scripts="${root}/tools"
-build_root="${root}/build"
-debug_root="${build_root}/debug"
+cd "$(git rev-parse --show-toplevel || true)"
+build_root=build/debug
 
-rm -rf "${debug_root}"
+rm -rf "${build_root}"
 
-"${scripts}/boot.sh"
+tools/boot.sh
 
-ninja -C "${debug_root}"
-ninja -C "${debug_root}" check
-ninja -C "${debug_root}" check_rand
+ninja -C "${build_root}"
+ninja -C "${build_root}" check
+ninja -C "${build_root}" check_rand
