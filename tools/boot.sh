@@ -7,9 +7,7 @@ export PREBUILD_CHECK="${GITPOD_WORKSPACE_URL:-}"
 
 git submodule update --init
 
-root="$(git rev-parse --show-toplevel)"
-scripts="${root}/tools"
-build_root="${root}/build"
+cd "$(git rev-parse --show-toplevel || true)"
 
 case "$(uname)" in
   Darwin )
@@ -32,21 +30,21 @@ case "$(uname)" in
     ;;
 esac
 
-"${scripts}/shellcheck.sh"
+tools/shellcheck.sh
 
 python_bin="$(command -v python3)"
-"${scripts}/venv.sh" "${python_bin}"
+tools/venv.sh "${python_bin}"
 
-"${root}/env/bin/ansible-playbook" "${scripts}/boot.yml"
+env/bin/ansible-playbook tools/boot.yml
 
 python_bin="$(command -v python3.12)"
-"${scripts}/venv.sh" "${python_bin}"
+tools/venv.sh "${python_bin}"
 
-export PATH="${root}/env/bin:${PATH}"
+export PATH="${PWD}/env/bin:${PATH}"
 
 cmakelint
 
-chimera_path="${root}/stdlib:$(python3 "${scripts}/chimera_path.py")"
+chimera_path="${PWD}/stdlib:$(python3 tools/chimera_path.py)"
 
 export CC="${CC:-clang}" CFLAGS="${CFLAGS} -DCHIMERA_PATH=${chimera_path}"
 export CXX="${CXX:-clang++}" CXXFLAGS="${CXXFLAGS} -DCHIMERA_PATH=${chimera_path}"
@@ -55,16 +53,16 @@ env \
   CFLAGS="${CFLAGS} -Wall -Wextra -Wpedantic -Werror" \
   CMAKE_BUILD_TYPE=Debug \
   CXXFLAGS="${CXXFLAGS} -Wall -Wextra -Wpedantic -Werror" \
-  "${scripts}/cmake.sh" "${build_root}/debug" -Wdev -Werror=dev
+  tools/cmake.sh "${PWD}/build/debug" -Wdev -Werror=dev
 
 env \
   CFLAGS="${CFLAGS} -DNDEBUG" \
   CMAKE_BUILD_TYPE="{CMAKE_BUILD_TYPE:-MinSizeRel}" \
   CXXFLAGS="${CXXFLAGS} -DNDEBUG" \
-  "${scripts}/cmake.sh" "${build_root}/release"
+  tools/cmake.sh "${PWD}/build/release"
 
-"${scripts}/lint.sh"
+tools/lint.sh
 
-python3 "${scripts}/supported_distros.py"
+python3 tools/supported_distros.py
 
-ansible-playbook "${scripts}/docker.yml"
+ansible-playbook tools/docker.yml

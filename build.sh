@@ -4,17 +4,15 @@ set -ex -o pipefail
 
 env | cut -f1 -d= | sort -u
 
-root="$(git rev-parse --show-toplevel)"
-scripts="${root}/tools"
-build_root="${root}/build"
-debug_root="${build_root}/debug"
-release_root="${build_root}/release"
+cd "$(git rev-parse --show-toplevel || true)"
+debug_root=build/debug
+release_root=build/release
 
-"${scripts}/shellcheck.sh"
+tools/shellcheck.sh
 
-export PATH="${root}/env/bin:${PATH}"
+export PATH="${PWD}/env/bin:${PATH}"
 
-"${scripts}/lint.sh"
+tools/lint.sh
 
 ninja -C "${debug_root}"
 ninja -C "${debug_root}"

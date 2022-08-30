@@ -2,13 +2,12 @@
 
 set -ex -o pipefail
 
-root="$(git rev-parse --show-toplevel)"
-scripts="${root}/tools"
+cd "$(git rev-parse --show-toplevel || true)"
 
 python_bin="$(command -v python3)"
-[[ -d "${root}/env/bin" ]] || "${scripts}/venv.sh" "${python_bin}"
-export PATH="${root}/env/bin:${PATH}"
+[[ -d env/bin ]] || tools/venv.sh "${python_bin}"
+export PATH="${PWD}/env/bin:${PATH}"
 
-find "${root}" -name '*.yml' -print0 | \
-    "${scripts}/g-ls-tree.sh" | \
+find . -name '*.yml' -print0 | \
+    tools/g-ls-tree.sh | \
     xargs -0 -- yamllint "$@"

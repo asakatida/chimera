@@ -2,29 +2,26 @@
 
 set -ex -o pipefail
 
-root="$(git rev-parse --show-toplevel)"
-scripts="${root}/tools"
-build_root="${root}/build"
-debug_root="${build_root}/debug"
+cd "$(git rev-parse --show-toplevel || true)"
 
-"${scripts}/shellcheck.sh"
+tools/shellcheck.sh
 
-export PATH="${root}/env/bin:${PATH}"
+export PATH="${PWD}/env/bin:${PATH}"
 
 cmakelint
 
-find "${root}" -name '*.py' -print0 | "${scripts}/g-ls-tree.sh" | xargs -0 -- isort --python-version auto
-find "${root}" -name '*.py' -print0 | "${scripts}/g-ls-tree.sh" | xargs -0 -- black --preview --target-version py311
-find "${root}" -name '*.py' -print0 | "${scripts}/g-ls-tree.sh" | xargs -0 -- pylama
-find "${root}" -not -path "${root}/stdlib/*" -name '*.py' -print0 | "${scripts}/g-ls-tree.sh" | xargs -0 -- mypy
+find . -name '*.py' -print0 | tools/g-ls-tree.sh | xargs -0 -- isort --python-version auto
+find . -name '*.py' -print0 | tools/g-ls-tree.sh | xargs -0 -- black --preview --target-version py311
+find . -name '*.py' -print0 | tools/g-ls-tree.sh | xargs -0 -- pylama
+find . -not -path "./stdlib/*" -name '*.py' -print0 | tools/g-ls-tree.sh | xargs -0 -- mypy
 
-python3 "${scripts}/generate_utf8_id_continue.py"
-python3 "${scripts}/generate_utf8_id_start.py"
-python3 "${scripts}/generate_utf8_space.py"
+python3 tools/generate_utf8_id_continue.py
+python3 tools/generate_utf8_id_start.py
+python3 tools/generate_utf8_space.py
 
-git ls-tree --full-tree --name-only -r -z HEAD | xargs -0 -- python3 "${scripts}/trim.py"
+git ls-tree --full-tree --name-only -r -z HEAD | xargs -0 -- python3 tools/trim.py
 
 if [[ -z "${PREBUILD_CHECK}" ]]; then
-  "${scripts}/clang-format.sh"
-  "${scripts}/clang-tidy.sh" "${debug_root}"
+  tools/clang-format.sh
+  tools/clang-tidy.sh build/debug
 fi

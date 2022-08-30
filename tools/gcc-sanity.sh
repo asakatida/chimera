@@ -2,8 +2,8 @@
 
 set -ex -o pipefail
 
-root="$(git rev-parse --show-toplevel)"
+cd "$(git rev-parse --show-toplevel || true)"
 
-"${root}/tools/cmake.sh" "${root}/build/gcc-ninja"
+tools/cmake.sh "${PWD}/build/gcc-ninja"
 
-ninja -C "${root}/build/gcc-ninja" "$@"
+ninja -C build/gcc-ninja "$@"
