@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/c++,cmake,ninja,python,xcode
-# Edit at https://www.toptal.com/developers/gitignore?templates=c++,cmake,ninja,python,xcode
+# Created by https://www.toptal.com/developers/gitignore/api/c++,cmake,ninja,python,visualstudiocode,xcode
+# Edit at https://www.toptal.com/developers/gitignore?templates=c++,cmake,ninja,python,visualstudiocode,xcode
 
 ### C++ ###
 # Prerequisites
@@ -217,6 +217,31 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+### VisualStudioCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix
+
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+.ionide
+
+# Support for Project snippet scope
+.vscode/*.code-snippets
+
+# Ignore code-workspaces
+*.code-workspace
+
 ### Xcode ###
 ## User settings
 xcuserdata/
@@ -233,6 +258,6 @@ xcuserdata/
 /*.gcno
 **/xcshareddata/WorkspaceSettings.xcsettings
 
-# End of https://www.toptal.com/developers/gitignore/api/c++,cmake,ninja,python,xcode
+# End of https://www.toptal.com/developers/gitignore/api/c++,cmake,ninja,python,visualstudiocode,xcode
 
 unit_tests/fuzz/corpus_original
