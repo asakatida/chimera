@@ -52,6 +52,9 @@ jobs:
         name: Build dev tools
         run: ninja
         working-directory: ${{ github.workspace }}/build
+      - name: Run base unit_test
+        run: ninja check
+        working-directory: ${{ github.workspace }}/build
       - continue-on-error: ${{ startsWith(matrix.targets, 'corpus-') }}
         if: matrix.targets != 'scan-build'
         name: Test
@@ -71,7 +74,6 @@ jobs:
       fail-fast: false
       matrix:
         targets:
-          - check
           - check_rand
           - corpus-ellipsis
           - corpus-false
