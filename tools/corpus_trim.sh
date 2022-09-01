@@ -28,7 +28,8 @@ find . -name 'fuzz-*' -perm -0110 -type f -print0 | \
   -shrink=1 \
   -use_value_profile=1 \
   unit_tests/fuzz/corpus \
-  unit_tests/fuzz/corpus_original
+  unit_tests/fuzz/corpus_original \
+  || true
 
 rm -rf unit_tests/fuzz/corpus_original
 
