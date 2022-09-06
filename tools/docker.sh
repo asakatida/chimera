@@ -2,6 +2,8 @@
 
 set -ex -o pipefail
 
+truncate -s0 /etc/machine-id
+
 apt-get update
 apt-get install --yes </dev/null \
   apt \
@@ -210,3 +212,5 @@ ln -s "${clang_tidy_cmd}" /usr/local/bin/clang-tidy
 ln -s "${scan_build_cmd}" /usr/local/bin/scan-build
 
 # curl -fsSL https://tailscale.com/install.sh | sh
+
+rm -rf /etc/{bash_completion.d,cron.{daily,weekly},kernel} /var/{cache,log}
