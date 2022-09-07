@@ -2,7 +2,17 @@
 
 set -ex -o pipefail
 
-truncate -s0 /etc/machine-id
+cleanup() {
+  truncate -s0 /etc/machine-id
+
+  apt-get autoclean
+  apt-get clean
+  # rm -rf /etc/{bash_completion.d,cron.{daily,weekly},kernel} /var/cache/apt/* /var/lib/apt/lists/* /var/log
+  # find /var/cache
+  # rm -rf /etc/{bash_completion.d,cron.{daily,weekly},kernel} /var/{cache,log}
+}
+cleanup
+trap cleanup EXIT
 
 apt-get update
 apt-get install --yes </dev/null \
@@ -188,9 +198,6 @@ apt-get install --yes </dev/null \
   zip \
   zlib1g \
   zlib1g-dev
-apt-get autoclean
-apt-get clean
-rm -rf /var/cache/apt/* /var/lib/apt/lists/*
 
 fish_cmd="$(command -v fish)"
 chsh -s "${fish_cmd}"
@@ -212,5 +219,3 @@ ln -s "${clang_tidy_cmd}" /usr/local/bin/clang-tidy
 ln -s "${scan_build_cmd}" /usr/local/bin/scan-build
 
 # curl -fsSL https://tailscale.com/install.sh | sh
-
-rm -rf /etc/{bash_completion.d,cron.{daily,weekly},kernel} /var/{cache,log}
