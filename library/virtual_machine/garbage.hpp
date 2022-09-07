@@ -34,6 +34,7 @@
 namespace chimera::library::virtual_machine {
   struct GarbageCollector {
     GarbageCollector();
+    explicit GarbageCollector(const object::Object &root);
     GarbageCollector(const GarbageCollector &collector) = delete;
     GarbageCollector(GarbageCollector &&collector) = delete;
     ~GarbageCollector() noexcept;

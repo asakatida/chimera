@@ -28,6 +28,8 @@
 
 namespace chimera::library::virtual_machine {
   GarbageCollector::GarbageCollector() : thread([this] { this->collect(); }) {}
+  GarbageCollector::GarbageCollector(const object::Object & /*root*/)
+      : GarbageCollector() {}
   GarbageCollector::~GarbageCollector() noexcept {
     if (thread.joinable()) {
       flag.clear();

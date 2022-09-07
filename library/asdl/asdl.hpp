@@ -42,6 +42,7 @@ namespace chimera::library::asdl {
       using ValueT = metal::apply<metal::lambda<std::variant>, List>;
       // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
       std::shared_ptr<ValueT> value;
+      Impl() noexcept = default;
       template <typename Type,
                 typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
       // NOLINTNEXTLINE(hicpp-explicit-conversions)
