@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include "object/object.hpp"
 
 // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
@@ -32,7 +34,7 @@ namespace chimera::library::virtual_machine {
   struct CallEvaluator {
     object::Object object;
     object::Tuple args;
-    object::Object kwargs;
+    std::optional<object::Object> kwargs;
     void operator()(Evaluator *evaluatorA) const;
   };
 } // namespace chimera::library::virtual_machine

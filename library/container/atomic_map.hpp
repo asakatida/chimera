@@ -31,6 +31,7 @@ namespace chimera::library::container {
   template <typename Key, typename Value>
   struct AtomicMap : AtomicContainer<std::map<Key, Value>> {
     using Container = AtomicContainer<std::map<Key, Value>>;
+    AtomicMap() noexcept = default;
     template <typename... Args>
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
     AtomicMap(Args &&...args) : Container(std::forward<Args>(args)...) {}

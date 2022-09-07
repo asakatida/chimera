@@ -38,6 +38,9 @@ namespace chimera::library::virtual_machine {
     FibonacciHeap(const FibonacciHeap &fibonacciHeap) = delete;
     FibonacciHeap(FibonacciHeap &&fibonacciHeap) noexcept = default;
     ~FibonacciHeap() noexcept {
+      if (min != nullptr && min == min->left.get()) {
+        auto ptr = std::move(min->left);
+      }
       if (min != nullptr && min->left) {
         auto ptr = std::move(min->left);
         ptr.reset();
@@ -86,10 +89,12 @@ namespace chimera::library::virtual_machine {
     void remove_if(Predicate && /*predicate*/) {}
     //! Internal node structure
     struct Node {
-      Node() = default;
       Node(const Node &fibonacciHeap) = delete;
       Node(Node &&fibonacciHeap) noexcept = default;
       ~Node() noexcept {
+        if (left.get() == this) {
+          left.reset();
+        }
         if (child != nullptr && child->left) {
           auto ptr = std::move(child->left);
           ptr.reset();

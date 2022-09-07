@@ -40,16 +40,11 @@ namespace chimera::library::asdl {
       using ValueT = metal::apply<metal::lambda<std::variant>, List>;
       // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
       std::shared_ptr<ValueT> value;
-      Impl(const Impl &impl) = default;
-      Impl(Impl &&impl) noexcept = default;
       template <typename Type,
                 typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
       // NOLINTNEXTLINE(hicpp-explicit-conversions)
       Impl(Type &&type)
           : value(std::make_shared<ValueT>(ValueT(std::forward<Type>(type)))) {}
-      ~Impl() noexcept = default;
-      auto operator=(const Impl &impl) -> Impl & = default;
-      auto operator=(Impl &&impl) noexcept -> Impl & = default;
       template <typename Type,
                 typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
       auto operator=(Type &&type) -> Impl & {
@@ -138,7 +133,7 @@ namespace chimera::library::asdl {
       AND,
       OR,
     };
-    Op op;
+    Op op = AND;
     std::vector<ExprImpl> values{};
   };
   struct Bin {
@@ -152,7 +147,7 @@ namespace chimera::library::asdl {
       ADD,
       SUB,
     };
-    Op op;
+    Op op = BIT_NOT;
     ExprImpl operand;
   };
   struct Lambda {
@@ -211,7 +206,7 @@ namespace chimera::library::asdl {
       IN,
       NOT_IN,
     };
-    Op op;
+    Op op = EQ;
     ExprImpl value;
   };
   struct Compare {
@@ -230,7 +225,7 @@ namespace chimera::library::asdl {
       REPR,
       STR,
     };
-    Conversion conversion;
+    Conversion conversion = ASCII;
     std::optional<ExprImpl> format_spec{};
   };
   struct JoinedStr {
@@ -241,7 +236,7 @@ namespace chimera::library::asdl {
       FALSE,
       NONE,
       TRUE,
-    } value;
+    } value = FALSE;
   };
   struct Ellipsis {};
   struct Attribute {
@@ -342,7 +337,7 @@ namespace chimera::library::asdl {
   };
   struct AugAssign {
     ExprImpl target;
-    Operator op;
+    Operator op = Operator::ADD;
     ExprImpl value;
   };
   struct AnnAssign {
