@@ -1,4 +1,7 @@
 ---
+env:
+  CLANG_VERSION: 14
+
 jobs:
   cmakelint:
     concurrency:
@@ -78,6 +81,45 @@ jobs:
           - black --check --diff --preview --target-version py311
           - isort --check-only --python-version auto
           - pylama
+  utf8_generate:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.0.2
+      - name: Cache
+        uses: actions/cache@v3.0.8
+        with:
+          key: python3.12-${{ hashFiles('requirements.txt') }}
+          path: env
+      - uses: deadsnakes/action@v2.1.1
+        with:
+          python-version: 3.12-dev
+      - name: Build dev tools
+        run: >
+          python3.12 -m venv --upgrade --upgrade-deps env &&
+          env/bin/pip3 install -r requirements.txt
+        working-directory: ${{ github.workspace }}
+      - run: >
+          wget https://apt.llvm.org/llvm.sh &&
+          chmod +x llvm.sh &&
+          sudo ./llvm.sh ${{ env.CLANG_VERSION }} all &&
+          rm -rf llvm.sh &&
+          sudo apt-get install -y ninja-build
+      - name: generate utf8 grammar
+        run: >
+          find tools -name 'generate_utf8_*.py' -not -name '*insane*' -print0 |
+          xargs -0 -n1 -P3 -- env/bin/python3 &&
+          find . -name '*.hpp' -print0 |
+          xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- |
+          xargs -0 -- clang-format-${{ env.CLANG_VERSION }} -style=file -i
+        working-directory: ${{ github.workspace }}
+      - if: ${{ github.ref == 'refs/heads/stable' }}
+        uses: stefanzweifel/git-auto-commit-action@v4.14.1
+        with:
+          branch: utf8-generate-grammar
+          commit_message: Update utf8 grammar.
+          create_branch: true
+          file_pattern: library/grammar
+          repository: ${{ github.workspace }}
 
 name: Python
 
