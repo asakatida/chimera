@@ -114,19 +114,6 @@ namespace chimera::library::object::number {
   Number::Number(Rational &&rational) : value(reduce(std::move(rational))) {}
   Number::Number(Imag &&imag) : value(std::move(imag)) {}
   Number::Number(Complex &&complex) : value(std::move(complex)) {}
-  Number::Number(const Number &other) : value(other.value) {}
-  Number::Number(Number &&other) noexcept { swap(std::move(other)); }
-  Number::~Number() noexcept { value = Base{0U}; }
-  auto Number::operator=(const Number &other) -> Number & {
-    if (this != &other) {
-      value = other.value;
-    }
-    return *this;
-  }
-  auto Number::operator=(Number &&other) noexcept -> Number & {
-    swap(std::move(other));
-    return *this;
-  }
   void Number::swap(Number &&other) noexcept {
     using std::swap;
     swap(value, other.value);

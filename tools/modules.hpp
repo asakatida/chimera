@@ -152,8 +152,7 @@ namespace chimera::library {
     }
     template <typename OStream>
     auto print(OStream &os, const object::String &string) -> OStream & {
-      std::string value(string.value);
-      return os << "object::String(" << std::quoted(value) << "s)";
+      return os << "object::String(" << std::quoted(string) << "s)";
     }
     template <typename OStream>
     auto print(OStream &os, const object::StringMethod &stringMethod)
@@ -278,7 +277,7 @@ namespace chimera::library {
   };
   template <typename OStream>
   auto operator<<(OStream &os, const Printer &printer) -> OStream & {
-    PrintState state;
+    PrintState state{.main = printer.main};
     state.m_printed.try_emplace(state.id(printer.main), printer.module);
     if (printer.remap) {
       state.remap(printer.main, *printer.remap);

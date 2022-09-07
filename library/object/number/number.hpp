@@ -174,11 +174,6 @@ namespace chimera::library::object::number {
     explicit Number(Rational &&rational);
     explicit Number(Imag &&imag);
     explicit Number(Complex &&complex);
-    Number(const Number &other);
-    Number(Number &&other) noexcept;
-    ~Number() noexcept;
-    auto operator=(const Number &other) -> Number &;
-    auto operator=(Number &&other) noexcept -> Number &;
     void swap(Number &&other) noexcept;
     template <typename T>
     explicit operator T() const noexcept {

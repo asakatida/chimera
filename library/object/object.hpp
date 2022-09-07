@@ -46,17 +46,7 @@ namespace chimera::library::object {
   using number::Number;
   enum class NumberMethod {};
   enum class ObjectMethod { DELATTR, DIR, GETATTRIBUTE, SETATTR };
-  struct String {
-    String() noexcept = default;
-    explicit String(std::string_view string);
-    String(const String &string) = default;
-    String(String &&string) noexcept = default;
-    ~String() noexcept = default;
-    auto operator=(const String &string) -> String & = default;
-    auto operator=(String &&string) noexcept -> String & = default;
-    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-    std::string_view value;
-  };
+  using String = std::string_view;
   enum class StringMethod {};
   struct Stmt {};
   enum class SysCall {
@@ -81,11 +71,6 @@ namespace chimera::library::object {
     using Attributes = container::AtomicMap<std::string, Object>;
     Object();
     Object(Value &&value, std::map<std::string, Object> &&attributes);
-    Object(const Object &other) = default;
-    Object(Object &&other) noexcept = default;
-    ~Object() noexcept = default;
-    auto operator=(const Object &other) -> Object & = default;
-    auto operator=(Object &&other) noexcept -> Object & = default;
     void delete_attribute(std::string &&key) noexcept;
     void delete_attribute(const std::string &key) noexcept;
     [[nodiscard]] auto dir() const -> std::vector<std::string>;
