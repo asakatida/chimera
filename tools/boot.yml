@@ -1,22 +1,42 @@
 ---
 - hosts: localhost
+  name: Boot localhost for building
   tasks:
-    - set_fact:
+    - ansible.builtin.set_fact:
         py_version: 3.12
+      name: Set Python version
     - become: true
       block:
-        - apt_repository:
+        - ansible.builtin.file:
+            mode: "0700"
+            path: /var/cache/apt/archives/partial
+            state: directory
+          name: Setup apt-get update
+          tags:
+            - debug
+            - never
+        - ansible.builtin.apt_repository:
             repo: ppa:deadsnakes/nightly
-        - package:
+          name: Add repo deadsnakes
+        - ansible.builtin.package:
+            autoclean: true
+            autoremove: true
+            clean: true
             name:
               - python{{ py_version }}-dev
               - python{{ py_version }}-venv
-      when: ansible_facts.os_family == 'Debian'
+            update_cache: true
+          name: Install Python {{ py_version }}
+      name: Unix block
+      when: ansible_facts.os_family != 'Darwin'
     - block:
-        - args:
+        - ansible.builtin.command: brew install pyenv
+          args:
             creates: /opt/homebrew/Cellar/pyenv
-          command: brew install pyenv
-        - args:
+          name: Install pyenv
+        - ansible.builtin.command: pyenv install {{ py_version }}-dev
+          args:
             creates: "{{ lookup('env', 'HOME') }}/.pyenv/versions/{{ py_version }}-dev"
-          command: pyenv install {{ py_version }}-dev
+          name: Install Python {{ py_version }}
+      name: OSX block
       when: ansible_facts.os_family == 'Darwin'
