@@ -81,6 +81,27 @@ jobs:
           - black --check --diff --preview --target-version py311
           - isort --check-only --python-version auto
           - pylama
+  requirements_txt:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.0.2
+      - name: Build dev tools
+        run: >
+          python3 -m venv --upgrade --upgrade-deps env &&
+          env/bin/pip3 install -r requirements.txt
+        working-directory: ${{ github.workspace }}
+      - name: Freeze dependencies
+        run: >
+          env/bin/pip3 freeze >requirements.txt
+        working-directory: ${{ github.workspace }}
+      - if: ${{ github.ref == 'refs/heads/stable' }}
+        uses: stefanzweifel/git-auto-commit-action@v4.14.1
+        with:
+          branch: requirements-txt
+          commit_message: Update requirements.txt.
+          create_branch: true
+          file_pattern: requirements.txt
+          repository: ${{ github.workspace }}
   utf8_generate:
     runs-on: ubuntu-22.04
     steps:
