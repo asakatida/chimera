@@ -5,6 +5,15 @@ project(
   LANGUAGES CXX)
 
 set(
+  CMAKE_CXX_FLAGS_COVERAGE
+  -O0 -DNDEBUG
+  -fcoverage-mapping
+  -fprofile-instr-generate
+  -mllvm
+  -runtime-counter-relocation
+  CACHE STRING
+  "Flags used by the C++ compiler during coverage builds.")
+set(
   CMAKE_CXX_FLAGS_DEBUG
   -O0 -g -Wall -Wextra -Wpedantic -Werror
   CACHE STRING
