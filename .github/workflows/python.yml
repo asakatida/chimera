@@ -18,6 +18,7 @@ jobs:
       - name: Build dev tools
         run: >
           python3 -m venv --upgrade --upgrade-deps env &&
+          env/bin/pip3 install --upgrade pip setuptools wheel &&
           env/bin/pip3 install -r requirements.txt
         working-directory: ${{ github.workspace }}
       - name: Lint CMakeList.txt
@@ -41,6 +42,7 @@ jobs:
       - name: Build dev tools
         run: >
           python3.12 -m venv --upgrade --upgrade-deps env &&
+          env/bin/pip3 install --upgrade pip setuptools wheel &&
           env/bin/pip3 install -r requirements.txt
         working-directory: ${{ github.workspace }}
       - name: Lint python code
@@ -67,6 +69,7 @@ jobs:
       - name: Build dev tools
         run: >
           python3.12 -m venv --upgrade --upgrade-deps env &&
+          env/bin/pip3 install --upgrade pip setuptools wheel &&
           env/bin/pip3 install -r requirements.txt
         working-directory: ${{ github.workspace }}
       - name: Lint python code
@@ -88,11 +91,12 @@ jobs:
       - name: Build dev tools
         run: >
           python3 -m venv --upgrade --upgrade-deps env &&
+          env/bin/pip3 install --upgrade pip setuptools wheel &&
           env/bin/pip3 install -r requirements.txt
         working-directory: ${{ github.workspace }}
       - name: Freeze dependencies
         run: >
-          env/bin/pip3 freeze >requirements.txt
+          env/bin/pip3 freeze | grep -v -e '^pkg_resources==' >requirements.txt
         working-directory: ${{ github.workspace }}
       - if: ${{ github.ref == 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.14.1
@@ -117,6 +121,7 @@ jobs:
       - name: Build dev tools
         run: >
           python3.12 -m venv --upgrade --upgrade-deps env &&
+          env/bin/pip3 install --upgrade pip setuptools wheel &&
           env/bin/pip3 install -r requirements.txt
         working-directory: ${{ github.workspace }}
       - run: >
