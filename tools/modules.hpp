@@ -291,8 +291,7 @@ namespace chimera::library {
        << ".hpp\"\n\n"
           "#include \"object/object.hpp\"\n\n"
           "using namespace std::literals;\n\n"
-          "namespace chimera {\nnamespace library {\n"
-          "namespace virtual_machine {\nnamespace modules {\n"
+          "namespace chimera::library::virtual_machine::modules {\n"
           "void "
        << moduleName << "(const object::Object &module) {auto " << moduleName
        << " = module;";
@@ -312,6 +311,7 @@ namespace chimera::library {
       state.queue.pop();
       state.print(os, work);
     }
-    return os << "}\n}\n}\n}\n}" << std::endl;
+    return os << "} // namespace chimera::library::virtual_machine::modules"
+              << std::endl;
   }
 } // namespace chimera::library
