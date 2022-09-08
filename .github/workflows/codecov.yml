@@ -1,15 +1,15 @@
 ---
 env:
   CLANG_VERSION: 15
-  CMAKE_BUILD_TYPE: Release
+  CMAKE_BUILD_TYPE: Coverage  # not using Debug to avoid getting `-g`
   CXXFLAGS: >
-    -DNDEBUG
+    -O3 -DNDEBUG
     -fcoverage-mapping
     -fprofile-instr-generate
     -mllvm
     -runtime-counter-relocation
-  # yamllint disable-line rule:line-length
-  LLVM_PROFILE_FILE: ${{ github.workspace }}/build/coverage/llvm-profile.%c%p.profraw
+  LLVM_PROFILE_FILE: >
+    ${{ github.workspace }}/build/coverage/llvm-profile.%c%p.profraw
 
 jobs:
   codecov:
