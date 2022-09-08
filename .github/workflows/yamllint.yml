@@ -15,6 +15,7 @@ jobs:
       - name: Build dev tools
         run: >
           python3 -m venv --upgrade --upgrade-deps env &&
+          env/bin/pip3 install --upgrade pip setuptools wheel &&
           env/bin/pip3 install -r requirements.txt
         working-directory: ${{ github.workspace }}
       - name: Lint yaml code
