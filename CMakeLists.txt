@@ -4,6 +4,12 @@ project(
   VERSION 1.0.0
   LANGUAGES CXX)
 
+set(
+  CMAKE_CXX_FLAGS_DEBUG
+  -O0 -g -Wall -Wextra -Wpedantic -Werror
+  CACHE STRING
+  "Flags used by the C++ compiler during debug builds.")
+
 if(MSVC)
   add_compile_options(/W4 /WX)
 else()
