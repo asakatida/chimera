@@ -2,7 +2,7 @@
 env:
   CLANG_VERSION: 15
   CMAKE_BUILD_TYPE: Debug
-  CXXFLAGS: -g -O0 -DNDEBUG -Wall -Wextra -Wpedantic -Werror
+  CXXFLAGS: -DNDEBUG -DCHIMERA_PATH
 
 jobs:
   cmake:

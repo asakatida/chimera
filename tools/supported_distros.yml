@@ -15,14 +15,14 @@ alpine:
           - clang
         environment: &clang_environment
           CXX: clang++-13
-          CXXFLAG: -stdlib=c++
+          CXXFLAGS: -stdlib=c++
         requires: base
       gcc:
         dependencies:
           - g++
         environment: &gcc_environment
           CXX: g++-11
-          CXXFLAG: -stdlib=stdc++
+          CXXFLAGS: -stdlib=stdc++
         requires: base
     3.15.0: *alpine_images
     edge: *alpine_images

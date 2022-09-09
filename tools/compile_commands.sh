@@ -17,8 +17,8 @@ export CPPFLAGS="${CPPFLAGS} \
 
 export CXXFLAGS="${CXXFLAGS} \
   -std=c++20 \
+  -O0 \
   -Wall -Wpedantic -Werror \
-  -g \
   -Wno-c++11-extensions \
   -Wno-c++17-extensions \
   -Wno-c++98-compat-pedantic \
