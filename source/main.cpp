@@ -81,12 +81,12 @@ namespace chimera::library {
             options.script = *arg;
             options.argv = forward_args(std::next(arg), args.end());
             return virtual_machine::VirtualMachine(options, builtins)
-                .global_context.execute_script();
+                .execute_script();
           }
           if (argLen == 1) {
             options.argv = forward_args(std::next(arg), args.end());
             return virtual_machine::VirtualMachine(options, builtins)
-                .global_context.execute_script_input();
+                .execute_script_input();
           }
           ++argChar;
           if (*argChar == '-') {
@@ -128,7 +128,7 @@ namespace chimera::library {
                 }
                 options.argv = forward_args(std::next(arg), args.end());
                 return virtual_machine::VirtualMachine(options, builtins)
-                    .global_context.execute_script_string();
+                    .execute_script_string();
               case 'd':
                 options.debug = true;
                 break;
@@ -154,7 +154,7 @@ namespace chimera::library {
                 }
                 options.argv = forward_args(std::next(arg), args.end());
                 return virtual_machine::VirtualMachine(options, builtins)
-                    .global_context.execute_module();
+                    .execute_module();
               case 'O':
                 options.optimize = options.optimize == Optimize::NONE
                                        ? Optimize::BASIC
@@ -217,8 +217,7 @@ namespace chimera::library {
             }
           }
         }
-        return virtual_machine::VirtualMachine(options, builtins)
-            .global_context.interactive();
+        return virtual_machine::VirtualMachine(options, builtins).interactive();
       } catch (const std::exception &error) {
         std::cerr << error.what() << std::endl;
         return 1;

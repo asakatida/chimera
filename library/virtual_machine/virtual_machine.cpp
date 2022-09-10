@@ -49,6 +49,21 @@ namespace chimera::library::virtual_machine {
                                              ? builtins.get_attribute("True")
                                              : builtins.get_attribute("False"));
   }
+  auto VirtualMachine::execute_module() -> int {
+    return global_context.execute_module();
+  }
+  auto VirtualMachine::execute_script_input() -> int {
+    return global_context.execute_script_input();
+  }
+  auto VirtualMachine::execute_script_string() -> int {
+    return global_context.execute_script_string();
+  }
+  auto VirtualMachine::execute_script() -> int {
+    return global_context.execute_script();
+  }
+  auto VirtualMachine::interactive() -> int {
+    return global_context.interactive();
+  }
   auto VirtualMachine::process_context() const -> ProcessContext {
     return ProcessContext{global_context};
   }
