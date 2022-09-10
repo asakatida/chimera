@@ -74,26 +74,19 @@ namespace chimera::library::virtual_machine {
     }
   }
   void Evaluator::evaluate(const asdl::StmtImpl &stmt) {
-    if (!stmt.value) {
-      return;
-    }
-    std::visit([this](const auto &value) { this->evaluate(value); },
-               *stmt.value);
+    stmt.visit([this](const auto &value) { this->evaluate(value); });
   }
   void Evaluator::evaluate_del(const asdl::ExprImpl &expr) {
-    std::visit(
-        [this](const auto &value) { DelEvaluator{this}.evaluate(value); },
-        *expr.value);
+    expr.visit(
+        [this](const auto &value) { DelEvaluator{this}.evaluate(value); });
   }
   void Evaluator::evaluate_get(const asdl::ExprImpl &expr) {
-    std::visit(
-        [this](const auto &value) { GetEvaluator{this}.evaluate(value); },
-        *expr.value);
+    expr.visit(
+        [this](const auto &value) { GetEvaluator{this}.evaluate(value); });
   }
   void Evaluator::evaluate_set(const asdl::ExprImpl &expr) {
-    std::visit(
-        [this](const auto &value) { SetEvaluator{this}.evaluate(value); },
-        *expr.value);
+    expr.visit(
+        [this](const auto &value) { SetEvaluator{this}.evaluate(value); });
   }
   void Evaluator::get_attribute(const object::Object &object,
                                 const std::string &name) {

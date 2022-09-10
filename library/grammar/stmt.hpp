@@ -228,7 +228,7 @@ namespace chimera::library::grammar {
         assign.targets.reserve(size());
         transform<asdl::ExprImpl>(std::back_inserter(assign.targets));
         for (const auto &target : assign.targets) {
-          std::visit(*this, *target.value);
+          target.visit(*this);
         }
         outer.push(std::move(assign));
       }
@@ -242,16 +242,16 @@ namespace chimera::library::grammar {
       }
       void operator()(const asdl::Tuple &tuple) const {
         for (const auto &elt : tuple.elts) {
-          std::visit(*this, *elt.value);
+          elt.visit(*this);
         }
       }
       void operator()(const asdl::List &list) const {
         for (const auto &elt : list.elts) {
-          std::visit(*this, *elt.value);
+          elt.visit(*this);
         }
       }
       void operator()(const asdl::Starred &starred) const {
-        std::visit(*this, *starred.value.value);
+        starred.value.visit(*this);
       }
     };
   };
@@ -722,15 +722,12 @@ namespace chimera::library::grammar {
           def.decorator_list.reserve(this->size());
           this->template transform<asdl::ExprImpl>(
               std::back_inserter(def.decorator_list));
+          return def;
         };
         auto stmt = pop<asdl::StmtImpl>();
-        if (std::holds_alternative<asdl::ClassDef>(*stmt.value)) {
-          action(std::get<asdl::ClassDef>(*stmt.value));
-        } else if (std::holds_alternative<asdl::FunctionDef>(*stmt.value)) {
-          action(std::get<asdl::FunctionDef>(*stmt.value));
-        } else {
-          action(std::get<asdl::AsyncFunctionDef>(*stmt.value));
-        }
+        Ensures(stmt.template update_if<asdl::ClassDef>(action) ||
+                stmt.template update_if<asdl::FunctionDef>(action) ||
+                stmt.template update_if<asdl::AsyncFunctionDef>(action));
         outer.push(std::move(stmt));
       }
     };
