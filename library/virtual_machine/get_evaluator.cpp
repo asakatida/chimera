@@ -148,9 +148,7 @@ namespace chimera::library::virtual_machine {
   }
   void GetEvaluator::evaluate(const asdl::Call &call) const {
     evaluator->push([](Evaluator *evaluatorA) {
-      evaluatorA->push(PushStack{
-          std::move(evaluatorA->thread_context.ret)
-              .value_or(evaluatorA->builtins().get_attribute("None"))});
+      evaluatorA->push(PushStack{evaluatorA->thread_context.return_value()});
     });
     evaluator->extend(call.args);
     evaluator->push([](Evaluator *evaluatorA) {

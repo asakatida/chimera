@@ -29,16 +29,16 @@
 
 namespace chimera::library::virtual_machine {
   struct GlobalContext {
+    [[nodiscard]] auto builtins() const -> const object::Object &;
     auto interactive() -> int;
     auto execute_script() -> int;
     auto execute_script_string() -> int;
     auto execute_script_input() -> int;
     auto execute_module() -> int;
+    void process_interrupts() const;
     // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
     const Options options;
-    const object::Object builtins;
-    const object::Id method_id;
-    const object::Id function_id;
+    const object::Object builtins_;
     std::atomic_flag *sig_int;
     // NOLINTEND(misc-non-private-member-variables-in-classes)
   };

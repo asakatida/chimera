@@ -45,8 +45,11 @@ static const std::string_view CHIMERA_IMPORT_PATH_VIEW(STRINGIFY(CHIMERA_PATH));
 #undef STRINGIFY
 
 namespace chimera::library::virtual_machine {
+  auto ProcessContext::builtins() const -> const object::Object & {
+    return global_context.builtins();
+  }
   auto ProcessContext::make_module(std::string_view &&name) -> object::Object {
-    auto result = modules.try_emplace("builtins"s, global_context.builtins);
+    auto result = modules.try_emplace("builtins"s, global_context.builtins());
     auto module = result.first->second.copy({});
     module.set_attribute(
         "__name__"s,
@@ -156,5 +159,8 @@ namespace chimera::library::virtual_machine {
   auto ProcessContext::parse_input(std::istream &&input, const char *source)
       -> asdl::Interactive {
     return {global_context.options, std::move(input), source};
+  }
+  void ProcessContext::process_interrupts() const {
+    global_context.process_interrupts();
   }
 } // namespace chimera::library::virtual_machine

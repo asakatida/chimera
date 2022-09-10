@@ -35,14 +35,7 @@ extern "C" void interupt_handler(int /*signal*/) { SIG_INT.clear(); }
 namespace chimera::library::virtual_machine {
   VirtualMachine::VirtualMachine(const Options &options,
                                  object::Object builtins)
-      : global_context{
-            options, builtins,
-            builtins.get_attribute("type")
-                .get_attribute("__dir__")
-                .get_attribute("__class__")
-                .id(),
-            builtins.get_attribute("compile").get_attribute("__class__").id(),
-            &SIG_INT} {
+      : global_context{options, builtins, &SIG_INT} {
     SIG_INT.test_and_set();
     std::ignore = std::signal(SIGINT, interupt_handler);
     builtins.set_attribute("__debug__"s, options.debug

@@ -35,6 +35,7 @@
 
 namespace chimera::library::virtual_machine {
   struct ProcessContext {
+    [[nodiscard]] auto builtins() const -> const object::Object &;
     auto import_module(std::string &&module) -> std::optional<asdl::Module>;
     auto import_object(std::string_view &&name,
                        std::string_view &&relativeModule) -> object::Object &;
@@ -46,6 +47,7 @@ namespace chimera::library::virtual_machine {
         -> asdl::Interactive;
     auto parse_input(std::istream &&input, const char *source)
         -> asdl::Interactive;
+    void process_interrupts() const;
     // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
     const GlobalContext &global_context;
     // TODO(asakatida)

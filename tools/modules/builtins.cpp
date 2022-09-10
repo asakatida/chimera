@@ -47,11 +47,11 @@ namespace chimera::library {
     const virtual_machine::VirtualMachine virtualMachine({}, builtins);
     auto processContext = virtualMachine.process_context();
     auto module = processContext.parse_file(std::move(std::cin), "<input>");
-    virtual_machine::ThreadContext threadContext{
-        processContext, processContext.make_module("builtins")};
+    auto main = processContext.make_module("builtins");
+    virtual_machine::ThreadContext threadContext{processContext, main};
     threadContext.evaluate(module);
-    const Printer printer{threadContext.main, "builtins",
-                          threadContext.main.get_attribute("__builtins__")};
+    const Printer printer{threadContext.body(), "builtins",
+                          threadContext.body().get_attribute("__builtins__")};
     std::cout << printer;
   }
 } // namespace chimera::library

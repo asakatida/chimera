@@ -30,13 +30,23 @@
 
 namespace chimera::library::virtual_machine {
   struct ThreadContext {
+    ThreadContext(const ProcessContext &process_context, object::Object main);
+    [[nodiscard]] auto body() const -> object::Object;
+    [[nodiscard]] auto builtins() const -> const object::Object &;
     void evaluate(const asdl::Module &module);
     void evaluate(const asdl::Interactive &interactive);
     void evaluate(const asdl::Expression &expression);
-    // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
+    template <typename... Args>
+    auto import_object(Args &&...args) -> object::Object & {
+      return process_context.import_object(std::forward<Args>(args)...);
+    }
+    void process_interrupts() const;
+    [[nodiscard]] auto return_value() const -> const object::Object;
+    void return_value(object::Object &&value);
+
+  private:
     ProcessContext &process_context;
     const object::Object main;
-    std::optional<object::Object> ret{};
-    // NOLINTEND(misc-non-private-member-variables-in-classes)
+    std::optional<object::Object> ret;
   };
 } // namespace chimera::library::virtual_machine

@@ -52,7 +52,7 @@ namespace chimera::library::virtual_machine {
   void Scopes::exit_scope() { scopes.pop(); }
   auto Evaluator::self() -> object::Object & { return scope.self(); }
   auto Evaluator::builtins() const -> const object::Object & {
-    return thread_context.process_context.global_context.builtins;
+    return thread_context.builtins();
   }
   void Evaluator::enter_scope(const object::Object &object) {
     scope.enter_scope(object);
@@ -108,17 +108,13 @@ namespace chimera::library::virtual_machine {
   }
   void Evaluator::evaluate() {
     while (scope) {
-      if (!std::atomic_flag_test_and_set(
-              thread_context.process_context.global_context.sig_int)) {
-        throw object::BaseException(
-            builtins().get_attribute("KeyboardInterrupt"));
-      }
+      thread_context.process_interrupts();
       //! where all defered work gets done
       scope.visit([this](const auto &value) { value(this); });
     }
   }
   void Evaluator::evaluate(const asdl::Module &module) {
-    enter_scope(thread_context.main);
+    enter_scope(thread_context.body());
     if (const auto &doc_string = module.doc(); doc_string) {
       self().set_attribute("__doc__"s, doc_string->string);
     } else {
@@ -128,14 +124,14 @@ namespace chimera::library::virtual_machine {
     return evaluate();
   }
   void Evaluator::evaluate(const asdl::Interactive &interactive) {
-    enter_scope(thread_context.main);
+    enter_scope(thread_context.body());
     extend(interactive.iter());
     return evaluate();
   }
   void Evaluator::evaluate(const asdl::Expression &expression) {
-    enter_scope(thread_context.main);
+    enter_scope(thread_context.body());
     push([](Evaluator *evaluator) {
-      evaluator->thread_context.ret = std::move(evaluator->stack.top());
+      evaluator->thread_context.return_value(std::move(evaluator->stack.top()));
     });
     evaluate_get(expression.body);
     return evaluate();
@@ -181,10 +177,10 @@ namespace chimera::library::virtual_machine {
               object::Object(object::String(functionDef.name.value), {})},
              {"__qualname__",
               object::Object(object::String(functionDef.name.value), {})},
-             {"__module__", thread_context.main.get_attribute("__name__")},
+             {"__module__", thread_context.body().get_attribute("__name__")},
              {"__defaults__", builtins().get_attribute("None")},
              {"__code__", object::Object({}, {})},
-             {"__globals__", thread_context.main},
+             {"__globals__", thread_context.body()},
              {"__closure__", self()},
              {"__annotations__", {}},
              {"__kwdefaults__", {}}})});
@@ -311,9 +307,8 @@ namespace chimera::library::virtual_machine {
         });
       }
       push([&alias](Evaluator *evaluator) {
-        evaluator->push(
-            PushStack{evaluator->thread_context.process_context.import_object(
-                "module_name", alias.name.value)});
+        evaluator->push(PushStack{evaluator->thread_context.import_object(
+            "module_name", alias.name.value)});
       });
     }
   }
@@ -335,9 +330,8 @@ namespace chimera::library::virtual_machine {
       }
     }
     push([&importFrom](Evaluator *evaluator) {
-      evaluator->push(
-          PushStack{evaluator->thread_context.process_context.import_object(
-              "module_name", importFrom.module.value)});
+      evaluator->push(PushStack{evaluator->thread_context.import_object(
+          "module_name", importFrom.module.value)});
     });
   }
   void Evaluator::evaluate(const asdl::Global & /*global*/) {}
@@ -363,7 +357,7 @@ namespace chimera::library::virtual_machine {
   }
   void Evaluator::evaluate(const asdl::Try &asdlTry) {
     push([](Evaluator *evaluator) {
-      if (evaluator->thread_context.ret) {
+      if (evaluator->thread_context.return_value().get_bool()) {
         evaluator->exit_scope();
       }
     });
@@ -407,7 +401,8 @@ namespace chimera::library::virtual_machine {
   void Evaluator::evaluate(const asdl::Return &asdlReturn) {
     if (asdlReturn.value) {
       push([](Evaluator *evaluator) {
-        evaluator->thread_context.ret = std::move(evaluator->stack.top());
+        evaluator->thread_context.return_value(
+            std::move(evaluator->stack.top()));
         evaluator->stack.pop();
         evaluator->exit_scope();
       });
@@ -460,8 +455,7 @@ namespace chimera::library::virtual_machine {
     if (std::holds_alternative<object::ObjectMethod>(getAttribute.value())) {
       if (std::get<object::ObjectMethod>(getAttribute.value()) ==
           object::ObjectMethod::GETATTRIBUTE) {
-        if (getAttribute.get_attribute("__class__").id() ==
-            thread_context.process_context.global_context.method_id) {
+        if (getAttribute.get_attribute("__class__").id() == 0 /* method */) {
           if (object.has_attribute(name)) {
             return push(PushStack{object.get_attribute(name)});
           }

@@ -33,6 +33,9 @@
 #include "virtual_machine/virtual_machine.hpp"
 
 namespace chimera::library::virtual_machine {
+  auto GlobalContext::builtins() const -> const object::Object & {
+    return builtins_;
+  }
   auto GlobalContext::interactive() -> int {
     if (!options.dont_display_copyright) {
       std::cout << "chimera " << CHIMERA_VERSION
@@ -48,7 +51,7 @@ namespace chimera::library::virtual_machine {
       std::cout << ">>> ";
       auto interactive =
           processContext.parse_input(std::move(std::cin), "<string>");
-      ThreadContext{processContext, main}.evaluate(interactive);
+      ThreadContext(processContext, main).evaluate(interactive);
     }
     return 0;
   }
@@ -56,22 +59,22 @@ namespace chimera::library::virtual_machine {
     std::ifstream input(options.script);
     ProcessContext processContext{*this};
     auto module = processContext.parse_file(std::move(input), options.script);
-    ThreadContext{processContext, processContext.make_module("__main__")}
-        .evaluate(module);
+    auto main = processContext.make_module("__main__");
+    ThreadContext(processContext, main).evaluate(module);
     return 0;
   }
   auto GlobalContext::execute_script_string() -> int {
     ProcessContext processContext{*this};
     auto module = processContext.parse_file(options.command, "<string>");
-    ThreadContext{processContext, processContext.make_module("__main__")}
-        .evaluate(module);
+    auto main = processContext.make_module("__main__");
+    ThreadContext(processContext, main).evaluate(module);
     return 0;
   }
   auto GlobalContext::execute_script_input() -> int {
     ProcessContext processContext{*this};
     auto module = processContext.parse_file(std::move(std::cin), "<input>");
-    ThreadContext{processContext, processContext.make_module("__main__")}
-        .evaluate(module);
+    auto main = processContext.make_module("__main__");
+    ThreadContext(processContext, main).evaluate(module);
     return 0;
   }
   auto GlobalContext::execute_module() -> int {
@@ -79,9 +82,14 @@ namespace chimera::library::virtual_machine {
     if (auto importModule = processContext.import_module(options.module_name);
         importModule) {
       auto main = processContext.make_module("__main__");
-      ThreadContext{processContext, main}.evaluate(*importModule);
+      ThreadContext(processContext, main).evaluate(*importModule);
       return 0;
     }
     return 1;
+  }
+  void GlobalContext::process_interrupts() const {
+    if (!std::atomic_flag_test_and_set(sig_int)) {
+      throw object::BaseException(builtins_.get_attribute("KeyboardInterrupt"));
+    }
   }
 } // namespace chimera::library::virtual_machine

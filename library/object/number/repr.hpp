@@ -25,7 +25,7 @@
 namespace chimera::library::object::number {
   template <typename OStream>
   struct Repr {
-    Repr(OStream &stream) : os(stream) {}
+    explicit Repr(OStream &stream) : os(stream) {}
     auto operator()(std::uint64_t i) -> OStream & { return os << i << ','; }
     auto operator()(Base base) -> OStream & {
       return os << "Number(" << base.value << ')';
