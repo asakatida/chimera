@@ -30,6 +30,7 @@ namespace chimera::library::container {
   void reverse();
   template <typename Container>
   struct Reverse {
+    Reverse(Container &container) : container(&container) {}
     [[nodiscard]] auto begin() const noexcept { return container->rbegin(); }
     [[nodiscard]] auto cbegin() const noexcept { return container->crbegin(); }
     [[nodiscard]] auto rbegin() const noexcept { return container->begin(); }
@@ -38,11 +39,12 @@ namespace chimera::library::container {
     [[nodiscard]] auto cend() const noexcept { return container->crend(); }
     [[nodiscard]] auto rend() const noexcept { return container->end(); }
     [[nodiscard]] auto crend() const noexcept { return container->cend(); }
-    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
+
+  private:
     std::add_pointer_t<Container> container;
   };
   template <typename Container>
   auto reverse(Container &&container) {
-    return Reverse<Container>{&container};
+    return Reverse(container);
   }
 } // namespace chimera::library::container
