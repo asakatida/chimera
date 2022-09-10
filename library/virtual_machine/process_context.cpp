@@ -45,6 +45,8 @@ static const std::string_view CHIMERA_IMPORT_PATH_VIEW(STRINGIFY(CHIMERA_PATH));
 #undef STRINGIFY
 
 namespace chimera::library::virtual_machine {
+  ProcessContext::ProcessContext(const GlobalContext &global_context)
+      : global_context(global_context) {}
   auto ProcessContext::builtins() const -> const object::Object & {
     return global_context.builtins();
   }
@@ -58,7 +60,7 @@ namespace chimera::library::virtual_machine {
     return module;
   }
   auto ProcessContext::import_module(std::string &&module)
-      -> std::optional<asdl::Module> {
+      -> const asdl::Module & {
     std::replace(module.begin(), module.end(), '.', '/');
     for (std::string_view::size_type
              pos = CHIMERA_IMPORT_PATH_VIEW.find_first_of(':'),
@@ -66,22 +68,20 @@ namespace chimera::library::virtual_machine {
          prev != std::string_view::npos; prev = pos + 1,
              pos = CHIMERA_IMPORT_PATH_VIEW.find_first_of(':', prev)) {
       auto path = CHIMERA_IMPORT_PATH_VIEW.substr(prev, pos - 1);
-      if (auto importModule =
-              import_module(path, std::string(module).append("/__init__.py"sv));
-          importModule) {
-        return importModule;
+      try {
+        import_module(path, std::string(module).append("/__init__.py"sv));
+      } catch (const std::exception &) {
       }
-      if (auto importModule =
-              import_module(path, std::string(module).append(".py"sv));
-          importModule) {
-        return importModule;
+      try {
+        import_module(path, std::string(module).append(".py"sv));
+      } catch (const std::exception &) {
       }
     }
-    return {};
+    Ensures(false);
   }
   auto ProcessContext::import_object(std::string_view &&name,
                                      std::string_view &&relativeModule)
-      -> object::Object & {
+      -> const object::Object & {
     if (relativeModule.at(0) != '.') {
       return import_object(std::string_view{relativeModule});
     }
@@ -99,49 +99,48 @@ namespace chimera::library::virtual_machine {
         relativeModule.substr(index)));
   }
   auto ProcessContext::import_object(std::string_view &&module)
-      -> object::Object & {
+      -> const object::Object & {
     auto result = modules.try_emplace(std::string(module),
                                       make_module(std::string_view{module}));
     if (result.second) {
       auto index = module.find_last_of('.');
       if (index < module.size()) {
-        import_object(module.substr(0, index))
-            .set_attribute(std::string(module.substr(index + 1)),
-                           result.first->second);
+        result.first->second = import_object(module.substr(0, index));
+        result.first->second.set_attribute(
+            std::string(module.substr(index + 1)), result.first->second);
       }
-      if (auto importModule = import_module(std::string(module));
-          importModule) {
-        ThreadContext{*this, result.first->second}.evaluate(*importModule);
-      } else if (module == "importlib"sv) {
-        modules::importlib(global_context.options, result.first->second);
-      } else if (module == "marshal"sv) {
-        modules::marshal(global_context.options, result.first->second);
-      } else if (module == "sys"sv) {
-        modules::sys(global_context.options, result.first->second);
-      } else {
-        throw std::runtime_error(
-            "no module "s.append(module).append(" found"sv));
+      try {
+        auto importModule = import_module(std::string(module));
+        ThreadContext{*this, result.first->second}.evaluate(importModule);
+      } catch (const std::exception &) {
+        if (module == "importlib"sv) {
+          modules::importlib(global_context.options, result.first->second);
+        } else if (module == "marshal"sv) {
+          modules::marshal(global_context.options, result.first->second);
+        } else if (module == "sys"sv) {
+          modules::sys(global_context.options, result.first->second);
+        } else {
+          throw std::runtime_error(
+              "no module "s.append(module).append(" found"sv));
+        }
       }
     }
     return result.first->second;
   }
   auto ProcessContext::import_module(const std::string_view &path,
                                      const std::string &module)
-      -> std::optional<asdl::Module> {
+      -> asdl::Module {
     if (global_context.options.verbose_init == VerboseInit::SEARCH) {
       std::cout << path << module << '\n';
     }
     auto source = std::string(path).append(module);
-    if (std::ifstream ifstream(source,
-                               std::iostream::in | std::iostream::binary);
-        ifstream.is_open() && ifstream.good()) {
-      if (global_context.options.verbose_init == VerboseInit::LOAD) {
-        std::cout << path << module << '\n';
-      }
-      std::cerr << path << module << '\n';
-      return parse_file(std::move(ifstream), source.c_str());
+    std::ifstream ifstream(source, std::iostream::in | std::iostream::binary);
+    Ensures(ifstream.is_open() && ifstream.good());
+    if (global_context.options.verbose_init == VerboseInit::LOAD) {
+      std::cout << path << module << '\n';
     }
-    return {};
+    std::cerr << path << module << '\n';
+    return parse_file(std::move(ifstream), source.c_str());
   }
   auto ProcessContext::parse_file(const std::string_view &data,
                                   const char *source) const -> asdl::Module {
