@@ -26,126 +26,52 @@ endif()
 
 add_library(
   chimera_core
-  library/asdl/asdl.hpp
   library/container/atomic_container.cpp
-  library/container/atomic_container.hpp
   library/container/atomic_map.cpp
-  library/container/atomic_map.hpp
   library/container/reverse.cpp
-  library/container/reverse.hpp
-  library/grammar/rules/action.hpp
-  library/grammar/rules/captures.hpp
-  library/grammar/rules/control.hpp
-  library/grammar/rules/rules.hpp
-  library/grammar/rules/set.hpp
-  library/grammar/rules/stack.hpp
-  library/grammar/expr.hpp
-  library/grammar/exprfwd.hpp
-  library/grammar/flags.hpp
-  library/grammar/grammar.hpp
-  library/grammar/identifier.hpp
-  library/grammar/input.hpp
-  library/grammar/keys.hpp
-  library/grammar/number.hpp
-  library/grammar/oper.hpp
-  library/grammar/parse.hpp
-  library/grammar/rules.hpp
-  library/grammar/stmt.hpp
-  library/grammar/string.hpp
-  library/grammar/utf8_id_continue.hpp
-  library/grammar/utf8_id_start.hpp
-  library/grammar/utf8_space.hpp
-  library/grammar/whitespace.hpp
   library/object/number/add.cpp
-  library/object/number/add.hpp
   library/object/number/and.cpp
-  library/object/number/and.hpp
   library/object/number/compare.cpp
-  library/object/number/compare.hpp
-  library/object/number/debug.hpp
   library/object/number/div.cpp
-  library/object/number/div.hpp
   library/object/number/floor_div.cpp
-  library/object/number/floor_div.hpp
   library/object/number/gcd.cpp
-  library/object/number/gcd.hpp
   library/object/number/invert.cpp
-  library/object/number/invert.hpp
   library/object/number/left_shift.cpp
-  library/object/number/left_shift.hpp
   library/object/number/less.cpp
-  library/object/number/less.hpp
   library/object/number/mod.cpp
-  library/object/number/mod.hpp
   library/object/number/mult.cpp
-  library/object/number/mult.hpp
   library/object/number/negative.cpp
-  library/object/number/negative.hpp
   library/object/number/number.cpp
-  library/object/number/number.hpp
   library/object/number/or.cpp
-  library/object/number/or.hpp
   library/object/number/overflow.cpp
-  library/object/number/overflow.hpp
   library/object/number/positive.cpp
-  library/object/number/positive.hpp
-  library/object/number/repr.hpp
   library/object/number/right_shift.cpp
-  library/object/number/right_shift.hpp
   library/object/number/sub.cpp
-  library/object/number/sub.hpp
-  library/object/number/util.hpp
   library/object/number/xor.cpp
-  library/object/number/xor.hpp
   library/object/object.cpp
-  library/object/object.hpp
   library/virtual_machine/modules/marshal.cpp
-  library/virtual_machine/modules/marshal.hpp
   library/virtual_machine/modules/sys.cpp
-  library/virtual_machine/modules/sys.hpp
   library/virtual_machine/bin_evaluator.cpp
-  library/virtual_machine/bin_evaluator.hpp
   library/virtual_machine/bool_evaluator.cpp
-  library/virtual_machine/bool_evaluator.hpp
   library/virtual_machine/builtins.cpp
-  library/virtual_machine/builtins.hpp
   library/virtual_machine/call_evaluator.cpp
-  library/virtual_machine/call_evaluator.hpp
   library/virtual_machine/del_evaluator.cpp
-  library/virtual_machine/del_evaluator.hpp
   library/virtual_machine/evaluator.cpp
-  library/virtual_machine/evaluator.hpp
-  library/virtual_machine/fibonacci_heap.hpp
   library/virtual_machine/garbage.cpp
-  library/virtual_machine/garbage.hpp
   library/virtual_machine/get_evaluator.cpp
-  library/virtual_machine/get_evaluator.hpp
   library/virtual_machine/global_context.cpp
-  library/virtual_machine/global_context.hpp
   library/virtual_machine/parse.cpp
-  library/virtual_machine/parse.hpp
   library/virtual_machine/process_context.cpp
-  library/virtual_machine/process_context.hpp
   library/virtual_machine/push_stack.cpp
-  library/virtual_machine/push_stack.hpp
   library/virtual_machine/set_evaluator.cpp
-  library/virtual_machine/set_evaluator.hpp
   library/virtual_machine/slice_evaluator.cpp
-  library/virtual_machine/slice_evaluator.hpp
   library/virtual_machine/thread_context.cpp
-  library/virtual_machine/thread_context.hpp
   library/virtual_machine/to_bool_evaluator.cpp
-  library/virtual_machine/to_bool_evaluator.hpp
   library/virtual_machine/tuple_evaluator.cpp
-  library/virtual_machine/tuple_evaluator.hpp
   library/virtual_machine/unary_evaluator.cpp
-  library/virtual_machine/unary_evaluator.hpp
   library/virtual_machine/virtual_machine.cpp
-  library/virtual_machine/virtual_machine.hpp
   library/options.cpp
-  library/options.hpp
-  library/version.cpp
-  library/version.hpp)
+  library/version.cpp)
 
 target_compile_features(chimera_core PUBLIC c_std_23 cxx_std_20)
 
@@ -185,7 +111,6 @@ add_executable(
   unit_tests/grammar/number_parse.cpp
   unit_tests/grammar/number.cpp
   unit_tests/grammar/statement.cpp
-  unit_tests/grammar/test_parse.hpp
   unit_tests/number/number.cpp
   unit_tests/virtual_machine/parse.cpp
   unit_tests/virtual_machine/virtual_machine.cpp)
@@ -277,7 +202,7 @@ target_include_directories(
   external/GSL/include
   external/PEGTL/include)
 
-add_library(modules_tools tools/modules.cpp tools/modules.hpp)
+add_library(modules_tools tools/modules.cpp)
 target_compile_features(modules_tools PUBLIC c_std_23 cxx_std_20)
 target_include_directories(modules_tools PUBLIC tools)
 target_link_libraries(modules_tools chimera_core pthread)
