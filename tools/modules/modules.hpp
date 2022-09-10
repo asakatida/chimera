@@ -54,8 +54,7 @@ namespace chimera::library {
     auto operator()(const Work &a, const Work &b) const -> bool;
   };
   struct IncompleteTuple {
-    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-    PrintState *printer;
+    IncompleteTuple(PrintState *printer) : printer(printer) {}
     auto operator()(const object::Tuple &tuple) const
         -> std::optional<object::Object>;
     template <typename Type>
@@ -63,8 +62,15 @@ namespace chimera::library {
         -> std::optional<object::Object> {
       return {};
     }
+
+  private:
+    PrintState *printer;
   };
   struct PrintState {
+    PrintState(const object::Object &main, const std::string &module)
+        : main(main) {
+      m_printed.try_emplace(id(main), module);
+    }
     auto printed(const object::Object &object) -> std::string;
     auto id(const object::Object &object) -> object::Id;
     void remap(const object::Object &module, const object::Object &previous);
@@ -216,11 +222,11 @@ namespace chimera::library {
     template <typename OStream>
     auto print(OStream &os, const Work &work) -> OStream & {
       auto baseName = std::string(work.base_name).append("_").append(work.name);
-      auto object = std::visit(IncompleteTuple{this}, work.object.value());
+      auto object = std::visit(IncompleteTuple(this), work.object.value());
       while (object) {
         print(os,
               Work{this, *object, baseName, std::to_string(m_printed.size())});
-        object = std::visit(IncompleteTuple{this}, work.object.value());
+        object = std::visit(IncompleteTuple(this), work.object.value());
       }
       if (is_printed(work.object)) {
         return os;
@@ -262,13 +268,32 @@ namespace chimera::library {
       }
       return os;
     }
-    // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
+    auto main_printed() -> std::string { return printed(main); }
+    template <typename OStream>
+    void print_all(OStream &os, const std::string &moduleName) {
+      for (const auto &name : main.dir()) {
+        if (is_printed(main.get_attribute(name))) {
+          os << moduleName << ".set_attribute(" << std::quoted(name) << "s,"
+             << printed(main.get_attribute(name)) << ");";
+        } else {
+          wanted[id(main.get_attribute(name))].emplace_back(
+              SetAttribute{moduleName, name});
+          queue.push(Work{this, main.get_attribute(name), moduleName, name});
+        }
+      }
+      while (!queue.empty()) {
+        auto work = queue.top();
+        queue.pop();
+        print(os, work);
+      }
+    }
+
+  private:
     std::map<object::Id, object::Id> m_remap{};
     std::map<object::Id, std::string> m_printed{};
     std::priority_queue<Work, std::vector<Work>, Compare> queue{};
     std::map<object::Id, std::vector<SetAttribute>> wanted{};
     object::Object main;
-    // NOLINTEND(misc-non-private-member-variables-in-classes)
   };
   struct Printer {
     object::Object main;
@@ -277,12 +302,11 @@ namespace chimera::library {
   };
   template <typename OStream>
   auto operator<<(OStream &os, const Printer &printer) -> OStream & {
-    PrintState state{.main = printer.main};
-    state.m_printed.try_emplace(state.id(printer.main), printer.module);
+    PrintState state(printer.main, printer.module);
     if (printer.remap) {
       state.remap(printer.main, *printer.remap);
     }
-    auto moduleName = state.printed(state.main);
+    auto moduleName = state.main_printed();
     os << "//! generated file see tools/" << moduleName
        << ".cpp\n\n"
           "#include \""
@@ -294,22 +318,7 @@ namespace chimera::library {
           "void "
        << moduleName << "(const object::Object &module) {auto " << moduleName
        << " = module;";
-    for (const auto &name : state.main.dir()) {
-      if (state.is_printed(state.main.get_attribute(name))) {
-        os << moduleName << ".set_attribute(" << std::quoted(name) << "s,"
-           << state.printed(state.main.get_attribute(name)) << ");";
-      } else {
-        state.wanted[state.id(state.main.get_attribute(name))].emplace_back(
-            SetAttribute{moduleName, name});
-        state.queue.push(
-            Work{&state, state.main.get_attribute(name), moduleName, name});
-      }
-    }
-    while (!state.queue.empty()) {
-      auto work = state.queue.top();
-      state.queue.pop();
-      state.print(os, work);
-    }
+    state.print_all(os, moduleName);
     return os << "} // namespace chimera::library::virtual_machine::modules"
               << std::endl;
   }
