@@ -25,8 +25,7 @@
 namespace chimera::library::object::number {
   template <typename OStream>
   struct Repr {
-    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-    OStream &os;
+    Repr(OStream &stream) : os(stream) {}
     auto operator()(std::uint64_t i) -> OStream & { return os << i << ','; }
     auto operator()(Base base) -> OStream & {
       return os << "Number(" << base.value << ')';
@@ -52,9 +51,12 @@ namespace chimera::library::object::number {
       std::visit(*this, complex.real) << '+';
       return std::visit(*this, complex.imag) << ".complex()";
     }
+
+  private:
+    OStream &os;
   };
   template <typename OStream>
   auto Number::repr(OStream &os) const -> OStream & {
-    return std::visit(Repr<OStream>{os}, value);
+    return std::visit(Repr(os), value);
   }
 } // namespace chimera::library::object::number
