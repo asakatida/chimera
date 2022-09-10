@@ -40,8 +40,6 @@ namespace chimera::library::asdl {
     struct Impl {
       using List = metal::list<Types...>;
       using ValueT = metal::apply<metal::lambda<std::variant>, List>;
-      // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-      std::shared_ptr<ValueT> value;
       template <typename Type,
                 typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
       // NOLINTNEXTLINE(hicpp-explicit-conversions)
@@ -53,6 +51,24 @@ namespace chimera::library::asdl {
         value = std::make_shared<ValueT>(std::forward<Type>(type));
         return *this;
       }
+      template <typename Type, typename Visitor,
+                typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
+      auto update_if(Visitor &&visitor) -> bool {
+        if (std::holds_alternative<Type>(*value)) {
+          *value = visitor(std::get<Type>(*value));
+          return true;
+        }
+        return false;
+      }
+      template <typename Visitor>
+      void visit(Visitor &&visitor) const {
+        if (value) {
+          std::visit(std::forward<Visitor>(visitor), *value);
+        }
+      }
+
+    private:
+      std::shared_ptr<ValueT> value;
     };
   } // namespace detail
   using ExprImpl =
