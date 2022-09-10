@@ -30,8 +30,14 @@
 namespace chimera::library::virtual_machine {
   struct VirtualMachine {
     VirtualMachine(const Options &options, object::Object builtins);
+    [[nodiscard]] auto execute_module() -> int;
+    [[nodiscard]] auto execute_script_input() -> int;
+    [[nodiscard]] auto execute_script_string() -> int;
+    [[nodiscard]] auto execute_script() -> int;
+    [[nodiscard]] auto interactive() -> int;
     [[nodiscard]] auto process_context() const -> ProcessContext;
-    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
+
+  private:
     GlobalContext global_context{};
   };
 } // namespace chimera::library::virtual_machine
