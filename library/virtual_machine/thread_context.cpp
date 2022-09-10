@@ -45,7 +45,7 @@ namespace chimera::library::virtual_machine {
   void ThreadContext::process_interrupts() const {
     process_context.process_interrupts();
   }
-  auto ThreadContext::return_value() const -> const object::Object {
+  auto ThreadContext::return_value() const -> object::Object {
     return ret.value_or(builtins().get_attribute("None"));
     ;
   }

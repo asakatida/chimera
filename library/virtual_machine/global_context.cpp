@@ -79,13 +79,10 @@ namespace chimera::library::virtual_machine {
   }
   auto GlobalContext::execute_module() -> int {
     ProcessContext processContext{*this};
-    if (auto importModule = processContext.import_module(options.module_name);
-        importModule) {
-      auto main = processContext.make_module("__main__");
-      ThreadContext(processContext, main).evaluate(*importModule);
-      return 0;
-    }
-    return 1;
+    auto importModule = processContext.import_module(options.module_name);
+    auto main = processContext.make_module("__main__");
+    ThreadContext(processContext, main).evaluate(importModule);
+    return 0;
   }
   void GlobalContext::process_interrupts() const {
     if (!std::atomic_flag_test_and_set(sig_int)) {
