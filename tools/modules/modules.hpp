@@ -54,7 +54,7 @@ namespace chimera::library {
     auto operator()(const Work &a, const Work &b) const -> bool;
   };
   struct IncompleteTuple {
-    IncompleteTuple(PrintState *printer) : printer(printer) {}
+    explicit IncompleteTuple(PrintState *printer) : printer(printer) {}
     auto operator()(const object::Tuple &tuple) const
         -> std::optional<object::Object>;
     template <typename Type>

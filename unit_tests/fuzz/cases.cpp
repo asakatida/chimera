@@ -81,8 +81,8 @@ namespace chimera::library {
       return -1;
     }
     Ensures(module.has_value());
-    virtual_machine::ThreadContext threadContext{
-        processContext, processContext.make_module("__main__")};
+    auto main = processContext.make_module("__main__");
+    virtual_machine::ThreadContext threadContext{processContext, main};
     try {
       threadContext.evaluate(*module);
     } catch (const object::BaseException &) {

@@ -30,7 +30,7 @@ namespace chimera::library::container {
   void reverse();
   template <typename Container>
   struct Reverse {
-    Reverse(Container &container) : container(&container) {}
+    explicit Reverse(Container &container) : container(&container) {}
     [[nodiscard]] auto begin() const noexcept { return container->rbegin(); }
     [[nodiscard]] auto cbegin() const noexcept { return container->crbegin(); }
     [[nodiscard]] auto rbegin() const noexcept { return container->begin(); }

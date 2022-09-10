@@ -25,6 +25,14 @@
 #include "virtual_machine/evaluator.hpp"
 
 namespace chimera::library::virtual_machine {
+  ThreadContext::ThreadContext(const ProcessContext &process_context,
+                               object::Object main)
+      : process_context(const_cast<ProcessContext &>(process_context)),
+        main(std::move(main)) {}
+  auto ThreadContext::body() const -> object::Object { return main; }
+  auto ThreadContext::builtins() const -> const object::Object & {
+    return process_context.builtins();
+  }
   void ThreadContext::evaluate(const asdl::Module &module) {
     return Evaluator{*this}.evaluate(module);
   }
@@ -33,5 +41,15 @@ namespace chimera::library::virtual_machine {
   }
   void ThreadContext::evaluate(const asdl::Expression &expression) {
     return Evaluator{*this}.evaluate(expression);
+  }
+  void ThreadContext::process_interrupts() const {
+    process_context.process_interrupts();
+  }
+  auto ThreadContext::return_value() const -> const object::Object {
+    return ret.value_or(builtins().get_attribute("None"));
+    ;
+  }
+  void ThreadContext::return_value(object::Object &&value) {
+    ret = std::move(value);
   }
 } // namespace chimera::library::virtual_machine

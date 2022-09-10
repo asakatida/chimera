@@ -47,10 +47,10 @@ namespace chimera::library {
     const virtual_machine::VirtualMachine virtualMachine({}, builtins);
     auto processContext = virtualMachine.process_context();
     auto module = processContext.parse_file(std::move(std::cin), "<input>");
-    virtual_machine::ThreadContext threadContext{
-        processContext, processContext.make_module("importlib")};
+    auto main = processContext.make_module("importlib");
+    virtual_machine::ThreadContext threadContext{processContext, main};
     threadContext.evaluate(module);
-    const Printer printer{threadContext.main, "importlib"};
+    const Printer printer{threadContext.body(), "importlib"};
     std::cout << printer;
   }
 } // namespace chimera::library
