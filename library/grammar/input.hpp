@@ -31,38 +31,65 @@
 namespace chimera::library::grammar {
   template <typename Base>
   struct Input : Base {
-    template <typename... Args>
-    explicit Input(Args &&...args) : Base(std::forward<Args>(args)...) {
-      indentStack.emplace();
-    }
+    using Base::Base;
+    using Base::column;
+    using Base::current;
+    using Base::empty;
     auto indent() -> bool {
-      const std::uintmax_t i = Base::column();
-      if (indentStack.top() < i) {
+      const std::uintmax_t i = column();
+      if ((indentStack.empty() || indentStack.top() < i) && validate()) {
         indentStack.push(i);
         return true;
       }
       return false;
     }
     [[nodiscard]] auto is_dedent() const -> bool {
-      return Base::column() < indentStack.top();
+      if (indentStack.empty()) {
+        return false;
+      }
+      return column() < indentStack.top();
     }
     auto dedent() -> bool {
       using namespace std::literals;
+      if (indentStack.empty()) {
+        return false;
+      }
       indentStack.pop();
-      if (Base::empty()) {
+      if (empty()) {
         return true;
       }
-      const std::uintmax_t i = Base::column();
-      if (i > indentStack.top()) {
+      if (column() > indentStack.top()) {
         throw tao::pegtl::parse_error("bad dedent"s, *this);
       }
-      return i == indentStack.top();
+      return true;
     }
     [[nodiscard]] auto is_newline() const -> bool {
-      return Base::column() == indentStack.top();
+      if (indentStack.empty()) {
+        return 0 == column();
+      }
+      return column() == indentStack.top();
+    }
+    auto validate() -> bool {
+      auto end = current();
+      std::string_view line(end - column(), column());
+      if (indentType == 0) {
+        indentType = *end;
+        if (auto result = validateBasic(line); !result) {
+          indentType = 0;
+          return result;
+        }
+        return true;
+      }
+      return validateBasic(line);
+    }
+    template <typename Line>
+    auto validateBasic(Line &&line) -> bool {
+      return std::all_of(line.begin(), line.end(),
+                         [this](auto &&c) { return c == indentType; });
     }
 
   private:
-    std::stack<std::uintmax_t> indentStack{};
+    std::uint32_t indentType = 0;
+    std::stack<std::uintmax_t> indentStack;
   };
 } // namespace chimera::library::grammar

@@ -209,10 +209,13 @@ add_executable(bnf2abnf tools/bnf2abnf.cpp)
 
 target_compile_features(bnf2abnf PUBLIC c_std_23 cxx_std_20)
 
+target_include_directories(bnf2abnf PUBLIC library)
+
 target_include_directories(
   bnf2abnf
   SYSTEM PUBLIC
   external/GSL/include
+  external/metal/include
   external/PEGTL/include)
 
 add_library(modules_tools tools/modules.cpp)

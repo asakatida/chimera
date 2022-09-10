@@ -1,6 +1,6 @@
 from functools import reduce
 from pathlib import Path
-from re import MULTILINE, Match, compile
+from re import MULTILINE, compile
 from sys import argv
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -16,15 +16,8 @@ SEARCHES = (
         rb"$\s^$(?P<keep>\s{2,})(?=\S)(?!private:)", MULTILINE
     ),  # no runs of blank lines
     compile(rb"((?=[^\n])\s)+(?P<keep>$)", MULTILINE),  # no line ending space
-    compile(rb"^(?P<keep>( +\t *| *\t +))", MULTILINE),  # no mixing tabs with spaces
+    compile(rb"(?P<keep>\s)\s+\Z"),  # no trailing space
 )
-
-
-def sub(match: Match[bytes]) -> bytes:
-    keep = match.group("keep")
-    if b"\t" in keep and b"\n" not in keep:
-        return compile(rb" {2}").sub(b"\t", keep)
-    return keep
 
 
 def test(f: Path) -> bool:
@@ -42,7 +35,7 @@ while files:
     for file in files:
         file.write_bytes(
             reduce(
-                lambda content, search: search.sub(sub, content),
+                lambda content, search: search.sub(rb"\g<keep>", content),
                 SEARCHES,
                 file.read_bytes(),
             )
