@@ -7,4 +7,3 @@ set -ex -o pipefail
   git stash list
   git log --all --date-order --oneline --graph "$@"
 } 2>&1 | less
-

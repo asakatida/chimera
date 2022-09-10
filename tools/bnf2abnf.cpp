@@ -26,6 +26,8 @@
 
 #include <tao/pegtl.hpp>
 
+#include "grammar/utf8_space.hpp"
+
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 template <typename Rule>
@@ -47,7 +49,8 @@ struct BnfAction<CommentBody> {
 };
 
 struct Comment : tao::pegtl::seq<tao::pegtl::one<'#'>, CommentBody> {};
-struct Spaces : tao::pegtl::plus<tao::pegtl::one<' ', '\t'>> {};
+struct Spaces : tao::pegtl::plus<chimera::library::grammar::Utf8NonLineBreak> {
+};
 
 template <>
 struct BnfAction<Spaces> : BnfPrint<' '> {};

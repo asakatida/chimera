@@ -40,23 +40,21 @@ namespace chimera::library::grammar {
           std::conditional_t<flags::get<Option, flags::IMPLICIT>, Utf8Space,
                              minus<Utf8Space, one<'\r', '\n'>>>>,
       std::conditional_t<flags::get<Option, flags::DISCARD>, discard, success>>;
-  using BlankLines =
-      seq<plus<Space<0>, Eol>, sor<plus<one<' '>>, star<one<'\t'>>>,
-          must<not_at<one<' ', '\t'>>>>;
-  struct IndentCheck : not_at<one<' ', '\t'>> {
+  using BlankLines = seq<plus<Space<0>, Eol>, star<Utf8NonLineBreak>>;
+  struct IndentCheck : not_at<Utf8NonLineBreak> {
     template <typename Input>
     static auto match(Input &&in) -> bool {
       return in.indent();
     }
   };
   struct INDENT : seq<BlankLines, IndentCheck, discard> {};
-  struct DedentCheck : not_at<one<' ', '\t'>> {
+  struct DedentCheck : not_at<Utf8NonLineBreak> {
     template <typename Input>
     static auto match(Input &&in) -> bool {
       return in.is_dedent();
     }
   };
-  struct DedentConsume : not_at<one<' ', '\t'>> {
+  struct DedentConsume : not_at<Utf8NonLineBreak> {
     template <typename Input>
     static auto match(Input &&in) -> bool {
       return in.dedent();
@@ -65,7 +63,7 @@ namespace chimera::library::grammar {
   struct DEDENT : sor<seq<eof, DedentConsume>,
                       seq<at<BlankLines, DedentCheck>,
                           opt<BlankLines, DedentConsume, discard>>> {};
-  struct NextIndentCheck : not_at<one<' ', '\t'>> {
+  struct NextIndentCheck : not_at<Utf8NonLineBreak> {
     template <typename Input>
     static auto match(Input &&in) -> bool {
       return in.is_newline();
