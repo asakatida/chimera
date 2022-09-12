@@ -304,7 +304,7 @@ namespace chimera::library {
       state.remap(printer.main, *printer.remap);
     }
     auto moduleName = state.main_printed();
-    os << "//! generated file see tools/" << moduleName
+    os << "//! generated file see tools/modules/" << moduleName
        << ".cpp\n\n"
           "#include \""
        << moduleName << "/" << moduleName
