@@ -1,0 +1,76 @@
+---
+env:
+  CLANG_VERSION: "14"
+  CMAKE_EXPORT_COMPILE_COMMANDS: "YES"
+
+jobs:
+  modules:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.1.0
+        with:
+          submodules: true
+      - name: Cache
+        uses: actions/cache@v3.0.11
+        with:
+          key: python3-${{ hashFiles('requirements.txt') }}
+          path: env
+      - name: Build dev tools
+        run: >
+          python3 -m venv --upgrade --upgrade-deps env &&
+          env/bin/pip3 install --upgrade pip setuptools wheel &&
+          env/bin/pip3 install -r requirements.txt
+        working-directory: ${{ github.workspace }}
+      - run: >
+          wget https://apt.llvm.org/llvm.sh &&
+          chmod +x llvm.sh &&
+          sudo ./llvm.sh ${{ env.CLANG_VERSION }} all &&
+          rm -rf llvm.sh &&
+          sudo apt-get install -y ninja-build
+      - env:
+          CC: /usr/bin/clang-${{ env.CLANG_VERSION }}
+          CXX: /usr/bin/clang++-${{ env.CLANG_VERSION }}
+        name: Configure CMake
+        run: cmake -GNinja -B build -S .
+        working-directory: ${{ github.workspace }}
+      - name: build module tools
+        run: ninja modules
+        working-directory: ${{ github.workspace }}/build
+      - name: generate modules
+        run: >
+          find tools/modules -name '*.sh' -print0 |
+          xargs --no-run-if-empty --null -P3 --replace='{}' --
+          bash '{}' ${{ github.workspace }}/build
+        working-directory: ${{ github.workspace }}
+      - if: ${{ github.ref == 'refs/heads/stable' }}
+        uses: stefanzweifel/git-auto-commit-action@v4.15.1
+        with:
+          branch: modules
+          commit_message: Update modules.
+          create_branch: true
+          file_pattern: stdlib
+          repository: ${{ github.workspace }}
+
+name: Modules
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    branches:
+      - stable
+    paths:
+      - .github/workflows/modules.yml
+      - "**.py"
+      - cmake/**
+      - CMakeList.txt
+      - tools/modules/**
+  push:
+    branches:
+      - stable
+    paths:
+      - .github/workflows/modules.yml
+      - "**.py"
+      - cmake/**
+      - CMakeList.txt
+      - tools/modules/**
+  workflow_dispatch: ~

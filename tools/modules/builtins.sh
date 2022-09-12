@@ -7,7 +7,7 @@ shift
 cd "$(git rev-parse --show-toplevel || true)"
 output=stdlib/builtins/builtins.cpp
 
-"${build}/builtins" "$@" < stdlib/builtins_.py | \
+"${build}/builtins" "$@" < stdlib/_builtins.py | \
   clang-format -style=file >"${output}"
 
 clang-tidy \
