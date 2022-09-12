@@ -20,7 +20,7 @@
 
 //! used to initialize the sys module.
 
-#include "virtual_machine/modules/sys.hpp"
+#include "sys/sys.hpp"
 
 #include <algorithm>
 #include <vector>

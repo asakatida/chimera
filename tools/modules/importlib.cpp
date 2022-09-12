@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Asa Katida <github@holomaplefeline.net>
+// Copyright (c) 2018 Asa Katida <github@holomaplefeline.net>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! evaluates stdlib/_builtins.py to construct the builtin module.
+//! evaluates importlib to construct the importlib module.
 //! Then prints the module construction.
 
 #include <algorithm>
@@ -41,15 +41,14 @@
 namespace chimera::library {
   static void main() {
     const object::Object builtins;
-    virtual_machine::modules::init(builtins);
+    virtual_machine::modules::builtins(builtins);
     const virtual_machine::VirtualMachine virtualMachine({}, builtins);
     auto processContext = virtualMachine.process_context();
     auto module = processContext.parse_file(std::move(std::cin), "<input>");
     virtual_machine::ThreadContext threadContext{
-        processContext, processContext.make_module("builtins")};
+        processContext, processContext.make_module("importlib")};
     threadContext.evaluate(module);
-    const Printer printer{threadContext.main, "builtins",
-                          threadContext.main.get_attribute("__builtins__")};
+    const Printer printer{threadContext.main, "importlib"};
     std::cout << printer;
   }
 } // namespace chimera::library

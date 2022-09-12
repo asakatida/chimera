@@ -58,11 +58,8 @@ add_library(
   library/object/number/sub.cpp
   library/object/number/xor.cpp
   library/object/object.cpp
-  library/virtual_machine/modules/marshal.cpp
-  library/virtual_machine/modules/sys.cpp
   library/virtual_machine/bin_evaluator.cpp
   library/virtual_machine/bool_evaluator.cpp
-  library/virtual_machine/builtins.cpp
   library/virtual_machine/call_evaluator.cpp
   library/virtual_machine/del_evaluator.cpp
   library/virtual_machine/evaluator.cpp
@@ -80,11 +77,15 @@ add_library(
   library/virtual_machine/unary_evaluator.cpp
   library/virtual_machine/virtual_machine.cpp
   library/options.cpp
-  library/version.cpp)
+  library/version.cpp
+  stdlib/builtins/builtins.cpp
+  stdlib/importlib/importlib.cpp
+  stdlib/marshal/marshal.cpp
+  stdlib/sys/sys.cpp)
 
 target_compile_features(chimera_core PUBLIC c_std_23 cxx_std_20)
 
-target_include_directories(chimera_core PUBLIC library)
+target_include_directories(chimera_core PUBLIC library stdlib)
 
 target_include_directories(
   chimera_core
@@ -218,18 +219,20 @@ target_include_directories(
   external/metal/include
   external/PEGTL/include)
 
-add_library(modules_tools tools/modules.cpp)
+add_library(modules_tools tools/modules/modules.cpp)
 target_compile_features(modules_tools PUBLIC c_std_23 cxx_std_20)
 target_include_directories(modules_tools PUBLIC tools)
 target_link_libraries(modules_tools chimera_core pthread)
 
-add_executable(builtins tools/builtins.cpp)
+add_executable(builtins tools/modules/builtins.cpp)
 target_compile_features(builtins PUBLIC c_std_23 cxx_std_20)
 target_link_libraries(builtins modules_tools pthread)
 
-add_executable(importlib tools/importlib.cpp)
+add_executable(importlib tools/modules/importlib.cpp)
 target_compile_features(importlib PUBLIC c_std_23 cxx_std_20)
 target_link_libraries(importlib modules_tools pthread)
+
+add_custom_target(modules DEPENDS builtins importlib)
 
 add_custom_target(
   spec

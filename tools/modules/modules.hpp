@@ -285,8 +285,8 @@ namespace chimera::library {
     auto moduleName = state.printed(state.main);
     os << "//! generated file see tools/" << moduleName
        << ".cpp\n\n"
-          "#include \"virtual_machine/modules/"
-       << moduleName
+          "#include \""
+       << moduleName << "/" << moduleName
        << ".hpp\"\n\n"
           "#include \"object/object.hpp\"\n\n"
           "using namespace std::literals;\n\n"

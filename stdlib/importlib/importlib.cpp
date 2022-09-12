@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Asa Katida <github@holomaplefeline.net>
+// Copyright (c) 2022 Asa Katida <github@holomaplefeline.net>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,12 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! used to initialize the global builtins module.
+//! used to initialize the marshal module.
 
-#pragma once
-
-#include "object/object.hpp"
+#include "importlib/importlib.hpp"
 
 namespace chimera::library::virtual_machine::modules {
-  void init(const object::Object &module);
+  void importlib(const Options & /*options*/,
+                 const object::Object & /*module*/) {}
 } // namespace chimera::library::virtual_machine::modules

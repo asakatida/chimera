@@ -18,26 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! controller to set up GlobalContext.
+//! used to initialize the marshal module.
 
-#pragma once
+#include "marshal/marshal.hpp"
 
-#include <atomic>
-
-#include "builtins/builtins.hpp"
-#include "object/object.hpp"
-#include "options.hpp"
-#include "virtual_machine/global_context.hpp"
-#include "virtual_machine/process_context.hpp"
-#include "virtual_machine/thread_context.hpp"
-
-extern "C" void interupt_handler(int signal);
-
-namespace chimera::library::virtual_machine {
-  struct VirtualMachine {
-    VirtualMachine(const Options &options, object::Object builtins);
-    [[nodiscard]] auto process_context() const -> ProcessContext;
-    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-    GlobalContext global_context{};
-  };
-} // namespace chimera::library::virtual_machine
+namespace chimera::library::virtual_machine::modules {
+  void marshal(const Options & /*options*/, const object::Object & /*module*/) {
+  }
+} // namespace chimera::library::virtual_machine::modules
