@@ -32,9 +32,10 @@
 #include <gsl/gsl>
 
 #include "asdl/asdl.hpp"
+#include "importlib/importlib.hpp"
+#include "marshal/marshal.hpp"
 #include "object/object.hpp"
-#include "virtual_machine/modules/marshal.hpp"
-#include "virtual_machine/modules/sys.hpp"
+#include "sys/sys.hpp"
 #include "virtual_machine/parse.hpp"
 #include "virtual_machine/thread_context.hpp"
 
@@ -109,6 +110,8 @@ namespace chimera::library::virtual_machine {
       if (auto importModule = import_module(std::string(module));
           importModule) {
         ThreadContext{*this, result.first->second}.evaluate(*importModule);
+      } else if (module == "importlib"sv) {
+        modules::importlib(global_context.options, result.first->second);
       } else if (module == "marshal"sv) {
         modules::marshal(global_context.options, result.first->second);
       } else if (module == "sys"sv) {

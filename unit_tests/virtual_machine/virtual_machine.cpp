@@ -10,7 +10,7 @@ TEST_CASE("grammar VirtualMachine ()") {
     options.chimera = "chimera";
     options.script = "test.py";
     const chimera::library::object::Object builtins;
-    chimera::library::virtual_machine::modules::init(builtins);
+    chimera::library::virtual_machine::modules::builtins(builtins);
     const chimera::library::virtual_machine::VirtualMachine virtualMachine(
         options, builtins);
     auto processContext = virtualMachine.process_context();
@@ -27,7 +27,7 @@ TEST_CASE("grammar VirtualMachine (type)") {
   options.chimera = "chimera";
   options.script = "test.py";
   const chimera::library::object::Object builtins;
-  chimera::library::virtual_machine::modules::init(builtins);
+  chimera::library::virtual_machine::modules::builtins(builtins);
   const chimera::library::virtual_machine::VirtualMachine virtualMachine(
       options, builtins);
   auto processContext = virtualMachine.process_context();
@@ -43,7 +43,7 @@ TEST_CASE("grammar VirtualMachine (a@b=c)") {
   options.chimera = "chimera";
   options.script = "test.py";
   const chimera::library::object::Object builtins;
-  chimera::library::virtual_machine::modules::init(builtins);
+  chimera::library::virtual_machine::modules::builtins(builtins);
   const chimera::library::virtual_machine::VirtualMachine virtualMachine(
       options, builtins);
   auto processContext = virtualMachine.process_context();

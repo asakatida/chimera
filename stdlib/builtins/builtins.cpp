@@ -20,14 +20,14 @@
 
 //! generated file see tools/builtins.cpp
 
-#include "virtual_machine/builtins.hpp"
+#include "builtins/builtins.hpp"
 
 #include "object/object.hpp"
 
 using namespace std::literals;
 
 namespace chimera::library::virtual_machine::modules {
-  void init(const object::Object &module) {
+  void builtins(const object::Object &module) {
     auto builtins = module;
     builtins.set_attribute("__builtins__"s, builtins);
     object::Object builtinsFalse(object::False{},

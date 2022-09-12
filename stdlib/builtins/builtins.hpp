@@ -18,11 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! used to initialize the marshal module.
+//! used to initialize the global builtins module.
 
-#include "virtual_machine/modules/marshal.hpp"
+#pragma once
+
+#include "object/object.hpp"
 
 namespace chimera::library::virtual_machine::modules {
-  void marshal(const Options & /*options*/, const object::Object & /*module*/) {
-  }
+  void builtins(const object::Object &module);
 } // namespace chimera::library::virtual_machine::modules

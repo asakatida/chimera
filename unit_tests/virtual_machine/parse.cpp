@@ -15,7 +15,7 @@ namespace chimera::library {
     options.chimera = "chimera";
     options.script = "unit_test.py";
     const object::Object builtins;
-    virtual_machine::modules::init(builtins);
+    virtual_machine::modules::builtins(builtins);
     const virtual_machine::VirtualMachine virtualMachine(options, builtins);
     auto processContext = virtualMachine.process_context();
     try {

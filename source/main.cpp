@@ -69,7 +69,7 @@ namespace chimera::library {
       try {
         Options options{};
         const object::Object builtins;
-        virtual_machine::modules::init(builtins);
+        virtual_machine::modules::builtins(builtins);
         auto arg = args.begin();
         options.chimera = *arg++;
         for (; arg != args.end(); ++arg) {
