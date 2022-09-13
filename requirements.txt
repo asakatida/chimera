@@ -1,5 +1,5 @@
 ansible==6.3.0
-ansible-core==2.13.3
+ansible-core==2.13.4
 black==22.8.0
 certifi==2022.6.15.1
 cffi==1.15.1
