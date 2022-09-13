@@ -136,17 +136,21 @@ target_include_directories(
 target_link_libraries(unit_test Catch2WithMain chimera_core pthread)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_library(chimerafuzz unit_tests/fuzz/cases.cpp)
-  target_compile_options(
-    chimerafuzz
-    PUBLIC
+  set(NOT_APPLE_CLANG $<NOT:$<CXX_COMPILER_ID:AppleClang>>)
+  set(
+    FUZZ_CXXFLAGS
     -fsanitize-coverage=no-prune
     -fsanitize-coverage=trace-cmp
     -fsanitize-coverage=trace-div
     -fsanitize-coverage=trace-gep
-    -fsanitize-coverage=trace-loads
-    -fsanitize-coverage=trace-stores
-    -fsanitize=address)
+    $<${NOT_APPLE_CLANG}:-fsanitize-coverage=trace-loads>
+    $<${NOT_APPLE_CLANG}:-fsanitize-coverage=trace-stores>
+    -fsanitize=address,fuzzer)
+  add_library(chimerafuzz unit_tests/fuzz/cases.cpp)
+  target_compile_options(
+    chimerafuzz
+    PUBLIC
+    ${FUZZ_CXXFLAGS})
   target_compile_features(chimerafuzz PUBLIC c_std_23 cxx_std_20)
   target_include_directories(chimerafuzz PUBLIC unit_tests)
   target_link_libraries(chimerafuzz chimera_core pthread)
@@ -159,13 +163,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     target_compile_options(
       fuzz-${fuzzer}
       PUBLIC
-      -fsanitize-coverage=no-prune
-      -fsanitize-coverage=trace-cmp
-      -fsanitize-coverage=trace-div
-      -fsanitize-coverage=trace-gep
-      -fsanitize-coverage=trace-loads
-      -fsanitize-coverage=trace-stores
-      -fsanitize=address,fuzzer)
+      ${FUZZ_CXXFLAGS})
     target_compile_features(fuzz-${fuzzer} PUBLIC c_std_23 cxx_std_20)
     target_include_directories(fuzz-${fuzzer} PUBLIC unit_tests)
     target_link_libraries(
@@ -173,13 +171,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       chimera_core
       chimerafuzz
       pthread
-      -fsanitize-coverage=no-prune
-      -fsanitize-coverage=trace-cmp
-      -fsanitize-coverage=trace-div
-      -fsanitize-coverage=trace-gep
-      -fsanitize-coverage=trace-loads
-      -fsanitize-coverage=trace-stores
-      -fsanitize=address,fuzzer
+      ${FUZZ_CXXFLAGS}
       -rtlib=compiler-rt)
     add_custom_target(
       corpus-${fuzzer}
