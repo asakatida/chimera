@@ -31,10 +31,10 @@ namespace chimera::library::container {
   template <typename Value>
   struct AtomicContainer {
     AtomicContainer() noexcept : mutex(std::make_unique<std::shared_mutex>()) {}
-    explicit AtomicContainer(const Value &v)
-        : mutex(std::make_unique<std::shared_mutex>()), value(v) {}
-    explicit AtomicContainer(Value &&v) noexcept
-        : mutex(std::make_unique<std::shared_mutex>()), value(std::move(v)) {}
+    template <typename... Args>
+    explicit AtomicContainer(Args &&...args)
+        : mutex(std::make_unique<std::shared_mutex>()),
+          value(std::forward<Args>(args)...) {}
     AtomicContainer(const AtomicContainer &other)
         : mutex(std::make_unique<std::shared_mutex>()),
           value(other.read().value) {}

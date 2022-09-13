@@ -32,7 +32,7 @@ namespace chimera::library::object {
   Object::Object() : object(std::make_shared<Impl>()) {}
   Object::Object(Value &&value, std::map<std::string, Object> &&attributes)
       : object(std::make_shared<Impl>(
-            Impl{std::move(value), {std::move(attributes)}})) {}
+            Impl{std::move(value), Attributes{std::move(attributes)}})) {}
   void Object::delete_attribute(std::string &&key) noexcept {
     object->attributes.erase(key);
   }
