@@ -31,50 +31,48 @@ namespace chimera::library::container {
   template <typename Key, typename Value>
   struct AtomicMap : AtomicContainer<std::map<Key, Value>> {
     using Container = AtomicContainer<std::map<Key, Value>>;
-    AtomicMap() noexcept = default;
-    template <typename... Args>
-    // NOLINTNEXTLINE(hicpp-explicit-conversions)
-    AtomicMap(Args &&...args) : Container(std::forward<Args>(args)...) {}
+    using Container::Container;
+    using Container::read;
+    using Container::write;
     template <typename... Args>
     [[nodiscard]] auto at(Args &&...args) const -> auto & {
-      return Container::read().value.at(std::forward<Args>(args)...);
+      return read().value.at(std::forward<Args>(args)...);
     }
     template <typename... Args>
     auto at(Args &&...args) -> auto & {
-      return Container::read().value.at(std::forward<Args>(args)...);
+      return read().value.at(std::forward<Args>(args)...);
     }
     template <typename... Args>
     auto cbegin(Args &&...args) const {
-      return Container::read().value.cbegin(std::forward<Args>(args)...);
+      return read().value.cbegin(std::forward<Args>(args)...);
     }
     template <typename... Args>
     auto cend(Args &&...args) const {
-      return Container::read().value.cend(std::forward<Args>(args)...);
+      return read().value.cend(std::forward<Args>(args)...);
     }
     template <typename... Args>
     [[nodiscard]] auto count(Args &&...args) const {
-      return Container::read().value.count(std::forward<Args>(args)...);
+      return read().value.count(std::forward<Args>(args)...);
     }
     template <typename... Args>
     auto size(Args &&...args) const {
-      return Container::read().value.size(std::forward<Args>(args)...);
+      return read().value.size(std::forward<Args>(args)...);
     }
     template <typename... Args>
     auto operator[](Args &&...args) -> auto & {
-      return Container::write().value.operator[](std::forward<Args>(args)...);
+      return write().value.operator[](std::forward<Args>(args)...);
     }
     template <typename... Args>
     auto erase(Args &&...args) {
-      return Container::write().value.erase(std::forward<Args>(args)...);
+      return write().value.erase(std::forward<Args>(args)...);
     }
     template <typename... Args>
     auto insert_or_assign(Args &&...args) {
-      return Container::write().value.insert_or_assign(
-          std::forward<Args>(args)...);
+      return write().value.insert_or_assign(std::forward<Args>(args)...);
     }
     template <typename... Args>
     auto try_emplace(Args &&...args) {
-      return Container::write().value.try_emplace(std::forward<Args>(args)...);
+      return write().value.try_emplace(std::forward<Args>(args)...);
     }
   };
 } // namespace chimera::library::container
