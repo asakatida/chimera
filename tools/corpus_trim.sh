@@ -8,6 +8,7 @@ if [[ -z "$(find . -name fuzz-vm -perm -0110 -type f || true)" ]]; then
   exit
 fi
 
+mkdir -p unit_tests/fuzz/crashes
 find build \
   '(' -name 'crash-*' -or -name 'leak-*' -or -name 'timeout-*' ')' \
   -type f -exec mv {} unit_tests/fuzz/crashes ';'
