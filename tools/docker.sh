@@ -4,7 +4,6 @@ set -ex -o pipefail
 
 cleanup() {
   truncate -s0 /etc/machine-id
-
   apt-get autoclean
   apt-get clean
   # rm -rf /etc/{bash_completion.d,cron.{daily,weekly},kernel} /var/cache/apt/* /var/lib/apt/lists/* /var/log
