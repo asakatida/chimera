@@ -3,7 +3,7 @@ env:
   CLANG_VERSION: 15
   CMAKE_BUILD_TYPE: Coverage  # not using Debug to avoid getting `-g`
   CXXFLAGS: >
-    -O3 -DNDEBUG
+    -O1 -DNDEBUG
     -fcoverage-mapping
     -fprofile-instr-generate
     -mllvm
@@ -42,16 +42,15 @@ jobs:
           rm -f build/CMakeCache.txt &&
           cmake -GNinja -B build -S .
         working-directory: ${{github.workspace}}
-      - continue-on-error: true
-        env:
+      - env:
           CC: /usr/bin/clang-${{ env.CLANG_VERSION }}
           CXX: /usr/bin/clang++-${{ env.CLANG_VERSION }}
         name: Test
         run: >
           rm -rf "$(dirname "${LLVM_PROFILE_FILE}")" &&
           mkdir -p "$(dirname "${LLVM_PROFILE_FILE}")" &&
-          ninja -j1 unit_test &&
-          ninja -k0 corpus
+          ninja -j1 &&
+          ninja regression
         working-directory: ${{github.workspace}}/build
       - name: merge raw profile
         run: >
