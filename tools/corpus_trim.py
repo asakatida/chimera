@@ -23,26 +23,45 @@
 from hashlib import sha256
 from pathlib import Path
 
-LENGTH = 6
+LENGTH = 9
 DIRECTORIES = ("corpus", "crashes")
+
+
+class Increment(Exception):
+    pass
 
 
 def sha(path: Path) -> str:
     return sha256(path.read_bytes()).hexdigest()
 
 
-corpus = (Path(__file__).parent.parent / "unit_tests" / "fuzz").absolute()
+def corpus_trim(corpus: Path) -> None:
+    global LENGTH
+    for file in corpus.glob("*/*"):
+        if file.parent.name not in DIRECTORIES:
+            continue
+        name = file.name[:LENGTH].rjust(LENGTH, "0")
+        if any(
+            map(
+                lambda other: other.exists() and sha(file) != sha(other),
+                map(lambda directory: corpus / directory / name, DIRECTORIES),
+            )
+        ):
+            raise Increment("Collision found, update corpus_trim.py `LENGTH`:", LENGTH)
+        file.rename(file.parent / name)
 
-for file in corpus.glob("*/*"):
-    if file.parent.name not in DIRECTORIES:
-        continue
-    name = file.name[:LENGTH].rjust(LENGTH, "0")
-    if any(
-        map(
-            lambda other: other.exists() and sha(file) != sha(other),
-            map(lambda directory: corpus / directory / name, DIRECTORIES),
-        )
-    ):
-        print("Collision found, update corpus_trim.py `LENGTH`:", LENGTH)
-        exit(1)
-    file.rename(file.parent / name)
+
+def main() -> None:
+    global LENGTH
+    corpus = (Path(__file__).parent.parent / "unit_tests" / "fuzz").absolute()
+    while True:
+        try:
+            corpus_trim(corpus)
+        except Increment:
+            LENGTH += 1
+            continue
+        break
+
+
+if __name__ == "__main__":
+    main()
