@@ -135,6 +135,9 @@ target_include_directories(
 
 target_link_libraries(unit_test Catch2WithMain chimera_core pthread)
 
+add_custom_target(check unit_test VERBATIM)
+add_custom_target(check_rand unit_test --order rand VERBATIM)
+
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(NOT_APPLE_CLANG $<NOT:$<CXX_COMPILER_ID:AppleClang>>)
   set(
@@ -156,6 +159,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   target_link_libraries(chimerafuzz chimera_core pthread)
   add_custom_target(corpus)
   add_custom_target(fuzzers)
+  add_custom_target(regression DEPENDS check)
   add_dependencies(unit_test fuzzers)
   set(FUZZERS ellipsis false keywords name none number string true vm)
   foreach(fuzzer IN LISTS FUZZERS)
@@ -188,8 +192,16 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/crashes
       DEPENDS check
       VERBATIM)
+    add_custom_target(
+      regression-${fuzzer}
+      ${CMAKE_SOURCE_DIR}/tools/regression.sh
+      fuzz-${fuzzer}
+      ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/corpus
+      DEPENDS fuzz-${fuzzer}
+      VERBATIM)
     add_dependencies(corpus corpus-${fuzzer})
     add_dependencies(fuzzers fuzz-${fuzzer})
+    add_dependencies(regression regression-${fuzzer})
   endforeach()
 endif()
 
@@ -216,8 +228,6 @@ add_executable(importlib tools/importlib.cpp)
 target_compile_features(importlib PUBLIC c_std_23 cxx_std_20)
 target_link_libraries(importlib modules_tools pthread)
 
-add_custom_target(check unit_test VERBATIM)
-add_custom_target(check_rand unit_test --order rand VERBATIM)
 add_custom_target(
   spec
   chimera -m test --multiprocess 3
