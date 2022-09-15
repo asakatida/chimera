@@ -21,10 +21,8 @@ case $# in
       exit 1
     fi
     mkdir -p unit_tests/fuzz/crashes
-    if [[ -n "${AUTO_REGRESSION}" ]]; then
-      find unit_tests/fuzz/crashes -type f -exec "$0" corpus '{}' ';' || true
-      find unit_tests/fuzz/corpus -type f -exec "$0" crashes '{}' ';' || true
-    fi
+    find unit_tests/fuzz/crashes -type f -exec "$0" corpus '{}' ';' || true
+    find unit_tests/fuzz/corpus -type f -exec "$0" crashes '{}' ';' || true
     find build \
       '(' -name 'crash-*' -or -name 'leak-*' -or -name 'timeout-*' ')' \
       -type f -exec mv '{}' unit_tests/fuzz/crashes ';'
@@ -32,20 +30,20 @@ case $# in
     mkdir unit_tests/fuzz/corpus
     find . -name 'fuzz-*' -perm -0110 -type f -print0 | \
       xargs --no-run-if-empty --null --replace='{}' -- \
-      env \
-      '{}' -merge=1 \
+      env '{}' \
+      -merge=1 \
       -reduce_inputs=1 \
       -shrink=1 \
       -use_value_profile=1 \
       unit_tests/fuzz/corpus \
-      unit_tests/fuzz/corpus_original >/dev/null
+      unit_tests/fuzz/corpus_original >/dev/null 2>&1
     rm -rf unit_tests/fuzz/corpus_original
     python3 tools/corpus_trim.py
     ;;
   1 )
     find . -name 'fuzz-*' -perm -0110 -type f -print0 | \
       xargs --no-run-if-empty --null --replace='{}' -- \
-      env '{}' "$1" >/dev/null
+      env '{}' "$1" >/dev/null 2>&1
     ;;
   * )
     echo "usage: $0" >&2
