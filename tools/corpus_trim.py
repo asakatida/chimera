@@ -40,10 +40,11 @@ def corpus_trim(corpus: Path) -> None:
     for file in corpus.glob("*/*"):
         if file.parent.name not in DIRECTORIES:
             continue
-        name = file.name[:LENGTH].rjust(LENGTH, "0")
+        src_sha = sha(file)
+        name = src_sha[:LENGTH]
         if any(
             map(
-                lambda other: other.exists() and sha(file) != sha(other),
+                lambda other: other.exists() and src_sha != sha(other),
                 map(lambda directory: corpus / directory / name, DIRECTORIES),
             )
         ):
