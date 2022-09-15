@@ -98,6 +98,8 @@ on:
       - "**.md"
       - Dockerfile
       - tools/docker.sh
+      - unit_tests/fuzz/corpus/*
+      - unit_tests/fuzz/crashes/*
   push:
     branches:
       - stable
@@ -106,4 +108,6 @@ on:
       - "**.md"
       - Dockerfile
       - tools/docker.sh
+      - unit_tests/fuzz/corpus/*
+      - unit_tests/fuzz/crashes/*
   workflow_dispatch: ~
