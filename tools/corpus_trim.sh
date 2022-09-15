@@ -22,7 +22,8 @@ mv unit_tests/fuzz/corpus unit_tests/fuzz/corpus_original
 mkdir unit_tests/fuzz/corpus
 
 find . -name 'fuzz-*' -perm -0110 -type f -print0 | \
-  xargs --no-run-if-empty --null --replace='{}' --verbose -- env \
+  xargs --no-run-if-empty --null --replace='{}' -- \
+  env \
   '{}' -merge=1 \
   -reduce_inputs=1 \
   -shrink=1 \

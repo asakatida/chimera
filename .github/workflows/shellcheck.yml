@@ -12,8 +12,9 @@ jobs:
       - name: Lint shell
         run: >
           find . -name '*.sh' -print0 |
-          xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- |
-          xargs -0 --
+          xargs --no-run-if-empty --null --
+          git ls-tree --full-tree --name-only -z HEAD -- |
+          xargs --no-run-if-empty --null --
           shellcheck --enable=all --severity=style --shell=bash --exclude=SC2096
         working-directory: ${{ github.workspace }}
 
