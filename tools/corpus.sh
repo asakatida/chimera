@@ -5,7 +5,6 @@ set -ex -o pipefail
 case $# in
     0 )
       cd "$(git rev-parse --show-toplevel || true)"
-
       git fetch --all --tags
       git remote prune origin
       git switch corpus
@@ -13,14 +12,11 @@ case $# in
       git reset origin/HEAD
       git add .
       git commit --allow-empty -m 'Update fuzzing corpus.'
-
       git branch -r | \
         grep -Fv -e '/HEAD' | \
         grep -F -e '-refs/' | \
         xargs -L1 -- "$0"
-
       tools/corpus_trim.sh
-
       git add unit_tests/fuzz
       git commit --amend --no-edit
       ;;
