@@ -28,7 +28,7 @@ export CXXFLAGS="${CXXFLAGS} \
 # shellcheck disable=SC2016
 find . -name '*.cpp' -print0 | \
   tools/g-ls-tree.sh | \
-  xargs -0 -I'{}' -- \
+  xargs --no-run-if-empty --null -I'{}' -- \
   jq \
   --arg cxx "${CXX:-clang++}" \
   --arg cppflags "${CPPFLAGS}" \

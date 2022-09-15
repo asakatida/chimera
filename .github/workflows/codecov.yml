@@ -55,7 +55,8 @@ jobs:
       - name: merge raw profile
         run: >
           find "$(dirname "${LLVM_PROFILE_FILE}")" -type f -print0 |
-          xargs -0 -t -- llvm-profdata-${{ env.CLANG_VERSION }} merge
+          xargs --no-run-if-empty --null --
+          llvm-profdata-${{ env.CLANG_VERSION }} merge
           -sparse --output llvm-profile.profdata
         working-directory: ${{github.workspace}}/build/coverage
       - name: export profile

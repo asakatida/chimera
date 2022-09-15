@@ -9,5 +9,6 @@ python_bin="$(command -v python3)"
 export PATH="${PWD}/env/bin:${PATH}"
 
 find . -name '*.yml' -print0 | \
-    tools/g-ls-tree.sh | \
-    xargs -0 -- yamllint "$@"
+  tools/g-ls-tree.sh | \
+  xargs --no-run-if-empty --null -- \
+  yamllint "$@"

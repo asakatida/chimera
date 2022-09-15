@@ -21,8 +21,10 @@ jobs:
       - name: Lint yaml code
         run: >
           find . -name '*.yml' -print0 |
-          xargs -0 -- git ls-tree --full-tree --name-only -z HEAD -- |
-          xargs -0 -- env/bin/yamllint -f github
+          xargs --no-run-if-empty --null --
+          git ls-tree --full-tree --name-only -z HEAD -- |
+          xargs --no-run-if-empty --null --
+          env/bin/yamllint -f github
         working-directory: ${{ github.workspace }}
 
 name: YamlLint
