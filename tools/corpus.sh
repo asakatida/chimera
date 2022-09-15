@@ -15,14 +15,14 @@ case $# in
       git branch -r | \
         grep -Fv -e '/HEAD' | \
         grep -F -e '-refs/' | \
-        xargs -L1 -- "$0"
+        xargs --no-run-if-empty -L1 -- "$0"
       tools/corpus_trim.sh
       git add unit_tests/fuzz
       git commit --amend --no-edit
       ;;
     1 )
-      git restore --source="$1" unit_tests/fuzz
-      git restore unit_tests/fuzz
+      git restore --source="$1" --staged unit_tests/fuzz
+      git restore --worktree unit_tests/fuzz
       git add unit_tests/fuzz
       git commit --amend --no-edit
       ;;
