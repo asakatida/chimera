@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ex -o pipefail
+set -e -o pipefail
 
 if [[ $# -eq 2 ]] && [[ "$1" == corpus ]]; then
   if "$0" "$2"; then
@@ -16,6 +16,7 @@ fi
 
 case $# in
   0 )
+    set -x
     cd "$(git rev-parse --show-toplevel || true)"
     if [[ -z "$(find . -name fuzz-vm -perm -0110 -type f || true)" ]]; then
       exit 1

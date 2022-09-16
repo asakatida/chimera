@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-set -ex -o pipefail
+set -e -o pipefail
 
 case $# in
     0 )
+      set -x
       cd "$(git rev-parse --show-toplevel || true)"
       git fetch --all --tags
       git remote prune origin
