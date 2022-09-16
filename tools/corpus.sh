@@ -2,6 +2,15 @@
 
 set -e -o pipefail
 
+case "$0" in
+  /* )
+    self_bin="$0"
+    ;;
+  * )
+    self_bin="$(pwd)/$0"
+    ;;
+esac
+
 case $# in
     0 )
       set -x
@@ -16,7 +25,7 @@ case $# in
       git branch -r | \
         grep -Fv -e '/HEAD' | \
         grep -F -e '-refs/' | \
-        xargs --no-run-if-empty -L1 -- "$0"
+        xargs --no-run-if-empty -L1 -- "${self_bin}"
       tools/corpus_trim.sh
       git add unit_tests/fuzz
       git commit --amend --no-edit
