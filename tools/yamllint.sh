@@ -10,5 +10,5 @@ export PATH="${PWD}/env/bin:${PATH}"
 
 find . -name '*.yml' -print0 | \
   tools/g-ls-tree.sh | \
-  xargs --no-run-if-empty --null -- \
+  xargs --null -- \
   yamllint "$@"

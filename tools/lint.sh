@@ -12,19 +12,19 @@ cmakelint
 
 find . -name '*.py' -print0 | \
   tools/g-ls-tree.sh | \
-  xargs --no-run-if-empty --null -- \
+  xargs --null -- \
   isort --python-version auto
 find . -name '*.py' -print0 | \
   tools/g-ls-tree.sh | \
-  xargs --no-run-if-empty --null -- \
+  xargs --null -- \
   black --preview --target-version py311
 find . -name '*.py' -print0 | \
   tools/g-ls-tree.sh | \
-  xargs --no-run-if-empty --null -- \
+  xargs --null -- \
   pylama
 find . -not -path "./stdlib/*" -name '*.py' -print0 | \
   tools/g-ls-tree.sh | \
-  xargs --no-run-if-empty --null -- \
+  xargs --null -- \
   mypy
 
 python3 tools/generate_utf8_id_continue.py
@@ -32,7 +32,7 @@ python3 tools/generate_utf8_id_start.py
 python3 tools/generate_utf8_space.py
 
 git ls-tree --full-tree --name-only -r -z HEAD | \
-  xargs --no-run-if-empty --null -- \
+  xargs --null -- \
   python3 tools/trim.py
 
 if [[ -z "${PREBUILD_CHECK}" ]]; then

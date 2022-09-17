@@ -48,9 +48,9 @@ jobs:
       - name: Lint python code
         run: >
           find . -not -path './stdlib/*' -name '*.py' -print0 |
-          xargs --no-run-if-empty --null --
+          xargs --null --
           git ls-tree --full-tree --name-only -z HEAD -- |
-          xargs --no-run-if-empty --null --
+          xargs --null --
           env/bin/mypy
         working-directory: ${{ github.workspace }}
   python:
@@ -77,9 +77,9 @@ jobs:
       - name: Lint python code
         run: >
           find . -name '*.py' -print0 |
-          xargs --no-run-if-empty --null --
+          xargs --null --
           git ls-tree --full-tree --name-only -z HEAD -- |
-          xargs --no-run-if-empty --null --
+          xargs --null --
           env/bin/${{ matrix.lints }}
         working-directory: ${{ github.workspace }}
     strategy:
@@ -137,12 +137,12 @@ jobs:
       - name: generate utf8 grammar
         run: >
           find tools -name 'generate_utf8_*.py' -not -name '*insane*' -print0 |
-          xargs --no-run-if-empty --null -n1 -P3 --
+          xargs --null -n1 -P3 --
           env/bin/python3 &&
           find . -name '*.hpp' -print0 |
-          xargs --no-run-if-empty --null --
+          xargs --null --
           git ls-tree --full-tree --name-only -z HEAD -- |
-          xargs --no-run-if-empty --null --
+          xargs --null --
           clang-format-${{ env.CLANG_VERSION }} -style=file -i
         working-directory: ${{ github.workspace }}
       - if: ${{ github.ref == 'refs/heads/stable' }}
