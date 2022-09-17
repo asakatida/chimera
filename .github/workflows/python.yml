@@ -9,7 +9,7 @@ jobs:
       group: cmakelint-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.0.2
       - name: Cache
         uses: actions/cache@v3.0.8
         with:
@@ -30,7 +30,7 @@ jobs:
       group: mypy-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.0.2
       - name: Cache
         uses: actions/cache@v3.0.8
         with:
@@ -59,7 +59,7 @@ jobs:
       group: ${{ matrix.lints }}-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.0.2
       - name: Cache
         uses: actions/cache@v3.0.8
         with:

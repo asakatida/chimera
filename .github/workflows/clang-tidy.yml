@@ -10,7 +10,7 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.0.2
       - uses: DoozyX/clang-format-lint-action@v0.14
         with:
           clangFormatVersion: 14
@@ -21,7 +21,7 @@ jobs:
       group: ${{ matrix.lints }}-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.0.2
         with:
           submodules: true
       - name: Cache
