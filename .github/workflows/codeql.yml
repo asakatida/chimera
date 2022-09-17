@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.0.2
         with:
           submodules: true
       - name: Cache
@@ -25,14 +25,14 @@ jobs:
             generated-includes/
             Makefile
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v2.1.24
         with:
           config-file: ./.github/codeql/codeql-config.yml
           languages: ${{ matrix.language }}
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v2
+        uses: github/codeql-action/autobuild@v2.1.24
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v2.1.24
     strategy:
       matrix:
         language:
