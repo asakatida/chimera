@@ -23,7 +23,7 @@ namespace chimera::library {
   auto fuzz_istream(const std::uint8_t *data, std::size_t size)
       -> std::istringstream;
   auto fuzz_input(std::istream &in) -> Input {
-    return Input(in, bufferSize, "fuzz");
+    return {in, bufferSize, "fuzz"};
   }
   auto fuzz_istream(const std::uint8_t *data, std::size_t size)
       -> std::istringstream {

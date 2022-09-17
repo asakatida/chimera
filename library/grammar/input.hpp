@@ -94,6 +94,6 @@ namespace chimera::library::grammar {
 
   private:
     std::uint32_t indentType = 0;
-    std::stack<std::uintmax_t> indentStack;
+    std::stack<std::uintmax_t> indentStack{};
   };
 } // namespace chimera::library::grammar
