@@ -77,7 +77,7 @@ namespace chimera::library::grammar {
       std::advance(begin, -i);
       std::string_view line(begin, i);
       if (indentType == 0) {
-        indentType = *begin;
+        indentType = static_cast<std::uint8_t>(*begin);
         if (auto result = validateBasic(line); !result) {
           indentType = 0;
           return result;
