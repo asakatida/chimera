@@ -24,6 +24,7 @@
 #pragma once
 
 #include <cstdint>
+#include <iterator>
 #include <stack>
 
 #include <tao/pegtl.hpp>
@@ -36,7 +37,7 @@ namespace chimera::library::grammar {
     using Base::current;
     using Base::empty;
     auto indent() -> bool {
-      const std::uintmax_t i = column();
+      const auto i = column();
       if ((indentStack.empty() || indentStack.top() < i) && validate()) {
         indentStack.push(i);
         return true;
@@ -64,16 +65,19 @@ namespace chimera::library::grammar {
       return true;
     }
     [[nodiscard]] auto is_newline() const -> bool {
+      const auto i = column();
       if (indentStack.empty()) {
-        return 0 == column();
+        return 0 == i;
       }
-      return column() == indentStack.top();
+      return indentStack.top() == i;
     }
     auto validate() -> bool {
-      auto end = current();
-      std::string_view line(end - column(), column());
+      auto begin = current();
+      const auto i = column();
+      std::advance(begin, -i);
+      std::string_view line(begin, i);
       if (indentType == 0) {
-        indentType = *end;
+        indentType = *begin;
         if (auto result = validateBasic(line); !result) {
           indentType = 0;
           return result;
