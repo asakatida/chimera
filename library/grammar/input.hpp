@@ -75,10 +75,10 @@ namespace chimera::library::grammar {
       auto begin = current();
       const auto i = column();
       std::advance(begin, -i);
-      std::string_view line(begin, i);
+      const std::string_view line(begin, i);
       if (indentType == 0) {
         indentType = static_cast<std::uint8_t>(*begin);
-        if (auto result = validateBasic(line); !result) {
+        if (const auto result = validateBasic(line); !result) {
           indentType = 0;
           return result;
         }
