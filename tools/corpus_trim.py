@@ -31,7 +31,7 @@ from typing import Iterator, TypeVar
 
 from tqdm import tqdm  # type: ignore
 
-LENGTH = 9
+LENGTH = 12
 DIRECTORIES = ("corpus", "crashes")
 FUZZ = Path(__file__).absolute().parent.parent / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
@@ -103,26 +103,30 @@ def sha(path: Path) -> str:
     return sha256(path.read_bytes()).hexdigest()
 
 
-def regression_one(file: Path) -> None:
+def regression_one(file: Path) -> bool:
     if file.parent.name not in DIRECTORIES:
-        return
+        return False
     try:
         fuzz_test(str(file))
     except CalledProcessError:
         if file.is_relative_to(CORPUS):
             file.rename(CRASHES / file.name)
-        return
+            return True
     if file.is_relative_to(CRASHES):
         file.rename(CORPUS / file.name)
+        return True
+    return False
 
 
-def regression(fuzz: Path, total: int) -> None:
+def regression(fuzz: Path, total: int) -> bool:
     with ThreadPoolExecutor() as executor:
-        set(
-            c_tqdm(
-                executor.map(regression_one, fuzz.glob("*/*")),
-                "Regression",
-                total,
+        return any(
+            set(
+                c_tqdm(
+                    executor.map(regression_one, fuzz.glob("*/*")),
+                    "Regression",
+                    total,
+                )
             )
         )
 
@@ -135,17 +139,23 @@ def main() -> None:
     CORPUS.mkdir(exist_ok=True)
     CRASHES.mkdir(exist_ok=True)
     total = len(set(FUZZ.glob("*/*")))
-    regression(FUZZ, total)
-    CORPUS.rename(CORPUS_ORIGINAL)
-    CORPUS.mkdir()
-    fuzz_test(
-        "-merge=1",
-        "-reduce_inputs=1",
-        "-shrink=1",
-        str(CORPUS),
-        str(CORPUS_ORIGINAL),
-        timeout=300,
-    )
+    if not regression(FUZZ, total):
+        CORPUS.rename(CORPUS_ORIGINAL)
+        run(
+            ["git", "restore", "--source", "origin/HEAD", str(CORPUS)],
+            check=True,
+            stderr=DEVNULL,
+            stdout=DEVNULL,
+            timeout=10,
+        )
+        fuzz_test(
+            "-merge=1",
+            "-reduce_inputs=1",
+            "-shrink=1",
+            str(CORPUS),
+            str(CORPUS_ORIGINAL),
+            timeout=600,
+        )
     for file in chain(
         Path().rglob("crash-*"), Path().rglob("leak-*"), Path().rglob("timeout-*")
     ):
