@@ -1,12 +1,28 @@
 <<<<<<<< HEAD:unit_tests/fuzz/corpus/bbd19e59bb69
 ...\
 ========
+<<<<<<< HEAD
 True\
 \
 >>>>>>>> fc8e20de8 (Update fuzzing corpus.):unit_tests/fuzz/corpus/67ed927e2
+=======
+None \
 \
 \
 \
+\
+>>>>>>> 72696141a (Update fuzzing corpus.)
+\
+\
+>>>>>>>> cdf353020 (Update fuzzing corpus.):unit_tests/fuzz/corpus/97fd6c87f
+\
+\
+\
+\
+\
+\
+\
+<<<<<<< HEAD
 \
 \
 \
@@ -18,3 +34,8 @@ True\
 \
 
 ¦€
+=======
+\
+\
+\
+>>>>>>> 72696141a (Update fuzzing corpus.)
