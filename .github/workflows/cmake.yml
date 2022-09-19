@@ -5,86 +5,86 @@ env:
   CXXFLAGS: -DNDEBUG -DCHIMERA_PATH
 
 jobs:
-  cmake:
+  regression:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: ${{ matrix.targets }}-${{ github.workflow }}-${{ github.ref }}
+      group: regression-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.0.2
         with:
           submodules: true
-      - if: matrix.targets != 'scan-build'
-        name: Cache
+      - name: Cache cmake
         uses: actions/cache@v3.0.8
         with:
-          # yamllint disable-line rule:line-length
-          key: ${{ hashFiles('CMakeLists.txt') }}-${{ env.CLANG_VERSION }}-${{ env.CMAKE_BUILD_TYPE }}-${{ env.CXXFLAGS }}
+          key: build-${{ hashFiles('CMakeLists.txt') }}-${{ env.CLANG_VERSION }}-v1
           path: build
+      - name: Cache python
+        uses: actions/cache@v3.0.8
+        with:
+          key: python3-${{ hashFiles('requirements.txt') }}
+          path: env
       - run: >
           wget https://apt.llvm.org/llvm.sh &&
           chmod +x llvm.sh &&
           sudo ./llvm.sh ${{ env.CLANG_VERSION }} all &&
           rm -rf llvm.sh &&
           sudo apt-get install -y ninja-build
+      - name: Build python tools
+        run: >
+          python3 -m venv --upgrade --upgrade-deps env &&
+          env/bin/pip3 install --upgrade pip setuptools wheel &&
+          env/bin/pip3 install -r requirements.txt
+        working-directory: ${{ github.workspace }}
       - env:
           CC: /usr/bin/clang-${{ env.CLANG_VERSION }}
           CXX: /usr/bin/clang++-${{ env.CLANG_VERSION }}
-        if: matrix.targets != 'scan-build'
         name: Configure CMake
         run: >
           git -C external/Catch/ apply ${{ github.workspace }}/patches/Catch &&
           cmake -GNinja -B build -S .
         working-directory: ${{ github.workspace }}
-      - if: matrix.targets == 'scan-build'
-        name: Scan Build
+      - name: Run regression
+        run: ninja regression
+        working-directory: ${{ github.workspace }}/build
+      - run: >
+          ninja -C build -k0 corpus || true;
+          env/bin/python3 tools/corpus_trim.py
+        working-directory: ${{ github.workspace }}
+      - uses: stefanzweifel/git-auto-commit-action@v4.14.1
+        with:
+          # yamllint disable-line rule:line-length
+          branch: regression-${{ github.workflow }}-${{ github.ref }}/${{ github.run_id }}
+          commit_message: Update fuzzing corpus.
+          create_branch: true
+          file_pattern: unit_tests/fuzz
+          repository: ${{ github.workspace }}
+  scan-build:
+    concurrency:
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      group: scan-build-${{ github.workflow }}-${{ github.ref }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.0.2
+        with:
+          submodules: true
+      - run: >
+          wget https://apt.llvm.org/llvm.sh &&
+          chmod +x llvm.sh &&
+          sudo ./llvm.sh ${{ env.CLANG_VERSION }} all &&
+          rm -rf llvm.sh &&
+          sudo apt-get install -y ninja-build
+      - name: Scan Build
         run: >
           git -C external/Catch/ apply ${{ github.workspace }}/patches/Catch &&
           scan-build-${{ env.CLANG_VERSION }}
           --use-cc /usr/bin/clang-${{ env.CLANG_VERSION }}
           --use-c++ /usr/bin/clang++-${{ env.CLANG_VERSION }}
           bash -c '
-            cmake -DCMAKE_BUILD_TYPE=Debug -GNinja -B build -S . &&
-            ninja -C build unit_test
+            cmake -GNinja -B build -S . &&
+            ninja -C build regression
           '
         working-directory: ${{ github.workspace }}
-      - if: matrix.targets != 'scan-build'
-        name: Build dev tools
-        run: ninja
-        working-directory: ${{ github.workspace }}/build
-      - name: Run base unit_test
-        run: ninja check
-        working-directory: ${{ github.workspace }}/build
-      - continue-on-error: ${{ startsWith(matrix.targets, 'corpus-') }}
-        if: matrix.targets != 'scan-build'
-        name: Test
-        run: ninja ${{ matrix.targets }}
-        working-directory: ${{ github.workspace }}/build
-      - run: tools/corpus_trim.sh
-        working-directory: ${{ github.workspace }}
-      - uses: stefanzweifel/git-auto-commit-action@v4.14.1
-        with:
-          # yamllint disable-line rule:line-length
-          branch: ${{ matrix.targets }}-${{ github.workflow }}-${{ github.ref }}/${{ github.run_id }}
-          commit_message: Update fuzzing corpus.
-          create_branch: true
-          file_pattern: unit_tests/fuzz
-          repository: ${{ github.workspace }}
-    strategy:
-      fail-fast: false
-      matrix:
-        targets:
-          - check_rand
-          - corpus-ellipsis
-          - corpus-false
-          - corpus-keywords
-          - corpus-name
-          - corpus-none
-          - corpus-number
-          - corpus-string
-          - corpus-true
-          - corpus-vm
-          - scan-build
 
 name: CMake
 

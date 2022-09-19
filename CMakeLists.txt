@@ -195,7 +195,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_custom_target(
       regression-${fuzzer}
       ${CMAKE_SOURCE_DIR}/tools/regression.sh
-      fuzz-${fuzzer}
+      ./fuzz-${fuzzer}
       ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/corpus
       DEPENDS fuzz-${fuzzer}
       VERBATIM)
