@@ -24,6 +24,7 @@ from concurrent.futures import ThreadPoolExecutor
 from functools import cache
 from hashlib import sha256
 from itertools import chain
+from os import chdir
 from pathlib import Path
 from subprocess import DEVNULL, CalledProcessError, run
 from typing import Iterator, TypeVar
@@ -66,12 +67,15 @@ def corpus_trim(fuzz: Path, total: int) -> None:
 
 @cache
 def fuzz_star() -> bytes:
-    return run(
-        ["find", ".", "-name", "fuzz-*", "-perm", "-0110", "-type", "f", "-print0"],
-        capture_output=True,
-        check=True,
-        timeout=10,
-    ).stdout.strip()
+    return b"\0".join(
+        map(
+            lambda path: str(path).encode(),
+            filter(
+                lambda path: path.is_file() and path.stat().st_mode & 0o110,
+                Path().rglob("fuzz-*"),
+            ),
+        )
+    )
 
 
 def fuzz_test(*args: str, timeout: int = 10) -> None:
@@ -125,7 +129,7 @@ def regression(fuzz: Path, total: int) -> None:
 
 def main() -> None:
     global LENGTH
-    Path(__file__).parent.parent.cwd()
+    chdir(Path(__file__).parent.parent)
     if not fuzz_star():
         raise FileNotFoundError("No fuzz targets built")
     CORPUS.mkdir(exist_ok=True)

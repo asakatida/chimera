@@ -17,9 +17,8 @@ tools/lint.sh
 ninja -C "${debug_root}"
 ninja -C "${debug_root}"
 ninja -C "${release_root}"
-ninja -C "${debug_root}" check
 ninja -C "${debug_root}" check_rand
-ninja -C "${debug_root}" corpus-number
+ninja -C "${debug_root}" regression
 ninja -C "${debug_root}" corpus
 ninja -C "${debug_root}" spec
 ninja -C "${release_root}" spec
