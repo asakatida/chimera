@@ -26,7 +26,7 @@ case $# in
         grep -Fv -e '/HEAD' | \
         grep -F -e '-refs/' | \
         xargs --no-run-if-empty -L1 -- "${self_bin}"
-      tools/corpus_trim.sh
+      env/bin/python3 tools/corpus_trim.py
       git add unit_tests/fuzz
       git commit --amend --no-edit
       ;;

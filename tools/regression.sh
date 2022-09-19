@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ex -o pipefail
+set -e -o pipefail
 
 case $# in
   0 )
@@ -13,6 +13,6 @@ case $# in
       "$0" "$1"
     ;;
   * )
-    "$@" >>"/tmp/regression-$1.logs" 2>&1
+    "$@" >>"/tmp/regression-$(basename "$1").logs" 2>&1
     ;;
 esac

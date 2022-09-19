@@ -234,3 +234,5 @@ xcuserdata/
 **/xcshareddata/WorkspaceSettings.xcsettings
 
 # End of https://www.toptal.com/developers/gitignore/api/c++,cmake,ninja,python,xcode
+
+unit_tests/fuzz/corpus_original

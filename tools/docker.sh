@@ -18,7 +18,8 @@ apt-get install --yes </dev/null \
   apt \
   apt-transport-https \
   apt-utils \
-  aptitude
+  aptitude \
+  libapt-pkg6.0
 apt-get update
 apt-get install --yes </dev/null \
   adduser \
@@ -26,6 +27,7 @@ apt-get install --yes </dev/null \
   automake \
   base-files \
   base-passwd \
+  bash \
   brz \
   bsdutils \
   build-essential \
@@ -36,6 +38,7 @@ apt-get install --yes </dev/null \
   cmake \
   coreutils \
   curl \
+  dash \
   debconf \
   debianutils \
   default-libmysqlclient-dev \
@@ -49,6 +52,7 @@ apt-get install --yes </dev/null \
   file \
   findutils \
   fish \
+  gcc-12-base \
   gettext \
   git \
   git-lfs \
@@ -65,13 +69,14 @@ apt-get install --yes </dev/null \
   jq \
   less \
   libacl1 \
-  libapt-pkg6.0 \
   libattr1 \
   libaudit-common \
   libaudit1 \
   libblkid1 \
   libbz2-1.0 \
   libbz2-dev \
+  libc-bin \
+  libc6 \
   libcap-ng0 \
   libcap2 \
   libcom-err2 \
@@ -86,6 +91,7 @@ apt-get install --yes </dev/null \
   libfdisk1 \
   libffi-dev \
   libffi8 \
+  libgcc-s1 \
   libgcrypt20 \
   libgdbm-dev \
   libglib2.0-0 \
@@ -139,6 +145,7 @@ apt-get install --yes </dev/null \
   libss2 \
   libssl-dev \
   libssl3 \
+  libstdc++6 \
   libsystemd0 \
   libtasn1-6 \
   libtinfo6 \

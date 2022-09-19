@@ -20,24 +20,36 @@
 
 """corpus_trim.py"""
 
+from concurrent.futures import ThreadPoolExecutor
+from functools import cache
 from hashlib import sha256
+from itertools import chain
 from pathlib import Path
+from subprocess import DEVNULL, CalledProcessError, run
+from typing import Iterator, TypeVar
+
+from tqdm import tqdm  # type: ignore
 
 LENGTH = 9
 DIRECTORIES = ("corpus", "crashes")
+FUZZ = Path(__file__).absolute().parent.parent / "unit_tests" / "fuzz"
+CORPUS = FUZZ / "corpus"
+CORPUS_ORIGINAL = FUZZ / "corpus_original"
+CRASHES = FUZZ / "crashes"
+T = TypeVar("T")
 
 
 class Increment(Exception):
     pass
 
 
-def sha(path: Path) -> str:
-    return sha256(path.read_bytes()).hexdigest()
+def c_tqdm(iterable: Iterator[T], desc: str, total: int) -> Iterator[T]:
+    return tqdm(iterable, delay=5, desc=desc, maxinterval=60, mininterval=10, miniters=100, total=total, unit_scale=True)  # type: ignore
 
 
-def corpus_trim(corpus: Path) -> None:
+def corpus_trim(fuzz: Path, total: int) -> None:
     global LENGTH
-    for file in corpus.glob("*/*"):
+    for file in c_tqdm(fuzz.glob("*/*"), "Corpus rehash", total):
         if file.parent.name not in DIRECTORIES:
             continue
         src_sha = sha(file)
@@ -45,19 +57,98 @@ def corpus_trim(corpus: Path) -> None:
         if any(
             map(
                 lambda other: other.exists() and src_sha != sha(other),
-                map(lambda directory: corpus / directory / name, DIRECTORIES),
+                map(lambda directory: fuzz / directory / name, DIRECTORIES),
             )
         ):
             raise Increment("Collision found, update corpus_trim.py `LENGTH`:", LENGTH)
         file.rename(file.parent / name)
 
 
+@cache
+def fuzz_star() -> bytes:
+    return run(
+        ["find", ".", "-name", "fuzz-*", "-perm", "-0110", "-type", "f", "-print0"],
+        capture_output=True,
+        check=True,
+        timeout=10,
+    ).stdout.strip()
+
+
+def fuzz_test(*args: str, timeout: int = 10) -> None:
+    run(
+        [
+            "xargs",
+            "--null",
+            "--replace={}",
+            "--",
+            "env",
+            "{}",
+            "-detect_leaks=0",
+            "-use_value_profile=1",
+            *args,
+        ],
+        check=True,
+        input=fuzz_star(),
+        stderr=DEVNULL,
+        stdout=DEVNULL,
+        timeout=timeout,
+    )
+
+
+def sha(path: Path) -> str:
+    return sha256(path.read_bytes()).hexdigest()
+
+
+def regression_one(file: Path) -> None:
+    if file.parent.name not in DIRECTORIES:
+        return
+    try:
+        fuzz_test(str(file))
+    except CalledProcessError:
+        if file.is_relative_to(CORPUS):
+            file.rename(CRASHES / file.name)
+        return
+    if file.is_relative_to(CRASHES):
+        file.rename(CORPUS / file.name)
+
+
+def regression(fuzz: Path, total: int) -> None:
+    with ThreadPoolExecutor() as executor:
+        set(
+            c_tqdm(
+                executor.map(regression_one, fuzz.glob("*/*")),
+                "Regression",
+                total,
+            )
+        )
+
+
 def main() -> None:
     global LENGTH
-    corpus = (Path(__file__).parent.parent / "unit_tests" / "fuzz").absolute()
+    Path(__file__).parent.parent.cwd()
+    if not fuzz_star():
+        raise FileNotFoundError("No fuzz targets built")
+    CORPUS.mkdir(exist_ok=True)
+    CRASHES.mkdir(exist_ok=True)
+    total = len(set(FUZZ.glob("*/*")))
+    regression(FUZZ, total)
+    CORPUS.rename(CORPUS_ORIGINAL)
+    CORPUS.mkdir()
+    fuzz_test(
+        "-merge=1",
+        "-reduce_inputs=1",
+        "-shrink=1",
+        str(CORPUS),
+        str(CORPUS_ORIGINAL),
+        timeout=300,
+    )
+    for file in chain(
+        Path().rglob("crash-*"), Path().rglob("leak-*"), Path().rglob("timeout-*")
+    ):
+        file.rename(CRASHES / sha(file))
     while True:
         try:
-            corpus_trim(corpus)
+            corpus_trim(FUZZ, total)
         except Increment:
             LENGTH += 1
             continue
