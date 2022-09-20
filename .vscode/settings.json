@@ -84,5 +84,6 @@
         "utility": "cpp",
         "pointers": "cpp",
         "assert": "cpp"
-    }
+    },
+    "git.ignoreLimitWarning": true
 }
