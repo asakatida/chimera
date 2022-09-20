@@ -720,21 +720,21 @@ namespace chimera::library::grammar {
                     FuncDef<flags::set<Option, flags::ASYNC_FLOW>>>> {
     struct Transform : rules::Stack<asdl::FunctionDef, asdl::With, asdl::For> {
       struct Push {
-        auto operator()(asdl::FunctionDef &&functionDef) {
-          return asdl::AsyncFunctionDef{std::move(functionDef.name),
-                                        functionDef.doc_string,
-                                        std::move(functionDef.args),
-                                        std::move(functionDef.body),
-                                        std::move(functionDef.decorator_list),
-                                        std::move(functionDef.returns)};
+        auto operator()(asdl::FunctionDef &&functionDef)
+            -> asdl::AsyncFunctionDef {
+          return {std::move(functionDef.name),
+                  functionDef.doc_string,
+                  std::move(functionDef.args),
+                  std::move(functionDef.body),
+                  std::move(functionDef.decorator_list),
+                  std::move(functionDef.returns)};
         }
-        auto operator()(asdl::With &&with) {
-          return asdl::AsyncWith{std::move(with.items), std::move(with.body)};
+        auto operator()(asdl::With &&with) -> asdl::AsyncWith {
+          return {std::move(with.items), std::move(with.body)};
         }
-        auto operator()(asdl::For &&asdlFor) {
-          return asdl::AsyncFor{
-              std::move(asdlFor.target), std::move(asdlFor.iter),
-              std::move(asdlFor.body), std::move(asdlFor.orelse)};
+        auto operator()(asdl::For &&asdlFor) -> asdl::AsyncFor {
+          return {std::move(asdlFor.target), std::move(asdlFor.iter),
+                  std::move(asdlFor.body), std::move(asdlFor.orelse)};
         }
       };
       template <typename Outer>

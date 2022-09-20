@@ -22,25 +22,10 @@
 
 #pragma once
 
-#include <iosfwd>
+#include <cstdint>
 #include <limits>
-#include <string_view>
 
-#include "asdl/asdl.hpp"
-#include "options.hpp"
-
-namespace chimera::library::virtual_machine {
-  struct Parse {
-    using NumbericLimits = std::numeric_limits<std::uint16_t>;
-    constexpr static auto bufferSize = NumbericLimits::max();
-    static auto parse_file(const Options &options, const std::string_view &data,
-                           const char *source) -> asdl::Module;
-    static auto parse_file(const Options &options, std::istream &&input,
-                           const char *source) -> asdl::Module;
-    static auto parse_input(const Options &options,
-                            const std::string_view &data, const char *source)
-        -> asdl::Interactive;
-    static auto parse_input(const Options &options, std::istream &&input,
-                            const char *source) -> asdl::Interactive;
-  };
-} // namespace chimera::library::virtual_machine
+namespace chimera::library::asdl {
+  using NumbericLimits = std::numeric_limits<std::uint16_t>;
+  constexpr static auto bufferSize = NumbericLimits::max();
+} // namespace chimera::library::asdl

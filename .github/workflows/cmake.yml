@@ -82,6 +82,8 @@ jobs:
           --use-c++ /usr/bin/clang++-${{ env.CLANG_VERSION }}
           bash -c '
             cmake -GNinja -B build -S . &&
+            ninja -C build -j1 libchimera &&
+            ninja -C build -j2 unit_test &&
             ninja -C build regression
           '
         working-directory: ${{ github.workspace }}

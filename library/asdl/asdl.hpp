@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <iosfwd>
 #include <memory>
 #include <optional>
 #include <string>
@@ -31,6 +32,7 @@
 #include <metal.hpp>
 
 #include "object/object.hpp"
+#include "options.hpp"
 
 namespace chimera::library::asdl {
   namespace detail {
@@ -381,10 +383,40 @@ namespace chimera::library::asdl {
     std::optional<ExprImpl> returns{};
   };
   struct Module {
+    Module(const Options &options, const std::string_view &data,
+           const char *source);
+    Module(const Options &options, std::istream &&input, const char *source);
+    [[nodiscard]] auto doc() const -> const std::optional<DocString> &;
+    [[nodiscard]] auto iter() const -> const std::vector<StmtImpl> &;
+    template <typename Stack>
+    void success(Stack &&stack) {
+      body.reserve(stack.size());
+      while (stack.template top_is<asdl::StmtImpl>()) {
+        body.emplace_back(stack.template pop<asdl::StmtImpl>());
+      }
+      std::reverse(body.begin(), body.end());
+      if (stack.has_value()) {
+        doc_string = stack.template pop<asdl::DocString>();
+      }
+    }
+
+  private:
     std::vector<StmtImpl> body{};
     std::optional<DocString> doc_string{};
   };
   struct Interactive {
+    Interactive(const Options &options, const std::string_view &data,
+                const char *source);
+    Interactive(const Options &options, std::istream &&input,
+                const char *source);
+    [[nodiscard]] auto iter() const -> const std::vector<StmtImpl> &;
+    template <typename Stack>
+    void success(Stack &&stack) {
+      body.reserve(stack.size());
+      stack.template transform<asdl::StmtImpl>(std::back_inserter(body));
+    }
+
+  private:
     std::vector<StmtImpl> body{};
   };
   struct Expression {

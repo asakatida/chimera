@@ -20,23 +20,23 @@
 
 //! wrapper for tao::pegtl::parse
 
-#pragma once
+#include "asdl/parse.hpp"
 
-#include <gsl/gsl>
+#include <string_view>
+
 #include <tao/pegtl.hpp>
 
-#include "grammar/rules.hpp"
+#include "asdl/asdl.hpp"
+#include "grammar/grammar.hpp"
 #include "options.hpp"
 
-namespace chimera::library::grammar {
-  template <typename Grammar, typename... Args>
-  void parse(const Options &options, Args &&...args) {
-    Ensures((tao::pegtl::parse<must<Grammar>, token::Action, Normal>(args...)));
-    switch (options.optimize) {
-      case Optimize::NONE:
-      case Optimize::BASIC:
-      case Optimize::DISCARD_DOCS:
-        break;
-    }
+namespace chimera::library::asdl {
+  Module::Module(const Options &options, const std::string_view &data,
+                 const char *source) {
+    grammar::parse<grammar::FileInput>(
+        options,
+        grammar::Input<tao::pegtl::memory_input<>>(data.data(), data.size(),
+                                                   source),
+        *this);
   }
-} // namespace chimera::library::grammar
+} // namespace chimera::library::asdl

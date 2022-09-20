@@ -36,7 +36,6 @@
 #include "marshal/marshal.hpp"
 #include "object/object.hpp"
 #include "sys/sys.hpp"
-#include "virtual_machine/parse.hpp"
 #include "virtual_machine/thread_context.hpp"
 
 using namespace std::literals;
@@ -143,20 +142,19 @@ namespace chimera::library::virtual_machine {
   }
   auto ProcessContext::parse_file(const std::string_view &data,
                                   const char *source) const -> asdl::Module {
-    return Parse{}.parse_file(global_context.options, data, source);
+    return {global_context.options, data, source};
   }
   auto ProcessContext::parse_file(std::istream &&input, const char *source)
       -> asdl::Module {
-    return Parse{}.parse_file(global_context.options, std::move(input), source);
+    return {global_context.options, std::move(input), source};
   }
   auto ProcessContext::parse_input(const std::string_view &data,
                                    const char *source) const
       -> asdl::Interactive {
-    return Parse{}.parse_input(global_context.options, data, source);
+    return {global_context.options, data, source};
   }
   auto ProcessContext::parse_input(std::istream &&input, const char *source)
       -> asdl::Interactive {
-    return Parse{}.parse_input(global_context.options, std::move(input),
-                               source);
+    return {global_context.options, std::move(input), source};
   }
 } // namespace chimera::library::virtual_machine

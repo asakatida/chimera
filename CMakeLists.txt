@@ -35,6 +35,11 @@ endif()
 
 add_library(
   chimera_core
+  library/asdl/asdl.cpp
+  library/asdl/parse_interactive_istream.cpp
+  library/asdl/parse_interactive_string_view.cpp
+  library/asdl/parse_module_istream.cpp
+  library/asdl/parse_module_string_view.cpp
   library/container/atomic_container.cpp
   library/container/atomic_map.cpp
   library/container/reverse.cpp
@@ -66,7 +71,6 @@ add_library(
   library/virtual_machine/garbage.cpp
   library/virtual_machine/get_evaluator.cpp
   library/virtual_machine/global_context.cpp
-  library/virtual_machine/parse.cpp
   library/virtual_machine/process_context.cpp
   library/virtual_machine/push_stack.cpp
   library/virtual_machine/set_evaluator.cpp

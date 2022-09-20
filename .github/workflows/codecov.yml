@@ -49,7 +49,8 @@ jobs:
         run: >
           rm -rf "$(dirname "${LLVM_PROFILE_FILE}")" &&
           mkdir -p "$(dirname "${LLVM_PROFILE_FILE}")" &&
-          ninja -j1 &&
+          ninja -j1 libchimera &&
+          ninja -j2 unit_test &&
           ninja regression
         working-directory: ${{github.workspace}}/build
       - name: merge raw profile
