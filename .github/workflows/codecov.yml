@@ -67,7 +67,7 @@ jobs:
           --region-coverage-gt=2
           --format=lcov > coverage/llvm-profile.lcov
         working-directory: ${{github.workspace}}/build
-      - uses: codecov/codecov-action@v3.1.0
+      - uses: codecov/codecov-action@v3.1.1
         with:
           directory: ${{ github.workspace }}/build/coverage
           files: llvm-profile.lcov
