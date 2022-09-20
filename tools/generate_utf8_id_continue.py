@@ -74,7 +74,7 @@ def _d(i: int) -> bool:
     return chr(i).isidentifier()
 
 
-ranges = _ranges(724, _a(set(filter(_d, range(0x10FFFF)))))
+ranges = _ranges(748, _a(set(filter(_d, range(0x10FFFF)))))
 
 utf8_id_continue.write_text(
     subn(

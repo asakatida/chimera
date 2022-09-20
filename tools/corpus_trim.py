@@ -26,31 +26,33 @@ from hashlib import sha256
 from itertools import chain
 from os import chdir
 from pathlib import Path
+from re import MULTILINE, compile
 from subprocess import DEVNULL, CalledProcessError, TimeoutExpired, run
-from typing import Iterator, TypeVar
+from typing import Iterable, TypeVar
 
 from tqdm import tqdm  # type: ignore
 
-LENGTH = 12
+LENGTH = 22
 DIRECTORIES = ("corpus", "crashes")
-FUZZ = Path(__file__).absolute().parent.parent / "unit_tests" / "fuzz"
+FUZZ = Path("unit_tests") / "fuzz"
 CORPUS = FUZZ / "corpus"
 CORPUS_ORIGINAL = FUZZ / "corpus_original"
 CRASHES = FUZZ / "crashes"
 T = TypeVar("T")
+CONFLICT = compile(rb"^((<{8}|>{8})\s.+|={8})$\s", MULTILINE)
 
 
 class Increment(Exception):
     pass
 
 
-def c_tqdm(iterable: Iterator[T], desc: str, total: int) -> Iterator[T]:
-    return tqdm(iterable, delay=5, desc=desc, maxinterval=60, mininterval=10, miniters=100, total=total, unit_scale=True)  # type: ignore
+def c_tqdm(iterable: Iterable[T], desc: str) -> Iterable[T]:
+    return tqdm(iterable, desc=desc, maxinterval=60, mininterval=10, miniters=100, unit_scale=True)  # type: ignore
 
 
-def corpus_trim(fuzz: Path, total: int) -> None:
+def corpus_trim(fuzz: list[Path]) -> None:
     global LENGTH
-    for file in c_tqdm(fuzz.glob("*/*"), "Corpus rehash", total):
+    for file in c_tqdm(fuzz, "Corpus rehash"):
         if file.parent.name not in DIRECTORIES:
             continue
         src_sha = sha(file)
@@ -58,7 +60,7 @@ def corpus_trim(fuzz: Path, total: int) -> None:
         if any(
             map(
                 lambda other: other.exists() and src_sha != sha(other),
-                map(lambda directory: fuzz / directory / name, DIRECTORIES),
+                map(lambda directory: FUZZ / directory / name, DIRECTORIES),
             )
         ):
             raise Increment("Collision found, update corpus_trim.py `LENGTH`:", LENGTH)
@@ -122,14 +124,13 @@ def regression_one(file: Path) -> bool:
     return False
 
 
-def regression(fuzz: Path, total: int) -> bool:
+def regression(fuzz: list[Path]) -> bool:
     with ThreadPoolExecutor() as executor:
         return any(
             set(
                 c_tqdm(
-                    executor.map(regression_one, fuzz.glob("*/*")),
+                    executor.map(regression_one, fuzz),
                     "Regression",
-                    total,
                 )
             )
         )
@@ -142,11 +143,11 @@ def main() -> None:
         raise FileNotFoundError("No fuzz targets built")
     CORPUS.mkdir(exist_ok=True)
     CRASHES.mkdir(exist_ok=True)
-    total = len(set(FUZZ.glob("*/*")))
-    if not regression(FUZZ, total):
+    fuzz = sorted(tqdm(FUZZ.glob("*/*"), desc="Gather", unit_scale=True))
+    if not regression(fuzz):
         CORPUS.rename(CORPUS_ORIGINAL)
         run(
-            ["git", "restore", "--source", "origin/HEAD", str(CORPUS)],
+            ["git", "restore", "--source", "origin/HEAD", "--worktree", str(CORPUS)],
             check=True,
             stderr=DEVNULL,
             stdout=DEVNULL,
@@ -158,7 +159,7 @@ def main() -> None:
             "-shrink=1",
             str(CORPUS),
             str(CORPUS_ORIGINAL),
-            timeout=600,
+            timeout=1200,
         )
     for file in chain(
         Path().rglob("crash-*"), Path().rglob("leak-*"), Path().rglob("timeout-*")
@@ -166,7 +167,7 @@ def main() -> None:
         file.rename(CRASHES / sha(file))
     while True:
         try:
-            corpus_trim(FUZZ, total)
+            corpus_trim(fuzz)
         except Increment:
             LENGTH += 1
             continue
@@ -174,4 +175,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print()
