@@ -14,7 +14,6 @@
 #include "grammar/rules.hpp"
 #include "object/object.hpp"
 #include "options.hpp"
-#include "virtual_machine/parse.hpp"
 #include "virtual_machine/virtual_machine.hpp"
 
 namespace chimera::library {
@@ -69,16 +68,17 @@ namespace chimera::library {
     // virtual_machine::modules::builtins(builtins);
     const virtual_machine::VirtualMachine virtualMachine(options, builtins);
     auto processContext = virtualMachine.process_context();
-    asdl::Module module;
+    std::optional<asdl::Module> module;
     try {
       module = processContext.parse_file(std::move(in), "<fuzz>");
     } catch (const tao::pegtl::parse_error &) {
       return -1;
     }
+    Ensures(module.has_value());
     virtual_machine::ThreadContext threadContext{
         processContext, processContext.make_module("__main__")};
     try {
-      threadContext.evaluate(module);
+      threadContext.evaluate(*module);
     } catch (const object::BaseException &) {
       return -1;
     }

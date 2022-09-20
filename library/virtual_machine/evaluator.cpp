@@ -126,17 +126,17 @@ namespace chimera::library::virtual_machine {
   }
   void Evaluator::evaluate(const asdl::Module &module) {
     enter_scope(thread_context.main);
-    if (module.doc_string) {
-      self().set_attribute("__doc__"s, module.doc_string->string);
+    if (const auto &doc_string = module.doc(); doc_string) {
+      self().set_attribute("__doc__"s, doc_string->string);
     } else {
       self().set_attribute("__doc__"s, builtins().get_attribute("None"));
     }
-    extend(module.body);
+    extend(module.iter());
     return evaluate();
   }
   void Evaluator::evaluate(const asdl::Interactive &interactive) {
     enter_scope(thread_context.main);
-    extend(interactive.body);
+    extend(interactive.iter());
     return evaluate();
   }
   void Evaluator::evaluate(const asdl::Expression &expression) {

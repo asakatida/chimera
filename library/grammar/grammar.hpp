@@ -40,8 +40,7 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::StmtImpl> {
       template <typename Top>
       void success(Top &&top) {
-        top.body.reserve(size());
-        transform<asdl::StmtImpl>(std::back_inserter(top.body));
+        top.success(*this);
       }
     };
   };
@@ -51,14 +50,7 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::DocString, asdl::StmtImpl> {
       template <typename Top>
       void success(Top &&top) {
-        top.body.reserve(size());
-        while (top_is<asdl::StmtImpl>()) {
-          top.body.emplace_back(pop<asdl::StmtImpl>());
-        }
-        std::reverse(top.body.begin(), top.body.end());
-        if (has_value()) {
-          top.doc_string = pop<asdl::DocString>();
-        }
+        top.success(*this);
       }
     };
   };
