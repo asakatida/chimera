@@ -31,10 +31,10 @@
 #include "options.hpp"
 
 namespace chimera::library::asdl {
-  Module::Module(const Options &options, const std::string_view &data,
+  Module::Module(const Optimize &optimize, const std::string_view &data,
                  const char *source) {
     grammar::parse<grammar::FileInput>(
-        options,
+        optimize,
         grammar::Input<tao::pegtl::memory_input<>>(data.data(), data.size(),
                                                    source),
         *this);

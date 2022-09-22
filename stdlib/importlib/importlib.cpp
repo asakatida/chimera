@@ -23,6 +23,5 @@
 #include "importlib/importlib.hpp"
 
 namespace chimera::library::virtual_machine::modules {
-  void importlib(const Options & /*options*/,
-                 const object::Object & /*module*/) {}
+  void importlib(const object::Object & /*module*/) {}
 } // namespace chimera::library::virtual_machine::modules

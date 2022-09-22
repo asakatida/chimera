@@ -96,7 +96,7 @@ namespace chimera::library::object {
     };
     std::shared_ptr<Impl> object;
   };
-  class BaseException final : std::exception {
+  class BaseException : std::exception {
   public:
     explicit BaseException(Object anException);
     BaseException(const BaseException &anException,
@@ -107,5 +107,9 @@ namespace chimera::library::object {
 
   private:
     Object exception;
+  };
+  class KeyboardInterrupt final : BaseException {
+  public:
+    KeyboardInterrupt();
   };
 } // namespace chimera::library::object

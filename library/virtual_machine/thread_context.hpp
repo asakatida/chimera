@@ -30,7 +30,7 @@
 
 namespace chimera::library::virtual_machine {
   struct ThreadContext {
-    ThreadContext(const ProcessContext &process_context, object::Object main);
+    ThreadContext(ProcessContext &process_context, object::Object main);
     [[nodiscard]] auto body() const -> object::Object;
     [[nodiscard]] auto builtins() const -> const object::Object &;
     void evaluate(const asdl::Module &module);

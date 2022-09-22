@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//! evaluates stdlib/_builtins.py to construct the builtin module.
+//! evaluates stdlib/builtins_.py to construct the builtin module.
 //! Then prints the module construction.
 
 #include <algorithm>
@@ -42,9 +42,7 @@
 
 namespace chimera::library {
   static void main() {
-    const object::Object builtins;
-    virtual_machine::modules::builtins(builtins);
-    const virtual_machine::VirtualMachine virtualMachine({}, builtins);
+    const virtual_machine::VirtualMachine virtualMachine({});
     auto processContext = virtualMachine.process_context();
     auto module = processContext.parse_file(std::move(std::cin), "<input>");
     auto main = processContext.make_module("builtins");

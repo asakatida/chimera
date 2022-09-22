@@ -52,6 +52,7 @@ namespace chimera::library::virtual_machine {
     void process_interrupts() const;
 
   private:
+    const object::Object builtins_;
     const GlobalContext &global_context;
     // TODO(asakatida)
     // GarbageCollector garbage_collector{};

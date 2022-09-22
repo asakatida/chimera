@@ -399,9 +399,9 @@ namespace chimera::library::asdl {
     std::optional<ExprImpl> returns{};
   };
   struct Module {
-    Module(const Options &options, const std::string_view &data,
+    Module(const Optimize &optimize, const std::string_view &data,
            const char *source);
-    Module(const Options &options, std::istream &&input, const char *source);
+    Module(const Optimize &optimize, std::istream &&input, const char *source);
     [[nodiscard]] auto doc() const -> const std::optional<DocString> &;
     [[nodiscard]] auto iter() const -> const std::vector<StmtImpl> &;
     template <typename Stack>
@@ -421,9 +421,9 @@ namespace chimera::library::asdl {
     std::optional<DocString> doc_string{};
   };
   struct Interactive {
-    Interactive(const Options &options, const std::string_view &data,
+    Interactive(const Optimize &optimize, const std::string_view &data,
                 const char *source);
-    Interactive(const Options &options, std::istream &&input,
+    Interactive(const Optimize &optimize, std::istream &&input,
                 const char *source);
     [[nodiscard]] auto iter() const -> const std::vector<StmtImpl> &;
     template <typename Stack>

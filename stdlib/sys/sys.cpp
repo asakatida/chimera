@@ -33,15 +33,8 @@ using namespace std::literals;
 
 namespace chimera::library::virtual_machine::modules {
   using Argv = std::vector<object::Object>;
-  void sys(const Options &options, const object::Object &module) {
+  void sys(const object::Object &module) {
     auto sys = module;
-    Argv argv;
-    argv.reserve(gsl::narrow<Argv::size_type>(
-        std::distance(options.argv.begin(), options.argv.end())));
-    for (const auto &arg : options.argv) {
-      argv.emplace_back(object::Object(
-          object::String(arg), {{"__class__", module.get_attribute("str")}}));
-    }
     sys.set_attribute("__displayhook__"s, object::Object());
     sys.set_attribute("__doc__"s, object::Object());
     sys.set_attribute("__excepthook__"s, object::Object());
@@ -62,9 +55,7 @@ namespace chimera::library::virtual_machine::modules {
     sys.set_attribute("_xoptions"s, object::Object());
     sys.set_attribute("abiflags"s, object::Object());
     sys.set_attribute("api_version"s, object::Object());
-    sys.set_attribute(
-        "argv"s,
-        object::Object(argv, {{"__class__", sys.get_attribute("tuple")}}));
+    sys.set_attribute("argv"s, object::Object());
     sys.set_attribute("base_exec_prefix"s, object::Object());
     sys.set_attribute("base_prefix"s, object::Object());
     sys.set_attribute("builtin_module_names"s, object::Object());

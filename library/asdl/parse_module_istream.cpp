@@ -31,10 +31,10 @@
 #include "options.hpp"
 
 namespace chimera::library::asdl {
-  Module::Module(const Options &options, std::istream &&input,
+  Module::Module(const Optimize &optimize, std::istream &&input,
                  const char *source) {
     grammar::parse<grammar::FileInput>(
-        options,
+        optimize,
         grammar::Input<tao::pegtl::istream_input<>>(input, bufferSize, source),
         *this);
   }

@@ -22,9 +22,11 @@
 
 #include "virtual_machine/global_context.hpp"
 
+#include <csignal>
 #include <fstream>
 #include <iostream>
 #include <string_view>
+#include <utility>
 
 #include "object/object.hpp"
 #include "version.hpp"
@@ -32,11 +34,21 @@
 #include "virtual_machine/thread_context.hpp"
 #include "virtual_machine/virtual_machine.hpp"
 
+using namespace std::literals;
+
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
+static std::atomic_flag SIG_INT{};
+
+extern "C" void interupt_handler(int /*signal*/) { SIG_INT.clear(); }
+
 namespace chimera::library::virtual_machine {
-  auto GlobalContext::builtins() const -> const object::Object & {
-    return builtins_;
+  GlobalContext::GlobalContext(Options options)
+      : options(std::move(options)), sig_int(&SIG_INT) {
+    SIG_INT.test_and_set();
+    std::ignore = std::signal(SIGINT, interupt_handler);
   }
-  auto GlobalContext::interactive() -> int {
+  auto GlobalContext::debug() const -> bool { return options.debug; }
+  auto GlobalContext::interactive() const -> int {
     if (!options.dont_display_copyright) {
       std::cout << "chimera " << CHIMERA_VERSION
                 << " (default, " __DATE__ ", " __TIME__ ")\n"
@@ -45,7 +57,7 @@ namespace chimera::library::virtual_machine {
                    "for more information."
                 << std::endl;
     }
-    ProcessContext processContext{*this};
+    auto processContext = process_context();
     auto main = processContext.make_module("__main__");
     while (!std::cin.eof()) {
       std::cout << ">>> ";
@@ -55,38 +67,60 @@ namespace chimera::library::virtual_machine {
     }
     return 0;
   }
-  auto GlobalContext::execute_script() -> int {
+  auto GlobalContext::execute_script() const -> int {
     std::ifstream input(options.script);
-    ProcessContext processContext{*this};
+    auto processContext = process_context();
     auto module = processContext.parse_file(std::move(input), options.script);
     auto main = processContext.make_module("__main__");
     ThreadContext(processContext, main).evaluate(module);
     return 0;
   }
-  auto GlobalContext::execute_script_string() -> int {
-    ProcessContext processContext{*this};
+  auto GlobalContext::execute_script_string() const -> int {
+    auto processContext = process_context();
     auto module = processContext.parse_file(options.command, "<string>");
     auto main = processContext.make_module("__main__");
     ThreadContext(processContext, main).evaluate(module);
     return 0;
   }
-  auto GlobalContext::execute_script_input() -> int {
-    ProcessContext processContext{*this};
+  auto GlobalContext::execute_script_input() const -> int {
+    auto processContext = process_context();
     auto module = processContext.parse_file(std::move(std::cin), "<input>");
     auto main = processContext.make_module("__main__");
     ThreadContext(processContext, main).evaluate(module);
     return 0;
   }
-  auto GlobalContext::execute_module() -> int {
-    ProcessContext processContext{*this};
-    auto importModule = processContext.import_module(options.module_name);
+  auto GlobalContext::execute_module() const -> int {
+    auto processContext = process_context();
+    auto module = processContext.import_module(options.module_name);
     auto main = processContext.make_module("__main__");
-    ThreadContext(processContext, main).evaluate(importModule);
+    ThreadContext(processContext, main).evaluate(module);
     return 0;
+  }
+  auto GlobalContext::optimize() const -> const Optimize & {
+    return options.optimize;
+  }
+  auto GlobalContext::process_context() const -> ProcessContext {
+    return ProcessContext(*this);
   }
   void GlobalContext::process_interrupts() const {
     if (!std::atomic_flag_test_and_set(sig_int)) {
-      throw object::BaseException(builtins_.get_attribute("KeyboardInterrupt"));
+      throw object::KeyboardInterrupt();
     }
+  }
+  void GlobalContext::sys_argv(const object::Object &module) const {
+    auto sys = module;
+    object::Tuple argv;
+    argv.reserve(gsl::narrow<object::Tuple::size_type>(
+        std::distance(options.argv.begin(), options.argv.end())));
+    for (const auto &arg : options.argv) {
+      argv.emplace_back(object::Object(
+          object::String(arg), {{"__class__", module.get_attribute("str")}}));
+    }
+    sys.set_attribute(
+        "argv"s,
+        object::Object(argv, {{"__class__", sys.get_attribute("tuple")}}));
+  }
+  auto GlobalContext::verbose_init() const -> const VerboseInit & {
+    return options.verbose_init;
   }
 } // namespace chimera::library::virtual_machine

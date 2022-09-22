@@ -12,9 +12,7 @@ namespace chimera::library {
     Options options;
     options.chimera = "chimera";
     options.script = "unit_test.py";
-    const object::Object builtins;
-    virtual_machine::modules::builtins(builtins);
-    const virtual_machine::VirtualMachine virtualMachine(options, builtins);
+    const virtual_machine::VirtualMachine virtualMachine(options);
     auto processContext = virtualMachine.process_context();
     std::istringstream in(std::forward<Data>(data)...);
     auto module = processContext.parse_file(std::move(in), "<unit_test>");
