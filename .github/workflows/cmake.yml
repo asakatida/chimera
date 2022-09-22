@@ -2,7 +2,15 @@
 env:
   CLANG_VERSION: 15
   CMAKE_BUILD_TYPE: Debug
-  CXXFLAGS: -DNDEBUG -DCHIMERA_PATH
+  CXXFLAGS: >
+    -DCHIMERA_PATH="${{ github.workspace }}/stdlib"
+    -fsanitize-coverage=no-prune
+    -fsanitize-coverage=trace-cmp
+    -fsanitize-coverage=trace-div
+    -fsanitize-coverage=trace-gep
+    -fsanitize-coverage=trace-loads
+    -fsanitize-coverage=trace-stores
+    -fsanitize=address
 
 jobs:
   regression:
@@ -17,7 +25,7 @@ jobs:
       - name: Cache cmake
         uses: actions/cache@v3.0.8
         with:
-          key: build-${{ hashFiles('CMakeLists.txt') }}-${{ env.CLANG_VERSION }}-v1
+          key: build-${{ hashFiles('CMakeLists.txt') }}-${{ env.CLANG_VERSION }}-v2
           path: build
       - name: Cache python
         uses: actions/cache@v3.0.8

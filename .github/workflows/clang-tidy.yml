@@ -28,7 +28,7 @@ jobs:
         uses: actions/cache@v3.0.8
         with:
           # yamllint disable-line rule:line-length
-          key: build-${{ hashFiles('CMakeLists.txt') }}-${{ env.CLANG_VERSION }}-v1
+          key: clang-tidy-${{ hashFiles('CMakeLists.txt') }}-${{ env.CLANG_VERSION }}-v1
           path: build
       - run: >
           wget https://apt.llvm.org/llvm.sh &&

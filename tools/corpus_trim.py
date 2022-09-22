@@ -26,7 +26,7 @@ from hashlib import sha256
 from itertools import chain
 from os import chdir
 from pathlib import Path
-from subprocess import DEVNULL, CalledProcessError, run
+from subprocess import DEVNULL, CalledProcessError, TimeoutExpired, run
 from typing import Iterator, TypeVar
 
 from tqdm import tqdm  # type: ignore
@@ -109,6 +109,10 @@ def regression_one(file: Path) -> bool:
     try:
         fuzz_test(str(file))
     except CalledProcessError:
+        if file.is_relative_to(CORPUS):
+            file.rename(CRASHES / file.name)
+            return True
+    except TimeoutExpired:
         if file.is_relative_to(CORPUS):
             file.rename(CRASHES / file.name)
             return True
