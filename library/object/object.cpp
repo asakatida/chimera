@@ -97,4 +97,6 @@ namespace chimera::library::object {
   auto BaseException::class_id() const noexcept -> Id {
     return exception.get_attribute("__class__"s).id();
   }
+  KeyboardInterrupt::KeyboardInterrupt()
+      : BaseException(Object(String(""), {})) {}
 } // namespace chimera::library::object

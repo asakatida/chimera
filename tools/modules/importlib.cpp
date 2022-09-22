@@ -42,9 +42,7 @@
 
 namespace chimera::library {
   static void main() {
-    const object::Object builtins;
-    virtual_machine::modules::builtins(builtins);
-    const virtual_machine::VirtualMachine virtualMachine({}, builtins);
+    const virtual_machine::VirtualMachine virtualMachine({});
     auto processContext = virtualMachine.process_context();
     auto module = processContext.parse_file(std::move(std::cin), "<input>");
     auto main = processContext.make_module("importlib");

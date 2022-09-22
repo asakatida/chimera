@@ -28,18 +28,23 @@
 #include "options.hpp"
 
 namespace chimera::library::virtual_machine {
+  struct ProcessContext;
   struct GlobalContext {
-    [[nodiscard]] auto builtins() const -> const object::Object &;
-    auto interactive() -> int;
-    auto execute_script() -> int;
-    auto execute_script_string() -> int;
-    auto execute_script_input() -> int;
-    auto execute_module() -> int;
+    explicit GlobalContext(Options options);
+    [[nodiscard]] auto debug() const -> bool;
+    [[nodiscard]] auto interactive() const -> int;
+    [[nodiscard]] auto execute_script() const -> int;
+    [[nodiscard]] auto execute_script_string() const -> int;
+    [[nodiscard]] auto execute_script_input() const -> int;
+    [[nodiscard]] auto execute_module() const -> int;
+    [[nodiscard]] auto optimize() const -> const Optimize &;
+    [[nodiscard]] auto process_context() const -> ProcessContext;
     void process_interrupts() const;
-    // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
+    void sys_argv(const object::Object &module) const;
+    [[nodiscard]] auto verbose_init() const -> const VerboseInit &;
+
+  private:
     const Options options;
-    const object::Object builtins_;
     std::atomic_flag *sig_int;
-    // NOLINTEND(misc-non-private-member-variables-in-classes)
   };
 } // namespace chimera::library::virtual_machine

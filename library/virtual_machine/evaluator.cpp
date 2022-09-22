@@ -25,6 +25,7 @@
 
 #include <exception>
 #include <istream>
+#include <string_view>
 
 #include <gsl/gsl>
 
@@ -308,7 +309,7 @@ namespace chimera::library::virtual_machine {
       }
       push([&alias](Evaluator *evaluator) {
         evaluator->push(PushStack{evaluator->thread_context.import_object(
-            "module_name", alias.name.value)});
+            "module_name"sv, alias.name.value)});
       });
     }
   }
@@ -331,7 +332,7 @@ namespace chimera::library::virtual_machine {
     }
     push([&importFrom](Evaluator *evaluator) {
       evaluator->push(PushStack{evaluator->thread_context.import_object(
-          "module_name", importFrom.module.value)});
+          "module_name"sv, importFrom.module.value)});
     });
   }
   void Evaluator::evaluate(const asdl::Global & /*global*/) {}

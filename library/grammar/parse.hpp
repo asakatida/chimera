@@ -30,9 +30,9 @@
 
 namespace chimera::library::grammar {
   template <typename Grammar, typename... Args>
-  void parse(const Options &options, Args &&...args) {
+  void parse(const Optimize &optimize, Args &&...args) {
     Ensures((tao::pegtl::parse<must<Grammar>, token::Action, Normal>(args...)));
-    switch (options.optimize) {
+    switch (optimize) {
       case Optimize::NONE:
       case Optimize::BASIC:
       case Optimize::DISCARD_DOCS:

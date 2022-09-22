@@ -15,9 +15,7 @@ namespace chimera::library {
     Options options;
     options.chimera = "chimera";
     options.script = "unit_test.py";
-    const object::Object builtins;
-    virtual_machine::modules::builtins(builtins);
-    const virtual_machine::VirtualMachine virtualMachine(options, builtins);
+    const virtual_machine::VirtualMachine virtualMachine(options);
     auto processContext = virtualMachine.process_context();
     try {
       processContext.parse_file(data, "<unit_tests/virtual_machine/parse.cpp>");

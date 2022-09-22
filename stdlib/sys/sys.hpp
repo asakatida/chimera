@@ -26,5 +26,5 @@
 #include "options.hpp"
 
 namespace chimera::library::virtual_machine::modules {
-  void sys(const Options &options, const object::Object &module);
+  void sys(const object::Object &module);
 } // namespace chimera::library::virtual_machine::modules

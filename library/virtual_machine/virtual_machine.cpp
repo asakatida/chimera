@@ -27,21 +27,9 @@
 
 using namespace std::literals;
 
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-static std::atomic_flag SIG_INT{};
-
-extern "C" void interupt_handler(int /*signal*/) { SIG_INT.clear(); }
-
 namespace chimera::library::virtual_machine {
-  VirtualMachine::VirtualMachine(const Options &options,
-                                 object::Object builtins)
-      : global_context{options, builtins, &SIG_INT} {
-    SIG_INT.test_and_set();
-    std::ignore = std::signal(SIGINT, interupt_handler);
-    builtins.set_attribute("__debug__"s, options.debug
-                                             ? builtins.get_attribute("True")
-                                             : builtins.get_attribute("False"));
-  }
+  VirtualMachine::VirtualMachine(const Options &options)
+      : global_context{options} {}
   auto VirtualMachine::execute_module() -> int {
     return global_context.execute_module();
   }
@@ -58,6 +46,6 @@ namespace chimera::library::virtual_machine {
     return global_context.interactive();
   }
   auto VirtualMachine::process_context() const -> ProcessContext {
-    return ProcessContext{global_context};
+    return global_context.process_context();
   }
 } // namespace chimera::library::virtual_machine

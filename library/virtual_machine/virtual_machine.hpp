@@ -29,7 +29,7 @@
 
 namespace chimera::library::virtual_machine {
   struct VirtualMachine {
-    VirtualMachine(const Options &options, object::Object builtins);
+    explicit VirtualMachine(const Options &options);
     [[nodiscard]] auto execute_module() -> int;
     [[nodiscard]] auto execute_script_input() -> int;
     [[nodiscard]] auto execute_script_string() -> int;
@@ -38,6 +38,6 @@ namespace chimera::library::virtual_machine {
     [[nodiscard]] auto process_context() const -> ProcessContext;
 
   private:
-    GlobalContext global_context{};
+    GlobalContext global_context;
   };
 } // namespace chimera::library::virtual_machine
