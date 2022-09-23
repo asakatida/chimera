@@ -53,12 +53,13 @@ jobs:
         working-directory: ${{ github.workspace }}
       - name: Run regression
         run: >
-          ninja -j1 libchimera &&
-          ninja -j2 unit_test &&
+          ninja -j1 chimera_grammar &&
+          ninja -j2 chimera fuzzers &&
+          ninja &&
           ninja regression
         working-directory: ${{ github.workspace }}/build
       - run: >
-          ninja -C build -k0 corpus || true;
+          ninja -k0 corpus || true;
           env/bin/python3 tools/corpus_trim.py
         working-directory: ${{ github.workspace }}
       - uses: stefanzweifel/git-auto-commit-action@v4.14.1
@@ -92,9 +93,11 @@ jobs:
           --use-c++ /usr/bin/clang++-${{ env.CLANG_VERSION }}
           bash -c '
             cmake -GNinja -B build -S . &&
-            ninja -C build -j1 libchimera &&
-            ninja -C build -j2 unit_test &&
-            ninja -C build regression
+            cd build &&
+            ninja -j1 chimera_grammar &&
+            ninja -j2 chimera fuzzers &&
+            ninja &&
+            ninja regression
           '
         working-directory: ${{ github.workspace }}
 

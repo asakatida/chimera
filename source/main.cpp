@@ -26,6 +26,7 @@
 
 #include <gsl/gsl>
 
+#include "builtins/builtins.hpp"
 #include "object/object.hpp"
 #include "options.hpp"
 #include "version.hpp"

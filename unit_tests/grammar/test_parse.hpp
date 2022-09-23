@@ -1,7 +1,9 @@
 #pragma once
 
+#include "builtins/builtins.hpp"
 #include "object/object.hpp"
 #include "options.hpp"
+#include "virtual_machine/thread_context.hpp"
 #include "virtual_machine/virtual_machine.hpp"
 
 namespace chimera::library {
