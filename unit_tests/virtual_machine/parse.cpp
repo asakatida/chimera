@@ -1,3 +1,4 @@
+#include "builtins/builtins.hpp"
 #include "grammar/rules.hpp"
 #include "object/object.hpp"
 #include "options.hpp"

@@ -22,6 +22,7 @@
 
 #include "virtual_machine/virtual_machine.hpp"
 
+#include <atomic>
 #include <csignal>
 
 using namespace std::literals;

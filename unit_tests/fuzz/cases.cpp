@@ -10,10 +10,12 @@
 #include <tao/pegtl.hpp>
 
 #include "asdl/asdl.hpp"
+#include "builtins/builtins.hpp"
 #include "grammar/number.hpp"
 #include "grammar/rules.hpp"
 #include "object/object.hpp"
 #include "options.hpp"
+#include "virtual_machine/thread_context.hpp"
 #include "virtual_machine/virtual_machine.hpp"
 
 namespace chimera::library {

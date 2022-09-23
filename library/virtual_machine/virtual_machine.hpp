@@ -22,16 +22,10 @@
 
 #pragma once
 
-#include <atomic>
-
-#include "builtins/builtins.hpp"
 #include "object/object.hpp"
 #include "options.hpp"
 #include "virtual_machine/global_context.hpp"
 #include "virtual_machine/process_context.hpp"
-#include "virtual_machine/thread_context.hpp"
-
-extern "C" void interupt_handler(int signal);
 
 namespace chimera::library::virtual_machine {
   struct VirtualMachine {

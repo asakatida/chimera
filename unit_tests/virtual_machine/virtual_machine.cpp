@@ -2,6 +2,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include "builtins/builtins.hpp"
+#include "virtual_machine/thread_context.hpp"
+
 using namespace std::literals;
 
 TEST_CASE("grammar VirtualMachine ()") {
