@@ -153,7 +153,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     -fsanitize-coverage=trace-gep
     $<${NOT_APPLE_CLANG}:-fsanitize-coverage=trace-loads>
     $<${NOT_APPLE_CLANG}:-fsanitize-coverage=trace-stores>
-    -fsanitize=address,fuzzer)
+    -fsanitize=fuzzer)
   add_library(chimerafuzz unit_tests/fuzz/cases.cpp)
   target_compile_options(
     chimerafuzz
@@ -185,7 +185,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_custom_target(
       corpus-${fuzzer}
       fuzz-${fuzzer}
-      -detect_leaks=1
+      -detect_leaks=0
       -dict=${CMAKE_SOURCE_DIR}/unit_tests/fuzz/dictionaries/${fuzzer}.dict
       -max_len=16384
       -max_total_time=500
