@@ -205,6 +205,15 @@ apt-get install --yes </dev/null \
   zlib1g \
   zlib1g-dev
 
+python3 -m venv /tmp/env
+/tmp/env/bin/pip install --upgrade pip setuptools wheel
+/tmp/env/bin/pip install -r /tmp/requirements.txt
+/tmp/env/bin/ansible-playbook /tmp/boot.yml
+rm -rf /tmp/env
+python3.12 -m venv /opt/virtualenv
+/opt/virtualenv/bin/pip install --upgrade pip setuptools wheel
+/opt/virtualenv/bin/pip install -r /tmp/requirements.txt
+
 fish_cmd="$(command -v fish)"
 chsh -s "${fish_cmd}"
 fish -c 'set -U fish_user_paths /usr/local/bin'
