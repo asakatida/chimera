@@ -35,4 +35,3 @@ typing_extensions==4.3.0
 urllib3==1.26.12
 websocket-client==1.4.1
 yamllint==1.28.0
-pyparsing
