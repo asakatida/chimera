@@ -50,6 +50,31 @@ def c_tqdm(iterable: Iterable[T], desc: str) -> Iterable[T]:
     return tqdm(iterable, desc=desc, maxinterval=60, mininterval=10, miniters=100, unit_scale=True)  # type: ignore
 
 
+def conflicts_one(file: Path) -> None:
+    set(
+        map(
+            lambda section: (file.parent / sha256(section).hexdigest()).write_bytes(
+                section
+            ),
+            filter(None, CONFLICT.split(file.read_bytes())),
+        )
+    )
+    file.unlink()
+
+
+def conflicts(fuzz: list[Path]) -> None:
+    with ThreadPoolExecutor() as executor:
+        set(
+            executor.map(
+                conflicts_one,
+                filter(
+                    lambda file: CONFLICT.search(file.read_bytes()),
+                    c_tqdm(fuzz, "Conflicts"),
+                ),
+            )
+        )
+
+
 def corpus_trim(fuzz: list[Path]) -> None:
     global LENGTH
     for file in c_tqdm(fuzz, "Corpus rehash"):
@@ -144,6 +169,7 @@ def main() -> None:
     CORPUS.mkdir(exist_ok=True)
     CRASHES.mkdir(exist_ok=True)
     fuzz = sorted(tqdm(FUZZ.glob("*/*"), desc="Gather", unit_scale=True))
+    conflicts(fuzz)
     if not regression(fuzz):
         CORPUS.rename(CORPUS_ORIGINAL)
         run(
