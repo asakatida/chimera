@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3.0.2
       - name: Cache
-        uses: actions/cache@v3.0.8
+        uses: actions/cache@v3.0.9
         with:
           key: python3-${{ hashFiles('requirements.txt') }}
           path: env
@@ -32,7 +32,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3.0.2
       - name: Cache
-        uses: actions/cache@v3.0.8
+        uses: actions/cache@v3.0.9
         with:
           key: python3.12-${{ hashFiles('requirements.txt') }}
           path: env
@@ -61,7 +61,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3.0.2
       - name: Cache
-        uses: actions/cache@v3.0.8
+        uses: actions/cache@v3.0.9
         with:
           key: python3.12-${{ hashFiles('requirements.txt') }}
           path: env
@@ -115,7 +115,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3.0.2
       - name: Cache
-        uses: actions/cache@v3.0.8
+        uses: actions/cache@v3.0.9
         with:
           key: python3.12-${{ hashFiles('requirements.txt') }}
           path: env
