@@ -43,8 +43,7 @@ def main() -> None:
     cmd("git", "rebase", "origin/HEAD")
     cmd("git", "reset", "origin/HEAD")
     cmd("git", "add", ".")
-    cmd("git", "commit", "--allow-empty", "-m", "Update fuzzing corpus.")
-    cmd("git", "reset", "origin/HEAD")
+    cmd("git", "commit", "--allow-empty", "-m", "WIP")
     for branch in tqdm(
         filter(
             lambda branch: match(r"\w+/regression-.+-refs/\w", branch),
@@ -61,8 +60,7 @@ def main() -> None:
         cmd("git", "add", "unit_tests/fuzz")
         cmd("git", "commit", "--amend", "--no-edit")
     cmd("env/bin/python3", "tools/corpus_trim.py")
-    cmd("git", "add", "unit_tests/fuzz")
-    cmd("git", "commit", "--amend", "--no-edit")
+    cmd("git", "reset", "origin/HEAD")
 
 
 if __name__ == "__main__":

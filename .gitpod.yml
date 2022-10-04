@@ -21,6 +21,7 @@ gitConfig:
   rebase.autoStash: "true"
   rebase.backend: apply
   rebase.missingCommitsCheck: error
+  rebase.updateRefs: "true"
   status.submoduleSummary: "true"
   submodule.recurse: "true"
 github:
