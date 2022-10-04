@@ -27,7 +27,8 @@ from itertools import chain
 from os import chdir
 from pathlib import Path
 from re import MULTILINE, compile
-from subprocess import DEVNULL, CalledProcessError, TimeoutExpired, run
+from subprocess import DEVNULL, PIPE, CalledProcessError, TimeoutExpired, run
+from sys import stderr
 from typing import Iterable, TypeVar
 
 from tqdm import tqdm  # type: ignore
@@ -175,7 +176,7 @@ def main() -> None:
         run(
             ["git", "restore", "--source", "origin/HEAD", "--worktree", str(CORPUS)],
             check=True,
-            stderr=DEVNULL,
+            stderr=PIPE,
             stdout=DEVNULL,
             timeout=10,
         )
@@ -203,5 +204,13 @@ def main() -> None:
 if __name__ == "__main__":
     try:
         main()
+    except CalledProcessError as error:
+        print(error.cmd, file=stderr)
+        print(error.stderr.decode(), file=stderr)
+        exit(error.returncode)
+    except TimeoutExpired as error:
+        print(error.cmd, file=stderr)
+        print(error.stderr.decode(), file=stderr)
+        exit(1)
     except KeyboardInterrupt:
         print()
