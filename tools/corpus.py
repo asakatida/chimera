@@ -23,19 +23,21 @@
 from os import chdir
 from pathlib import Path
 from re import match
-from subprocess import DEVNULL, CalledProcessError, run
+from subprocess import DEVNULL, PIPE, CalledProcessError, TimeoutExpired, run
+from sys import stderr
 
 from tqdm import tqdm  # type: ignore
 
 
 def cmd(*args: str) -> None:
-    run(args, check=True, stdout=DEVNULL)
+    run(args, check=True, stderr=PIPE, stdout=DEVNULL)
 
 
 def main() -> None:
     chdir(Path(__file__).parent.parent)
     cmd("git", "fetch", "--all", "--tags")
     cmd("git", "remote", "prune", "origin")
+    cmd("git", "remote", "set-head", "origin", "-a")
     try:
         cmd("git", "switch", "corpus")
     except CalledProcessError:
@@ -66,5 +68,13 @@ def main() -> None:
 if __name__ == "__main__":
     try:
         main()
+    except CalledProcessError as error:
+        print(error.cmd, file=stderr)
+        print(error.stderr.decode(), file=stderr)
+        exit(error.returncode)
+    except TimeoutExpired as error:
+        print(error.cmd, file=stderr)
+        print(error.stderr.decode(), file=stderr)
+        exit(1)
     except KeyboardInterrupt:
         print()
