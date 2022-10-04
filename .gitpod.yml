@@ -40,7 +40,8 @@ tasks:
       CMAKE_BUILD_TYPE: Debug
       CXX: clang++
       CXXFLAGS: >
-        -std=c++20
+        -fcoverage-mapping
+        -fprofile-instr-generate
         -fsanitize-coverage=no-prune
         -fsanitize-coverage=trace-cmp
         -fsanitize-coverage=trace-div

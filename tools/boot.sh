@@ -48,6 +48,8 @@ chimera_path="${PWD}/stdlib:$(python3 tools/chimera_path.py)"
 
 export CXX="${CXX:-clang++}" CXXFLAGS="${CXXFLAGS} -DCHIMERA_PATH=${chimera_path}"
 
+export LLVM_PROFILE_FILE="${PWD}/build/coverage/llvm-profile.%c%p.profraw"
+
 env \
   CMAKE_BUILD_TYPE=Debug \
   tools/cmake.sh "${PWD}/build/debug" -Wdev -Werror=dev

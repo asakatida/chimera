@@ -14,6 +14,8 @@ export PATH="${PWD}/env/bin:${PATH}"
 
 tools/lint.sh
 
+export LLVM_PROFILE_FILE="${PWD}/build/coverage/llvm-profile.%c%p.profraw"
+
 ninja -C "${debug_root}"
 ninja -C "${debug_root}"
 ninja -C "${release_root}"
