@@ -79,7 +79,7 @@ def conflicts(fuzz: list[Path]) -> None:
 def corpus_trim(fuzz: list[Path]) -> None:
     global LENGTH
     for file in c_tqdm(fuzz, "Corpus rehash"):
-        if file.parent.name not in DIRECTORIES:
+        if not (file.exists() and file.parent.name in DIRECTORIES):
             continue
         src_sha = sha(file)
         name = src_sha[:LENGTH]
@@ -132,7 +132,7 @@ def sha(path: Path) -> str:
 
 
 def regression_one(file: Path) -> bool:
-    if file.parent.name not in DIRECTORIES:
+    if not (file.exists() and file.parent.name in DIRECTORIES):
         return False
     try:
         fuzz_test(str(file))
@@ -197,6 +197,8 @@ def main() -> None:
             corpus_trim(fuzz)
         except Increment:
             LENGTH += 1
+            if LENGTH > 32:
+                raise
             continue
         break
 
@@ -205,12 +207,12 @@ if __name__ == "__main__":
     try:
         main()
     except CalledProcessError as error:
-        print(error.cmd, file=stderr)
-        print(error.stderr.decode(), file=stderr)
+        print(*error.cmd, file=stderr)
+        print((error.stderr or b"").decode(), file=stderr)
         exit(error.returncode)
     except TimeoutExpired as error:
-        print(error.cmd, file=stderr)
-        print(error.stderr.decode(), file=stderr)
+        print(*error.cmd, file=stderr)
+        print((error.stderr or b"").decode(), file=stderr)
         exit(1)
     except KeyboardInterrupt:
         print()
