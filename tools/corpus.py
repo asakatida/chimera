@@ -61,7 +61,7 @@ def main() -> None:
         cmd("git", "restore", "--worktree", "unit_tests/fuzz")
         cmd("git", "add", "unit_tests/fuzz")
         cmd("git", "commit", "--amend", "--no-edit")
-    cmd("env/bin/python3", "tools/corpus_trim.py")
+    run(["env/bin/python3", "tools/corpus_trim.py"], check=True)
     cmd("git", "reset", "origin/HEAD")
 
 
@@ -69,12 +69,12 @@ if __name__ == "__main__":
     try:
         main()
     except CalledProcessError as error:
-        print(error.cmd, file=stderr)
-        print(error.stderr.decode(), file=stderr)
+        print(*error.cmd, file=stderr)
+        print((error.stderr or b"").decode(), file=stderr)
         exit(error.returncode)
     except TimeoutExpired as error:
-        print(error.cmd, file=stderr)
-        print(error.stderr.decode(), file=stderr)
+        print(*error.cmd, file=stderr)
+        print((error.stderr or b"").decode(), file=stderr)
         exit(1)
     except KeyboardInterrupt:
         print()
