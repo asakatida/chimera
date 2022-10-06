@@ -9,7 +9,7 @@ jobs:
       group: cmakelint-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
       - name: Cache
         uses: actions/cache@v3.0.10
         with:
@@ -30,7 +30,7 @@ jobs:
       group: mypy-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
       - name: Cache
         uses: actions/cache@v3.0.10
         with:
@@ -59,7 +59,7 @@ jobs:
       group: ${{ matrix.lints }}-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
       - name: Cache
         uses: actions/cache@v3.0.10
         with:
@@ -91,7 +91,7 @@ jobs:
   requirements_txt:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
       - name: Build dev tools
         run: >
           python3 -m venv --upgrade --upgrade-deps env &&
@@ -113,7 +113,7 @@ jobs:
   utf8_generate:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
       - name: Cache
         uses: actions/cache@v3.0.10
         with:
