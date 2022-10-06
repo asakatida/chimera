@@ -6,7 +6,7 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
       - name: Build dev tools
         run: sudo apt-get install -y shellcheck
       - name: Lint shell

@@ -18,7 +18,7 @@ jobs:
       group: regression-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
         with:
           submodules: true
       - name: Cache cmake
@@ -86,7 +86,7 @@ jobs:
       group: scan-build-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
         with:
           submodules: true
       - run: >
