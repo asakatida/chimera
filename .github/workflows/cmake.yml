@@ -68,9 +68,14 @@ jobs:
         run: >
           git config --global user.email email &&
           git config --global user.name name &&
-          env/bin/python3 tools/corpus.py &&
-          git config --unset user.email &&
-          git config --unset user.name
+          env/bin/python3 tools/corpus.py
+        working-directory: ${{ github.workspace }}
+      - continue-on-error: true
+        run: |
+          for opt in --global --local --system --worktree; do
+            git config "${opt}" --unset-all user.email
+            git config "${opt}" --unset-all user.name
+          done
         working-directory: ${{ github.workspace }}
       - uses: stefanzweifel/git-auto-commit-action@v4.15.0
         with:
