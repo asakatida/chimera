@@ -23,14 +23,15 @@
 
 #include "virtual_machine/evaluator.hpp"
 
+#include <algorithm>
 #include <exception>
 #include <istream>
+#include <ranges>
 #include <string_view>
 
 #include <gsl/gsl>
 
 #include "asdl/asdl.hpp"
-#include "container/reverse.hpp"
 #include "virtual_machine/del_evaluator.hpp"
 #include "virtual_machine/get_evaluator.hpp"
 #include "virtual_machine/set_evaluator.hpp"
@@ -67,14 +68,14 @@ namespace chimera::library::virtual_machine {
     if (instructions.empty()) {
       return;
     }
-    for (const auto &instruction : container::reverse(instructions)) {
-      evaluate(instruction);
-    }
+    std::ranges::for_each(
+        instructions | std::views::reverse,
+        [this](const auto &instruction) { evaluate(instruction); });
   }
   void Evaluator::extend(const std::vector<asdl::ExprImpl> &instructions) {
-    for (const auto &instruction : container::reverse(instructions)) {
-      evaluate_get(instruction);
-    }
+    std::ranges::for_each(
+        instructions | std::views::reverse,
+        [this](const auto &instruction) { evaluate_get(instruction); });
   }
   auto Evaluator::return_value() const -> object::Object {
     return thread_context.return_value();
@@ -154,31 +155,35 @@ namespace chimera::library::virtual_machine {
     return evaluate();
   }
   void Evaluator::evaluate(const asdl::FunctionDef &functionDef) {
-    for (const auto &expr : container::reverse(functionDef.decorator_list)) {
-      push([](Evaluator *evaluator) {
-        auto decorator = evaluator->stack_remove();
-        evaluator->push(CallEvaluator{decorator, {evaluator->stack_top()}});
-      });
-      evaluate_get(expr);
-    }
+    std::ranges::for_each(
+        functionDef.decorator_list | std::views::reverse,
+        [this](const auto &expr) {
+          push([](Evaluator *evaluator) {
+            auto decorator = evaluator->stack_remove();
+            evaluator->push(CallEvaluator{decorator, {evaluator->stack_top()}});
+          });
+          evaluate_get(expr);
+        });
     if (functionDef.returns) {
     }
-    for (const auto &arg : container::reverse(functionDef.args.args)) {
-      // arg.name;
-      if (arg.annotation) {
-      }
-      if (arg.arg_default) {
-      }
-    }
+    std::ranges::for_each(functionDef.args.args | std::views::reverse,
+                          [this](const auto &arg) {
+                            // arg.name;
+                            if (arg.annotation) {
+                            }
+                            if (arg.arg_default) {
+                            }
+                          });
     if (functionDef.args.vararg) {
     }
-    for (const auto &kwarg : container::reverse(functionDef.args.kwonlyargs)) {
-      // kwarg.name;
-      if (kwarg.annotation) {
-      }
-      if (kwarg.arg_default) {
-      }
-    }
+    std::ranges::for_each(functionDef.args.kwonlyargs | std::views::reverse,
+                          [this](const auto &kwarg) {
+                            // kwarg.name;
+                            if (kwarg.annotation) {
+                            }
+                            if (kwarg.arg_default) {
+                            }
+                          });
     if (functionDef.args.kwarg) {
     }
     if (functionDef.doc_string) {
@@ -205,14 +210,12 @@ namespace chimera::library::virtual_machine {
   Evaluator::evaluate(const asdl::AsyncFunctionDef & /*async_function_def*/) {}
   void Evaluator::evaluate(const asdl::ClassDef & /*class_def*/) {}
   void Evaluator::evaluate(const asdl::Delete &asdlDelete) {
-    for (const auto &target : container::reverse(asdlDelete.targets)) {
-      evaluate_del(target);
-    }
+    std::ranges::for_each(asdlDelete.targets | std::views::reverse,
+                          [this](const auto &target) { evaluate_del(target); });
   }
   void Evaluator::evaluate(const asdl::Assign &assign) {
-    for (const auto &expr : container::reverse(assign.targets)) {
-      evaluate_set(expr);
-    }
+    std::ranges::for_each(assign.targets | std::views::reverse,
+                          [this](const auto &expr) { evaluate_set(expr); });
     evaluate_get(assign.value);
   }
   void Evaluator::evaluate(const asdl::AugAssign & /*aug_assign*/) {}
@@ -300,49 +303,51 @@ namespace chimera::library::virtual_machine {
         evaluator->do_try(with.body, {});
       }
     });
-    for (const auto &withItem : container::reverse(with.items)) {
-      evaluate_get(withItem.context_expr);
-    }
+    std::ranges::for_each(
+        with.items | std::views::reverse,
+        [this](const auto &withItem) { evaluate_get(withItem.context_expr); });
   }
   void Evaluator::evaluate(const asdl::AsyncWith & /*async_with*/) {}
   void Evaluator::evaluate(const asdl::Import &import) {
-    for (const auto &alias : container::reverse(import.names)) {
-      if (alias.asname) {
-        push([&alias](Evaluator *evaluator) {
-          evaluator->self().set_attribute(alias.asname->value,
-                                          evaluator->stack_remove());
-          evaluator->stack_pop();
+    std::ranges::for_each(
+        import.names | std::views::reverse, [this](const auto &alias) {
+          if (alias.asname) {
+            push([&alias](Evaluator *evaluator) {
+              evaluator->self().set_attribute(alias.asname->value,
+                                              evaluator->stack_remove());
+              evaluator->stack_pop();
+            });
+          } else {
+            push([&alias](Evaluator *evaluator) {
+              evaluator->self().set_attribute(alias.name.value,
+                                              evaluator->stack_remove());
+              evaluator->stack_pop();
+            });
+          }
+          push([&alias](Evaluator *evaluator) {
+            evaluator->push(PushStack{evaluator->thread_context.import_object(
+                "module_name"sv, alias.name.value)});
+          });
         });
-      } else {
-        push([&alias](Evaluator *evaluator) {
-          evaluator->self().set_attribute(alias.name.value,
-                                          evaluator->stack_remove());
-          evaluator->stack_pop();
-        });
-      }
-      push([&alias](Evaluator *evaluator) {
-        evaluator->push(PushStack{evaluator->thread_context.import_object(
-            "module_name"sv, alias.name.value)});
-      });
-    }
   }
   void Evaluator::evaluate(const asdl::ImportFrom &importFrom) {
     push([](Evaluator *evaluator) { evaluator->stack_pop(); });
-    for (const auto &alias : container::reverse(importFrom.names)) {
-      if (alias.asname) {
-        push([&alias](Evaluator *evaluator) {
-          evaluator->self().set_attribute(
-              alias.asname->value,
-              evaluator->stack_top().get_attribute(alias.name.value));
+    std::ranges::for_each(
+        importFrom.names | std::views::reverse, [this](const auto &alias) {
+          if (alias.asname) {
+            push([&alias](Evaluator *evaluator) {
+              evaluator->self().set_attribute(
+                  alias.asname->value,
+                  evaluator->stack_top().get_attribute(alias.name.value));
+            });
+          } else {
+            push([&alias](Evaluator *evaluator) {
+              evaluator->self().set_attribute(
+                  alias.name.value,
+                  evaluator->stack_top().get_attribute(alias.name.value));
+            });
+          }
         });
-      } else {
-        push([&alias](Evaluator *evaluator) {
-          evaluator->self().set_attribute(
-              alias.name.value,
-              evaluator->stack_top().get_attribute(alias.name.value));
-        });
-      }
-    }
     push([&importFrom](Evaluator *evaluator) {
       evaluator->push(PushStack{evaluator->thread_context.import_object(
           "module_name"sv, importFrom.module.value)});
@@ -380,9 +385,9 @@ namespace chimera::library::virtual_machine {
       }
     });
     if (auto exception = do_try(asdlTry.body, {}); exception) {
-      for (const auto &handler : container::reverse(asdlTry.handlers)) {
-        std::visit([](auto &&) {}, handler);
-      }
+      std::ranges::for_each(
+          asdlTry.handlers | std::views::reverse,
+          [this](const auto &handler) { std::visit([](auto &&) {}, handler); });
       if (auto exc = do_try(asdlTry.finalbody, exception); exc) {
         throw object::BaseException(*exc, *exception);
       }

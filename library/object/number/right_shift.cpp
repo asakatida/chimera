@@ -22,7 +22,6 @@
 
 #include <gsl/gsl>
 
-#include "container/reverse.hpp"
 #include "object/number/floor_div.hpp"
 #include "object/number/left_shift.hpp"
 #include "object/number/mod.hpp"

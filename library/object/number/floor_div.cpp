@@ -21,10 +21,10 @@
 #include "object/number/floor_div.hpp"
 
 #include <algorithm>
+#include <ranges>
 
 #include <gsl/gsl>
 
-#include "container/reverse.hpp"
 #include "object/number/add.hpp"
 #include "object/number/less.hpp"
 #include "object/number/mult.hpp"
@@ -93,12 +93,13 @@ namespace chimera::library::object::number {
   auto floor_div(const Natural &left, std::uint64_t right) -> Number {
     Expects(right != 0);
     Natural value;
-    Carryover carryover{};
-    for (const std::uint64_t i : container::reverse(left.value)) {
-      carryover.result = i;
-      carryover = div_mod(carryover, right);
-      value.value.emplace_back(carryover.result);
-    }
+    std::ranges::for_each(left.value | std::views::reverse,
+                          [carryover = Carryover{}, &value,
+                           right](const std::uint64_t i) mutable {
+                            carryover.result = i;
+                            carryover = div_mod(carryover, right);
+                            value.value.emplace_back(carryover.result);
+                          });
     std::reverse(value.value.begin(), value.value.end());
     return Number(std::move(value));
   }
