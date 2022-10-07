@@ -215,4 +215,4 @@ if __name__ == "__main__":
         print((error.stderr or b"").decode(), file=stderr)
         exit(1)
     except KeyboardInterrupt:
-        print()
+        print("KeyboardInterrupt", file=stderr)

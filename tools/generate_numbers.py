@@ -26,6 +26,7 @@ from pathlib import Path
 from re import M, X
 from re import compile as rc
 from re import escape
+from sys import stderr
 from typing import Callable, Iterator, Match, Pattern, TextIO, cast
 
 OPERATIONS = {
@@ -433,4 +434,4 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print()
+        print("KeyboardInterrupt", file=stderr)
