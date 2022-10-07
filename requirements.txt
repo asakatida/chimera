@@ -1,6 +1,6 @@
 ansible==6.4.0
 ansible-core==2.13.4
-black==22.8.0
+black==22.10.0
 certifi==2022.9.24
 cffi==1.15.1
 charset-normalizer==2.1.1
