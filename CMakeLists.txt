@@ -58,7 +58,6 @@ add_library(
   chimera_core
   library/container/atomic_container.cpp
   library/container/atomic_map.cpp
-  library/container/reverse.cpp
   library/object/number/add.cpp
   library/object/number/and.cpp
   library/object/number/compare.cpp

@@ -25,11 +25,11 @@
 
 #include <exception>
 #include <istream>
+#include <ranges>
 
 #include <gsl/gsl>
 
 #include "asdl/asdl.hpp"
-#include "container/reverse.hpp"
 #include "virtual_machine/del_evaluator.hpp"
 #include "virtual_machine/get_evaluator.hpp"
 #include "virtual_machine/set_evaluator.hpp"
@@ -64,12 +64,12 @@ namespace chimera::library::virtual_machine {
     if (instructions.empty()) {
       return;
     }
-    for (const auto &instruction : container::reverse(instructions)) {
+    for (const auto &instruction : instructions | std::views::reverse) {
       evaluate(instruction);
     }
   }
   void Evaluator::extend(const std::vector<asdl::ExprImpl> &instructions) {
-    for (const auto &instruction : container::reverse(instructions)) {
+    for (const auto &instruction : instructions | std::views::reverse) {
       evaluate_get(instruction);
     }
   }
@@ -148,7 +148,7 @@ namespace chimera::library::virtual_machine {
     return evaluate();
   }
   void Evaluator::evaluate(const asdl::FunctionDef &functionDef) {
-    for (const auto &expr : container::reverse(functionDef.decorator_list)) {
+    for (const auto &expr : functionDef.decorator_list | std::views::reverse) {
       push([](Evaluator *evaluator) {
         auto decorator = std::move(evaluator->stack.top());
         evaluator->stack.pop();
@@ -158,7 +158,7 @@ namespace chimera::library::virtual_machine {
     }
     if (functionDef.returns) {
     }
-    for (const auto &arg : container::reverse(functionDef.args.args)) {
+    for (const auto &arg : functionDef.args.args | std::views::reverse) {
       // arg.name;
       if (arg.annotation) {
       }
@@ -167,7 +167,8 @@ namespace chimera::library::virtual_machine {
     }
     if (functionDef.args.vararg) {
     }
-    for (const auto &kwarg : container::reverse(functionDef.args.kwonlyargs)) {
+    for (const auto &kwarg :
+         functionDef.args.kwonlyargs | std::views::reverse) {
       // kwarg.name;
       if (kwarg.annotation) {
       }
@@ -200,12 +201,12 @@ namespace chimera::library::virtual_machine {
   Evaluator::evaluate(const asdl::AsyncFunctionDef & /*async_function_def*/) {}
   void Evaluator::evaluate(const asdl::ClassDef & /*class_def*/) {}
   void Evaluator::evaluate(const asdl::Delete &asdlDelete) {
-    for (const auto &target : container::reverse(asdlDelete.targets)) {
+    for (const auto &target : asdlDelete.targets | std::views::reverse) {
       evaluate_del(target);
     }
   }
   void Evaluator::evaluate(const asdl::Assign &assign) {
-    for (const auto &expr : container::reverse(assign.targets)) {
+    for (const auto &expr : assign.targets | std::views::reverse) {
       evaluate_set(expr);
     }
     evaluate_get(assign.value);
@@ -297,13 +298,13 @@ namespace chimera::library::virtual_machine {
         evaluator->do_try(with.body, {});
       }
     });
-    for (const auto &withItem : container::reverse(with.items)) {
+    for (const auto &withItem : with.items | std::views::reverse) {
       evaluate_get(withItem.context_expr);
     }
   }
   void Evaluator::evaluate(const asdl::AsyncWith & /*async_with*/) {}
   void Evaluator::evaluate(const asdl::Import &import) {
-    for (const auto &alias : container::reverse(import.names)) {
+    for (const auto &alias : import.names | std::views::reverse) {
       if (alias.asname) {
         push([&alias](Evaluator *evaluator) {
           evaluator->self().set_attribute(alias.asname->value,
@@ -326,7 +327,7 @@ namespace chimera::library::virtual_machine {
   }
   void Evaluator::evaluate(const asdl::ImportFrom &importFrom) {
     push([](Evaluator *evaluator) { evaluator->stack.pop(); });
-    for (const auto &alias : container::reverse(importFrom.names)) {
+    for (const auto &alias : importFrom.names | std::views::reverse) {
       if (alias.asname) {
         push([&alias](Evaluator *evaluator) {
           evaluator->self().set_attribute(
@@ -375,7 +376,7 @@ namespace chimera::library::virtual_machine {
       }
     });
     if (auto exception = do_try(asdlTry.body, {}); exception) {
-      for (const auto &handler : container::reverse(asdlTry.handlers)) {
+      for (const auto &handler : asdlTry.handlers | std::views::reverse) {
         std::visit([](auto &&) {}, handler);
       }
       if (auto exc = do_try(asdlTry.finalbody, exception); exc) {

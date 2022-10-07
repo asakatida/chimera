@@ -20,9 +20,10 @@
 
 #include "object/number/mod.hpp"
 
+#include <ranges>
+
 #include <gsl/gsl>
 
-#include "container/reverse.hpp"
 #include "object/number/div.hpp"
 #include "object/number/floor_div.hpp"
 #include "object/number/less.hpp"
@@ -93,7 +94,7 @@ namespace chimera::library::object::number {
   auto operator%(const Natural &left, std::uint64_t right) -> Number {
     Expects(right != 0);
     Carryover carryover{};
-    for (const std::uint64_t i : container::reverse(left.value)) {
+    for (const std::uint64_t i : left.value | std::views::reverse) {
       carryover.result = i;
       carryover = div_mod(carryover, right);
     }

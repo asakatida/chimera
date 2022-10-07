@@ -21,10 +21,10 @@
 #include "object/number/gcd.hpp"
 
 #include <algorithm>
+#include <ranges>
 
 #include <gsl/gsl>
 
-#include "container/reverse.hpp"
 #include "object/number/add.hpp"
 #include "object/number/less.hpp"
 #include "object/number/mod.hpp"
