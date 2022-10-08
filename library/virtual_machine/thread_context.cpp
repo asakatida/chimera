@@ -24,6 +24,16 @@
 
 #include "virtual_machine/evaluator.hpp"
 
+namespace chimera {
+  namespace library {
+    namespace asdl {
+      struct Expression;
+      struct Interactive;
+      struct Module;
+    } // namespace asdl
+  }   // namespace library
+} // namespace chimera
+
 namespace chimera::library::virtual_machine {
   void ThreadContext::evaluate(const asdl::Module &module) {
     return Evaluator{*this}.evaluate(module);

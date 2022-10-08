@@ -20,13 +20,16 @@
 
 #include "object/number/right_shift.hpp"
 
-#include <gsl/gsl>
+#include <cstddef>
+#include <variant>
+#include <vector>
 
-#include "container/reverse.hpp"
+#include <gsl/assert>
+#include <gsl/narrow>
+
 #include "object/number/floor_div.hpp"
 #include "object/number/left_shift.hpp"
 #include "object/number/mod.hpp"
-#include "object/number/negative.hpp"
 #include "object/number/overflow.hpp"
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

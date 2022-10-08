@@ -14,6 +14,51 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 
+struct PyASCIIObject;
+struct PyAsyncMethods;
+struct PyBufferProcs;
+struct PyByteArrayObject;
+struct PyBytesObject;
+struct PyCapsule;
+struct PyCellObject;
+struct PyCodeObject;
+struct PyCompactUnicodeObject;
+struct PyCompilerFlags;
+struct PyComplexObject;
+struct PyCoroObject;
+struct PyDateTime_Date;
+struct PyDateTime_DateTime;
+struct PyDateTime_Delta;
+struct PyDateTime_Time;
+struct PyDictObject;
+struct PyFloatObject;
+struct PyFrameObject;
+struct PyFunctionObject;
+struct PyGenObject;
+struct PyInterpreterState;
+struct PyListObject;
+struct PyLongObject;
+struct PyMappingMethods;
+struct PyMemAllocatorEx;
+struct PyMemberDef;
+struct PyMethodDef;
+struct PyModuleDef;
+struct PyModuleDef_Slot;
+struct PyNumberMethods;
+struct PyObject;
+struct PyObjectArenaAllocator;
+struct PySequenceMethods;
+struct PySetObject;
+struct PyStructSequence_Desc;
+struct PyStructSequence_Field;
+struct PyThreadState;
+struct PyTupleObject;
+struct PyTypeObject;
+struct PyUnicodeObject;
+struct PyVarObject;
+struct Py_buffer;
+struct Py_complex;
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
 #ifndef _PyObject_EXTRA_INIT

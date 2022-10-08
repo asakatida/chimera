@@ -22,6 +22,9 @@
 
 #include "builtins/builtins.hpp"
 
+#include <iosfwd>
+#include <string>
+
 #include "object/object.hpp"
 
 using namespace std::literals;

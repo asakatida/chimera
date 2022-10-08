@@ -22,6 +22,8 @@
 
 #include "virtual_machine/push_stack.hpp"
 
+#include <stack>
+
 #include "virtual_machine/evaluator.hpp"
 
 namespace chimera::library::virtual_machine {

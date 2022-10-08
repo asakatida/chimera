@@ -33,6 +33,14 @@
 #include "virtual_machine/garbage.hpp"
 #include "virtual_machine/global_context.hpp"
 
+namespace chimera {
+  namespace library {
+    namespace virtual_machine {
+      struct GlobalContext;
+    } // namespace virtual_machine
+  }   // namespace library
+} // namespace chimera
+
 namespace chimera::library::virtual_machine {
   struct ProcessContext {
     auto import_module(std::string &&module) -> std::optional<asdl::Module>;

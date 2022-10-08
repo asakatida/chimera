@@ -22,8 +22,14 @@
 
 #include "virtual_machine/tuple_evaluator.hpp"
 
+#include <iosfwd>
+#include <stack>
+#include <string>
+#include <vector>
+
 #include "object/object.hpp"
 #include "virtual_machine/evaluator.hpp"
+#include "virtual_machine/push_stack.hpp"
 
 namespace chimera::library::virtual_machine {
   void TupleEvaluator::operator()(Evaluator *evaluator) const {

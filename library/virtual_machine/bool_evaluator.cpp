@@ -23,7 +23,11 @@
 
 #include "virtual_machine/bool_evaluator.hpp"
 
+#include <stack>
+
+#include "object/object.hpp"
 #include "virtual_machine/evaluator.hpp"
+#include "virtual_machine/to_bool_evaluator.hpp"
 
 namespace chimera::library::virtual_machine {
   void BoolAndEvaluator::operator()(Evaluator *evaluatorA) const {

@@ -26,13 +26,28 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
+#include <type_traits>
 #include <variant>
 #include <vector>
 
 #include <metal.hpp>
+#include <metal/lambda/apply.hpp>
+#include <metal/list/contains.hpp>
+#include <metal/list/list.hpp>
 
 #include "object/object.hpp"
 #include "options.hpp"
+
+namespace chimera {
+  namespace library {
+    struct Options;
+  } // namespace library
+} // namespace chimera
+namespace metal {
+  template <template <class...> class expr>
+  struct lambda;
+} // namespace metal
 
 namespace chimera::library::asdl {
   namespace detail {

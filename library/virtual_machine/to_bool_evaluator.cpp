@@ -22,7 +22,12 @@
 
 #include "virtual_machine/to_bool_evaluator.hpp"
 
+#include <stack>
+#include <variant>
+
+#include "virtual_machine/call_evaluator.hpp"
 #include "virtual_machine/evaluator.hpp"
+#include "virtual_machine/push_stack.hpp"
 
 namespace chimera::library::virtual_machine {
   void ToBoolEvaluator::operator()(Evaluator *evaluatorA) const {

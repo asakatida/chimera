@@ -20,7 +20,24 @@
 
 #pragma once
 
+#include <cstdint>
+
 #include "object/number/number.hpp"
+
+namespace chimera {
+  namespace library {
+    namespace object {
+      namespace number {
+        struct Base;
+        struct Complex;
+        struct Imag;
+        struct Natural;
+        struct Negative;
+        struct Rational;
+      } // namespace number
+    }   // namespace object
+  }     // namespace library
+} // namespace chimera
 
 namespace chimera::library::object::number {
   auto operator<(std::uint64_t left, Base right) -> bool;

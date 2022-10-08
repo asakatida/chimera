@@ -20,11 +20,13 @@
 
 #include "object/number/mult.hpp"
 
-#include <gsl/gsl>
+#include <cstddef>
+#include <variant>
+#include <vector>
 
-#include "object/number/add.hpp"
-#include "object/number/left_shift.hpp"
-#include "object/number/negative.hpp"
+#include <gsl/assert>
+#include <tao/operators.hpp>
+
 #include "object/number/overflow.hpp"
 #include "object/number/util.hpp"
 

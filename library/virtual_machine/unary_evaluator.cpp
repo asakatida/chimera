@@ -23,7 +23,13 @@
 
 #include "virtual_machine/unary_evaluator.hpp"
 
+#include <deque>
+#include <stack>
+
+#include "object/object.hpp"
+#include "virtual_machine/call_evaluator.hpp"
 #include "virtual_machine/evaluator.hpp"
+#include "virtual_machine/to_bool_evaluator.hpp"
 
 namespace chimera::library::virtual_machine {
   void UnaryBitNotEvaluator::operator()(Evaluator *evaluatorA) const {

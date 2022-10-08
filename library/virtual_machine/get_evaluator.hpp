@@ -25,6 +25,46 @@
 #include "asdl/asdl.hpp"
 #include "virtual_machine/evaluator.hpp"
 
+namespace chimera {
+  namespace library {
+    namespace asdl {
+      struct Attribute;
+      struct Await;
+      struct Bin;
+      struct Bool;
+      struct Call;
+      struct Compare;
+      struct Dict;
+      struct DictComp;
+      struct Ellipsis;
+      struct FormattedValue;
+      struct GeneratorExp;
+      struct IfExp;
+      struct JoinedStr;
+      struct Lambda;
+      struct List;
+      struct ListComp;
+      struct Name;
+      struct NameConstant;
+      struct Set;
+      struct SetComp;
+      struct Starred;
+      struct Subscript;
+      struct Tuple;
+      struct Unary;
+      struct UnpackDict;
+      struct Yield;
+      struct YieldFrom;
+    } // namespace asdl
+    namespace object {
+      struct Object;
+    } // namespace object
+    namespace virtual_machine {
+      struct Evaluator;
+    } // namespace virtual_machine
+  }   // namespace library
+} // namespace chimera
+
 namespace chimera::library::virtual_machine {
   struct GetEvaluator {
     // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)

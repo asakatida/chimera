@@ -20,9 +20,11 @@
 
 #include "object/number/less.hpp"
 
-#include <functional>
+#include <variant>
+#include <vector>
 
 #include "object/number/mult.hpp"
+#include "object/number/number.hpp"
 #include "object/number/util.hpp"
 
 #define LESS_LEFT_RATIONAL                                                     \

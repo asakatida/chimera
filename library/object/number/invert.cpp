@@ -20,11 +20,11 @@
 
 #include "object/number/invert.hpp"
 
-#include <gsl/gsl>
+#include <variant>
+
+#include <gsl/assert>
 
 #include "object/number/add.hpp"
-#include "object/number/negative.hpp"
-#include "object/number/positive.hpp"
 #include "object/number/sub.hpp"
 
 namespace chimera::library::object::number {

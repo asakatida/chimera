@@ -20,11 +20,14 @@
 
 #include "object/number/left_shift.hpp"
 
-#include <gsl/gsl>
+#include <cstddef>
+#include <variant>
+#include <vector>
+
+#include <gsl/assert>
 
 #include "object/number/div.hpp"
 #include "object/number/mod.hpp"
-#include "object/number/negative.hpp"
 #include "object/number/overflow.hpp"
 #include "object/number/right_shift.hpp"
 

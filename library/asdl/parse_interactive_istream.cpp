@@ -20,15 +20,25 @@
 
 //! wrapper for tao::pegtl::parse
 
-#include "asdl/parse.hpp"
-
 #include <iostream>
+#include <string>
+#include <string_view>
+#include <vector>
 
-#include <tao/pegtl.hpp>
+#include <tao/pegtl/istream_input.hpp>
+#include <tao/pegtl/parse_error.hpp>
 
 #include "asdl/asdl.hpp"
+#include "asdl/parse.hpp"
 #include "grammar/grammar.hpp"
-#include "options.hpp"
+#include "grammar/input.hpp"
+#include "grammar/parse.hpp"
+
+namespace chimera {
+  namespace library {
+    struct Options;
+  } // namespace library
+} // namespace chimera
 
 namespace chimera::library::asdl {
   Interactive::Interactive(const Options &options, std::istream &&input,

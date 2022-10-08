@@ -4,7 +4,10 @@
 #include <cstdint>
 #include <iosfwd>
 
+#include <tao/pegtl/istream_input.hpp>
+
 #include "grammar/grammar.hpp"
+#include "grammar/input.hpp"
 
 namespace chimera::library {
   using Input = grammar::Input<tao::pegtl::istream_input<>>;

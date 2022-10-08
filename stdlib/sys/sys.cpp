@@ -22,11 +22,14 @@
 
 #include "sys/sys.hpp"
 
-#include <algorithm>
+#include <iosfwd>
+#include <string>
 #include <vector>
 
-#include <gsl/gsl>
+#include <gsl/narrow>
+#include <gsl/span>
 
+#include "object/object.hpp"
 #include "options.hpp"
 
 using namespace std::literals;

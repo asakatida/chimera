@@ -23,10 +23,14 @@
 #pragma once
 
 #include <functional>
+#include <iosfwd>
+#include <optional>
 #include <stack>
 #include <variant>
+#include <vector>
 
 #include "asdl/asdl.hpp"
+#include "object/object.hpp"
 #include "virtual_machine/bin_evaluator.hpp"
 #include "virtual_machine/bool_evaluator.hpp"
 #include "virtual_machine/call_evaluator.hpp"
@@ -35,6 +39,37 @@
 #include "virtual_machine/to_bool_evaluator.hpp"
 #include "virtual_machine/tuple_evaluator.hpp"
 #include "virtual_machine/unary_evaluator.hpp"
+
+namespace chimera {
+  namespace library {
+    namespace virtual_machine {
+      struct BinAddEvaluator;
+      struct BinBitAndEvaluator;
+      struct BinBitOrEvaluator;
+      struct BinBitXorEvaluator;
+      struct BinDivEvaluator;
+      struct BinFloorDivEvaluator;
+      struct BinLShiftEvaluator;
+      struct BinMatMultEvaluator;
+      struct BinModEvaluator;
+      struct BinMultEvaluator;
+      struct BinPowEvaluator;
+      struct BinRShiftEvaluator;
+      struct BinSubEvaluator;
+      struct BoolAndEvaluator;
+      struct BoolOrEvaluator;
+      struct CallEvaluator;
+      struct PushStack;
+      struct ThreadContext;
+      struct ToBoolEvaluator;
+      struct TupleEvaluator;
+      struct UnaryAddEvaluator;
+      struct UnaryBitNotEvaluator;
+      struct UnaryNotEvaluator;
+      struct UnarySubEvaluator;
+    } // namespace virtual_machine
+  }   // namespace library
+} // namespace chimera
 
 namespace chimera::library::virtual_machine {
   struct Evaluator;

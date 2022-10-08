@@ -25,6 +25,15 @@
 #include "object/object.hpp"
 #include "options.hpp"
 
+namespace chimera {
+  namespace library {
+    namespace object {
+      struct Object;
+    } // namespace object
+    struct Options;
+  } // namespace library
+} // namespace chimera
+
 namespace chimera::library::virtual_machine::modules {
   void marshal(const Options &options, const object::Object &module);
 } // namespace chimera::library::virtual_machine::modules

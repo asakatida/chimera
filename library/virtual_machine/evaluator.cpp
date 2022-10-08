@@ -23,16 +23,23 @@
 
 #include "virtual_machine/evaluator.hpp"
 
+#include <atomic>
 #include <exception>
 #include <istream>
-
-#include <gsl/gsl>
+#include <string>
+#include <type_traits>
 
 #include "asdl/asdl.hpp"
 #include "container/reverse.hpp"
+#include "virtual_machine/call_evaluator.hpp"
 #include "virtual_machine/del_evaluator.hpp"
 #include "virtual_machine/get_evaluator.hpp"
+#include "virtual_machine/global_context.hpp"
+#include "virtual_machine/process_context.hpp"
+#include "virtual_machine/push_stack.hpp"
 #include "virtual_machine/set_evaluator.hpp"
+#include "virtual_machine/thread_context.hpp"
+#include "virtual_machine/to_bool_evaluator.hpp"
 
 using namespace std::literals;
 

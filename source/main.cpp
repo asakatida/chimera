@@ -20,16 +20,23 @@
 
 //! main interpreter start
 
+#include <cstring>
 #include <exception>
 #include <iostream>
-#include <iterator>
+#include <stdexcept>
+#include <string>
+#include <type_traits>
+#include <vector>
 
-#include <gsl/gsl>
+#include <gsl/narrow>
+#include <gsl/span>
+#include <gsl/span_ext>
 
 #include "builtins/builtins.hpp"
 #include "object/object.hpp"
 #include "options.hpp"
 #include "version.hpp"
+#include "virtual_machine/global_context.hpp"
 #include "virtual_machine/virtual_machine.hpp"
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

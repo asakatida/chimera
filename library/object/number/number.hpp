@@ -23,10 +23,12 @@
 #include <cstdint>
 #include <limits>
 #include <numeric>
+#include <type_traits>
 #include <variant>
 #include <vector>
 
 #include <gsl/gsl>
+#include <gsl/narrow>
 #include <tao/operators.hpp>
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

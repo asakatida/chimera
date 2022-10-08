@@ -20,7 +20,10 @@
 
 #include "object/number/compare.hpp"
 
-#include <functional>
+#include <variant>
+#include <vector>
+
+#include "object/number/number.hpp"
 
 namespace chimera::library::object::number {
   auto operator==(std::uint64_t left, Base right) -> bool {

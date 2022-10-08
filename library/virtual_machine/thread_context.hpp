@@ -28,6 +28,19 @@
 #include "object/object.hpp"
 #include "virtual_machine/process_context.hpp"
 
+namespace chimera {
+  namespace library {
+    namespace asdl {
+      struct Expression;
+      struct Interactive;
+      struct Module;
+    } // namespace asdl
+    namespace virtual_machine {
+      struct ProcessContext;
+    } // namespace virtual_machine
+  }   // namespace library
+} // namespace chimera
+
 namespace chimera::library::virtual_machine {
   struct ThreadContext {
     void evaluate(const asdl::Module &module);

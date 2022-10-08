@@ -22,7 +22,19 @@
 
 #include "virtual_machine/slice_evaluator.hpp"
 
+#include "object/object.hpp"
 #include "virtual_machine/evaluator.hpp"
+#include "virtual_machine/push_stack.hpp"
+
+namespace chimera {
+  namespace library {
+    namespace asdl {
+      struct ExtSlice;
+      struct Index;
+      struct Slice;
+    } // namespace asdl
+  }   // namespace library
+} // namespace chimera
 
 namespace chimera::library::virtual_machine {
   void SliceEvaluator::operator()(const asdl::Slice & /*slice*/) const {

@@ -23,7 +23,10 @@
 
 #include "virtual_machine/call_evaluator.hpp"
 
-#include <gsl/gsl>
+#include <stack>
+#include <variant>
+
+#include <gsl/assert>
 
 #include "object/object.hpp"
 #include "virtual_machine/evaluator.hpp"

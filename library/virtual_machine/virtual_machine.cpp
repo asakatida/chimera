@@ -24,6 +24,11 @@
 
 #include <atomic>
 #include <csignal>
+#include <string>
+#include <tuple>
+
+#include "object/object.hpp"
+#include "options.hpp"
 
 using namespace std::literals;
 

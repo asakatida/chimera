@@ -20,18 +20,15 @@
 
 #include "object/number/floor_div.hpp"
 
-#include <algorithm>
+#include <variant>
+#include <vector>
 
-#include <gsl/gsl>
+#include <gsl/assert>
 
 #include "container/reverse.hpp"
-#include "object/number/add.hpp"
 #include "object/number/less.hpp"
 #include "object/number/mult.hpp"
-#include "object/number/negative.hpp"
 #include "object/number/overflow.hpp"
-#include "object/number/positive.hpp"
-#include "object/number/sub.hpp"
 #include "object/number/util.hpp"
 
 namespace chimera::library::object::number {

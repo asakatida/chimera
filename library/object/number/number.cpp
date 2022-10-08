@@ -20,11 +20,6 @@
 
 #include "object/number/number.hpp"
 
-#include <functional>
-#include <limits>
-
-#include <gsl/gsl>
-
 #include "object/number/add.hpp"
 #include "object/number/and.hpp"
 #include "object/number/compare.hpp"

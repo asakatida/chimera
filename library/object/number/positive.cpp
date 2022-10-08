@@ -20,7 +20,10 @@
 
 #include "object/number/positive.hpp"
 
-#include <gsl/gsl>
+#include <variant>
+
+#include <gsl/assert>
+#include <tao/operators.hpp>
 
 namespace chimera::library::object::number {
   auto operator+(Base base) -> Number { return Number(base); }

@@ -20,14 +20,9 @@
 
 #include <chimera.h>
 
-#include <cassert>
-#include <cerrno>
-#include <climits>
-#include <cstdio>
 #include <cstdlib>
-#include <cstring>
 
-#include <gsl/gsl>
+#include <gsl/narrow>
 
 #undef Py_TYPE
 

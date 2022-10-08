@@ -23,8 +23,10 @@
 #include "object.hpp"
 
 #include <limits>
+#include <new>
 #include <string>
-#include <utility>
+
+#include "container/atomic_container.hpp"
 
 using namespace std::literals;
 

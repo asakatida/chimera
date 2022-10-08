@@ -23,7 +23,6 @@
 #include "virtual_machine/garbage.hpp"
 
 #include <atomic>
-#include <mutex>
 #include <thread>
 
 namespace chimera::library::virtual_machine {

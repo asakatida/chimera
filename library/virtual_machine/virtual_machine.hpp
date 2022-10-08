@@ -27,6 +27,15 @@
 #include "virtual_machine/global_context.hpp"
 #include "virtual_machine/process_context.hpp"
 
+namespace chimera {
+  namespace library {
+    namespace object {
+      struct Object;
+    } // namespace object
+    struct Options;
+  } // namespace library
+} // namespace chimera
+
 namespace chimera::library::virtual_machine {
   struct VirtualMachine {
     VirtualMachine(const Options &options, object::Object builtins);

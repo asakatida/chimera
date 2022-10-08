@@ -23,6 +23,10 @@
 
 #include "virtual_machine/bin_evaluator.hpp"
 
+#include <stack>
+
+#include "object/object.hpp"
+#include "virtual_machine/call_evaluator.hpp"
 #include "virtual_machine/evaluator.hpp"
 
 namespace chimera::library::virtual_machine {

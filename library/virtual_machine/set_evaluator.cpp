@@ -24,8 +24,11 @@
 
 #include "virtual_machine/set_evaluator.hpp"
 
+#include <stack>
+
 #include "asdl/asdl.hpp"
 #include "virtual_machine/evaluator.hpp"
+#include "virtual_machine/push_stack.hpp"
 
 namespace chimera::library::virtual_machine {
   void SetEvaluator::evaluate(const asdl::Attribute &attribute) const {

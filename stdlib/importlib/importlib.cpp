@@ -22,6 +22,15 @@
 
 #include "importlib/importlib.hpp"
 
+namespace chimera {
+  namespace library {
+    namespace object {
+      struct Object;
+    } // namespace object
+    struct Options;
+  } // namespace library
+} // namespace chimera
+
 namespace chimera::library::virtual_machine::modules {
   void importlib(const Options & /*options*/,
                  const object::Object & /*module*/) {}

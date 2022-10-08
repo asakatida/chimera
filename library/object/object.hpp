@@ -22,15 +22,30 @@
 
 #pragma once
 
+#include <cstdint>
 #include <exception>
 #include <future>
+#include <iosfwd>
 #include <map>
 #include <memory>
 #include <string>
 #include <string_view>
+#include <type_traits>
+#include <variant>
+#include <vector>
 
 #include "container/atomic_map.hpp"
 #include "object/number/number.hpp"
+
+namespace chimera {
+  namespace library {
+    namespace object {
+      namespace number {
+        class Number;
+      } // namespace number
+    }   // namespace object
+  }     // namespace library
+} // namespace chimera
 
 namespace chimera::library::object {
   struct Object;

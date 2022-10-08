@@ -23,19 +23,21 @@
 #include "virtual_machine/process_context.hpp"
 
 #include <csignal>
-#include <exception>
-#include <fstream>
+#include <cstddef>
 #include <iostream>
+#include <map>
+#include <stdexcept>
 #include <string>
 #include <string_view>
-
-#include <gsl/gsl>
+#include <type_traits>
 
 #include "asdl/asdl.hpp"
 #include "importlib/importlib.hpp"
 #include "marshal/marshal.hpp"
 #include "object/object.hpp"
+#include "options.hpp"
 #include "sys/sys.hpp"
+#include "virtual_machine/global_context.hpp"
 #include "virtual_machine/thread_context.hpp"
 
 using namespace std::literals;

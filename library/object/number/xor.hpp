@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 #include "object/number/number.hpp"
 
 namespace chimera::library::object::number {

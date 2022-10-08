@@ -1,3 +1,6 @@
+#include <cstddef>
+#include <cstdint>
+
 #include "fuzz/cases.hpp"
 
 extern "C" auto LLVMFuzzerTestOneInput(const std::uint8_t *data,

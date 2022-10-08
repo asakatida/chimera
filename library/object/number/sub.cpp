@@ -20,12 +20,15 @@
 
 #include "object/number/sub.hpp"
 
-#include <gsl/gsl>
+#include <variant>
+#include <vector>
+
+#include <gsl/assert>
+#include <tao/operators.hpp>
 
 #include "object/number/add.hpp"
 #include "object/number/less.hpp"
 #include "object/number/mult.hpp"
-#include "object/number/negative.hpp"
 #include "object/number/overflow.hpp"
 #include "object/number/util.hpp"
 

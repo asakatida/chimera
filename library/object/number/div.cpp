@@ -20,10 +20,12 @@
 
 #include "object/number/div.hpp"
 
-#include <gsl/gsl>
+#include <variant>
+
+#include <gsl/assert>
+#include <tao/operators.hpp>
 
 #include "object/number/mult.hpp"
-#include "object/number/negative.hpp"
 #include "object/number/util.hpp"
 
 namespace chimera::library::object::number {

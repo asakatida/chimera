@@ -25,7 +25,20 @@
 #pragma once
 
 #include "asdl/asdl.hpp"
+#include "object/object.hpp"
 #include "virtual_machine/evaluator.hpp"
+
+namespace chimera {
+  namespace library {
+    namespace asdl {
+      struct Attribute;
+      struct List;
+      struct Name;
+      struct Subscript;
+      struct Tuple;
+    } // namespace asdl
+  }   // namespace library
+} // namespace chimera
 
 namespace chimera::library::virtual_machine {
   struct SetEvaluator {

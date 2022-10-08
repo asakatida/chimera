@@ -25,6 +25,7 @@
 #include <vector>
 
 #include <gsl/gsl>
+#include <gsl/span>
 
 namespace chimera::library {
   void options();

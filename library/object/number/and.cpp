@@ -20,11 +20,10 @@
 
 #include "object/number/and.hpp"
 
-#include <functional>
+#include <variant>
+#include <vector>
 
-#include <gsl/gsl>
-
-#include "object/number/negative.hpp"
+#include <gsl/assert>
 
 namespace chimera::library::object::number {
   auto operator&(std::uint64_t left, Base right) -> Number {

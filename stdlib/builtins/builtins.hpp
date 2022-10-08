@@ -24,6 +24,14 @@
 
 #include "object/object.hpp"
 
+namespace chimera {
+  namespace library {
+    namespace object {
+      struct Object;
+    } // namespace object
+  }   // namespace library
+} // namespace chimera
+
 namespace chimera::library::virtual_machine::modules {
   void builtins(const object::Object &module);
 } // namespace chimera::library::virtual_machine::modules

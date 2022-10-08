@@ -24,6 +24,8 @@
 
 #include "virtual_machine/del_evaluator.hpp"
 
+#include <stack>
+
 #include "asdl/asdl.hpp"
 #include "virtual_machine/evaluator.hpp"
 
