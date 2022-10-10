@@ -79,8 +79,6 @@ def conflicts(fuzz: list[Path]) -> None:
 def corpus_trim(fuzz: list[Path]) -> None:
     global LENGTH
     for file in c_tqdm(fuzz, "Corpus rehash"):
-        if not (file.exists() and file.parent.name in DIRECTORIES):
-            continue
         src_sha = sha(file)
         name = src_sha[:LENGTH]
         if any(
@@ -89,7 +87,9 @@ def corpus_trim(fuzz: list[Path]) -> None:
                 map(lambda directory: FUZZ / directory / name, DIRECTORIES),
             )
         ):
-            raise Increment("Collision found, update corpus_trim.py `LENGTH`:", LENGTH)
+            raise Increment(
+                f"Collision found, update corpus_trim.py `LENGTH`: {LENGTH}"
+            )
         file.rename(file.parent / name)
 
 
@@ -132,8 +132,6 @@ def sha(path: Path) -> str:
 
 
 def regression_one(file: Path) -> bool:
-    if not (file.exists() and file.parent.name in DIRECTORIES):
-        return False
     try:
         fuzz_test(str(file))
     except CalledProcessError:
@@ -169,8 +167,11 @@ def main() -> None:
         raise FileNotFoundError("No fuzz targets built")
     CORPUS.mkdir(exist_ok=True)
     CRASHES.mkdir(exist_ok=True)
-    fuzz = sorted(tqdm(FUZZ.glob("*/*"), desc="Gather", unit_scale=True))
+    fuzz = sorted(
+        filter(lambda file: file.parent.name in DIRECTORIES, FUZZ.glob("*/*"))
+    )
     conflicts(fuzz)
+    fuzz = list(filter(Path.exists, fuzz))
     if not regression(fuzz):
         CORPUS.rename(CORPUS_ORIGINAL)
         run(
@@ -188,6 +189,7 @@ def main() -> None:
             str(CORPUS_ORIGINAL),
             timeout=1200,
         )
+    fuzz = list(filter(Path.exists, fuzz))
     for file in chain(
         Path().rglob("crash-*"), Path().rglob("leak-*"), Path().rglob("timeout-*")
     ):

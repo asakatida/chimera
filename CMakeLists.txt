@@ -162,6 +162,7 @@ target_include_directories(
 target_link_libraries(unit_test Catch2WithMain chimera_core)
 
 add_custom_target(check unit_test VERBATIM)
+add_custom_target(check-stat perf stat ./unit_test VERBATIM)
 add_custom_target(check_rand unit_test --order rand VERBATIM)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -271,6 +272,12 @@ add_custom_target(modules DEPENDS builtins importlib)
 add_custom_target(
   spec
   chimera -m test --multiprocess 3
+  DEPENDS check
+  VERBATIM)
+
+add_custom_target(
+  spec-stat
+  perf stat ./chimera -m test --multiprocess 3
   DEPENDS check
   VERBATIM)
 
