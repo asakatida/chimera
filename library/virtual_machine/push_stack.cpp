@@ -25,6 +25,7 @@
 #include "virtual_machine/evaluator.hpp"
 
 namespace chimera::library::virtual_machine {
+  PushStack::PushStack(object::Object object) : object(std::move(object)) {}
   void PushStack::operator()(Evaluator *evaluator) const {
     evaluator->stack.push(object);
   }
