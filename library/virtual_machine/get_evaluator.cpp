@@ -38,7 +38,7 @@ namespace chimera::library::virtual_machine {
         break;
     }
     evaluator->push([](Evaluator *evaluatorA) {
-      evaluatorA->push(ToBoolEvaluator{evaluatorA->stack.top()});
+      evaluatorA->push(ToBoolEvaluator{evaluatorA->stack_top()});
     });
     evaluator->evaluate_get(asdlBool.values.front());
   }
@@ -111,12 +111,12 @@ namespace chimera::library::virtual_machine {
   void GetEvaluator::evaluate(const asdl::IfExp &ifExp) const {
     evaluator->push([&ifExp](Evaluator *evaluatorA) {
       evaluatorA->evaluate_get(
-          evaluatorA->stack.top().get_bool() ? ifExp.body : ifExp.orelse);
-      evaluatorA->stack.pop();
+          evaluatorA->stack_top().get_bool() ? ifExp.body : ifExp.orelse);
+      evaluatorA->stack_pop();
     });
     evaluator->push([](Evaluator *evaluatorA) {
-      evaluatorA->push(ToBoolEvaluator{evaluatorA->stack.top()});
-      evaluatorA->stack.pop();
+      evaluatorA->push(ToBoolEvaluator{evaluatorA->stack_top()});
+      evaluatorA->stack_pop();
     });
     evaluator->evaluate_get(ifExp.test);
   }
@@ -148,20 +148,20 @@ namespace chimera::library::virtual_machine {
   }
   void GetEvaluator::evaluate(const asdl::Call &call) const {
     evaluator->push([](Evaluator *evaluatorA) {
-      evaluatorA->push(PushStack{evaluatorA->thread_context.return_value()});
+      evaluatorA->push(PushStack{evaluatorA->return_value()});
     });
     evaluator->extend(call.args);
     evaluator->push([](Evaluator *evaluatorA) {
-      auto top = evaluatorA->stack.top().copy({});
-      evaluatorA->stack.pop();
+      auto top = evaluatorA->stack_top().copy({});
+      evaluatorA->stack_pop();
       evaluatorA->enter_scope(top);
     });
     evaluator->evaluate_get(call.func);
   }
   void GetEvaluator::evaluate(const asdl::Attribute &attribute) const {
     evaluator->push([&attribute](Evaluator *evaluatorA) {
-      evaluatorA->get_attribute(evaluatorA->stack.top(), attribute.attr.value);
-      evaluatorA->stack.pop();
+      evaluatorA->get_attribute(evaluatorA->stack_top(), attribute.attr.value);
+      evaluatorA->stack_pop();
     });
     evaluator->evaluate_get(attribute.value);
   }
@@ -208,7 +208,7 @@ namespace chimera::library::virtual_machine {
     evaluator->push(PushStack{evaluator->builtins().get_attribute("list")});
   }
   void GetEvaluator::evaluate(const asdl::Tuple &tuple) const {
-    evaluator->push(TupleEvaluator{evaluator->stack.size()});
+    evaluator->push(TupleEvaluator{evaluator->stack_size()});
     evaluator->extend(tuple.elts);
   }
   void GetEvaluator::evaluate(const object::Object &object) const {

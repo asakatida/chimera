@@ -30,11 +30,10 @@
 namespace chimera::library::virtual_machine {
   void SetEvaluator::evaluate(const asdl::Attribute &attribute) const {
     evaluator->push([&attribute](Evaluator *evaluatorA) {
-      auto value = std::move(evaluatorA->stack.top());
-      evaluatorA->stack.pop();
-      evaluatorA->stack.top().set_attribute(attribute.attr.value,
-                                            std::move(value));
-      evaluatorA->stack.pop();
+      auto object = evaluatorA->stack_remove();
+      auto top = evaluatorA->stack_top();
+      top.set_attribute(attribute.attr.value, std::move(object));
+      evaluatorA->stack_pop();
     });
     evaluator->evaluate_get(attribute.value);
   }
@@ -43,7 +42,7 @@ namespace chimera::library::virtual_machine {
   }
   void SetEvaluator::evaluate(const asdl::Name &name) const {
     evaluator->push([&name](Evaluator *evaluatorA) {
-      evaluatorA->self().set_attribute(name.value, evaluatorA->stack.top());
+      evaluatorA->self().set_attribute(name.value, evaluatorA->stack_top());
     });
   }
   void SetEvaluator::evaluate(const asdl::List & /*list*/) const {

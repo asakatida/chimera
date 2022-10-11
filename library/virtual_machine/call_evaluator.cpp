@@ -36,18 +36,16 @@ namespace chimera::library::virtual_machine {
       Expects(false);
     }
     void operator()(Evaluator *evaluator) const {
-      auto top = std::move(evaluator->stack.top());
-      evaluator->stack.pop();
+      auto object = evaluator->stack_remove();
       std::visit([this, evaluator](
                      const auto &value) { this->evaluate(evaluator, value); },
-                 top.value());
+                 object.value());
     }
   };
   void CallEvaluator::operator()(Evaluator *evaluatorA) const {
     if (std::holds_alternative<object::Instance>(object.value())) {
       evaluatorA->push([](Evaluator *evaluatorB) {
-        auto top = std::move(evaluatorB->stack.top());
-        evaluatorB->stack.pop();
+        std::ignore = evaluatorB->stack_remove();
       });
       evaluatorA->get_attribute(object, "__call__");
     } else {

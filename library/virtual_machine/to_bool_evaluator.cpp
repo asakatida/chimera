@@ -34,12 +34,12 @@ namespace chimera::library::virtual_machine {
       evaluatorA->push(PushStack{evaluatorA->builtins().get_attribute("True")});
     } else {
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->push(ToBoolEvaluator{evaluatorB->stack.top()});
-        evaluatorB->stack.pop();
+        evaluatorB->push(ToBoolEvaluator{evaluatorB->stack_top()});
+        evaluatorB->stack_pop();
       });
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-        evaluatorB->stack.pop();
+        evaluatorB->push(CallEvaluator{evaluatorB->stack_top(), {}, {}});
+        evaluatorB->stack_pop();
       });
       evaluatorA->get_attribute(object, "__bool__");
     }

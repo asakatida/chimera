@@ -27,6 +27,6 @@
 namespace chimera::library::virtual_machine {
   PushStack::PushStack(object::Object object) : object(std::move(object)) {}
   void PushStack::operator()(Evaluator *evaluator) const {
-    evaluator->stack.push(object);
+    evaluator->stack_push(object);
   }
 } // namespace chimera::library::virtual_machine

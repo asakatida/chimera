@@ -30,8 +30,9 @@
 namespace chimera::library::virtual_machine {
   void DelEvaluator::evaluate(const asdl::Attribute &attribute) const {
     evaluator->push([&attribute](Evaluator *evaluatorA) {
-      evaluatorA->stack.top().delete_attribute(attribute.attr.value);
-      evaluatorA->stack.pop();
+      auto top = evaluatorA->stack_top();
+      top.delete_attribute(attribute.attr.value);
+      evaluatorA->stack_pop();
     });
     evaluator->evaluate_get(attribute.value);
   }
