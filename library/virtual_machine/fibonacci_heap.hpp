@@ -38,12 +38,12 @@ namespace chimera::library::virtual_machine {
     FibonacciHeap(const FibonacciHeap &fibonacciHeap) = delete;
     FibonacciHeap(FibonacciHeap &&fibonacciHeap) noexcept = default;
     ~FibonacciHeap() noexcept {
-      if (min != nullptr && min == min->left.get()) {
-        auto ptr = std::move(min->left);
+      if (min != nullptr && min == min->get_left()) {
+        min->remove_left();
+        min = nullptr;
       }
-      if (min != nullptr && min->left) {
-        auto ptr = std::move(min->left);
-        ptr.reset();
+      if (min != nullptr) {
+        min->reset_left();
       }
     }
     auto operator=(const FibonacciHeap &fibonacciHeap)
@@ -56,7 +56,7 @@ namespace chimera::library::virtual_machine {
         using std::swap;
         swap(min, source.min);
       } else if (source.min != nullptr) {
-        if (Compare{}(source.min->key, min->key)) {
+        if (source.min < min) {
           min = source.min;
           source.min = nullptr;
         }
@@ -65,16 +65,16 @@ namespace chimera::library::virtual_machine {
       source.n = 0;
     }
     template <typename... Args>
-    void emplace(Args &&...args) {
-      auto x = std::make_unique<Node>(Node{Key(std::forward<Args>(args)...)});
+    [[nodiscard]] auto emplace(Args &&...args) -> const Key & {
+      auto x = std::make_unique<Node>(Key{std::forward<Args>(args)...});
       if (min == nullptr) {
-        min = (x->left = std::move(x)).get();
+        min = (x->left = std::move(x)).get_left();
         min->right = min;
         ++n;
         return min->key;
       }
-      if (Compare{}(x->key, min->key)) {
-        min = (x->left = std::move(x)).get();
+      if (x < min) {
+        min = (x->left = std::move(x)).get_left();
         min->right = min;
         ++n;
         return min->key;
@@ -89,20 +89,26 @@ namespace chimera::library::virtual_machine {
     void remove_if(Predicate && /*predicate*/) {}
     //! Internal node structure
     struct Node {
-      Node(const Node &fibonacciHeap) = delete;
-      Node(Node &&fibonacciHeap) noexcept = default;
+      Node(const Node &node) = delete;
+      Node(Node &&node) noexcept = default;
       ~Node() noexcept {
-        if (left.get() == this) {
-          left.reset();
+        if (child != nullptr) {
+          child->reset_left();
         }
-        if (child != nullptr && child->left) {
-          auto ptr = std::move(child->left);
+      }
+      auto operator=(const Node &node) -> Node & = delete;
+      auto operator=(Node &&node) noexcept -> Node & = default;
+      auto operator<(const Node &node) -> bool;
+      [[nodiscard]] auto get_left() const -> const Node * { return left.get(); }
+      void remove_left() { std::ignore = std::move(left); }
+      void reset_left() {
+        if (left) {
+          auto ptr = std::move(left);
           ptr.reset();
         }
       }
-      auto operator=(const Node &fibonacciHeap) -> Node & = delete;
-      auto operator=(Node &&fibonacciHeap) noexcept -> Node & = default;
-      // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
+
+    private:
       Key key;
       std::uint64_t degree = 0;
       bool mark = false;
@@ -110,11 +116,10 @@ namespace chimera::library::virtual_machine {
       Node *right = nullptr;
       Node *parent = nullptr;
       Node *child = nullptr;
-      // NOLINTEND(misc-non-private-member-variables-in-classes)
     };
-    // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
+
+  private:
     Node *min = nullptr; //! owned by its own left member
     std::uint64_t n = 0;
-    // NOLINTEND(misc-non-private-member-variables-in-classes)
   };
 } // namespace chimera::library::virtual_machine
