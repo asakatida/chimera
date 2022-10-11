@@ -28,37 +28,39 @@
 namespace chimera::library::virtual_machine {
   void UnaryBitNotEvaluator::operator()(Evaluator *evaluatorA) const {
     evaluatorA->push([](Evaluator *evaluator) {
-      evaluator->push(CallEvaluator{evaluator->stack.top(), {}, {}});
-      evaluator->stack.pop();
+      evaluator->push(CallEvaluator{evaluator->stack_top(), {}, {}});
+      evaluator->stack_pop();
     });
-    evaluatorA->get_attribute(evaluatorA->stack.top(), "__invert__");
-    evaluatorA->stack.pop();
+    evaluatorA->get_attribute(evaluatorA->stack_top(), "__invert__");
+    evaluatorA->stack_pop();
   }
   void UnaryNotEvaluator::operator()(Evaluator *evaluatorA) const {
     evaluatorA->push([](Evaluator *evaluatorB) {
-      if (evaluatorB->stack.top().get_bool()) {
-        evaluatorB->stack.top() = evaluatorB->builtins().get_attribute("False");
+      if (evaluatorB->stack_top().get_bool()) {
+        evaluatorB->stack_top_update(
+            evaluatorB->builtins().get_attribute("False"));
       } else {
-        evaluatorB->stack.top() = evaluatorB->builtins().get_attribute("True");
+        evaluatorB->stack_top_update(
+            evaluatorB->builtins().get_attribute("True"));
       }
     });
-    evaluatorA->push(ToBoolEvaluator{evaluatorA->stack.top()});
-    evaluatorA->stack.pop();
+    evaluatorA->push(ToBoolEvaluator{evaluatorA->stack_top()});
+    evaluatorA->stack_pop();
   }
   void UnaryAddEvaluator::operator()(Evaluator *evaluatorA) const {
     evaluatorA->push([](Evaluator *evaluatorB) {
-      evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-      evaluatorB->stack.pop();
+      evaluatorB->push(CallEvaluator{evaluatorB->stack_top(), {}, {}});
+      evaluatorB->stack_pop();
     });
-    evaluatorA->get_attribute(evaluatorA->stack.top(), "__pos__");
-    evaluatorA->stack.pop();
+    evaluatorA->get_attribute(evaluatorA->stack_top(), "__pos__");
+    evaluatorA->stack_pop();
   }
   void UnarySubEvaluator::operator()(Evaluator *evaluatorA) const {
     evaluatorA->push([](Evaluator *evaluatorB) {
-      evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-      evaluatorB->stack.pop();
+      evaluatorB->push(CallEvaluator{evaluatorB->stack_top(), {}, {}});
+      evaluatorB->stack_pop();
     });
-    evaluatorA->get_attribute(evaluatorA->stack.top(), "__neg__");
-    evaluatorA->stack.pop();
+    evaluatorA->get_attribute(evaluatorA->stack_top(), "__neg__");
+    evaluatorA->stack_pop();
   }
 } // namespace chimera::library::virtual_machine

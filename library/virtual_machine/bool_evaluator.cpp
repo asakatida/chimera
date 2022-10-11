@@ -28,14 +28,13 @@
 namespace chimera::library::virtual_machine {
   void BoolAndEvaluator::operator()(Evaluator *evaluatorA) const {
     if (begin != end) {
-      auto object = std::move(evaluatorA->stack.top());
-      evaluatorA->stack.pop();
+      auto object = evaluatorA->stack_remove();
       if (object.get_bool()) {
-        evaluatorA->stack.pop();
+        evaluatorA->stack_pop();
         const auto &expr = *begin;
         evaluatorA->push(BoolAndEvaluator{begin + 1, end});
         evaluatorA->push([](Evaluator *evaluatorB) {
-          evaluatorB->push(ToBoolEvaluator{evaluatorB->stack.top()});
+          evaluatorB->push(ToBoolEvaluator{evaluatorB->stack_top()});
         });
         evaluatorA->evaluate_get(expr);
       }
@@ -43,14 +42,13 @@ namespace chimera::library::virtual_machine {
   }
   void BoolOrEvaluator::operator()(Evaluator *evaluatorA) const {
     if (begin != end) {
-      auto object = std::move(evaluatorA->stack.top());
-      evaluatorA->stack.pop();
+      auto object = evaluatorA->stack_remove();
       if (!object.get_bool()) {
-        evaluatorA->stack.pop();
+        evaluatorA->stack_pop();
         const auto &expr = *begin;
         evaluatorA->push(BoolOrEvaluator{begin + 1, end});
         evaluatorA->push([](Evaluator *evaluatorB) {
-          evaluatorB->push(ToBoolEvaluator{evaluatorB->stack.top()});
+          evaluatorB->push(ToBoolEvaluator{evaluatorB->stack_top()});
         });
         evaluatorA->evaluate_get(expr);
       }

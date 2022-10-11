@@ -88,12 +88,7 @@ namespace chimera::library::virtual_machine {
     std::stack<Scope> scopes{};
   };
   struct Evaluator {
-    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-    ThreadContext &thread_context;
-    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-    Scopes scope{};
-    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-    std::stack<object::Object> stack{};
+    explicit Evaluator(ThreadContext &thread_context) noexcept;
     auto self() -> object::Object &;
     [[nodiscard]] auto builtins() const -> const object::Object &;
     void enter_scope(const object::Object &object);
@@ -106,6 +101,13 @@ namespace chimera::library::virtual_machine {
     void push(Instruction &&instruction) {
       scope.push(std::forward<Instruction>(instruction));
     }
+    [[nodiscard]] auto return_value() const -> object::Object;
+    void stack_pop();
+    void stack_push(const object::Object &object);
+    [[nodiscard]] auto stack_remove() -> object::Object;
+    [[nodiscard]] auto stack_size() const -> std::size_t;
+    [[nodiscard]] auto stack_top() const -> const object::Object &;
+    void stack_top_update(const object::Object &object);
     void evaluate(const asdl::StmtImpl &stmt);
     void evaluate_del(const asdl::ExprImpl &expr);
     void evaluate_get(const asdl::ExprImpl &expr);
@@ -148,5 +150,8 @@ namespace chimera::library::virtual_machine {
                        const object::Object &getAttribute,
                        const std::string &name);
     void get_attr(const object::Object &object, const std::string &name);
+    ThreadContext &thread_context;
+    Scopes scope{};
+    std::stack<object::Object> stack{};
   };
 } // namespace chimera::library::virtual_machine

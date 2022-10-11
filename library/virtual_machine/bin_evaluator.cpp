@@ -31,12 +31,12 @@ namespace chimera::library::virtual_machine {
       const auto &expr = *begin;
       evaluatorA->push(BinAddEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-        evaluatorB->stack.pop();
+        evaluatorB->push(CallEvaluator{evaluatorB->stack_top(), {}, {}});
+        evaluatorB->stack_pop();
       });
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->get_attribute(evaluatorB->stack.top(), "__add__");
-        evaluatorB->stack.pop();
+        evaluatorB->get_attribute(evaluatorB->stack_top(), "__add__");
+        evaluatorB->stack_pop();
       });
       evaluatorA->evaluate_get(expr);
     }
@@ -46,12 +46,12 @@ namespace chimera::library::virtual_machine {
       const auto &expr = *begin;
       evaluatorA->push(BinSubEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-        evaluatorB->stack.pop();
+        evaluatorB->push(CallEvaluator{evaluatorB->stack_top(), {}, {}});
+        evaluatorB->stack_pop();
       });
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->get_attribute(evaluatorB->stack.top(), "__sub__");
-        evaluatorB->stack.pop();
+        evaluatorB->get_attribute(evaluatorB->stack_top(), "__sub__");
+        evaluatorB->stack_pop();
       });
       evaluatorA->evaluate_get(expr);
     }
@@ -61,12 +61,12 @@ namespace chimera::library::virtual_machine {
       const auto &expr = *begin;
       evaluatorA->push(BinMultEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-        evaluatorB->stack.pop();
+        evaluatorB->push(CallEvaluator{evaluatorB->stack_top(), {}, {}});
+        evaluatorB->stack_pop();
       });
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->get_attribute(evaluatorB->stack.top(), "__mul__");
-        evaluatorB->stack.pop();
+        evaluatorB->get_attribute(evaluatorB->stack_top(), "__mul__");
+        evaluatorB->stack_pop();
       });
       evaluatorA->evaluate_get(expr);
     }
@@ -76,12 +76,12 @@ namespace chimera::library::virtual_machine {
       const auto &expr = *begin;
       evaluatorA->push(BinMatMultEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-        evaluatorB->stack.pop();
+        evaluatorB->push(CallEvaluator{evaluatorB->stack_top(), {}, {}});
+        evaluatorB->stack_pop();
       });
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->get_attribute(evaluatorB->stack.top(), "__matmul__");
-        evaluatorB->stack.pop();
+        evaluatorB->get_attribute(evaluatorB->stack_top(), "__matmul__");
+        evaluatorB->stack_pop();
       });
       evaluatorA->evaluate_get(expr);
     }
@@ -91,12 +91,12 @@ namespace chimera::library::virtual_machine {
       const auto &expr = *begin;
       evaluatorA->push(BinDivEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-        evaluatorB->stack.pop();
+        evaluatorB->push(CallEvaluator{evaluatorB->stack_top(), {}, {}});
+        evaluatorB->stack_pop();
       });
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->get_attribute(evaluatorB->stack.top(), "__div__");
-        evaluatorB->stack.pop();
+        evaluatorB->get_attribute(evaluatorB->stack_top(), "__div__");
+        evaluatorB->stack_pop();
       });
       evaluatorA->evaluate_get(expr);
     }
@@ -106,12 +106,12 @@ namespace chimera::library::virtual_machine {
       const auto &expr = *begin;
       evaluatorA->push(BinModEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-        evaluatorB->stack.pop();
+        evaluatorB->push(CallEvaluator{evaluatorB->stack_top(), {}, {}});
+        evaluatorB->stack_pop();
       });
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->get_attribute(evaluatorB->stack.top(), "__mod__");
-        evaluatorB->stack.pop();
+        evaluatorB->get_attribute(evaluatorB->stack_top(), "__mod__");
+        evaluatorB->stack_pop();
       });
       evaluatorA->evaluate_get(expr);
     }
@@ -121,12 +121,12 @@ namespace chimera::library::virtual_machine {
       const auto &expr = *begin;
       evaluatorA->push(BinPowEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-        evaluatorB->stack.pop();
+        evaluatorB->push(CallEvaluator{evaluatorB->stack_top(), {}, {}});
+        evaluatorB->stack_pop();
       });
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->get_attribute(evaluatorB->stack.top(), "__pow__");
-        evaluatorB->stack.pop();
+        evaluatorB->get_attribute(evaluatorB->stack_top(), "__pow__");
+        evaluatorB->stack_pop();
       });
       evaluatorA->evaluate_get(expr);
     }
@@ -136,12 +136,12 @@ namespace chimera::library::virtual_machine {
       const auto &expr = *begin;
       evaluatorA->push(BinLShiftEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-        evaluatorB->stack.pop();
+        evaluatorB->push(CallEvaluator{evaluatorB->stack_top(), {}, {}});
+        evaluatorB->stack_pop();
       });
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->get_attribute(evaluatorB->stack.top(), "__lshift__");
-        evaluatorB->stack.pop();
+        evaluatorB->get_attribute(evaluatorB->stack_top(), "__lshift__");
+        evaluatorB->stack_pop();
       });
       evaluatorA->evaluate_get(expr);
     }
@@ -151,12 +151,12 @@ namespace chimera::library::virtual_machine {
       const auto &expr = *begin;
       evaluatorA->push(BinRShiftEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-        evaluatorB->stack.pop();
+        evaluatorB->push(CallEvaluator{evaluatorB->stack_top(), {}, {}});
+        evaluatorB->stack_pop();
       });
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->get_attribute(evaluatorB->stack.top(), "__rshift__");
-        evaluatorB->stack.pop();
+        evaluatorB->get_attribute(evaluatorB->stack_top(), "__rshift__");
+        evaluatorB->stack_pop();
       });
       evaluatorA->evaluate_get(expr);
     }
@@ -166,12 +166,12 @@ namespace chimera::library::virtual_machine {
       const auto &expr = *begin;
       evaluatorA->push(BinBitOrEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-        evaluatorB->stack.pop();
+        evaluatorB->push(CallEvaluator{evaluatorB->stack_top(), {}, {}});
+        evaluatorB->stack_pop();
       });
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->get_attribute(evaluatorB->stack.top(), "__or__");
-        evaluatorB->stack.pop();
+        evaluatorB->get_attribute(evaluatorB->stack_top(), "__or__");
+        evaluatorB->stack_pop();
       });
       evaluatorA->evaluate_get(expr);
     }
@@ -181,12 +181,12 @@ namespace chimera::library::virtual_machine {
       const auto &expr = *begin;
       evaluatorA->push(BinBitXorEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-        evaluatorB->stack.pop();
+        evaluatorB->push(CallEvaluator{evaluatorB->stack_top(), {}, {}});
+        evaluatorB->stack_pop();
       });
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->get_attribute(evaluatorB->stack.top(), "__xor__");
-        evaluatorB->stack.pop();
+        evaluatorB->get_attribute(evaluatorB->stack_top(), "__xor__");
+        evaluatorB->stack_pop();
       });
       evaluatorA->evaluate_get(expr);
     }
@@ -196,12 +196,12 @@ namespace chimera::library::virtual_machine {
       const auto &expr = *begin;
       evaluatorA->push(BinBitAndEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-        evaluatorB->stack.pop();
+        evaluatorB->push(CallEvaluator{evaluatorB->stack_top(), {}, {}});
+        evaluatorB->stack_pop();
       });
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->get_attribute(evaluatorB->stack.top(), "__and__");
-        evaluatorB->stack.pop();
+        evaluatorB->get_attribute(evaluatorB->stack_top(), "__and__");
+        evaluatorB->stack_pop();
       });
       evaluatorA->evaluate_get(expr);
     }
@@ -211,12 +211,12 @@ namespace chimera::library::virtual_machine {
       const auto &expr = *begin;
       evaluatorA->push(BinFloorDivEvaluator{begin + 1, end});
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->push(CallEvaluator{evaluatorB->stack.top(), {}, {}});
-        evaluatorB->stack.pop();
+        evaluatorB->push(CallEvaluator{evaluatorB->stack_top(), {}, {}});
+        evaluatorB->stack_pop();
       });
       evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->get_attribute(evaluatorB->stack.top(), "__floordiv__");
-        evaluatorB->stack.pop();
+        evaluatorB->get_attribute(evaluatorB->stack_top(), "__floordiv__");
+        evaluatorB->stack_pop();
       });
       evaluatorA->evaluate_get(expr);
     }
