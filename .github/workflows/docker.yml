@@ -26,6 +26,8 @@ on:
       - .dockerignore
       - .github/workflows/docker.yml
       - Dockerfile
+      - requirements.txt
+      - tools/boot.yml
       - tools/docker.sh
   push:
     branches:
@@ -34,5 +36,7 @@ on:
       - .dockerignore
       - .github/workflows/docker.yml
       - Dockerfile
+      - requirements.txt
+      - tools/boot.yml
       - tools/docker.sh
   workflow_dispatch: ~

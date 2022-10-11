@@ -32,15 +32,30 @@ esac
 
 tools/shellcheck.sh
 
-python_bin="$(command -v python3)"
-tools/venv.sh "${python_bin}"
-
-env/bin/ansible-playbook tools/boot.yml
-
-python_bin="$(command -v python3.12)"
-tools/venv.sh "${python_bin}"
-
-export PATH="${PWD}/env/bin:${PATH}"
+case "$(uname)" in
+  Darwin )
+    python_bin="$(command -v python3)"
+    tools/venv.sh "${python_bin}"
+    env/bin/ansible-playbook tools/boot.yml
+    python_bin="$(command -v python3.12)"
+    tools/venv.sh "${python_bin}"
+    export PATH="${PWD}/env/bin:${PATH}"
+    ;;
+  Linux )
+    if command -v apt; then
+      echo 'Apt found, expecting Dockerfile is used'
+      export PATH="/opt/virtualenv/bin:${PATH}"
+    else
+      echo 'No apt found, failed installation'
+      exit
+    fi
+    ;;
+  * )
+    uname
+    echo 'unknown os, failed installation'
+    exit
+    ;;
+esac
 
 cmakelint
 

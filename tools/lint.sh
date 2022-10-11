@@ -6,7 +6,25 @@ cd "$(git rev-parse --show-toplevel || true)"
 
 tools/shellcheck.sh
 
-export PATH="${PWD}/env/bin:${PATH}"
+case "$(uname)" in
+  Darwin )
+    export PATH="${PWD}/env/bin:${PATH}"
+    ;;
+  Linux )
+    if command -v apt; then
+      echo 'Apt found, expecting Dockerfile is used'
+      export PATH="/opt/virtualenv/bin:${PATH}"
+    else
+      echo 'No apt found, failed installation'
+      exit 1
+    fi
+    ;;
+  * )
+    uname
+    echo 'unknown os, failed installation'
+    exit 1
+    ;;
+esac
 
 cmakelint
 
