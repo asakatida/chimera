@@ -27,8 +27,10 @@
 namespace chimera::library::virtual_machine {
   struct Evaluator;
   struct PushStack {
-    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-    object::Object object;
+    explicit PushStack(object::Object object);
     void operator()(Evaluator *evaluator) const;
+
+  private:
+    const object::Object object;
   };
 } // namespace chimera::library::virtual_machine
