@@ -57,7 +57,16 @@ def main() -> None:
             ),
         )
     ):
-        cmd("git", "restore", "--source", branch, "--staged", "unit_tests/fuzz")
+        cmd(
+            "git",
+            "restore",
+            "--source",
+            branch,
+            "--staged",
+            "unit_tests/fuzz/crashes",
+            "unit_tests/fuzz/corpus",
+            "unit_tests/fuzz/dictionaries",
+        )
         cmd("git", "restore", "--worktree", "unit_tests/fuzz")
         cmd("git", "add", "unit_tests/fuzz")
         cmd("git", "commit", "--amend", "--no-edit")
