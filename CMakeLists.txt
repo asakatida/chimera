@@ -186,7 +186,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   target_link_libraries(chimera-fuzz chimera-core pthread)
   add_custom_target(corpus)
   add_custom_target(fuzzers)
-  add_custom_target(regression DEPENDS check)
+  add_custom_target(regression)
   add_dependencies(unit-test fuzzers)
   set(FUZZERS ellipsis false keywords name none number string true vm)
   foreach(fuzzer IN LISTS FUZZERS)
@@ -216,7 +216,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       -use_value_profile=1
       ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/corpus
       ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/crashes
-      DEPENDS check
+      DEPENDS fuzz-${fuzzer}
       VERBATIM)
     add_custom_target(
       regression-${fuzzer}
@@ -272,13 +272,13 @@ add_custom_target(modules DEPENDS builtins importlib)
 add_custom_target(
   spec
   chimera -m test --multiprocess 3
-  DEPENDS check
+  DEPENDS chimera
   VERBATIM)
 
 add_custom_target(
   spec-stat
   perf stat ./chimera -m test --multiprocess 3
-  DEPENDS check
+  DEPENDS chimera
   VERBATIM)
 
 install(
