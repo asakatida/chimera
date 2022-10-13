@@ -1,47 +1,0 @@
-b'''\\
-\
-\
-\
-\
-<<<<<<<< HEAD:unit_tests/fuzz/corpus/48f553932b0ab2e50a91b9d62eaf956f6502ccc4
-''\\
-========
-\\\
-\
-\
-'\
-\
-\
-\\\
-<<<<<<< HEAD
->>>>>>>> 7aa96e2e9 (Update fuzzing corpus.):unit_tests/fuzz/corpus/227c3de11bc4d3c8a8b6228b0f86121e8c1eea61
-=======
->>>>>>>> c7e78a1c4 (Update fuzzing corpus.):unit_tests/fuzz/corpus/227c3de11bc4d3c8a8b6228b0f86121e8c1eea61
->>>>>>> 37979a6b4 (Update fuzzing corpus.)
-\
-\
-\
-\
-\\\
-\
-\
-'\
-\
-\
-\\
-\\\
-\
-<<<<<<<< HEAD:unit_tests/fuzz/corpus/48f553932b0ab2e50a91b9d62eaf956f6502ccc4
-========
-;
-<<<<<<< HEAD
->>>>>>>> 7aa96e2e9 (Update fuzzing corpus.):unit_tests/fuzz/corpus/227c3de11bc4d3c8a8b6228b0f86121e8c1eea61
-=======
->>>>>>>> c7e78a1c4 (Update fuzzing corpus.):unit_tests/fuzz/corpus/227c3de11bc4d3c8a8b6228b0f86121e8c1eea61
->>>>>>> 37979a6b4 (Update fuzzing corpus.)
-\
-'\
-\
-\
-\\
-;'''
