@@ -4,7 +4,6 @@ set -ex -o pipefail
 
 cd "$(git rev-parse --show-toplevel || true)"
 
-find . '(' -name '*.cpp' -or -name '*.h' -or -name '*.hpp' ')' -print0 | \
-  tools/g-ls-tree.sh | \
-  xargs --no-run-if-empty --null -n1 -P3 -- \
+tools/g-ls-tree.sh '(' -name '*.cpp' -or -name '*.h' -or -name '*.hpp' ')' | \
+  tools/xargs.sh -n1 -P3 -- \
   clang-format -style=file -i "$@"

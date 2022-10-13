@@ -52,12 +52,8 @@ jobs:
           cmake -GNinja -B build -S .
         working-directory: ${{ github.workspace }}
       - name: Run regression
-        run: >
-          ninja -j1 chimera_grammar &&
-          ninja -j2 chimera unit_test &&
-          ninja &&
-          ninja regression
-        working-directory: ${{ github.workspace }}/build
+        run: tools/ninja.sh build regression
+        working-directory: ${{ github.workspace }}
       - continue-on-error: true
         run: ninja -k0 corpus
         working-directory: ${{ github.workspace }}/build
@@ -108,12 +104,9 @@ jobs:
           --use-cc /usr/bin/clang-${{ env.CLANG_VERSION }}
           --use-c++ /usr/bin/clang++-${{ env.CLANG_VERSION }}
           bash -c '
-            cmake -GNinja -B build -S . &&
-            cd build &&
-            ninja -j1 chimera_grammar &&
-            ninja -j2 chimera fuzzers &&
-            ninja &&
-            ninja regression
+            set -e -o pipefail
+            cmake -GNinja -B build -S .
+            tools/ninja.sh build regression
           '
         working-directory: ${{ github.workspace }}
 

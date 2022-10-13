@@ -26,9 +26,8 @@ export CXXFLAGS="${CXXFLAGS} \
   -Wno-padded"
 
 # shellcheck disable=SC2016
-find . -name '*.cpp' -print0 | \
-  tools/g-ls-tree.sh | \
-  xargs --no-run-if-empty --null --replace'{}' -- \
+tools/g-ls-tree.sh -name '*.cpp' | \
+  tools/xargs.sh --replace'{}' -- \
   jq \
   --arg cxx "${CXX:-clang++}" \
   --arg cppflags "${CPPFLAGS}" \
@@ -37,8 +36,8 @@ find . -name '*.cpp' -print0 | \
   --arg file '{}' \
   -n '
     {
-      "directory": $root + "/build/debug",
-      "command": ([$cxx, $cppflags, $cxxflags, "-o", "CMakeFiles/chimera_core.dir/" + $file + ".o", "-c", $file] | join(" ")),
+      "directory": ($root + "/build/debug"),
+      "command": ([$cxx, $cppflags, $cxxflags, "-o", "CMakeFiles/chimera-core.dir/" + $file + ".o", "-c", $file] | join(" ")),
       "file": $file
     }
   ' | \

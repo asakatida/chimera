@@ -9,6 +9,6 @@ rm -rf "${build_root}"
 
 tools/boot.sh
 
-ninja -C "${build_root}"
-ninja -C "${build_root}" check
-ninja -C "${build_root}" check_rand
+tools/ninja.sh "${build_root}"
+tools/ninja.sh "${build_root}" check
+tools/ninja.sh "${build_root}" check-rand

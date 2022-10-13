@@ -34,7 +34,7 @@ else()
 endif()
 
 add_library(
-  chimera_grammar
+  chimera-grammar
   OBJECT
   library/asdl/asdl.cpp
   library/asdl/parse_interactive_istream.cpp
@@ -42,12 +42,12 @@ add_library(
   library/asdl/parse_module_istream.cpp
   library/asdl/parse_module_string_view.cpp)
 
-target_compile_features(chimera_grammar PUBLIC c_std_23 cxx_std_20)
+target_compile_features(chimera-grammar PUBLIC c_std_23 cxx_std_20)
 
-target_include_directories(chimera_grammar PUBLIC library stdlib)
+target_include_directories(chimera-grammar PUBLIC library stdlib)
 
 target_include_directories(
-  chimera_grammar
+  chimera-grammar
   SYSTEM PUBLIC
   external/GSL/include
   external/metal/include
@@ -55,7 +55,7 @@ target_include_directories(
   external/PEGTL/include)
 
 add_library(
-  chimera_core
+  chimera-core
   library/container/atomic_container.cpp
   library/container/atomic_map.cpp
   library/container/reverse.cpp
@@ -103,19 +103,19 @@ add_library(
   stdlib/marshal/marshal.cpp
   stdlib/sys/sys.cpp)
 
-target_compile_features(chimera_core PUBLIC c_std_23 cxx_std_20)
+target_compile_features(chimera-core PUBLIC c_std_23 cxx_std_20)
 
-target_include_directories(chimera_core PUBLIC library stdlib)
+target_include_directories(chimera-core PUBLIC library stdlib)
 
 target_include_directories(
-  chimera_core
+  chimera-core
   SYSTEM PUBLIC
   external/GSL/include
   external/metal/include
   external/operators/include
   external/PEGTL/include)
 
-target_link_libraries(chimera_core chimera_grammar pthread)
+target_link_libraries(chimera-core chimera-grammar pthread)
 
 add_library(
   libchimera
@@ -134,12 +134,12 @@ set_target_properties(libchimera PROPERTIES OUTPUT_NAME "chimera")
 
 add_executable(chimera source/main.cpp)
 target_compile_features(chimera PUBLIC c_std_23 cxx_std_20)
-target_link_libraries(chimera chimera_core)
+target_link_libraries(chimera chimera-core)
 
 add_subdirectory(external/Catch EXCLUDE_FROM_ALL)
 
 add_executable(
-  unit_test
+  unit-test
   unit_tests/fuzz/cases.cpp
   unit_tests/grammar/grammar.cpp
   unit_tests/grammar/identifier.cpp
@@ -150,20 +150,20 @@ add_executable(
   unit_tests/virtual_machine/parse.cpp
   unit_tests/virtual_machine/virtual_machine.cpp)
 
-target_compile_features(unit_test PUBLIC c_std_23 cxx_std_20)
+target_compile_features(unit-test PUBLIC c_std_23 cxx_std_20)
 
-target_include_directories(unit_test PUBLIC unit_tests)
+target_include_directories(unit-test PUBLIC unit_tests)
 
 target_include_directories(
-  unit_test
+  unit-test
   SYSTEM PUBLIC
   external/Catch/src)
 
-target_link_libraries(unit_test Catch2WithMain chimera_core)
+target_link_libraries(unit-test Catch2WithMain chimera-core)
 
-add_custom_target(check unit_test VERBATIM)
-add_custom_target(check-stat perf stat ./unit_test VERBATIM)
-add_custom_target(check_rand unit_test --order rand VERBATIM)
+add_custom_target(check unit-test VERBATIM)
+add_custom_target(check-stat perf stat ./unit-test VERBATIM)
+add_custom_target(check-rand unit-test --order rand VERBATIM)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(NOT_APPLE_CLANG $<NOT:$<CXX_COMPILER_ID:AppleClang>>)
@@ -176,18 +176,18 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     $<${NOT_APPLE_CLANG}:-fsanitize-coverage=trace-loads>
     $<${NOT_APPLE_CLANG}:-fsanitize-coverage=trace-stores>
     -fsanitize=fuzzer)
-  add_library(chimerafuzz unit_tests/fuzz/cases.cpp)
+  add_library(chimera-fuzz unit_tests/fuzz/cases.cpp)
   target_compile_options(
-    chimerafuzz
+    chimera-fuzz
     PUBLIC
     ${FUZZ_CXXFLAGS})
-  target_compile_features(chimerafuzz PUBLIC c_std_23 cxx_std_20)
-  target_include_directories(chimerafuzz PUBLIC unit_tests)
-  target_link_libraries(chimerafuzz chimera_core pthread)
+  target_compile_features(chimera-fuzz PUBLIC c_std_23 cxx_std_20)
+  target_include_directories(chimera-fuzz PUBLIC unit_tests)
+  target_link_libraries(chimera-fuzz chimera-core pthread)
   add_custom_target(corpus)
   add_custom_target(fuzzers)
   add_custom_target(regression DEPENDS check)
-  add_dependencies(unit_test fuzzers)
+  add_dependencies(unit-test fuzzers)
   set(FUZZERS ellipsis false keywords name none number string true vm)
   foreach(fuzzer IN LISTS FUZZERS)
     add_executable(fuzz-${fuzzer} unit_tests/fuzz/target-${fuzzer}.cpp)
@@ -199,8 +199,8 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     target_include_directories(fuzz-${fuzzer} PUBLIC unit_tests)
     target_link_libraries(
       fuzz-${fuzzer}
-      chimera_core
-      chimerafuzz
+      chimera-core
+      chimera-fuzz
       ${FUZZ_CXXFLAGS}
       -rtlib=compiler-rt)
     add_custom_target(
@@ -244,28 +244,28 @@ target_include_directories(
   external/metal/include
   external/PEGTL/include)
 
-add_library(modules_tools tools/modules/modules.cpp)
+add_library(modules-tools tools/modules/modules.cpp)
 
-target_compile_features(modules_tools PUBLIC c_std_23 cxx_std_20)
+target_compile_features(modules-tools PUBLIC c_std_23 cxx_std_20)
 
-target_include_directories(modules_tools PUBLIC library)
+target_include_directories(modules-tools PUBLIC library)
 
 target_include_directories(
-  modules_tools
+  modules-tools
   SYSTEM PUBLIC
   external/GSL/include
   external/metal/include
   external/operators/include)
 
-target_include_directories(modules_tools PUBLIC tools)
+target_include_directories(modules-tools PUBLIC tools)
 
 add_executable(builtins tools/modules/builtins.cpp)
 target_compile_features(builtins PUBLIC c_std_23 cxx_std_20)
-target_link_libraries(builtins modules_tools chimera_core)
+target_link_libraries(builtins modules-tools chimera-core)
 
 add_executable(importlib tools/modules/importlib.cpp)
 target_compile_features(importlib PUBLIC c_std_23 cxx_std_20)
-target_link_libraries(importlib modules_tools chimera_core)
+target_link_libraries(importlib modules-tools chimera-core)
 
 add_custom_target(modules DEPENDS builtins importlib)
 

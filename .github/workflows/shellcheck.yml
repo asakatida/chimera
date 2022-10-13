@@ -11,9 +11,7 @@ jobs:
         run: sudo apt-get install -y shellcheck
       - name: Lint shell
         run: >
-          find . -name '*.sh' -print0 |
-          xargs --no-run-if-empty --null --
-          git ls-tree --full-tree --name-only -z HEAD -- |
+          tools/g-ls-tree.sh -name '*.sh' |
           xargs --no-run-if-empty --null --
           shellcheck --enable=all --severity=style
         working-directory: ${{ github.workspace }}
