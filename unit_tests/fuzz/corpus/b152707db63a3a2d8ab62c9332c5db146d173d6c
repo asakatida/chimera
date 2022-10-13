@@ -52,7 +52,11 @@ False\
 \
 \
 \
+<<<<<<< HEAD
 >>>>>>>> 7aa96e2e9 (Update fuzzing corpus.):unit_tests/fuzz/corpus/ae25e5b66f27d87bf3809e745a01b90f3366c0c5
+=======
+>>>>>>>> c7e78a1c4 (Update fuzzing corpus.):unit_tests/fuzz/corpus/ae25e5b66f27d87bf3809e745a01b90f3366c0c5
+>>>>>>> 37979a6b4 (Update fuzzing corpus.)
 \
 \
 \
@@ -79,4 +83,8 @@ False\
 \
 \
 \\a'
+<<<<<<< HEAD
 >>>>>>>> 7aa96e2e9 (Update fuzzing corpus.):unit_tests/fuzz/corpus/ae25e5b66f27d87bf3809e745a01b90f3366c0c5
+=======
+>>>>>>>> c7e78a1c4 (Update fuzzing corpus.):unit_tests/fuzz/corpus/ae25e5b66f27d87bf3809e745a01b90f3366c0c5
+>>>>>>> 37979a6b4 (Update fuzzing corpus.)

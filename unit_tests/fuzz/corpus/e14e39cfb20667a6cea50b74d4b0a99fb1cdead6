@@ -15,7 +15,11 @@ False\
 \\
 ========
 \
+<<<<<<< HEAD
 >>>>>>>> 7aa96e2e9 (Update fuzzing corpus.):unit_tests/fuzz/corpus/4c183d0d21ae49965731780a511ad5bda4fb12ab
+=======
+>>>>>>>> c7e78a1c4 (Update fuzzing corpus.):unit_tests/fuzz/corpus/4c183d0d21ae49965731780a511ad5bda4fb12ab
+>>>>>>> 37979a6b4 (Update fuzzing corpus.)
 \
 \
 \
