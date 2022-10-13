@@ -1,3 +1,40 @@
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:unit_tests/fuzz/corpus/4791164d18f07ea1202061154f1876ccc2511658
+None\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+========
+>>>>>>> 37979a6b4 (Update fuzzing corpus.)
 Tr\
 \
 \
@@ -29,4 +66,9 @@ Tr\
 \
 \
 \
+<<<<<<< HEAD
 \
+=======
+\
+>>>>>>>> c7e78a1c4 (Update fuzzing corpus.):unit_tests/fuzz/corpus/f7c57f58c70cf3e870528e7e7b395744222cef13
+>>>>>>> 37979a6b4 (Update fuzzing corpus.)

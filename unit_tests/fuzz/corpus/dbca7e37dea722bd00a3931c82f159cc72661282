@@ -6,7 +6,11 @@ b"""\\
 <<<<<<<< HEAD:unit_tests/fuzz/corpus/f67477d3eefb6d8977705e1f80b6a1fb1a294815
 
 ========
+<<<<<<< HEAD
 >>>>>>>> 7aa96e2e9 (Update fuzzing corpus.):unit_tests/fuzz/corpus/dbca7e37dea722bd00a3931c82f159cc72661282
+=======
+>>>>>>>> c7e78a1c4 (Update fuzzing corpus.):unit_tests/fuzz/corpus/dbca7e37dea722bd00a3931c82f159cc72661282
+>>>>>>> 37979a6b4 (Update fuzzing corpus.)
 \
 \
 a\\

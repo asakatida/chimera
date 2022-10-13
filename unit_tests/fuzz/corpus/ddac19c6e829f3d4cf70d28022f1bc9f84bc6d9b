@@ -1,8 +1,13 @@
 <<<<<<<< HEAD:unit_tests/fuzz/corpus/ddac19c6e829f3d4cf70d28022f1bc9f84bc6d9b
 0\
 ========
+<<<<<<< HEAD
 e\
 >>>>>>>> 7aa96e2e9 (Update fuzzing corpus.):unit_tests/fuzz/corpus/1af78007594390a667da1343bee4337bd36d45c0
+=======
+as\
+>>>>>>>> c7e78a1c4 (Update fuzzing corpus.):unit_tests/fuzz/corpus/6d4c0a1c59914b7d30cd513b0801e2cb5626c451
+>>>>>>> 37979a6b4 (Update fuzzing corpus.)
 \
 \
 \

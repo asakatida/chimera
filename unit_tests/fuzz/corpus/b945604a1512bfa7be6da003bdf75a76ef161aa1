@@ -1,4 +1,8 @@
 '''\
 \
+<<<<<<<< HEAD:unit_tests/fuzz/corpus/b945604a1512bfa7be6da003bdf75a76ef161aa1
 \
+========
+\\
+>>>>>>>> c7e78a1c4 (Update fuzzing corpus.):unit_tests/fuzz/corpus/94fa366168f16511c3a6135425c09e05b833e092
 '''
