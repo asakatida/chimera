@@ -9,15 +9,17 @@ jobs:
       - uses: actions/checkout@v3.1.0
         with:
           submodules: true
-      - name: Cache
+      - name: Cache cmake
         uses: actions/cache@v3.0.11
         with:
           key: codecov-${{ hashFiles('CMakeLists.txt') }}-v1
           path: build
-      - name: Run regression with coverage
+      - env:
+          CC: /usr/bin/clang
+          CXX: /usr/bin/clang++
         uses: ./
         with:
-          run: /opt/virtualenv/bin/python tools/codecov.py llvm-profile.lcov
+          run: /opt/virtualenv/bin/python tools/codecov.py
       - uses: codecov/codecov-action@v3.1.1
         with:
           directory: ${{ github.workspace }}
@@ -36,7 +38,7 @@ on:
       - "**.md"
       - Dockerfile
       - tools/boot.yml
-      - tools/docker.sh
+      - tools/docker.py
   push:
     branches:
       - stable
@@ -46,5 +48,5 @@ on:
       - "**.md"
       - Dockerfile
       - tools/boot.yml
-      - tools/docker.sh
+      - tools/docker.py
   workflow_dispatch: ~

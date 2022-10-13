@@ -28,7 +28,7 @@
     - prebuild_check or ( item.distro == 'alpine' and item.image == 'base' )
 <% for image in ('clang', 'gcc') %>
   - name: test << image >>
-    command: "docker run 'chimera/<< image >>-{{ item.distro }}:{{ item.tag }}' ./ninja-intense.sh '../build/<< image >>/{{ item.distro }}/{{ item.tag }}'"
+    command: "docker run 'chimera/<< image >>-{{ item.distro }}:{{ item.tag }}' python3 ninja-intense.py '../build/<< image >>/{{ item.distro }}/{{ item.tag }}'"
     loop: "{{ min_supported_distros }}"
     when:
     - ansible_facts.os_family != 'Darwin'

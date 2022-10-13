@@ -26,6 +26,7 @@ from pathlib import Path
 from sys import argv, stderr
 
 from asyncio_cmd import ProcessError, cmd
+from ninja import ninja
 
 
 async def main(output: str) -> None:
@@ -51,19 +52,17 @@ async def main(output: str) -> None:
     ).resolve()
     environ["LLVM_PROFILE_FILE"] = str(llvm_profile_file)
     llvm_profile_dir = llvm_profile_file.parent
-    instr_profile = llvm_profile_dir / "llvm-profile.profdata"
-    source = Path(__file__).parent.parent
+    source = Path(__file__).resolve().parent.parent
     build = source / "build"
-    await cmd("cmake", "-G", "Ninja", "-B", str(build), "-S", str(source))
-    chdir(Path(__file__).parent.parent)
-    await cmd("cmake", "-G", "Ninja", "-B", "build", "-S", ".")
+    await cmd("cmake", "-G", "Ninja", "-B", build, "-S", source)
     try:
         llvm_profile_dir.rmdir()
     except FileNotFoundError:
         pass
     llvm_profile_dir.mkdir()
-    await cmd("tools/ninja.sh", "build", "check-rand", "regression", timeout=6000)
+    await ninja(build, "check-rand", "regression")
     llvm_profile_files = map(str, filter(Path.is_file, llvm_profile_dir.iterdir()))
+    instr_profile = llvm_profile_dir / "llvm-profile.profdata"
     await cmd(
         "llvm-profdata",
         "merge",

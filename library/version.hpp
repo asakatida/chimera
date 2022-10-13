@@ -1,4 +1,4 @@
-//! generated file see tools/post-commit.sh
+//! generated file see tools/post-commit.py
 
 #pragma once
 

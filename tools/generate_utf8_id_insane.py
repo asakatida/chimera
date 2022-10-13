@@ -43,17 +43,23 @@ def _ranges(total: int, it: Iterator[int]) -> str:
 
 
 utf8_id_continue = (
-    Path(__file__).parent.parent / "library" / "grammar" / "utf8_id_continue.hpp"
+    Path(__file__).resolve().parent.parent
+    / "library"
+    / "grammar"
+    / "utf8_id_continue.hpp"
 ).absolute()
 
 id_start = set(filter(lambda i: chr(i).isidentifier(), range(0x10FFFF)))
 id_continue = set(
     tqdm(
         filter(
-            lambda i: all(
-                map(lambda j: "".join((chr(j), chr(i))).isidentifier(), id_start)
+            lambda i: all(  # type: ignore
+                map(
+                    str.isidentifier,
+                    map("".join, map(tuple, map(chr, id_start), repeat(i))),  # type: ignore
+                )
             ),
-            set(range(0x10FFFF)) - id_start,
+            map(chr, set(range(0x10FFFF)) - id_start),
         ),
         total=2908,
     )
