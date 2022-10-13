@@ -28,7 +28,10 @@ from typing import Iterator, Set, Tuple
 from tqdm import tqdm  # type: ignore
 
 utf8_id_continue = (
-    Path(__file__).parent.parent / "library" / "grammar" / "utf8_id_continue.hpp"
+    Path(__file__).resolve().parent.parent
+    / "library"
+    / "grammar"
+    / "utf8_id_continue.hpp"
 ).absolute()
 
 

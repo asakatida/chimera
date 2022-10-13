@@ -1,8 +1,5 @@
 ---
 env:
-  CC: /usr/local/bin/clang
-  CMAKE_BUILD_TYPE: Debug
-  CXX: /usr/local/bin/clang++
   CXXFLAGS: >
     -DCHIMERA_PATH="/github/workspace/stdlib"
     -fsanitize-coverage=no-prune
@@ -30,34 +27,11 @@ jobs:
       - name: Run regression
         uses: ./
         with:
-          run: >
-            /opt/virtualenv/bin/pip3 install -r requirements.txt &&
-            cmake -GNinja -B build -S . &&
-            tools/ninja.sh build check-rand regression
-      - if: github.ref == 'refs/heads/stable'
-        name: Run corpus
-        uses: ./
-        with:
-          run: >
-            ninja -C build -k0 corpus || true &&
-            git config --global user.email email &&
-            git config --global user.name name &&
-            /opt/virtualenv/bin/python3 tools/corpus_gather.py
-      - name: Corpus trim
-        uses: ./
-        with:
-          run: |
-            /opt/virtualenv/bin/python3 tools/corpus_trim.py
-            set +e
-            for opt in --global --local --system --worktree; do
-              git config "${opt}" --unset-all user.email
-              git config "${opt}" --unset-all user.name
-            done
-            exit 0
+          run: /opt/virtualenv/bin/python tools/regression.py build "${{ github.ref }}"
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.15.4
         with:
-          branch: regression-${{ github.workflow }}-${{ github.ref }}/${{ github.run_id }}
+          branch: regression-${{ github.ref }}/${{ github.run_id }}
           commit_message: Update fuzzing corpus.
           create_branch: true
           file_pattern: unit_tests/fuzz
@@ -74,16 +48,7 @@ jobs:
       - name: Scan Build
         uses: ./
         with:
-          run: >
-            CXXFLAGS=''
-            /usr/local/bin/scan-build
-            --use-cc /usr/local/bin/clang
-            --use-c++ /usr/local/bin/clang++
-            bash -c '
-              set -e -o pipefail
-              cmake -GNinja -B build -S .
-              tools/ninja.sh build check-rand regression
-            '
+          run: /opt/virtualenv/bin/python tools/scan_build.py
 
 name: CMake
 
@@ -98,7 +63,7 @@ on:
       - "**.md"
       - Dockerfile
       - tools/boot.yml
-      - tools/docker.sh
+      - tools/docker.py
       - unit_tests/fuzz/corpus/*
       - unit_tests/fuzz/crashes/*
   push:
@@ -110,7 +75,7 @@ on:
       - "**.md"
       - Dockerfile
       - tools/boot.yml
-      - tools/docker.sh
+      - tools/docker.py
       - unit_tests/fuzz/corpus/*
       - unit_tests/fuzz/crashes/*
   workflow_dispatch: ~

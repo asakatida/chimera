@@ -37,7 +37,7 @@ from tqdm.asyncio import tqdm as atqdm  # type: ignore
 
 LENGTH = 22
 DIRECTORIES = ("corpus", "crashes")
-SOURCE = Path(__file__).parent.parent.resolve()
+SOURCE = Path(__file__).resolve().parent.parent
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
 CORPUS_ORIGINAL = FUZZ / "corpus_original"
@@ -94,8 +94,14 @@ def corpus_trim_one(fuzz: Iterable[Path]) -> None:
         name = src_sha[:LENGTH]
         if any(
             map(
-                lambda other: other.exists() and src_sha != sha(other),
-                map(lambda directory: FUZZ / directory / name, DIRECTORIES),
+                lambda other: src_sha != other,
+                map(
+                    sha,
+                    filter(
+                        Path.exists,
+                        map(lambda directory: FUZZ / directory / name, DIRECTORIES),
+                    ),
+                ),
             )
         ):
             LENGTH += 1
@@ -124,17 +130,17 @@ def corpus_trim() -> None:
 def fuzz_star() -> tuple[Path, ...]:
     return tuple(
         filter(
-            lambda path: path.is_file() and path.stat().st_mode & 0o110,
-            SOURCE.rglob("fuzz-*"),
+            lambda path: path.stat().st_mode & 0o110,
+            filter(Path.is_file, SOURCE.rglob("fuzz-*")),
         )
     )
 
 
 async def fuzz_test_one(
-    regression: Path, *args: str, stdout: Optional[int], timeout: int
+    regression: Path, *args: object, stdout: Optional[int], timeout: int
 ) -> None:
     await cmd(
-        str(regression),
+        regression,
         "-detect_leaks=0",
         "-use_value_profile=1",
         *args,
@@ -145,7 +151,7 @@ async def fuzz_test_one(
 
 
 async def fuzz_test(
-    *args: str, stdout: Optional[int] = DEVNULL, timeout: int = 10
+    *args: object, stdout: Optional[int] = DEVNULL, timeout: int = 10
 ) -> list[Exception]:
     return list(
         filter(
@@ -174,7 +180,7 @@ def sha(path: Path) -> str:
 
 
 async def regression_one(file: Path) -> None:
-    if not await fuzz_test(str(file)):
+    if not await fuzz_test(file):
         file.rename(CORPUS / file.name)
 
 
@@ -200,8 +206,8 @@ async def main() -> None:
             "-merge=1",
             "-reduce_inputs=1",
             "-shrink=1",
-            str(CORPUS),
-            str(CORPUS_ORIGINAL),
+            CORPUS,
+            CORPUS_ORIGINAL,
             stdout=None,
             timeout=1200,
         )

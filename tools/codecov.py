@@ -26,6 +26,7 @@ from pathlib import Path
 from sys import stderr
 
 from asyncio_cmd import ProcessError, cmd
+from ninja import ninja
 
 
 async def main() -> None:
@@ -58,7 +59,7 @@ async def main() -> None:
     except FileNotFoundError:
         pass
     llvm_profile_dir.mkdir()
-    await cmd("tools/ninja.sh", "build", "check-rand", "regression", timeout=6000)
+    await ninja("build", "check-rand", "regression")
     llvm_profile_files = map(str, filter(Path.is_file, llvm_profile_dir.iterdir()))
     await cmd(
         "/usr/local/bin/llvm-profdata",

@@ -28,7 +28,7 @@ from typing import Iterator, Tuple
 from tqdm import tqdm  # type: ignore
 
 utf8_space = (
-    Path(__file__).parent.parent / "library" / "grammar" / "utf8_space.hpp"
+    Path(__file__).resolve().parent.parent / "library" / "grammar" / "utf8_space.hpp"
 ).absolute()
 
 

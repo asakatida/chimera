@@ -11,10 +11,9 @@ jobs:
         uses: ./
         with:
           run: >
-            /opt/virtualenv/bin/pip3 install -r requirements.txt &&
-            tools/g-ls-tree.sh -name '*.yml' |
-            xargs --no-run-if-empty --null --
-            /opt/virtualenv/bin/yamllint -f github
+            /opt/virtualenv/bin/python tools/g-ls-tree.py yml |
+            xargs --no-run-if-empty --
+            env/bin/yamllint -f github
 
 name: YamlLint
 

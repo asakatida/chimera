@@ -18,48 +18,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""corpus_gather.py"""
+"""llvm.py"""
 
 from asyncio import run
-from asyncio.subprocess import PIPE
+from os import environ
 from pathlib import Path
 from sys import stderr
 
 from asyncio_cmd import ProcessError, cmd
-from tqdm import tqdm  # type: ignore
-
-FUZZ = Path(__file__).resolve().parent.parent / "unit_tests" / "fuzz"
-FUZZ_DIRS = tuple(map(str, (FUZZ / "crashes", FUZZ / "corpus", FUZZ / "dictionaries")))
+from requests import get
 
 
 async def main() -> None:
-    await cmd("git", "fetch", "--all", "--tags", timeout=600)
-    await cmd("git", "remote", "prune", "origin", timeout=600)
-    await cmd("git", "add", *FUZZ_DIRS)
-    await cmd("git", "commit", "--allow-empty", "-m", "WIP")
-    stdout = await cmd(
-        "git",
-        "log",
-        "--all",
-        "--format=%h",
-        "^HEAD",
-        "--",
-        *FUZZ_DIRS,
-        stdout=PIPE,
-    )
-    for sha in tqdm(
-        map(
-            str.strip,
-            stdout.decode().splitlines(),
-        ),
-        desc="Branches",
-        unit_scale=True,
-    ):
-        await cmd("git", "restore", "--source", sha, "--staged", *FUZZ_DIRS, log=False)
-        await cmd("git", "restore", "--worktree", FUZZ, log=False)
-        await cmd("git", "add", FUZZ, log=False)
-        await cmd("git", "commit", "--amend", "--no-edit", log=False)
-    await cmd("git", "reset", "HEAD^", timeout=600)
+    llvm = Path("/tmp/llvm.sh")
+    llvm.write_bytes(get("https://apt.llvm.org/llvm.sh", allow_redirects=True).content)
+    llvm.chmod(0o755)
+    clang_version = environ.get("CLANG_VERSION", "15")
+    await cmd(llvm, clang_version, timeout=300)
+    llvm.unlink()
 
 
 if __name__ == "__main__":
