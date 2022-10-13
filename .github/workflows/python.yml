@@ -1,9 +1,9 @@
 ---
 jobs:
-  mypy:
+  python:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: mypy-${{ github.workflow }}-${{ github.ref }}
+      group: ${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.2.0
@@ -16,32 +16,9 @@ jobs:
       - name: Lint python code
         uses: ./
         with:
-          run: >
-            python tools/before.py;
-            tools/g-ls-tree.sh -not -path './stdlib/*' -name '*.py' |
-            xargs --no-run-if-empty --null --
-            mypy
-  python:
-    concurrency:
-      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: ${{ matrix.lints }}-${{ github.workflow }}-${{ github.ref }}
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3.2.0
-      - name: Lint python code
-        uses: ./
-        with:
-          run: >
-            python tools/before.py;
-            tools/g-ls-tree.sh -name '*.py' |
-            xargs --no-run-if-empty --null --
-            ${{ matrix.lints }}
-    strategy:
-      matrix:
-        lints:
-          - black --check --diff --preview --target-version py311
-          - isort --check-only --python-version auto
-          - pylama
+          run: |
+            python tools/before.py
+            python tools/self_check.py
 
 name: Python
 
