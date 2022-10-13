@@ -3,7 +3,7 @@ jobs:
   clangformat:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: ${{ github.workflow }}-${{ github.ref }}
+      group: clangformat-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.1.0
@@ -11,13 +11,14 @@ jobs:
         uses: ./
         with:
           run: >
-            tools/g-ls-tree.sh '(' -name '*.cpp' -or -name '*.h' -or -name '*.hpp' ')' |
-            xargs --no-run-if-empty --null --
+            CC='' CXX='' CXXFLAGS='' pip install -r requirements.txt | { grep --invert-match -e '^Requirement already satisfied:' || true; };
+            python tools/g_ls_tree.py cpp h hpp |
+            xargs --no-run-if-empty --
             /usr/local/bin/clang-format --dry-run -style=file -Werror
   clangtidy:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: ${{ matrix.lints }}-${{ github.workflow }}-${{ github.ref }}
+      group: clangtidy-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.1.0
@@ -36,38 +37,25 @@ jobs:
         uses: ./
         with:
           run: cmake -B build -S .
-      - if: matrix.lints
-        name: Lint c++ code
-        uses: ./
-        with:
-          run: >
-            tools/g-ls-tree.sh -name '*.cpp' |
-            xargs --no-run-if-empty --null --
-            /usr/local/bin/clang-tidy -p=build -checks=-*,${{ matrix.lints }}
       - if: ${{ !matrix.lints }}
         name: Lint c++ code
         uses: ./
         with:
           run: >
-            tools/g-ls-tree.sh -name '*.cpp' |
-            xargs --no-run-if-empty --null --
-            /usr/local/bin/clang-tidy -p=build
-    strategy:
-      matrix:
-        lints:
-          - false
-          - bugprone-*,bugprone-use-after-move,-bugprone-easily-swappable-parameters,-bugprone-exception-escape
-          - cert-*
-          - clang-*
-          - concurrency-*
-          - cppcoreguidelines-*
-          - hicpp-*,hicpp-invalid-access-moved
-          - misc-*,misc-const-correctness,-misc-confusable-identifiers,-misc-no-recursion
-          - misc-confusable-identifiers
-          - modernize-*
-          - performance-*
-          - portability-*
-          - readability-*,-readability-identifier-length,-readability-static-accessed-through-instance
+            CC='' CXX='' CXXFLAGS='' pip install -r requirements.txt | { grep --invert-match -e '^Requirement already satisfied:' || true; };
+            python tools/clang_tidy.py build
+              bugprone-*,bugprone-use-after-move,-bugprone-easily-swappable-parameters,-bugprone-exception-escape
+              cert-*
+              clang-*
+              concurrency-*
+              cppcoreguidelines-*
+              hicpp-*,hicpp-invalid-access-moved
+              misc-*,misc-const-correctness,-misc-confusable-identifiers,-misc-no-recursion
+              misc-confusable-identifiers
+              modernize-*
+              performance-*
+              portability-*
+              readability-*,-readability-identifier-length,-readability-static-accessed-through-instance
 
 name: ClangTidy
 

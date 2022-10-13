@@ -1,11 +1,14 @@
 from asyncio import create_subprocess_exec, wait_for
 from asyncio.subprocess import DEVNULL, PIPE
+from itertools import islice, repeat, takewhile
 from sys import stderr
-from typing import Optional
+from typing import Iterable, Optional, TextIO, TypeVar, Union
+
+T = TypeVar("T")
 
 
 class ProcessError(Exception):
-    def __init__(self, cmd: tuple[str, ...], stderr: bytes, returncode: int) -> None:
+    def __init__(self, cmd: tuple[object, ...], stderr: bytes, returncode: int) -> None:
         super().__init__(f"{cmd} failed with {returncode}")
         self.cmd = cmd
         self.stderr = stderr.decode().strip()
@@ -17,8 +20,17 @@ class ProcessError(Exception):
         exit(self.returncode)
 
 
+def chunks(iterable: Iterable[T], size: int) -> Iterable[list[T]]:
+    return takewhile(
+        lambda i: i, map(list, map(islice, repeat(iterable), repeat(size)))  # type: ignore
+    )
+
+
 async def cmd(
-    *args: object, log: bool = True, stdout: Optional[int] = DEVNULL, timeout: int = 20
+    *args: object,
+    log: bool = True,
+    stdout: Optional[Union[int, TextIO]] = DEVNULL,
+    timeout: int = 20,
 ) -> bytes:
     if log:
         print("+", *args, file=stderr)

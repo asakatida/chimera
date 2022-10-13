@@ -30,7 +30,7 @@ from asyncio_cmd import ProcessError, cmd
 from tqdm import tqdm  # type: ignore
 
 FUZZ = Path(__file__).resolve().parent.parent / "unit_tests" / "fuzz"
-FUZZ_DIRS = tuple(map(str, (FUZZ / "crashes", FUZZ / "corpus", FUZZ / "dictionaries")))
+FUZZ_DIRS = tuple(map(str, map(FUZZ.joinpath, ("crashes", "corpus", "dictionaries"))))
 
 
 async def main() -> None:
@@ -65,8 +65,8 @@ async def main() -> None:
         total=10,
     ):
         await cmd("git", "restore", "--source", sha, "--staged", *FUZZ_DIRS, log=False)
-        await cmd("git", "restore", "--worktree", str(FUZZ), log=False)
-        await cmd("git", "add", str(FUZZ), log=False)
+        await cmd("git", "restore", "--worktree", FUZZ, log=False)
+        await cmd("git", "add", FUZZ, log=False)
         await cmd("git", "commit", "--allow-empty", "--amend", "--no-edit", log=False)
     await cmd("git", "reset", "HEAD^", timeout=600)
 

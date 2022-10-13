@@ -21,7 +21,9 @@ jobs:
       - name: Run regression with coverage
         uses: ./
         with:
-          run: python tools/codecov.py >llvm-profile.lcov
+          run: |
+            CC='' CXX='' CXXFLAGS='' pip install -r requirements.txt | { grep --invert-match -e '^Requirement already satisfied:' || true; }
+            python tools/codecov.py >llvm-profile.lcov
       - run: ls -al ${{ github.workspace }}
       - uses: codecov/codecov-action@v3.1.1
         with:

@@ -1,6 +1,5 @@
 ---
 env:
-  CMAKE_BUILD_TYPE: Debug
   CXXFLAGS: >
     -DCHIMERA_PATH="/github/workspace/stdlib"
     -fsanitize-coverage=no-prune
@@ -33,32 +32,11 @@ jobs:
         with:
           run: |
             python tools/before.py
-            cmake -GNinja -B build -S .
-            tools/ninja.sh build check-rand regression
-      - if: github.ref == 'refs/heads/stable'
-        name: Run corpus
-        uses: ./
-        with:
-          run: |
-            tools/ninja.sh build -k0 corpus || true
-            git config --global user.email email
-            git config --global user.name name
-            python tools/corpus_gather.py
-      - name: Corpus trim
-        uses: ./
-        with:
-          run: |
-            python tools/corpus_trim.py
-            set +e
-            for opt in --global --local --system --worktree; do
-              git config "${opt}" --unset-all user.email
-              git config "${opt}" --unset-all user.name
-            done
-            exit 0
+            python tools/regression.py build "${{ github.ref }}"
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
-          branch: regression-${{ github.workflow }}-${{ github.ref }}/${{ github.run_id }}
+          branch: regression-${{ github.ref }}/${{ github.run_id }}
           commit_message: Update fuzzing corpus.
           create_branch: true
           file_pattern: unit_tests/fuzz
@@ -89,7 +67,7 @@ jobs:
           run: |
             python tools/before.py
             cmake -GNinja -B build -S .
-            tools/ninja.sh build check-rand regression
+            tools/ninja.py build check-rand regression
   regression:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
@@ -153,7 +131,7 @@ jobs:
           run: |
             python tools/before.py
             cmake -GNinja -B build -S .
-            tools/ninja.sh build check-rand regression
+            tools/ninja.py build check-rand regression
   scan-build:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
@@ -166,16 +144,9 @@ jobs:
       - name: Scan Build
         uses: ./
         with:
-          run: >
-            /usr/local/bin/scan-build
-            --use-cc "${CC}"
-            --use-c++ "${CXX}"
-            bash -c '
-              set -e -o pipefail
-              cmake -GNinja -B build -S .
-              tools/ninja.sh build
-            '
-            ! find /tmp -type d -name 'scan-build-*'
+          run: |
+            pip install -r requirements.txt | { grep --invert-match -e '^Requirement already satisfied:' || true; }
+            python tools/scan_build.py
 
 name: CMake
 

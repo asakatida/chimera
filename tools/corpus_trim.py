@@ -34,7 +34,7 @@ from corpus_utils import c_tqdm, fuzz_star, fuzz_test, gather_paths
 
 LENGTH = 8
 DIRECTORIES = ("corpus", "crashes")
-SOURCE = Path(__file__).parent.parent.resolve()
+SOURCE = Path(__file__).resolve().parent.parent
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
 CORPUS_ORIGINAL = FUZZ / "corpus_original"
@@ -133,8 +133,8 @@ async def main() -> None:
         "-merge=1",
         "-reduce_inputs=1",
         "-shrink=1",
-        str(CORPUS),
-        str(CORPUS_ORIGINAL),
+        CORPUS,
+        CORPUS_ORIGINAL,
     )
     if errors:
         error = errors.pop()

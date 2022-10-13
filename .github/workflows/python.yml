@@ -1,22 +1,9 @@
 ---
 jobs:
-  cmakelint:
+  python:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: cmakelint-${{ github.workflow }}-${{ github.ref }}
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3.1.0
-      - name: Lint CMakeList.txt
-        uses: ./
-        with:
-          run: |
-            python tools/before.py
-            cmakelint
-  mypy:
-    concurrency:
-      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: mypy-${{ github.workflow }}-${{ github.ref }}
+      group: self-check-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.1.0
@@ -29,44 +16,16 @@ jobs:
       - name: Lint python code
         uses: ./
         with:
-          run: >
-            python tools/before.py;
-            tools/g-ls-tree.sh -not -path './stdlib/*' -name '*.py' |
-            xargs --no-run-if-empty --null --
-            mypy
-  python:
-    concurrency:
-      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: ${{ matrix.lints }}-${{ github.workflow }}-${{ github.ref }}
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3.1.0
-      - name: Lint python code
-        uses: ./
-        with:
-          run: >
-            python tools/before.py;
-            tools/g-ls-tree.sh -name '*.py' |
-            xargs --no-run-if-empty --null --
-            ${{ matrix.lints }}
-    strategy:
-      matrix:
-        lints:
-          - black --check --diff --preview --target-version py311
-          - isort --check-only --python-version auto
-          - pylama
+          run: |
+            python tools/before.py
+            python tools/self_check.py
   requirements_txt:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.1.0
-      - name: Build dev tools
-        run: |
-          python3 -m venv --upgrade --upgrade-deps env
-          env/bin/pip install --upgrade pip setuptools wheel
-          env/bin/pip install -r requirements.txt
-        working-directory: ${{ github.workspace }}
       - name: Freeze dependencies
-        run: >
+        run: |
+          python3 tools/venv.py python3
           env/bin/pip freeze | grep -v -e '^pkg_resources==' >requirements.txt
         working-directory: ${{ github.workspace }}
       - if: ${{ github.ref == 'refs/heads/stable' }}
@@ -84,14 +43,9 @@ jobs:
       - name: generate utf8 grammar
         uses: ./
         with:
-          run: >
-            python tools/before.py;
-            find tools -name 'generate_utf8_*.py' -not -name '*insane*' -print0 |
-            xargs --no-run-if-empty --null -n1 -P3 --
-            python;
-            tools/g-ls-tree.sh -name '*.hpp' |
-            xargs --no-run-if-empty --null --
-            /usr/local/bin/clang-format -style=file -i
+          run: |
+            python tools/before.py
+            python tools/utf8_generate.py
       - if: ${{ github.ref == 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
