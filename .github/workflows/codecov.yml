@@ -49,11 +49,8 @@ jobs:
         run: >
           rm -rf "$(dirname "${LLVM_PROFILE_FILE}")" &&
           mkdir -p "$(dirname "${LLVM_PROFILE_FILE}")" &&
-          ninja -j1 chimera_grammar &&
-          ninja -j2 chimera fuzzers &&
-          ninja &&
-          ninja regression
-        working-directory: ${{github.workspace}}/build
+          tools/ninja.sh build regression
+        working-directory: ${{github.workspace}}
       - name: merge raw profile
         run: >
           find "$(dirname "${LLVM_PROFILE_FILE}")" -type f -print0 |
@@ -63,7 +60,7 @@ jobs:
         working-directory: ${{github.workspace}}/build/coverage
       - name: export profile
         run: >
-          llvm-cov-${{ env.CLANG_VERSION }} export ./unit_test
+          llvm-cov-${{ env.CLANG_VERSION }} export ./unit-test
           --ignore-filename-regex='.*/(external|unit_tests)/.*'
           --instr-profile coverage/llvm-profile.profdata
           --region-coverage-gt=2

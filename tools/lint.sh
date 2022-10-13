@@ -28,21 +28,17 @@ esac
 
 cmakelint
 
-find . -name '*.py' -print0 | \
-  tools/g-ls-tree.sh | \
-  xargs --no-run-if-empty --null -- \
+tools/g-ls-tree.sh -name '*.py' | \
+  tools/xargs.sh -- \
   isort --python-version auto
-find . -name '*.py' -print0 | \
-  tools/g-ls-tree.sh | \
-  xargs --no-run-if-empty --null -- \
+tools/g-ls-tree.sh -name '*.py' | \
+  tools/xargs.sh -- \
   black --preview --target-version py311
-find . -name '*.py' -print0 | \
-  tools/g-ls-tree.sh | \
-  xargs --no-run-if-empty --null -- \
+tools/g-ls-tree.sh -name '*.py' | \
+  tools/xargs.sh -- \
   pylama
-find . -not -path "./stdlib/*" -name '*.py' -print0 | \
-  tools/g-ls-tree.sh | \
-  xargs --no-run-if-empty --null -- \
+tools/g-ls-tree.sh -not -path "./stdlib/*" -name '*.py' | \
+  tools/xargs.sh -- \
   mypy
 
 if [[ -z "${PREBUILD_CHECK}" ]]; then
@@ -50,7 +46,7 @@ if [[ -z "${PREBUILD_CHECK}" ]]; then
   python3 tools/generate_utf8_id_start.py
   python3 tools/generate_utf8_space.py
   git ls-tree --full-tree --name-only -r -z HEAD | \
-    xargs --no-run-if-empty --null -- \
+    tools/xargs.sh -- \
     python3 tools/trim.py
   tools/clang-format.sh
   tools/clang-tidy.sh build/debug

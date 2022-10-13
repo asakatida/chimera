@@ -16,14 +16,14 @@ tools/lint.sh
 
 export LLVM_PROFILE_FILE="${PWD}/build/coverage/llvm-profile.%c%p.profraw"
 
-ninja -C "${debug_root}"
-ninja -C "${debug_root}"
-ninja -C "${release_root}"
-ninja -C "${debug_root}" check_rand
-ninja -C "${debug_root}" regression
-ninja -C "${debug_root}" corpus
-ninja -C "${debug_root}" spec
-ninja -C "${release_root}" spec
+tools/ninja.sh "${debug_root}"
+tools/ninja.sh "${debug_root}"
+tools/ninja.sh "${release_root}"
+tools/ninja.sh "${debug_root}" check-rand
+tools/ninja.sh "${debug_root}" regression
+tools/ninja.sh "${debug_root}" corpus
+tools/ninja.sh "${debug_root}" spec
+tools/ninja.sh "${release_root}" spec
 
 docker build -t chimera/base "tools/docker/base/"
 docker build -t chimera/clang "tools/docker/clang/"

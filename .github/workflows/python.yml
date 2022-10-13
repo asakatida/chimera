@@ -47,9 +47,7 @@ jobs:
         working-directory: ${{ github.workspace }}
       - name: Lint python code
         run: >
-          find . -not -path './stdlib/*' -name '*.py' -print0 |
-          xargs --no-run-if-empty --null --
-          git ls-tree --full-tree --name-only -z HEAD -- |
+          tools/g-ls-tree.sh -not -path './stdlib/*' -name '*.py' |
           xargs --no-run-if-empty --null --
           env/bin/mypy
         working-directory: ${{ github.workspace }}
@@ -76,9 +74,7 @@ jobs:
         working-directory: ${{ github.workspace }}
       - name: Lint python code
         run: >
-          find . -name '*.py' -print0 |
-          xargs --no-run-if-empty --null --
-          git ls-tree --full-tree --name-only -z HEAD -- |
+          tools/g-ls-tree.sh -name '*.py' |
           xargs --no-run-if-empty --null --
           env/bin/${{ matrix.lints }}
         working-directory: ${{ github.workspace }}
@@ -132,16 +128,13 @@ jobs:
           wget https://apt.llvm.org/llvm.sh &&
           chmod +x llvm.sh &&
           sudo ./llvm.sh ${{ env.CLANG_VERSION }} all &&
-          rm -rf llvm.sh &&
-          sudo apt-get install -y ninja-build
+          rm -rf llvm.sh
       - name: generate utf8 grammar
         run: >
           find tools -name 'generate_utf8_*.py' -not -name '*insane*' -print0 |
           xargs --no-run-if-empty --null -n1 -P3 --
           env/bin/python3 &&
-          find . -name '*.hpp' -print0 |
-          xargs --no-run-if-empty --null --
-          git ls-tree --full-tree --name-only -z HEAD -- |
+          tools/g-ls-tree.sh -name '*.hpp' |
           xargs --no-run-if-empty --null --
           clang-format-${{ env.CLANG_VERSION }} -style=file -i
         working-directory: ${{ github.workspace }}

@@ -13,7 +13,6 @@ else
   export PATH="${PWD}/env/bin:${PATH}"
 fi
 
-find . -name '*.yml' -print0 | \
-  tools/g-ls-tree.sh | \
-  xargs --no-run-if-empty --null -- \
+tools/g-ls-tree.sh -name '*.yml' | \
+  tools/xargs.sh -- \
   yamllint "$@"

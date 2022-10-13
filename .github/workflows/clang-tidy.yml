@@ -34,31 +34,26 @@ jobs:
           wget https://apt.llvm.org/llvm.sh &&
           chmod +x llvm.sh &&
           sudo ./llvm.sh ${{ env.CLANG_VERSION }} all &&
-          rm -rf llvm.sh &&
-          sudo apt-get install -y ninja-build
+          rm -rf llvm.sh
       - env:
           CC: /usr/bin/clang-${{ env.CLANG_VERSION }}
           CXX: /usr/bin/clang++-${{ env.CLANG_VERSION }}
         name: Configure CMake
         run: >
           git -C external/Catch/ apply ${{ github.workspace }}/patches/Catch &&
-          cmake -GNinja -B build -S .
+          cmake -B build -S .
         working-directory: ${{ github.workspace }}
       - if: matrix.lints
         name: Lint c++ code
         run: >
-          find . -name '*.cpp' -print0 |
-          xargs --no-run-if-empty --null --
-          git ls-tree --full-tree --name-only -z HEAD -- |
+          tools/g-ls-tree.sh -name '*.cpp' |
           xargs --no-run-if-empty --null --
           clang-tidy-${{ env.CLANG_VERSION }} -p=build -checks=-*,${{ matrix.lints }}
         working-directory: ${{ github.workspace }}
       - if: ${{ !matrix.lints }}
         name: Lint c++ code
         run: >
-          find . -name '*.cpp' -print0 |
-          xargs --no-run-if-empty --null --
-          git ls-tree --full-tree --name-only -z HEAD -- |
+          tools/g-ls-tree.sh -name '*.cpp' |
           xargs --no-run-if-empty --null --
           clang-tidy-${{ env.CLANG_VERSION }} -p=build
         working-directory: ${{ github.workspace }}

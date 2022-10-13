@@ -6,4 +6,4 @@ cd "$(git rev-parse --show-toplevel || true)"
 
 tools/cmake.sh "${PWD}/build/gcc-ninja"
 
-ninja -C build/gcc-ninja "$@"
+tools/ninja.sh build/gcc-ninja "$@"

@@ -7,7 +7,7 @@ build=build/clang-ninja
 
 tools/cmake.sh "${PWD}/${build}"
 
-ninja -C "${build}"
+tools/ninja.sh "${build}"
 tools/clang-format.sh
-ninja -C "${build}"
+tools/ninja.sh "${build}"
 tools/clang-tidy.sh "${build}"
