@@ -38,7 +38,7 @@ namespace chimera::library::virtual_machine {
         evaluatorB->push(ToBoolEvaluator{evaluatorB->stack_remove()});
       });
       evaluator->push([](Evaluator *evaluatorB) {
-        evaluatorB->push(CallEvaluator{evaluatorB->stack_remove(), {}, {}});
+        evaluatorB->push(CallEvaluator{evaluatorB->stack_remove()});
       });
       evaluator->get_attribute(object, "__bool__");
     }

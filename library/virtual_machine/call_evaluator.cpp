@@ -42,6 +42,11 @@ namespace chimera::library::virtual_machine {
                  object.value());
     }
   };
+  CallEvaluator::CallEvaluator(object::Object object) noexcept
+      : object(std::move(object)) {}
+  CallEvaluator::CallEvaluator(object::Object object,
+                               object::Tuple args) noexcept
+      : object(std::move(object)), args(std::move(args)) {}
   void CallEvaluator::operator()(Evaluator *evaluatorA) const {
     if (std::holds_alternative<object::Instance>(object.value())) {
       evaluatorA->push([](Evaluator *evaluatorB) {
