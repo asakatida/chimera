@@ -29,8 +29,7 @@
 
 namespace chimera::library::virtual_machine {
   struct SetEvaluator {
-    // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-    Evaluator *evaluator;
+    explicit SetEvaluator(Evaluator *evaluator) noexcept;
     void evaluate(const asdl::Attribute &attribute) const;
     void evaluate(const asdl::Subscript &subscript) const;
     void evaluate(const asdl::Name &name) const;
@@ -41,5 +40,8 @@ namespace chimera::library::virtual_machine {
       throw object::BaseException(
           evaluator->builtins().get_attribute("RuntimeError"));
     }
+
+  private:
+    Evaluator *evaluator;
   };
 } // namespace chimera::library::virtual_machine
