@@ -27,16 +27,16 @@
 
 #include "object/object.hpp"
 
-// NOLINTBEGIN(misc-non-private-member-variables-in-classes)
-
 namespace chimera::library::virtual_machine {
   struct Evaluator;
   struct CallEvaluator {
+    explicit CallEvaluator(object::Object object) noexcept;
+    CallEvaluator(object::Object object, object::Tuple args) noexcept;
+    void operator()(Evaluator *evaluatorA) const;
+
+  private:
     object::Object object;
     object::Tuple args;
     std::optional<object::Object> kwargs;
-    void operator()(Evaluator *evaluatorA) const;
   };
 } // namespace chimera::library::virtual_machine
-
-// NOLINTEND(misc-non-private-member-variables-in-classes)

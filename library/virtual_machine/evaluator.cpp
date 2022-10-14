@@ -161,8 +161,8 @@ namespace chimera::library::virtual_machine {
   void Evaluator::evaluate(const asdl::FunctionDef &functionDef) {
     for (const auto &expr : container::reverse(functionDef.decorator_list)) {
       push([](Evaluator *evaluator) {
-        auto decorator = std::move(evaluator->stack_remove());
-        evaluator->push(CallEvaluator{decorator, {evaluator->stack_top()}, {}});
+        auto decorator = evaluator->stack_remove();
+        evaluator->push(CallEvaluator{decorator, {evaluator->stack_top()}});
       });
       evaluate_get(expr);
     }
@@ -228,8 +228,7 @@ namespace chimera::library::virtual_machine {
         Evaluator evaluatorB{evaluatorA->thread_context};
         evaluatorB.enter_scope(evaluatorA->self());
         evaluatorB.push([](Evaluator *evaluatorC) {
-          evaluatorC->push(CallEvaluator{evaluatorC->stack_top(), {}, {}});
-          evaluatorC->stack_pop();
+          evaluatorC->push(CallEvaluator{evaluatorC->stack_remove()});
         });
         evaluatorB.get_attribute(evaluatorA->stack_top(), "__next__");
         evaluatorB.evaluate();
@@ -251,8 +250,7 @@ namespace chimera::library::virtual_machine {
       evaluatorA->evaluate_set(asdlFor.target);
     });
     push([](Evaluator *evaluatorA) {
-      evaluatorA->push(CallEvaluator{evaluatorA->stack_top(), {}, {}});
-      evaluatorA->stack_pop();
+      evaluatorA->push(CallEvaluator{evaluatorA->stack_remove()});
     });
     push([](Evaluator *evaluatorA) {
       evaluatorA->get_attribute(evaluatorA->stack_top(), "__iter__");
@@ -494,19 +492,16 @@ namespace chimera::library::virtual_machine {
     push(CallEvaluator{
         getAttribute,
         {object::Object(object::String(name),
-                        {{"__class__", builtins().get_attribute("str")}})},
-        {}});
+                        {{"__class__", builtins().get_attribute("str")}})}});
   }
   void Evaluator::get_attr(const object::Object &object,
                            const std::string &name) {
     push([name](Evaluator *evaluator) {
       evaluator->push(CallEvaluator{
-          evaluator->stack_top(),
+          evaluator->stack_remove(),
           {object::Object(
               object::String(name),
-              {{"__class__", evaluator->builtins().get_attribute("str")}})},
-          {}});
-      evaluator->stack_pop();
+              {{"__class__", evaluator->builtins().get_attribute("str")}})}});
     });
     if (object.has_attribute("__getattr__")) {
       return push(PushStack{object.get_attribute("__getattr__")});

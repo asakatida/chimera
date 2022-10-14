@@ -28,8 +28,7 @@
 namespace chimera::library::virtual_machine {
   void UnaryBitNotEvaluator::operator()(Evaluator *evaluatorA) const {
     evaluatorA->push([](Evaluator *evaluator) {
-      evaluator->push(CallEvaluator{evaluator->stack_top(), {}, {}});
-      evaluator->stack_pop();
+      evaluator->push(CallEvaluator{evaluator->stack_remove()});
     });
     evaluatorA->get_attribute(evaluatorA->stack_top(), "__invert__");
     evaluatorA->stack_pop();
@@ -49,16 +48,14 @@ namespace chimera::library::virtual_machine {
   }
   void UnaryAddEvaluator::operator()(Evaluator *evaluatorA) const {
     evaluatorA->push([](Evaluator *evaluatorB) {
-      evaluatorB->push(CallEvaluator{evaluatorB->stack_top(), {}, {}});
-      evaluatorB->stack_pop();
+      evaluatorB->push(CallEvaluator{evaluatorB->stack_remove()});
     });
     evaluatorA->get_attribute(evaluatorA->stack_top(), "__pos__");
     evaluatorA->stack_pop();
   }
   void UnarySubEvaluator::operator()(Evaluator *evaluatorA) const {
     evaluatorA->push([](Evaluator *evaluatorB) {
-      evaluatorB->push(CallEvaluator{evaluatorB->stack_top(), {}, {}});
-      evaluatorB->stack_pop();
+      evaluatorB->push(CallEvaluator{evaluatorB->stack_remove()});
     });
     evaluatorA->get_attribute(evaluatorA->stack_top(), "__neg__");
     evaluatorA->stack_pop();
