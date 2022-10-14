@@ -43,47 +43,45 @@ namespace chimera::library::virtual_machine {
     evaluator->evaluate_get(asdlBool.values.front());
   }
   void GetEvaluator::evaluate(const asdl::Bin &bin) const {
-    auto begin = bin.values.begin();
-    ++begin;
     switch (bin.op) {
       case asdl::Operator::ADD:
-        evaluator->push(BinAddEvaluator{begin, bin.values.end()});
+        evaluator->push(BinAddEvaluator{bin.values});
         break;
       case asdl::Operator::SUB:
-        evaluator->push(BinSubEvaluator{begin, bin.values.end()});
+        evaluator->push(BinSubEvaluator{bin.values});
         break;
       case asdl::Operator::MULT:
-        evaluator->push(BinMultEvaluator{begin, bin.values.end()});
+        evaluator->push(BinMultEvaluator{bin.values});
         break;
       case asdl::Operator::MAT_MULT:
-        evaluator->push(BinMatMultEvaluator{begin, bin.values.end()});
+        evaluator->push(BinMatMultEvaluator{bin.values});
         break;
       case asdl::Operator::DIV:
-        evaluator->push(BinDivEvaluator{begin, bin.values.end()});
+        evaluator->push(BinDivEvaluator{bin.values});
         break;
       case asdl::Operator::MOD:
-        evaluator->push(BinModEvaluator{begin, bin.values.end()});
+        evaluator->push(BinModEvaluator{bin.values});
         break;
       case asdl::Operator::POW:
-        evaluator->push(BinPowEvaluator{begin, bin.values.end()});
+        evaluator->push(BinPowEvaluator{bin.values});
         break;
       case asdl::Operator::L_SHIFT:
-        evaluator->push(BinLShiftEvaluator{begin, bin.values.end()});
+        evaluator->push(BinLShiftEvaluator{bin.values});
         break;
       case asdl::Operator::R_SHIFT:
-        evaluator->push(BinRShiftEvaluator{begin, bin.values.end()});
+        evaluator->push(BinRShiftEvaluator{bin.values});
         break;
       case asdl::Operator::BIT_OR:
-        evaluator->push(BinBitOrEvaluator{begin, bin.values.end()});
+        evaluator->push(BinBitOrEvaluator{bin.values});
         break;
       case asdl::Operator::BIT_XOR:
-        evaluator->push(BinBitXorEvaluator{begin, bin.values.end()});
+        evaluator->push(BinBitXorEvaluator{bin.values});
         break;
       case asdl::Operator::BIT_AND:
-        evaluator->push(BinBitAndEvaluator{begin, bin.values.end()});
+        evaluator->push(BinBitAndEvaluator{bin.values});
         break;
       case asdl::Operator::FLOOR_DIV:
-        evaluator->push(BinFloorDivEvaluator{begin, bin.values.end()});
+        evaluator->push(BinFloorDivEvaluator{bin.values});
         break;
     }
     evaluator->evaluate_get(bin.values.front());
