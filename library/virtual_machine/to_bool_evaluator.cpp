@@ -25,23 +25,22 @@
 #include "virtual_machine/evaluator.hpp"
 
 namespace chimera::library::virtual_machine {
-  void ToBoolEvaluator::operator()(Evaluator *evaluatorA) const {
+  ToBoolEvaluator::ToBoolEvaluator(object::Object object)
+      : object(std::move(object)) {}
+  void ToBoolEvaluator::operator()(Evaluator *evaluator) const {
     if (std::holds_alternative<object::False>(object.value()) ||
         std::holds_alternative<object::None>(object.value())) {
-      evaluatorA->push(
-          PushStack{evaluatorA->builtins().get_attribute("False")});
+      evaluator->push(PushStack{evaluator->builtins().get_attribute("False")});
     } else if (std::holds_alternative<object::True>(object.value())) {
-      evaluatorA->push(PushStack{evaluatorA->builtins().get_attribute("True")});
+      evaluator->push(PushStack{evaluator->builtins().get_attribute("True")});
     } else {
-      evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->push(ToBoolEvaluator{evaluatorB->stack_top()});
-        evaluatorB->stack_pop();
+      evaluator->push([](Evaluator *evaluatorB) {
+        evaluatorB->push(ToBoolEvaluator{evaluatorB->stack_remove()});
       });
-      evaluatorA->push([](Evaluator *evaluatorB) {
-        evaluatorB->push(CallEvaluator{evaluatorB->stack_top(), {}, {}});
-        evaluatorB->stack_pop();
+      evaluator->push([](Evaluator *evaluatorB) {
+        evaluatorB->push(CallEvaluator{evaluatorB->stack_remove(), {}, {}});
       });
-      evaluatorA->get_attribute(object, "__bool__");
+      evaluator->get_attribute(object, "__bool__");
     }
   }
 } // namespace chimera::library::virtual_machine
