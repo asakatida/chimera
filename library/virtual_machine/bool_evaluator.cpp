@@ -26,31 +26,45 @@
 #include "virtual_machine/evaluator.hpp"
 
 namespace chimera::library::virtual_machine {
-  void BoolAndEvaluator::operator()(Evaluator *evaluatorA) const {
+  BoolAndEvaluator::BoolAndEvaluator(
+      const std::vector<asdl::ExprImpl> &exprs) noexcept
+      : begin(exprs.begin()), end(exprs.end()) {}
+  BoolAndEvaluator::BoolAndEvaluator(
+      const BoolAndEvaluator::Iterator &begin,
+      const BoolAndEvaluator::Iterator &end) noexcept
+      : begin(begin), end(end) {}
+  void BoolAndEvaluator::operator()(Evaluator *evaluator) const {
     if (begin != end) {
-      auto object = evaluatorA->stack_remove();
+      auto object = evaluator->stack_remove();
       if (object.get_bool()) {
-        evaluatorA->stack_pop();
+        evaluator->stack_pop();
         const auto &expr = *begin;
-        evaluatorA->push(BoolAndEvaluator{begin + 1, end});
-        evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluator->push(BoolAndEvaluator{begin + 1, end});
+        evaluator->push([](Evaluator *evaluatorB) {
           evaluatorB->push(ToBoolEvaluator{evaluatorB->stack_top()});
         });
-        evaluatorA->evaluate_get(expr);
+        evaluator->evaluate_get(expr);
       }
     }
   }
-  void BoolOrEvaluator::operator()(Evaluator *evaluatorA) const {
+  BoolOrEvaluator::BoolOrEvaluator(
+      const std::vector<asdl::ExprImpl> &exprs) noexcept
+      : begin(exprs.begin()), end(exprs.end()) {}
+  BoolOrEvaluator::BoolOrEvaluator(
+      const BoolOrEvaluator::Iterator &begin,
+      const BoolOrEvaluator::Iterator &end) noexcept
+      : begin(begin), end(end) {}
+  void BoolOrEvaluator::operator()(Evaluator *evaluator) const {
     if (begin != end) {
-      auto object = evaluatorA->stack_remove();
+      auto object = evaluator->stack_remove();
       if (!object.get_bool()) {
-        evaluatorA->stack_pop();
+        evaluator->stack_pop();
         const auto &expr = *begin;
-        evaluatorA->push(BoolOrEvaluator{begin + 1, end});
-        evaluatorA->push([](Evaluator *evaluatorB) {
+        evaluator->push(BoolOrEvaluator{begin + 1, end});
+        evaluator->push([](Evaluator *evaluatorB) {
           evaluatorB->push(ToBoolEvaluator{evaluatorB->stack_top()});
         });
-        evaluatorA->evaluate_get(expr);
+        evaluator->evaluate_get(expr);
       }
     }
   }
