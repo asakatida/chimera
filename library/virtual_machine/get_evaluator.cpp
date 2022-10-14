@@ -26,6 +26,8 @@
 #include "virtual_machine/evaluator.hpp"
 
 namespace chimera::library::virtual_machine {
+  GetEvaluator::GetEvaluator(Evaluator *evaluator) noexcept
+      : evaluator(evaluator) {}
   void GetEvaluator::evaluate(const asdl::Bool &asdlBool) const {
     auto begin = asdlBool.values.begin();
     ++begin;
