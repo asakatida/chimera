@@ -51,11 +51,19 @@ namespace chimera::library::asdl {
         value = std::make_shared<ValueT>(std::forward<Type>(type));
         return *this;
       }
+      template <typename Type,
+                typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
+      [[nodiscard]] auto get() const noexcept -> std::optional<const Type> {
+        if (auto *asdl = std::get_if<Type>(value.get()); asdl != nullptr) {
+          return *asdl;
+        }
+        return {};
+      }
       template <typename Type, typename Visitor,
                 typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
-      auto update_if(Visitor &&visitor) -> bool {
-        if (std::holds_alternative<Type>(*value)) {
-          *value = visitor(std::get<Type>(*value));
+      [[nodiscard]] auto update_if(Visitor &&visitor) -> bool {
+        if (auto *asdl = std::get_if<Type>(value.get()); asdl != nullptr) {
+          *value = visitor(*asdl);
           return true;
         }
         return false;
