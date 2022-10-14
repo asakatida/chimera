@@ -28,6 +28,8 @@
 #include "virtual_machine/evaluator.hpp"
 
 namespace chimera::library::virtual_machine {
+  DelEvaluator::DelEvaluator(Evaluator *evaluator) noexcept
+      : evaluator(evaluator) {}
   void DelEvaluator::evaluate(const asdl::Attribute &attribute) const {
     evaluator->push([&attribute](Evaluator *evaluatorA) {
       auto top = evaluatorA->stack_top();
