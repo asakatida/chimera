@@ -63,20 +63,23 @@ def conflicts_one(file: Path) -> None:
     file.unlink()
 
 
-def conflicts(fuzz: list[Path]) -> None:
+def conflicts(fuzz: Iterable[Path]) -> None:
     with ThreadPoolExecutor() as executor:
         set(
-            executor.map(
-                conflicts_one,
-                filter(
-                    lambda file: CONFLICT.search(file.read_bytes()),
-                    c_tqdm(fuzz, "Conflicts"),
+            c_tqdm(
+                executor.map(
+                    conflicts_one,
+                    filter(
+                        lambda file: CONFLICT.search(file.read_bytes()),
+                        fuzz,
+                    ),
                 ),
+                "Conflicts",
             )
         )
 
 
-def corpus_trim(fuzz: list[Path]) -> None:
+def corpus_trim(fuzz: Iterable[Path]) -> None:
     global LENGTH
     for file in c_tqdm(fuzz, "Corpus rehash"):
         src_sha = sha(file)
@@ -127,11 +130,9 @@ def fuzz_test(*args: str, timeout: int = 10) -> None:
     )
 
 
-def gather() -> list[Path]:
-    return list(
-        chain.from_iterable(
-            map(lambda directory: (FUZZ / directory).iterdir(), DIRECTORIES)
-        )
+def gather() -> Iterable[Path]:
+    return chain.from_iterable(
+        map(lambda directory: (FUZZ / directory).iterdir(), DIRECTORIES)
     )
 
 
@@ -152,7 +153,7 @@ def regression_one(file: Path) -> None:
             file.rename(CRASHES / file.name)
 
 
-def regression(fuzz: list[Path]) -> None:
+def regression(fuzz: Iterable[Path]) -> None:
     with ThreadPoolExecutor() as executor:
         set(
             c_tqdm(
@@ -174,9 +175,9 @@ def main() -> None:
         try:
             corpus_trim(gather())
         except Increment:
-            LENGTH += 1
             if LENGTH > 32:
                 raise
+            LENGTH += 1
             continue
         break
     regression(gather())
