@@ -28,6 +28,8 @@
 #include "virtual_machine/evaluator.hpp"
 
 namespace chimera::library::virtual_machine {
+  SetEvaluator::SetEvaluator(Evaluator *evaluator) noexcept
+      : evaluator(evaluator) {}
   void SetEvaluator::evaluate(const asdl::Attribute &attribute) const {
     evaluator->push([&attribute](Evaluator *evaluatorA) {
       auto object = evaluatorA->stack_remove();
