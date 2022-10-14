@@ -27,22 +27,27 @@
 
 #include "asdl/asdl.hpp"
 
-// NOLINTBEGIN(misc-non-private-member-variables-in-classes)
-
 namespace chimera::library::virtual_machine {
   struct Evaluator;
   struct BoolAndEvaluator {
+    explicit BoolAndEvaluator(
+        const std::vector<asdl::ExprImpl> &exprs) noexcept;
+    void operator()(Evaluator *evaluator) const;
+
+  private:
     using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
+    BoolAndEvaluator(const Iterator &begin, const Iterator &end) noexcept;
     Iterator begin;
     Iterator end;
-    void operator()(Evaluator *evaluatorA) const;
   };
   struct BoolOrEvaluator {
+    explicit BoolOrEvaluator(const std::vector<asdl::ExprImpl> &exprs) noexcept;
+    void operator()(Evaluator *evaluator) const;
+
+  private:
     using Iterator = std::vector<asdl::ExprImpl>::const_iterator;
+    BoolOrEvaluator(const Iterator &begin, const Iterator &end) noexcept;
     Iterator begin;
     Iterator end;
-    void operator()(Evaluator *evaluatorA) const;
   };
 } // namespace chimera::library::virtual_machine
-
-// NOLINTEND(misc-non-private-member-variables-in-classes)

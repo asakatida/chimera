@@ -29,14 +29,12 @@ namespace chimera::library::virtual_machine {
   GetEvaluator::GetEvaluator(Evaluator *evaluator) noexcept
       : evaluator(evaluator) {}
   void GetEvaluator::evaluate(const asdl::Bool &asdlBool) const {
-    auto begin = asdlBool.values.begin();
-    ++begin;
     switch (asdlBool.op) {
       case asdl::Bool::AND:
-        evaluator->push(BoolAndEvaluator{begin, asdlBool.values.end()});
+        evaluator->push(BoolAndEvaluator{asdlBool.values});
         break;
       case asdl::Bool::OR:
-        evaluator->push(BoolOrEvaluator{begin, asdlBool.values.end()});
+        evaluator->push(BoolOrEvaluator{asdlBool.values});
         break;
     }
     evaluator->push([](Evaluator *evaluatorA) {
