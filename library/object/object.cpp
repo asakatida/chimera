@@ -48,19 +48,11 @@ namespace chimera::library::object {
     }
     return keys;
   }
-  auto Object::get_attribute(std::string &&key) const -> Object {
-    try {
+  auto Object::get_attribute(const std::string &key) const -> const Object & {
+    if (object->attributes.contains(key)) {
       return object->attributes.at(key);
-    } catch (...) {
     }
-    return {};
-  }
-  auto Object::get_attribute(const std::string &key) const -> Object {
-    try {
-      return object->attributes.at(key);
-    } catch (...) {
-    }
-    return {};
+    throw AttributeError("object", key);
   }
   auto Object::has_attribute(std::string &&key) const noexcept -> bool {
     return object->attributes.count(key) != 0;
@@ -97,6 +89,13 @@ namespace chimera::library::object {
   auto BaseException::class_id() const noexcept -> Id {
     return exception.get_attribute("__class__"s).id();
   }
+  // NOLINTBEGIN(bugprone-throw-keyword-missing)
+  AttributeError::AttributeError(const std::string &type,
+                                 const std::string &key)
+      : BaseException(Object{"AttributeError: type object '" + type +
+                                 "' has no attribute '" + key + "'",
+                             {}}) {}
   KeyboardInterrupt::KeyboardInterrupt()
       : BaseException(Object(String(""), {})) {}
+  // NOLINTEND(bugprone-throw-keyword-missing)
 } // namespace chimera::library::object

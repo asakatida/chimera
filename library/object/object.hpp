@@ -74,8 +74,8 @@ namespace chimera::library::object {
     void delete_attribute(std::string &&key) noexcept;
     void delete_attribute(const std::string &key) noexcept;
     [[nodiscard]] auto dir() const -> std::vector<std::string>;
-    auto get_attribute(std::string &&key) const -> Object;
-    [[nodiscard]] auto get_attribute(const std::string &key) const -> Object;
+    [[nodiscard]] auto get_attribute(const std::string &key) const
+        -> const Object &;
     auto has_attribute(std::string &&key) const noexcept -> bool;
     [[nodiscard]] auto has_attribute(const std::string &key) const noexcept
         -> bool;
@@ -96,7 +96,7 @@ namespace chimera::library::object {
     };
     std::shared_ptr<Impl> object;
   };
-  class BaseException : std::exception {
+  class BaseException : virtual public std::exception {
   public:
     explicit BaseException(Object anException);
     BaseException(const BaseException &anException,
@@ -108,7 +108,11 @@ namespace chimera::library::object {
   private:
     Object exception;
   };
-  class KeyboardInterrupt final : BaseException {
+  class AttributeError final : virtual public BaseException {
+  public:
+    AttributeError(const std::string &type, const std::string &key);
+  };
+  class KeyboardInterrupt final : virtual public BaseException {
   public:
     KeyboardInterrupt();
   };
