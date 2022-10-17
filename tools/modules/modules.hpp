@@ -55,13 +55,9 @@ namespace chimera::library {
   };
   struct IncompleteTuple {
     explicit IncompleteTuple(PrintState *printer) : printer(printer) {}
-    auto operator()(const object::Tuple &tuple) const
-        -> std::optional<object::Object>;
+    void operator()(const object::Tuple &tuple);
     template <typename Type>
-    auto operator()(const Type & /*type*/) const
-        -> std::optional<object::Object> {
-      return {};
-    }
+    void operator()(const Type & /*type*/) const {}
 
   private:
     PrintState *printer;
@@ -222,18 +218,17 @@ namespace chimera::library {
     template <typename OStream>
     auto print(OStream &os, const Work &work) -> OStream & {
       auto baseName = std::string(work.base_name).append("_").append(work.name);
-      auto object = std::visit(IncompleteTuple(this), work.object.value());
-      while (object) {
-        print(os,
-              Work{this, *object, baseName, std::to_string(m_printed.size())});
-        object = std::visit(IncompleteTuple(this), work.object.value());
+      work.object.visit(IncompleteTuple(this));
+      while (tuple_want) {
+        print(os, Work{this, *tuple_want, baseName,
+                       std::to_string(m_printed.size())});
+        work.object.visit(IncompleteTuple(this));
       }
       if (is_printed(work.object)) {
         return os;
       }
       os << "object::Object " << baseName << "(";
-      std::visit([this, &os](auto &&value) { this->print(os, value); },
-                 work.object.value());
+      work.object.visit([this, &os](auto &&value) { this->print(os, value); });
       os << ",{";
       bool first = true;
       for (const auto &name : work.object.dir()) {
@@ -289,10 +284,12 @@ namespace chimera::library {
     }
 
   private:
+    friend IncompleteTuple;
     std::map<object::Id, object::Id> m_remap{};
     std::map<object::Id, std::string> m_printed{};
     std::priority_queue<Work, std::vector<Work>, Compare> queue{};
     std::map<object::Id, std::vector<SetAttribute>> wanted{};
+    std::optional<object::Object> tuple_want{};
     object::Object main;
   };
   struct Printer {

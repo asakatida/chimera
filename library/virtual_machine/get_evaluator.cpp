@@ -150,8 +150,7 @@ namespace chimera::library::virtual_machine {
     });
     evaluator->extend(call.args);
     evaluator->push([](Evaluator *evaluatorA) {
-      auto top = evaluatorA->stack_top().copy({});
-      evaluatorA->stack_pop();
+      auto top = evaluatorA->stack_remove();
       evaluatorA->enter_scope(top);
     });
     evaluator->evaluate_get(call.func);

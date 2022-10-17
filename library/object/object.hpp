@@ -26,6 +26,7 @@
 #include <future>
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -84,10 +85,19 @@ namespace chimera::library::object {
       object->attributes.insert_or_assign(std::forward<Args>(args)...);
     }
     [[nodiscard]] auto id() const noexcept -> Id;
-    [[nodiscard]] auto value() const noexcept -> const Value &;
-    auto copy(Value &&data) const -> Object;
+    template <typename Type>
+    [[nodiscard]] auto get() const -> std::optional<Type> {
+      if (std::holds_alternative<Type>(object->value)) {
+        return std::get<Type>(object->value);
+      }
+      return {};
+    }
     [[nodiscard]] auto get_bool() const noexcept -> bool;
     [[nodiscard]] auto use_count() const noexcept { return object.use_count(); }
+    template <typename Visitor>
+    void visit(Visitor &&visitor) const {
+      std::visit(std::forward<Visitor>(visitor), object->value);
+    }
 
   private:
     struct Impl {

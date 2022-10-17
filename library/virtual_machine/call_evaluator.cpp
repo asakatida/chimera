@@ -37,9 +37,9 @@ namespace chimera::library::virtual_machine {
     }
     void operator()(Evaluator *evaluator) const {
       auto object = evaluator->stack_remove();
-      std::visit(
-          [this, evaluator](auto &&value) { this->evaluate(evaluator, value); },
-          object.value());
+      object.visit([this, evaluator](auto &&value) {
+        this->evaluate(evaluator, value);
+      });
     }
   };
   CallEvaluator::CallEvaluator(object::Object object) noexcept
@@ -48,7 +48,7 @@ namespace chimera::library::virtual_machine {
                                object::Tuple args) noexcept
       : object(std::move(object)), args(std::move(args)) {}
   void CallEvaluator::operator()(Evaluator *evaluatorA) const {
-    if (std::holds_alternative<object::Instance>(object.value())) {
+    if (object.get<object::Instance>()) {
       evaluatorA->push([](Evaluator *evaluatorB) {
         std::ignore = evaluatorB->stack_remove();
       });

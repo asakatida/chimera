@@ -85,13 +85,12 @@ namespace chimera::library {
     }
     return a.base_name > b.base_name;
   }
-  auto IncompleteTuple::operator()(const object::Tuple &tuple) const
-      -> std::optional<object::Object> {
+  void IncompleteTuple::operator()(const object::Tuple &tuple) {
     for (const auto &object : tuple) {
       if (!printer->is_printed(object)) {
-        return {object};
+        printer->tuple_want = object;
+        return;
       }
     }
-    return {};
   }
 } // namespace chimera::library

@@ -32,6 +32,7 @@
 #include <gsl/gsl>
 
 #include "asdl/asdl.hpp"
+#include "builtins/builtins.hpp"
 #include "importlib/importlib.hpp"
 #include "marshal/marshal.hpp"
 #include "object/object.hpp"
@@ -51,8 +52,8 @@ namespace chimera::library::virtual_machine {
     return builtins_;
   }
   auto ProcessContext::make_module(std::string_view &&name) -> object::Object {
-    auto result = modules.try_emplace("builtins"s, builtins_);
-    auto module = result.first->second.copy({});
+    object::Object module;
+    modules::builtins(module);
     module.set_attribute(
         "__name__"s,
         object::Object(object::String(std::string(name)),
