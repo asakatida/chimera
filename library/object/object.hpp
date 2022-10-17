@@ -71,7 +71,11 @@ namespace chimera::library::object {
                      String, StringMethod, SysCall, True, Tuple, TupleMethod>;
     using Attributes = container::AtomicMap<std::string, Object>;
     Object();
-    Object(Value &&value, std::map<std::string, Object> &&attributes);
+    explicit Object(std::map<std::string, Object> &&attributes);
+    template <typename Type>
+    Object(Type &&value, std::map<std::string, Object> &&attributes)
+        : object(std::make_shared<Impl>(Impl{
+              std::forward<Type>(value), Attributes{std::move(attributes)}})) {}
     void delete_attribute(std::string &&key) noexcept;
     void delete_attribute(const std::string &key) noexcept;
     [[nodiscard]] auto dir() const -> std::vector<std::string>;
