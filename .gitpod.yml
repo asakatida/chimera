@@ -36,9 +36,6 @@ github:
 image: asakatida/chimera:latest
 tasks:
   - env:
-      CC: clang
-      CMAKE_BUILD_TYPE: Debug
-      CXX: clang++
       CXXFLAGS: >
         -fcoverage-mapping
         -fprofile-instr-generate
