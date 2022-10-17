@@ -79,6 +79,7 @@ add_library(
   library/object/number/sub.cpp
   library/object/number/xor.cpp
   library/object/object.cpp
+  library/object/reference.cpp
   library/virtual_machine/bin_evaluator.cpp
   library/virtual_machine/bool_evaluator.cpp
   library/virtual_machine/call_evaluator.cpp
