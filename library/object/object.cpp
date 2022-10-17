@@ -64,14 +64,6 @@ namespace chimera::library::object {
     using NumericLimits = std::numeric_limits<Id>;
     return std::hash<std::shared_ptr<Impl>>{}(object)&NumericLimits::max();
   }
-  auto Object::value() const noexcept -> const Object::Value & {
-    return object->value;
-  }
-  auto Object::copy(Value &&data) const -> Object {
-    auto read = object->attributes.read();
-    auto attributes = read.value;
-    return {std::move(data), std::move(attributes)};
-  }
   auto Object::get_bool() const noexcept -> bool {
     return std::holds_alternative<True>(object->value);
   }

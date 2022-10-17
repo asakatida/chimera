@@ -113,8 +113,8 @@ namespace chimera::library::virtual_machine {
       return get_attribute(object, object.get_attribute(getAttribute), name);
     }
     auto mro = object.get_attribute("__class__").get_attribute("__mro__");
-    if (std::holds_alternative<object::Tuple>(mro.value())) {
-      for (const auto &type : std::get<object::Tuple>(mro.value())) {
+    if (const auto tuple = mro.get<object::Tuple>()) {
+      for (const auto &type : *tuple) {
         if (type.has_attribute(getAttribute)) {
           return get_attribute(object, type.get_attribute(getAttribute), name);
         }
@@ -467,23 +467,21 @@ namespace chimera::library::virtual_machine {
   void Evaluator::get_attribute(const object::Object &object,
                                 const object::Object &getAttribute,
                                 const std::string &name) {
-    if (std::holds_alternative<object::ObjectMethod>(getAttribute.value())) {
-      if (std::get<object::ObjectMethod>(getAttribute.value()) ==
-          object::ObjectMethod::GETATTRIBUTE) {
-        if (getAttribute.get_attribute("__class__").id() == 0 /* method */) {
-          if (object.has_attribute(name)) {
-            return push(PushStack{object.get_attribute(name)});
-          }
-          auto mro = object.get_attribute("__class__").get_attribute("__mro__");
-          if (std::holds_alternative<object::Tuple>(mro.value())) {
-            for (const auto &type : std::get<object::Tuple>(mro.value())) {
-              if (type.has_attribute(name)) {
-                return push(PushStack{type.get_attribute(name)});
-              }
+    if (getAttribute.get<object::ObjectMethod>() ==
+        object::ObjectMethod::GETATTRIBUTE) {
+      if (getAttribute.get_attribute("__class__").id() == 0 /* method */) {
+        if (object.has_attribute(name)) {
+          return push(PushStack{object.get_attribute(name)});
+        }
+        auto mro = object.get_attribute("__class__").get_attribute("__mro__");
+        if (const auto tuple = mro.get<object::Tuple>()) {
+          for (const auto &type : *tuple) {
+            if (type.has_attribute(name)) {
+              return push(PushStack{type.get_attribute(name)});
             }
           }
-          return get_attr(object, name);
         }
+        return get_attr(object, name);
       }
     }
     push(CallEvaluator{
@@ -504,8 +502,8 @@ namespace chimera::library::virtual_machine {
       return push(PushStack{object.get_attribute("__getattr__")});
     }
     auto mro = object.get_attribute("__class__").get_attribute("__mro__");
-    if (std::holds_alternative<object::Tuple>(mro.value())) {
-      for (const auto &type : std::get<object::Tuple>(mro.value())) {
+    if (const auto tuple = mro.get<object::Tuple>()) {
+      for (const auto &type : *tuple) {
         if (type.has_attribute("__getattr__")) {
           return push(PushStack{type.get_attribute("__getattr__")});
         }
