@@ -83,7 +83,7 @@ namespace chimera::library::virtual_machine {
   auto ProcessContext::import_object(std::string_view &&name,
                                      std::string_view &&relativeModule)
       -> const object::Object & {
-    if (relativeModule.at(0) != '.') {
+    if (relativeModule.empty() || relativeModule.at(0) != '.') {
       return import_object(std::string_view{relativeModule});
     }
     auto parent = name;
