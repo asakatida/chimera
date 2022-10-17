@@ -35,7 +35,7 @@
 #include "object/number/repr.hpp"
 #include "object/object.hpp"
 #include "options.hpp"
-#include "virtual_machine/virtual_machine.hpp"
+#include "virtual_machine/global_context.hpp"
 
 namespace chimera::library {
   struct PrintState;

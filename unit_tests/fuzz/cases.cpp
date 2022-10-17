@@ -15,8 +15,9 @@
 #include "grammar/rules.hpp"
 #include "object/object.hpp"
 #include "options.hpp"
+#include "virtual_machine/global_context.hpp"
+#include "virtual_machine/process_context.hpp"
 #include "virtual_machine/thread_context.hpp"
-#include "virtual_machine/virtual_machine.hpp"
 
 namespace chimera::library {
   using NumericLimits = std::numeric_limits<std::uint16_t>;
@@ -68,8 +69,8 @@ namespace chimera::library {
   }
   auto fuzz_file_eval(std::istream &&in) -> int {
     auto options = fuzz_options();
-    const virtual_machine::VirtualMachine virtualMachine(options);
-    auto processContext = virtualMachine.process_context();
+    const virtual_machine::GlobalContext globalContext(options);
+    virtual_machine::ProcessContext processContext{globalContext};
     std::optional<asdl::Module> module;
     try {
       module = processContext.parse_file(std::move(in), "<fuzz>");

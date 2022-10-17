@@ -37,13 +37,14 @@
 #include "modules.hpp"
 #include "object/object.hpp"
 #include "options.hpp"
+#include "virtual_machine/global_context.hpp"
+#include "virtual_machine/process_context.hpp"
 #include "virtual_machine/thread_context.hpp"
-#include "virtual_machine/virtual_machine.hpp"
 
 namespace chimera::library {
   static void main() {
-    const virtual_machine::VirtualMachine virtualMachine({});
-    auto processContext = virtualMachine.process_context();
+    const virtual_machine::GlobalContext globalContext({});
+    virtual_machine::ProcessContext processContext{globalContext};
     auto module = processContext.parse_file(std::move(std::cin), "<input>");
     auto main = processContext.make_module("builtins");
     virtual_machine::ThreadContext threadContext{processContext, main};

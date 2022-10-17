@@ -28,7 +28,6 @@
 #include "options.hpp"
 
 namespace chimera::library::virtual_machine {
-  struct ProcessContext;
   struct GlobalContext {
     explicit GlobalContext(Options options);
     [[nodiscard]] auto debug() const -> bool;
@@ -38,7 +37,6 @@ namespace chimera::library::virtual_machine {
     [[nodiscard]] auto execute_script_input() const -> int;
     [[nodiscard]] auto execute_module() const -> int;
     [[nodiscard]] auto optimize() const -> const Optimize &;
-    [[nodiscard]] auto process_context() const -> ProcessContext;
     void process_interrupts() const;
     void sys_argv(const object::Object &module) const;
     [[nodiscard]] auto verbose_init() const -> const VerboseInit &;

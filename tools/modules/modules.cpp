@@ -38,7 +38,7 @@
 #include "asdl/asdl.hpp"
 #include "object/object.hpp"
 #include "options.hpp"
-#include "virtual_machine/virtual_machine.hpp"
+#include "virtual_machine/global_context.hpp"
 
 namespace chimera::library {
   auto PrintState::printed(const object::Object &object) -> std::string {

@@ -2,7 +2,8 @@
 #include "grammar/rules.hpp"
 #include "object/object.hpp"
 #include "options.hpp"
-#include "virtual_machine/virtual_machine.hpp"
+#include "virtual_machine/global_context.hpp"
+#include "virtual_machine/process_context.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 #include <tao/pegtl.hpp>
@@ -15,8 +16,8 @@ namespace chimera::library {
     Options options;
     options.chimera = "chimera";
     options.script = "unit_test.py";
-    const virtual_machine::VirtualMachine virtualMachine(options);
-    auto processContext = virtualMachine.process_context();
+    const virtual_machine::GlobalContext globalContext(options);
+    virtual_machine::ProcessContext processContext{globalContext};
     try {
       processContext.parse_file(data, "<unit_tests/virtual_machine/parse.cpp>");
     } catch (const tao::pegtl::parse_error &) {

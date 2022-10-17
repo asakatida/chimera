@@ -30,7 +30,7 @@
 #include "object/object.hpp"
 #include "options.hpp"
 #include "version.hpp"
-#include "virtual_machine/virtual_machine.hpp"
+#include "virtual_machine/global_context.hpp"
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
@@ -80,11 +80,11 @@ namespace chimera::library {
           if (*argChar != '-') {
             options.script = *arg;
             options.argv = forward_args(std::next(arg), args.end());
-            return virtual_machine::VirtualMachine(options).execute_script();
+            return virtual_machine::GlobalContext(options).execute_script();
           }
           if (argLen == 1) {
             options.argv = forward_args(std::next(arg), args.end());
-            return virtual_machine::VirtualMachine(options)
+            return virtual_machine::GlobalContext(options)
                 .execute_script_input();
           }
           ++argChar;
@@ -126,7 +126,7 @@ namespace chimera::library {
                   options.command = *arg;
                 }
                 options.argv = forward_args(std::next(arg), args.end());
-                return virtual_machine::VirtualMachine(options)
+                return virtual_machine::GlobalContext(options)
                     .execute_script_string();
               case 'd':
                 options.debug = true;
@@ -152,8 +152,7 @@ namespace chimera::library {
                   options.module_name = *arg;
                 }
                 options.argv = forward_args(std::next(arg), args.end());
-                return virtual_machine::VirtualMachine(options)
-                    .execute_module();
+                return virtual_machine::GlobalContext(options).execute_module();
               case 'O':
                 options.optimize = options.optimize == Optimize::NONE
                                        ? Optimize::BASIC
@@ -216,7 +215,7 @@ namespace chimera::library {
             }
           }
         }
-        return virtual_machine::VirtualMachine(options).interactive();
+        return virtual_machine::GlobalContext(options).interactive();
       } catch (const std::exception &error) {
         std::cerr << error.what() << std::endl;
         return 1;
