@@ -121,8 +121,8 @@ namespace chimera::library::virtual_machine {
       }
     }
     throw object::BaseException(object::Object(
-        {}, {{"__class__", builtins().get_attribute("AttributeError")},
-             {"__class__", builtins().get_attribute("AttributeError")}}));
+        {{"__class__", builtins().get_attribute("AttributeError")},
+         {"__class__", builtins().get_attribute("AttributeError")}}));
   }
   void Evaluator::evaluate() {
     while (scope) {
@@ -190,18 +190,18 @@ namespace chimera::library::virtual_machine {
       });
     }
     push(PushStack{object::Object(
-        {}, {{"__doc__", builtins().get_attribute("None")},
-             {"__name__",
-              object::Object(object::String(functionDef.name.value), {})},
-             {"__qualname__",
-              object::Object(object::String(functionDef.name.value), {})},
-             {"__module__", thread_context.body().get_attribute("__name__")},
-             {"__defaults__", builtins().get_attribute("None")},
-             {"__code__", object::Object({}, {})},
-             {"__globals__", thread_context.body()},
-             {"__closure__", self()},
-             {"__annotations__", {}},
-             {"__kwdefaults__", {}}})});
+        {{"__doc__", builtins().get_attribute("None")},
+         {"__name__",
+          object::Object(object::String(functionDef.name.value), {})},
+         {"__qualname__",
+          object::Object(object::String(functionDef.name.value), {})},
+         {"__module__", thread_context.body().get_attribute("__name__")},
+         {"__defaults__", builtins().get_attribute("None")},
+         {"__code__", {}},
+         {"__globals__", thread_context.body()},
+         {"__closure__", self()},
+         {"__annotations__", {}},
+         {"__kwdefaults__", {}}})});
   }
   void
   Evaluator::evaluate(const asdl::AsyncFunctionDef & /*async_function_def*/) {}
@@ -510,7 +510,7 @@ namespace chimera::library::virtual_machine {
       }
     }
     throw object::BaseException(object::Object(
-        {}, {{"__class__", builtins().get_attribute("AttributeError")},
-             {"__class__", builtins().get_attribute("AttributeError")}}));
+        {{"__class__", builtins().get_attribute("AttributeError")},
+         {"__class__", builtins().get_attribute("AttributeError")}}));
   }
 } // namespace chimera::library::virtual_machine
