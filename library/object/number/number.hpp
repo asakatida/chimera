@@ -126,9 +126,8 @@ namespace chimera::library::object::number {
       if constexpr (std::is_same_v<T, bool>) {
         return true;
       }
-      return std::visit(
-          [](const auto &n, const auto &d) { return T(n) / T(d); }, numerator,
-          denominator);
+      return std::visit([](auto &&n, auto &&d) { return T(n) / T(d); },
+                        numerator, denominator);
     }
   };
   using RealValue = std::variant<Base, Natural, Negative, Rational>;

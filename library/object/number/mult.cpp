@@ -116,19 +116,19 @@ namespace chimera::library::object::number {
     Expects(false);
   }
   auto operator*(const Negative &left, std::uint64_t right) -> Number {
-    return std::visit([right](const auto &value) { return -(value * right); },
+    return std::visit([right](auto &&value) { return -(value * right); },
                       left.value);
   }
   auto operator*(const Negative &left, Base right) -> Number {
     return left * right.value;
   }
   auto operator*(const Negative &left, const Natural &right) -> Number {
-    return std::visit([&right](const auto &value) { return -(value * right); },
+    return std::visit([&right](auto &&value) { return -(value * right); },
                       left.value);
   }
   auto operator*(const Negative &left, const Negative &right) -> Number {
-    return std::visit([](const auto &l, const auto &r) { return l * r; },
-                      left.value, right.value);
+    return std::visit([](auto &&l, auto &&r) { return l * r; }, left.value,
+                      right.value);
   }
   auto operator*(const Negative &left, const Rational &right) -> Number {
     return right * left;
@@ -142,7 +142,7 @@ namespace chimera::library::object::number {
   }
   auto operator*(const Rational &left, std::uint64_t right) -> Number {
     return std::visit(
-        [&right](const auto &lN, const auto &lD) { return (lN * right) / lD; },
+        [&right](auto &&lN, auto &&lD) { return (lN * right) / lD; },
         left.numerator, left.denominator);
   }
   auto operator*(const Rational &left, Base right) -> Number {
@@ -150,17 +150,17 @@ namespace chimera::library::object::number {
   }
   auto operator*(const Rational &left, const Natural &right) -> Number {
     return std::visit(
-        [&right](const auto &lN, const auto &lD) { return (lN * right) / lD; },
+        [&right](auto &&lN, auto &&lD) { return (lN * right) / lD; },
         left.numerator, left.denominator);
   }
   auto operator*(const Rational &left, const Negative &right) -> Number {
     return std::visit(
-        [&right](const auto &lN, const auto &lD) { return (lN * right) / lD; },
+        [&right](auto &&lN, auto &&lD) { return (lN * right) / lD; },
         left.numerator, left.denominator);
   }
   auto operator*(const Rational &left, const Rational &right) -> Number {
-    return std::visit([](const auto &lN, const auto &lD, const auto &rN,
-                         const auto &rD) { return (lN * rN) / (lD * rD); },
+    return std::visit([](auto &&lN, auto &&lD, auto &&rN,
+                         auto &&rD) { return (lN * rN) / (lD * rD); },
                       left.numerator, left.denominator, right.numerator,
                       right.denominator);
   }

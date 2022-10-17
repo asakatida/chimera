@@ -30,13 +30,13 @@ namespace chimera::library::object::number {
   template <typename Left>
   auto div(const Left &left, const Rational &right) -> Number {
     return std::visit(
-        [&left](const auto &rN, const auto &rD) { return (left * rD) / rN; },
+        [&left](auto &&rN, auto &&rD) { return (left * rD) / rN; },
         right.numerator, right.denominator);
   }
   template <typename Right>
   auto div(const Rational &left, const Right &right) -> Number {
     return std::visit(
-        [&right](const auto &lN, const auto &lD) { return lN / (lD * right); },
+        [&right](auto &&lN, auto &&lD) { return lN / (lD * right); },
         left.numerator, left.denominator);
   }
   auto operator/(std::uint64_t left, Base right) -> Number {
@@ -46,7 +46,7 @@ namespace chimera::library::object::number {
     return Number(Rational{Base{left}, right});
   }
   auto operator/(std::uint64_t left, const Negative &right) -> Number {
-    return std::visit([left](const auto &value) { return -(left / value); },
+    return std::visit([left](auto &&value) { return -(left / value); },
                       right.value);
   }
   auto operator/(std::uint64_t left, const Rational &right) -> Number {
@@ -68,7 +68,7 @@ namespace chimera::library::object::number {
     return Number(Rational{left, right});
   }
   auto operator/(Base left, const Negative &right) -> Number {
-    return std::visit([left](const auto &value) { return -(left / value); },
+    return std::visit([left](auto &&value) { return -(left / value); },
                       right.value);
   }
   auto operator/(Base left, const Rational &right) -> Number {
@@ -90,7 +90,7 @@ namespace chimera::library::object::number {
     return Number(Rational{left, right});
   }
   auto operator/(const Natural &left, const Negative &right) -> Number {
-    return std::visit([&left](const auto &value) { return -(left / value); },
+    return std::visit([&left](auto &&value) { return -(left / value); },
                       right.value);
   }
   auto operator/(const Natural &left, const Rational &right) -> Number {
@@ -104,24 +104,24 @@ namespace chimera::library::object::number {
     Expects(false);
   }
   auto operator/(const Negative &left, std::uint64_t right) -> Number {
-    return std::visit([right](const auto &value) { return -(value / right); },
+    return std::visit([right](auto &&value) { return -(value / right); },
                       left.value);
   }
   auto operator/(const Negative &left, Base right) -> Number {
-    return std::visit([right](const auto &value) { return -(value / right); },
+    return std::visit([right](auto &&value) { return -(value / right); },
                       left.value);
   }
   auto operator/(const Negative &left, const Natural &right) -> Number {
-    return std::visit([&right](const auto &value) { return -(value / right); },
+    return std::visit([&right](auto &&value) { return -(value / right); },
                       left.value);
   }
   auto operator/(const Negative &left, const Negative &right) -> Number {
-    return std::visit([](const auto &l, const auto &r) { return l / r; },
-                      left.value, right.value);
+    return std::visit([](auto &&l, auto &&r) { return l / r; }, left.value,
+                      right.value);
   }
   auto operator/(const Negative &left, const Rational &right) -> Number {
-    return std::visit(
-        [&right](const auto &value) { return -div(value, right); }, left.value);
+    return std::visit([&right](auto &&value) { return -div(value, right); },
+                      left.value);
   }
   auto operator/(const Negative & /*left*/, const Imag & /*right*/) -> Number {
     Expects(false);
@@ -143,8 +143,8 @@ namespace chimera::library::object::number {
     return div(left, right);
   }
   auto operator/(const Rational &left, const Rational &right) -> Number {
-    return std::visit([](const auto &lN, const auto &lD, const auto &rN,
-                         const auto &rD) { return (lN * rD) / (lD * rN); },
+    return std::visit([](auto &&lN, auto &&lD, auto &&rN,
+                         auto &&rD) { return (lN * rD) / (lD * rN); },
                       left.numerator, left.denominator, right.numerator,
                       right.denominator);
   }

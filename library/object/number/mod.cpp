@@ -37,7 +37,7 @@ namespace chimera::library::object::number {
   template <typename Left>
   auto mod(const Left &left, const Rational &right) -> Number {
     return std::visit(
-        [&left](const auto &rN, const auto &rD) {
+        [&left](auto &&rN, auto &&rD) {
           return left - rN * floor_div(left * rD, rN) / rD;
         },
         right.numerator, right.denominator);
@@ -45,7 +45,7 @@ namespace chimera::library::object::number {
   template <typename Right>
   auto mod(const Rational &left, const Right &right) -> Number {
     return std::visit(
-        [&left, &right](const auto &lN, const auto &lD) {
+        [&left, &right](auto &&lN, auto &&lD) {
           return left - right * floor_div(lN, lD * right);
         },
         left.numerator, left.denominator);
@@ -58,7 +58,7 @@ namespace chimera::library::object::number {
     return Number(left);
   }
   auto operator%(std::uint64_t left, const Negative &right) -> Number {
-    return std::visit([left](const auto &value) { return left % value; },
+    return std::visit([left](auto &&value) { return left % value; },
                       right.value);
   }
   auto operator%(std::uint64_t left, const Rational &right) -> Number {
@@ -117,7 +117,7 @@ namespace chimera::library::object::number {
     return a;
   }
   auto operator%(const Natural &left, const Negative &right) -> Number {
-    return std::visit([&left](const auto &value) { return left % value; },
+    return std::visit([&left](auto &&value) { return left % value; },
                       right.value);
   }
   auto operator%(const Natural &left, const Rational &right) -> Number {
@@ -131,19 +131,19 @@ namespace chimera::library::object::number {
     Expects(false);
   }
   auto operator%(const Negative &left, std::uint64_t right) -> Number {
-    return std::visit([right](const auto &value) { return -(value % right); },
+    return std::visit([right](auto &&value) { return -(value % right); },
                       left.value);
   }
   auto operator%(const Negative &left, Base right) -> Number {
     return left % right.value;
   }
   auto operator%(const Negative &left, const Natural &right) -> Number {
-    return std::visit([&right](const auto &value) { return -(value % right); },
+    return std::visit([&right](auto &&value) { return -(value % right); },
                       left.value);
   }
   auto operator%(const Negative &left, const Negative &right) -> Number {
-    return std::visit([](const auto &a, const auto &b) { return a % b; },
-                      left.value, right.value);
+    return std::visit([](auto &&a, auto &&b) { return a % b; }, left.value,
+                      right.value);
   }
   auto operator%(const Negative &left, const Rational &right) -> Number {
     return mod(left, right);
@@ -169,8 +169,7 @@ namespace chimera::library::object::number {
   }
   auto operator%(const Rational &left, const Rational &right) -> Number {
     return std::visit(
-        [&left](const auto &lN, const auto &lD, const auto &rN,
-                const auto &rD) {
+        [&left](auto &&lN, auto &&lD, auto &&rN, auto &&rD) {
           return left - rN * (lN * rD).floor_div(lD * rN) / rD;
         },
         left.numerator, left.denominator, right.numerator, right.denominator);

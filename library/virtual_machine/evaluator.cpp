@@ -95,19 +95,16 @@ namespace chimera::library::virtual_machine {
     stack.top() = object;
   }
   void Evaluator::evaluate(const asdl::StmtImpl &stmt) {
-    stmt.visit([this](const auto &value) { this->evaluate(value); });
+    stmt.visit([this](auto &&value) { this->evaluate(value); });
   }
   void Evaluator::evaluate_del(const asdl::ExprImpl &expr) {
-    expr.visit(
-        [this](const auto &value) { DelEvaluator{this}.evaluate(value); });
+    expr.visit([this](auto &&value) { DelEvaluator{this}.evaluate(value); });
   }
   void Evaluator::evaluate_get(const asdl::ExprImpl &expr) {
-    expr.visit(
-        [this](const auto &value) { GetEvaluator{this}.evaluate(value); });
+    expr.visit([this](auto &&value) { GetEvaluator{this}.evaluate(value); });
   }
   void Evaluator::evaluate_set(const asdl::ExprImpl &expr) {
-    expr.visit(
-        [this](const auto &value) { SetEvaluator{this}.evaluate(value); });
+    expr.visit([this](auto &&value) { SetEvaluator{this}.evaluate(value); });
   }
   void Evaluator::get_attribute(const object::Object &object,
                                 const std::string &name) {
@@ -131,7 +128,7 @@ namespace chimera::library::virtual_machine {
     while (scope) {
       thread_context.process_interrupts();
       //! where all defered work gets done
-      scope.visit([this](const auto &value) { value(this); });
+      scope.visit([this](auto &&value) { value(this); });
     }
   }
   void Evaluator::evaluate(const asdl::Module &module) {

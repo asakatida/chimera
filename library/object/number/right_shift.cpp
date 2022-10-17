@@ -39,7 +39,7 @@ namespace chimera::library::object::number {
     return Number(0U);
   }
   auto operator>>(std::uint64_t left, const Negative &right) -> Number {
-    return std::visit([left](const auto &value) { return left << value; },
+    return std::visit([left](auto &&value) { return left << value; },
                       right.value);
   }
   auto operator>>(std::uint64_t /*left*/, const Rational & /*right*/)
@@ -62,7 +62,7 @@ namespace chimera::library::object::number {
     return Number(0U);
   }
   auto operator>>(Base left, const Negative &right) -> Number {
-    return std::visit([left](const auto &value) { return left << value; },
+    return std::visit([left](auto &&value) { return left << value; },
                       right.value);
   }
   auto operator>>(Base /*left*/, const Rational & /*right*/) -> Number {
@@ -122,7 +122,7 @@ namespace chimera::library::object::number {
     return Number(std::move(value));
   }
   auto operator>>(const Natural &left, const Negative &right) -> Number {
-    return std::visit([&left](const auto &value) { return left << value; },
+    return std::visit([&left](auto &&value) { return left << value; },
                       right.value);
   }
   auto operator>>(const Natural & /*left*/, const Rational & /*right*/)
@@ -137,19 +137,19 @@ namespace chimera::library::object::number {
     Expects(false);
   }
   auto operator>>(const Negative &left, std::uint64_t right) -> Number {
-    return std::visit([right](const auto &value) { return -(value >> right); },
+    return std::visit([right](auto &&value) { return -(value >> right); },
                       left.value);
   }
   auto operator>>(const Negative &left, Base right) -> Number {
     return left >> right.value;
   }
   auto operator>>(const Negative &left, const Natural &right) -> Number {
-    return std::visit([&right](const auto &value) { return -(value >> right); },
+    return std::visit([&right](auto &&value) { return -(value >> right); },
                       left.value);
   }
   auto operator>>(const Negative &left, const Negative &right) -> Number {
-    return std::visit([](const auto &l, const auto &r) { return -(l << r); },
-                      left.value, right.value);
+    return std::visit([](auto &&l, auto &&r) { return -(l << r); }, left.value,
+                      right.value);
   }
   auto operator>>(const Negative & /*left*/, const Rational & /*right*/)
       -> Number {

@@ -26,13 +26,11 @@
 #include "object/number/util.hpp"
 
 #define LESS_LEFT_RATIONAL                                                     \
-  std::visit(                                                                  \
-      [&right](const auto &lN, const auto &lD) { return lN < (lD * right); },  \
-      left.numerator, left.denominator)
+  std::visit([&right](auto &&lN, auto &&lD) { return lN < (lD * right); },     \
+             left.numerator, left.denominator)
 #define LESS_RIGHT_RATIONAL                                                    \
-  std::visit(                                                                  \
-      [&left](const auto &rN, const auto &rD) { return (left * rD) < rN; },    \
-      right.numerator, right.denominator)
+  std::visit([&left](auto &&rN, auto &&rD) { return (left * rD) < rN; },       \
+             right.numerator, right.denominator)
 
 namespace chimera::library::object::number {
   auto operator<(std::uint64_t left, Base right) -> bool {
@@ -134,8 +132,8 @@ namespace chimera::library::object::number {
     return LESS_LEFT_RATIONAL;
   }
   auto operator<(const Rational &left, const Rational &right) -> bool {
-    return std::visit([](const auto &lN, const auto &lD, const auto &rN,
-                         const auto &rD) { return (lN * rD) < (lD * rN); },
+    return std::visit([](auto &&lN, auto &&lD, auto &&rN,
+                         auto &&rD) { return (lN * rD) < (lD * rN); },
                       left.numerator, left.denominator, right.numerator,
                       right.denominator);
   }

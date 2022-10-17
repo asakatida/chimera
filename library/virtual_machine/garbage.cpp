@@ -38,7 +38,7 @@ namespace chimera::library::virtual_machine {
     flag.test_and_set();
     FibonacciHeap<object::Object, Compare> garbage{};
     while (flag.test_and_set()) {
-      garbage.remove_if([](const auto &node) { return node.use_count() <= 1; });
+      garbage.remove_if([](auto &&node) { return node.use_count() <= 1; });
       FibonacciHeap<object::Object, Compare> moving{};
       {
         const std::lock_guard<std::mutex> lock(mutex);

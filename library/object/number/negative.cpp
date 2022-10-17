@@ -36,7 +36,7 @@ namespace chimera::library::object::number {
     return std::visit(Construct<Number>{}, Negative(negative).value);
   }
   auto operator-(const Rational &rational) -> Number {
-    return std::visit([](const auto &a, const auto &b) { return (-a) / b; },
+    return std::visit([](auto &&a, auto &&b) { return (-a) / b; },
                       rational.numerator, rational.denominator);
   }
   auto operator-(const Imag & /*imag*/) -> Number { Expects(false); }

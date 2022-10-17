@@ -38,17 +38,13 @@ namespace chimera::library::object::number {
   template <typename Left>
   auto div(const Left &left, const Rational &right) -> Number {
     return std::visit(
-        [&left](const auto &rN, const auto &rD) {
-          return floor_div(left * rD, rN);
-        },
+        [&left](auto &&rN, auto &&rD) { return floor_div(left * rD, rN); },
         right.numerator, right.denominator);
   }
   template <typename Right>
   auto div(const Rational &left, const Right &right) -> Number {
     return std::visit(
-        [&right](const auto &lN, const auto &lD) {
-          return floor_div(lN, lD * right);
-        },
+        [&right](auto &&lN, auto &&lD) { return floor_div(lN, lD * right); },
         left.numerator, left.denominator);
   }
   auto floor_div(std::uint64_t left, Base right) -> Number {
@@ -59,9 +55,8 @@ namespace chimera::library::object::number {
     return Number(0U);
   }
   auto floor_div(std::uint64_t left, const Negative &right) -> Number {
-    return std::visit(
-        [left](const auto &value) { return -floor_div(left, value); },
-        right.value);
+    return std::visit([left](auto &&value) { return -floor_div(left, value); },
+                      right.value);
   }
   auto floor_div(std::uint64_t left, const Rational &right) -> Number {
     return div(left, right);
@@ -126,7 +121,7 @@ namespace chimera::library::object::number {
     return b;
   }
   auto floor_div(const Natural &left, const Negative &right) -> Number {
-    return std::visit([&left](const auto &r) { return -floor_div(left, r); },
+    return std::visit([&left](auto &&r) { return -floor_div(left, r); },
                       right.value);
   }
   auto floor_div(const Natural &left, const Rational &right) -> Number {
@@ -141,21 +136,19 @@ namespace chimera::library::object::number {
   }
   auto floor_div(const Negative &left, std::uint64_t right) -> Number {
     return std::visit(
-        [right](const auto &value) { return -floor_div(value, right); },
-        left.value);
+        [right](auto &&value) { return -floor_div(value, right); }, left.value);
   }
   auto floor_div(const Negative &left, Base right) -> Number {
     return floor_div(left, right.value);
   }
   auto floor_div(const Negative &left, const Natural &right) -> Number {
     return std::visit(
-        [&right](const auto &value) { return -floor_div(value, right); },
+        [&right](auto &&value) { return -floor_div(value, right); },
         left.value);
   }
   auto floor_div(const Negative &left, const Negative &right) -> Number {
-    return std::visit(
-        [](const auto &l, const auto &r) { return floor_div(l, r); },
-        left.value, right.value);
+    return std::visit([](auto &&l, auto &&r) { return floor_div(l, r); },
+                      left.value, right.value);
   }
   auto floor_div(const Negative &left, const Rational &right) -> Number {
     return div(left, right);
@@ -180,11 +173,10 @@ namespace chimera::library::object::number {
     return div(left, right);
   }
   auto floor_div(const Rational &left, const Rational &right) -> Number {
-    return std::visit(
-        [](const auto &lN, const auto &lD, const auto &rN, const auto &rD) {
-          return (lN * rD).floor_div(lD * rN);
-        },
-        left.numerator, left.denominator, right.numerator, right.denominator);
+    return std::visit([](auto &&lN, auto &&lD, auto &&rN,
+                         auto &&rD) { return (lN * rD).floor_div(lD * rN); },
+                      left.numerator, left.denominator, right.numerator,
+                      right.denominator);
   }
   auto floor_div(const Rational & /*left*/, const Imag & /*right*/) -> Number {
     Expects(false);
