@@ -229,7 +229,7 @@ namespace chimera::library {
       }
       os << "object::Object " << baseName << "(";
       work.object.visit([this, &os](auto &&value) { this->print(os, value); });
-      os << ",{";
+      os << "{";
       bool first = true;
       for (const auto &name : work.object.dir()) {
         if (!first) {
