@@ -30,9 +30,9 @@
 
 #include "object/object.hpp"
 #include "version.hpp"
+#include "virtual_machine/global_context.hpp"
 #include "virtual_machine/process_context.hpp"
 #include "virtual_machine/thread_context.hpp"
-#include "virtual_machine/virtual_machine.hpp"
 
 using namespace std::literals;
 
@@ -57,7 +57,7 @@ namespace chimera::library::virtual_machine {
                    "for more information."
                 << std::endl;
     }
-    auto processContext = process_context();
+    ProcessContext processContext{*this};
     auto main = processContext.make_module("__main__");
     while (!std::cin.eof()) {
       std::cout << ">>> ";
@@ -69,28 +69,28 @@ namespace chimera::library::virtual_machine {
   }
   auto GlobalContext::execute_script() const -> int {
     std::ifstream input(options.script);
-    auto processContext = process_context();
+    ProcessContext processContext{*this};
     auto module = processContext.parse_file(std::move(input), options.script);
     auto main = processContext.make_module("__main__");
     ThreadContext(processContext, main).evaluate(module);
     return 0;
   }
   auto GlobalContext::execute_script_string() const -> int {
-    auto processContext = process_context();
+    ProcessContext processContext{*this};
     auto module = processContext.parse_file(options.command, "<string>");
     auto main = processContext.make_module("__main__");
     ThreadContext(processContext, main).evaluate(module);
     return 0;
   }
   auto GlobalContext::execute_script_input() const -> int {
-    auto processContext = process_context();
+    ProcessContext processContext{*this};
     auto module = processContext.parse_file(std::move(std::cin), "<input>");
     auto main = processContext.make_module("__main__");
     ThreadContext(processContext, main).evaluate(module);
     return 0;
   }
   auto GlobalContext::execute_module() const -> int {
-    auto processContext = process_context();
+    ProcessContext processContext{*this};
     auto module = processContext.import_module(options.module_name);
     auto main = processContext.make_module("__main__");
     ThreadContext(processContext, main).evaluate(module);
@@ -98,9 +98,6 @@ namespace chimera::library::virtual_machine {
   }
   auto GlobalContext::optimize() const -> const Optimize & {
     return options.optimize;
-  }
-  auto GlobalContext::process_context() const -> ProcessContext {
-    return ProcessContext(*this);
   }
   void GlobalContext::process_interrupts() const {
     if (!std::atomic_flag_test_and_set(sig_int)) {

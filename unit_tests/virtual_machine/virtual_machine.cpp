@@ -1,4 +1,4 @@
-#include "virtual_machine/virtual_machine.hpp"
+#include "virtual_machine/global_context.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -12,9 +12,10 @@ TEST_CASE("grammar VirtualMachine ()") {
     chimera::library::Options options;
     options.chimera = "chimera";
     options.script = "test.py";
-    const chimera::library::virtual_machine::VirtualMachine virtualMachine(
+    const chimera::library::virtual_machine::GlobalContext globalContext(
         options);
-    auto processContext = virtualMachine.process_context();
+    chimera::library::virtual_machine::ProcessContext processContext{
+        globalContext};
     auto module = processContext.parse_file(""sv, "<test>");
     chimera::library::virtual_machine::ThreadContext threadContext{
         processContext, processContext.make_module("__main__")};
@@ -27,9 +28,9 @@ TEST_CASE("grammar VirtualMachine (type)") {
   chimera::library::Options options;
   options.chimera = "chimera";
   options.script = "test.py";
-  const chimera::library::virtual_machine::VirtualMachine virtualMachine(
-      options);
-  auto processContext = virtualMachine.process_context();
+  const chimera::library::virtual_machine::GlobalContext globalContext(options);
+  chimera::library::virtual_machine::ProcessContext processContext{
+      globalContext};
   auto module = processContext.parse_file("type"sv, "<test>");
   chimera::library::virtual_machine::ThreadContext threadContext{
       processContext, processContext.make_module("__main__")};
@@ -41,9 +42,9 @@ TEST_CASE("grammar VirtualMachine (a@b=c)") {
   chimera::library::Options options;
   options.chimera = "chimera";
   options.script = "test.py";
-  const chimera::library::virtual_machine::VirtualMachine virtualMachine(
-      options);
-  auto processContext = virtualMachine.process_context();
+  const chimera::library::virtual_machine::GlobalContext globalContext(options);
+  chimera::library::virtual_machine::ProcessContext processContext{
+      globalContext};
   auto module = processContext.parse_file("a@b=c"sv, "<test>");
   chimera::library::virtual_machine::ThreadContext threadContext{
       processContext, processContext.make_module("__main__")};

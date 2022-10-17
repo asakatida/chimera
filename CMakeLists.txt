@@ -96,7 +96,6 @@ add_library(
   library/virtual_machine/to_bool_evaluator.cpp
   library/virtual_machine/tuple_evaluator.cpp
   library/virtual_machine/unary_evaluator.cpp
-  library/virtual_machine/virtual_machine.cpp
   library/options.cpp
   library/version.cpp
   stdlib/builtins/builtins.cpp
