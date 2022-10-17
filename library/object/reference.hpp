@@ -49,17 +49,19 @@ namespace chimera::library::object {
       using RawPointer = std::add_pointer_t<Type>;
       BaseReference() = default;
       template <typename... Args>
-      BaseReference(Args &&...args)
+      explicit BaseReference(Args &&...args)
           : pointer(std::make_shared<Type>(std::forward<Args>(args)...)) {}
       template <
           template <typename...> class InterPointer, typename InterType,
           typename = EnableIfMismatch<Pointer<Type>, InterPointer<InterType>>>
-      BaseReference(const BaseReference<InterPointer, InterType> &other)
+      explicit BaseReference(
+          const BaseReference<InterPointer, InterType> &other)
           : pointer(other.pointer) {}
       template <
           template <typename...> class InterPointer, typename InterType,
           typename = EnableIfMismatch<Pointer<Type>, InterPointer<InterType>>>
-      BaseReference(BaseReference<InterPointer, InterType> &&other) noexcept
+      explicit BaseReference(
+          BaseReference<InterPointer, InterType> &&other) noexcept
           : pointer(std::move(other.pointer)) {}
       template <template <typename...> class InterPointer, typename InterType>
       auto operator=(const BaseReference<InterPointer, InterType> &other)
