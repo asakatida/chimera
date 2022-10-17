@@ -80,3 +80,6 @@ tools/lint.sh
 python3 tools/supported_distros.py
 
 ansible-playbook tools/docker.yml
+
+tools/ninja.sh build/debug
+tools/ninja.sh build/release
