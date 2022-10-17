@@ -178,7 +178,7 @@ namespace chimera::library::grammar {
         std::string string;
         if (tao::pegtl::unescape::utf8_append_utf32(
                 string, std::accumulate(in.begin(), in.end(), std::uint32_t(0),
-                                        [](const auto init, const auto c) {
+                                        [](auto &&init, auto &&c) {
                                           return (init << 2U) |
                                                  gsl::narrow<std::uint32_t>(
                                                      c - '0');

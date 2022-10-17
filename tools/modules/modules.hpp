@@ -232,7 +232,7 @@ namespace chimera::library {
         return os;
       }
       os << "object::Object " << baseName << "(";
-      std::visit([this, &os](const auto &value) { this->print(os, value); },
+      std::visit([this, &os](auto &&value) { this->print(os, value); },
                  work.object.value());
       os << ",{";
       bool first = true;

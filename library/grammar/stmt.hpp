@@ -356,17 +356,17 @@ namespace chimera::library::grammar {
         std::vector<asdl::Name> identifiers;
         identifiers.reserve(size());
         transform<asdl::Name>(std::back_inserter(identifiers));
-        outer.push(
-            std::accumulate(identifiers.begin(), identifiers.end(),
-                            asdl::Name{}, [](const auto &ida, const auto &idb) {
-                              auto id = ida.value;
-                              id.reserve(id.size() + idb.value.size() + 1);
-                              if (!id.empty()) {
-                                id.append(1, '.');
-                              }
-                              id.append(idb.value);
-                              return asdl::Name{id};
-                            }));
+        outer.push(std::accumulate(identifiers.begin(), identifiers.end(),
+                                   asdl::Name{}, [](auto &&ida, auto &&idb) {
+                                     auto id = ida.value;
+                                     id.reserve(id.size() + idb.value.size() +
+                                                1);
+                                     if (!id.empty()) {
+                                       id.append(1, '.');
+                                     }
+                                     id.append(idb.value);
+                                     return asdl::Name{id};
+                                   }));
       }
     };
   };

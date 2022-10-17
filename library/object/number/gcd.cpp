@@ -39,14 +39,14 @@ namespace chimera::library::object::number {
   template <typename Left>
   auto div(const Left &left, const Rational &right) -> Number {
     return std::visit(
-        [&left](const auto &rN, const auto &rD) { return gcd(left * rD, rN); },
+        [&left](auto &&rN, auto &&rD) { return gcd(left * rD, rN); },
         right.numerator, right.denominator);
   }
   template <typename Right>
   auto div(const Rational &left, const Right &right) -> Number {
-    return std::visit([&right](const auto &lN,
-                               const auto &lD) { return gcd(lN, lD * right); },
-                      left.numerator, left.denominator);
+    return std::visit(
+        [&right](auto &&lN, auto &&lD) { return gcd(lN, lD * right); },
+        left.numerator, left.denominator);
   }
   auto gcd(std::uint64_t left, Base right) -> Number {
     Number aPrime(left);
@@ -62,7 +62,7 @@ namespace chimera::library::object::number {
     return gcd(right, left);
   }
   auto gcd(std::uint64_t left, const Negative &right) -> Number {
-    return std::visit([left](const auto &value) { return -gcd(left, value); },
+    return std::visit([left](auto &&value) { return -gcd(left, value); },
                       right.value);
   }
   auto gcd(std::uint64_t left, const Rational &right) -> Number {
@@ -119,8 +119,7 @@ namespace chimera::library::object::number {
     return aPrime;
   }
   auto gcd(const Natural &left, const Negative &right) -> Number {
-    return std::visit([&left](const auto &r) { return -gcd(left, r); },
-                      right.value);
+    return std::visit([&left](auto &&r) { return -gcd(left, r); }, right.value);
   }
   auto gcd(const Natural &left, const Rational &right) -> Number {
     return div(left, right);
@@ -132,19 +131,19 @@ namespace chimera::library::object::number {
     Expects(false);
   }
   auto gcd(const Negative &left, std::uint64_t right) -> Number {
-    return std::visit([right](const auto &value) { return -gcd(value, right); },
+    return std::visit([right](auto &&value) { return -gcd(value, right); },
                       left.value);
   }
   auto gcd(const Negative &left, Base right) -> Number {
     return gcd(left, right.value);
   }
   auto gcd(const Negative &left, const Natural &right) -> Number {
-    return std::visit(
-        [&right](const auto &value) { return -gcd(value, right); }, left.value);
+    return std::visit([&right](auto &&value) { return -gcd(value, right); },
+                      left.value);
   }
   auto gcd(const Negative &left, const Negative &right) -> Number {
-    return std::visit([](const auto &l, const auto &r) { return gcd(l, r); },
-                      left.value, right.value);
+    return std::visit([](auto &&l, auto &&r) { return gcd(l, r); }, left.value,
+                      right.value);
   }
   auto gcd(const Negative &left, const Rational &right) -> Number {
     return div(left, right);
@@ -168,8 +167,8 @@ namespace chimera::library::object::number {
     return div(left, right);
   }
   auto gcd(const Rational &left, const Rational &right) -> Number {
-    return std::visit([](const auto &lN, const auto &lD, const auto &rN,
-                         const auto &rD) { return (lN * rD).gcd(lD * rN); },
+    return std::visit([](auto &&lN, auto &&lD, auto &&rN,
+                         auto &&rD) { return (lN * rD).gcd(lD * rN); },
                       left.numerator, left.denominator, right.numerator,
                       right.denominator);
   }

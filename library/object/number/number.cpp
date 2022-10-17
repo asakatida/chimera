@@ -150,18 +150,15 @@ namespace chimera::library::object::number {
     return *this;
   }
   auto Number::operator^=(const Number &right) -> Number & {
-    *this = visit(right,
-                  [](const auto &a, const auto &b) { return Number(a ^ b); });
+    *this = visit(right, [](auto &&a, auto &&b) { return Number(a ^ b); });
     return *this;
   }
   auto Number::operator<<=(const Number &right) -> Number & {
-    *this = visit(right,
-                  [](const auto &a, const auto &b) { return Number(a << b); });
+    *this = visit(right, [](auto &&a, auto &&b) { return Number(a << b); });
     return *this;
   }
   auto Number::operator>>=(const Number &right) -> Number & {
-    *this = visit(right,
-                  [](const auto &a, const auto &b) { return Number(a >> b); });
+    *this = visit(right, [](auto &&a, auto &&b) { return Number(a >> b); });
     return *this;
   }
   auto Number::operator==(const Number &right) const -> bool {
@@ -172,12 +169,13 @@ namespace chimera::library::object::number {
     return std::visit(std::less<>{}, value, right.value);
   }
   auto Number::floor_div(const Number &right) const -> Number {
-    return visit(
-        right, [](auto a, auto b) { return Number(number::floor_div(a, b)); });
+    return visit(right, [](auto &&a, auto &&b) {
+      return Number(number::floor_div(a, b));
+    });
   }
   auto Number::gcd(const Number &right) const -> Number {
     return visit(right,
-                 [](auto a, auto b) { return Number(number::gcd(a, b)); });
+                 [](auto &&a, auto &&b) { return Number(number::gcd(a, b)); });
   }
   auto Number::pow(const Number &right) -> Number { return right; }
   auto Number::pow(const Number &y, const Number & /*z*/) -> Number {
