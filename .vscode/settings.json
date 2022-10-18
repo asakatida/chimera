@@ -83,7 +83,8 @@
         "typeindex": "cpp",
         "utility": "cpp",
         "pointers": "cpp",
-        "assert": "cpp"
+        "assert": "cpp",
+        "ranges": "cpp"
     },
     "git.ignoreLimitWarning": true
 }

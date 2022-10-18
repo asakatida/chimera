@@ -24,7 +24,7 @@ jobs:
       - name: Cache cmake
         uses: actions/cache@v3.0.11
         with:
-          key: build-${{ hashFiles('CMakeLists.txt') }}-${{ env.CLANG_VERSION }}-v2
+          key: build-${{ hashFiles('CMakeLists.txt') }}-${{ env.CLANG_VERSION }}-v3
           path: build
       - name: Cache python
         uses: actions/cache@v3.0.11

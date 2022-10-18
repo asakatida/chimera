@@ -39,7 +39,8 @@ namespace chimera::library::virtual_machine::modules {
     object::Object builtinsTrue(object::True{},
                                 {{"__class__", {/*set below*/}}});
     builtins.set_attribute("True"s, builtinsTrue);
-    object::Object builtinsClass({{"__class__", {/*set below*/}}});
+    object::Object builtinsClass(
+        {{"__class__", {/*set below*/}}, {"__module__", builtins}});
     builtins.set_attribute("__class__"s, builtinsClass);
     object::Object builtinsName(object::String("builtins"s),
                                 {{"__class__", {/*set below*/}}});

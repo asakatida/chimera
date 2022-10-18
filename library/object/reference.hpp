@@ -91,6 +91,8 @@ namespace chimera::library::object {
       auto operator->() const noexcept -> RawPointer {
         return CopyReference<Pointer<Type>>{}(pointer).get();
       }
+
+    private:
       Pointer<Type> pointer;
     };
   } // namespace internal
