@@ -35,6 +35,11 @@ namespace chimera::library::virtual_machine {
             typename Allocator = std::allocator<Key>>
   struct FibonacciHeap {
     FibonacciHeap() noexcept = default;
+    template <typename Type>
+    explicit FibonacciHeap(Type &&key) {
+      Node node{std::forward<Type>(key)};
+      min = &node;
+    }
     FibonacciHeap(const FibonacciHeap &fibonacciHeap) = delete;
     FibonacciHeap(FibonacciHeap &&fibonacciHeap) noexcept = default;
     ~FibonacciHeap() noexcept {
@@ -71,13 +76,13 @@ namespace chimera::library::virtual_machine {
         min = (x->left = std::move(x)).get_left();
         min->right = min;
         ++n;
-        return min->key;
+        return;
       }
       if (x < min) {
         min = (x->left = std::move(x)).get_left();
         min->right = min;
         ++n;
-        return min->key;
+        return;
       }
       x->left = std::move(min->left);
       x->left->right = x.get();
@@ -89,6 +94,9 @@ namespace chimera::library::virtual_machine {
     void remove_if(Predicate && /*predicate*/) {}
     //! Internal node structure
     struct Node {
+      Node() = default;
+      template <typename Type>
+      explicit Node(Type &&key) : key(std::forward<Type>(key)) {}
       Node(const Node &node) = delete;
       Node(Node &&node) noexcept = default;
       ~Node() noexcept {
