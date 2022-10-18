@@ -39,9 +39,7 @@ jobs:
           CC: /usr/bin/clang-${{ env.CLANG_VERSION }}
           CXX: /usr/bin/clang++-${{ env.CLANG_VERSION }}
         name: Configure CMake
-        run: >
-          git -C external/Catch/ apply ${{ github.workspace }}/patches/Catch &&
-          cmake -B build -S .
+        run: cmake -B build -S .
         working-directory: ${{ github.workspace }}
       - if: matrix.lints
         name: Lint c++ code

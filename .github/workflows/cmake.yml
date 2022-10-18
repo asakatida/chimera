@@ -47,9 +47,7 @@ jobs:
           CC: /usr/bin/clang-${{ env.CLANG_VERSION }}
           CXX: /usr/bin/clang++-${{ env.CLANG_VERSION }}
         name: Configure CMake
-        run: >
-          git -C external/Catch/ apply ${{ github.workspace }}/patches/Catch &&
-          cmake -GNinja -B build -S .
+        run: cmake -GNinja -B build -S .
         working-directory: ${{ github.workspace }}
       - name: Run regression
         run: tools/ninja.sh build regression
@@ -98,7 +96,6 @@ jobs:
           sudo apt-get install -y ninja-build
       - name: Scan Build
         run: >
-          git -C external/Catch/ apply ${{ github.workspace }}/patches/Catch &&
           CXXFLAGS=''
           scan-build-${{ env.CLANG_VERSION }}
           --use-cc /usr/bin/clang-${{ env.CLANG_VERSION }}
