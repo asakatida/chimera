@@ -59,13 +59,13 @@ jobs:
       matrix:
         lints:
           - false
-          - bugprone-*,-bugprone-easily-swappable-parameters,-bugprone-exception-escape
+          - bugprone-*,bugprone-use-after-move,-bugprone-easily-swappable-parameters,-bugprone-exception-escape
           - cert-*
           - clang-*
           - concurrency-*
           - cppcoreguidelines-*
-          - hicpp-*
-          - misc-*,-misc-confusable-identifiers,-misc-no-recursion
+          - hicpp-*,hicpp-invalid-access-moved
+          - misc-*,misc-const-correctness,-misc-confusable-identifiers,-misc-no-recursion
           - misc-confusable-identifiers
           - modernize-*
           - performance-*
