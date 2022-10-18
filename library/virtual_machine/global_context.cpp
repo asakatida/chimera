@@ -30,7 +30,6 @@
 
 #include "object/object.hpp"
 #include "version.hpp"
-#include "virtual_machine/global_context.hpp"
 #include "virtual_machine/process_context.hpp"
 #include "virtual_machine/thread_context.hpp"
 
