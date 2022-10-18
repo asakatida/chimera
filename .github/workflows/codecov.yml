@@ -37,10 +37,7 @@ jobs:
           CC: /usr/bin/clang-${{ env.CLANG_VERSION }}
           CXX: /usr/bin/clang++-${{ env.CLANG_VERSION }}
         name: Configure CMake
-        run: >
-          git -C external/Catch/ apply ${{ github.workspace }}/patches/Catch &&
-          rm -f build/CMakeCache.txt &&
-          cmake -GNinja -B build -S .
+        run: cmake -GNinja -B build -S .
         working-directory: ${{github.workspace}}
       - env:
           CC: /usr/bin/clang-${{ env.CLANG_VERSION }}
