@@ -16,7 +16,7 @@ jobs:
       - name: Cache
         uses: actions/cache@v3.0.11
         with:
-          key: codecov-${{ hashFiles('CMakeLists.txt') }}-v1
+          key: codeql-${{ hashFiles('CMakeLists.txt') }}-v1
           path: |
             cmake_install.cmake
             CMakeCache.txt

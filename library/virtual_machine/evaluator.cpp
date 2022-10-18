@@ -120,7 +120,7 @@ namespace chimera::library::virtual_machine {
         }
       }
     }
-    object::Object exception(
+    const object::Object exception(
         {{"__class__", builtins().get_attribute("AttributeError")},
          {"__class__", builtins().get_attribute("AttributeError")}});
     throw object::BaseException(exception);
@@ -510,7 +510,7 @@ namespace chimera::library::virtual_machine {
         }
       }
     }
-    object::Object exception(
+    const object::Object exception(
         {{"__class__", builtins().get_attribute("AttributeError")},
          {"__class__", builtins().get_attribute("AttributeError")}});
     throw object::BaseException(exception);

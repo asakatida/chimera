@@ -76,19 +76,20 @@ namespace chimera::library::virtual_machine {
         min = (x->left = std::move(x)).get_left();
         min->right = min;
         ++n;
-        return;
+        return min->key;
       }
       if (x < min) {
         min = (x->left = std::move(x)).get_left();
         min->right = min;
         ++n;
-        return;
+        return min->key;
       }
       x->left = std::move(min->left);
       x->left->right = x.get();
       x->right = min;
       min->left = std::move(x);
       ++n;
+      return min->key;
     }
     template <typename Predicate>
     void remove_if(Predicate && /*predicate*/) {}
