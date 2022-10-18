@@ -52,13 +52,16 @@ namespace chimera::library::virtual_machine {
     return builtins_;
   }
   auto ProcessContext::make_module(std::string_view &&name) -> object::Object {
-    object::Object module;
-    modules::builtins(module);
-    module.set_attribute(
-        "__name__"s,
-        object::Object(object::String(std::string(name)),
-                       {{"__class__"s, module.get_attribute("str"s)}}));
-    return module;
+    auto result = modules.try_emplace(std::string(name));
+    if (result.second) {
+      modules::builtins(result.first->second);
+      result.first->second.set_attribute(
+          "__name__"s,
+          object::Object(
+              object::String(std::string(name)),
+              {{"__class__"s, result.first->second.get_attribute("str"s)}}));
+    }
+    return result.first->second;
   }
   auto ProcessContext::import_module(std::string &&module)
       -> const asdl::Module & {
@@ -101,33 +104,31 @@ namespace chimera::library::virtual_machine {
   }
   auto ProcessContext::import_object(std::string_view &&module)
       -> const object::Object & {
-    auto result = modules.try_emplace(std::string(module),
-                                      make_module(std::string_view{module}));
-    if (result.second) {
+    if (!modules.contains(std::string(module))) {
+      auto result = make_module(std::string_view{module});
       auto index = module.find_last_of('.');
       if (index < module.size()) {
-        result.first->second = import_object(module.substr(0, index));
-        result.first->second.set_attribute(
-            std::string(module.substr(index + 1)), result.first->second);
+        result = import_object(module.substr(0, index));
+        result.set_attribute(std::string(module.substr(index + 1)), result);
       }
       try {
         auto importModule = import_module(std::string(module));
-        ThreadContext{*this, result.first->second}.evaluate(importModule);
+        ThreadContext{*this, result}.evaluate(importModule);
       } catch (const std::exception &) {
         if (module == "importlib"sv) {
-          modules::importlib(result.first->second);
+          modules::importlib(result);
         } else if (module == "marshal"sv) {
-          modules::marshal(result.first->second);
+          modules::marshal(result);
         } else if (module == "sys"sv) {
-          modules::sys(result.first->second);
-          global_context.sys_argv(result.first->second);
+          modules::sys(result);
+          global_context.sys_argv(result);
         } else {
           throw std::runtime_error(
               "no module "s.append(module).append(" found"sv));
         }
       }
     }
-    return result.first->second;
+    return modules.at(std::string(module));
   }
   auto ProcessContext::import_module(const std::string_view &path,
                                      const std::string &module)
