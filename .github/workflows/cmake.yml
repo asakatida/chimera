@@ -53,6 +53,7 @@ jobs:
         run: tools/ninja.sh build regression
         working-directory: ${{ github.workspace }}
       - continue-on-error: true
+        if: github.ref == 'refs/heads/stable'
         run: ninja -k0 corpus
         working-directory: ${{ github.workspace }}/build
       - if: github.ref != 'refs/heads/stable'
