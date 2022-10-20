@@ -28,6 +28,12 @@ from sys import stderr
 
 from tqdm import tqdm  # type: ignore
 
+FUZZ_DIRS = (
+    "unit_tests/fuzz/crashes",
+    "unit_tests/fuzz/corpus",
+    "unit_tests/fuzz/dictionaries",
+)
+
 
 def cmd(*args: str) -> None:
     run(args, check=True, stderr=PIPE, stdout=DEVNULL)
@@ -37,14 +43,6 @@ def main() -> None:
     chdir(Path(__file__).parent.parent)
     cmd("git", "fetch", "--all", "--tags")
     cmd("git", "remote", "prune", "origin")
-    cmd("git", "remote", "set-head", "origin", "-a")
-    try:
-        cmd("git", "switch", "corpus")
-    except CalledProcessError:
-        cmd("git", "switch", "-c", "corpus")
-    cmd("git", "rebase", "origin/HEAD")
-    cmd("git", "reset", "origin/HEAD")
-    cmd("git", "add", ".")
     cmd("git", "commit", "--allow-empty", "-m", "WIP")
     for branch in tqdm(
         filter(
@@ -55,14 +53,16 @@ def main() -> None:
                     ["git", "branch", "-r"], capture_output=True, check=True, text=True
                 ).stdout.splitlines(),
             ),
-        )
+        ),
+        desc="Branches",
+        unit_scale=True,
     ):
-        cmd("git", "restore", "--source", branch, "--staged", "unit_tests/fuzz")
-        cmd("git", "restore", "--worktree", "unit_tests/fuzz")
-        cmd("git", "add", "unit_tests/fuzz")
+        cmd("git", "restore", "--source", branch, "--staged", *FUZZ_DIRS)
+        cmd("git", "restore", "--worktree", *FUZZ_DIRS)
+        cmd("git", "add", *FUZZ_DIRS)
         cmd("git", "commit", "--amend", "--no-edit")
     run(["env/bin/python3", "tools/corpus_trim.py"], check=True)
-    cmd("git", "reset", "origin/HEAD")
+    cmd("git", "reset", "HEAD^")
 
 
 if __name__ == "__main__":
