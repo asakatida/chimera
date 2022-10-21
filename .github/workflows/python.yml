@@ -127,7 +127,7 @@ jobs:
       - run: >
           wget https://apt.llvm.org/llvm.sh &&
           chmod +x llvm.sh &&
-          sudo ./llvm.sh ${{ env.CLANG_VERSION }} all &&
+          sudo ./llvm.sh "${CLANG_VERSION}" all &&
           rm -rf llvm.sh
       - name: generate utf8 grammar
         run: >
@@ -136,7 +136,7 @@ jobs:
           env/bin/python3 &&
           tools/g-ls-tree.sh -name '*.hpp' |
           xargs --no-run-if-empty --null --
-          clang-format-${{ env.CLANG_VERSION }} -style=file -i
+          "clang-format-${CLANG_VERSION}" -style=file -i
         working-directory: ${{ github.workspace }}
       - if: ${{ github.ref == 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.15.1

@@ -33,7 +33,7 @@ jobs:
       - run: >
           wget https://apt.llvm.org/llvm.sh &&
           chmod +x llvm.sh &&
-          sudo ./llvm.sh ${{ env.CLANG_VERSION }} all &&
+          sudo ./llvm.sh "${CLANG_VERSION}" all &&
           rm -rf llvm.sh
       - env:
           CC: /usr/bin/clang-${{ env.CLANG_VERSION }}
@@ -46,14 +46,14 @@ jobs:
         run: >
           tools/g-ls-tree.sh -name '*.cpp' |
           xargs --no-run-if-empty --null --
-          clang-tidy-${{ env.CLANG_VERSION }} -p=build -checks=-*,${{ matrix.lints }}
+          "clang-tidy-${CLANG_VERSION}" -p=build -checks=-*,${{ matrix.lints }}
         working-directory: ${{ github.workspace }}
       - if: ${{ !matrix.lints }}
         name: Lint c++ code
         run: >
           tools/g-ls-tree.sh -name '*.cpp' |
           xargs --no-run-if-empty --null --
-          clang-tidy-${{ env.CLANG_VERSION }} -p=build
+          "clang-tidy-${CLANG_VERSION}" -p=build
         working-directory: ${{ github.workspace }}
     strategy:
       matrix:
