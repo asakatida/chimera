@@ -8,8 +8,7 @@ env:
     -fprofile-instr-generate
     -mllvm
     -runtime-counter-relocation
-  LLVM_PROFILE_FILE: >
-    ${{ github.workspace }}/build/coverage/llvm-profile.%c%p.profraw
+  LLVM_PROFILE_DIR: /tmp/coverage
 
 jobs:
   codecov:
@@ -27,45 +26,13 @@ jobs:
           # yamllint disable-line rule:line-length
           key: codecov-${{ hashFiles('CMakeLists.txt') }}-${{ env.CLANG_VERSION }}-v2
           path: build
-      - run: >
-          wget https://apt.llvm.org/llvm.sh &&
-          chmod +x llvm.sh &&
-          sudo ./llvm.sh ${{env.CLANG_VERSION}} &&
-          rm -rf llvm.sh &&
-          sudo apt-get install -y ninja-build
       - env:
           CC: /usr/bin/clang-${{ env.CLANG_VERSION }}
           CXX: /usr/bin/clang++-${{ env.CLANG_VERSION }}
-        name: Configure CMake
-        run: cmake -GNinja -B build -S .
-        working-directory: ${{github.workspace}}
-      - env:
-          CC: /usr/bin/clang-${{ env.CLANG_VERSION }}
-          CXX: /usr/bin/clang++-${{ env.CLANG_VERSION }}
-        name: Test
-        run: >
-          rm -rf "$(dirname "${LLVM_PROFILE_FILE}")" &&
-          mkdir -p "$(dirname "${LLVM_PROFILE_FILE}")" &&
-          tools/ninja.sh build regression
-        working-directory: ${{github.workspace}}
-      - name: merge raw profile
-        run: >
-          find "$(dirname "${LLVM_PROFILE_FILE}")" -type f -print0 |
-          xargs --no-run-if-empty --null --
-          llvm-profdata-${{ env.CLANG_VERSION }} merge
-          -sparse --output llvm-profile.profdata
-        working-directory: ${{github.workspace}}/build/coverage
-      - name: export profile
-        run: >
-          llvm-cov-${{ env.CLANG_VERSION }} export ./unit-test
-          --ignore-filename-regex='.*/(external|unit_tests)/.*'
-          --instr-profile coverage/llvm-profile.profdata
-          --region-coverage-gt=2
-          --format=lcov > coverage/llvm-profile.lcov
-        working-directory: ${{github.workspace}}/build
+        run: python tools/codecov.py
       - uses: codecov/codecov-action@v3.1.1
         with:
-          directory: ${{ github.workspace }}/build/coverage
+          directory: ${{ env.LLVM_PROFILE_DIR }}
           files: llvm-profile.lcov
 
 name: CodeCov
