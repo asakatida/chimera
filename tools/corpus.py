@@ -22,7 +22,6 @@
 
 from os import chdir
 from pathlib import Path
-from re import match
 from subprocess import DEVNULL, PIPE, CalledProcessError, TimeoutExpired, run
 from sys import stderr
 
@@ -44,20 +43,21 @@ def main() -> None:
     cmd("git", "fetch", "--all", "--tags")
     cmd("git", "remote", "prune", "origin")
     cmd("git", "commit", "--allow-empty", "-m", "WIP")
-    for branch in tqdm(
-        filter(
-            lambda branch: match(r"\w+/regression-.+-refs/\w", branch),
-            map(
-                str.strip,
-                run(
-                    ["git", "branch", "-r"], capture_output=True, check=True, text=True
-                ).stdout.splitlines(),
-            ),
+    for sha in tqdm(
+        map(
+            str.strip,
+            run(
+                ["git", "log", "--all", "--format=%h", "^HEAD", "--", *FUZZ_DIRS],
+                capture_output=True,
+                check=True,
+            )
+            .stdout.decode()
+            .splitlines(),
         ),
         desc="Branches",
         unit_scale=True,
     ):
-        cmd("git", "restore", "--source", branch, "--staged", *FUZZ_DIRS)
+        cmd("git", "restore", "--source", sha, "--staged", *FUZZ_DIRS)
         cmd("git", "restore", "--worktree", *FUZZ_DIRS)
         cmd("git", "add", *FUZZ_DIRS)
         cmd("git", "commit", "--amend", "--no-edit")
