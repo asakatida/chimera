@@ -43,7 +43,9 @@ case "$(uname)" in
     ;;
   Linux )
     if command -v apt; then
-      echo 'Apt found, expecting Dockerfile is used'
+      /opt/virtualenv/bin/pip install -r requirements.txt | {
+        grep --invert-match -e '^Requirement already satisfied:' || true
+      }
       export PATH="/opt/virtualenv/bin:${PATH}"
     else
       echo 'No apt found, failed installation'
