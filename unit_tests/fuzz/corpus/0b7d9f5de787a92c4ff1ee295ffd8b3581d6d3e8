@@ -1,38 +1,0 @@
-'''\
-\
-\
-\
-\\
-\
-\
-\\
-\
-<<<<<<<< HEAD:unit_tests/fuzz/corpus/576e3b05985d25cee08397c31f678a404d9d5404
-========
-\
-\
-\
->>>>>>>> 3210b316e (Update fuzzing corpus.):unit_tests/fuzz/corpus/0b7d9f5de787a92c4ff1ee295ffd8b3581d6d3e8
-\
-\\
-\
-\
-<<<<<<<< HEAD:unit_tests/fuzz/corpus/576e3b05985d25cee08397c31f678a404d9d5404
-\
-\\
-\
-\
-========
->>>>>>>> 3210b316e (Update fuzzing corpus.):unit_tests/fuzz/corpus/0b7d9f5de787a92c4ff1ee295ffd8b3581d6d3e8
-\\
-\
-\
-\\
-\
-\\
-<<<<<<<< HEAD:unit_tests/fuzz/corpus/576e3b05985d25cee08397c31f678a404d9d5404
-========
-\\
->>>>>>>> 3210b316e (Update fuzzing corpus.):unit_tests/fuzz/corpus/0b7d9f5de787a92c4ff1ee295ffd8b3581d6d3e8
-\
-\'''
