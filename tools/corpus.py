@@ -58,8 +58,8 @@ def main() -> None:
         unit_scale=True,
     ):
         cmd("git", "restore", "--source", sha, "--staged", *FUZZ_DIRS)
-        cmd("git", "restore", "--worktree", *FUZZ_DIRS)
-        cmd("git", "add", *FUZZ_DIRS)
+        cmd("git", "restore", "--worktree", "unit_tests/fuzz")
+        cmd("git", "add", "unit_tests/fuzz")
         cmd("git", "commit", "--amend", "--no-edit")
     run(["env/bin/python3", "tools/corpus_trim.py"], check=True)
     cmd("git", "reset", "HEAD^")
