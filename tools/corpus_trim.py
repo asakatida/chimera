@@ -27,7 +27,7 @@ from itertools import chain
 from os import chdir
 from pathlib import Path
 from re import MULTILINE, compile
-from subprocess import DEVNULL, CalledProcessError, TimeoutExpired, run
+from subprocess import DEVNULL, PIPE, CalledProcessError, TimeoutExpired, run
 from sys import stderr
 from typing import Iterable, TypeVar
 
@@ -79,7 +79,7 @@ def conflicts(fuzz: Iterable[Path]) -> None:
         )
 
 
-def corpus_trim(fuzz: Iterable[Path]) -> None:
+def corpus_trim_one(fuzz: Iterable[Path]) -> None:
     global LENGTH
     for file in c_tqdm(fuzz, "Corpus rehash"):
         src_sha = sha(file)
@@ -90,44 +90,52 @@ def corpus_trim(fuzz: Iterable[Path]) -> None:
                 map(lambda directory: FUZZ / directory / name, DIRECTORIES),
             )
         ):
+            LENGTH += 1
             raise Increment(
                 f"Collision found, update corpus_trim.py `LENGTH`: {LENGTH}"
             )
         file.rename(file.parent / name)
 
 
+def corpus_trim() -> None:
+    while True:
+        try:
+            corpus_trim_one(gather())
+        except Increment:
+            if LENGTH > 32:
+                raise
+            continue
+        break
+
+
 @cache
-def fuzz_star() -> bytes:
-    return b"\0".join(
-        map(
-            lambda path: str(path).encode(),
-            filter(
-                lambda path: path.is_file() and path.stat().st_mode & 0o110,
-                Path().rglob("fuzz-*"),
-            ),
+def fuzz_star() -> tuple[Path, ...]:
+    return tuple(
+        filter(
+            lambda path: path.is_file() and path.stat().st_mode & 0o110,
+            Path().rglob("fuzz-*"),
         )
     )
 
 
-def fuzz_test(*args: str, timeout: int = 10) -> None:
+def fuzz_test_one(regression: Path, *args: str, timeout: int) -> None:
     run(
-        [
-            "xargs",
-            "--null",
-            "--replace={}",
-            "--",
-            "env",
-            "{}",
-            "-detect_leaks=0",
-            "-use_value_profile=1",
-            *args,
-        ],
+        [str(regression), "-detect_leaks=0", "-use_value_profile=1", *args],
         check=True,
-        input=fuzz_star(),
-        stderr=DEVNULL,
+        stderr=PIPE,
         stdout=DEVNULL,
         timeout=timeout,
     )
+
+
+def fuzz_test(*args: str, timeout: int = 10) -> None:
+    with ThreadPoolExecutor() as executor:
+        set(
+            executor.map(
+                lambda regression: fuzz_test_one(regression, *args, timeout=timeout),
+                fuzz_star(),
+            )
+        )
 
 
 def gather() -> Iterable[Path]:
@@ -164,37 +172,35 @@ def regression(fuzz: Iterable[Path]) -> None:
 
 
 def main() -> None:
-    global LENGTH
     chdir(Path(__file__).parent.parent)
     if not fuzz_star():
         raise FileNotFoundError("No fuzz targets built")
     CORPUS.mkdir(exist_ok=True)
     CRASHES.mkdir(exist_ok=True)
     conflicts(gather())
-    while True:
-        try:
-            corpus_trim(gather())
-        except Increment:
-            if LENGTH > 32:
-                raise
-            LENGTH += 1
-            continue
-        break
+    corpus_trim()
     regression(gather())
     CORPUS.rename(CORPUS_ORIGINAL)
-    CORPUS.mkdir(exist_ok=True)
-    fuzz_test(
-        "-merge=1",
-        "-reduce_inputs=1",
-        "-shrink=1",
-        str(CORPUS),
-        str(CORPUS_ORIGINAL),
-        timeout=1200,
-    )
+    for _ in range(2):
+        CORPUS.mkdir(exist_ok=True)
+        try:
+            fuzz_test(
+                "-merge=1",
+                "-reduce_inputs=1",
+                "-shrink=1",
+                str(CORPUS),
+                str(CORPUS_ORIGINAL),
+                timeout=1200,
+            )
+        except CalledProcessError:
+            pass
+        except TimeoutExpired:
+            pass
     for file in chain(
         Path().rglob("crash-*"), Path().rglob("leak-*"), Path().rglob("timeout-*")
     ):
         file.rename(CRASHES / sha(file))
+    corpus_trim()
 
 
 if __name__ == "__main__":
