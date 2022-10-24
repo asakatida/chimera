@@ -29,7 +29,7 @@ from pathlib import Path
 from re import MULTILINE, compile
 from subprocess import DEVNULL, PIPE, CalledProcessError, TimeoutExpired, run
 from sys import stderr
-from typing import Iterable, TypeVar
+from typing import Iterable, Optional, TypeVar
 
 from tqdm import tqdm  # type: ignore
 
@@ -118,22 +118,33 @@ def fuzz_star() -> tuple[Path, ...]:
     )
 
 
-def fuzz_test_one(regression: Path, *args: str, timeout: int) -> None:
-    run(
-        [str(regression), "-detect_leaks=0", "-use_value_profile=1", *args],
-        check=True,
-        stderr=PIPE,
-        stdout=DEVNULL,
-        timeout=timeout,
-    )
+def fuzz_test_one(regression: Path, *args: str, timeout: int) -> Optional[Exception]:
+    try:
+        run(
+            [str(regression), "-detect_leaks=0", "-use_value_profile=1", *args],
+            check=True,
+            stderr=PIPE,
+            stdout=DEVNULL,
+            timeout=timeout,
+        )
+    except CalledProcessError as error:
+        return error
+    except TimeoutExpired as error:
+        return error
+    return None
 
 
-def fuzz_test(*args: str, timeout: int = 10) -> None:
+def fuzz_test(*args: str, timeout: int = 10) -> list[Exception]:
     with ThreadPoolExecutor() as executor:
-        set(
-            executor.map(
-                lambda regression: fuzz_test_one(regression, *args, timeout=timeout),
-                fuzz_star(),
+        return list(
+            filter(
+                None,
+                executor.map(
+                    lambda regression: fuzz_test_one(
+                        regression, *args, timeout=timeout
+                    ),
+                    fuzz_star(),
+                ),
             )
         )
 
@@ -149,23 +160,18 @@ def sha(path: Path) -> str:
 
 
 def regression_one(file: Path) -> None:
-    try:
-        fuzz_test(str(file))
-        if file.is_relative_to(CRASHES):
-            file.rename(CORPUS / file.name)
-    except CalledProcessError:
-        if file.is_relative_to(CORPUS):
-            file.rename(CRASHES / file.name)
-    except TimeoutExpired:
-        if file.is_relative_to(CORPUS):
-            file.rename(CRASHES / file.name)
+    if not fuzz_test(str(file)):
+        file.rename(CORPUS / file.name)
 
 
 def regression(fuzz: Iterable[Path]) -> None:
     with ThreadPoolExecutor() as executor:
         set(
             c_tqdm(
-                executor.map(regression_one, fuzz),
+                executor.map(
+                    regression_one,
+                    filter(lambda file: file.is_relative_to(CRASHES), fuzz),
+                ),
                 "Regression",
             )
         )
@@ -183,19 +189,21 @@ def main() -> None:
     CORPUS.rename(CORPUS_ORIGINAL)
     for _ in range(2):
         CORPUS.mkdir(exist_ok=True)
-        try:
-            fuzz_test(
-                "-merge=1",
-                "-reduce_inputs=1",
-                "-shrink=1",
-                str(CORPUS),
-                str(CORPUS_ORIGINAL),
-                timeout=1200,
-            )
-        except CalledProcessError:
-            pass
-        except TimeoutExpired:
-            pass
+        errors = fuzz_test(
+            "-merge=1",
+            "-reduce_inputs=1",
+            "-shrink=1",
+            str(CORPUS),
+            str(CORPUS_ORIGINAL),
+            timeout=1200,
+        )
+        if not errors:
+            break
+    if errors:
+        error = errors.pop()
+        if errors:
+            print("Extra Errors:", *errors, file=stderr, sep="\n")
+        raise error
     for file in chain(
         Path().rglob("crash-*"), Path().rglob("leak-*"), Path().rglob("timeout-*")
     ):
