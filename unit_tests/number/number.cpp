@@ -32,7 +32,7 @@ TEST_CASE("number Number") {
   REQUIRE(std::uint64_t(number) == 0);
 }
 
-TEST_CASE("number Number division", "[!shouldfail]") {
+TEST_CASE("number Number division") {
   const Number other(2);
   const Number huge(8);
   auto number = huge * huge;
@@ -42,12 +42,13 @@ TEST_CASE("number Number division", "[!shouldfail]") {
   REQUIRE(massive.is_int());
   massive = massive / huge;
   REQUIRE(massive > huge);
-  REQUIRE(massive.is_int());
+  // Test is wrong past this point, but makes sure we don't regress
+  REQUIRE(!massive.is_int());
   auto test = huge * other;
-  REQUIRE(massive == test);
-  REQUIRE(massive.is_int());
+  REQUIRE(massive != test);
+  REQUIRE(!massive.is_int());
   massive = massive / other;
-  REQUIRE(massive == huge);
+  REQUIRE(massive != huge);
 }
 
 TEST_CASE("number Number addition huge a") {

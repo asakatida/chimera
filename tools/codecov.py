@@ -55,7 +55,7 @@ def main() -> None:
     except FileNotFoundError:
         pass
     llvm_profile_dir.mkdir()
-    cmd("tools/ninja.sh", "build", "regression")
+    cmd("tools/ninja.sh", "build", "check-rand", "regression")
     llvm_profile_files = map(str, filter(Path.is_file, llvm_profile_dir.iterdir()))
     instr_profile = llvm_profile_dir / "llvm-profile.profdata"
     cmd(

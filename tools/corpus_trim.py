@@ -166,15 +166,7 @@ def regression_one(file: Path) -> None:
 
 def regression(fuzz: Iterable[Path]) -> None:
     with ThreadPoolExecutor() as executor:
-        set(
-            c_tqdm(
-                executor.map(
-                    regression_one,
-                    filter(lambda file: file.is_relative_to(CRASHES), fuzz),
-                ),
-                "Regression",
-            )
-        )
+        set(c_tqdm(executor.map(regression_one, fuzz), "Regression"))
 
 
 def main() -> None:
@@ -185,7 +177,7 @@ def main() -> None:
     CRASHES.mkdir(exist_ok=True)
     conflicts(gather())
     corpus_trim()
-    regression(gather())
+    regression(CRASHES.iterdir())
     CORPUS.rename(CORPUS_ORIGINAL)
     for _ in range(2):
         CORPUS.mkdir(exist_ok=True)
@@ -216,9 +208,11 @@ if __name__ == "__main__":
         main()
     except CalledProcessError as error:
         print(*error.cmd, file=stderr)
+        print((error.stderr or b"").decode(), file=stderr)
         exit(error.returncode)
     except TimeoutExpired as error:
         print(*error.cmd, file=stderr)
+        print((error.stderr or b"").decode(), file=stderr)
         exit(1)
     except KeyboardInterrupt:
         print("KeyboardInterrupt", file=stderr)
