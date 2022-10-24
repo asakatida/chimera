@@ -50,7 +50,7 @@ jobs:
         run: cmake -GNinja -B build -S .
         working-directory: ${{ github.workspace }}
       - name: Run regression
-        run: tools/ninja.sh build regression
+        run: tools/ninja.sh build check-rand regression
         working-directory: ${{ github.workspace }}
       - continue-on-error: true
         if: github.ref == 'refs/heads/stable'
@@ -104,7 +104,7 @@ jobs:
           bash -c '
             set -e -o pipefail
             cmake -GNinja -B build -S .
-            tools/ninja.sh build regression
+            tools/ninja.sh build check-rand regression
           '
         working-directory: ${{ github.workspace }}
 
