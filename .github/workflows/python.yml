@@ -99,7 +99,7 @@ jobs:
           env/bin/pip3 freeze | grep -v -e '^pkg_resources==' >requirements.txt
         working-directory: ${{ github.workspace }}
       - if: ${{ github.ref == 'refs/heads/stable' }}
-        uses: stefanzweifel/git-auto-commit-action@v4.15.1
+        uses: stefanzweifel/git-auto-commit-action@v4.15.2
         with:
           branch: requirements-txt
           commit_message: Update requirements.txt.
@@ -139,7 +139,7 @@ jobs:
           "clang-format-${CLANG_VERSION}" -style=file -i
         working-directory: ${{ github.workspace }}
       - if: ${{ github.ref == 'refs/heads/stable' }}
-        uses: stefanzweifel/git-auto-commit-action@v4.15.1
+        uses: stefanzweifel/git-auto-commit-action@v4.15.2
         with:
           branch: utf8-generate-grammar
           commit_message: Update utf8 grammar.
