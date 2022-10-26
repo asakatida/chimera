@@ -18,13 +18,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""corpus_trim.py"""
+"""corpus_gather.py"""
 
+from asyncio import run
+from asyncio.subprocess import PIPE
 from os import chdir
 from pathlib import Path
-from subprocess import DEVNULL, PIPE, CalledProcessError, TimeoutExpired, run
-from sys import executable, stderr
+from sys import stderr
 
+from asyncio_cmd import ProcessError, cmd
 from tqdm import tqdm  # type: ignore
 
 FUZZ_DIRS = (
@@ -34,47 +36,43 @@ FUZZ_DIRS = (
 )
 
 
-def cmd(*args: str) -> None:
-    run(args, check=True, stderr=PIPE, stdout=DEVNULL)
-
-
-def main() -> None:
+async def main() -> None:
     chdir(Path(__file__).parent.parent)
-    cmd("git", "fetch", "--all", "--tags")
-    cmd("git", "remote", "prune", "origin")
-    cmd("git", "commit", "--allow-empty", "-m", "WIP")
+    await cmd("git", "fetch", "--all", "--tags")
+    await cmd("git", "remote", "prune", "origin")
+    await cmd("git", "commit", "--allow-empty", "-m", "WIP")
+    stdout = (
+        await cmd(
+            "git",
+            "log",
+            "--all",
+            "--format=%h",
+            "^HEAD",
+            "--",
+            *FUZZ_DIRS,
+            stdout=PIPE,
+        )
+        or b""
+    )
     for sha in tqdm(
         map(
             str.strip,
-            run(
-                ["git", "log", "--all", "--format=%h", "^HEAD", "--", *FUZZ_DIRS],
-                capture_output=True,
-                check=True,
-            )
-            .stdout.decode()
-            .splitlines(),
+            stdout.decode().splitlines(),
         ),
         desc="Branches",
         unit_scale=True,
     ):
-        cmd("git", "restore", "--source", sha, "--staged", *FUZZ_DIRS)
-        cmd("git", "restore", "--worktree", "unit_tests/fuzz")
-        cmd("git", "add", "unit_tests/fuzz")
-        cmd("git", "commit", "--allow-empty", "--amend", "--no-edit")
-    run([executable, "tools/corpus_trim.py"], check=True)
-    cmd("git", "reset", "HEAD^")
+        await cmd("git", "restore", "--source", sha, "--staged", *FUZZ_DIRS)
+        await cmd("git", "restore", "--worktree", "unit_tests/fuzz")
+        await cmd("git", "add", "unit_tests/fuzz")
+        await cmd("git", "commit", "--amend", "--no-edit")
+    await cmd("git", "reset", "HEAD^")
 
 
 if __name__ == "__main__":
     try:
-        main()
-    except CalledProcessError as error:
-        print(*error.cmd, file=stderr)
-        print((error.stderr or b"").decode(), file=stderr)
-        exit(error.returncode)
-    except TimeoutExpired as error:
-        print(*error.cmd, file=stderr)
-        print((error.stderr or b"").decode(), file=stderr)
-        exit(1)
+        run(main())
+    except ProcessError as error:
+        error.exit()
     except KeyboardInterrupt:
         print("KeyboardInterrupt", file=stderr)

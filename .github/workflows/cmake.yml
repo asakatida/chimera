@@ -56,14 +56,13 @@ jobs:
         if: github.ref == 'refs/heads/stable'
         run: ninja -k0 corpus
         working-directory: ${{ github.workspace }}/build
-      - if: github.ref != 'refs/heads/stable'
-        run: env/bin/python3 tools/corpus_trim.py
-        working-directory: ${{ github.workspace }}
       - if: github.ref == 'refs/heads/stable'
         run: >
           git config --global user.email email &&
           git config --global user.name name &&
-          env/bin/python3 tools/corpus.py
+          env/bin/python3 tools/corpus_gather.py
+        working-directory: ${{ github.workspace }}
+      - run: env/bin/python3 tools/corpus_trim.py
         working-directory: ${{ github.workspace }}
       - continue-on-error: true
         run: |
