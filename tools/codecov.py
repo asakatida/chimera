@@ -19,19 +19,17 @@
 # SOFTWARE.
 
 """codecov.py"""
+
+from asyncio import run
 from os import chdir, environ
 from pathlib import Path
-from subprocess import DEVNULL, PIPE, CalledProcessError, TimeoutExpired, run
 from sys import stderr
 
+from asyncio_cmd import ProcessError, cmd
 from requests import get
 
 
-def cmd(*args: str) -> None:
-    run(args, check=True, stderr=PIPE, stdout=DEVNULL)
-
-
-def main() -> None:
+async def main() -> None:
     llvm_profile_file = Path(
         environ.get(
             "LLVM_PROFILE_FILE",
@@ -45,27 +43,27 @@ def main() -> None:
     llvm.write_bytes(get("https://apt.llvm.org/llvm.sh", allow_redirects=True).content)
     llvm.chmod(0o755)
     clang_version = environ.get("CLANG_VERSION", "15")
-    cmd("sudo", str(llvm), clang_version)
+    await cmd("sudo", str(llvm), clang_version, timeout=300)
     llvm.unlink()
-    cmd("sudo", "apt-get", "install", "-y", "ninja-build")
+    await cmd("sudo", "apt-get", "install", "-y", "ninja-build")
     chdir(Path(__file__).parent.parent)
-    cmd("cmake", "-G", "Ninja", "-B", "build", "-S", ".")
+    await cmd("cmake", "-G", "Ninja", "-B", "build", "-S", ".")
     try:
         llvm_profile_dir.rmdir()
     except FileNotFoundError:
         pass
     llvm_profile_dir.mkdir()
-    cmd("tools/ninja.sh", "build", "check-rand", "regression")
+    await cmd("tools/ninja.sh", "build", "check-rand", "regression", timeout=6000)
     llvm_profile_files = map(str, filter(Path.is_file, llvm_profile_dir.iterdir()))
     instr_profile = llvm_profile_dir / "llvm-profile.profdata"
-    cmd(
+    await cmd(
         f"llvm-profdata-{clang_version}",
         "merge",
         "-sparse",
         *llvm_profile_files,
         f"--output={instr_profile}",
     )
-    cmd(
+    await cmd(
         f"llvm-cov-{clang_version}",
         "export",
         "build/unit-test",
@@ -79,14 +77,8 @@ def main() -> None:
 
 if __name__ == "__main__":
     try:
-        main()
-    except CalledProcessError as error:
-        print(*error.cmd, file=stderr)
-        print((error.stderr or b"").decode(), file=stderr)
-        exit(error.returncode)
-    except TimeoutExpired as error:
-        print(*error.cmd, file=stderr)
-        print((error.stderr or b"").decode(), file=stderr)
-        exit(1)
+        run(main())
+    except ProcessError as error:
+        error.exit()
     except KeyboardInterrupt:
         print("KeyboardInterrupt", file=stderr)

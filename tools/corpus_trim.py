@@ -20,17 +20,18 @@
 
 """corpus_trim.py"""
 
-from concurrent.futures import ThreadPoolExecutor
+from asyncio import as_completed, gather, run
 from functools import cache
 from hashlib import sha256
 from itertools import chain
 from os import chdir
 from pathlib import Path
 from re import MULTILINE, compile
-from subprocess import DEVNULL, PIPE, CalledProcessError, TimeoutExpired, run
 from sys import stderr
-from typing import Iterable, Optional, TypeVar
+from typing import Iterable, TypeVar
 
+from asyncio_cmd import ProcessError, cmd
+from asyncio_set_event_loop_policy import set_event_loop_policy
 from tqdm import tqdm  # type: ignore
 
 LENGTH = 22
@@ -48,7 +49,7 @@ class Increment(Exception):
 
 
 def c_tqdm(iterable: Iterable[T], desc: str) -> Iterable[T]:
-    return tqdm(iterable, desc=desc, maxinterval=60, mininterval=10, miniters=100, unit_scale=True)  # type: ignore
+    return tqdm(iterable, desc=desc, maxinterval=60, miniters=100, unit_scale=True)  # type: ignore
 
 
 def conflicts_one(file: Path) -> None:
@@ -64,19 +65,18 @@ def conflicts_one(file: Path) -> None:
 
 
 def conflicts(fuzz: Iterable[Path]) -> None:
-    with ThreadPoolExecutor() as executor:
-        set(
-            c_tqdm(
-                executor.map(
-                    conflicts_one,
-                    filter(
-                        lambda file: CONFLICT.search(file.read_bytes()),
-                        fuzz,
-                    ),
+    set(
+        c_tqdm(
+            map(
+                conflicts_one,
+                filter(
+                    lambda file: CONFLICT.search(file.read_bytes()),
+                    fuzz,
                 ),
-                "Conflicts",
-            )
+            ),
+            "Conflicts",
         )
+    )
 
 
 def corpus_trim_one(fuzz: Iterable[Path]) -> None:
@@ -100,7 +100,7 @@ def corpus_trim_one(fuzz: Iterable[Path]) -> None:
 def corpus_trim() -> None:
     while True:
         try:
-            corpus_trim_one(gather())
+            corpus_trim_one(gather_paths())
         except Increment:
             if LENGTH > 32:
                 raise
@@ -118,38 +118,34 @@ def fuzz_star() -> tuple[Path, ...]:
     )
 
 
-def fuzz_test_one(regression: Path, *args: str, timeout: int) -> Optional[Exception]:
-    try:
-        run(
-            [str(regression), "-detect_leaks=0", "-use_value_profile=1", *args],
-            check=True,
-            stderr=PIPE,
-            stdout=DEVNULL,
-            timeout=timeout,
-        )
-    except CalledProcessError as error:
-        return error
-    except TimeoutExpired as error:
-        return error
-    return None
+async def fuzz_test_one(regression: Path, *args: str, timeout: int) -> None:
+    await cmd(
+        str(regression),
+        "-detect_leaks=0",
+        "-use_value_profile=1",
+        *args,
+        timeout=timeout,
+    )
 
 
-def fuzz_test(*args: str, timeout: int = 10) -> list[Exception]:
-    with ThreadPoolExecutor() as executor:
-        return list(
-            filter(
-                None,
-                executor.map(
+async def fuzz_test(*args: str, timeout: int = 10) -> list[Exception]:
+    return list(
+        filter(
+            None,
+            await gather(
+                *map(
                     lambda regression: fuzz_test_one(
                         regression, *args, timeout=timeout
                     ),
                     fuzz_star(),
                 ),
-            )
+                return_exceptions=True,
+            ),
         )
+    )
 
 
-def gather() -> Iterable[Path]:
+def gather_paths() -> Iterable[Path]:
     return chain.from_iterable(
         map(lambda directory: (FUZZ / directory).iterdir(), DIRECTORIES)
     )
@@ -159,29 +155,34 @@ def sha(path: Path) -> str:
     return sha256(path.read_bytes()).hexdigest()
 
 
-def regression_one(file: Path) -> None:
-    if not fuzz_test(str(file)):
+async def regression_one(file: Path) -> None:
+    if not await fuzz_test(str(file)):
         file.rename(CORPUS / file.name)
 
 
-def regression(fuzz: Iterable[Path]) -> None:
-    with ThreadPoolExecutor() as executor:
-        set(c_tqdm(executor.map(regression_one, fuzz), "Regression"))
+async def regression(fuzz: Iterable[Path]) -> None:
+    errors: list[Exception] = []
+    for coro in c_tqdm(as_completed(map(regression_one, fuzz)), "Regression"):
+        try:
+            await coro
+        except Exception as error:
+            errors.append(error)
+    if errors:
+        raise errors[0]
 
 
-def main() -> None:
+async def main() -> None:
     chdir(Path(__file__).parent.parent)
     if not fuzz_star():
         raise FileNotFoundError("No fuzz targets built")
     CORPUS.mkdir(exist_ok=True)
     CRASHES.mkdir(exist_ok=True)
-    conflicts(gather())
+    conflicts(gather_paths())
     corpus_trim()
-    regression(CRASHES.iterdir())
-    CORPUS.rename(CORPUS_ORIGINAL)
+    await regression(CRASHES.iterdir())
     for _ in range(2):
         CORPUS.mkdir(exist_ok=True)
-        errors = fuzz_test(
+        errors = await fuzz_test(
             "-merge=1",
             "-reduce_inputs=1",
             "-shrink=1",
@@ -205,14 +206,9 @@ def main() -> None:
 
 if __name__ == "__main__":
     try:
-        main()
-    except CalledProcessError as error:
-        print(*error.cmd, file=stderr)
-        print((error.stderr or b"").decode(), file=stderr)
-        exit(error.returncode)
-    except TimeoutExpired as error:
-        print(*error.cmd, file=stderr)
-        print((error.stderr or b"").decode(), file=stderr)
-        exit(1)
+        set_event_loop_policy()
+        run(main())
+    except ProcessError as error:
+        error.exit()
     except KeyboardInterrupt:
         print("KeyboardInterrupt", file=stderr)
