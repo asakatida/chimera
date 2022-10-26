@@ -23,7 +23,7 @@
 from os import chdir
 from pathlib import Path
 from subprocess import DEVNULL, PIPE, CalledProcessError, TimeoutExpired, run
-from sys import stderr
+from sys import executable, stderr
 
 from tqdm import tqdm  # type: ignore
 
@@ -60,8 +60,8 @@ def main() -> None:
         cmd("git", "restore", "--source", sha, "--staged", *FUZZ_DIRS)
         cmd("git", "restore", "--worktree", "unit_tests/fuzz")
         cmd("git", "add", "unit_tests/fuzz")
-        cmd("git", "commit", "--amend", "--no-edit")
-    run(["env/bin/python3", "tools/corpus_trim.py"], check=True)
+        cmd("git", "commit", "--allow-empty", "--amend", "--no-edit")
+    run([executable, "tools/corpus_trim.py"], check=True)
     cmd("git", "reset", "HEAD^")
 
 
