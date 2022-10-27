@@ -20,7 +20,8 @@
 
 """corpus_trim.py"""
 
-from asyncio import as_completed, gather, run
+from asyncio import gather, run
+from asyncio.subprocess import DEVNULL
 from functools import cache
 from hashlib import sha256
 from itertools import chain
@@ -28,10 +29,10 @@ from os import chdir
 from pathlib import Path
 from re import MULTILINE, compile
 from sys import stderr
-from typing import Iterable, TypeVar
+from typing import Iterable, Optional, TypeVar
 
+from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError, cmd
-from asyncio_set_event_loop_policy import set_event_loop_policy
 from tqdm import tqdm  # type: ignore
 
 LENGTH = 22
@@ -118,24 +119,30 @@ def fuzz_star() -> tuple[Path, ...]:
     )
 
 
-async def fuzz_test_one(regression: Path, *args: str, timeout: int) -> None:
+async def fuzz_test_one(
+    regression: Path, *args: str, stdout: Optional[int], timeout: int
+) -> None:
     await cmd(
         str(regression),
         "-detect_leaks=0",
         "-use_value_profile=1",
         *args,
+        log=False,
+        stdout=stdout,
         timeout=timeout,
     )
 
 
-async def fuzz_test(*args: str, timeout: int = 10) -> list[Exception]:
+async def fuzz_test(
+    *args: str, stdout: Optional[int] = DEVNULL, timeout: int = 10
+) -> list[Exception]:
     return list(
         filter(
             None,
             await gather(
                 *map(
                     lambda regression: fuzz_test_one(
-                        regression, *args, timeout=timeout
+                        regression, *args, stdout=stdout, timeout=timeout
                     ),
                     fuzz_star(),
                 ),
@@ -161,14 +168,8 @@ async def regression_one(file: Path) -> None:
 
 
 async def regression(fuzz: Iterable[Path]) -> None:
-    errors: list[Exception] = []
-    for coro in c_tqdm(as_completed(map(regression_one, fuzz)), "Regression"):
-        try:
-            await coro
-        except Exception as error:
-            errors.append(error)
-    if errors:
-        raise errors[0]
+    async for _ in as_completed(c_tqdm(map(regression_one, fuzz), "Regression")):
+        pass
 
 
 async def main() -> None:
@@ -188,6 +189,7 @@ async def main() -> None:
             "-shrink=1",
             str(CORPUS),
             str(CORPUS_ORIGINAL),
+            stdout=None,
             timeout=1200,
         )
         if not errors:
@@ -206,7 +208,6 @@ async def main() -> None:
 
 if __name__ == "__main__":
     try:
-        set_event_loop_policy()
         run(main())
     except ProcessError as error:
         error.exit()

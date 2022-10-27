@@ -18,9 +18,9 @@ class ProcessError(Exception):
 
 
 async def cmd(
-    *args: str, stdout: Optional[int] = DEVNULL, timeout: int = 10
+    *args: str, log: bool = True, stdout: Optional[int] = DEVNULL, timeout: int = 10
 ) -> Optional[bytes]:
-    if stdout is not None:
+    if log:
         print("+", *args, file=stderr)
     proc = await create_subprocess_exec(*args, stderr=PIPE, stdout=stdout)
     cmd_stderr = b""
