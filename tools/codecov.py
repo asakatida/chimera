@@ -62,6 +62,7 @@ async def main() -> None:
         "-sparse",
         *llvm_profile_files,
         f"--output={instr_profile}",
+        timeout=300,
     )
     await cmd(
         f"llvm-cov-{clang_version}",
