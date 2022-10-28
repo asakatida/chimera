@@ -35,7 +35,10 @@ github:
     pullRequestsFromForks: true
 image: asakatida/chimera:latest
 tasks:
-  - env:
+  - before: >
+      tools/before.sh &&
+      export PATH="/opt/virtualenv/bin:${PATH}"
+    env:
       CXXFLAGS: >
         -fcoverage-mapping
         -fprofile-instr-generate

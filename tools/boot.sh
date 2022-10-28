@@ -43,9 +43,7 @@ case "$(uname)" in
     ;;
   Linux )
     if command -v apt; then
-      /opt/virtualenv/bin/pip install -r requirements.txt | {
-        grep --invert-match -e '^Requirement already satisfied:' || true
-      }
+      tools/before.sh
       export PATH="/opt/virtualenv/bin:${PATH}"
     else
       echo 'No apt found, failed installation'
