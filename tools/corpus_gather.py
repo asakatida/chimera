@@ -38,8 +38,8 @@ FUZZ_DIRS = (
 
 async def main() -> None:
     chdir(Path(__file__).parent.parent)
-    await cmd("git", "fetch", "--all", "--tags")
-    await cmd("git", "remote", "prune", "origin")
+    await cmd("git", "fetch", "--all", "--tags", timeout=60)
+    await cmd("git", "remote", "prune", "origin", timeout=60)
     await cmd("git", "commit", "--allow-empty", "-m", "WIP")
     stdout = (
         await cmd(
