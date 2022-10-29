@@ -58,8 +58,8 @@ async def main() -> None:
         unit_scale=True,
     ):
         await cmd("git", "restore", "--source", sha, "--staged", *FUZZ_DIRS)
-        await cmd("git", "restore", "--worktree", *FUZZ_DIRS)
-        await cmd("git", "add", *FUZZ_DIRS)
+        await cmd("git", "restore", "--worktree", str(FUZZ))
+        await cmd("git", "add", str(FUZZ))
         await cmd("git", "commit", "--amend", "--no-edit")
     await cmd("git", "reset", "HEAD^")
 
