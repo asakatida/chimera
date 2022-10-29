@@ -25,19 +25,20 @@ from asyncio.subprocess import DEVNULL
 from functools import cache
 from hashlib import sha256
 from itertools import chain
-from os import chdir
 from pathlib import Path
 from re import MULTILINE, compile
 from sys import stderr
-from typing import Iterable, Optional, TypeVar
+from typing import AsyncGenerator, Iterable, Optional, TypeVar
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError, cmd
 from tqdm import tqdm  # type: ignore
+from tqdm.asyncio import tqdm as atqdm  # type: ignore
 
 LENGTH = 22
 DIRECTORIES = ("corpus", "crashes")
-FUZZ = Path("unit_tests") / "fuzz"
+SOURCE = Path(__file__).parent.parent.resolve()
+FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
 CORPUS_ORIGINAL = FUZZ / "corpus_original"
 CRASHES = FUZZ / "crashes"
@@ -47,6 +48,12 @@ CONFLICT = compile(rb"^((<{8}|>{8})\s.+|={8})$\s", MULTILINE)
 
 class Increment(Exception):
     pass
+
+
+def c_atqdm(
+    iterable: AsyncGenerator[T, object], desc: str
+) -> AsyncGenerator[T, object]:
+    return atqdm(iterable, desc=desc, maxinterval=60, miniters=100, unit_scale=True)  # type: ignore
 
 
 def c_tqdm(iterable: Iterable[T], desc: str) -> Iterable[T]:
@@ -114,7 +121,7 @@ def fuzz_star() -> tuple[Path, ...]:
     return tuple(
         filter(
             lambda path: path.is_file() and path.stat().st_mode & 0o110,
-            Path().rglob("fuzz-*"),
+            SOURCE.rglob("fuzz-*"),
         )
     )
 
@@ -168,12 +175,11 @@ async def regression_one(file: Path) -> None:
 
 
 async def regression(fuzz: Iterable[Path]) -> None:
-    async for _ in as_completed(c_tqdm(map(regression_one, fuzz), "Regression")):
+    async for _ in c_atqdm(as_completed(map(regression_one, fuzz)), "Regression"):
         pass
 
 
 async def main() -> None:
-    chdir(Path(__file__).parent.parent)
     if not fuzz_star():
         raise FileNotFoundError("No fuzz targets built")
     CORPUS.mkdir(exist_ok=True)
@@ -181,6 +187,7 @@ async def main() -> None:
     conflicts(gather_paths())
     corpus_trim()
     await regression(CRASHES.iterdir())
+    CORPUS.rename(CORPUS_ORIGINAL)
     for _ in range(2):
         CORPUS.mkdir(exist_ok=True)
         errors = await fuzz_test(
@@ -200,7 +207,7 @@ async def main() -> None:
             print("Extra Errors:", *errors, file=stderr, sep="\n")
         raise error
     for file in chain(
-        Path().rglob("crash-*"), Path().rglob("leak-*"), Path().rglob("timeout-*")
+        SOURCE.rglob("crash-*"), SOURCE.rglob("leak-*"), SOURCE.rglob("timeout-*")
     ):
         file.rename(CRASHES / sha(file))
     corpus_trim()

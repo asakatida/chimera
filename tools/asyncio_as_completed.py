@@ -27,8 +27,7 @@ async def as_completed(
 ) -> AsyncGenerator[T, object]:
     errors: list[Exception] = []
     running: list[Task[T]] = []
-    for routine in routines:
-        running.append(get_event_loop().create_task(routine))
+    for _ in map(running.append, map(get_event_loop().create_task, routines)):  # type: ignore
         if len(running) >= limit:
             async for elem in as_completed_each(errors, running.pop(0)):
                 yield elem

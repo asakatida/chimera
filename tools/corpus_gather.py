@@ -22,22 +22,17 @@
 
 from asyncio import run
 from asyncio.subprocess import PIPE
-from os import chdir
 from pathlib import Path
 from sys import stderr
 
 from asyncio_cmd import ProcessError, cmd
 from tqdm import tqdm  # type: ignore
 
-FUZZ_DIRS = (
-    "unit_tests/fuzz/crashes",
-    "unit_tests/fuzz/corpus",
-    "unit_tests/fuzz/dictionaries",
-)
+FUZZ = Path(__file__).resolve().parent.parent / "unit_tests" / "fuzz"
+FUZZ_DIRS = tuple(map(str, (FUZZ / "crashes", FUZZ / "corpus", FUZZ / "dictionaries")))
 
 
 async def main() -> None:
-    chdir(Path(__file__).parent.parent)
     await cmd("git", "fetch", "--all", "--tags", timeout=60)
     await cmd("git", "remote", "prune", "origin", timeout=60)
     await cmd("git", "commit", "--allow-empty", "-m", "WIP")
@@ -63,8 +58,8 @@ async def main() -> None:
         unit_scale=True,
     ):
         await cmd("git", "restore", "--source", sha, "--staged", *FUZZ_DIRS)
-        await cmd("git", "restore", "--worktree", "unit_tests/fuzz")
-        await cmd("git", "add", "unit_tests/fuzz")
+        await cmd("git", "restore", "--worktree", *FUZZ_DIRS)
+        await cmd("git", "add", *FUZZ_DIRS)
         await cmd("git", "commit", "--amend", "--no-edit")
     await cmd("git", "reset", "HEAD^")
 
