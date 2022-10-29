@@ -21,7 +21,7 @@
 """codecov.py"""
 
 from asyncio import run
-from os import chdir, environ
+from os import environ
 from pathlib import Path
 from sys import stderr
 
@@ -46,14 +46,15 @@ async def main() -> None:
     await cmd("sudo", str(llvm), clang_version, timeout=300)
     llvm.unlink()
     await cmd("sudo", "apt-get", "install", "-y", "ninja-build")
-    chdir(Path(__file__).parent.parent)
-    await cmd("cmake", "-G", "Ninja", "-B", "build", "-S", ".")
+    source = Path(__file__).parent.parent
+    build = source / "build"
+    await cmd("cmake", "-G", "Ninja", "-B", str(build), "-S", str(source))
     try:
         llvm_profile_dir.rmdir()
     except FileNotFoundError:
         pass
     llvm_profile_dir.mkdir()
-    await cmd("tools/ninja.sh", "build", "check-rand", "regression", timeout=6000)
+    await cmd("tools/ninja.sh", str(build), "check-rand", "regression", timeout=6000)
     llvm_profile_files = map(str, filter(Path.is_file, llvm_profile_dir.iterdir()))
     instr_profile = llvm_profile_dir / "llvm-profile.profdata"
     await cmd(
