@@ -5,27 +5,21 @@ from typing import AsyncGenerator, Coroutine, Iterable, TypeVar
 T = TypeVar("T")
 
 
-async def as_completed_wait(task: Task[T]) -> T:
+async def as_completed_each(
+    errors: list[BaseException], task: Task[T]
+) -> AsyncGenerator[T, object]:
     await task
     if error := task.exception():
-        raise error
-    return task.result()
-
-
-async def as_completed_each(
-    errors: list[Exception], task: Task[T]
-) -> AsyncGenerator[T, object]:
-    try:
-        yield await as_completed_wait(task)
-    except Exception as error:
         errors.append(error)
+    else:
+        yield task.result()
 
 
 async def as_completed(
     routines: Iterable[Coroutine[object, object, T]],
-    limit: int = max(4, (cpu_count() or 1) // 4),
+    limit: int = max(12, (cpu_count() or 1) // 4),
 ) -> AsyncGenerator[T, object]:
-    errors: list[Exception] = []
+    errors: list[BaseException] = []
     running: list[Task[T]] = []
     for _ in map(running.append, map(get_event_loop().create_task, routines)):  # type: ignore
         if len(running) >= limit:
