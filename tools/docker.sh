@@ -210,7 +210,7 @@ python3 -m venv /tmp/env
 /tmp/env/bin/pip install -r /tmp/requirements.txt
 /tmp/env/bin/ansible-playbook /tmp/boot.yml
 rm -rf /tmp/env
-python3.12 -m venv /opt/virtualenv
+python3.13 -m venv /opt/virtualenv
 /opt/virtualenv/bin/pip install --upgrade pip setuptools wheel
 /opt/virtualenv/bin/pip install -r /tmp/requirements.txt
 
