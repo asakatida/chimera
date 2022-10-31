@@ -71,9 +71,9 @@ jobs:
             git config "${opt}" --unset-all user.name
           done
         working-directory: ${{ github.workspace }}
-      - uses: stefanzweifel/git-auto-commit-action@v4.15.3
+      - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
+        uses: stefanzweifel/git-auto-commit-action@v4.15.3
         with:
-          # yamllint disable-line rule:line-length
           branch: regression-${{ github.workflow }}-${{ github.ref }}/${{ github.run_id }}
           commit_message: Update fuzzing corpus.
           create_branch: true
