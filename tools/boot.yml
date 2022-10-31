@@ -3,7 +3,7 @@
   name: Boot localhost for building
   tasks:
     - ansible.builtin.set_fact:
-        py_version: 3.12
+        py_version: 3.13
       name: Set Python version
     - become: true
       block:
