@@ -103,6 +103,10 @@ def corpus_trim_one(fuzz: Iterable[Path]) -> None:
                 f"Collision found, update corpus_trim.py `LENGTH`: {LENGTH}"
             )
         file.rename(file.parent / name)
+    for file in c_tqdm(CRASHES.iterdir(), "Regression trim"):
+        file = CORPUS / file.name
+        if file.exists():
+            file.unlink()
 
 
 def corpus_trim() -> None:
