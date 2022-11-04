@@ -34,14 +34,14 @@ jobs:
       - name: Cache
         uses: actions/cache@v3.0.11
         with:
-          key: python3.12-${{ hashFiles('requirements.txt') }}
+          key: python3.13-${{ hashFiles('requirements.txt') }}
           path: env
       - uses: deadsnakes/action@v2.1.1
         with:
-          python-version: 3.12-dev
+          python-version: 3.13-dev
       - name: Build dev tools
         run: >
-          python3.12 -m venv --upgrade --upgrade-deps env &&
+          python3.13 -m venv --upgrade --upgrade-deps env &&
           env/bin/pip3 install --upgrade pip setuptools wheel &&
           env/bin/pip3 install -r requirements.txt
         working-directory: ${{ github.workspace }}
@@ -61,14 +61,14 @@ jobs:
       - name: Cache
         uses: actions/cache@v3.0.11
         with:
-          key: python3.12-${{ hashFiles('requirements.txt') }}
+          key: python3.13-${{ hashFiles('requirements.txt') }}
           path: env
       - uses: deadsnakes/action@v2.1.1
         with:
-          python-version: 3.12-dev
+          python-version: 3.13-dev
       - name: Build dev tools
         run: >
-          python3.12 -m venv --upgrade --upgrade-deps env &&
+          python3.13 -m venv --upgrade --upgrade-deps env &&
           env/bin/pip3 install --upgrade pip setuptools wheel &&
           env/bin/pip3 install -r requirements.txt
         working-directory: ${{ github.workspace }}
@@ -113,14 +113,14 @@ jobs:
       - name: Cache
         uses: actions/cache@v3.0.11
         with:
-          key: python3.12-${{ hashFiles('requirements.txt') }}
+          key: python3.13-${{ hashFiles('requirements.txt') }}
           path: env
       - uses: deadsnakes/action@v2.1.1
         with:
-          python-version: 3.12-dev
+          python-version: 3.13-dev
       - name: Build dev tools
         run: >
-          python3.12 -m venv --upgrade --upgrade-deps env &&
+          python3.13 -m venv --upgrade --upgrade-deps env &&
           env/bin/pip3 install --upgrade pip setuptools wheel &&
           env/bin/pip3 install -r requirements.txt
         working-directory: ${{ github.workspace }}
