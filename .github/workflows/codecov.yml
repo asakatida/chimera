@@ -56,6 +56,4 @@ on:
       - "**.md"
       - Dockerfile
       - tools/docker.sh
-      - unit_tests/fuzz/corpus/*
-      - unit_tests/fuzz/crashes/*
   workflow_dispatch: ~
