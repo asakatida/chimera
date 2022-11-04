@@ -81,7 +81,7 @@ async def main() -> None:
     )
     await llvm()
     # /tmp/env/bin/ansible-playbook /tmp/boot.yml
-    # python3.12 -m venv /opt/virtualenv
+    # python3.13 -m venv /opt/virtualenv
     # /opt/virtualenv/bin/pip install --upgrade pip setuptools wheel
     # /opt/virtualenv/bin/pip install -r /tmp/requirements.txt
     # fish_cmd="$(command -v fish)"

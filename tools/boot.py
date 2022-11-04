@@ -30,7 +30,7 @@ if __name__ == "__main__":
 #     python_bin="$(command -v python3)"
 #     python3 tools/venv.py "${python_bin}"
 #     env/bin/ansible-playbook tools/boot.yml
-#     python_bin="$(command -v python3.12)"
+#     python_bin="$(command -v python3.13)"
 #     python3 tools/venv.py "${python_bin}"
 #     export PATH="${PWD}/env/bin:${PATH}"
 #     ;;
