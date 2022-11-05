@@ -26,7 +26,6 @@
 #include <exception>
 #include <istream>
 #include <string_view>
-#include <unordered_set>
 
 #include <gsl/gsl>
 
@@ -39,22 +38,21 @@
 using namespace std::literals;
 
 namespace chimera::library::virtual_machine {
-  void destroy_object(object::Object &leftover,
-                      std::unordered_set<object::Id> &visited) noexcept {
-    if (visited.contains(leftover.id())) {
-      return;
-    }
-    visited.reserve(visited.size() + leftover.dir_size());
-    visited.emplace(leftover.id());
-    std::vector<object::Object> attributes;
-    attributes.reserve(leftover.dir_size());
-    for (const auto &key : leftover.dir()) {
-      attributes.push_back(leftover.get_attribute(key));
-      leftover.set_attribute(key, object::Object());
-    }
-    for (auto &attribute : attributes) {
-      destroy_object(attribute, visited);
-    }
+  void destroy_object(object::Object &leftover) noexcept {
+    std::vector<object::Object> todo = {leftover};
+    do {
+      std::vector<object::Object> attributes;
+      for (auto &work : todo) {
+        attributes.reserve(attributes.size() + work.dir_size());
+        for (const auto &key : work.dir()) {
+          if (work.has_attribute(key)) {
+            attributes.push_back(work.get_attribute(key));
+            work.delete_attribute(key);
+          }
+        }
+      }
+      todo = attributes;
+    } while (todo.size() > 0);
   }
   class ReRaise final : std::exception {
     [[nodiscard]] auto what() const noexcept -> const char * override;
@@ -77,9 +75,8 @@ namespace chimera::library::virtual_machine {
   Evaluator::Evaluator(ThreadContext &thread_context) noexcept
       : thread_context(thread_context) {}
   Evaluator::~Evaluator() noexcept {
-    std::unordered_set<object::Id> visited;
     for (; !stack.empty(); stack.pop()) {
-      destroy_object(stack.top(), visited);
+      destroy_object(stack.top());
     }
   }
   auto Evaluator::self() -> object::Object & { return scope.self(); }

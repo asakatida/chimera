@@ -48,7 +48,7 @@ namespace chimera::library::object {
     template <template <typename...> class Pointer, typename Type>
     struct BaseReference {
       using RawPointer = std::add_pointer_t<Type>;
-      BaseReference() = default;
+      BaseReference() : pointer(std::make_shared<Type>()) {}
       template <typename... Args>
       explicit BaseReference(Args &&...args)
           : pointer(std::make_shared<Type>(std::forward<Args>(args)...)) {}

@@ -28,7 +28,6 @@
 #include <iostream>
 #include <string>
 #include <string_view>
-#include <unordered_set>
 
 #include <gsl/gsl>
 
@@ -49,33 +48,34 @@ static const std::string_view CHIMERA_IMPORT_PATH_VIEW(STRINGIFY(CHIMERA_PATH));
 #undef STRINGIFY
 
 namespace chimera::library::virtual_machine {
-  void destroy_module(object::Object &module,
-                      std::unordered_set<object::Id> &visited) noexcept {
-    if (visited.contains(module.id())) {
-      return;
-    }
-    visited.reserve(visited.size() + module.dir_size());
-    visited.emplace(module.id());
-    std::vector<object::Object> attributes;
-    attributes.reserve(module.dir_size());
-    for (const auto &key : module.dir()) {
-      attributes.push_back(module.get_attribute(key));
-      module.set_attribute(key, object::Object());
-    }
-    for (auto &attribute : attributes) {
-      destroy_module(attribute, visited);
-    }
+  void destroy_module(object::Object &module) noexcept {
+    std::vector<object::Object> todo = {module};
+    do {
+      std::vector<object::Object> attributes;
+      for (auto &work : todo) {
+        attributes.reserve(attributes.size() + work.dir_size());
+        for (const auto &key : work.dir()) {
+          if (work.has_attribute(key)) {
+            attributes.push_back(work.get_attribute(key));
+            work.delete_attribute(key);
+          }
+        }
+      }
+      todo = attributes;
+    } while (todo.size() > 0);
   }
   ProcessContext::ProcessContext(const GlobalContext &global_context)
-      : global_context(global_context) {
+      : builtins_(std::map<std::string, object::Object>{}),
+        global_context(global_context),
+        modules(
+            std::map<std::string, object::Object>({{"builtins", builtins_}})) {
     modules::builtins(builtins_);
   }
   ProcessContext::~ProcessContext() noexcept {
-    std::unordered_set<object::Id> visited;
     auto builtins = builtins_;
-    destroy_module(builtins, visited);
+    destroy_module(builtins);
     for (auto &module : modules.write().value) {
-      destroy_module(module.second, visited);
+      destroy_module(module.second);
     }
     r_vm_clear();
   }

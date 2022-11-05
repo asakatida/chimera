@@ -484,6 +484,6 @@ namespace chimera::library::asdl {
     }
 
   private:
-    ExprImpl body = object::Object{};
+    ExprImpl body;
   };
 } // namespace chimera::library::asdl
