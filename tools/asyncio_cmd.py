@@ -27,6 +27,7 @@ async def cmd(
     try:
         cmd_stdout, cmd_stderr = await wait_for(proc.communicate(), timeout=timeout)
     finally:
+        cmd_stderr = cmd_stderr or b""
         if proc.returncode is None:
             proc.terminate()
             await proc.wait()
@@ -37,4 +38,4 @@ async def cmd(
             )
         if proc.returncode != 0:
             raise ProcessError(args, cmd_stderr, proc.returncode or 1)
-    return cmd_stdout
+    return cmd_stdout or b""
