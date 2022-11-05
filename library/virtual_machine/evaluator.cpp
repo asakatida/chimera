@@ -359,17 +359,21 @@ namespace chimera::library::virtual_machine {
   }
   void Evaluator::evaluate(const asdl::Raise &raise) {
     if (raise.exc) {
-      push([](Evaluator *evaluator) {
-        throw object::BaseException(evaluator->stack_top());
-      });
+      if (raise.cause) {
+        push([](Evaluator *evaluator) {
+          const auto cause = object::BaseException(evaluator->stack_remove());
+          const auto exception = object::BaseException(evaluator->stack_top());
+          throw object::BaseException(exception, cause);
+        });
+        evaluate_get(*raise.cause);
+      } else {
+        push([](Evaluator *evaluator) {
+          throw object::BaseException(evaluator->stack_top());
+        });
+      }
+      evaluate_get(*raise.exc);
     } else {
       push([](Evaluator * /*evaluator*/) { throw ReRaise{}; });
-    }
-    if (raise.cause) {
-      evaluate_get(*raise.cause);
-    }
-    if (raise.exc) {
-      evaluate_get(*raise.exc);
     }
   }
   void Evaluator::evaluate(const asdl::Try &asdlTry) {
