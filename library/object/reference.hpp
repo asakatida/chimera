@@ -28,15 +28,15 @@
 
 namespace chimera::library::object {
   namespace internal {
-    template <typename Pointer>
+    template <template <typename...> class Pointer, typename Type>
     struct CopyReference {
-      auto operator()(const Pointer &pointer) const noexcept
-          -> const Pointer & {
+      auto operator()(const Pointer<Type> &pointer) const noexcept
+          -> std::shared_ptr<Type> {
         return pointer;
       }
     };
     template <typename Type>
-    struct CopyReference<std::weak_ptr<Type>> {
+    struct CopyReference<std::weak_ptr, Type> {
       auto operator()(const std::weak_ptr<Type> &pointer) const noexcept
           -> std::shared_ptr<Type> {
         return pointer.lock();
@@ -66,7 +66,7 @@ namespace chimera::library::object {
       template <template <typename...> class InterPointer, typename InterType>
       auto operator=(const BaseReference<InterPointer, InterType> &other)
           -> BaseReference & {
-        pointer = CopyReference<decltype(other.pointer)>{}(other.pointer);
+        pointer = CopyReference<InterPointer, InterType>{}(other.pointer);
         return *this;
       }
       template <
@@ -86,20 +86,20 @@ namespace chimera::library::object {
       }
       auto operator*() const noexcept(noexcept(*std::declval<Pointer<Type>>()))
           -> typename std::add_lvalue_reference<Type>::type {
-        return *CopyReference<Pointer<Type>>{}(pointer);
+        return *pointer;
       }
       auto operator->() const noexcept -> RawPointer {
-        return CopyReference<Pointer<Type>>{}(pointer).get();
+        return CopyReference<Pointer, Type>{}(pointer).get();
       }
 
     private:
+      friend BaseReference<std::shared_ptr, Type>;
+      friend BaseReference<std::weak_ptr, Type>;
       Pointer<Type> pointer;
     };
   } // namespace internal
   template <typename Type>
   using Reference = internal::BaseReference<std::shared_ptr, Type>;
-  template <typename Type>
-  using StrongReference = internal::BaseReference<std::unique_ptr, Type>;
   template <typename Type>
   using WeakReference = internal::BaseReference<std::weak_ptr, Type>;
 } // namespace chimera::library::object
