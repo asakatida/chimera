@@ -517,6 +517,40 @@ namespace chimera::library::virtual_machine::modules {
     object::Object builtinsTypeMro(object::Tuple{builtinsType, builtinsObject},
                                    {{"__class__", builtinsTuple}});
     builtinsType.set_attribute("__mro__"s, builtinsTypeMro);
+    object::Object builtinsRuntimeError({{"__cause__", builtinsNone},
+                                         {"__class__", builtinsNone},
+                                         {"__context__", builtinsNone},
+                                         {"__delattr__", builtinsNone},
+                                         {"__dict__", builtinsNone},
+                                         {"__dir__", builtinsNone},
+                                         {"__doc__", builtinsNone},
+                                         {"__eq__", builtinsNone},
+                                         {"__format__", builtinsNone},
+                                         {"__ge__", builtinsNone},
+                                         {"__getattribute__", builtinsNone},
+                                         {"__getstate__", builtinsNone},
+                                         {"__gt__", builtinsNone},
+                                         {"__hash__", builtinsNone},
+                                         {"__init__", builtinsNone},
+                                         {"__init_subclass__", builtinsNone},
+                                         {"__le__", builtinsNone},
+                                         {"__lt__", builtinsNone},
+                                         {"__ne__", builtinsNone},
+                                         {"__new__", builtinsNone},
+                                         {"__reduce__", builtinsNone},
+                                         {"__reduce_ex__", builtinsNone},
+                                         {"__repr__", builtinsNone},
+                                         {"__setattr__", builtinsNone},
+                                         {"__setstate__", builtinsNone},
+                                         {"__sizeof__", builtinsNone},
+                                         {"__str__", builtinsNone},
+                                         {"__subclasshook__", builtinsNone},
+                                         {"__suppress_context__", builtinsNone},
+                                         {"__traceback__", builtinsNone},
+                                         {"add_note", builtinsNone},
+                                         {"args", builtinsNone},
+                                         {"with_traceback", builtinsType}});
+    module.set_attribute("RuntimeError"s, builtinsRuntimeError);
   }
   // NOLINTEND(misc-const-correctness)
 } // namespace chimera::library::virtual_machine::modules

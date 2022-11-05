@@ -31,17 +31,13 @@ namespace chimera::library::container {
   void atomic_container();
   template <typename Value>
   struct AtomicContainer {
-    AtomicContainer() noexcept : mutex(std::make_unique<std::shared_mutex>()) {}
+    AtomicContainer() = default;
     template <typename... Args>
     explicit AtomicContainer(Args &&...args)
-        : mutex(std::make_unique<std::shared_mutex>()),
-          value(std::forward<Args>(args)...) {}
-    AtomicContainer(const AtomicContainer &other)
-        : mutex(std::make_unique<std::shared_mutex>()),
-          value(other.read().value) {}
+        : value(std::forward<Args>(args)...) {}
+    AtomicContainer(const AtomicContainer &other) : value(other.read().value) {}
     AtomicContainer(AtomicContainer &&other) noexcept
-        : mutex(std::make_unique<std::shared_mutex>()),
-          value(std::move(other.write().value)) {}
+        : value(std::move(other.write().value)) {}
     ~AtomicContainer() noexcept = default;
     auto operator=(const AtomicContainer &other) -> AtomicContainer & {
       if (this != &other) {
@@ -64,14 +60,16 @@ namespace chimera::library::container {
       Value &value;
     };
     [[nodiscard]] auto read() const -> Read {
-      return Read{std::shared_lock<std::shared_mutex>(*mutex), value};
+      return Read{std::shared_lock<std::shared_mutex>(
+                      const_cast<std::shared_mutex &>(mutex)),
+                  value};
     }
     [[nodiscard]] auto write() -> Write {
-      return Write{std::unique_lock<std::shared_mutex>(*mutex), value};
+      return Write{std::unique_lock<std::shared_mutex>(mutex), value};
     }
 
   private:
-    std::unique_ptr<std::shared_mutex> mutex;
+    std::shared_mutex mutex;
     Value value;
   };
 } // namespace chimera::library::container

@@ -61,7 +61,7 @@ namespace chimera::library::virtual_machine {
     const GlobalContext &global_context;
     // TODO(asakatida)
     // GarbageCollector garbage_collector{};
-    container::AtomicMap<std::string, object::Object> modules{};
+    container::AtomicMap<std::string, object::Object> modules;
     auto import_module(const std::string_view &path, const std::string &module)
         -> asdl::Module;
     auto import_object(std::string_view &&module) -> const object::Object &;
