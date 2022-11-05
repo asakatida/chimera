@@ -1,15 +1,4 @@
 ---
-env:
-  CLANG_VERSION: 15
-  CMAKE_BUILD_TYPE: Coverage  # not using Debug to avoid getting `-g`
-  CXXFLAGS: >
-    -O1 -DNDEBUG
-    -fcoverage-mapping
-    -fprofile-instr-generate
-    -mllvm
-    -runtime-counter-relocation
-  LLVM_PROFILE_DIR: /tmp/coverage
-
 jobs:
   codecov:
     concurrency:
@@ -25,13 +14,11 @@ jobs:
         with:
           key: codecov-${{ hashFiles('CMakeLists.txt') }}-${{ env.CLANG_VERSION }}-v2
           path: build
-      - env:
-          CC: /usr/bin/clang-${{ env.CLANG_VERSION }}
-          CXX: /usr/bin/clang++-${{ env.CLANG_VERSION }}
-        run: python tools/codecov.py
+      - run: python tools/codecov.py llvm-profile.lcov
+        working-directory: ${{ github.workspace }}
       - uses: codecov/codecov-action@v3.1.1
         with:
-          directory: ${{ env.LLVM_PROFILE_DIR }}
+          directory: ${{ github.workspace }}
           files: llvm-profile.lcov
 
 name: CodeCov
