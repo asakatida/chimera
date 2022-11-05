@@ -1,16 +1,4 @@
 ---
-env:
-  CC: /usr/local/bin/clang
-  CMAKE_BUILD_TYPE: Coverage  # not using Debug to avoid getting `-g`
-  CXX: /usr/local/bin/clang++
-  CXXFLAGS: >
-    -O1 -DNDEBUG
-    -fcoverage-mapping
-    -fprofile-instr-generate
-    -mllvm
-    -runtime-counter-relocation
-  LLVM_PROFILE_DIR: /tmp/coverage
-
 jobs:
   codecov:
     concurrency:
@@ -29,10 +17,11 @@ jobs:
       - name: Run regression with coverage
         uses: ./
         with:
-          run: /opt/virtualenv/bin/python tools/codecov.py
+          run: /opt/virtualenv/bin/python tools/codecov.py >llvm-profile.lcov
+      - run: ls -al ${{ github.workspace }}
       - uses: codecov/codecov-action@v3.1.1
         with:
-          directory: ${{ env.LLVM_PROFILE_DIR }}
+          directory: ${{ github.workspace }}
           files: llvm-profile.lcov
 
 name: CodeCov

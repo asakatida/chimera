@@ -21,7 +21,7 @@
 """codecov.py"""
 
 from asyncio import run
-from os import environ
+from os import chdir, environ
 from pathlib import Path
 from sys import stderr
 
@@ -29,6 +29,18 @@ from asyncio_cmd import ProcessError, cmd
 
 
 async def main() -> None:
+    environ["CMAKE_BUILD_TYPE"] = "Coverage"
+    environ["CC"] = "/usr/local/bin/clang"
+    environ["CXX"] = "/usr/local/bin/clang++"
+    environ["CXXFLAGS"] = " ".join(
+        (
+            environ.get("CXXFLAGS", "-O1 -DNDEBUG").strip(),
+            "-fcoverage-mapping",
+            "-fprofile-instr-generate",
+            "-mllvm",
+            "-runtime-counter-relocation",
+        )
+    )
     llvm_profile_file = Path(
         environ.get(
             "LLVM_PROFILE_FILE",
@@ -38,34 +50,33 @@ async def main() -> None:
     ).resolve()
     environ["LLVM_PROFILE_FILE"] = str(llvm_profile_file)
     llvm_profile_dir = llvm_profile_file.parent
-    source = Path(__file__).parent.parent
-    build = source / "build"
-    await cmd("cmake", "-G", "Ninja", "-B", str(build), "-S", str(source))
+    instr_profile = llvm_profile_dir / "llvm-profile.profdata"
+    chdir(Path(__file__).parent.parent)
+    await cmd("cmake", "-G", "Ninja", "-B", "build", "-S", ".")
     try:
         llvm_profile_dir.rmdir()
     except FileNotFoundError:
         pass
     llvm_profile_dir.mkdir()
-    await cmd("tools/ninja.sh", str(build), "check-rand", "regression", timeout=6000)
+    await cmd("tools/ninja.sh", "build", "check-rand", "regression", timeout=6000)
     llvm_profile_files = map(str, filter(Path.is_file, llvm_profile_dir.iterdir()))
-    instr_profile = llvm_profile_dir / "llvm-profile.profdata"
     await cmd(
-        "llvm-profdata",
+        "/usr/local/bin/llvm-profdata",
         "merge",
         "-sparse",
         *llvm_profile_files,
         f"--output={instr_profile}",
-        timeout=300,
+        timeout=600,
     )
     await cmd(
-        "llvm-cov",
+        "/usr/local/bin/llvm-cov",
         "export",
         "build/unit-test",
-        "--ignore-filename-regex=.*/(external|unit_tests)/.*",
+        "--ignore-filename-regex=.*/(catch2|external|unit_tests)/.*",
         f"-instr-profile={instr_profile}",
         "--region-coverage-gt=2",
         "--format=lcov",
-        str(llvm_profile_dir / "llvm-profile.lcov"),
+        stdout=None,
     )
 
 
