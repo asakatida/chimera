@@ -226,11 +226,15 @@ clang___cmd="$(command -v clang++-15)"
 clang_cmd="$(command -v clang-15)"
 clang_format_cmd="$(command -v clang-format-15)"
 clang_tidy_cmd="$(command -v clang-tidy-15)"
+llvm_cov_cmd="$(command -v llvm-cov-15)"
+llvm_profdata_cmd="$(command -v llvm-profdata-15)"
 scan_build_cmd="$(command -v scan-build-15)"
 ln -s "${clang___cmd}" /usr/local/bin/clang++
 ln -s "${clang_cmd}" /usr/local/bin/clang
 ln -s "${clang_format_cmd}" /usr/local/bin/clang-format
 ln -s "${clang_tidy_cmd}" /usr/local/bin/clang-tidy
+ln -s "${llvm_cov_cmd}" /usr/local/bin/llvm-cov
+ln -s "${llvm_profdata_cmd}" /usr/local/bin/llvm-profdata
 ln -s "${scan_build_cmd}" /usr/local/bin/scan-build
 
 # curl -fsSL https://tailscale.com/install.sh | sh
