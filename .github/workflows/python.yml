@@ -1,7 +1,4 @@
 ---
-env:
-  CLANG_VERSION: 14
-
 jobs:
   cmakelint:
     concurrency:
@@ -10,20 +7,12 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.1.0
-      - name: Cache
-        uses: actions/cache@v3.0.11
-        with:
-          key: python3-${{ hashFiles('requirements.txt') }}
-          path: env
-      - name: Build dev tools
-        run: >
-          python3 -m venv --upgrade --upgrade-deps env &&
-          env/bin/pip3 install --upgrade pip setuptools wheel &&
-          env/bin/pip3 install -r requirements.txt
-        working-directory: ${{ github.workspace }}
       - name: Lint CMakeList.txt
-        run: env/bin/cmakelint
-        working-directory: ${{ github.workspace }}
+        uses: ./
+        with:
+          run: >
+            /opt/virtualenv/bin/pip3 install -r requirements.txt &&
+            /opt/virtualenv/bin/cmakelint
   mypy:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
@@ -31,26 +20,14 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.1.0
-      - name: Cache
-        uses: actions/cache@v3.0.11
-        with:
-          key: python3.12-${{ hashFiles('requirements.txt') }}
-          path: env
-      - uses: deadsnakes/action@v2.1.1
-        with:
-          python-version: 3.12-dev
-      - name: Build dev tools
-        run: >
-          python3.12 -m venv --upgrade --upgrade-deps env &&
-          env/bin/pip3 install --upgrade pip setuptools wheel &&
-          env/bin/pip3 install -r requirements.txt
-        working-directory: ${{ github.workspace }}
       - name: Lint python code
-        run: >
-          tools/g-ls-tree.sh -not -path './stdlib/*' -name '*.py' |
-          xargs --no-run-if-empty --null --
-          env/bin/mypy
-        working-directory: ${{ github.workspace }}
+        uses: ./
+        with:
+          run: >
+            /opt/virtualenv/bin/pip3 install -r requirements.txt &&
+            tools/g-ls-tree.sh -not -path './stdlib/*' -name '*.py' |
+            xargs --no-run-if-empty --null --
+            /opt/virtualenv/bin/mypy
   python:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
@@ -58,26 +35,14 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.1.0
-      - name: Cache
-        uses: actions/cache@v3.0.11
-        with:
-          key: python3.12-${{ hashFiles('requirements.txt') }}
-          path: env
-      - uses: deadsnakes/action@v2.1.1
-        with:
-          python-version: 3.12-dev
-      - name: Build dev tools
-        run: >
-          python3.12 -m venv --upgrade --upgrade-deps env &&
-          env/bin/pip3 install --upgrade pip setuptools wheel &&
-          env/bin/pip3 install -r requirements.txt
-        working-directory: ${{ github.workspace }}
       - name: Lint python code
-        run: >
-          tools/g-ls-tree.sh -name '*.py' |
-          xargs --no-run-if-empty --null --
-          env/bin/${{ matrix.lints }}
-        working-directory: ${{ github.workspace }}
+        uses: ./
+        with:
+          run: >
+            /opt/virtualenv/bin/pip3 install -r requirements.txt &&
+            tools/g-ls-tree.sh -name '*.py' |
+            xargs --no-run-if-empty --null --
+            /opt/virtualenv/bin/${{ matrix.lints }}
     strategy:
       matrix:
         lints:
@@ -110,34 +75,17 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.1.0
-      - name: Cache
-        uses: actions/cache@v3.0.11
-        with:
-          key: python3.12-${{ hashFiles('requirements.txt') }}
-          path: env
-      - uses: deadsnakes/action@v2.1.1
-        with:
-          python-version: 3.12-dev
-      - name: Build dev tools
-        run: >
-          python3.12 -m venv --upgrade --upgrade-deps env &&
-          env/bin/pip3 install --upgrade pip setuptools wheel &&
-          env/bin/pip3 install -r requirements.txt
-        working-directory: ${{ github.workspace }}
-      - run: >
-          wget https://apt.llvm.org/llvm.sh &&
-          chmod +x llvm.sh &&
-          sudo ./llvm.sh "${CLANG_VERSION}" all &&
-          rm -rf llvm.sh
       - name: generate utf8 grammar
-        run: >
-          find tools -name 'generate_utf8_*.py' -not -name '*insane*' -print0 |
-          xargs --no-run-if-empty --null -n1 -P3 --
-          env/bin/python3 &&
-          tools/g-ls-tree.sh -name '*.hpp' |
-          xargs --no-run-if-empty --null --
-          "clang-format-${CLANG_VERSION}" -style=file -i
-        working-directory: ${{ github.workspace }}
+        uses: ./
+        with:
+          run: >
+            /opt/virtualenv/bin/pip3 install -r requirements.txt &&
+            find tools -name 'generate_utf8_*.py' -not -name '*insane*' -print0 |
+            xargs --no-run-if-empty --null -n1 -P3 --
+            /opt/virtualenv/bin/python3 &&
+            tools/g-ls-tree.sh -name '*.hpp' |
+            xargs --no-run-if-empty --null --
+            /usr/local/bin/clang-format -style=file -i
       - if: ${{ github.ref == 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.15.3
         with:

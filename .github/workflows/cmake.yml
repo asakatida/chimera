@@ -1,9 +1,10 @@
 ---
 env:
-  CLANG_VERSION: 15
+  CC: /usr/local/bin/clang
   CMAKE_BUILD_TYPE: Debug
+  CXX: /usr/local/bin/clang++
   CXXFLAGS: >
-    -DCHIMERA_PATH="${{ github.workspace }}/stdlib"
+    -DCHIMERA_PATH="/github/workspace/stdlib"
     -fsanitize-coverage=no-prune
     -fsanitize-coverage=trace-cmp
     -fsanitize-coverage=trace-div
@@ -24,53 +25,34 @@ jobs:
       - name: Cache cmake
         uses: actions/cache@v3.0.11
         with:
-          key: build-${{ hashFiles('CMakeLists.txt') }}-${{ env.CLANG_VERSION }}-v3
+          key: build-${{ hashFiles('CMakeLists.txt') }}-v1
           path: build
-      - name: Cache python
-        uses: actions/cache@v3.0.11
-        with:
-          key: python3-${{ hashFiles('requirements.txt') }}
-          path: env
-      - run: >
-          wget https://apt.llvm.org/llvm.sh &&
-          chmod +x llvm.sh &&
-          sudo ./llvm.sh "${CLANG_VERSION}" all &&
-          rm -rf llvm.sh &&
-          sudo apt-get install -y ninja-build
-      - name: Build python tools
-        run: >
-          python3 -m venv --upgrade --upgrade-deps env &&
-          env/bin/pip3 install --upgrade pip setuptools wheel &&
-          env/bin/pip3 install -r requirements.txt
-        working-directory: ${{ github.workspace }}
-      - env:
-          CC: /usr/bin/clang-${{ env.CLANG_VERSION }}
-          CXX: /usr/bin/clang++-${{ env.CLANG_VERSION }}
-        name: Configure CMake
-        run: cmake -GNinja -B build -S .
-        working-directory: ${{ github.workspace }}
       - name: Run regression
-        run: tools/ninja.sh build check-rand regression
-        working-directory: ${{ github.workspace }}
-      - continue-on-error: true
-        if: github.ref == 'refs/heads/stable'
-        run: ninja -k0 corpus
-        working-directory: ${{ github.workspace }}/build
+        uses: ./
+        with:
+          run: >
+            /opt/virtualenv/bin/pip3 install -r requirements.txt &&
+            cmake -GNinja -B build -S . &&
+            tools/ninja.sh build check-rand regression
       - if: github.ref == 'refs/heads/stable'
-        run: >
-          git config --global user.email email &&
-          git config --global user.name name &&
-          env/bin/python3 tools/corpus_gather.py
-        working-directory: ${{ github.workspace }}
-      - run: env/bin/python3 tools/corpus_trim.py
-        working-directory: ${{ github.workspace }}
-      - continue-on-error: true
-        run: |
-          for opt in --global --local --system --worktree; do
-            git config "${opt}" --unset-all user.email
-            git config "${opt}" --unset-all user.name
-          done
-        working-directory: ${{ github.workspace }}
+        name: Run corpus
+        uses: ./
+        with:
+          run: >
+            ninja -C build -k0 corpus || true &&
+            git config --global user.email email &&
+            git config --global user.name name &&
+            /opt/virtualenv/bin/python3 tools/corpus_gather.py
+      - name: Corpus trim
+        uses: ./
+        with:
+          run: |
+            /opt/virtualenv/bin/python3 tools/corpus_trim.py
+            set +e
+            for opt in --global --local --system --worktree; do
+              git config "${opt}" --unset-all user.email
+              git config "${opt}" --unset-all user.name
+            done
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.15.3
         with:
@@ -88,24 +70,19 @@ jobs:
       - uses: actions/checkout@v3.1.0
         with:
           submodules: true
-      - run: >
-          wget https://apt.llvm.org/llvm.sh &&
-          chmod +x llvm.sh &&
-          sudo ./llvm.sh "${CLANG_VERSION}" all &&
-          rm -rf llvm.sh &&
-          sudo apt-get install -y ninja-build
       - name: Scan Build
-        run: >
-          CXXFLAGS=''
-          "scan-build-${CLANG_VERSION}"
-          --use-cc "/usr/bin/clang-${CLANG_VERSION}"
-          --use-c++ "/usr/bin/clang++-${CLANG_VERSION}"
-          bash -c '
-            set -e -o pipefail
-            cmake -GNinja -B build -S .
-            tools/ninja.sh build check-rand regression
-          '
-        working-directory: ${{ github.workspace }}
+        uses: ./
+        with:
+          run: >
+            CXXFLAGS=''
+            /usr/local/bin/scan-build
+            --use-cc /usr/local/bin/clang
+            --use-c++ /usr/local/bin/clang++
+            bash -c '
+              set -e -o pipefail
+              cmake -GNinja -B build -S .
+              tools/ninja.sh build check-rand regression
+            '
 
 name: CMake
 

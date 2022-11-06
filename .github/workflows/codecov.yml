@@ -1,7 +1,8 @@
 ---
 env:
-  CLANG_VERSION: 15
+  CC: /usr/local/bin/clang
   CMAKE_BUILD_TYPE: Coverage  # not using Debug to avoid getting `-g`
+  CXX: /usr/local/bin/clang++
   CXXFLAGS: >
     -O1 -DNDEBUG
     -fcoverage-mapping
@@ -23,12 +24,12 @@ jobs:
       - name: Cache
         uses: actions/cache@v3.0.11
         with:
-          key: codecov-${{ hashFiles('CMakeLists.txt') }}-${{ env.CLANG_VERSION }}-v2
+          key: codecov-${{ hashFiles('CMakeLists.txt') }}-v1
           path: build
-      - env:
-          CC: /usr/bin/clang-${{ env.CLANG_VERSION }}
-          CXX: /usr/bin/clang++-${{ env.CLANG_VERSION }}
-        run: python tools/codecov.py
+      - name: Run regression with coverage
+        uses: ./
+        with:
+          run: /opt/virtualenv/bin/python tools/codecov.py
       - uses: codecov/codecov-action@v3.1.1
         with:
           directory: ${{ env.LLVM_PROFILE_DIR }}
