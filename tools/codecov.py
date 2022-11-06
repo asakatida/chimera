@@ -26,7 +26,6 @@ from pathlib import Path
 from sys import stderr
 
 from asyncio_cmd import ProcessError, cmd
-from requests import get
 
 
 async def main() -> None:
@@ -39,13 +38,6 @@ async def main() -> None:
     ).resolve()
     environ["LLVM_PROFILE_FILE"] = str(llvm_profile_file)
     llvm_profile_dir = llvm_profile_file.parent
-    llvm = Path("/tmp/llvm.sh")
-    llvm.write_bytes(get("https://apt.llvm.org/llvm.sh", allow_redirects=True).content)
-    llvm.chmod(0o755)
-    clang_version = environ.get("CLANG_VERSION", "15")
-    await cmd("sudo", str(llvm), clang_version, timeout=300)
-    llvm.unlink()
-    await cmd("sudo", "apt-get", "install", "-y", "ninja-build")
     source = Path(__file__).parent.parent
     build = source / "build"
     await cmd("cmake", "-G", "Ninja", "-B", str(build), "-S", str(source))
@@ -58,7 +50,7 @@ async def main() -> None:
     llvm_profile_files = map(str, filter(Path.is_file, llvm_profile_dir.iterdir()))
     instr_profile = llvm_profile_dir / "llvm-profile.profdata"
     await cmd(
-        f"llvm-profdata-{clang_version}",
+        "llvm-profdata",
         "merge",
         "-sparse",
         *llvm_profile_files,
@@ -66,7 +58,7 @@ async def main() -> None:
         timeout=300,
     )
     await cmd(
-        f"llvm-cov-{clang_version}",
+        "llvm-cov",
         "export",
         "build/unit-test",
         "--ignore-filename-regex=.*/(external|unit_tests)/.*",

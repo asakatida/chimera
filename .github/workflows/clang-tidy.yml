@@ -1,7 +1,8 @@
 ---
 env:
-  CLANG_VERSION: "15"
+  CC: /usr/local/bin/clang
   CMAKE_EXPORT_COMPILE_COMMANDS: "YES"
+  CXX: /usr/local/bin/clang++
 
 jobs:
   clangformat:
@@ -27,33 +28,28 @@ jobs:
       - name: Cache
         uses: actions/cache@v3.0.11
         with:
-          key: clang-tidy-${{ hashFiles('CMakeLists.txt') }}-${{ env.CLANG_VERSION }}-v2
+          key: clang-tidy-${{ hashFiles('CMakeLists.txt') }}-v1
           path: build
-      - run: >
-          wget https://apt.llvm.org/llvm.sh &&
-          chmod +x llvm.sh &&
-          sudo ./llvm.sh "${CLANG_VERSION}" all &&
-          rm -rf llvm.sh
-      - env:
-          CC: /usr/bin/clang-${{ env.CLANG_VERSION }}
-          CXX: /usr/bin/clang++-${{ env.CLANG_VERSION }}
-        name: Configure CMake
-        run: cmake -B build -S .
-        working-directory: ${{ github.workspace }}
+      - name: Configure CMake
+        uses: ./
+        with:
+          run: cmake -B build -S .
       - if: matrix.lints
         name: Lint c++ code
-        run: >
-          tools/g-ls-tree.sh -name '*.cpp' |
-          xargs --no-run-if-empty --null --
-          "clang-tidy-${CLANG_VERSION}" -p=build -checks=-*,${{ matrix.lints }}
-        working-directory: ${{ github.workspace }}
+        uses: ./
+        with:
+          run: >
+            tools/g-ls-tree.sh -name '*.cpp' |
+            xargs --no-run-if-empty --null --
+            /usr/local/bin/clang-tidy -p=build -checks=-*,${{ matrix.lints }}
       - if: ${{ !matrix.lints }}
         name: Lint c++ code
-        run: >
-          tools/g-ls-tree.sh -name '*.cpp' |
-          xargs --no-run-if-empty --null --
-          "clang-tidy-${CLANG_VERSION}" -p=build
-        working-directory: ${{ github.workspace }}
+        uses: ./
+        with:
+          run: >
+            tools/g-ls-tree.sh -name '*.cpp' |
+            xargs --no-run-if-empty --null --
+            /usr/local/bin/clang-tidy -p=build
     strategy:
       matrix:
         lints:

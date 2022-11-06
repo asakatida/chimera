@@ -1,0 +1,18 @@
+---
+description: Vendor CI dependencies using cloud code image
+inputs:
+  run:
+    description: shell string to run
+    required: true
+name: Chimera
+runs:
+  args:
+    - -eo
+    - pipefail
+    - -c
+    - >
+      git config --global --add safe.directory /github/workspace &&
+      ${{ inputs.run }}
+  entrypoint: /bin/bash
+  image: asakatida/chimera:latest
+  using: docker
