@@ -21,19 +21,17 @@
 """corpus_trim.py"""
 
 from asyncio import run
-from asyncio.subprocess import DEVNULL
-from functools import cache
 from hashlib import sha256
-from itertools import chain
+from itertools import chain, repeat
+from operator import attrgetter
 from pathlib import Path
 from re import MULTILINE, compile
 from sys import stderr
-from typing import AsyncGenerator, Iterable, Optional, TypeVar
+from typing import Iterable, TypeVar
 
-from asyncio_as_completed import as_completed
-from asyncio_cmd import ProcessError, cmd
+from asyncio_cmd import ProcessError
+from corpus_utils import fuzz_star, fuzz_test, gather_paths
 from tqdm import tqdm  # type: ignore
-from tqdm.asyncio import tqdm as atqdm  # type: ignore
 
 LENGTH = 8
 DIRECTORIES = ("corpus", "crashes")
@@ -48,12 +46,6 @@ CONFLICT = compile(rb"^((<{8}|>{8})\s.+|={8})$\s", MULTILINE)
 
 class Increment(Exception):
     pass
-
-
-def c_atqdm(
-    iterable: AsyncGenerator[T, object], desc: str
-) -> AsyncGenerator[T, object]:
-    return atqdm(iterable, desc=desc, maxinterval=60, miniters=100, unit_scale=True)  # type: ignore
 
 
 def c_tqdm(iterable: Iterable[T], desc: str) -> Iterable[T]:
@@ -92,21 +84,28 @@ def corpus_trim_one(fuzz: Iterable[Path]) -> None:
     for file in c_tqdm(fuzz, "Corpus rehash"):
         src_sha = sha(file)
         name = src_sha[:LENGTH]
-        if any(
-            map(
-                lambda other: other.exists() and src_sha != sha(other),
-                map(lambda directory: FUZZ / directory / name, DIRECTORIES),
-            )
+        if name == file.name:
+            continue
+        if src_sha in map(
+            sha,  # type: ignore
+            filter(
+                Path.exists,  # type: ignore
+                map(Path.joinpath, map(FUZZ.joinpath, DIRECTORIES), repeat(name)),  # type: ignore
+            ),
         ):
             LENGTH += 1
             raise Increment(
                 f"Collision found, update corpus_trim.py `LENGTH`: {LENGTH}"
             )
         file.rename(file.parent / name)
-    for file in c_tqdm(CRASHES.iterdir(), "Regression trim"):
-        file = CORPUS / file.name
-        if file.exists():
-            file.unlink()
+    for file in filter(
+        Path.exists,
+        map(
+            CORPUS.joinpath,
+            map(attrgetter("name"), c_tqdm(CRASHES.iterdir(), "Regression trim")),
+        ),
+    ):
+        file.unlink()
 
 
 def corpus_trim() -> None:
@@ -118,58 +117,6 @@ def corpus_trim() -> None:
                 raise
             continue
         break
-
-
-@cache
-def fuzz_star() -> tuple[Path, ...]:
-    return tuple(
-        filter(
-            lambda path: path.is_file() and path.stat().st_mode & 0o110,
-            SOURCE.rglob("fuzz-*"),
-        )
-    )
-
-
-async def fuzz_test_one(
-    regression: Path, *args: str, stdout: Optional[int], timeout: int
-) -> Optional[Exception]:
-    try:
-        await cmd(
-            str(regression),
-            "-detect_leaks=0",
-            "-use_value_profile=1",
-            *args,
-            log=False,
-            stdout=stdout,
-            timeout=timeout,
-        )
-    except Exception as error:
-        return error
-    return None
-
-
-async def fuzz_test(
-    *args: str, stdout: Optional[int] = DEVNULL, timeout: int = 10
-) -> list[Exception]:
-    results = []
-    async for error in as_completed(
-        map(
-            lambda regression: fuzz_test_one(
-                regression, *args, stdout=stdout, timeout=timeout
-            ),
-            fuzz_star(),
-        ),
-        limit=4,
-    ):
-        if error is not None:
-            results.append(error)
-    return results
-
-
-def gather_paths() -> Iterable[Path]:
-    return chain.from_iterable(
-        map(lambda directory: (FUZZ / directory).iterdir(), DIRECTORIES)
-    )
 
 
 def sha(path: Path) -> str:

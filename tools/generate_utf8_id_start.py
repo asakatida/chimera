@@ -29,7 +29,7 @@ from tqdm import tqdm  # type: ignore
 
 utf8_id_start = (
     Path(__file__).parent.parent / "library" / "grammar" / "utf8_id_start.hpp"
-).absolute()
+).resolve()
 
 
 def _slices(total: int, it: Iterator[int]) -> Iterator[Iterator[str]]:
@@ -46,21 +46,24 @@ def _ranges(total: int, it: Iterator[int]) -> str:
     return f"sor<ranges<{ranges}>>"
 
 
-def _a(key: int, group: Iterator[Tuple[int, int]]) -> Tuple[int, ...]:
+def _a(_: int, group: Iterator[Tuple[int, int]]) -> Tuple[int, ...]:
     t = tuple(e[0] for e in group)
     return (min(t), max(t))
 
 
 ranges = _ranges(
     1334,
-    chain.from_iterable(
-        starmap(
+    chain(
+        *starmap(
             _a,
             groupby(
                 zip(
-                    filter(
-                        lambda i: chr(i).isidentifier(),
-                        range(0x10FFFF),
+                    map(
+                        ord,
+                        filter(
+                            str.isidentifier,
+                            map(chr, range(0x10FFFF)),
+                        ),
                     ),
                     count(),
                 ),

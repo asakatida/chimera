@@ -21,16 +21,13 @@
 """corpus_regression.py"""
 
 from asyncio import run
-from asyncio.subprocess import DEVNULL
-from functools import cache
-from itertools import chain
 from pathlib import Path
 from sys import stderr
-from typing import AsyncGenerator, Iterable, Optional, TypeVar
+from typing import Iterable, TypeVar
 
 from asyncio_as_completed import as_completed
-from asyncio_cmd import ProcessError, cmd
-from tqdm.asyncio import tqdm  # type: ignore
+from asyncio_cmd import ProcessError
+from corpus_utils import c_atqdm, fuzz_star, fuzz_test, gather_paths
 
 DIRECTORIES = ("corpus", "crashes")
 SOURCE = Path(__file__).parent.parent.resolve()
@@ -38,64 +35,6 @@ FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
 CRASHES = FUZZ / "crashes"
 T = TypeVar("T")
-
-
-def c_atqdm(
-    iterable: AsyncGenerator[T, object], desc: str
-) -> AsyncGenerator[T, object]:
-    return tqdm(iterable, desc=desc, maxinterval=60, miniters=100, unit_scale=True)  # type: ignore
-
-
-@cache
-def fuzz_star() -> tuple[Path, ...]:
-    return tuple(
-        filter(
-            lambda path: path.is_file() and path.stat().st_mode & 0o110,
-            SOURCE.rglob("fuzz-*"),
-        )
-    )
-
-
-async def fuzz_test_one(
-    regression: Path, *args: str, stdout: Optional[int], timeout: int
-) -> Optional[Exception]:
-    try:
-        await cmd(
-            str(regression),
-            "-detect_leaks=0",
-            "-use_value_profile=1",
-            *args,
-            log=False,
-            stdout=stdout,
-            timeout=timeout,
-        )
-    except Exception as error:
-        return error
-    return None
-
-
-async def fuzz_test(
-    *args: str, stdout: Optional[int] = DEVNULL, timeout: int = 10
-) -> list[Exception]:
-    results = []
-    async for error in as_completed(
-        map(
-            lambda regression: fuzz_test_one(
-                regression, *args, stdout=stdout, timeout=timeout
-            ),
-            fuzz_star(),
-        ),
-        limit=12,
-    ):
-        if error is not None:
-            results.append(error)
-    return results
-
-
-def gather_paths() -> Iterable[Path]:
-    return chain.from_iterable(
-        map(lambda directory: (FUZZ / directory).iterdir(), DIRECTORIES)
-    )
 
 
 async def regression_one(file: Path) -> None:

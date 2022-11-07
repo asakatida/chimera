@@ -294,7 +294,6 @@
           block:
             - ansible.builtin.shell: |
                 set -e
-
                 git config --global advice.detachedHead true
                 git config --global advice.ignoredHook false
                 git config --global advice.skippedCherryPicks false
@@ -315,7 +314,6 @@
                 git config --global rebase.updateRefs true
                 git config --global status.submoduleSummary true
                 git config --global submodule.recurse true
-
                 python{{ py_version }} -m venv /opt/virtualenv
                 /opt/virtualenv/bin/pip install --upgrade pip setuptools wheel
                 /opt/virtualenv/bin/pip install -r /tmp/requirements.txt
