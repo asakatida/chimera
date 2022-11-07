@@ -12,10 +12,13 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.1.0
-      - uses: DoozyX/clang-format-lint-action@v0.14
+      - name: Lint c++ code
+        uses: ./
         with:
-          clangFormatVersion: 14
-          extensions: cpp,h,hpp
+          run: >
+            tools/g-ls-tree.sh '(' -name '*.cpp' -or -name '*.h' -or -name '*.hpp' ')' |
+            xargs --no-run-if-empty --null --
+            /usr/local/bin/clang-format --dry-run -style=file -Werror
   clangtidy:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
