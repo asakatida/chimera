@@ -37,7 +37,7 @@ namespace chimera::library::grammar::flags {
   template <auto... Flags>
   constexpr static Flag list = ((1U << Flags) | ... | 0U);
   template <Flag Options, auto... Flags>
-  constexpr static Flag mask = Options &((1U << Flags) | ...);
+  constexpr static Flag mask = Options & ((1U << Flags) | ...);
   template <Flag Options, auto... Flags>
   constexpr static bool get = mask<Options, Flags...> != 0;
   template <Flag Options, auto... Flags>
