@@ -27,14 +27,15 @@ async def cmd(
     try:
         cmd_stdout, cmd_stderr = await wait_for(proc.communicate(), timeout=timeout)
     finally:
-        if proc.returncode is None:
+        returncode = proc.returncode
+        if returncode is None:
             proc.terminate()
-            await proc.wait()
+            returncode = await proc.wait()
             if proc.stderr is not None:
                 cmd_stderr += await proc.stderr.read()
             cmd_stderr += (
                 f"\nThe process was terminated by timeout {timeout} seconds".encode()
             )
-        if proc.returncode != 0:
-            raise ProcessError(args, cmd_stderr, proc.returncode or 1)
+        if returncode != 0:
+            raise ProcessError(args, cmd_stderr, returncode or 1)
     return cmd_stdout
