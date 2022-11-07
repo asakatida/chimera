@@ -1,37 +1,40 @@
-from asyncio import Task, get_event_loop
+from asyncio import Queue, create_task, wait_for
 from os import cpu_count
 from typing import AsyncGenerator, Coroutine, Iterable, TypeVar
 
 T = TypeVar("T")
 
 
-async def as_completed_each(
-    errors: list[BaseException], task: Task[T]
-) -> AsyncGenerator[T, object]:
-    await task
-    if error := task.exception():
-        errors.append(error)
-    else:
-        yield task.result()
+async def worker(queue: Queue[Coroutine[object, object, T]], output: Queue[T]) -> None:
+    while True:
+        coroutine = await queue.get()
+        await output.put(await coroutine)
+        queue.task_done()
+
+
+async def producer(
+    coroutines: Iterable[Coroutine[object, object, T]],
+    queue: Queue[Coroutine[object, object, T]],
+) -> None:
+    for coroutine in coroutines:
+        await queue.put(coroutine)
+    await queue.join()
 
 
 async def as_completed(
-    routines: Iterable[Coroutine[object, object, T]],
+    coroutines: Iterable[Coroutine[object, object, T]],
     limit: int = max(12, (cpu_count() or 1) // 4),
 ) -> AsyncGenerator[T, object]:
-    errors: list[BaseException] = []
-    running: list[Task[T]] = []
-    for _ in map(running.append, map(get_event_loop().create_task, routines)):  # type: ignore
-        if len(running) >= limit:
-            async for elem in as_completed_each(errors, running.pop(0)):
-                yield elem
-            for task in running:
-                if task.done():
-                    async for elem in as_completed_each(errors, task):
-                        yield elem
-                    running.remove(task)
-    for task in running:
-        async for elem in as_completed_each(errors, task):
-            yield elem
-    if errors:
-        raise errors[0]
+    queue: Queue[Coroutine[object, object, T]] = Queue(1)
+    output: Queue[T] = Queue(1)
+    workers = [create_task(worker(queue, output)) for _ in range(limit)]
+    task = create_task(producer(coroutines, queue))
+    while True:
+        try:
+            yield await wait_for(output.get(), 2)
+            output.task_done()
+        except TimeoutError:
+            if task.done():
+                break
+    await wait_for(task, 2)
+    [worker.cancel() for worker in workers]
