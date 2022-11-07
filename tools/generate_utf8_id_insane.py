@@ -44,16 +44,16 @@ def _ranges(total: int, it: Iterator[int]) -> str:
 
 utf8_id_continue = (
     Path(__file__).parent.parent / "library" / "grammar" / "utf8_id_continue.hpp"
-).absolute()
+).resolve()
 
-id_start = set(filter(lambda i: chr(i).isidentifier(), range(0x10FFFF)))
+id_start = set(filter(str.isidentifier, map(chr, range(0x10FFFF))))
 id_continue = set(
     tqdm(
         filter(
-            lambda i: all(
-                map(lambda j: "".join((chr(j), chr(i))).isidentifier(), id_start)
+            lambda i: all(  # type: ignore
+                map(str.isidentifier, map("".join, repeat(i), map(chr, id_start)))  # type: ignore
             ),
-            set(range(0x10FFFF)) - id_start,
+            set(map(chr, range(0x10FFFF))) - id_start,
         ),
         total=2908,
     )
@@ -69,10 +69,9 @@ ranges = _ranges(
                     map(
                         "".join,
                         product(
-                            map(chr, id_start),
-                            map(
-                                chr,
-                                set(range(0x10FFFF)).difference(id_start, id_continue),
+                            id_start,
+                            set(map(chr, range(0x10FFFF))).difference(
+                                id_start, id_continue
                             ),
                         ),
                     ),

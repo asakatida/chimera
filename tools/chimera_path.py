@@ -1,10 +1,8 @@
 from pathlib import Path
 from sys import path
 
-tools = str(Path(__file__).parent.absolute())
+tools = Path(__file__).parent.resolve()
 
-print(
-    ":".join(
-        map(lambda p: str(Path(p).absolute()), filter(lambda p: p != tools, path)),
-    )
-)
+paths = list(map(Path.resolve, map(Path, path)))  # type: ignore
+paths.remove(tools)  # type: ignore
+print(*paths, sep=":")

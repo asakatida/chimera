@@ -1,6 +1,7 @@
 from functools import reduce
+from itertools import repeat
 from pathlib import Path
-from re import MULTILINE, compile
+from re import MULTILINE, Pattern, compile
 from sys import argv
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -26,7 +27,7 @@ def test(f: Path) -> bool:
     return (
         (not any(map(f.resolve().is_relative_to, IGNORE)))
         and f.suffix not in (".md", ".py")
-        and any(map(lambda search: search.search(f.read_bytes()), SEARCHES))
+        and any(map(Pattern.search, SEARCHES, repeat(f.read_bytes())))
     )
 
 

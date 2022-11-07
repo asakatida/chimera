@@ -29,7 +29,7 @@ from tqdm import tqdm  # type: ignore
 
 utf8_id_continue = (
     Path(__file__).parent.parent / "library" / "grammar" / "utf8_id_continue.hpp"
-).absolute()
+).resolve()
 
 
 def _slices(total: int, it: Iterator[int]) -> Iterator[Iterator[str]]:
@@ -57,8 +57,8 @@ def _a(id_start: Set[int]) -> Iterator[int]:
         return all(c())
 
     id_continue_pos: Set[int] = set(range(0x10FFFF)) - id_start
-    return chain.from_iterable(
-        starmap(
+    return chain(
+        *starmap(
             _b,
             groupby(zip(filter(b, id_continue_pos), count()), lambda t: t[0] - t[1]),
         )
