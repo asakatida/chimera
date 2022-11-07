@@ -42,26 +42,8 @@ name: CodeQL
 
 # yamllint disable-line rule:truthy
 on:
-  pull_request:
-    branches:
-      - stable
-    paths-ignore:
-      - .dockerignore
-      - "**.md"
-      - Dockerfile
-      - tools/docker.sh
-      - unit_tests/fuzz/corpus/*
-      - unit_tests/fuzz/crashes/*
-  push:
-    branches:
-      - stable
-    paths-ignore:
-      - .dockerignore
-      - "**.md"
-      - Dockerfile
-      - tools/docker.sh
-      - unit_tests/fuzz/corpus/*
-      - unit_tests/fuzz/crashes/*
+  pull_request: {}
+  push: {}
   schedule:
     - cron: 20 14 * * 5
   workflow_dispatch: ~

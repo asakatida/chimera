@@ -40,4 +40,6 @@ on:
       - requirements.txt
       - tools/boot.yml
       - tools/docker.sh
+  schedule:
+    - cron: 20 14 * * *
   workflow_dispatch: ~

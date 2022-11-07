@@ -116,8 +116,10 @@ on:
       - stable
     paths-ignore:
       - .dockerignore
+      - .github/workflows/docker.yml
       - "**.md"
       - Dockerfile
+      - tools/boot.yml
       - tools/docker.sh
       - unit_tests/fuzz/corpus/*
       - unit_tests/fuzz/crashes/*
@@ -126,8 +128,10 @@ on:
       - stable
     paths-ignore:
       - .dockerignore
+      - .github/workflows/docker.yml
       - "**.md"
       - Dockerfile
+      - tools/boot.yml
       - tools/docker.sh
       - unit_tests/fuzz/corpus/*
       - unit_tests/fuzz/crashes/*
