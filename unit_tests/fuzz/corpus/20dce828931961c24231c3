@@ -1,7 +1,5 @@
-<<<<<<<< HEAD:unit_tests/fuzz/corpus/b4f7fdfecc4c8d36e78308
 b"""\\\\\
 \\
-========
 None\
 \
 \
@@ -64,7 +62,6 @@ None\
 \
 \
 \
->>>>>>>> 50754a016 (Update fuzzing corpus.):unit_tests/fuzz/corpus/20dce828931961c24231c3
 \
 \
 \\
@@ -113,7 +110,6 @@ None\
 \
 \
 \
-<<<<<<<< HEAD:unit_tests/fuzz/corpus/b4f7fdfecc4c8d36e78308
 \
 \
 \
@@ -179,9 +175,7 @@ None\
 e\\"""'%b')
 
 '
-========
 \\
 \
 \
 𑄇
->>>>>>>> 50754a016 (Update fuzzing corpus.):unit_tests/fuzz/corpus/20dce828931961c24231c3
