@@ -42,8 +42,7 @@ name: CodeQL
 
 # yamllint disable-line rule:truthy
 on:
-  pull_request: {}
-  push: {}
+  push: ~
   schedule:
     - cron: 20 14 * * 5
   workflow_dispatch: ~

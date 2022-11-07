@@ -2,7 +2,7 @@
 jobs:
   trufflehog:
     concurrency:
-      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      cancel-in-progress: true
       group: ${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
@@ -19,5 +19,5 @@ jobs:
 name: TruffleHog
 # yamllint disable-line rule:truthy
 on:
-  pull_request: {}
+  pull_request: ~
   workflow_dispatch: ~
