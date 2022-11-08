@@ -13,6 +13,10 @@ jobs:
           entrypoint: /bin/hadolint
       - uses: docker://hadolint/hadolint:2.12.0
         with:
+          args: --verbose Dockerfile.alpine
+          entrypoint: /bin/hadolint
+      - uses: docker://hadolint/hadolint:2.12.0
+        with:
           args: --verbose Dockerfile.python
           entrypoint: /bin/hadolint
       - uses: docker/setup-qemu-action@v2.1.0
@@ -27,6 +31,11 @@ jobs:
           file: Dockerfile.python
           push: ${{ github.ref == 'refs/heads/stable' }}
           tags: asakatida/python:3.12
+      - uses: docker/build-push-action@v3.2.0
+        with:
+          file: Dockerfile.alpine
+          push: ${{ github.ref == 'refs/heads/stable' }}
+          tags: asakatida/chimera:alpine
       - uses: docker/build-push-action@v3.2.0
         with:
           push: ${{ github.ref == 'refs/heads/stable' }}
