@@ -180,7 +180,7 @@ async def regression_one(file: Path) -> None:
 
 async def regression(fuzz: Iterable[Path]) -> None:
     async for _ in c_atqdm(
-        as_completed(map(regression_one, fuzz), limit=10), "Regression"
+        as_completed(map(regression_one, fuzz), limit=8), "Regression"
     ):
         pass
 

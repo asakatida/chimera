@@ -25,8 +25,8 @@ async def as_completed(
     coroutines: Iterable[Coroutine[object, object, T]],
     limit: int = max(12, (cpu_count() or 1) // 4),
 ) -> AsyncGenerator[T, object]:
-    queue: Queue[Coroutine[object, object, T]] = Queue(1)
-    output: Queue[T] = Queue(1)
+    queue: Queue[Coroutine[object, object, T]] = Queue(limit)
+    output: Queue[T] = Queue(limit)
     workers = [create_task(worker(queue, output)) for _ in range(limit)]
     task = create_task(producer(coroutines, queue))
     while True:
