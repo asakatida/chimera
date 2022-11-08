@@ -82,7 +82,7 @@ jobs:
             /opt/virtualenv/bin/pip3 install -r requirements.txt;
             find tools -name 'generate_utf8_*.py' -not -name '*insane*' -print0 |
             xargs --no-run-if-empty --null -n1 -P3 --
-            /opt/virtualenv/bin/python3;
+            /opt/virtualenv/bin/python;
             tools/g-ls-tree.sh -name '*.hpp' |
             xargs --no-run-if-empty --null --
             /usr/local/bin/clang-format -style=file -i

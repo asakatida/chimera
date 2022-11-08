@@ -4,8 +4,7 @@
   tasks:
     - ansible.builtin.set_fact:
         llvm_version: 15
-        py_version: 3.12
-      name: Set Python version
+      name: Set LLVM version
     - become: true
       block:
         - ansible.builtin.apt:
@@ -19,10 +18,127 @@
             state: latest
             update_cache: true
           name: Install apt packages
-        - ansible.builtin.package:
+        - ansible.builtin.apt:
+            install_recommends: false
+            name:
+              - gnupg
+              - lsb-release
+              - software-properties-common
+              - wget
+            state: latest
+            update_cache: true
+          name: Install apt packages
+        - ansible.builtin.get_url:
+            dest: /tmp/llvm.sh
+            url: https://apt.llvm.org/llvm.sh
+          name: Download LLVM install
+        - ansible.builtin.script:
+            chdir: /tmp
+            cmd: /tmp/llvm.sh {{ llvm_version }} all
+          name: Install LLVM
+        - ansible.builtin.file:
+            path: /tmp/llvm.sh
+            state: absent
+          name: Clean LLVM script
+        - ansible.builtin.shell: command -v {{ item }}-{{ llvm_version }}
+          register: links
+          with_items:
+            - clang
+            - clang-format
+            - clang-tidy
+            - clang++
+            - llvm-cov
+            - llvm-profdata
+            - scan-build
+        - ansible.builtin.file:
+            dest: /usr/local/bin/{{ item.item }}
+            src: "{{ item.stdout }}"
+            state: link
+          loop: "{{ links.results }}"
+          name: Create LLVM links
+        - ansible.builtin.apt:
             install_recommends: false
             name:
               - adduser
+              - sudo
+            state: latest
+            update_cache: true
+          name: Install apt packages
+        - ansible.builtin.group:
+            gid: 122
+            name: github
+            state: present
+          name: Create github group
+        - ansible.builtin.user:
+            createhome: true
+            group: 122
+            name: github
+            uid: 1001
+          name: Create github user
+        - ansible.builtin.lineinfile:
+            dest: /etc/sudoers.d/github
+            line: github ALL=(ALL) NOPASSWD:ALL
+            mode: "0440"
+        - ansible.builtin.apt:
+            install_recommends: false
+            name:
+              - fish
+            state: latest
+        - ansible.builtin.file:
+            group: github
+            owner: github
+            path: /opt/virtualenv
+            state: directory
+        - become_user: github
+          block:
+            - ansible.builtin.shell: |
+                set -e
+
+                git config --global advice.detachedHead true
+                git config --global advice.ignoredHook false
+                git config --global advice.skippedCherryPicks false
+                git config --global checkout.defaultRemote origin
+                git config --global core.ignorecase true
+                git config --global diff.renameLimit 1522
+                git config --global diff.submodule diff
+                git config --global fetch.recurseSubmodules false
+                git config --global init.defaultBranch stable
+                git config --global pull.rebase true
+                git config --global push.autoSetupRemote true
+                git config --global push.default simple
+                git config --global push.recurseSubmodules false
+                git config --global rebase.autoSquash true
+                git config --global rebase.autoStash true
+                git config --global rebase.backend apply
+                git config --global rebase.missingCommitsCheck error
+                git config --global rebase.updateRefs true
+                git config --global status.submoduleSummary true
+                git config --global submodule.recurse true
+
+                python{{ py_version }} -m venv /opt/virtualenv
+                /opt/virtualenv/bin/pip install --upgrade pip setuptools wheel
+                /opt/virtualenv/bin/pip install -r /tmp/requirements.txt
+              name: Setup git config and Python virtualenv
+            - ansible.builtin.shell: command -v fish
+              name: Get fish shell
+              register: fish_shell
+            - ansible.builtin.shell:
+                cmd: set -U fish_user_paths /opt/virtualenv/bin /usr/local/bin
+                executable: "{{ fish_shell.stdout }}"
+              name: Update Fish user paths
+        - ansible.builtin.user:
+            name: github
+            shell: "{{ fish_shell.stdout }}"
+          name: Set fish shell
+        - ansible.builtin.get_url:
+            dest: /tmp/install.sh
+            url: https://tailscale.com/install.sh
+          tags:
+            - debug
+            - never
+        - ansible.builtin.apt:
+            install_recommends: false
+            name:
               - autoconf
               - automake
               - base-files
@@ -51,7 +167,6 @@
               - fdisk
               - file
               - findutils
-              - fish
               - gcc-12-base
               - gettext
               - git
@@ -182,7 +297,6 @@
               - patch
               - perl-base
               - procps
-              - python3-neovim
               - python3-venv
               - ripgrep
               - sed
@@ -191,7 +305,6 @@
               - software-properties-common
               - ssl-cert
               - stow
-              - sudo
               - sysvinit-utils
               - tar
               - time
@@ -205,111 +318,18 @@
               - zlib1g
               - zlib1g-dev
             state: latest
-            update_cache: true
-        - ansible.builtin.file:
-            mode: "0700"
-            path: /var/cache/apt/archives/partial
-            state: directory
-          name: Setup apt-get update
-          tags:
-            - debug
-            - never
-        - ansible.builtin.apt_repository:
-            repo: ppa:deadsnakes/nightly
-          name: Add repo deadsnakes
-        - ansible.builtin.apt:
-            install_recommends: false
-            name:
-              - python{{ py_version }}-dev
-              - python{{ py_version }}-venv
-            state: latest
-            update_cache: true
-          name: Install Python {{ py_version }}
         - ansible.builtin.apt:
             autoclean: true
             autoremove: true
             clean: true
           name: Clean apt
+        - ansible.builtin.apt:
+            clean: true
+          name: Clean apt
         - ansible.builtin.file:
-            group: github
-            owner: github
-            path: /opt/virtualenv
-            state: directory
-        - become_user: github
-          block:
-            - ansible.builtin.shell: |
-                set -e
-
-                git config --global advice.detachedHead true
-                git config --global advice.ignoredHook false
-                git config --global advice.skippedCherryPicks false
-                git config --global checkout.defaultRemote origin
-                git config --global core.ignorecase true
-                git config --global diff.renameLimit 1522
-                git config --global diff.submodule diff
-                git config --global fetch.recurseSubmodules false
-                git config --global init.defaultBranch stable
-                git config --global pull.rebase true
-                git config --global push.autoSetupRemote true
-                git config --global push.default simple
-                git config --global push.recurseSubmodules false
-                git config --global rebase.autoSquash true
-                git config --global rebase.autoStash true
-                git config --global rebase.backend apply
-                git config --global rebase.missingCommitsCheck error
-                git config --global rebase.updateRefs true
-                git config --global status.submoduleSummary true
-                git config --global submodule.recurse true
-
-                python{{ py_version }} -m venv /opt/virtualenv
-                /opt/virtualenv/bin/pip install --upgrade pip setuptools wheel
-                /opt/virtualenv/bin/pip install -r /tmp/requirements.txt
-              name: Setup git config and Python virtualenv
-            - ansible.builtin.shell: command -v fish
-              name: Get fish shell
-              register: fish_shell
-            - ansible.builtin.shell:
-                cmd: set -U fish_user_paths /opt/virtualenv/bin /usr/local/bin
-                executable: "{{ fish_shell.stdout }}"
-              name: Update Fish user paths
-        - ansible.builtin.user:
-            name: github
-            shell: "{{ fish_shell.stdout }}"
-          name: Set fish shell
-        - ansible.builtin.get_url:
-            dest: /tmp/llvm.sh
-            url: https://apt.llvm.org/llvm.sh
-          name: Download LLVM install
-        - ansible.builtin.script:
-            chdir: /tmp
-            cmd: /tmp/llvm.sh {{ llvm_version }} all
-          name: Install LLVM
-        - ansible.builtin.file:
-            path: /tmp/llvm.sh
+            path: /var/lib/apt/lists
             state: absent
-          name: Clean LLVM script
-        - ansible.builtin.shell: command -v {{ item }}-{{ llvm_version }}
-          register: links
-          with_items:
-            - clang++
-            - clang
-            - clang-format
-            - clang-tidy
-            - llvm-cov
-            - llvm-profdata
-            - scan-build
-        - ansible.builtin.file:
-            dest: /usr/local/bin/{{ item.item }}
-            src: "{{ item.stdout }}"
-            state: link
-          loop: "{{ links.results }}"
-          name: Create LLVM links
-        - ansible.builtin.get_url:
-            dest: /tmp/install.sh
-            url: https://tailscale.com/install.sh
-          tags:
-            - debug
-            - never
+          name: Remove apt lists
       name: Unix block
       when: ansible_facts.os_family != 'Darwin'
     - block:

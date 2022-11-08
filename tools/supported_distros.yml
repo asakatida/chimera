@@ -28,7 +28,7 @@ alpine:
     edge: *alpine_images
     latest: *alpine_images
 debian:
-  package_command: &debian_package_command apt-get install -y
+  package_command: &debian_package_command apt-get install --no-install-recommends --yes
   tags:
     stretch: &debian_images_old
       base: &debian_base_images
