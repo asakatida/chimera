@@ -237,4 +237,14 @@ ln -s "${llvm_cov_cmd}" /usr/local/bin/llvm-cov
 ln -s "${llvm_profdata_cmd}" /usr/local/bin/llvm-profdata
 ln -s "${scan_build_cmd}" /usr/local/bin/scan-build
 
+groupadd --gid 122 github
+useradd \
+  --create-home \
+  --gid 122 \
+  --groups sudo \
+  --no-user-group \
+  --shell "${fish_cmd}" \
+  --uid 1001 \
+  github
+
 # curl -fsSL https://tailscale.com/install.sh | sh
