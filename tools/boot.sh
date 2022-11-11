@@ -3,7 +3,7 @@
 set -ex -o pipefail
 
 env | cut -f1 -d= | sort -u
-export PREBUILD_CHECK="${GITPOD_WORKSPACE_URL:-}"
+export PREBUILD_CHECK="${CODESPACES:-}"
 
 git submodule update --init
 

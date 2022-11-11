@@ -205,6 +205,27 @@ apt-get install --yes </dev/null \
   zlib1g \
   zlib1g-dev
 
+git config --global advice.detachedHead true
+git config --global advice.ignoredHook false
+git config --global advice.skippedCherryPicks false
+git config --global checkout.defaultRemote origin
+git config --global core.ignorecase true
+git config --global diff.renameLimit 1522
+git config --global diff.submodule diff
+git config --global fetch.recurseSubmodules false
+git config --global init.defaultBranch stable
+git config --global pull.rebase true
+git config --global push.autoSetupRemote true
+git config --global push.default simple
+git config --global push.recurseSubmodules false
+git config --global rebase.autoSquash true
+git config --global rebase.autoStash true
+git config --global rebase.backend apply
+git config --global rebase.missingCommitsCheck error
+git config --global rebase.updateRefs true
+git config --global status.submoduleSummary true
+git config --global submodule.recurse true
+
 python3 -m venv /tmp/env
 /tmp/env/bin/pip install --upgrade pip setuptools wheel
 /tmp/env/bin/pip install -r /tmp/requirements.txt
