@@ -246,5 +246,8 @@ useradd \
   --shell "${fish_cmd}" \
   --uid 1001 \
   github
+cat <<SUDOERS >/etc/sudoers.d/github
+github ALL=(ALL) NOPASSWD:ALL
+SUDOERS
 
 # curl -fsSL https://tailscale.com/install.sh | sh
