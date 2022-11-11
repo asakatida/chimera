@@ -17,7 +17,7 @@ mypy==0.990
 mypy-extensions==0.4.3
 packaging==21.3
 pathspec==0.10.1
-platformdirs==2.5.2
+platformdirs==2.5.3
 pycodestyle==2.9.1
 pycparser==2.21
 pydocstyle==6.1.1
