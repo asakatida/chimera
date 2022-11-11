@@ -10,9 +10,7 @@ runs:
     - -eo
     - pipefail
     - -c
-    - >
-      git config --global --add safe.directory /github/workspace &&
-      ${{ inputs.run }}
+    - ${{ inputs.run }}
   entrypoint: /bin/bash
   image: asakatida/chimera:latest
   using: docker
