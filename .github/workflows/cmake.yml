@@ -30,18 +30,18 @@ jobs:
       - name: Run regression
         uses: ./
         with:
-          run: >
-            /opt/virtualenv/bin/pip3 install -r requirements.txt &&
-            cmake -GNinja -B build -S . &&
+          run: |
+            /opt/virtualenv/bin/pip3 install -r requirements.txt
+            cmake -GNinja -B build -S .
             tools/ninja.sh build check-rand regression
       - if: github.ref == 'refs/heads/stable'
         name: Run corpus
         uses: ./
         with:
-          run: >
-            ninja -C build -k0 corpus || true &&
-            git config --global user.email email &&
-            git config --global user.name name &&
+          run: |
+            ninja -C build -k0 corpus || true
+            git config --global user.email email
+            git config --global user.name name
             /opt/virtualenv/bin/python3 tools/corpus_gather.py
       - name: Corpus trim
         uses: ./
