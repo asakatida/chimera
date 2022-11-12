@@ -12,7 +12,6 @@ cd "$(git rev-parse --show-toplevel || true)"
 case "$(uname)" in
   Darwin )
     brew install python3 shellcheck
-    sudo true
     export PATH="${PATH}:${HOME}/.pyenv/shims"
     ;;
   Linux )
