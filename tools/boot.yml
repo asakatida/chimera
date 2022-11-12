@@ -3,10 +3,209 @@
   name: Boot localhost for building
   tasks:
     - ansible.builtin.set_fact:
+        llvm_version: 15
         py_version: 3.12
       name: Set Python version
     - become: true
       block:
+        - ansible.builtin.apt:
+            install_recommends: false
+            name:
+              - apt
+              - apt-transport-https
+              - apt-utils
+              - aptitude
+              - libapt-pkg6.0
+            state: latest
+            update_cache: true
+          name: Install apt packages
+        - ansible.builtin.package:
+            install_recommends: false
+            name:
+              - adduser
+              - autoconf
+              - automake
+              - base-files
+              - base-passwd
+              - bash
+              - brz
+              - bsdutils
+              - build-essential
+              - bzip2
+              - bzr
+              - ca-certificates
+              - ccache
+              - cmake
+              - coreutils
+              - curl
+              - dash
+              - debconf
+              - debianutils
+              - default-libmysqlclient-dev
+              - diffutils
+              - dirmngr
+              - docker
+              - dpkg
+              - dpkg-dev
+              - e2fsprogs
+              - fdisk
+              - file
+              - findutils
+              - fish
+              - gcc-12-base
+              - gettext
+              - git
+              - git-lfs
+              - gnupg
+              - gnupg-agent
+              - gpgv
+              - grep
+              - gzip
+              - hostname
+              - htop
+              - imagemagick
+              - imagemagick-6.q16
+              - init-system-helpers
+              - jq
+              - less
+              - libacl1
+              - libattr1
+              - libaudit-common
+              - libaudit1
+              - libblkid1
+              - libbz2-1.0
+              - libbz2-dev
+              - libc-bin
+              - libc6
+              - libcap-ng0
+              - libcap2
+              - libcom-err2
+              - libcrypt1
+              - libcurl4-openssl-dev
+              - libdb-dev
+              - libdb5.3
+              - libdebconfclient0
+              - libdpkg-perl
+              - libevent-dev
+              - libext2fs2
+              - libfdisk1
+              - libffi-dev
+              - libffi8
+              - libgcc-s1
+              - libgcrypt20
+              - libgdbm-dev
+              - libglib2.0-0
+              - libglib2.0-dev
+              - libgmp-dev
+              - libgmp10
+              - libgnutls30
+              - libgpg-error0
+              - libgssapi-krb5-2
+              - libhogweed6
+              - libidn2-0
+              - libjpeg-dev
+              - libk5crypto3
+              - libkeyutils1
+              - libkrb5-3
+              - libkrb5-dev
+              - libkrb5support0
+              - liblz4-1
+              - liblzma-dev
+              - liblzma5
+              - libmagickcore-6.q16-6
+              - libmagickcore-dev
+              - libmagickwand-dev
+              - libmaxminddb-dev
+              - libmount1
+              - libncurses5-dev
+              - libncurses6
+              - libncursesw5-dev
+              - libncursesw6
+              - libnettle8
+              - libnsl2
+              - libp11-kit0
+              - libpam-modules
+              - libpam-modules-bin
+              - libpam-runtime
+              - libpam0g
+              - libpcre2-8-0
+              - libpcre3
+              - libpng-dev
+              - libpq-dev
+              - libprocps8
+              - libreadline-dev
+              - libsasl2-2
+              - libseccomp2
+              - libselinux1
+              - libsemanage-common
+              - libsemanage2
+              - libsepol2
+              - libsmartcols1
+              - libsqlite3-dev
+              - libss2
+              - libssl-dev
+              - libssl3
+              - libstdc++6
+              - libsystemd0
+              - libtasn1-6
+              - libtinfo6
+              - libtirpc-common
+              - libtirpc3
+              - libtool
+              - libudev1
+              - libunistring2
+              - libuuid1
+              - libwebp-dev
+              - libwmf0.2-7
+              - libxml2-dev
+              - libxslt1-dev
+              - libxxhash0
+              - libyaml-dev
+              - libzstd1
+              - locales
+              - login
+              - logsave
+              - lsb-base
+              - lsb-release
+              - lsof
+              - make
+              - man-db
+              - mawk
+              - mount
+              - multitail
+              - ncurses-base
+              - ncurses-bin
+              - netbase
+              - ninja-build
+              - openssh-client
+              - passwd
+              - patch
+              - perl-base
+              - procps
+              - python3-neovim
+              - python3-venv
+              - ripgrep
+              - sed
+              - sensible-utils
+              - shellcheck
+              - software-properties-common
+              - ssl-cert
+              - stow
+              - sudo
+              - sysvinit-utils
+              - tar
+              - time
+              - ubuntu-keyring
+              - unzip
+              - usrmerge
+              - util-linux
+              - wget
+              - xz-utils
+              - zip
+              - zlib1g
+              - zlib1g-dev
+            state: latest
+            update_cache: true
         - ansible.builtin.file:
             mode: "0700"
             path: /var/cache/apt/archives/partial
@@ -18,15 +217,101 @@
         - ansible.builtin.apt_repository:
             repo: ppa:deadsnakes/nightly
           name: Add repo deadsnakes
-        - ansible.builtin.package:
-            autoclean: true
-            autoremove: true
-            clean: true
+        - ansible.builtin.apt:
+            install_recommends: false
             name:
               - python{{ py_version }}-dev
               - python{{ py_version }}-venv
+            state: latest
             update_cache: true
           name: Install Python {{ py_version }}
+        - ansible.builtin.apt:
+            autoclean: true
+            autoremove: true
+            clean: true
+          name: Clean apt
+        - ansible.builtin.file:
+            group: github
+            owner: github
+            path: /opt/virtualenv
+            state: directory
+        - become_user: github
+          block:
+            - ansible.builtin.shell: |
+                set -e
+
+                git config --global advice.detachedHead true
+                git config --global advice.ignoredHook false
+                git config --global advice.skippedCherryPicks false
+                git config --global checkout.defaultRemote origin
+                git config --global core.ignorecase true
+                git config --global diff.renameLimit 1522
+                git config --global diff.submodule diff
+                git config --global fetch.recurseSubmodules false
+                git config --global init.defaultBranch stable
+                git config --global pull.rebase true
+                git config --global push.autoSetupRemote true
+                git config --global push.default simple
+                git config --global push.recurseSubmodules false
+                git config --global rebase.autoSquash true
+                git config --global rebase.autoStash true
+                git config --global rebase.backend apply
+                git config --global rebase.missingCommitsCheck error
+                git config --global rebase.updateRefs true
+                git config --global status.submoduleSummary true
+                git config --global submodule.recurse true
+
+                python{{ py_version }} -m venv /opt/virtualenv
+                /opt/virtualenv/bin/pip install --upgrade pip setuptools wheel
+                /opt/virtualenv/bin/pip install -r /tmp/requirements.txt
+              name: Setup git config and Python virtualenv
+            - ansible.builtin.shell: command -v fish
+              name: Get fish shell
+              register: fish_shell
+            - ansible.builtin.shell:
+                cmd: set -U fish_user_paths /opt/virtualenv/bin /usr/local/bin
+                executable: "{{ fish_shell.stdout }}"
+              name: Update Fish user paths
+        - ansible.builtin.user:
+            name: github
+            shell: "{{ fish_shell.stdout }}"
+          name: Set fish shell
+        - ansible.builtin.get_url:
+            dest: /tmp/llvm.sh
+            url: https://apt.llvm.org/llvm.sh
+          name: Download LLVM install
+        - ansible.builtin.script:
+            args:
+              creates: /usr/local/bin/clang-format
+            chdir: /tmp
+            cmd: /tmp/llvm.sh {{ llvm_version }} all
+          name: Install LLVM
+        - ansible.builtin.file:
+            path: /tmp/llvm.sh
+            state: absent
+          name: Clean LLVM script
+        - ansible.builtin.shell: command -v {{ item }}-{{ llvm_version }}
+          register: links
+          with_items:
+            - clang++
+            - clang
+            - clang-format
+            - clang-tidy
+            - llvm-cov
+            - llvm-profdata
+            - scan-build
+        - ansible.builtin.file:
+            dest: /usr/local/bin/{{ item.item }}
+            src: "{{ item.stdout }}"
+            state: link
+          loop: "{{ links.results }}"
+          name: Create LLVM links
+        - ansible.builtin.get_url:
+            dest: /tmp/install.sh
+            url: https://tailscale.com/install.sh
+          tags:
+            - debug
+            - never
       name: Unix block
       when: ansible_facts.os_family != 'Darwin'
     - block:
