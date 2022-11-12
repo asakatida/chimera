@@ -31,9 +31,16 @@ T\
 b'\
 \
 =======
+<<<<<<< HEAD
 >>>>>>> a8a0b0bf4 (Update fuzzing corpus.)
 8\
 >>>>>>> cabffe971 (Update fuzzing corpus.):unit_tests/fuzz/corpus/7caa889053e2da2201e1f6
+=======
+1\
+>>>>>>> e024a4b46 (Update fuzzing corpus.)
+8\
+>>>>>>> 70517a918 (Update fuzzing corpus.):unit_tests/fuzz/corpus/7caa889053e2da2201e1f6
+>>>>>>> 209567c04 (Update fuzzing corpus.)
 \
 \\
 \
@@ -42,6 +49,13 @@ b'\
 \
 <<<<<<< HEAD:unit_tests/fuzz/corpus/d79fe8e2668e84d1a092288
 \\
+=======
+<<<<<<< HEAD
+'
+=======
+\
+>>>>>>> e024a4b46 (Update fuzzing corpus.)
+>>>>>>> 70517a918 (Update fuzzing corpus.):unit_tests/fuzz/corpus/7caa889053e2da2201e1f6
 \
 \
 <<<<<<< HEAD
