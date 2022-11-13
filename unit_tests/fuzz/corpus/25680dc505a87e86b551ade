@@ -1,4 +1,12 @@
 None\
+<<<<<<< HEAD:unit_tests/fuzz/corpus/25680dc505a87e86b551ade
+=======
+<<<<<<< HEAD
+True\
+=======
+i\
+>>>>>>> c26764609 (Update fuzzing corpus.)
+>>>>>>> 16ce33ae8 (Update fuzzing corpus.):unit_tests/fuzz/corpus/25680dc505a87e86b551ad
 \
 \
 \
