@@ -31,7 +31,7 @@ snowballstemmer==2.2.0
 tomli==2.0.1
 tqdm==4.64.1
 types-PyYAML==6.0.12.1
-types-requests==2.28.11.2
+types-requests==2.28.11.4
 types-urllib3==1.26.25.3
 typing_extensions==4.4.0
 urllib3==1.26.12
