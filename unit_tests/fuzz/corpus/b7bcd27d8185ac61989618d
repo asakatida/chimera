@@ -1,2 +1,10 @@
 s\
+<<<<<<< HEAD:unit_tests/fuzz/corpus/b7bcd27d8185ac61989618d
 #
+=======
+<<<<<<< HEAD
+\
+=======
+\
+>>>>>>> 4dc82cd18 (Update fuzzing corpus.)
+>>>>>>> b25d7819c (Update fuzzing corpus.):unit_tests/fuzz/corpus/3672173dbaf68c404383e5
