@@ -1,3 +1,11 @@
+<<<<<<< HEAD:unit_tests/fuzz/corpus/2675a9f5535b2f2918b4c55
+=======
+<<<<<<< HEAD
+1\
+\\
+=======
+>>>>>>> a8a0b0bf4 (Update fuzzing corpus.)
+>>>>>>> cabffe971 (Update fuzzing corpus.):unit_tests/fuzz/corpus/2675a9f5535b2f2918b4c5
 T\
 <<<<<<< HEAD:unit_tests/fuzz/corpus/2675a9f5535b2f2918b4c55
 =======
@@ -18,4 +26,11 @@ a\
 \
 \
 \
+<<<<<<< HEAD:unit_tests/fuzz/corpus/2675a9f5535b2f2918b4c55
+=======
+<<<<<<< HEAD
+\
+=======
+>>>>>>> a8a0b0bf4 (Update fuzzing corpus.)
+>>>>>>> cabffe971 (Update fuzzing corpus.):unit_tests/fuzz/corpus/2675a9f5535b2f2918b4c5
 
