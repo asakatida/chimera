@@ -28,19 +28,7 @@ name: CodeCov
 
 # yamllint disable-line rule:truthy
 on:
-  pull_request:
-    branches:
-      - stable
-    paths-ignore:
-      - .dockerignore
-      - .github/workflows/docker.yml
-      - "**.md"
-      - Dockerfile
-      - tools/boot.yml
-      - tools/docker.sh
   push:
-    branches:
-      - stable
     paths-ignore:
       - .dockerignore
       - .github/workflows/docker.yml
