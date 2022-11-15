@@ -24,14 +24,14 @@ jobs:
             generated-includes/
             Makefile
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2.1.31
+        uses: github/codeql-action/init@v2.1.32
         with:
           config-file: ./.github/codeql/codeql-config.yml
           languages: ${{ matrix.language }}
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v2.1.31
+        uses: github/codeql-action/autobuild@v2.1.32
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2.1.31
+        uses: github/codeql-action/analyze@v2.1.32
     strategy:
       matrix:
         language:
