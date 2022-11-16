@@ -203,7 +203,7 @@ async def main() -> None:
             str(CORPUS),
             str(CORPUS_ORIGINAL),
             stdout=None,
-            timeout=1200,
+            timeout=200,
         )
         if not errors:
             break
