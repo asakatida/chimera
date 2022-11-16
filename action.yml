@@ -10,7 +10,7 @@ runs:
     - -eo
     - pipefail
     - -c
-    - ${{ inputs.run }}
+    - export CCACHE_DIR="$(pwd)/.ccache"; ${{ inputs.run }}
   entrypoint: /bin/bash
   image: asakatida/chimera:latest
   using: docker
