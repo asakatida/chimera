@@ -13,16 +13,11 @@ jobs:
         uses: actions/checkout@v3.1.0
         with:
           submodules: true
-      - name: Cache
+      - name: CCache
         uses: actions/cache@v3.0.11
         with:
-          key: codeql-${{ hashFiles('CMakeLists.txt') }}-v1
-          path: |
-            cmake_install.cmake
-            CMakeCache.txt
-            CMakeFiles/
-            generated-includes/
-            Makefile
+          key: ccache
+          path: .ccache
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2.1.32
         with:
