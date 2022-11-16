@@ -9,7 +9,7 @@ case $# in
       "$1" \
       -detect_leaks=0 \
       -use_value_profile=1 \
-      -max_total_time=1200 \
+      -max_total_time=200 \
       >"/tmp/regression-$(basename "$1").logs" 2>&1
     ;;
   * )
