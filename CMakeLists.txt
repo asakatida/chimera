@@ -208,7 +208,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       -detect_leaks=0
       -dict=${CMAKE_SOURCE_DIR}/unit_tests/fuzz/dictionaries/${fuzzer}.dict
       -max_len=16384
-      -max_total_time=200
+      -max_total_time=120
       -print_final_stats=1
       -reduce_inputs=1
       -shrink=1
