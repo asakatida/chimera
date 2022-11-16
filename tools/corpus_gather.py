@@ -41,6 +41,18 @@ async def main() -> None:
         "git",
         "log",
         "--all",
+        "--date-order",
+        "--oneline",
+        "--graph",
+        "^HEAD",
+        "--",
+        *FUZZ_DIRS,
+        stdout=None,
+    )
+    stdout = await cmd(
+        "git",
+        "log",
+        "--all",
         "--format=%h",
         "^HEAD",
         "--",
@@ -52,7 +64,7 @@ async def main() -> None:
             str.strip,
             stdout.decode().splitlines(),
         ),
-        desc="Branches",
+        desc="Refs",
         unit_scale=True,
     ):
         await cmd("git", "restore", "--source", sha, "--staged", *FUZZ_DIRS, log=False)
