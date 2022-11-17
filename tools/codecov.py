@@ -56,7 +56,7 @@ async def main() -> None:
     except FileNotFoundError:
         pass
     llvm_profile_dir.mkdir()
-    await cmd("tools/ninja.sh", "build", "check-rand", "regression", timeout=6000)
+    await cmd("tools/ninja.sh", "build", "check", "regression", timeout=6000)
     llvm_profile_files = map(str, filter(Path.is_file, llvm_profile_dir.iterdir()))
     await cmd(
         "/usr/local/bin/llvm-profdata",
@@ -72,7 +72,6 @@ async def main() -> None:
         "build/unit-test",
         "--ignore-filename-regex=.*/(catch2|external|unit_tests)/.*",
         f"-instr-profile={instr_profile}",
-        "--region-coverage-gt=2",
         "--format=lcov",
         stdout=None,
     )
