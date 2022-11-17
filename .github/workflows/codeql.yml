@@ -14,14 +14,14 @@ jobs:
         with:
           submodules: true
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2.1.32
+        uses: github/codeql-action/init@v2.1.33
         with:
           config-file: ./.github/codeql/codeql-config.yml
           languages: ${{ matrix.language }}
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v2.1.32
+        uses: github/codeql-action/autobuild@v2.1.33
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2.1.32
+        uses: github/codeql-action/analyze@v2.1.33
     strategy:
       matrix:
         language:
