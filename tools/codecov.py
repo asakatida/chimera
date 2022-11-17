@@ -30,8 +30,6 @@ from asyncio_cmd import ProcessError, cmd
 
 async def main() -> None:
     environ["CMAKE_BUILD_TYPE"] = "Coverage"
-    environ["CC"] = "/usr/local/bin/clang"
-    environ["CXX"] = "/usr/local/bin/clang++"
     environ["CXXFLAGS"] = " ".join(
         (
             environ.get("CXXFLAGS", "-O1 -DNDEBUG").strip(),

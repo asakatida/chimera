@@ -12,8 +12,12 @@ jobs:
       - name: CCache
         uses: actions/cache@v3.0.11
         with:
-          key: ccache
+          key: codecov-${{ hashFiles('CMakeLists.txt') }}-${{ github.run_id }}
           path: .ccache
+          restore-keys: |
+            codecov-${{ hashFiles('CMakeLists.txt') }}
+            build-${{ hashFiles('CMakeLists.txt') }}
+            build
       - name: Run regression with coverage
         uses: ./
         with:
