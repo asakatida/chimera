@@ -281,8 +281,6 @@
             url: https://apt.llvm.org/llvm.sh
           name: Download LLVM install
         - ansible.builtin.script:
-            args:
-              creates: /usr/local/bin/clang-format
             chdir: /tmp
             cmd: /tmp/llvm.sh {{ llvm_version }} all
           name: Install LLVM

@@ -1,9 +1,4 @@
 ---
-env:
-  CC: /usr/local/bin/clang
-  CMAKE_EXPORT_COMPILE_COMMANDS: "YES"
-  CXX: /usr/local/bin/clang++
-
 jobs:
   clangformat:
     concurrency:
@@ -31,8 +26,12 @@ jobs:
       - name: CCache
         uses: actions/cache@v3.0.11
         with:
-          key: ccache
+          key: clang-tidy-${{ hashFiles('CMakeLists.txt') }}-${{ github.run_id }}
           path: .ccache
+          restore-keys: |
+            clang-tidy-${{ hashFiles('CMakeLists.txt') }}
+            build-${{ hashFiles('CMakeLists.txt') }}
+            build
       - name: Configure CMake
         uses: ./
         with:
