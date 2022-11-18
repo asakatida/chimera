@@ -37,7 +37,7 @@ on:
       - .dockerignore
       - .github/workflows/docker.yml
       - "**.md"
-      - Dockerfile
+      - Dockerfile*
       - tools/boot.yml
       - tools/docker.sh
   workflow_dispatch: ~
