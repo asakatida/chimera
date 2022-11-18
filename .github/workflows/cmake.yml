@@ -97,7 +97,7 @@ on:
       - .dockerignore
       - .github/workflows/docker.yml
       - "**.md"
-      - Dockerfile
+      - Dockerfile*
       - tools/boot.yml
       - tools/docker.sh
       - unit_tests/fuzz/corpus/*
@@ -109,7 +109,7 @@ on:
       - .dockerignore
       - .github/workflows/docker.yml
       - "**.md"
-      - Dockerfile
+      - Dockerfile*
       - tools/boot.yml
       - tools/docker.sh
       - unit_tests/fuzz/corpus/*
