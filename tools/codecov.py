@@ -64,7 +64,7 @@ async def main() -> None:
         "-sparse",
         *llvm_profile_files,
         f"--output={instr_profile}",
-        timeout=600,
+        timeout=3600,
     )
     await cmd(
         "/usr/local/bin/llvm-cov",
