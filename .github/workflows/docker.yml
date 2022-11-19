@@ -43,7 +43,6 @@ on:
       - Dockerfile*
       - requirements.txt
       - tools/boot.yml
-      - tools/docker.sh
   push:
     branches:
       - stable
@@ -53,7 +52,6 @@ on:
       - Dockerfile*
       - requirements.txt
       - tools/boot.yml
-      - tools/docker.sh
   schedule:
     - cron: 20 14 * * *
   workflow_dispatch: ~

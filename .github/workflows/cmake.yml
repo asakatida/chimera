@@ -43,12 +43,12 @@ jobs:
             ninja -C build -k0 corpus || true
             git config --global user.email email
             git config --global user.name name
-            /opt/virtualenv/bin/python3 tools/corpus_gather.py
+            /opt/virtualenv/bin/python tools/corpus_gather.py
       - name: Corpus trim
         uses: ./
         with:
           run: |
-            /opt/virtualenv/bin/python3 tools/corpus_trim.py
+            /opt/virtualenv/bin/python tools/corpus_trim.py
             set +e
             for opt in --global --local --system --worktree; do
               git config "${opt}" --unset-all user.email
@@ -99,7 +99,6 @@ on:
       - "**.md"
       - Dockerfile*
       - tools/boot.yml
-      - tools/docker.sh
       - unit_tests/fuzz/corpus/*
       - unit_tests/fuzz/crashes/*
   push:
@@ -111,7 +110,6 @@ on:
       - "**.md"
       - Dockerfile*
       - tools/boot.yml
-      - tools/docker.sh
       - unit_tests/fuzz/corpus/*
       - unit_tests/fuzz/crashes/*
   workflow_dispatch: ~
