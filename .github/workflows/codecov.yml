@@ -39,5 +39,4 @@ on:
       - "**.md"
       - Dockerfile*
       - tools/boot.yml
-      - tools/docker.sh
   workflow_dispatch: ~

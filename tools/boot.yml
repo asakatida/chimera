@@ -19,10 +19,76 @@
             state: latest
             update_cache: true
           name: Install apt packages
-        - ansible.builtin.package:
+        - ansible.builtin.apt:
+            install_recommends: false
+            name:
+              - gnupg
+              - lsb-release
+              - software-properties-common
+              - wget
+            state: latest
+            update_cache: true
+          name: Install apt packages
+        - ansible.builtin.get_url:
+            dest: /tmp/llvm.sh
+            url: https://apt.llvm.org/llvm.sh
+          name: Download LLVM install
+        - ansible.builtin.script:
+            chdir: /tmp
+            cmd: /tmp/llvm.sh {{ llvm_version }} all
+          name: Install LLVM
+        - ansible.builtin.file:
+            path: /tmp/llvm.sh
+            state: absent
+          name: Clean LLVM script
+        - ansible.builtin.shell: command -v {{ item }}-{{ llvm_version }}
+          register: links
+          with_items:
+            - clang
+            - clang-format
+            - clang-tidy
+            - clang++
+            - llvm-cov
+            - llvm-profdata
+            - scan-build
+        - ansible.builtin.file:
+            dest: /usr/local/bin/{{ item.item }}
+            src: "{{ item.stdout }}"
+            state: link
+          loop: "{{ links.results }}"
+          name: Create LLVM links
+        - ansible.builtin.apt:
             install_recommends: false
             name:
               - adduser
+              - sudo
+            state: latest
+            update_cache: true
+          name: Install apt packages
+        - ansible.builtin.group:
+            gid: 122
+            name: github
+            state: present
+          name: Create github group
+        - ansible.builtin.user:
+            createhome: true
+            group: 122
+            name: github
+            uid: 1001
+          name: Create github user
+        - ansible.builtin.file:
+            mode: "0770"
+            path: /etc/sudoers.d
+            state: directory
+          name: Create sudoers.d directory
+        - ansible.builtin.lineinfile:
+            create: true
+            dest: /etc/sudoers.d/github
+            line: github ALL=(ALL) NOPASSWD:ALL
+            mode: "0440"
+        - ansible.builtin.apt:
+            install_recommends: false
+            name:
               - autoconf
               - automake
               - base-files
@@ -182,8 +248,6 @@
               - patch
               - perl-base
               - procps
-              - python3-neovim
-              - python3-venv
               - ripgrep
               - sed
               - sensible-utils
@@ -191,7 +255,6 @@
               - software-properties-common
               - ssl-cert
               - stow
-              - sudo
               - sysvinit-utils
               - tar
               - time
@@ -205,15 +268,11 @@
               - zlib1g
               - zlib1g-dev
             state: latest
-            update_cache: true
         - ansible.builtin.file:
-            mode: "0700"
-            path: /var/cache/apt/archives/partial
+            group: github
+            owner: github
+            path: /opt/virtualenv
             state: directory
-          name: Setup apt-get update
-          tags:
-            - debug
-            - never
         - ansible.builtin.apt_repository:
             repo: ppa:deadsnakes/nightly
           name: Add repo deadsnakes
@@ -225,11 +284,6 @@
             state: latest
             update_cache: true
           name: Install Python {{ py_version }}
-        - ansible.builtin.apt:
-            autoclean: true
-            autoremove: true
-            clean: true
-          name: Clean apt
         - ansible.builtin.file:
             group: github
             owner: github
@@ -277,39 +331,23 @@
             shell: "{{ fish_shell.stdout }}"
           name: Set fish shell
         - ansible.builtin.get_url:
-            dest: /tmp/llvm.sh
-            url: https://apt.llvm.org/llvm.sh
-          name: Download LLVM install
-        - ansible.builtin.script:
-            chdir: /tmp
-            cmd: /tmp/llvm.sh {{ llvm_version }} all
-          name: Install LLVM
-        - ansible.builtin.file:
-            path: /tmp/llvm.sh
-            state: absent
-          name: Clean LLVM script
-        - ansible.builtin.shell: command -v {{ item }}-{{ llvm_version }}
-          register: links
-          with_items:
-            - clang++
-            - clang
-            - clang-format
-            - clang-tidy
-            - llvm-cov
-            - llvm-profdata
-            - scan-build
-        - ansible.builtin.file:
-            dest: /usr/local/bin/{{ item.item }}
-            src: "{{ item.stdout }}"
-            state: link
-          loop: "{{ links.results }}"
-          name: Create LLVM links
-        - ansible.builtin.get_url:
             dest: /tmp/install.sh
             url: https://tailscale.com/install.sh
           tags:
             - debug
             - never
+        - ansible.builtin.apt:
+            autoclean: true
+            autoremove: true
+            clean: true
+          name: Clean apt
+        - ansible.builtin.apt:
+            clean: true
+          name: Clean apt
+        - ansible.builtin.file:
+            path: /var/lib/apt/lists
+            state: absent
+          name: Remove apt lists
       name: Unix block
       when: ansible_facts.os_family != 'Darwin'
     - block:
