@@ -153,7 +153,7 @@ namespace chimera::library::virtual_machine {
       evaluator->thread_context.return_value(
           std::move(evaluator->stack_remove()));
     });
-    evaluate_get(expression.body);
+    evaluate_get(expression.expr());
     return evaluate();
   }
   void Evaluator::evaluate(const asdl::FunctionDef &functionDef) {

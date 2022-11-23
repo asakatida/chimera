@@ -60,14 +60,7 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::ExprImpl> {
       template <typename Top>
       void success(Top &&top) {
-        if (auto s = size(); s > 1) {
-          asdl::Tuple tuple;
-          tuple.elts.reserve(s);
-          transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
-          top.body = std::move(tuple);
-        } else {
-          top.body = pop<asdl::ExprImpl>();
-        }
+        top.success(*this);
       }
     };
   };

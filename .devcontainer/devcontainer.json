@@ -1,41 +1,59 @@
 {
-  "customizations": {
-    "codespaces": {
-      "repositories": {}
+    "customizations": {
+        "codespaces": {
+            "repositories": {}
+        },
+        "vscode": {
+            "extensions": [
+                "cschlosser.doxdocgen",
+                "DavidAnson.vscode-markdownlint",
+                "GitHub.copilot",
+                "jeff-hykin.better-cpp-syntax",
+                "ms-azuretools.vscode-docker",
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-toolsai.jupyter",
+                "ms-toolsai.jupyter-keymap",
+                "ms-toolsai.jupyter-renderers",
+                "ms-vscode.cmake-tools",
+                "ms-vscode.cpptools",
+                "ms-vscode.cpptools-extension-pack",
+                "ms-vscode.cpptools-themes",
+                "twxs.cmake"
+            ],
+            "settings": {
+                "git.ignoreLimitWarning": true
+            }
+        }
     },
-    "vscode": {
-      "extensions": [
-        "cschlosser.doxdocgen",
-        "DavidAnson.vscode-markdownlint",
-        "GitHub.copilot",
-        "jeff-hykin.better-cpp-syntax",
-        "ms-azuretools.vscode-docker",
-        "ms-python.python",
-        "ms-python.vscode-pylance",
-        "ms-toolsai.jupyter",
-        "ms-toolsai.jupyter-keymap",
-        "ms-toolsai.jupyter-renderers",
-        "ms-vscode.cmake-tools",
-        "ms-vscode.cpptools",
-        "ms-vscode.cpptools-extension-pack",
-        "ms-vscode.cpptools-themes",
-        "twxs.cmake"
-      ],
-      "settings": {
-        "git.ignoreLimitWarning": true
-      }
-    }
-  },
-  "hostRequirements": {
-    "cpus": 1,
-    "memory": "1gb",
-    "storage": "32gb"
-  },
-  "image": "asakatida/chimera:latest",
-  "name": "chimera",
-  "postCreateCommand": "tools/boot.sh",
-  "postStartCommand": "tools/before.sh && export PATH=\"/opt/virtualenv/bin:${PATH}\"",
-  "remoteEnv": {
-    "CXXFLAGS": "-fcoverage-mapping -fprofile-instr-generate -fsanitize-coverage=no-prune -fsanitize-coverage=trace-cmp -fsanitize-coverage=trace-div -fsanitize-coverage=trace-gep -fsanitize-coverage=trace-loads -fsanitize-coverage=trace-stores"
-  }
+    "hostRequirements": {
+        "cpus": 1,
+        "memory": "12gb",
+        "storage": "32gb"
+    },
+    "image": "asakatida/chimera:latest",
+    "initializeCommand": [
+        "true"
+    ],
+    "name": "chimera",
+    "onCreateCommand": [
+        "true"
+    ],
+    "overrideCommand": false,
+    "postAttachCommand": [
+        "true"
+    ],
+    "postCreateCommand": [
+        "true"
+    ],
+    "postStartCommand": [
+        "tools/before.sh"
+    ],
+    "remoteEnv": {
+        "CXXFLAGS": "-fcoverage-mapping -fprofile-instr-generate -fsanitize-coverage=no-prune -fsanitize-coverage=trace-cmp -fsanitize-coverage=trace-div -fsanitize-coverage=trace-gep -fsanitize-coverage=trace-loads -fsanitize-coverage=trace-stores"
+    },
+    "runArgs": [],
+    "updateContentCommand": [
+        "tools/boot.sh"
+    ]
 }
