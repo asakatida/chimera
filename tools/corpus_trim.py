@@ -20,7 +20,7 @@
 
 """corpus_trim.py"""
 
-from asyncio import gather, run
+from asyncio import run
 from asyncio.subprocess import DEVNULL
 from functools import cache
 from hashlib import sha256
@@ -132,35 +132,38 @@ def fuzz_star() -> tuple[Path, ...]:
 
 async def fuzz_test_one(
     regression: Path, *args: str, stdout: Optional[int], timeout: int
-) -> None:
-    await cmd(
-        str(regression),
-        "-detect_leaks=0",
-        "-use_value_profile=1",
-        *args,
-        log=False,
-        stdout=stdout,
-        timeout=timeout,
-    )
+) -> Optional[Exception]:
+    try:
+        await cmd(
+            str(regression),
+            "-detect_leaks=0",
+            "-use_value_profile=1",
+            *args,
+            log=False,
+            stdout=stdout,
+            timeout=timeout,
+        )
+    except Exception as error:
+        return error
+    return None
 
 
 async def fuzz_test(
     *args: str, stdout: Optional[int] = DEVNULL, timeout: int = 10
 ) -> list[Exception]:
-    return list(
-        filter(
-            None,
-            await gather(
-                *map(
-                    lambda regression: fuzz_test_one(
-                        regression, *args, stdout=stdout, timeout=timeout
-                    ),
-                    fuzz_star(),
-                ),
-                return_exceptions=True,
+    results = []
+    async for error in as_completed(
+        map(
+            lambda regression: fuzz_test_one(
+                regression, *args, stdout=stdout, timeout=timeout
             ),
-        )
-    )
+            fuzz_star(),
+        ),
+        limit=4,
+    ):
+        if error is not None:
+            results.append(error)
+    return results
 
 
 def gather_paths() -> Iterable[Path]:
@@ -180,7 +183,7 @@ async def regression_one(file: Path) -> None:
 
 async def regression(fuzz: Iterable[Path]) -> None:
     async for _ in c_atqdm(
-        as_completed(map(regression_one, fuzz), limit=8), "Regression"
+        as_completed(map(regression_one, fuzz), limit=4), "Regression"
     ):
         pass
 

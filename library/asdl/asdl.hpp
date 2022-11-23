@@ -444,6 +444,25 @@ namespace chimera::library::asdl {
     std::vector<StmtImpl> body{};
   };
   struct Expression {
-    ExprImpl body;
+    Expression(const Optimize &optimize, const std::string_view &data,
+               const char *source);
+    Expression(const Optimize &optimize, std::istream &&input,
+               const char *source);
+    [[nodiscard]] auto expr() const -> const ExprImpl &;
+    template <typename Stack>
+    void success(Stack &&stack) {
+      if (auto s = stack.size(); s > 1) {
+        asdl::Tuple tuple;
+        tuple.elts.reserve(s);
+        stack.template transform<asdl::ExprImpl>(
+            std::back_inserter(tuple.elts));
+        body = std::move(tuple);
+      } else {
+        body = stack.template pop<asdl::ExprImpl>();
+      }
+    }
+
+  private:
+    ExprImpl body = object::Object{};
   };
 } // namespace chimera::library::asdl

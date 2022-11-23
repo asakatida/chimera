@@ -37,6 +37,8 @@ add_library(
   chimera-grammar
   OBJECT
   library/asdl/asdl.cpp
+  library/asdl/parse_expression_istream.cpp
+  library/asdl/parse_expression_string_view.cpp
   library/asdl/parse_interactive_istream.cpp
   library/asdl/parse_interactive_string_view.cpp
   library/asdl/parse_module_istream.cpp
@@ -187,7 +189,19 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_custom_target(corpus)
   add_custom_target(fuzzers)
   add_custom_target(regression)
-  set(FUZZERS ellipsis false keywords name none number string true vm)
+  set(
+    FUZZERS
+    ellipsis
+    false
+    keywords
+    name
+    none
+    number
+    string
+    true
+    vm
+    vm-expression
+    vm-interact)
   foreach(fuzzer IN LISTS FUZZERS)
     add_executable(fuzz-${fuzzer} unit_tests/fuzz/target-${fuzzer}.cpp)
     target_compile_features(fuzz-${fuzzer} PUBLIC c_std_23 cxx_std_20)

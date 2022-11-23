@@ -22,8 +22,6 @@
 namespace chimera::library {
   using NumericLimits = std::numeric_limits<std::uint16_t>;
   constexpr static auto bufferSize = NumericLimits::max();
-  auto fuzz_istream(const std::uint8_t *data, std::size_t size)
-      -> std::istringstream;
   auto fuzz_input(std::istream &in) -> Input {
     return {in, bufferSize, "fuzz"};
   }
@@ -40,26 +38,27 @@ namespace chimera::library {
     options.script = "fuzzer.py";
     return options;
   }
-  template <typename Grammar, typename... Args>
-  auto fuzz_parse(Input &&in, Args &&...args) -> int {
+  auto fuzz_expression_eval(const std::uint8_t *data, std::size_t size) -> int {
+    return fuzz_expression_eval(fuzz_istream(data, size));
+  }
+  auto fuzz_expression_eval(std::istream &&in) -> int {
     auto options = fuzz_options();
-    return fuzz_parse<Grammar>(options, std::move(in),
-                               std::forward<Args>(args)...);
-  }
-  template <typename Grammar, typename... Args>
-  auto fuzz_parse(const std::uint8_t *data, std::size_t size, Args &&...args)
-      -> int {
-    auto in = fuzz_istream(data, size);
-    return fuzz_parse<Grammar>(fuzz_input(in), std::forward<Args>(args)...);
-  }
-  template <typename Grammar, typename... Args>
-  auto fuzz_parse(const Options & /*options*/, Input &&in, Args &&...args)
-      -> int {
+    const virtual_machine::GlobalContext globalContext(options);
+    virtual_machine::ProcessContext processContext{globalContext};
+    std::optional<asdl::Expression> expression;
     try {
-      tao::pegtl::parse<Grammar>(std::move(in), std::forward<Args>(args)...);
+      expression = processContext.parse_expression(std::move(in), "<fuzz>");
     } catch (const tao::pegtl::parse_error &) {
       return -1;
     } catch (const chimera::library::grammar::SyntaxError &) {
+      return -1;
+    }
+    Ensures(expression.has_value());
+    try {
+      auto main = processContext.make_module("__main__");
+      virtual_machine::ThreadContext threadContext{processContext, main};
+      threadContext.evaluate(*expression);
+    } catch (const object::BaseException &) {
       return -1;
     }
     return 0;
@@ -89,60 +88,30 @@ namespace chimera::library {
     }
     return 0;
   }
-  auto fuzz_parse_ellipsis(const std::uint8_t *data, std::size_t size) -> int {
-    auto in = fuzz_istream(data, size);
-    return fuzz_parse_ellipsis(fuzz_input(in));
+  auto fuzz_interactive_eval(const std::uint8_t *data, std::size_t size)
+      -> int {
+    return fuzz_interactive_eval(fuzz_istream(data, size));
   }
-  auto fuzz_parse_ellipsis(Input &&in) -> int {
-    return fuzz_parse<grammar::Ellipsis<0>>(std::move(in));
-  }
-  auto fuzz_parse_false(const std::uint8_t *data, std::size_t size) -> int {
-    auto in = fuzz_istream(data, size);
-    return fuzz_parse_false(fuzz_input(in));
-  }
-  auto fuzz_parse_false(Input &&in) -> int {
-    return fuzz_parse<grammar::False<0>>(std::move(in));
-  }
-  auto fuzz_parse_keywords(const std::uint8_t *data, std::size_t size) -> int {
-    auto in = fuzz_istream(data, size);
-    return fuzz_parse_keywords(fuzz_input(in));
-  }
-  auto fuzz_parse_keywords(Input &&in) -> int {
-    return fuzz_parse<grammar::Keywords>(std::move(in));
-  }
-  auto fuzz_parse_name(const std::uint8_t *data, std::size_t size) -> int {
-    auto in = fuzz_istream(data, size);
-    return fuzz_parse_name(fuzz_input(in));
-  }
-  auto fuzz_parse_name(Input &&in) -> int {
-    return fuzz_parse<grammar::Name<0>>(std::move(in));
-  }
-  auto fuzz_parse_none(const std::uint8_t *data, std::size_t size) -> int {
-    auto in = fuzz_istream(data, size);
-    return fuzz_parse_none(fuzz_input(in));
-  }
-  auto fuzz_parse_none(Input &&in) -> int {
-    return fuzz_parse<grammar::None<0>>(std::move(in));
-  }
-  auto fuzz_parse_number(const std::uint8_t *data, std::size_t size) -> int {
-    auto in = fuzz_istream(data, size);
-    return fuzz_parse_number(fuzz_input(in));
-  }
-  auto fuzz_parse_number(Input &&in) -> int {
-    return fuzz_parse<grammar::NUMBER<0>>(std::move(in));
-  }
-  auto fuzz_parse_string(const std::uint8_t *data, std::size_t size) -> int {
-    auto in = fuzz_istream(data, size);
-    return fuzz_parse_string(fuzz_input(in));
-  }
-  auto fuzz_parse_string(Input &&in) -> int {
-    return fuzz_parse<grammar::STRING<0>>(std::move(in));
-  }
-  auto fuzz_parse_true(const std::uint8_t *data, std::size_t size) -> int {
-    auto in = fuzz_istream(data, size);
-    return fuzz_parse_true(fuzz_input(in));
-  }
-  auto fuzz_parse_true(Input &&in) -> int {
-    return fuzz_parse<grammar::True<0>>(std::move(in));
+  auto fuzz_interactive_eval(std::istream &&in) -> int {
+    auto options = fuzz_options();
+    const virtual_machine::GlobalContext globalContext(options);
+    virtual_machine::ProcessContext processContext{globalContext};
+    std::optional<asdl::Interactive> interactive;
+    try {
+      interactive = processContext.parse_input(std::move(in), "<fuzz>");
+    } catch (const tao::pegtl::parse_error &) {
+      return -1;
+    } catch (const chimera::library::grammar::SyntaxError &) {
+      return -1;
+    }
+    Ensures(interactive.has_value());
+    try {
+      auto main = processContext.make_module("__main__");
+      virtual_machine::ThreadContext threadContext{processContext, main};
+      threadContext.evaluate(*interactive);
+    } catch (const object::BaseException &) {
+      return -1;
+    }
+    return 0;
   }
 } // namespace chimera::library

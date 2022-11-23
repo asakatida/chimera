@@ -1,4 +1,4 @@
-// Copyright (c) 2018 Asa Katida <github@holomaplefeline.net>
+// Copyright (c) 2022 Asa Katida <github@holomaplefeline.net>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,15 +20,22 @@
 
 //! wrapper for tao::pegtl::parse
 
+#include "asdl/parse.hpp"
+
+#include <iostream>
+
+#include <tao/pegtl.hpp>
+
 #include "asdl/asdl.hpp"
+#include "grammar/grammar.hpp"
+#include "options.hpp"
 
 namespace chimera::library::asdl {
-  auto Expression::expr() const -> const ExprImpl & { return body; }
-  auto Module::doc() const -> const std::optional<DocString> & {
-    return doc_string;
-  }
-  auto Module::iter() const -> const std::vector<StmtImpl> & { return body; }
-  auto Interactive::iter() const -> const std::vector<StmtImpl> & {
-    return body;
+  Expression::Expression(const Optimize &optimize, std::istream &&input,
+                         const char *source) {
+    grammar::parse<grammar::EvalInput>(
+        optimize,
+        grammar::Input<tao::pegtl::istream_input<>>(input, bufferSize, source),
+        *this);
   }
 } // namespace chimera::library::asdl

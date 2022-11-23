@@ -237,6 +237,7 @@
               - make
               - man-db
               - mawk
+              - moreutils
               - mount
               - multitail
               - ncurses-base

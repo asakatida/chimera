@@ -40,7 +40,7 @@ jobs:
         uses: ./
         with:
           run: |
-            ninja -C build -k0 corpus || true
+            tools/ninja.sh build -k0 corpus || true
             git config --global user.email email
             git config --global user.name name
             /opt/virtualenv/bin/python tools/corpus_gather.py

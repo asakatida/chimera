@@ -1,13 +1,8 @@
 {
-    "version": "0.2.0",
     "configurations": [
         {
-            "name": "(lldb) Launch",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${command:cmake.launchTargetPath}",
+            "MIMode": "lldb",
             "args": [],
-            "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [
                 {
@@ -16,14 +11,19 @@
                 }
             ],
             "externalConsole": true,
-            "MIMode": "lldb",
+            "name": "(lldb) Launch",
+            "program": "${command:cmake.launchTargetPath}",
+            "request": "launch",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
+                    "ignoreFailures": true,
+                    "text": "-enable-pretty-printing"
                 }
-            ]
+            ],
+            "stopAtEntry": false,
+            "type": "cppdbg"
         }
-    ]
+    ],
+    "version": "0.2.0"
 }
