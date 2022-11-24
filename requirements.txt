@@ -21,7 +21,7 @@ platformdirs==2.5.4
 pycodestyle==2.9.1
 pycparser==2.21
 pydocstyle==6.1.1
-pyflakes==2.5.0
+pyflakes==3.0.0
 pylama==8.4.1
 pyparsing==3.0.9
 PyYAML==6.0
