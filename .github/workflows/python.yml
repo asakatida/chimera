@@ -20,6 +20,12 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.1.0
+      - name: MyPy Cache
+        uses: actions/cache@v3.0.11
+        with:
+          key: mypy-${{ github.run_id }}
+          path: .mypy_cache
+          restore-keys: mypy
       - name: Lint python code
         uses: ./
         with:
