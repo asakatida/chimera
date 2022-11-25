@@ -35,6 +35,7 @@ FUZZ_DIRS = tuple(map(str, (FUZZ / "crashes", FUZZ / "corpus", FUZZ / "dictionar
 async def main() -> None:
     await cmd("git", "fetch", "--all", "--tags", timeout=600)
     await cmd("git", "remote", "prune", "origin", timeout=600)
+    await cmd("git", "remote", "set-head", "origin", "--auto", timeout=600)
     await cmd("git", "add", *FUZZ_DIRS)
     await cmd("git", "commit", "--allow-empty", "-m", "WIP")
     stdout = await cmd(
@@ -44,7 +45,7 @@ async def main() -> None:
         "--date-order",
         "--oneline",
         "--graph",
-        "^HEAD",
+        "^origin/HEAD",
         "--",
         *FUZZ_DIRS,
         stdout=None,
@@ -54,7 +55,7 @@ async def main() -> None:
         "log",
         "--all",
         "--format=%h",
-        "^HEAD",
+        "^origin/HEAD",
         "--",
         *FUZZ_DIRS,
         stdout=PIPE,
