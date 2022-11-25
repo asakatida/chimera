@@ -33,9 +33,9 @@
   },
   "image": "asakatida/chimera:latest",
   "name": "chimera",
-  "postStartCommand": "tools/boot.sh",
+  "postCreateCommand": "tools/boot.sh",
+  "postStartCommand": "tools/before.sh && export PATH=\"/opt/virtualenv/bin:${PATH}\"",
   "remoteEnv": {
     "CXXFLAGS": "-fcoverage-mapping -fprofile-instr-generate -fsanitize-coverage=no-prune -fsanitize-coverage=trace-cmp -fsanitize-coverage=trace-div -fsanitize-coverage=trace-gep -fsanitize-coverage=trace-loads -fsanitize-coverage=trace-stores"
-  },
-  "updateContentCommand": "tools/before.sh && export PATH=\"/opt/virtualenv/bin:${PATH}\""
+  }
 }
