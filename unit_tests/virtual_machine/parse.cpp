@@ -1,5 +1,7 @@
 #include "builtins/builtins.hpp"
+#include "grammar/grammar.hpp"
 #include "grammar/rules.hpp"
+#include "grammar/rules/control.hpp"
 #include "object/object.hpp"
 #include "options.hpp"
 #include "virtual_machine/global_context.hpp"
@@ -7,6 +9,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <tao/pegtl.hpp>
+#include <tao/pegtl/contrib/trace.hpp>
 
 using namespace std::literals;
 
@@ -20,6 +23,10 @@ namespace chimera::library {
     const virtual_machine::ProcessContext processContext{globalContext};
     processContext.parse_file(data, "<unit_tests/virtual_machine/parse.cpp>");
   }
+  struct EmptyNode {
+    template <typename Stack>
+    void success(Stack && /*stack*/) const {}
+  };
 } // namespace chimera::library
 
 TEST_CASE("virtual machine parse ``") {

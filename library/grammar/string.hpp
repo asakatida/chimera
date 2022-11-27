@@ -47,16 +47,16 @@ namespace chimera::library::grammar {
     using namespace std::literals;
     struct StringHolder : rules::VariantCapture<object::Object> {
       std::string string;
-      template <typename String>
-      void apply(String &&in) {
+      template <typename String, typename... Args>
+      void apply(String &&in, Args &&...args) {
         string.append(std::forward<String>(in));
       }
     };
     struct LiteralChar : plus<not_one<'\0', '{', '}'>> {};
     template <>
     struct Action<LiteralChar> {
-      template <typename Input, typename Top>
-      static void apply(const Input &in, Top &&top) {
+      template <typename Input, typename Top, typename... Args>
+      static void apply(const Input &in, Top &&top, Args &&...args) {
         top.apply(in.string());
       }
     };
@@ -68,8 +68,8 @@ namespace chimera::library::grammar {
     struct Conversion : one<'a', 'r', 's'> {};
     template <>
     struct Action<Conversion> {
-      template <typename Input, typename Top>
-      static void apply(const Input &in, Top &&top) {
+      template <typename Input, typename Top, typename... Args>
+      static void apply(const Input &in, Top &&top, Args &&...args) {
         asdl::FormattedValue formattedValue{
             top.template pop<asdl::ExprImpl>(), asdl::FormattedValue::STR, {}};
         switch (in.peek_char()) {
@@ -99,8 +99,8 @@ namespace chimera::library::grammar {
         : star<sor<LiteralChar, one<0>, ReplacementField<Option>>> {};
     template <flags::Flag Option>
     struct Action<FormatSpec<Option>> {
-      template <typename Top>
-      static void apply0(Top &&top) {
+      template <typename Top, typename... Args>
+      static void apply0(Top &&top, Args &&...args) {
         auto formatSpec = top.template pop<asdl::ExprImpl>();
         auto expr = top.template pop<asdl::ExprImpl>();
         auto is_formatted_value = expr.template update_if<asdl::FormattedValue>(
@@ -120,16 +120,16 @@ namespace chimera::library::grammar {
     struct LeftFLiteral : String<'{', '{'> {};
     template <>
     struct Action<LeftFLiteral> {
-      template <typename Top>
-      static void apply0(Top &&top) {
+      template <typename Top, typename... Args>
+      static void apply0(Top &&top, Args &&...args) {
         top.apply("{"sv);
       }
     };
     struct RightFLiteral : String<'}', '}'> {};
     template <>
     struct Action<RightFLiteral> {
-      template <typename Top>
-      static void apply0(Top &&top) {
+      template <typename Top, typename... Args>
+      static void apply0(Top &&top, Args &&...args) {
         top.apply("}"sv);
       }
     };
@@ -138,19 +138,19 @@ namespace chimera::library::grammar {
     };
     template <>
     struct Action<FLiteral> {
-      template <typename Top>
-      static void apply0(Top &&top) {
+      template <typename Top, typename... Args>
+      static void apply0(Top &&top, Args &&...args) {
         top.push(object::Object(object::String(top.string), {}));
       }
     };
     template <flags::Flag Option>
-    using FString = must<star<sor<FLiteral, ReplacementField<Option>>>, eof>;
+    using FString = seq<star<sor<FLiteral, ReplacementField<Option>>>, eof>;
     template <typename Chars>
     struct SingleChars : plus<Chars> {};
     template <typename Chars>
     struct Action<SingleChars<Chars>> {
-      template <typename Input, typename Top>
-      static void apply(const Input &in, Top &&top) {
+      template <typename Input, typename Top, typename... Args>
+      static void apply(const Input &in, Top &&top, Args &&...args) {
         top.apply(in.string());
       }
     };
@@ -158,8 +158,8 @@ namespace chimera::library::grammar {
     struct Hexseq : rep<Len, ranges<'0', '9', 'a', 'f', 'A', 'F'>> {};
     template <unsigned Len>
     struct Action<Hexseq<Len>> {
-      template <typename Input, typename Top>
-      static void apply(const Input &in, Top &&top) {
+      template <typename Input, typename Top, typename... Args>
+      static void apply(const Input &in, Top &&top, Args &&...args) {
         std::string string;
         Expects(tao::pegtl::unescape::utf8_append_utf32(
             string, tao::pegtl::unescape::unhex_string<std::uint32_t>(
@@ -172,8 +172,8 @@ namespace chimera::library::grammar {
     struct Octseq : seq<range<'0', '7'>, rep_opt<2, range<'0', '7'>>> {};
     template <>
     struct Action<Octseq> {
-      template <typename Input, typename Top>
-      static void apply(const Input &in, Top &&top) {
+      template <typename Input, typename Top, typename... Args>
+      static void apply(const Input &in, Top &&top, Args &&...args) {
         std::string string;
         Expects(tao::pegtl::unescape::utf8_append_utf32(
             string, std::accumulate(in.begin(), in.end(), std::uint32_t(0),
@@ -188,8 +188,8 @@ namespace chimera::library::grammar {
     struct EscapeControl : one<'a', 'b', 'f', 'n', 'r', 't', 'v'> {};
     template <>
     struct Action<EscapeControl> {
-      template <typename Input, typename Top>
-      static void apply(const Input &in, Top &&top) {
+      template <typename Input, typename Top, typename... Args>
+      static void apply(const Input &in, Top &&top, Args &&...args) {
         static const std::map<char, std::string_view> escapes{
             {'a', "\a"sv}, {'b', "\b"sv}, {'f', "\f"sv}, {'n', "\n"sv},
             {'r', "\r"sv}, {'t', "\t"sv}, {'v', "\v"sv}};
@@ -201,8 +201,8 @@ namespace chimera::library::grammar {
     struct EscapeIgnore : seq<Chars> {};
     template <typename Chars>
     struct Action<EscapeIgnore<Chars>> {
-      template <typename Input, typename Top>
-      static void apply(const Input &in, Top &&top) {
+      template <typename Input, typename Top, typename... Args>
+      static void apply(const Input &in, Top &&top, Args &&...args) {
         top.apply(R"(\)"sv);
         top.apply(in.string());
       }
@@ -228,8 +228,8 @@ namespace chimera::library::grammar {
     };
     template <typename Triple, typename Chars>
     struct Action<LongRaw<Triple, Chars>> {
-      template <typename Input, typename Top>
-      static void apply(const Input &in, Top &&top) {
+      template <typename Input, typename Top, typename... Args>
+      static void apply(const Input &in, Top &&top, Args &&...args) {
         std::string_view view(in.begin(), in.size());
         view.remove_prefix(3);
         view.remove_suffix(3);
@@ -247,8 +247,8 @@ namespace chimera::library::grammar {
               until<Quote, RawItem<minus<seq<not_at<Quote>, Chars>, Eol>>>> {};
     template <typename Quote, typename Chars>
     struct Action<ShortRaw<Quote, Chars>> {
-      template <typename Input, typename Top>
-      static void apply(const Input &in, Top &&top) {
+      template <typename Input, typename Top, typename... Args>
+      static void apply(const Input &in, Top &&top, Args &&...args) {
         std::string_view view(in.begin(), in.size());
         view.remove_prefix(1);
         view.remove_suffix(1);
@@ -272,8 +272,8 @@ namespace chimera::library::grammar {
     struct UName : star<not_one<'}'>> {};
     template <>
     struct Action<UName> {
-      template <typename Input, typename Top>
-      static void apply(const Input &in, Top &&top) {
+      template <typename Input, typename Top, typename... Args>
+      static void apply(const Input &in, Top &&top, Args &&...args) {
         top.apply(in.string());
       }
     };
@@ -290,8 +290,8 @@ namespace chimera::library::grammar {
                                                  range<0, 0b1111111>>>> {
       struct Transform : rules::VariantCapture<object::Object> {
         object::Bytes bytes;
-        template <typename String>
-        void apply(String &&in) {
+        template <typename String, typename... Args>
+        void apply(String &&in, Args &&...args) {
           for (const auto &byte : in) {
             bytes.emplace_back(gsl::narrow<std::uint8_t>(byte));
           }
@@ -300,8 +300,8 @@ namespace chimera::library::grammar {
     };
     template <flags::Flag Option>
     struct Action<Bytes<Option>> {
-      template <typename Top>
-      static void apply0(Top &&top) {
+      template <typename Top, typename... Args>
+      static void apply0(Top &&top, Args &&...args) {
         top.push(object::Object(std::move(top.bytes), {}));
       }
     };
@@ -316,8 +316,8 @@ namespace chimera::library::grammar {
     };
     template <flags::Flag Option>
     struct Action<DocString<Option>> {
-      template <typename Top>
-      static void apply0(Top &&top) {
+      template <typename Top, typename... Args>
+      static void apply0(Top &&top, Args &&...args) {
         top.push(object::Object(object::String(top.string), {}));
       }
     };
@@ -333,8 +333,8 @@ namespace chimera::library::grammar {
         void success(Outer &&outer) {
           outer.push(std::move(string));
         }
-        template <typename String>
-        void apply(String &&in) {
+        template <typename String, typename... Args>
+        void apply(String &&in, Args &&...args) {
           string.append(std::forward<String>(in));
         }
       };
@@ -352,19 +352,19 @@ namespace chimera::library::grammar {
           transform<asdl::ExprImpl>(std::back_inserter(joinedStr.values));
           outer.push(std::move(joinedStr));
         }
-        template <typename String>
-        void apply(String &&in) {
+        template <typename String, typename... Args>
+        void apply(String &&in, Args &&...args) {
           string.append(std::forward<String>(in));
         }
       };
     };
     template <flags::Flag Option>
     struct Action<FormattedString<Option>> {
-      template <typename Input, typename Top>
-      static void apply(const Input &in, Top &&top) {
+      template <typename Input, typename Top, typename... Args>
+      static void apply(const Input &in, Top &&top, Args &&...args) {
         Ensures((tao::pegtl::parse_nested<
-                 FString<flags::list<flags::DISCARD, flags::IMPLICIT>>, Action,
-                 typename MakeControl<>::Normal>(
+                 must<FString<flags::list<flags::DISCARD, flags::IMPLICIT>>>,
+                 Action, typename MakeControl<>::Normal>(
             in,
             tao::pegtl::memory_input<>(top.string.c_str(), top.string.size(),
                                        "<f_string>"),
@@ -400,8 +400,8 @@ namespace chimera::library::grammar {
           return State{std::move(value)};
         }
       };
-      template <typename Top>
-      static void apply0(Top &&top) {
+      template <typename Top, typename... Args>
+      static void apply0(Top &&top, Args &&...args) {
         State value;
         for (auto &&element : top.vector()) {
           value = std::visit(Visitor{}, std::move(value), std::move(element));
@@ -443,8 +443,8 @@ namespace chimera::library::grammar {
           return State{std::move(value)};
         }
       };
-      template <typename Top>
-      static void apply0(Top &&top) {
+      template <typename Top, typename... Args>
+      static void apply0(Top &&top, Args &&...args) {
         std::visit(top, std::visit(Push{}, top.pop()));
       }
     };

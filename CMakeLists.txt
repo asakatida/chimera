@@ -150,6 +150,7 @@ add_executable(
   unit_tests/grammar/statement.cpp
   unit_tests/number/number.cpp
   unit_tests/virtual_machine/parse.cpp
+  unit_tests/virtual_machine/trace.cpp
   unit_tests/virtual_machine/virtual_machine.cpp)
 
 target_compile_features(unit-test PUBLIC c_std_23 cxx_std_20)

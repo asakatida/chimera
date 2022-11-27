@@ -35,8 +35,8 @@ namespace chimera::library::grammar {
     struct Name : seq<XidStart, star<XidContinue>> {};
     template <>
     struct Action<Name> {
-      template <typename Input, typename Stack>
-      static void apply(const Input &in, Stack &&stack) {
+      template <typename Input, typename Stack, typename... Args>
+      static void apply(const Input &in, Stack &&stack, Args &&...args) {
         stack.push(asdl::Name{in.string()});
       }
     };

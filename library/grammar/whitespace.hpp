@@ -42,21 +42,21 @@ namespace chimera::library::grammar {
       std::conditional_t<flags::get<Option, flags::DISCARD>, discard, success>>;
   using BlankLines = seq<plus<Space<0>, Eol>, star<Utf8NonLineBreak>>;
   struct IndentCheck : not_at<Utf8NonLineBreak> {
-    template <typename Input>
-    static auto match(Input &&in) -> bool {
+    template <typename Input, typename... Args>
+    static auto match(Input &&in, Args &&...args) -> bool {
       return in.indent();
     }
   };
   struct INDENT : seq<BlankLines, IndentCheck, discard> {};
   struct DedentCheck : not_at<Utf8NonLineBreak> {
-    template <typename Input>
-    static auto match(Input &&in) -> bool {
+    template <typename Input, typename... Args>
+    static auto match(Input &&in, Args &&...args) -> bool {
       return in.is_dedent();
     }
   };
   struct DedentConsume : not_at<Utf8NonLineBreak> {
-    template <typename Input>
-    static auto match(Input &&in) -> bool {
+    template <typename Input, typename... Args>
+    static auto match(Input &&in, Args &&...args) -> bool {
       return in.dedent();
     }
   };
@@ -64,8 +64,8 @@ namespace chimera::library::grammar {
                       seq<at<BlankLines, DedentCheck>,
                           opt<BlankLines, DedentConsume, discard>>> {};
   struct NextIndentCheck : not_at<Utf8NonLineBreak> {
-    template <typename Input>
-    static auto match(Input &&in) -> bool {
+    template <typename Input, typename... Args>
+    static auto match(Input &&in, Args &&...args) -> bool {
       return in.is_newline();
     }
   };
@@ -73,8 +73,8 @@ namespace chimera::library::grammar {
   namespace token {
     template <auto Asdl>
     struct ConstantToken {
-      template <typename Top>
-      static void apply0(Top &&top) {
+      template <typename Top, typename... Args>
+      static void apply0(Top &&top, Args &&...args) {
         top.push(Asdl);
       }
     };
