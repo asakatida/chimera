@@ -109,11 +109,11 @@ namespace chimera::library::object::number {
   }
   Number::Number(std::uint64_t i) : value(Base{i}) {}
   Number::Number(Base base) : value(base) {}
-  Number::Number(Natural &&natural) : value(reduce(std::move(natural))) {}
-  Number::Number(Negative &&negative) : value(reduce(std::move(negative))) {}
-  Number::Number(Rational &&rational) : value(reduce(std::move(rational))) {}
-  Number::Number(Imag &&imag) : value(std::move(imag)) {}
-  Number::Number(Complex &&complex) : value(std::move(complex)) {}
+  Number::Number(Natural natural) : value(reduce(std::move(natural))) {}
+  Number::Number(Negative negative) : value(reduce(std::move(negative))) {}
+  Number::Number(Rational rational) : value(reduce(std::move(rational))) {}
+  Number::Number(Imag imag) : value(std::move(imag)) {}
+  Number::Number(Complex complex) : value(std::move(complex)) {}
   void Number::swap(Number &&other) noexcept {
     using std::swap;
     swap(value, other.value);

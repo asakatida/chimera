@@ -168,11 +168,11 @@ namespace chimera::library::object::number {
   public:
     explicit Number(std::uint64_t i);
     explicit Number(Base base);
-    explicit Number(Natural &&natural);
-    explicit Number(Negative &&negative);
-    explicit Number(Rational &&rational);
-    explicit Number(Imag &&imag);
-    explicit Number(Complex &&complex);
+    explicit Number(Natural natural);
+    explicit Number(Negative negative);
+    explicit Number(Rational rational);
+    explicit Number(Imag imag);
+    explicit Number(Complex complex);
     void swap(Number &&other) noexcept;
     template <typename T>
     explicit operator T() const noexcept {
