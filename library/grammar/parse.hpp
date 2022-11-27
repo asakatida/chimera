@@ -26,12 +26,14 @@
 #include <tao/pegtl.hpp>
 
 #include "grammar/rules.hpp"
+#include "grammar/rules/control.hpp"
 #include "options.hpp"
 
 namespace chimera::library::grammar {
   template <typename Grammar, typename... Args>
   void parse(const Optimize &optimize, Args &&...args) {
-    Ensures((tao::pegtl::parse<must<Grammar>, token::Action, Normal>(args...)));
+    Ensures((tao::pegtl::parse<must<Grammar>, token::Action,
+                               typename MakeControl<>::Normal>(args...)));
     switch (optimize) {
       case Optimize::NONE:
       case Optimize::BASIC:
