@@ -47,7 +47,7 @@ namespace chimera::library::object {
   using number::Number;
   enum class NumberMethod {};
   enum class ObjectMethod { DELATTR, DIR, GETATTRIBUTE, SETATTR };
-  using String = std::string_view;
+  using String = std::string;
   enum class StringMethod {};
   struct Stmt {};
   enum class SysCall {
@@ -99,8 +99,8 @@ namespace chimera::library::object {
     [[nodiscard]] auto get_bool() const noexcept -> bool;
     [[nodiscard]] auto use_count() const noexcept { return object.use_count(); }
     template <typename Visitor>
-    void visit(Visitor &&visitor) const {
-      std::visit(std::forward<Visitor>(visitor), object->value);
+    auto visit(Visitor &&visitor) const -> decltype(auto) {
+      return std::visit(std::forward<Visitor>(visitor), object->value);
     }
 
   private:
@@ -112,6 +112,7 @@ namespace chimera::library::object {
   };
   class BaseException : virtual public std::exception {
   public:
+    explicit BaseException(String anException);
     explicit BaseException(Object anException);
     BaseException(const BaseException &anException,
                   const BaseException &context);

@@ -120,10 +120,7 @@ namespace chimera::library::virtual_machine {
         }
       }
     }
-    const object::Object exception(
-        {{"__class__", builtins().get_attribute("AttributeError")},
-         {"__class__", builtins().get_attribute("AttributeError")}});
-    throw object::BaseException(exception);
+    throw object::BaseException(builtins().get_attribute("AttributeError"));
   }
   void Evaluator::evaluate() {
     while (scope) {
@@ -457,11 +454,10 @@ namespace chimera::library::virtual_machine {
       if (context) {
         return context;
       }
-      return object::BaseException(
-          object::Object(builtins().get_attribute("RuntimeError")));
+      return object::BaseException(builtins().get_attribute("RuntimeError"));
     } catch (const std::exception &exc) {
-      object::BaseException error(
-          object::Object(object::String(exc.what()), {}));
+      auto exception = object::Object{object::String{exc.what()}, {}};
+      object::BaseException error(exception);
       if (context) {
         return object::BaseException(error, *context);
       }
@@ -514,9 +510,6 @@ namespace chimera::library::virtual_machine {
         }
       }
     }
-    const object::Object exception(
-        {{"__class__", builtins().get_attribute("AttributeError")},
-         {"__class__", builtins().get_attribute("AttributeError")}});
-    throw object::BaseException(exception);
+    throw object::BaseException(builtins().get_attribute("AttributeError"));
   }
 } // namespace chimera::library::virtual_machine

@@ -67,27 +67,39 @@ namespace chimera::library::object {
   auto Object::get_bool() const noexcept -> bool {
     return std::holds_alternative<True>(object->value);
   }
+  struct BaseWhat {
+    auto operator()(const object::String &what) const noexcept -> const char * {
+      return what.c_str();
+    }
+    template <typename Type>
+    auto operator()(const Type & /*what*/) const noexcept -> const char * {
+      return "BaseException";
+    }
+  };
+  BaseException::BaseException(String anException)
+      : exception(Object(std::move(anException), {})) {}
   BaseException::BaseException(Object anException)
       : exception(std::move(anException)) {}
   BaseException::BaseException(const BaseException &anException,
                                const BaseException &context)
       : exception(anException.exception) {
-    exception.set_attribute("__context__"s, context.exception);
+    Object object(anException.exception);
+    object.set_attribute("__context__"s, context.exception);
   }
-  auto BaseException::what() const noexcept -> const char * {
-    return "BaseException";
-  }
-  auto BaseException::id() const noexcept -> Id { return exception.id(); }
   auto BaseException::class_id() const noexcept -> Id {
     return exception.get_attribute("__class__"s).id();
+  }
+  auto BaseException::id() const noexcept -> Id { return exception.id(); }
+  auto BaseException::what() const noexcept -> const char * {
+    return exception.visit(BaseWhat{});
   }
   // NOLINTBEGIN(bugprone-throw-keyword-missing)
   AttributeError::AttributeError(const std::string &type,
                                  const std::string &key)
-      : BaseException(Object{"AttributeError: type object '" + type +
+      : BaseException(Object{"AttributeError: '"s + type +
                                  "' has no attribute '" + key + "'",
                              {}}) {}
   KeyboardInterrupt::KeyboardInterrupt()
-      : BaseException(Object(String(""), {})) {}
+      : BaseException(Object{"KeyboardInterrupt"s, {}}) {}
   // NOLINTEND(bugprone-throw-keyword-missing)
 } // namespace chimera::library::object
