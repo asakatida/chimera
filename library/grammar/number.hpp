@@ -36,8 +36,8 @@
 namespace chimera::library::grammar {
   namespace token {
     struct NumberHolder {
-      template <std::uint8_t Base, typename Input>
-      void apply(const Input &in) {
+      template <std::uint8_t Base, typename Input, typename... Args>
+      void apply(const Input &in, Args &&...args) {
         number *= object::Number(Base).pow(object::Number(in.size())) +
                   object::Number(std::stoul(in.string(), nullptr, Base));
       }
@@ -46,32 +46,32 @@ namespace chimera::library::grammar {
     struct Nonzerodigit : seq<range<'1', '9'>, rep_opt<18, range<'0', '9'>>> {};
     template <>
     struct Action<Nonzerodigit> {
-      template <typename Input, typename Top>
-      static void apply(const Input &in, Top &&top) {
+      template <typename Input, typename Top, typename... Args>
+      static void apply(const Input &in, Top &&top, Args &&...args) {
         top.template apply<10>(in);
       }
     };
     struct Digit : seq<range<'0', '9'>, rep_opt<18, range<'0', '9'>>> {};
     template <>
     struct Action<Digit> {
-      template <typename Input, typename Top>
-      static void apply(const Input &in, Top &&top) {
+      template <typename Input, typename Top, typename... Args>
+      static void apply(const Input &in, Top &&top, Args &&...args) {
         top.template apply<10>(in);
       }
     };
     struct Bindigit : seq<range<'0', '1'>, rep_opt<63, range<'0', '1'>>> {};
     template <>
     struct Action<Bindigit> {
-      template <typename Input, typename Top>
-      static void apply(const Input &in, Top &&top) {
+      template <typename Input, typename Top, typename... Args>
+      static void apply(const Input &in, Top &&top, Args &&...args) {
         top.template apply<2>(in);
       }
     };
     struct Octdigit : seq<range<'0', '7'>, rep_opt<31, range<'0', '7'>>> {};
     template <>
     struct Action<Octdigit> {
-      template <typename Input, typename Top>
-      static void apply(const Input &in, Top &&top) {
+      template <typename Input, typename Top, typename... Args>
+      static void apply(const Input &in, Top &&top, Args &&...args) {
         top.template apply<8>(in);
       }
     };
@@ -79,8 +79,8 @@ namespace chimera::library::grammar {
                           rep_opt<15, ranges<'0', '9', 'a', 'f', 'A', 'F'>>> {};
     template <>
     struct Action<Hexdigit> {
-      template <typename Input, typename Top>
-      static void apply(const Input &in, Top &&top) {
+      template <typename Input, typename Top, typename... Args>
+      static void apply(const Input &in, Top &&top, Args &&...args) {
         top.template apply<16>(in);
       }
     };
@@ -125,8 +125,8 @@ namespace chimera::library::grammar {
         void success(Top &&top) {
           top.number += number / object::Number(10).pow(denominator);
         }
-        template <std::uint8_t Base, typename Input>
-        void apply(const Input &in) {
+        template <std::uint8_t Base, typename Input, typename... Args>
+        void apply(const Input &in, Args &&...args) {
           denominator += object::Number(in.size());
           NumberHolder::apply<Base>(in);
         }
@@ -145,8 +145,8 @@ namespace chimera::library::grammar {
     };
     template <>
     struct Action<Numberliteral> {
-      template <typename Top>
-      static void apply0(Top &&top) {
+      template <typename Top, typename... Args>
+      static void apply0(Top &&top, Args &&...args) {
         top.push(object::Object(std::move(top.number), {}));
       }
     };

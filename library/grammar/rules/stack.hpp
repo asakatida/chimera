@@ -34,6 +34,7 @@
 namespace chimera::library::grammar::rules {
   template <typename... Types>
   struct Stack {
+    using List = metal::list<Types...>;
     using ValueT = std::variant<Types...>;
     template <typename Type>
     void push(Type &&type) {
@@ -41,12 +42,14 @@ namespace chimera::library::grammar::rules {
     }
     [[nodiscard]] auto top() const -> const ValueT & { return stack.back(); }
     auto top() -> ValueT & { return stack.back(); }
-    template <typename Type>
+    template <typename Type,
+              typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
     [[nodiscard]] auto top() const -> const Type & {
       Ensures(std::holds_alternative<Type>(top()));
       return std::get<Type>(top());
     }
-    template <typename Type>
+    template <typename Type,
+              typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
     auto top() -> Type & {
       Ensures(std::holds_alternative<Type>(top()));
       return std::get<Type>(top());
@@ -55,7 +58,8 @@ namespace chimera::library::grammar::rules {
       auto finally = gsl::finally([this] { this->stack.pop_back(); });
       return std::move(top());
     }
-    template <typename Type>
+    template <typename Type,
+              typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
     auto pop() -> Type {
       auto finally = gsl::finally([this] { this->stack.pop_back(); });
       return std::move(top<Type>());
@@ -72,10 +76,12 @@ namespace chimera::library::grammar::rules {
     template <typename Type, typename... Args>
     auto reshape() -> Type {
       using LocalStack = Reshape<Type, Args...>;
-      Expects(sizeof...(Args) == size());
       auto finally = gsl::finally([this] { this->stack.clear(); });
-      return LocalStack::reshape(stack.begin(),
-                                 std::index_sequence_for<Args...>{});
+      if (sizeof...(Args) == size()) {
+        return LocalStack::reshape(stack.begin(),
+                                   std::index_sequence_for<Args...>{});
+      }
+      return Type{};
     }
     [[nodiscard]] auto vector() const -> const std::vector<ValueT> & {
       return stack;
@@ -96,7 +102,8 @@ namespace chimera::library::grammar::rules {
       }
     }
     [[nodiscard]] auto has_value() const -> bool { return !stack.empty(); }
-    template <typename Type>
+    template <typename Type,
+              typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
     [[nodiscard]] auto top_is() const -> bool {
       return has_value() && std::holds_alternative<Type>(top());
     }

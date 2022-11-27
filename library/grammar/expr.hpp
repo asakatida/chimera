@@ -190,7 +190,7 @@ namespace chimera::library::grammar {
           bin.values.reserve(s);
           transform<asdl::ExprImpl>(std::back_inserter(bin.values));
           outer.push(std::move(bin));
-        } else {
+        } else if (s == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
       }
@@ -206,7 +206,7 @@ namespace chimera::library::grammar {
           bin.values.reserve(s);
           transform<asdl::ExprImpl>(std::back_inserter(bin.values));
           outer.push(std::move(bin));
-        } else {
+        } else if (s == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
       }
@@ -222,7 +222,7 @@ namespace chimera::library::grammar {
           bin.values.reserve(s);
           transform<asdl::ExprImpl>(std::back_inserter(bin.values));
           outer.push(std::move(bin));
-        } else {
+        } else if (s == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
       }
@@ -286,7 +286,7 @@ namespace chimera::library::grammar {
           asdlBool.values.reserve(s);
           transform<asdl::ExprImpl>(std::back_inserter(asdlBool.values));
           outer.push(std::move(asdlBool));
-        } else {
+        } else if (s == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
       }
@@ -302,7 +302,7 @@ namespace chimera::library::grammar {
           asdlBool.values.reserve(s);
           transform<asdl::ExprImpl>(std::back_inserter(asdlBool.values));
           outer.push(std::move(asdlBool));
-        } else {
+        } else if (s == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
       }
@@ -317,14 +317,14 @@ namespace chimera::library::grammar {
   template <flags::Flag Option>
   struct ConditionalExpression
       : seq<OrTest<Option>,
-            opt<If<Option>, must<OrTest<Option>, Else<Option>, Test<Option>>>> {
+            opt_must<If<Option>, OrTest<Option>, Else<Option>, Test<Option>>> {
     struct Transform : rules::Stack<asdl::ExprImpl> {
       template <typename Outer>
       void success(Outer &&outer) {
-        if (size() > 1) {
+        if (auto s = size(); s > 1) {
           outer.push(reshape<asdl::IfExp, asdl::ExprImpl, asdl::ExprImpl,
                              asdl::ExprImpl>());
-        } else {
+        } else if (s == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
       }
@@ -375,18 +375,18 @@ namespace chimera::library::grammar {
           tuple.elts.reserve(s);
           transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
           outer.push(std::move(tuple));
-        } else {
+        } else if (s == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
       }
     };
   };
   template <flags::Flag Option>
-  struct Power : seq<AtomExpr<Option>, opt<Pow<Option>, must<Factor<Option>>>> {
+  struct Power : seq<AtomExpr<Option>, opt_must<Pow<Option>, Factor<Option>>> {
     struct Transform : rules::Stack<asdl::ExprImpl, asdl::Operator> {
       template <typename Outer>
       void success(Outer &&outer) {
-        if (size() > 1) {
+        if (auto s = size(); s == 3) {
           asdl::Bin bin;
           bin.values.reserve(2);
           {
@@ -396,7 +396,7 @@ namespace chimera::library::grammar {
             bin.values.emplace_back(std::move(expr));
           }
           outer.push(std::move(bin));
-        } else {
+        } else if (s == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
       }
@@ -440,7 +440,7 @@ namespace chimera::library::grammar {
                               list_tail<Elt<Option>, Comma<Option>>>;
   template <flags::Flag Option>
   struct VarargsListNameEqTest
-      : seq<Name<Option>, opt<Eq<Option>, Test<Option>>> {
+      : seq<Name<Option>, opt_must<Eq<Option>, Test<Option>>> {
     struct Transform : rules::Stack<asdl::ExprImpl, asdl::Name> {
       template <typename Outer>
       void success(Outer &&outer) {
@@ -620,7 +620,7 @@ namespace chimera::library::grammar {
               DictOrSetMaker<flags::set<Option, flags::IMPLICIT>>,
               RBrc<Option>>;
   template <flags::Flag Option>
-  using AtomName = must<minus<Name<Option>, Keywords>>;
+  using AtomName = minus<Name<Option>, Keywords>;
   template <flags::Flag Option>
   struct AtomToken
       : sor<STRING<Option>, NUMBER<Option>, Ellipsis<Option>, None<Option>,

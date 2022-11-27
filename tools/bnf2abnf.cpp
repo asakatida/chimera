@@ -35,15 +35,18 @@ struct BnfAction : tao::pegtl::nothing<Rule> {};
 
 template <char Constant>
 struct BnfPrint {
-  static void apply0() { std::cout << Constant; }
+  template <typename... Args>
+  static void apply0(Args &&...args) {
+    std::cout << Constant;
+  }
 };
 
 struct CommentBody : tao::pegtl::until<tao::pegtl::eolf> {};
 
 template <>
 struct BnfAction<CommentBody> {
-  template <typename Input>
-  static void apply(const Input &in) {
+  template <typename Input, typename... Args>
+  static void apply(const Input &in, Args &&...args) {
     std::cout << ';' << in.string();
   }
 };
@@ -63,8 +66,8 @@ struct RuleName : tao::pegtl::identifier {};
 
 template <>
 struct BnfAction<RuleName> {
-  template <typename Input>
-  static void apply(const Input &in) {
+  template <typename Input, typename... Args>
+  static void apply(const Input &in, Args &&...args) {
     auto str = in.string();
     std::replace(str.begin(), str.end(), '_', '-');
     std::cout << str;
@@ -78,8 +81,8 @@ struct TermIdentifier
 
 template <>
 struct BnfAction<TermIdentifier> {
-  template <typename Input>
-  static void apply(const Input &in) {
+  template <typename Input, typename... Args>
+  static void apply(const Input &in, Args &&...args) {
     auto str = in.string();
     std::replace(str.begin(), str.end(), '_', '-');
     std::cout << str;
@@ -91,8 +94,8 @@ struct Literal : tao::pegtl::seq<tao::pegtl::one<'\''>,
 
 template <>
 struct BnfAction<Literal> {
-  template <typename Input>
-  static void apply(const Input &in) {
+  template <typename Input, typename... Args>
+  static void apply(const Input &in, Args &&...args) {
     std::cout << '"' << in.string().substr(1, in.string().size() - 2) << '"';
   }
 };
@@ -136,7 +139,10 @@ struct BnfPlus : tao::pegtl::at<Term, tao::pegtl::one<'+'>> {};
 
 template <>
 struct BnfAction<BnfPlus> {
-  static void apply0() { std::cout << "1*"; }
+  template <typename... Args>
+  static void apply0(Args &&...args) {
+    std::cout << "1*";
+  }
 };
 
 struct Modifier

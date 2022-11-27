@@ -53,7 +53,7 @@ namespace chimera::library::grammar {
                         sor<SuiteSimpleStmt<Option>,
                             if_must<INDENT, SuiteSeqStmtPlus<Option>, DEDENT>>>;
   template <flags::Flag Option>
-  struct TFPDef : seq<Name<Option>, opt<Colon<Option>, must<Test<Option>>>> {
+  struct TFPDef : seq<Name<Option>, opt_must<Colon<Option>, Test<Option>>> {
     struct Transform : rules::Stack<asdl::ExprImpl, asdl::Name> {
       template <typename Outer>
       void success(Outer &&outer) {
@@ -68,7 +68,7 @@ namespace chimera::library::grammar {
   };
   template <flags::Flag Option>
   struct TypedargsListTFPDefEqTest
-      : seq<TFPDef<Option>, opt<Eq<Option>, must<Test<Option>>>> {
+      : seq<TFPDef<Option>, opt_must<Eq<Option>, Test<Option>>> {
     struct Transform : rules::Stack<asdl::ExprImpl, asdl::Arg> {
       template <typename Outer>
       void success(Outer &&outer) {
@@ -145,8 +145,8 @@ namespace chimera::library::grammar {
             Def<Option>, Name<Option>,
             Parameters<
                 flags::unSet<Option, flags::ASYNC_FLOW, flags::SCOPE_FLOW>>,
-            opt<Arr<Option>, must<Test<flags::unSet<Option, flags::ASYNC_FLOW,
-                                                    flags::SCOPE_FLOW>>>>,
+            opt_must<Arr<Option>, Test<flags::unSet<Option, flags::ASYNC_FLOW,
+                                                    flags::SCOPE_FLOW>>>,
             SuiteWithDoc<flags::set<
                 flags::unSet<Option, flags::LOOP_FLOW, flags::IMPORT_ALL>,
                 flags::SCOPE_FLOW>>> {
@@ -197,7 +197,7 @@ namespace chimera::library::grammar {
           tuple.elts.reserve(s);
           transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
           outer.push(std::move(tuple));
-        } else {
+        } else if (s == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
       }
@@ -256,16 +256,15 @@ namespace chimera::library::grammar {
     };
   };
   template <flags::Flag Option>
-  struct AnnAssign
-      : if_must<seq<ExprStmtTarget<Option>, Colon<Option>>, Test<Option>,
-                opt<Eq<Option>, must<Test<Option>>>> {
+  struct AnnAssign : if_must<seq<ExprStmtTarget<Option>, Colon<Option>>,
+                             Test<Option>, opt_must<Eq<Option>, Test<Option>>> {
     struct Transform : rules::Stack<asdl::ExprImpl> {
       template <typename Outer>
       void success(Outer &&outer) {
-        if (size() > 2) {
+        if (auto s = size(); s == 3) {
           outer.push(reshape<asdl::AnnAssign, asdl::ExprImpl, asdl::ExprImpl,
                              asdl::ExprImpl>());
-        } else {
+        } else if (s == 2) {
           outer.push(
               reshape<asdl::AnnAssign, asdl::ExprImpl, asdl::ExprImpl>());
         }
@@ -536,7 +535,7 @@ namespace chimera::library::grammar {
   template <flags::Flag Option>
   struct WhileStmt : if_must<While<Option>, Test<Option>,
                              Suite<flags::set<Option, flags::LOOP_FLOW>>,
-                             opt<Else<Option>, must<Suite<Option>>>> {
+                             opt_must<Else<Option>, Suite<Option>>> {
     struct Transform
         : rules::Stack<std::vector<asdl::StmtImpl>, asdl::ExprImpl> {
       template <typename Outer>
@@ -556,7 +555,7 @@ namespace chimera::library::grammar {
   struct ForStmt
       : if_must<For<Option>, ExprList<Option>, In<Option>, TestList<Option>,
                 Suite<flags::set<Option, flags::LOOP_FLOW>>,
-                opt<Else<Option>, must<Suite<Option>>>> {
+                opt_must<Else<Option>, Suite<Option>>> {
     struct Transform
         : rules::Stack<std::vector<asdl::StmtImpl>, asdl::ExprImpl> {
       template <typename Outer>
@@ -577,7 +576,7 @@ namespace chimera::library::grammar {
   template <flags::Flag Option>
   using ExceptClause =
       seq<Except<Option>,
-          opt<Test<Option>, opt<As<Option>, must<Name<Option>>>>>;
+          opt<Test<Option>, opt_must<As<Option>, Name<Option>>>>;
   template <flags::Flag Option>
   struct TryStmtExcept : if_must<ExceptClause<Option>, Suite<Option>> {
     struct Transform : rules::Stack<std::vector<asdl::StmtImpl>, asdl::ExprImpl,
@@ -627,13 +626,13 @@ namespace chimera::library::grammar {
     };
   };
   template <flags::Flag Option>
-  struct WithItem : seq<Test<Option>, opt<As<Option>, Expr<Option>>> {
+  struct WithItem : seq<Test<Option>, opt_must<As<Option>, Expr<Option>>> {
     struct Transform : rules::Stack<asdl::ExprImpl> {
       template <typename Outer>
       void success(Outer &&outer) {
-        if (size() > 1) {
+        if (auto s = size(); s == 2) {
           outer.push(reshape<asdl::Withitem, asdl::ExprImpl, asdl::ExprImpl>());
-        } else {
+        } else if (s == 1) {
           outer.push(reshape<asdl::Withitem, asdl::ExprImpl>());
         }
       }
