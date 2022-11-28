@@ -29,16 +29,16 @@ jobs:
           sudo apt-get update &&
           sudo apt-get install --no-install-recommends --yes ccache
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2.1.33
+        uses: github/codeql-action/init@v2.1.34
         with:
           config-file: ./.github/codeql/codeql-config.yml
           languages: ${{ matrix.language }}
       - env:
           CCACHE_DIR: ${{ github.workspace }}/.ccache
         name: Autobuild
-        uses: github/codeql-action/autobuild@v2.1.33
+        uses: github/codeql-action/autobuild@v2.1.34
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2.1.33
+        uses: github/codeql-action/analyze@v2.1.34
     strategy:
       matrix:
         language:
