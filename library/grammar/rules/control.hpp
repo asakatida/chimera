@@ -28,31 +28,35 @@
 #include <gsl/gsl>
 #include <tao/pegtl.hpp>
 
-namespace chimera::library::grammar::rules {
-  using tao::pegtl::normal;
-  template <typename Rule, typename = std::void_t<>>
-  struct Normal : normal<Rule> {};
-  template <typename Rule>
-  struct Normal<Rule, std::void_t<decltype(typename Rule::Transform{})>>
-      : normal<Rule> {
-    using LocalControl = normal<Rule>;
-    template <tao::pegtl::apply_mode A, tao::pegtl::rewind_mode M,
-              template <typename...> class Action,
-              template <typename...> class Control, typename Input,
-              typename Outer>
-    static auto match(Input &in, Outer &&outer) -> bool {
-      if constexpr (A == tao::pegtl::apply_mode::action) {
-        typename Rule::Transform state;
-        if (LocalControl::template match<A, M, Action, Control>(in, state)) {
-          state.success(outer);
-          return true;
+namespace chimera::library::grammar {
+  template <template <typename...> class OtherControl = tao::pegtl::normal>
+  struct MakeControl {
+    template <typename Rule, typename = std::void_t<>>
+    struct Normal : OtherControl<Rule> {};
+    template <typename Rule>
+    struct Normal<Rule, std::void_t<decltype(typename Rule::Transform{})>>
+        : OtherControl<Rule> {
+      using LocalControl = OtherControl<Rule>;
+      template <tao::pegtl::apply_mode A, tao::pegtl::rewind_mode M,
+                template <typename...> class Action,
+                template <typename...> class Control, typename Input,
+                typename Outer, typename... Args>
+      static auto match(Input &in, Outer &&outer, Args &&...args) -> bool {
+        if constexpr (A == tao::pegtl::apply_mode::action) {
+          typename Rule::Transform state;
+          if (LocalControl::template match<A, M, Action, Control>(
+                  in, state, std::forward<Args>(args)...)) {
+            state.success(std::forward<Outer>(outer));
+            return true;
+          }
+          return false;
         }
-        return false;
+        if constexpr (A != tao::pegtl::apply_mode::action) {
+          return LocalControl::template match<A, M, Action, Control>(
+              in, std::forward<Outer>(outer), std::forward<Args>(args)...);
+        }
+        Expects(false);
       }
-      if constexpr (A != tao::pegtl::apply_mode::action) {
-        return LocalControl::template match<A, M, Action, Control>(in, outer);
-      }
-      Expects(false);
-    }
+    };
   };
-} // namespace chimera::library::grammar::rules
+} // namespace chimera::library::grammar
