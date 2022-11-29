@@ -368,11 +368,11 @@ namespace chimera::library::grammar {
       static void apply(const Input &in, Top &&top) {
         Ensures((tao::pegtl::parse_nested<
                  FString<flags::list<flags::DISCARD, flags::IMPLICIT>>, Action,
-                 Normal>(in,
-                         tao::pegtl::memory_input<>(top.string.c_str(),
-                                                    top.string.size(),
-                                                    "<f_string>"),
-                         std::forward<Top>(top))));
+                 typename MakeControl<>::Normal>(
+            in,
+            tao::pegtl::memory_input<>(top.string.c_str(), top.string.size(),
+                                       "<f_string>"),
+            std::forward<Top>(top))));
       }
     };
     template <flags::Flag Option>

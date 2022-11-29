@@ -27,7 +27,6 @@
 #include "grammar/rules/rules.hpp"
 
 namespace chimera::library::grammar {
-  using rules::Normal;
   using tao::pegtl::at;
   using tao::pegtl::discard;
   using tao::pegtl::eof;
