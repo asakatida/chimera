@@ -7,7 +7,7 @@
 
 using namespace std::literals;
 
-TEST_CASE("grammar VirtualMachine ()") {
+TEST_CASE("grammar VirtualMachine ``") {
   SECTION("destructor") {
     chimera::library::Options options;
     options.chimera = "chimera";
@@ -25,7 +25,7 @@ TEST_CASE("grammar VirtualMachine ()") {
   REQUIRE(true);
 }
 
-TEST_CASE("grammar VirtualMachine (type)") {
+TEST_CASE("grammar VirtualMachine `type`") {
   chimera::library::Options options;
   options.chimera = "chimera";
   options.script = "test.py";
@@ -39,7 +39,7 @@ TEST_CASE("grammar VirtualMachine (type)") {
                     chimera::library::object::BaseException);
 }
 
-TEST_CASE("grammar VirtualMachine (a@b=c)") {
+TEST_CASE("grammar VirtualMachine `a@b=c`") {
   chimera::library::Options options;
   options.chimera = "chimera";
   options.script = "test.py";
