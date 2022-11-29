@@ -71,8 +71,6 @@ namespace chimera::library::grammar {
   };
   struct NEWLINE : seq<BlankLines, NextIndentCheck, discard> {};
   namespace token {
-    template <typename Rule>
-    struct Action : tao::pegtl::nothing<Rule> {};
     template <auto Asdl>
     struct ConstantToken {
       template <typename Top>
