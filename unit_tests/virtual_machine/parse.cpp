@@ -22,27 +22,27 @@ namespace chimera::library {
   }
 } // namespace chimera::library
 
-TEST_CASE("virtual machine parse ()") {
+TEST_CASE("virtual machine parse ``") {
   REQUIRE_NOTHROW(chimera::library::test_parse(""s));
 }
 
-TEST_CASE("virtual machine parse (a)") {
+TEST_CASE("virtual machine parse `a`") {
   REQUIRE_NOTHROW(chimera::library::test_parse("a"s));
 }
 
-TEST_CASE("virtual machine parse (hello_world)") {
+TEST_CASE("virtual machine parse `hello_world`") {
   REQUIRE_NOTHROW(chimera::library::test_parse("hello_world"s));
 }
 
-TEST_CASE("virtual machine parse (;hello_world)") {
+TEST_CASE("virtual machine parse `;hello_world`") {
   REQUIRE_NOTHROW(chimera::library::test_parse(";hello_world"s));
 }
 
-TEST_CASE("virtual machine parse (\\0hello_world)") {
+TEST_CASE("virtual machine parse `\\0hello_world`") {
   REQUIRE_THROWS_AS(chimera::library::test_parse("\0hello_world"s),
                     tao::pegtl::parse_error);
 }
 
-TEST_CASE("virtual machine parse (0=help)") {
+TEST_CASE("virtual machine parse `0=help`") {
   REQUIRE_NOTHROW(chimera::library::test_parse("0=help"s));
 }
