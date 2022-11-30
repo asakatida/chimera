@@ -10,7 +10,10 @@ runs:
     - -eo
     - pipefail
     - -c
-    - export CCACHE_DIR="$(pwd)/.ccache"; ${{ inputs.run }}
+    - |
+      export CCACHE_CONFIGPATH="$(pwd)/.github/ccache/ccache.conf"
+      export CCACHE_DIR="$(pwd)/.ccache"
+      ${{ inputs.run }}
   entrypoint: /bin/bash
   image: asakatida/chimera:latest
   using: docker
