@@ -85,7 +85,7 @@ namespace chimera::library::grammar {
           default:
             break;
         }
-        top.push(std::move(formattedValue));
+        top.push(asdl::ExprImpl{std::move(formattedValue)});
       }
     };
     template <flags::Flag Option>
@@ -111,9 +111,9 @@ namespace chimera::library::grammar {
         if (is_formatted_value) {
           top.push(std::move(expr));
         } else {
-          top.push(asdl::FormattedValue{std::move(expr),
+          top.push(asdl::ExprImpl{asdl::FormattedValue{std::move(expr),
                                         asdl::FormattedValue::STR,
-                                        std::move(formatSpec)});
+                                        std::move(formatSpec)}});
         }
       }
     };
