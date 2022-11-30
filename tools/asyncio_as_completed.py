@@ -1,4 +1,4 @@
-from asyncio import Queue, Task, create_task, gather, wait_for
+from asyncio import Queue, Task, create_task, wait_for
 from os import cpu_count
 from typing import Coroutine, Iterable, TypeVar
 

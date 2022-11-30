@@ -18,60 +18,32 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""corpus_trim.py"""
+"""test.py"""
 
-from asyncio import run
 from hashlib import sha256
-from itertools import chain, repeat
 from operator import attrgetter
 from pathlib import Path
-from re import MULTILINE, compile
 from sys import stderr
 from typing import Iterable, TypeVar
 
-from asyncio_cmd import ProcessError
-from corpus_utils import c_tqdm, fuzz_star, fuzz_test, gather_paths
+from corpus_utils import gather_paths
+from tqdm import tqdm  # type: ignore
 
 LENGTH = 8
 DIRECTORIES = ("corpus", "crashes")
-SOURCE = Path(__file__).resolve().parent.parent
+SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
-CORPUS_ORIGINAL = FUZZ / "corpus_original"
 CRASHES = FUZZ / "crashes"
 T = TypeVar("T")
-CONFLICT = compile(rb"^((<{8}|>{8})\s.+|={8})$\s", MULTILINE)
 
 
 class Increment(Exception):
     pass
 
 
-def conflicts_one(file: Path) -> None:
-    set(
-        map(
-            lambda section: (file.parent / sha256(section).hexdigest()).write_bytes(
-                section
-            ),
-            filter(None, CONFLICT.split(file.read_bytes())),
-        )
-    )
-    file.unlink()
-
-
-def conflicts(fuzz: Iterable[Path]) -> None:
-    set(
-        c_tqdm(
-            map(
-                conflicts_one,
-                filter(
-                    lambda file: CONFLICT.search(file.read_bytes()),
-                    fuzz,
-                ),
-            ),
-            "Conflicts",
-        )
-    )
+def c_tqdm(iterable: Iterable[T], desc: str) -> Iterable[T]:
+    return tqdm(iterable, desc=desc, maxinterval=60, miniters=100, unit_scale=True)  # type: ignore
 
 
 def corpus_trim_one(fuzz: Iterable[Path]) -> None:
@@ -81,15 +53,13 @@ def corpus_trim_one(fuzz: Iterable[Path]) -> None:
         name = src_sha[:LENGTH]
         if name == file.name:
             continue
-        if set(
-            map(
-                sha,  # type: ignore
-                filter(
-                    Path.exists,  # type: ignore
-                    map(Path.joinpath, map(FUZZ.joinpath, DIRECTORIES), repeat(name)),  # type: ignore
-                ),
-            )
-        ).difference({src_sha}):
+        if src_sha in map(
+            sha,
+            filter(
+                Path.exists,
+                map(Path.joinpath, map(FUZZ.joinpath, DIRECTORIES), (name,) * 2),
+            ),
+        ):
             LENGTH += 1
             raise Increment(
                 f"Collision found, update corpus_trim.py `LENGTH`: {LENGTH}"
@@ -120,38 +90,14 @@ def sha(path: Path) -> str:
     return sha256(path.read_bytes()).hexdigest()
 
 
-async def main() -> None:
-    if not fuzz_star():
-        raise FileNotFoundError("No fuzz targets built")
+def main() -> None:
     CORPUS.mkdir(exist_ok=True)
     CRASHES.mkdir(exist_ok=True)
-    conflicts(gather_paths())
-    corpus_trim()
-    CORPUS.rename(CORPUS_ORIGINAL)
-    CORPUS.mkdir(exist_ok=True)
-    errors = await fuzz_test(
-        "-merge=1",
-        "-reduce_inputs=1",
-        "-shrink=1",
-        CORPUS,
-        CORPUS_ORIGINAL,
-    )
-    if errors:
-        error = errors.pop()
-        if errors:
-            print("Extra Errors:", *errors, file=stderr, sep="\n")
-        raise error
-    for file in chain(
-        SOURCE.rglob("crash-*"), SOURCE.rglob("leak-*"), SOURCE.rglob("timeout-*")
-    ):
-        file.rename(CRASHES / sha(file))
     corpus_trim()
 
 
 if __name__ == "__main__":
     try:
-        run(main())
-    except ProcessError as error:
-        error.exit()
+        main()
     except KeyboardInterrupt:
         print("KeyboardInterrupt", file=stderr)
