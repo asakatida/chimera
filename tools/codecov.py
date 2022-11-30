@@ -26,7 +26,6 @@ from pathlib import Path
 from sys import stderr
 
 from asyncio_cmd import ProcessError, cmd
-from ninja import ninja
 
 
 async def main() -> None:
