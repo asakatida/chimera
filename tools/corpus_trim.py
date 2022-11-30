@@ -35,7 +35,7 @@ from asyncio_cmd import ProcessError, cmd
 from tqdm import tqdm  # type: ignore
 from tqdm.asyncio import tqdm as atqdm  # type: ignore
 
-LENGTH = 22
+LENGTH = 8
 DIRECTORIES = ("corpus", "crashes")
 SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
