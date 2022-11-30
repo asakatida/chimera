@@ -3,8 +3,9 @@ import pathlib
 import jinja2
 import yaml
 
+scripts = pathlib.Path(__file__).parent.absolute()
 supported_distros_matrix = yaml.safe_load(
-    pathlib.Path("tools/supported_distros.yml").read_text()
+    (scripts / "supported_distros.yml").read_text()
 )
 
 
@@ -41,7 +42,7 @@ min_supported_distros = [
 ]
 
 jinja2.Template(
-    pathlib.Path("tools/docker.yml.j2").read_text(),
+    (scripts / "docker.yml.j2").read_text(),
     autoescape=True,
     block_end_string="%>",
     block_start_string="<%",
@@ -57,5 +58,5 @@ jinja2.Template(
 ).stream(
     supported_distros=supported_distros, min_supported_distros=min_supported_distros
 ).dump(
-    "tools/docker.yml"
+    str(scripts / "docker.yml")
 )
