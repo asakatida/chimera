@@ -1,5 +1,4 @@
 from functools import reduce
-from itertools import repeat
 from pathlib import Path
 from re import MULTILINE, Pattern, compile
 from sys import argv

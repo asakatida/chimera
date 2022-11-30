@@ -27,14 +27,14 @@ from operator import attrgetter
 from pathlib import Path
 from re import MULTILINE, compile
 from sys import stderr
-from typing import Iterable, TypeVar
+from typing import AsyncGenerator, Iterable, TypeVar
 
 from asyncio_cmd import ProcessError
 from corpus_utils import c_tqdm, fuzz_star, fuzz_test, gather_paths
 
 LENGTH = 8
 DIRECTORIES = ("corpus", "crashes")
-SOURCE = Path(__file__).resolve().parent.parent
+SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
 CORPUS_ORIGINAL = FUZZ / "corpus_original"
