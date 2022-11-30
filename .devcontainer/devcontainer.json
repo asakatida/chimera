@@ -41,19 +41,19 @@
     ],
     "overrideCommand": false,
     "postAttachCommand": [
-        "true"
+        "tools/before.sh"
     ],
     "postCreateCommand": [
-        "true"
+        "tools/before.sh"
     ],
     "postStartCommand": [
-        "tools/before.sh"
+        "tools/boot.sh"
     ],
     "remoteEnv": {
         "CXXFLAGS": "-fcoverage-mapping -fprofile-instr-generate -fsanitize-coverage=no-prune -fsanitize-coverage=trace-cmp -fsanitize-coverage=trace-div -fsanitize-coverage=trace-gep -fsanitize-coverage=trace-loads -fsanitize-coverage=trace-stores"
     },
     "runArgs": [],
     "updateContentCommand": [
-        "tools/boot.sh"
+        "true"
     ]
 }
