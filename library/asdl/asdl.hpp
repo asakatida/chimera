@@ -40,6 +40,7 @@ namespace chimera::library::asdl {
     struct Impl {
       using List = metal::list<Types...>;
       using ValueT = metal::apply<metal::lambda<std::variant>, List>;
+      Impl() = default;
       template <typename Type,
                 typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
       // NOLINTNEXTLINE(hicpp-explicit-conversions)
@@ -407,6 +408,7 @@ namespace chimera::library::asdl {
     std::optional<ExprImpl> returns{};
   };
   struct Module {
+    Module() = default;
     Module(const Optimize &optimize, const std::string_view &data,
            const char *source);
     Module(const Optimize &optimize, std::istream &&input, const char *source);
@@ -429,6 +431,7 @@ namespace chimera::library::asdl {
     std::optional<DocString> doc_string{};
   };
   struct Interactive {
+    Interactive() = default;
     Interactive(const Optimize &optimize, const std::string_view &data,
                 const char *source);
     Interactive(const Optimize &optimize, std::istream &&input,
@@ -444,6 +447,7 @@ namespace chimera::library::asdl {
     std::vector<StmtImpl> body{};
   };
   struct Expression {
+    Expression() = default;
     Expression(const Optimize &optimize, const std::string_view &data,
                const char *source);
     Expression(const Optimize &optimize, std::istream &&input,

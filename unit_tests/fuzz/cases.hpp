@@ -12,10 +12,6 @@ namespace chimera::library {
   auto fuzz_istream(const std::uint8_t *data, std::size_t size)
       -> std::istringstream;
   auto fuzz_options() -> Options;
-  template <typename Grammar>
-  auto fuzz_eval(const std::uint8_t *data, std::size_t size) -> int {
-    return fuzz_eval<Grammar>(fuzz_istream(data, size));
-  }
   template <typename Grammar, typename... Args>
   auto fuzz_parse(Input &&in, Args &&...args) -> int {
     auto options = fuzz_options();
@@ -48,6 +44,20 @@ namespace chimera::library {
   template <typename Grammar>
   auto fuzz_parse(Input &&in) -> int {
     return fuzz_parse<Grammar>(std::move(in));
+  }
+  template <typename Grammar, typename ASDL>
+  auto fuzz_parse(const std::uint8_t *data, std::size_t size) -> int {
+    grammar::Input<tao::pegtl::memory_input<>> in(
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+        reinterpret_cast<const char *>(data), size, "<fuzz>");
+    try {
+      grammar::parse<Grammar>(Optimize::NONE, std::move(in), ASDL{});
+    } catch (const tao::pegtl::parse_error &) {
+      return -1;
+    } catch (const chimera::library::grammar::SyntaxError &) {
+      return -1;
+    }
+    return 0;
   }
   auto fuzz_expression_eval(const std::uint8_t *data, std::size_t size) -> int;
   auto fuzz_expression_eval(std::istream &&in) -> int;

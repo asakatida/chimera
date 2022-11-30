@@ -192,11 +192,15 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(
     FUZZERS
     ellipsis
+    expression
     false
+    interactive
     keywords
+    module
     name
     none
     number
+    statement
     string
     true
     vm
