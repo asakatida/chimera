@@ -161,10 +161,11 @@ namespace chimera::library::grammar {
       template <typename Input, typename Top>
       static void apply(const Input &in, Top &&top) {
         std::string string;
-        Expects(tao::pegtl::unescape::utf8_append_utf32(
-            string, tao::pegtl::unescape::unhex_string<std::uint32_t>(
-                        in.begin(), in.end())));
-        top.apply(std::move(string));
+        if (tao::pegtl::unescape::utf8_append_utf32(
+                string, tao::pegtl::unescape::unhex_string<std::uint32_t>(
+                            in.begin(), in.end()))) {
+          top.apply(std::move(string));
+        }
       }
     };
     template <char Open, unsigned Len>
@@ -175,14 +176,15 @@ namespace chimera::library::grammar {
       template <typename Input, typename Top>
       static void apply(const Input &in, Top &&top) {
         std::string string;
-        Expects(tao::pegtl::unescape::utf8_append_utf32(
-            string, std::accumulate(in.begin(), in.end(), std::uint32_t(0),
-                                    [](auto &&init, auto &&c) {
-                                      return (init << 2U) |
-                                             gsl::narrow<std::uint32_t>(c -
-                                                                        '0');
-                                    })));
-        top.apply(std::move(string));
+        if (tao::pegtl::unescape::utf8_append_utf32(
+                string, std::accumulate(in.begin(), in.end(), std::uint32_t(0),
+                                        [](auto &&init, auto &&c) {
+                                          return (init << 2U) |
+                                                 gsl::narrow<std::uint32_t>(
+                                                     c - '0');
+                                        }))) {
+          top.apply(std::move(string));
+        }
       }
     };
     struct EscapeControl : one<'a', 'b', 'f', 'n', 'r', 't', 'v'> {};
@@ -190,11 +192,31 @@ namespace chimera::library::grammar {
     struct Action<EscapeControl> {
       template <typename Input, typename Top>
       static void apply(const Input &in, Top &&top) {
-        static const std::map<char, std::string_view> escapes{
-            {'a', "\a"sv}, {'b', "\b"sv}, {'f', "\f"sv}, {'n', "\n"sv},
-            {'r', "\r"sv}, {'t', "\t"sv}, {'v', "\v"sv}};
-        Ensures(escapes.contains(in.peek_char()));
-        top.apply(escapes.at(in.peek_char()));
+        switch (in.peek_char()) {
+          case 'a':
+            top.apply("\a"sv);
+            break;
+          case 'b':
+            top.apply("\b"sv);
+            break;
+          case 'f':
+            top.apply("\f"sv);
+            break;
+          case 'n':
+            top.apply("\n"sv);
+            break;
+          case 'r':
+            top.apply("\r"sv);
+            break;
+          case 't':
+            top.apply("\t"sv);
+            break;
+          case 'v':
+            top.apply("\v"sv);
+            break;
+          default:
+            Expects(false);
+        }
       }
     };
     template <typename Chars>
@@ -347,10 +369,12 @@ namespace chimera::library::grammar {
         std::string string;
         template <typename Outer>
         void success(Outer &&outer) {
-          asdl::JoinedStr joinedStr;
-          joinedStr.values.reserve(size());
-          transform<asdl::ExprImpl>(std::back_inserter(joinedStr.values));
-          outer.push(std::move(joinedStr));
+          if (auto s = size(); s > 0) {
+            asdl::JoinedStr joinedStr;
+            joinedStr.values.reserve(s);
+            transform<asdl::ExprImpl>(std::back_inserter(joinedStr.values));
+            outer.push(std::move(joinedStr));
+          }
         }
         template <typename String>
         void apply(String &&in) {
@@ -364,11 +388,11 @@ namespace chimera::library::grammar {
       static void apply(const Input &in, Top &&top) {
         Ensures((tao::pegtl::parse_nested<
                  FString<flags::list<flags::DISCARD, flags::IMPLICIT>>, Action,
-                 Normal>(in,
-                         tao::pegtl::memory_input<>(top.string.c_str(),
-                                                    top.string.size(),
-                                                    "<f_string>"),
-                         std::forward<Top>(top))));
+                 typename MakeControl<>::Normal>(
+            in,
+            tao::pegtl::memory_input<>(top.string.c_str(), top.string.size(),
+                                       "<f_string>"),
+            std::forward<Top>(top))));
       }
     };
     template <flags::Flag Option>
