@@ -1,0 +1,46 @@
+---
+jobs:
+  cleanup:
+    concurrency:
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      group: ${{ github.workflow }}-${{ github.ref }}
+    runs-on: ubuntu-22.04
+    steps:
+      - env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        name: Cleanup
+        run: >
+          gh api "repos/$OWNER/$REPO/actions/runs" --paginate -q '
+            .workflow_runs |
+            map(
+              select(
+                (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 31 * 6) or
+                (
+                  (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 28) and
+                  .head_branch != "stable"
+                ) or (
+                  (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 7) and
+                  (.head_branch | contains("-refs/"))
+                )
+              ) |
+              .url
+            )[]
+          ' |
+          xargs --max-lines=1 --max-procs=4 --no-run-if-empty --verbose --
+          gh api -X DELETE
+
+name: Meta Actions
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    paths:
+      - .github/workflows/actions.yml
+  schedule:
+    - cron: 20 14 * * *
+  workflow_dispatch: ~
+
+permissions:
+  actions: write
