@@ -98,5 +98,9 @@
         "variant": "cpp",
         "vector": "cpp"
     },
+    "git.autofetch": false,
+    "git.autorefresh": false,
+    "git.confirmSync": true,
+    "git.enabled": false,
     "git.ignoreLimitWarning": true
 }

@@ -32,13 +32,7 @@
         "storage": "32gb"
     },
     "image": "asakatida/chimera:latest",
-    "initializeCommand": [
-        "true"
-    ],
     "name": "chimera",
-    "onCreateCommand": [
-        "true"
-    ],
     "overrideCommand": false,
     "postAttachCommand": [
         "tools/before.sh"
@@ -47,13 +41,13 @@
         "tools/before.sh"
     ],
     "postStartCommand": [
-        "tools/boot.sh"
+        "tools/before.sh"
     ],
     "remoteEnv": {
         "CXXFLAGS": "-fcoverage-mapping -fprofile-instr-generate -fsanitize-coverage=no-prune -fsanitize-coverage=trace-cmp -fsanitize-coverage=trace-div -fsanitize-coverage=trace-gep -fsanitize-coverage=trace-loads -fsanitize-coverage=trace-stores"
     },
     "runArgs": [],
     "updateContentCommand": [
-        "true"
+        "tools/boot.sh"
     ]
 }
