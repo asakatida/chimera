@@ -27,7 +27,7 @@ from typing import Iterable, TypeVar
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError
-from corpus_utils import c_atqdm, fuzz_star, fuzz_test, gather_paths
+from corpus_utils import c_tqdm, fuzz_star, fuzz_test, gather_paths
 
 DIRECTORIES = ("corpus", "crashes")
 SOURCE = Path(__file__).parent.parent.resolve()
@@ -46,10 +46,7 @@ async def regression_one(file: Path) -> None:
 
 
 async def regression(fuzz: Iterable[Path]) -> None:
-    async for _ in c_atqdm(
-        as_completed(map(regression_one, fuzz), limit=12), "Regression"
-    ):
-        pass
+    await as_completed(c_tqdm(map(regression_one, fuzz), "Regression"), limit=12)
 
 
 async def main() -> None:
