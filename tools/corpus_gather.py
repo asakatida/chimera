@@ -22,6 +22,7 @@
 
 from asyncio import run
 from asyncio.subprocess import PIPE
+from itertools import islice
 from pathlib import Path
 from sys import stderr
 
@@ -42,18 +43,6 @@ async def main() -> None:
         "git",
         "log",
         "--all",
-        "--date-order",
-        "--oneline",
-        "--graph",
-        "^origin/HEAD",
-        "--",
-        *FUZZ_DIRS,
-        stdout=None,
-    )
-    stdout = await cmd(
-        "git",
-        "log",
-        "--all",
         "--format=%h",
         "^origin/HEAD",
         "--",
@@ -61,12 +50,19 @@ async def main() -> None:
         stdout=PIPE,
     )
     for sha in tqdm(
-        map(
-            str.strip,
-            stdout.decode().splitlines(),
+        islice(
+            filter(
+                None,
+                map(
+                    str.strip,
+                    stdout.decode().splitlines(),
+                ),
+            ),
+            10,
         ),
         desc="Refs",
         unit_scale=True,
+        total=10,
     ):
         await cmd("git", "restore", "--source", sha, "--staged", *FUZZ_DIRS, log=False)
         await cmd("git", "restore", "--worktree", str(FUZZ), log=False)
