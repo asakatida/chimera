@@ -24,11 +24,11 @@ from asyncio.subprocess import DEVNULL
 from functools import cache, partial
 from itertools import chain, repeat
 from pathlib import Path
-from typing import AsyncGenerator, Iterable, Optional, TypeVar
+from typing import Iterable, Optional, TypeVar
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import cmd
-from tqdm.asyncio import tqdm  # type: ignore
+from tqdm import tqdm  # type: ignore
 
 DIRECTORIES = ("corpus", "crashes")
 SOURCE = Path(__file__).parent.parent.resolve()
@@ -38,9 +38,7 @@ CRASHES = FUZZ / "crashes"
 T = TypeVar("T")
 
 
-def c_atqdm(
-    iterable: AsyncGenerator[T, object], desc: str
-) -> AsyncGenerator[T, object]:
+def c_tqdm(iterable: Iterable[T], desc: str) -> Iterable[T]:
     return tqdm(iterable, desc=desc, maxinterval=60, miniters=100, unit_scale=True)  # type: ignore
 
 
@@ -75,18 +73,19 @@ async def fuzz_test_one(
 async def fuzz_test(
     *args: str, stdout: Optional[int] = DEVNULL, timeout: int = 10
 ) -> list[Exception]:
-    results = []
-    async for error in as_completed(
-        map(
-            partial(fuzz_test_one, stdout=stdout, timeout=timeout),
-            fuzz_star(),
-            *map(repeat, args),  # type: ignore
-        ),
-        limit=12,
-    ):
-        if error is not None:
-            results.append(error)
-    return results
+    return list(
+        filter(
+            None,
+            as_completed(
+                map(
+                    partial(fuzz_test_one, stdout=stdout, timeout=timeout),
+                    fuzz_star(),
+                    *map(repeat, args),  # type: ignore
+                ),
+                limit=12,
+            ),
+        )
+    )
 
 
 def gather_paths() -> Iterable[Path]:

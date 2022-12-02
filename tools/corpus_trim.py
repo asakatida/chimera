@@ -30,8 +30,7 @@ from sys import stderr
 from typing import Iterable, TypeVar
 
 from asyncio_cmd import ProcessError
-from corpus_utils import fuzz_star, fuzz_test, gather_paths
-from tqdm import tqdm  # type: ignore
+from corpus_utils import c_tqdm, fuzz_star, fuzz_test, gather_paths
 
 LENGTH = 8
 DIRECTORIES = ("corpus", "crashes")
@@ -46,10 +45,6 @@ CONFLICT = compile(rb"^((<{8}|>{8})\s.+|={8})$\s", MULTILINE)
 
 class Increment(Exception):
     pass
-
-
-def c_tqdm(iterable: Iterable[T], desc: str) -> Iterable[T]:
-    return tqdm(iterable, desc=desc, maxinterval=60, miniters=100, unit_scale=True)  # type: ignore
 
 
 def conflicts_one(file: Path) -> None:
