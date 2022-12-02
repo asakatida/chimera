@@ -29,6 +29,8 @@ RUN <<SHELL bash
     rm -rf /var/lib/apt/lists
 SHELL
 
+COPY --chown=github:github .ccache /home/github/.ccache
+
 USER github:github
 
 ENV CC=clang \
