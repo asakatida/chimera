@@ -86,13 +86,15 @@ def corpus_trim_one(fuzz: Iterable[Path]) -> None:
         name = src_sha[:LENGTH]
         if name == file.name:
             continue
-        if src_sha in map(
-            sha,  # type: ignore
-            filter(
-                Path.exists,  # type: ignore
-                map(Path.joinpath, map(FUZZ.joinpath, DIRECTORIES), repeat(name)),  # type: ignore
-            ),
-        ):
+        if set(
+            map(
+                sha,  # type: ignore
+                filter(
+                    Path.exists,  # type: ignore
+                    map(Path.joinpath, map(FUZZ.joinpath, DIRECTORIES), repeat(name)),  # type: ignore
+                ),
+            )
+        ).difference({src_sha}):
             LENGTH += 1
             raise Increment(
                 f"Collision found, update corpus_trim.py `LENGTH`: {LENGTH}"
