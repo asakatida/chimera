@@ -30,6 +30,8 @@ RUN <<SHELL bash
     rm /tmp/boot.yml /tmp/requirements.txt
 SHELL
 
+COPY --chown=github:github .ccache /home/github/.ccache
+
 USER github:github
 
 ENV CC clang
