@@ -81,5 +81,5 @@ python3 tools/supported_distros.py
 
 ansible-playbook tools/docker.yml
 
-tools/ninja.sh build/debug
-tools/ninja.sh build/release
+ninja -C build/debug -j1 -k0 || true
+ninja -C build/release -j1 -k0 || true
