@@ -76,7 +76,7 @@ async def fuzz_test(
     return list(
         filter(
             None,
-            as_completed(
+            await as_completed(
                 map(
                     partial(fuzz_test_one, stdout=stdout, timeout=timeout),
                     fuzz_star(),
