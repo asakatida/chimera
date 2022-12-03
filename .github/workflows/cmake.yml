@@ -63,6 +63,33 @@ jobs:
           create_branch: true
           file_pattern: unit_tests/fuzz
           repository: ${{ github.workspace }}
+  debug:
+    concurrency:
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      group: debug-${{ github.workflow }}-${{ github.ref }}
+    env:
+      CMAKE_BUILD_TYPE: Debug
+      CXXFLAGS: ""
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.1.0
+        with:
+          submodules: true
+      - name: CCache
+        uses: actions/cache@v3.0.11
+        with:
+          key: debug-${{ github.run_id }}
+          path: .ccache
+          restore-keys: |
+            debug-
+            build-
+      - name: Run regression
+        uses: ./
+        with:
+          run: |
+            /opt/virtualenv/bin/pip3 install -r requirements.txt
+            cmake -GNinja -B build -S .
+            tools/ninja.sh build check-rand regression
   regression:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
@@ -100,6 +127,33 @@ jobs:
           create_branch: true
           file_pattern: unit_tests/fuzz
           repository: ${{ github.workspace }}
+  release:
+    concurrency:
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      group: release-${{ github.workflow }}-${{ github.ref }}
+    env:
+      CMAKE_BUILD_TYPE: Release
+      CXXFLAGS: ""
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.1.0
+        with:
+          submodules: true
+      - name: CCache
+        uses: actions/cache@v3.0.11
+        with:
+          key: release-${{ github.run_id }}
+          path: .ccache
+          restore-keys: |
+            release-
+            build-
+      - name: Run regression
+        uses: ./
+        with:
+          run: |
+            /opt/virtualenv/bin/pip3 install -r requirements.txt
+            cmake -GNinja -B build -S .
+            tools/ninja.sh build check-rand regression
   scan-build:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
