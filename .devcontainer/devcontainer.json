@@ -37,7 +37,15 @@
     },
     "image": "asakatida/chimera:latest",
     "name": "chimera",
-    "overrideCommand": false,
+    "postAttachCommand": [
+        "tools/before.sh"
+    ],
+    "postCreateCommand": [
+        "tools/before.sh"
+    ],
+    "postStartCommand": [
+        "tools/boot.sh"
+    ],
     "remoteEnv": {
         "CXXFLAGS": "-fcoverage-mapping -fprofile-instr-generate -fsanitize-coverage=no-prune -fsanitize-coverage=trace-cmp -fsanitize-coverage=trace-div -fsanitize-coverage=trace-gep -fsanitize-coverage=trace-loads -fsanitize-coverage=trace-stores"
     }
