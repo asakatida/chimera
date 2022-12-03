@@ -13,6 +13,7 @@ runs:
     - |
       export CCACHE_CONFIGPATH="$(pwd)/.github/ccache/ccache.conf"
       export CCACHE_DIR="$(pwd)/.ccache"
+      CXXFLAGS="$(tr '\r' ' ' <<<"${CXXFLAGS}" | tr '\n' ' ')"
       ${{ inputs.run }}
   entrypoint: /bin/bash
   image: asakatida/chimera:latest

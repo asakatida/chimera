@@ -32,7 +32,10 @@ async def main() -> None:
     environ["CMAKE_BUILD_TYPE"] = "Coverage"
     environ["CXXFLAGS"] = " ".join(
         (
-            environ.get("CXXFLAGS", "-O1 -DNDEBUG").strip(),
+            environ.get("CXXFLAGS", "-O1 -DNDEBUG")
+            .strip()
+            .replace("\n", " ")
+            .replace("\r", " "),
             "-fcoverage-mapping",
             "-fprofile-instr-generate",
             "-mllvm",

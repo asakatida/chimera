@@ -60,7 +60,7 @@ cmakelint
 
 chimera_path="${PWD}/stdlib:$(python3 tools/chimera_path.py)"
 
-CXXFLAGS="$(echo "${CXXFLAGS}" | xargs)"
+CXXFLAGS="$(tr '\r' ' ' <<<"${CXXFLAGS}" | tr '\n' ' ')"
 export CC="${CC:-clang}"
 export CXX="${CXX:-clang++}" CXXFLAGS="${CXXFLAGS} -DCHIMERA_PATH=${chimera_path}"
 
