@@ -56,7 +56,7 @@ jobs:
             done
             exit 0
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
-        uses: stefanzweifel/git-auto-commit-action@v4.15.4
+        uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
           branch: regression-${{ github.workflow }}-${{ github.ref }}/${{ github.run_id }}
           commit_message: Update fuzzing corpus.
@@ -120,7 +120,7 @@ jobs:
             /opt/virtualenv/bin/pip3 install -r requirements.txt
             /opt/virtualenv/bin/python tools/corpus_regression.py
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
-        uses: stefanzweifel/git-auto-commit-action@v4.15.4
+        uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
           branch: update-fuzz-${{ github.ref }}/${{ github.run_id }}
           commit_message: Update fuzzing corpus.
