@@ -38,15 +38,16 @@
     "image": "asakatida/chimera:latest",
     "name": "chimera",
     "postAttachCommand": [
-        "/opt/virtualenv/bin/python",
-        "tools/before.py"
+        "/opt/virtualenv/bin/ansible-playbook",
+        "tools/devcontainer.yml"
     ],
     "postCreateCommand": [
-        "/opt/virtualenv/bin/python",
-        "tools/before.py"
+        "/opt/virtualenv/bin/ansible-playbook",
+        "tools/devcontainer.yml"
     ],
     "postStartCommand": [
-        "tools/boot.sh"
+        "/opt/virtualenv/bin/ansible-playbook",
+        "tools/devcontainer.yml"
     ],
     "remoteEnv": {
         "CXXFLAGS": "-fcoverage-mapping -fprofile-instr-generate -fsanitize-coverage=no-prune -fsanitize-coverage=trace-cmp -fsanitize-coverage=trace-div -fsanitize-coverage=trace-gep -fsanitize-coverage=trace-loads -fsanitize-coverage=trace-stores"

@@ -41,13 +41,11 @@ tools/g-ls-tree.sh -not -path "./stdlib/*" -name '*.py' | \
   tools/xargs.sh -- \
   mypy
 
-if [[ -z "${PREBUILD_CHECK}" ]]; then
-  python3 tools/generate_utf8_id_continue.py
-  python3 tools/generate_utf8_id_start.py
-  python3 tools/generate_utf8_space.py
-  git ls-tree --full-tree --name-only -r -z HEAD | \
-    tools/xargs.sh -- \
-    python3 tools/trim.py
-  tools/clang-format.sh
-  tools/clang-tidy.sh build/debug
-fi
+python3 tools/generate_utf8_id_continue.py
+python3 tools/generate_utf8_id_start.py
+python3 tools/generate_utf8_space.py
+git ls-tree --full-tree --name-only -r -z HEAD | \
+  tools/xargs.sh -- \
+  python3 tools/trim.py
+tools/clang-format.sh
+tools/clang-tidy.sh build/debug
