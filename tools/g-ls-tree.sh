@@ -5,7 +5,7 @@
 
 set -e -o pipefail
 
-if [[ "${CI:-}" == "true" ]] || [[ -n "${PREBUILD_CHECK}" ]]; then
+if [[ "${CI:-}" == "true" ]]; then
   find . "$@" -print0 | \
     tools/xargs.sh -- \
     git ls-tree --full-tree --name-only -z HEAD --

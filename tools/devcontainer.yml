@@ -1,0 +1,59 @@
+---
+# yamllint disable rule:key-ordering
+- hosts: localhost
+  name: Boot localhost for building
+  tasks:
+    - name: Install packages
+      ansible.builtin.pip:
+        requirements: "{{ playbook_dir }}/../requirements.txt"
+        state: present
+    - name: Update submodules
+      # noqa: command-instead-of-module
+      ansible.builtin.command: git submodule update --init
+      register: result
+      changed_when: result.stdout | length > 0
+    - name: Gather chimera path
+      ansible.builtin.command: python3 {{ playbook_dir }}/chimera_path.py
+      register: chimera_path
+      changed_when: chimera_path.stdout | length > 0
+    - name: Clean newlines in CXXFLAGS
+      ansible.builtin.set_fact:
+        cxxflags: >
+          {{ lookup('env', 'CXXFLAGS') | default('') | regex_replace('[\\n\\r]+', ' ') }}
+    - name: Set CC, CXX, and CXXFLAGS
+      ansible.builtin.set_fact:
+        cc: "{{ lookup('env', 'CC') | default('clang') }}"
+        cxx: "{{ lookup('env', 'CXX') | default('clang++') }}"
+        cxxflags: >
+          {{ cxxflags }}
+          -DCHIMERA_PATH={{ playbook_dir }}/../stdlib:{{ chimera_path.stdout }}
+    - name: Create debug build directory
+      ansible.builtin.command: >
+        {{ playbook_dir }}/cmake.sh {{ playbook_dir }}/../build/debug -Wdev -Werror=dev
+      args:
+        creates: "{{ playbook_dir }}/../build/debug"
+      environment:
+        CC: "{{ cc }}"
+        CMAKE_BUILD_TYPE: Debug
+        CXX: "{{ cxx }}"
+        CXXFLAGS: "{{ cxxflags }}"
+    - name: Create release build directory
+      ansible.builtin.command: >
+        {{ playbook_dir }}/cmake.sh {{ playbook_dir }}/../build/release
+      args:
+        creates: "{{ playbook_dir }}/../build/release"
+      environment:
+        CC: "{{ cc }}"
+        CMAKE_BUILD_TYPE: >
+          {{ lookup('env', 'CMAKE_BUILD_TYPE') | default('MinSizeRel') }}
+        CXX: "{{ cxx }}"
+        CXXFLAGS: "{{ cxxflags }} -DNDEBUG"
+    - name: Build project
+      ansible.builtin.command: ninja -C {{ playbook_dir }}/../{{ item }} -j1 -k0
+      failed_when: false
+      register: result
+      changed_when: result.stdout | length > 0
+      loop:
+        - build/debug
+        - build/release
+# yamllint enable rule:key-ordering

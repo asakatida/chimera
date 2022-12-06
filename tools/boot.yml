@@ -362,9 +362,8 @@
       when: ansible_facts.os_family == 'Darwin'
       block:
         - name: Install pyenv
-          ansible.builtin.command: brew install pyenv
-          args:
-            creates: /opt/homebrew/Cellar/pyenv
+          community.general.homebrew:
+            name: pyenv
         - name: Install Python {{ py_version }}
           ansible.builtin.command: pyenv install {{ py_version }}-dev
           args:

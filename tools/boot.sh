@@ -2,9 +2,6 @@
 
 set -ex -o pipefail
 
-env | cut -f1 -d= | sort -u
-export PREBUILD_CHECK="${CODESPACES:-}"
-
 git submodule update --init
 
 cd "$(git rev-parse --show-toplevel || true)"
@@ -13,14 +10,6 @@ case "$(uname)" in
   Darwin )
     brew install python3 shellcheck
     export PATH="${PATH}:${HOME}/.pyenv/shims"
-    ;;
-  Linux )
-    if command -v apt; then
-      echo 'Apt found, expecting Dockerfile is used'
-    else
-      echo 'No apt found, failed installation'
-      exit
-    fi
     ;;
   * )
     uname
@@ -31,36 +20,17 @@ esac
 
 tools/shellcheck.sh
 
-case "$(uname)" in
-  Darwin )
-    python_bin="$(command -v python3)"
-    tools/venv.sh "${python_bin}"
-    env/bin/ansible-playbook tools/boot.yml
-    python_bin="$(command -v python3.12)"
-    tools/venv.sh "${python_bin}"
-    export PATH="${PWD}/env/bin:${PATH}"
-    ;;
-  Linux )
-    if command -v apt; then
-      export PATH="/opt/virtualenv/bin:${PATH}"
-      python tools/before.py
-    else
-      echo 'No apt found, failed installation'
-      exit
-    fi
-    ;;
-  * )
-    uname
-    echo 'unknown os, failed installation'
-    exit
-    ;;
-esac
+python_bin="$(command -v python3)"
+tools/venv.sh "${python_bin}"
+env/bin/ansible-playbook tools/boot.yml
+python_bin="$(command -v python3.12)"
+tools/venv.sh "${python_bin}"
+export PATH="${PWD}/env/bin:${PATH}"
 
 cmakelint
 
 chimera_path="${PWD}/stdlib:$(python3 tools/chimera_path.py)"
 
-CXXFLAGS="$(tr '\r' ' ' <<<"${CXXFLAGS}" | tr '\n' ' ')"
 export CC="${CC:-clang}"
 export CXX="${CXX:-clang++}" CXXFLAGS="${CXXFLAGS} -DCHIMERA_PATH=${chimera_path}"
 
@@ -77,9 +47,9 @@ env \
 
 tools/lint.sh
 
+ninja -C build/debug -j1 -k0 || true
+ninja -C build/release -j1 -k0 || true
+
 python3 tools/supported_distros.py
 
 ansible-playbook tools/docker.yml
-
-ninja -C build/debug -j1 -k0 || true
-ninja -C build/release -j1 -k0 || true
