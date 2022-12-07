@@ -128,19 +128,14 @@ async def main() -> None:
     conflicts(gather_paths())
     corpus_trim()
     CORPUS.rename(CORPUS_ORIGINAL)
-    for _ in range(2):
-        CORPUS.mkdir(exist_ok=True)
-        errors = await fuzz_test(
-            "-merge=1",
-            "-reduce_inputs=1",
-            "-shrink=1",
-            str(CORPUS),
-            str(CORPUS_ORIGINAL),
-            stdout=None,
-            timeout=3600,
-        )
-        if not errors:
-            break
+    CORPUS.mkdir(exist_ok=True)
+    errors = await fuzz_test(
+        "-merge=1",
+        "-reduce_inputs=1",
+        "-shrink=1",
+        str(CORPUS),
+        str(CORPUS_ORIGINAL),
+    )
     if errors:
         error = errors.pop()
         if errors:

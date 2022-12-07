@@ -20,14 +20,14 @@
 
 """corpus_utils.py"""
 
-from asyncio.subprocess import DEVNULL
+from asyncio import gather
+from asyncio.subprocess import create_subprocess_exec
 from functools import cache, partial
 from itertools import chain, repeat
 from pathlib import Path
 from typing import Iterable, Optional, TypeVar
 
-from asyncio_as_completed import as_completed
-from asyncio_cmd import cmd
+from asyncio_cmd import ProcessError
 from tqdm import tqdm  # type: ignore
 
 DIRECTORIES = ("corpus", "crashes")
@@ -52,37 +52,33 @@ def fuzz_star() -> tuple[Path, ...]:
     )
 
 
-async def fuzz_test_one(
-    regression: Path, *args: str, stdout: Optional[int], timeout: int
-) -> Optional[Exception]:
+async def fuzz_test_one(regression: Path, *args: object) -> Optional[Exception]:
     try:
-        await cmd(
-            str(regression),
-            "-detect_leaks=0",
-            "-use_value_profile=1",
-            *args,
-            log=False,
-            stdout=stdout,
-            timeout=timeout,
+        proc = await create_subprocess_exec(
+            str(regression), "-detect_leaks=0", "-use_value_profile=1", *map(str, args)
         )
+        cmd_stderr = b""
+        try:
+            await proc.communicate()
+        finally:
+            returncode = proc.returncode
+            if returncode != 0:
+                return ProcessError(tuple(map(str, args)), cmd_stderr, returncode or 1)
     except Exception as error:
         return error
     return None
 
 
-async def fuzz_test(
-    *args: str, stdout: Optional[int] = DEVNULL, timeout: int = 10
-) -> list[Exception]:
+async def fuzz_test(*args: object) -> list[Exception]:
     return list(
         filter(
             None,
-            await as_completed(
-                map(
-                    partial(fuzz_test_one, stdout=stdout, timeout=timeout),
+            await gather(
+                *map(
+                    partial(fuzz_test_one),
                     fuzz_star(),
                     *map(repeat, args),  # type: ignore
                 ),
-                limit=12,
             ),
         )
     )
