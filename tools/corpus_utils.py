@@ -21,13 +21,12 @@
 """corpus_utils.py"""
 
 from asyncio import gather
-from asyncio.subprocess import create_subprocess_exec
 from functools import cache, partial
 from itertools import chain, repeat
 from pathlib import Path
 from typing import Iterable, Optional, TypeVar
 
-from asyncio_cmd import ProcessError
+from asyncio_cmd import cmd_no_timeout
 from tqdm import tqdm  # type: ignore
 
 DIRECTORIES = ("corpus", "crashes")
@@ -54,16 +53,9 @@ def fuzz_star() -> tuple[Path, ...]:
 
 async def fuzz_test_one(regression: Path, *args: object) -> Optional[Exception]:
     try:
-        proc = await create_subprocess_exec(
-            str(regression), "-detect_leaks=0", "-use_value_profile=1", *map(str, args)
+        await cmd_no_timeout(
+            regression, "-detect_leaks=0", "-use_value_profile=1", *args
         )
-        cmd_stderr = b""
-        try:
-            await proc.communicate()
-        finally:
-            returncode = proc.returncode
-            if returncode != 0:
-                return ProcessError(tuple(map(str, args)), cmd_stderr, returncode or 1)
     except Exception as error:
         return error
     return None

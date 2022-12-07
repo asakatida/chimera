@@ -42,8 +42,8 @@ case "$(uname)" in
     ;;
   Linux )
     if command -v apt; then
-      tools/before.sh
       export PATH="/opt/virtualenv/bin:${PATH}"
+      python tools/before.py
     else
       echo 'No apt found, failed installation'
       exit

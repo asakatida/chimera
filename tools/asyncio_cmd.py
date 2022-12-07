@@ -18,11 +18,11 @@ class ProcessError(Exception):
 
 
 async def cmd(
-    *args: str, log: bool = True, stdout: Optional[int] = DEVNULL, timeout: int = 20
+    *args: object, log: bool = True, stdout: Optional[int] = DEVNULL, timeout: int = 20
 ) -> bytes:
     if log:
         print("+", *args, file=stderr)
-    proc = await create_subprocess_exec(*args, stderr=PIPE, stdout=stdout)
+    proc = await create_subprocess_exec(*map(str, args), stderr=PIPE, stdout=stdout)
     cmd_stderr = b""
     try:
         cmd_stdout, cmd_stderr = await wait_for(proc.communicate(), timeout=timeout)
@@ -37,5 +37,51 @@ async def cmd(
                 f"\nThe process was terminated by timeout {timeout} seconds".encode()
             )
         if returncode != 0:
-            raise ProcessError(args, cmd_stderr, returncode or 1)
+            raise ProcessError(tuple(map(str, args)), cmd_stderr, returncode or 1)
     return cmd_stdout
+
+
+async def cmd_env(
+    env: dict[str, object],
+    *args: object,
+    stdout: Optional[int] = DEVNULL,
+    timeout: int = 20,
+) -> bytes:
+    print("+", *args, file=stderr)
+    proc = await create_subprocess_exec(
+        *map(str, args),
+        env=dict(zip(env.keys(), map(str, env.values()))),
+        stderr=PIPE,
+        stdout=stdout,
+    )
+    cmd_stderr = b""
+    try:
+        cmd_stdout, cmd_stderr = await wait_for(proc.communicate(), timeout=timeout)
+    finally:
+        returncode = proc.returncode
+        if returncode is None:
+            proc.terminate()
+            returncode = await proc.wait()
+            if proc.stderr is not None:
+                cmd_stderr += await proc.stderr.read()
+            cmd_stderr += (
+                f"\nThe process was terminated by timeout {timeout} seconds".encode()
+            )
+        if returncode != 0:
+            raise ProcessError(tuple(map(str, args)), cmd_stderr, returncode or 1)
+    return cmd_stdout
+
+
+async def cmd_no_timeout(*args: object) -> None:
+    print("+", *args, file=stderr)
+    proc = await create_subprocess_exec(*map(str, args))
+    cmd_stderr = b""
+    try:
+        await proc.communicate()
+    finally:
+        returncode = proc.returncode
+        if returncode is None:
+            proc.terminate()
+            returncode = await proc.wait()
+        if returncode != 0:
+            raise ProcessError(tuple(map(str, args)), cmd_stderr, returncode or 1)

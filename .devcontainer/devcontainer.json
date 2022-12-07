@@ -38,10 +38,12 @@
     "image": "asakatida/chimera:latest",
     "name": "chimera",
     "postAttachCommand": [
-        "tools/before.sh"
+        "/opt/virtualenv/bin/python",
+        "tools/before.py"
     ],
     "postCreateCommand": [
-        "tools/before.sh"
+        "/opt/virtualenv/bin/python",
+        "tools/before.py"
     ],
     "postStartCommand": [
         "tools/boot.sh"
