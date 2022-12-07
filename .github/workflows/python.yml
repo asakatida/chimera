@@ -11,8 +11,8 @@ jobs:
         uses: ./
         with:
           run: |
-            /opt/virtualenv/bin/pip3 install -r requirements.txt
-            /opt/virtualenv/bin/cmakelint
+            pip install -r requirements.txt
+            cmakelint
   mypy:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
@@ -30,10 +30,10 @@ jobs:
         uses: ./
         with:
           run: >
-            /opt/virtualenv/bin/pip3 install -r requirements.txt;
+            pip install -r requirements.txt;
             tools/g-ls-tree.sh -not -path './stdlib/*' -name '*.py' |
             xargs --no-run-if-empty --null --
-            /opt/virtualenv/bin/mypy
+            mypy
   python:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
@@ -45,10 +45,10 @@ jobs:
         uses: ./
         with:
           run: >
-            /opt/virtualenv/bin/pip3 install -r requirements.txt;
+            pip install -r requirements.txt;
             tools/g-ls-tree.sh -name '*.py' |
             xargs --no-run-if-empty --null --
-            /opt/virtualenv/bin/${{ matrix.lints }}
+            ${{ matrix.lints }}
     strategy:
       matrix:
         lints:
@@ -85,10 +85,10 @@ jobs:
         uses: ./
         with:
           run: >
-            /opt/virtualenv/bin/pip3 install -r requirements.txt;
+            pip install -r requirements.txt;
             find tools -name 'generate_utf8_*.py' -not -name '*insane*' -print0 |
             xargs --no-run-if-empty --null -n1 -P3 --
-            /opt/virtualenv/bin/python;
+            python;
             tools/g-ls-tree.sh -name '*.hpp' |
             xargs --no-run-if-empty --null --
             /usr/local/bin/clang-format -style=file -i

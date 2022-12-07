@@ -1,0 +1,22 @@
+---
+jobs:
+  ansible-lint:
+    concurrency:
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      group: ansible-lint-${{ github.workflow }}-${{ github.ref }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.1.0
+      - name: Lint Ansible
+        uses: ./
+        with:
+          run: |
+            pip install -r requirements.txt
+            rg --files-with-matches 'ansible.*:' | xargs -- ansible-lint
+
+name: Ansible Lint
+
+# yamllint disable-line rule:truthy
+on:
+  push: ~
+  workflow_dispatch: ~
