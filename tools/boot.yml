@@ -1,14 +1,18 @@
 ---
+# yamllint disable rule:key-ordering
 - hosts: localhost
   name: Boot localhost for building
   tasks:
-    - ansible.builtin.set_fact:
+    - name: Set Python version
+      ansible.builtin.set_fact:
         llvm_version: 15
         py_version: 3.12
-      name: Set Python version
-    - become: true
+    - name: Unix block
+      become: true
+      when: ansible_facts.os_family != 'Darwin'
       block:
-        - ansible.builtin.apt:
+        - name: Install apt packages
+          ansible.builtin.apt:
             install_recommends: false
             name:
               - apt
@@ -16,33 +20,34 @@
               - apt-utils
               - aptitude
               - libapt-pkg6.0
-            state: latest
             update_cache: true
-          name: Install apt packages
-        - ansible.builtin.apt:
+        - name: Install apt packages
+          ansible.builtin.apt:
             install_recommends: false
             name:
               - gnupg
               - lsb-release
               - software-properties-common
               - wget
-            state: latest
             update_cache: true
-          name: Install apt packages
-        - ansible.builtin.get_url:
+        - name: Download LLVM install
+          ansible.builtin.get_url:
             dest: /tmp/llvm.sh
+            mode: "0644"
             url: https://apt.llvm.org/llvm.sh
-          name: Download LLVM install
-        - ansible.builtin.script:
+        - name: Install LLVM
+          ansible.builtin.script:
             chdir: /tmp
             cmd: /tmp/llvm.sh {{ llvm_version }} all
-          name: Install LLVM
-        - ansible.builtin.file:
+        - name: Clean LLVM script
+          ansible.builtin.file:
             path: /tmp/llvm.sh
             state: absent
-          name: Clean LLVM script
-        - ansible.builtin.shell: command -v {{ item }}-{{ llvm_version }}
+        - name: Gather LLVM binaries
+          # noqa: command-instead-of-shell
+          ansible.builtin.shell: command -v {{ item }}-{{ llvm_version }}
           register: links
+          changed_when: links.rc != 0
           with_items:
             - clang
             - clang-format
@@ -51,42 +56,43 @@
             - llvm-cov
             - llvm-profdata
             - scan-build
-        - ansible.builtin.file:
+        - name: Create LLVM links
+          ansible.builtin.file:
             dest: /usr/local/bin/{{ item.item }}
             src: "{{ item.stdout }}"
             state: link
           loop: "{{ links.results }}"
-          name: Create LLVM links
-        - ansible.builtin.apt:
+        - name: Install apt packages
+          ansible.builtin.apt:
             install_recommends: false
             name:
               - adduser
               - sudo
-            state: latest
             update_cache: true
-          name: Install apt packages
-        - ansible.builtin.group:
+        - name: Create github group
+          ansible.builtin.group:
             gid: 122
             name: github
             state: present
-          name: Create github group
-        - ansible.builtin.user:
+        - name: Create github user
+          ansible.builtin.user:
             createhome: true
             group: 122
             name: github
             uid: 1001
-          name: Create github user
-        - ansible.builtin.file:
+        - name: Create sudoers.d directory
+          ansible.builtin.file:
             mode: "0770"
             path: /etc/sudoers.d
             state: directory
-          name: Create sudoers.d directory
-        - ansible.builtin.lineinfile:
+        - name: Add github to sudoers
+          ansible.builtin.lineinfile:
             create: true
             dest: /etc/sudoers.d/github
             line: github ALL=(ALL) NOPASSWD:ALL
             mode: "0440"
-        - ansible.builtin.apt:
+        - name: Install build tools
+          ansible.builtin.apt:
             install_recommends: false
             name:
               - autoconf
@@ -268,31 +274,28 @@
               - zip
               - zlib1g
               - zlib1g-dev
-            state: latest
-        - ansible.builtin.file:
-            group: github
-            owner: github
-            path: /opt/virtualenv
-            state: directory
-        - ansible.builtin.apt_repository:
+        - name: Add repo deadsnakes
+          ansible.builtin.apt_repository:
             repo: ppa:deadsnakes/nightly
-          name: Add repo deadsnakes
-        - ansible.builtin.apt:
+        - name: Install Python {{ py_version }}
+          ansible.builtin.apt:
             install_recommends: false
             name:
               - python{{ py_version }}-dev
               - python{{ py_version }}-venv
-            state: latest
             update_cache: true
-          name: Install Python {{ py_version }}
-        - ansible.builtin.file:
+        - name: Create directory for virtualenv
+          ansible.builtin.file:
             group: github
+            mode: "0755"
             owner: github
             path: /opt/virtualenv
             state: directory
-        - become_user: github
+        - name: Run user scoped tasks
+          become_user: github
           block:
-            - ansible.builtin.shell: |
+            - name: Setup git config and Python virtualenv
+              ansible.builtin.shell: |
                 set -e
                 git config --global advice.detachedHead true
                 git config --global advice.ignoredHook false
@@ -317,46 +320,53 @@
                 python{{ py_version }} -m venv /opt/virtualenv
                 /opt/virtualenv/bin/pip install --upgrade pip setuptools wheel
                 /opt/virtualenv/bin/pip install -r /tmp/requirements.txt
-              name: Setup git config and Python virtualenv
-            - ansible.builtin.shell: command -v fish
-              name: Get fish shell
+              register: result
+              changed_when: result.stdout | length != 0
+            - name: Get fish shell
+              # noqa: command-instead-of-shell
+              ansible.builtin.shell: command -v fish
               register: fish_shell
-            - ansible.builtin.shell:
+              changed_when: fish_shell.stdout | length != 0
+            - name: Update Fish user paths
+              # noqa: command-instead-of-shell
+              ansible.builtin.shell:
                 cmd: set -U fish_user_paths /opt/virtualenv/bin /usr/local/bin
                 executable: "{{ fish_shell.stdout }}"
-              name: Update Fish user paths
-        - ansible.builtin.user:
+              register: result
+              changed_when: result.stdout | length == 0
+        - name: Set fish shell
+          ansible.builtin.user:
             name: github
             shell: "{{ fish_shell.stdout }}"
-          name: Set fish shell
-        - ansible.builtin.get_url:
+        - name: Download tailscale install script
+          ansible.builtin.get_url:
             dest: /tmp/install.sh
+            mode: "0644"
             url: https://tailscale.com/install.sh
           tags:
             - debug
             - never
-        - ansible.builtin.apt:
+        - name: Clean apt
+          ansible.builtin.apt:
             autoclean: true
             autoremove: true
             clean: true
-          name: Clean apt
-        - ansible.builtin.apt:
+        - name: Clean apt
+          ansible.builtin.apt:
             clean: true
-          name: Clean apt
-        - ansible.builtin.file:
+        - name: Remove apt lists
+          ansible.builtin.file:
             path: /var/lib/apt/lists
             state: absent
-          name: Remove apt lists
-      name: Unix block
-      when: ansible_facts.os_family != 'Darwin'
-    - block:
-        - ansible.builtin.command: brew install pyenv
+    - name: OSX block
+      when: ansible_facts.os_family == 'Darwin'
+      block:
+        - name: Install pyenv
+          ansible.builtin.command: brew install pyenv
           args:
             creates: /opt/homebrew/Cellar/pyenv
-          name: Install pyenv
-        - ansible.builtin.command: pyenv install {{ py_version }}-dev
+        - name: Install Python {{ py_version }}
+          ansible.builtin.command: pyenv install {{ py_version }}-dev
           args:
             creates: "{{ lookup('env', 'HOME') }}/.pyenv/versions/{{ py_version }}-dev"
-          name: Install Python {{ py_version }}
-      name: OSX block
-      when: ansible_facts.os_family == 'Darwin'
+# yamllint enable rule:key-ordering
