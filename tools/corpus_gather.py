@@ -58,7 +58,7 @@ async def main() -> None:
                     stdout.decode().splitlines(),
                 ),
             ),
-            10,
+            100,
         ),
         desc="Refs",
         unit_scale=True,
