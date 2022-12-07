@@ -21,7 +21,7 @@ jobs:
       - name: Run regression with coverage
         uses: ./
         with:
-          run: /opt/virtualenv/bin/python tools/codecov.py >llvm-profile.lcov
+          run: python tools/codecov.py >llvm-profile.lcov
       - run: ls -al ${{ github.workspace }}
       - uses: codecov/codecov-action@v3.1.1
         with:

@@ -7,14 +7,8 @@ inputs:
 name: Chimera
 runs:
   args:
-    - -eo
-    - pipefail
-    - -c
-    - |
-      export CCACHE_CONFIGPATH="$(pwd)/.github/ccache/ccache.conf"
-      export CCACHE_DIR="$(pwd)/.ccache"
-      CXXFLAGS="$(tr '\r' ' ' <<<"${CXXFLAGS}" | tr '\n' ' ')"
-      ${{ inputs.run }}
-  entrypoint: /bin/bash
+    - tools/action.py
+    - ${{ inputs.run }}
+  entrypoint: /opt/virtualenv/bin/python
   image: asakatida/chimera:latest
   using: docker
