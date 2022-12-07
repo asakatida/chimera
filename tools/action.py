@@ -3,7 +3,7 @@ from os import environ
 from pathlib import Path
 from sys import argv, stderr
 
-from asyncio_cmd import ProcessError, cmd
+from asyncio_cmd import ProcessError, cmd_no_timeout
 
 
 async def main() -> None:
@@ -16,14 +16,12 @@ async def main() -> None:
     environ["CXXFLAGS"] = environ.get("CXXFLAGS", "").translate(
         {ord("\n"): " ", ord("\r"): " "}
     )
-    await cmd(
+    await cmd_no_timeout(
         "/bin/bash",
         "-eo",
         "pipefail",
         "-c",
         *argv[1:],
-        stdout=None,
-        timeout=3600,
     )
 
 

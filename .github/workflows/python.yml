@@ -11,7 +11,7 @@ jobs:
         uses: ./
         with:
           run: |
-            CC='' CXX='' CXXFLAGS='' pip install -r requirements.txt
+            python tools/before.py
             cmakelint
   mypy:
     concurrency:
@@ -30,7 +30,7 @@ jobs:
         uses: ./
         with:
           run: >
-            CC='' CXX='' CXXFLAGS='' pip install -r requirements.txt;
+            python tools/before.py;
             tools/g-ls-tree.sh -not -path './stdlib/*' -name '*.py' |
             xargs --no-run-if-empty --null --
             mypy
@@ -45,7 +45,7 @@ jobs:
         uses: ./
         with:
           run: >
-            CC='' CXX='' CXXFLAGS='' pip install -r requirements.txt;
+            python tools/before.py;
             tools/g-ls-tree.sh -name '*.py' |
             xargs --no-run-if-empty --null --
             ${{ matrix.lints }}
@@ -62,8 +62,8 @@ jobs:
       - name: Build dev tools
         run: |
           python3 -m venv --upgrade --upgrade-deps env
-          CC='' CXX='' CXXFLAGS='' env/bin/pip install --upgrade pip setuptools wheel
-          CC='' CXX='' CXXFLAGS='' env/bin/pip install -r requirements.txt
+          env/bin/pip install --upgrade pip setuptools wheel
+          env/bin/pip install -r requirements.txt
         working-directory: ${{ github.workspace }}
       - name: Freeze dependencies
         run: >
@@ -85,7 +85,7 @@ jobs:
         uses: ./
         with:
           run: >
-            CC='' CXX='' CXXFLAGS='' pip install -r requirements.txt;
+            python tools/before.py;
             find tools -name 'generate_utf8_*.py' -not -name '*insane*' -print0 |
             xargs --no-run-if-empty --null -n1 -P3 --
             python;

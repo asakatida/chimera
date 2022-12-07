@@ -32,7 +32,7 @@ jobs:
         uses: ./
         with:
           run: |
-            CC='' CXX='' CXXFLAGS='' pip install -r requirements.txt
+            python tools/before.py
             cmake -GNinja -B build -S .
             tools/ninja.sh build check-rand regression
       - if: github.ref == 'refs/heads/stable'
@@ -87,7 +87,7 @@ jobs:
         uses: ./
         with:
           run: |
-            CC='' CXX='' CXXFLAGS='' pip install -r requirements.txt
+            python tools/before.py
             cmake -GNinja -B build -S .
             tools/ninja.sh build check-rand regression
   regression:
@@ -117,7 +117,7 @@ jobs:
         uses: ./
         with:
           run: |
-            CC='' CXX='' CXXFLAGS='' pip install -r requirements.txt
+            python tools/before.py
             python tools/corpus_regression.py
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
@@ -151,7 +151,7 @@ jobs:
         uses: ./
         with:
           run: |
-            CC='' CXX='' CXXFLAGS='' pip install -r requirements.txt
+            python tools/before.py
             cmake -GNinja -B build -S .
             tools/ninja.sh build check-rand regression
   scan-build:
