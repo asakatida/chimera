@@ -26,7 +26,7 @@ from itertools import chain, repeat
 from pathlib import Path
 from typing import Iterable, Optional, TypeVar
 
-from asyncio_cmd import cmd_no_timeout
+from asyncio_cmd import cmd, cmd_no_timeout
 from tqdm import tqdm  # type: ignore
 
 DIRECTORIES = ("corpus", "crashes")
@@ -53,9 +53,12 @@ def fuzz_star() -> tuple[Path, ...]:
 
 async def fuzz_test_one(regression: Path, *args: object) -> Optional[Exception]:
     try:
-        await cmd_no_timeout(
-            regression, "-detect_leaks=0", "-use_value_profile=1", *args
-        )
+        if len(args) == 1:
+            await cmd(regression, "-detect_leaks=0", "-use_value_profile=1", *args)
+        else:
+            await cmd_no_timeout(
+                regression, "-detect_leaks=0", "-use_value_profile=1", *args
+            )
     except Exception as error:
         return error
     return None
