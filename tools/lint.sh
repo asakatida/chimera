@@ -4,8 +4,6 @@ set -ex -o pipefail
 
 cd "$(git rev-parse --show-toplevel || true)"
 
-tools/shellcheck.sh
-
 case "$(uname)" in
   Darwin )
     export PATH="${PWD}/env/bin:${PATH}"

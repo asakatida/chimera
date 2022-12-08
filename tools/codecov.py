@@ -63,7 +63,7 @@ async def main() -> None:
     await ninja("build", "check", "regression")
     llvm_profile_files = filter(Path.is_file, llvm_profile_dir.iterdir())
     await cmd(
-        "/usr/local/bin/llvm-profdata",
+        "llvm-profdata",
         "merge",
         "-sparse",
         *llvm_profile_files,
@@ -71,7 +71,7 @@ async def main() -> None:
         timeout=3600,
     )
     await cmd(
-        "/usr/local/bin/llvm-cov",
+        "llvm-cov",
         "export",
         "build/unit-test",
         "--ignore-filename-regex=.*/(catch2|external|unit_tests)/.*",

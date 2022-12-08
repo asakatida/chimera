@@ -1,0 +1,50 @@
+---
+jobs:
+  utf8_generate:
+    concurrency:
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      group: ${{ github.workflow }}-${{ github.ref }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.1.0
+      - name: generate utf8 grammar
+        uses: ./
+        with:
+          run: >
+            python tools/before.py;
+            find tools -name 'generate_utf8_*.py' -not -name '*insane*' -print0 |
+            xargs --no-run-if-empty --null -n1 -P3 --
+            python;
+            tools/g-ls-tree.sh -name '*.hpp' |
+            xargs --no-run-if-empty --null --
+            clang-format -style=file -i
+      - if: ${{ github.ref == 'refs/heads/stable' }}
+        uses: stefanzweifel/git-auto-commit-action@v4.16.0
+        with:
+          branch: utf8-generate-grammar
+          commit_message: Update utf8 grammar.
+          create_branch: true
+          file_pattern: library/grammar
+          repository: ${{ github.workspace }}
+
+name: Utf8 Generate
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    branches:
+      - stable
+    paths:
+      - .github/workflows/utf8-generate.yml
+      - tools/generate_utf8_*.py
+      - requirements.txt
+  push:
+    branches:
+      - stable
+    paths:
+      - .github/workflows/utf8-generate.yml
+      - tools/generate_utf8_*.py
+      - requirements.txt
+  schedule:
+    - cron: 20 14 * * *
+  workflow_dispatch: ~

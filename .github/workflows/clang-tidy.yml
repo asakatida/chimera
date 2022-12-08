@@ -1,19 +1,5 @@
 ---
 jobs:
-  clangformat:
-    concurrency:
-      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: ${{ github.workflow }}-${{ github.ref }}
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3.1.0
-      - name: Lint c++ code
-        uses: ./
-        with:
-          run: >
-            tools/g-ls-tree.sh '(' -name '*.cpp' -or -name '*.h' -or -name '*.hpp' ')' |
-            xargs --no-run-if-empty --null --
-            /usr/local/bin/clang-format --dry-run -style=file -Werror
   clangtidy:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
@@ -43,7 +29,7 @@ jobs:
           run: >
             tools/g-ls-tree.sh -name '*.cpp' |
             xargs --no-run-if-empty --null --
-            /usr/local/bin/clang-tidy -p=build -checks=-*,${{ matrix.lints }}
+            clang-tidy -p=build -checks=-*,${{ matrix.lints }}
       - if: ${{ !matrix.lints }}
         name: Lint c++ code
         uses: ./
@@ -51,7 +37,7 @@ jobs:
           run: >
             tools/g-ls-tree.sh -name '*.cpp' |
             xargs --no-run-if-empty --null --
-            /usr/local/bin/clang-tidy -p=build
+            clang-tidy -p=build
     strategy:
       matrix:
         lints:
@@ -81,7 +67,6 @@ on:
       - "**.cpp"
       - "**.hpp"
       - "**.h"
-      - .clang-format
       - .clang-tidy
       - CMakeLists.txt
   push:
@@ -92,7 +77,6 @@ on:
       - "**.cpp"
       - "**.hpp"
       - "**.h"
-      - .clang-format
       - .clang-tidy
       - CMakeLists.txt
   workflow_dispatch: ~
