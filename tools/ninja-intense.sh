@@ -6,9 +6,7 @@ cd "$(git rev-parse --show-toplevel || true)"
 
 tools/cmake.sh "$1"
 
-tools/ninja.sh "$1"
-
-tools/ninja.sh "$1" check-rand
-tools/ninja.sh "$1" check-stat
-tools/ninja.sh "$1" corpus
-tools/ninja.sh "$1" spec
+python tools/ninja.py "$1" check-rand
+python tools/ninja.py "$1" check-stat
+python tools/ninja.py "$1" corpus
+python tools/ninja.py "$1" spec

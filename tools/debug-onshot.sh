@@ -9,6 +9,5 @@ rm -rf "${build_root}"
 
 tools/boot.sh
 
-tools/ninja.sh "${build_root}"
-tools/ninja.sh "${build_root}" check
-tools/ninja.sh "${build_root}" check-rand
+python tools/ninja.py "${build_root}" check
+python tools/ninja.py "${build_root}" check-rand
