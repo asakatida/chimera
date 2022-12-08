@@ -133,8 +133,8 @@ async def main() -> None:
         "-merge=1",
         "-reduce_inputs=1",
         "-shrink=1",
-        str(CORPUS),
-        str(CORPUS_ORIGINAL),
+        CORPUS,
+        CORPUS_ORIGINAL,
     )
     if errors:
         error = errors.pop()

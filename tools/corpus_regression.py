@@ -39,9 +39,9 @@ T = TypeVar("T")
 
 async def regression_one(file: Path) -> None:
     if file == CRASHES / file.name:
-        if await fuzz_test(str(file)):
+        if await fuzz_test(file):
             file.rename(CORPUS / file.name)
-    elif not await fuzz_test(str(file)):
+    elif not await fuzz_test(file):
         file.rename(CRASHES / file.name)
 
 

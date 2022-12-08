@@ -100,7 +100,7 @@ OP_UNARY_LINE_RE_END = rf"""
     { OP_LINE_CLOSE }
 """
 
-ROOT = Path(__file__).resolve().parent.parent / "library" / "object" / "number"
+ROOT = Path(__file__).parent.parent.resolve() / "library" / "object" / "number"
 
 
 def passing_type(typ: str) -> str:
