@@ -18,5 +18,9 @@ name: Ansible Lint
 
 # yamllint disable-line rule:truthy
 on:
-  push: ~
+  push:
+    paths:
+      - .github/workflows/ansible-lint.yml
+      - tools/boot.yml
+      - tools/devcontainer.yml
   workflow_dispatch: ~
