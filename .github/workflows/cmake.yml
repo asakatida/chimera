@@ -34,13 +34,13 @@ jobs:
           run: |
             python tools/before.py
             cmake -GNinja -B build -S .
-            tools/ninja.sh build check-rand regression
+            python tools/ninja.py build check-rand regression
       - if: github.ref == 'refs/heads/stable'
         name: Run corpus
         uses: ./
         with:
           run: |
-            tools/ninja.sh build -k0 corpus || true
+            python tools/ninja.py build -k0 corpus || true
             git config --global user.email email
             git config --global user.name name
             python tools/corpus_gather.py
@@ -89,7 +89,7 @@ jobs:
           run: |
             python tools/before.py
             cmake -GNinja -B build -S .
-            tools/ninja.sh build check-rand regression
+            python tools/ninja.py build check-rand regression
   regression:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
@@ -153,7 +153,7 @@ jobs:
           run: |
             python tools/before.py
             cmake -GNinja -B build -S .
-            tools/ninja.sh build check-rand regression
+            python tools/ninja.py build check-rand regression
   scan-build:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
@@ -173,7 +173,7 @@ jobs:
             bash -c '
               set -e -o pipefail
               cmake -GNinja -B build -S .
-              tools/ninja.sh build
+              python tools/ninja.py build
             '
             ! find /tmp -type d -name 'scan-build-*'
 
