@@ -167,7 +167,7 @@ jobs:
         uses: ./
         with:
           run: >
-            /usr/local/bin/scan-build
+            scan-build
             --use-cc "${CC}"
             --use-c++ "${CXX}"
             bash -c '
@@ -190,6 +190,7 @@ on:
       - "**.md"
       - Dockerfile*
       - tools/boot.yml
+      - tools/devcontainer.yml
       - unit_tests/fuzz/corpus/*
       - unit_tests/fuzz/crashes/*
   push:
@@ -201,6 +202,7 @@ on:
       - "**.md"
       - Dockerfile*
       - tools/boot.yml
+      - tools/devcontainer.yml
       - unit_tests/fuzz/corpus/*
       - unit_tests/fuzz/crashes/*
   workflow_dispatch: ~

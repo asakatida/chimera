@@ -8,8 +8,6 @@ cd "$(git rev-parse --show-toplevel || true)"
 debug_root=build/debug
 release_root=build/release
 
-tools/shellcheck.sh
-
 export PATH="${PWD}/env/bin:${PATH}"
 
 tools/lint.sh

@@ -258,7 +258,6 @@
               - ripgrep
               - sed
               - sensible-utils
-              - shellcheck
               - software-properties-common
               - ssl-cert
               - stow

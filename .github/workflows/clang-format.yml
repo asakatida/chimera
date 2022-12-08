@@ -1,0 +1,40 @@
+---
+jobs:
+  clangformat:
+    concurrency:
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      group: ${{ github.workflow }}-${{ github.ref }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.1.0
+      - name: Lint c++ code
+        uses: ./
+        with:
+          run: >
+            tools/g-ls-tree.sh '(' -name '*.cpp' -or -name '*.h' -or -name '*.hpp' ')' |
+            xargs --no-run-if-empty --null --
+            clang-format --dry-run -style=file -Werror
+
+name: ClangFormat
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    branches:
+      - stable
+    paths:
+      - .github/workflows/clang-format.yml
+      - "**.cpp"
+      - "**.hpp"
+      - "**.h"
+      - .clang-format
+  push:
+    branches:
+      - stable
+    paths:
+      - .github/workflows/clang-format.yml
+      - "**.cpp"
+      - "**.hpp"
+      - "**.h"
+      - .clang-format
+  workflow_dispatch: ~

@@ -1,21 +1,20 @@
 ---
 jobs:
-  shellcheck:
+  cmakelint:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
       group: ${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.1.0
-      - name: Lint shell
+      - name: Lint CMakeList.txt
         uses: ./
         with:
-          run: >
-            tools/g-ls-tree.sh -name '*.sh' |
-            xargs --no-run-if-empty --null --
-            shellcheck --enable=all --severity=style
+          run: |
+            python tools/before.py
+            cmakelint
 
-name: Shellcheck
+name: Cmake Lint
 
 # yamllint disable-line rule:truthy
 on:
@@ -23,12 +22,16 @@ on:
     branches:
       - stable
     paths:
-      - .github/workflows/shellcheck.yml
-      - "**.sh"
+      - .github/workflows/cmakelint.yml
+      - cmake/**
+      - CMakeList.txt
+      - requirements.txt
   push:
     branches:
       - stable
     paths:
-      - .github/workflows/shellcheck.yml
-      - "**.sh"
+      - .github/workflows/cmakelint.yml
+      - cmake/**
+      - CMakeList.txt
+      - requirements.txt
   workflow_dispatch: ~

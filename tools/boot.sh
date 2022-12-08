@@ -8,7 +8,7 @@ cd "$(git rev-parse --show-toplevel || true)"
 
 case "$(uname)" in
   Darwin )
-    brew install python3 shellcheck
+    brew install python3
     export PATH="${PATH}:${HOME}/.pyenv/shims"
     ;;
   * )
@@ -17,8 +17,6 @@ case "$(uname)" in
     exit
     ;;
 esac
-
-tools/shellcheck.sh
 
 python_bin="$(command -v python3)"
 tools/venv.sh "${python_bin}"

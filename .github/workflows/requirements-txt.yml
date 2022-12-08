@@ -1,0 +1,45 @@
+---
+jobs:
+  requirements_txt:
+    concurrency:
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      group: ${{ github.workflow }}-${{ github.ref }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.1.0
+      - name: Build dev tools
+        run: |
+          python3 -m venv --upgrade --upgrade-deps env
+          env/bin/pip install --upgrade pip setuptools wheel
+          env/bin/pip install -r requirements.txt
+        working-directory: ${{ github.workspace }}
+      - name: Freeze dependencies
+        run: >
+          env/bin/pip freeze | grep -v -e '^pkg_resources==' >requirements.txt
+        working-directory: ${{ github.workspace }}
+      - if: ${{ github.ref == 'refs/heads/stable' }}
+        uses: stefanzweifel/git-auto-commit-action@v4.16.0
+        with:
+          branch: requirements-txt
+          commit_message: Update requirements.txt.
+          create_branch: true
+          file_pattern: requirements.txt
+          repository: ${{ github.workspace }}
+
+name: Requirements.txt
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    branches:
+      - stable
+    paths:
+      - .github/workflows/requirements-txt.yml
+      - requirements.txt
+  push:
+    branches:
+      - stable
+    paths:
+      - .github/workflows/requirements-txt.yml
+      - requirements.txt
+  workflow_dispatch: ~

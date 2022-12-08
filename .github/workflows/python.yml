@@ -1,18 +1,5 @@
 ---
 jobs:
-  cmakelint:
-    concurrency:
-      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: cmakelint-${{ github.workflow }}-${{ github.ref }}
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3.1.0
-      - name: Lint CMakeList.txt
-        uses: ./
-        with:
-          run: |
-            python tools/before.py
-            cmakelint
   mypy:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
@@ -55,51 +42,6 @@ jobs:
           - black --check --diff --preview --target-version py311
           - isort --check-only --python-version auto
           - pylama
-  requirements_txt:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3.1.0
-      - name: Build dev tools
-        run: |
-          python3 -m venv --upgrade --upgrade-deps env
-          env/bin/pip install --upgrade pip setuptools wheel
-          env/bin/pip install -r requirements.txt
-        working-directory: ${{ github.workspace }}
-      - name: Freeze dependencies
-        run: >
-          env/bin/pip freeze | grep -v -e '^pkg_resources==' >requirements.txt
-        working-directory: ${{ github.workspace }}
-      - if: ${{ github.ref == 'refs/heads/stable' }}
-        uses: stefanzweifel/git-auto-commit-action@v4.16.0
-        with:
-          branch: requirements-txt
-          commit_message: Update requirements.txt.
-          create_branch: true
-          file_pattern: requirements.txt
-          repository: ${{ github.workspace }}
-  utf8_generate:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3.1.0
-      - name: generate utf8 grammar
-        uses: ./
-        with:
-          run: >
-            python tools/before.py;
-            find tools -name 'generate_utf8_*.py' -not -name '*insane*' -print0 |
-            xargs --no-run-if-empty --null -n1 -P3 --
-            python;
-            tools/g-ls-tree.sh -name '*.hpp' |
-            xargs --no-run-if-empty --null --
-            /usr/local/bin/clang-format -style=file -i
-      - if: ${{ github.ref == 'refs/heads/stable' }}
-        uses: stefanzweifel/git-auto-commit-action@v4.16.0
-        with:
-          branch: utf8-generate-grammar
-          commit_message: Update utf8 grammar.
-          create_branch: true
-          file_pattern: library/grammar
-          repository: ${{ github.workspace }}
 
 name: Python
 
@@ -111,8 +53,6 @@ on:
     paths:
       - .github/workflows/python.yml
       - "**.py"
-      - cmake/**
-      - CMakeList.txt
       - requirements.txt
   push:
     branches:
@@ -120,7 +60,5 @@ on:
     paths:
       - .github/workflows/python.yml
       - "**.py"
-      - cmake/**
-      - CMakeList.txt
       - requirements.txt
   workflow_dispatch: ~
