@@ -54,7 +54,9 @@ def fuzz_star() -> tuple[Path, ...]:
 async def fuzz_test_one(regression: Path, *args: object) -> Optional[Exception]:
     try:
         if len(args) == 1:
-            await cmd(regression, "-detect_leaks=0", "-use_value_profile=1", *args)
+            await cmd(
+                regression, "-detect_leaks=0", "-use_value_profile=1", *args, log=False
+            )
         else:
             await cmd_no_timeout(
                 regression, "-detect_leaks=0", "-use_value_profile=1", *args
