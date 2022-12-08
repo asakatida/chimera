@@ -4,7 +4,7 @@ from pathlib import Path
 from re import MULTILINE, Pattern, compile
 from sys import argv
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).parent.parent.resolve()
 # patches need to stay as is
 # fuzz corpus is ignored for utf8 nonsense
 IGNORE = (

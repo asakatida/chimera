@@ -1,11 +1,14 @@
 from asyncio import create_subprocess_exec, wait_for
 from asyncio.subprocess import DEVNULL, PIPE
+from itertools import islice, repeat, takewhile
 from sys import stderr
-from typing import Optional
+from typing import Iterable, Optional, TextIO, TypeVar, Union
+
+T = TypeVar("T")
 
 
 class ProcessError(Exception):
-    def __init__(self, cmd: tuple[str, ...], stderr: bytes, returncode: int) -> None:
+    def __init__(self, cmd: tuple[object, ...], stderr: bytes, returncode: int) -> None:
         super().__init__(f"{cmd} failed with {returncode}")
         self.cmd = cmd
         self.stderr = stderr.decode().strip()
@@ -17,8 +20,17 @@ class ProcessError(Exception):
         exit(self.returncode)
 
 
+def chunks(iterable: Iterable[T], size: int) -> Iterable[list[T]]:
+    return takewhile(
+        lambda i: i, map(list, map(islice, repeat(iterable), repeat(size)))  # type: ignore
+    )
+
+
 async def cmd(
-    *args: object, log: bool = True, stdout: Optional[int] = DEVNULL, timeout: int = 20
+    *args: object,
+    log: bool = True,
+    stdout: Optional[Union[int, TextIO]] = DEVNULL,
+    timeout: int = 20,
 ) -> bytes:
     if log:
         print("+", *args, file=stderr)
@@ -37,14 +49,14 @@ async def cmd(
                 f"\nThe process was terminated by timeout {timeout} seconds".encode()
             )
         if returncode != 0:
-            raise ProcessError(tuple(map(str, args)), cmd_stderr, returncode or 1)
+            raise ProcessError(args, cmd_stderr, returncode or 1)
     return cmd_stdout
 
 
 async def cmd_env(
     env: dict[str, object],
     *args: object,
-    stdout: Optional[int] = DEVNULL,
+    stdout: Optional[Union[int, TextIO]] = DEVNULL,
     timeout: int = 20,
 ) -> bytes:
     print("+", *args, file=stderr)
@@ -68,7 +80,7 @@ async def cmd_env(
                 f"\nThe process was terminated by timeout {timeout} seconds".encode()
             )
         if returncode != 0:
-            raise ProcessError(tuple(map(str, args)), cmd_stderr, returncode or 1)
+            raise ProcessError(args, cmd_stderr, returncode or 1)
     return cmd_stdout
 
 
@@ -84,4 +96,4 @@ async def cmd_no_timeout(*args: object) -> None:
             proc.terminate()
             returncode = await proc.wait()
         if returncode != 0:
-            raise ProcessError(tuple(map(str, args)), cmd_stderr, returncode or 1)
+            raise ProcessError(args, cmd_stderr, returncode or 1)

@@ -60,7 +60,7 @@ async def main() -> None:
         pass
     llvm_profile_dir.mkdir()
     await cmd("tools/ninja.sh", "build", "check", "regression", timeout=6000)
-    llvm_profile_files = map(str, filter(Path.is_file, llvm_profile_dir.iterdir()))
+    llvm_profile_files = filter(Path.is_file, llvm_profile_dir.iterdir())
     await cmd(
         "/usr/local/bin/llvm-profdata",
         "merge",
