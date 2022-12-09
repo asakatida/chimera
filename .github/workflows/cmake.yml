@@ -184,25 +184,29 @@ on:
   pull_request:
     branches:
       - stable
-    paths-ignore:
-      - .dockerignore
-      - .github/workflows/docker.yml
-      - "**.md"
-      - Dockerfile*
-      - tools/boot.yml
-      - tools/devcontainer.yml
-      - unit_tests/fuzz/corpus/*
-      - unit_tests/fuzz/crashes/*
+    paths:
+      - .github/workflows/cmake.yml
+      - "**.cpp"
+      - "**.h"
+      - "**.hpp"
+      - cmake/**
+      - CMakeLists.txt
+      - external/**
+      - stdlib/**
+      - tools/ninja.py
+      - tools/regression.sh
   push:
     branches:
       - stable
-    paths-ignore:
-      - .dockerignore
-      - .github/workflows/docker.yml
-      - "**.md"
-      - Dockerfile*
-      - tools/boot.yml
-      - tools/devcontainer.yml
-      - unit_tests/fuzz/corpus/*
-      - unit_tests/fuzz/crashes/*
+    paths:
+      - .github/workflows/cmake.yml
+      - "**.cpp"
+      - "**.h"
+      - "**.hpp"
+      - cmake/**
+      - CMakeLists.txt
+      - external/**
+      - stdlib/**
+      - tools/ninja.py
+      - tools/regression.sh
   workflow_dispatch: ~
