@@ -33,10 +33,16 @@ name: CodeCov
 # yamllint disable-line rule:truthy
 on:
   push:
-    paths-ignore:
-      - .dockerignore
-      - .github/workflows/docker.yml
-      - "**.md"
-      - Dockerfile*
-      - tools/boot.yml
+    paths:
+      - .github/workflows/codecov.yml
+      - "**.cpp"
+      - "**.h"
+      - "**.hpp"
+      - cmake/**
+      - CMakeLists.txt
+      - external/**
+      - stdlib/**
+      - tools/ninja.py
+      - tools/regression.sh
+      - unit_tests/**
   workflow_dispatch: ~
