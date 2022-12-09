@@ -29,10 +29,10 @@ from asyncio_cmd import ProcessError, cmd, cmd_no_timeout
 async def ninja(build: object, *args: object) -> None:
     await cmd("ninja", "-C", build, "-j1", "chimera-grammar", timeout=1200)
     await cmd("ninja", "-C", build, "-j3", "libchimera", timeout=600)
-    await cmd("ninja", "-C", build, "-j1", "fuzzers", timeout=600)
+    await cmd_no_timeout("ninja", "-C", build, "-j1", "fuzzers")
     await cmd("ninja", "-C", build, "Catch2", timeout=600)
-    await cmd("ninja", "-C", build, "-j2", "chimera", "unit-test", timeout=600)
-    await cmd("ninja", "-C", build, timeout=300)
+    await cmd_no_timeout("ninja", "-C", build, "-j2", "chimera", "unit-test")
+    await cmd_no_timeout("ninja", "-C", build)
     await cmd_no_timeout("ninja", "-C", build, "-j3", *args)
 
 
