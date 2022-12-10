@@ -1,20 +1,11 @@
 ---
-env:
-  CMAKE_BUILD_TYPE: Debug
-  CXXFLAGS: >
-    -DCHIMERA_PATH="/github/workspace/stdlib"
-    -fsanitize-coverage=no-prune
-    -fsanitize-coverage=trace-cmp
-    -fsanitize-coverage=trace-div
-    -fsanitize-coverage=trace-gep
-    -fsanitize-coverage=trace-loads
-    -fsanitize-coverage=trace-stores
-
 jobs:
   corpus:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
       group: corpus-${{ github.workflow }}-${{ github.ref }}
+    env:
+      CXXFLAGS: ""
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.2.0
@@ -69,7 +60,7 @@ jobs:
       group: debug-${{ github.workflow }}-${{ github.ref }}
     env:
       CMAKE_BUILD_TYPE: Debug
-      CXXFLAGS: ""
+      CXXFLAGS: "-Wall -Werror -Wpedantic"
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.2.0
@@ -95,6 +86,8 @@ jobs:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
       group: regression-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
+    env:
+      CXXFLAGS: ""
     steps:
       - uses: actions/checkout@v3.2.0
         with:
@@ -158,6 +151,8 @@ jobs:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
       group: scan-build-${{ github.workflow }}-${{ github.ref }}
+    env:
+      CXXFLAGS: ""
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.2.0
@@ -168,8 +163,6 @@ jobs:
         with:
           run: >
             scan-build
-            --use-cc "${CC}"
-            --use-c++ "${CXX}"
             bash -c '
               set -e -o pipefail
               cmake -GNinja -B build -S .

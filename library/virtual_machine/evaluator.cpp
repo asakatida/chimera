@@ -147,8 +147,7 @@ namespace chimera::library::virtual_machine {
   void Evaluator::evaluate(const asdl::Expression &expression) {
     enter_scope(thread_context.body());
     push([](Evaluator *evaluator) {
-      evaluator->thread_context.return_value(
-          std::move(evaluator->stack_remove()));
+      evaluator->thread_context.return_value(evaluator->stack_remove());
     });
     evaluate_get(expression.expr());
     return evaluate();
@@ -419,8 +418,7 @@ namespace chimera::library::virtual_machine {
   void Evaluator::evaluate(const asdl::Return &asdlReturn) {
     if (asdlReturn.value) {
       push([](Evaluator *evaluator) {
-        evaluator->thread_context.return_value(
-            std::move(evaluator->stack_remove()));
+        evaluator->thread_context.return_value(evaluator->stack_remove());
         evaluator->exit_scope();
       });
       evaluate_get(*asdlReturn.value);

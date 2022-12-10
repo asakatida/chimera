@@ -21,15 +21,18 @@
 """ninja.py"""
 
 from asyncio import run
+from asyncio.subprocess import PIPE
 from sys import argv, stderr
 
 from asyncio_cmd import ProcessError, cmd, cmd_no_timeout
 
 
 async def ninja(build: object, *args: object) -> None:
+    targets = await cmd("ninja", "-C", build, "help", stdout=PIPE).decode().splitlines()
     await cmd("ninja", "-C", build, "-j1", "chimera-grammar", timeout=1200)
     await cmd("ninja", "-C", build, "-j3", "libchimera", timeout=600)
-    await cmd_no_timeout("ninja", "-C", build, "-j1", "fuzzers")
+    if "fuzzers: phony" in targets:
+        await cmd_no_timeout("ninja", "-C", build, "-j1", "fuzzers")
     await cmd("ninja", "-C", build, "Catch2", timeout=600)
     await cmd_no_timeout("ninja", "-C", build, "-j2", "chimera", "unit-test")
     await cmd_no_timeout("ninja", "-C", build)
