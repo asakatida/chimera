@@ -34,7 +34,16 @@ USER github:github
 
 ENV CC clang
 ENV CMAKE_BUILD_TYPE Debug
-ENV CXXFLAGS -stdlib=libc++
+ENV CPPFLAGS \
+    -std=c++20 \
+    -nostdinc++ \
+    -isystem /usr/include/c++/v1
+ENV CXXFLAGS -std=c++20
+ENV LDFLAGS \
+    -nostdlib++ \
+    -L /usr/lib \
+    -Wl,-rpath,/usr/lib \
+    -lc++
 ENV CMAKE_C_COMPILER_LAUNCHER ccache
 ENV CMAKE_CXX_COMPILER_LAUNCHER ccache
 ENV CMAKE_EXPORT_COMPILE_COMMANDS YES
