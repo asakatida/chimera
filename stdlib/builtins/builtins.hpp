@@ -25,5 +25,5 @@
 #include "object/object.hpp"
 
 namespace chimera::library::virtual_machine::modules {
-  void builtins(const object::Object &module);
+  void builtins(const object::Object &builtins);
 } // namespace chimera::library::virtual_machine::modules
