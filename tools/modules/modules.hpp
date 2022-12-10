@@ -265,15 +265,15 @@ namespace chimera::library {
     }
     auto main_printed() -> std::string { return printed(main); }
     template <typename OStream>
-    void print_all(OStream &os, const std::string &moduleName) {
+    void print_all(OStream &os) {
       for (const auto &name : main.dir()) {
         if (is_printed(main.get_attribute(name))) {
-          os << moduleName << ".set_attribute(" << std::quoted(name) << "s,"
+          os << "module.set_attribute(" << std::quoted(name) << "s,"
              << printed(main.get_attribute(name)) << ");";
         } else {
           wanted[id(main.get_attribute(name))].emplace_back(
-              SetAttribute{moduleName, name});
-          queue.push(Work{this, main.get_attribute(name), moduleName, name});
+              SetAttribute{"module", name});
+          queue.push(Work{this, main.get_attribute(name), "module", name});
         }
       }
       while (!queue.empty()) {
@@ -304,7 +304,7 @@ namespace chimera::library {
       state.remap(printer.main, *printer.remap);
     }
     auto moduleName = state.main_printed();
-    os << "//! generated file see tools/" << moduleName
+    os << "//! generated file see tools/modules/" << moduleName
        << ".cpp\n\n"
           "#include \""
        << moduleName << "/" << moduleName
@@ -312,11 +312,14 @@ namespace chimera::library {
           "#include \"object/object.hpp\"\n\n"
           "using namespace std::literals;\n\n"
           "namespace chimera::library::virtual_machine::modules {\n"
+          // TODO(asakatida): this can be determined at print time
+          "// NOLINTBEGIN(misc-const-correctness)\n"
           "void "
-       << moduleName << "(const object::Object &module) {auto " << moduleName
-       << " = module;";
-    state.print_all(os, moduleName);
-    return os << "} // namespace chimera::library::virtual_machine::modules"
+       << moduleName << "(const object::Object &" << moduleName
+       << ") {auto module = " << moduleName << ";";
+    state.print_all(os);
+    return os << "// NOLINTEND(misc-const-correctness)\n"
+              << "} // namespace chimera::library::virtual_machine::modules"
               << std::endl;
   }
 } // namespace chimera::library
