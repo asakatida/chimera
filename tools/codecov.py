@@ -25,24 +25,11 @@ from os import chdir, environ
 from pathlib import Path
 from sys import stderr
 
-from asyncio_cmd import ProcessError, cmd
+from asyncio_cmd import ProcessError, cmd, cmd_env
 from ninja import ninja
 
 
 async def main() -> None:
-    environ["CMAKE_BUILD_TYPE"] = "Coverage"
-    environ["CXXFLAGS"] = " ".join(
-        (
-            environ.get("CXXFLAGS", "-O1 -DNDEBUG")
-            .strip()
-            .replace("\n", " ")
-            .replace("\r", " "),
-            "-fcoverage-mapping",
-            "-fprofile-instr-generate",
-            "-mllvm",
-            "-runtime-counter-relocation",
-        )
-    )
     llvm_profile_file = Path(
         environ.get(
             "LLVM_PROFILE_FILE",
@@ -54,7 +41,35 @@ async def main() -> None:
     llvm_profile_dir = llvm_profile_file.parent
     instr_profile = llvm_profile_dir / "llvm-profile.profdata"
     chdir(Path(__file__).parent.parent)
-    await cmd("cmake", "-G", "Ninja", "-B", "build", "-S", ".")
+    await cmd_env(
+        dict(
+            environ,
+            CMAKE_BUILD_TYPE="Coverage",
+            CXXFLAGS=" ".join(
+                (
+                    "-O1",
+                    "-DNDEBUG",
+                    "-fcoverage-mapping",
+                    "-fprofile-instr-generate",
+                    "-fsanitize-coverage=no-prune",
+                    "-fsanitize-coverage=trace-cmp",
+                    "-fsanitize-coverage=trace-div",
+                    "-fsanitize-coverage=trace-gep",
+                    "-fsanitize-coverage=trace-loads",
+                    "-fsanitize-coverage=trace-stores",
+                    "-mllvm",
+                    "-runtime-counter-relocation",
+                )
+            ),
+        ),
+        "cmake",
+        "-G",
+        "Ninja",
+        "-B",
+        "build",
+        "-S",
+        ".",
+    )
     try:
         llvm_profile_dir.rmdir()
     except FileNotFoundError:

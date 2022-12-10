@@ -1,6 +1,5 @@
 from asyncio import run
 from asyncio.subprocess import PIPE
-from os import environ
 from sys import stderr
 
 from asyncio_cmd import ProcessError, cmd_env
@@ -9,7 +8,7 @@ from asyncio_cmd import ProcessError, cmd_env
 async def main() -> None:
     for line in (
         await cmd_env(
-            {"PATH": environ["PATH"], "PWD": environ["PWD"]},
+            {},
             "pip",
             "install",
             "-r",

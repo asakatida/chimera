@@ -1,6 +1,7 @@
 from asyncio import create_subprocess_exec, wait_for
 from asyncio.subprocess import DEVNULL, PIPE
 from itertools import islice, repeat, takewhile
+from os import environ
 from sys import stderr
 from time import monotonic_ns
 from typing import Iterable, Optional, TextIO, TypeVar, Union
@@ -100,9 +101,11 @@ async def cmd_env(
     timeout: int = 20,
 ) -> bytes:
     print("+", *args, file=stderr)
+    _env = {"PATH": environ["PATH"], "PWD": environ["PWD"]}
+    _env.update(dict(zip(env.keys(), map(str, env.values()))))
     proc = await create_subprocess_exec(
         *map(str, args),
-        env=dict(zip(env.keys(), map(str, env.values()))),
+        env=_env,
         stderr=PIPE,
         stdout=stdout,
     )

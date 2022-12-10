@@ -29,8 +29,7 @@ cmakelint
 
 chimera_path="${PWD}/stdlib:$(python3 tools/chimera_path.py)"
 
-export CC="${CC:-clang}"
-export CXX="${CXX:-clang++}" CXXFLAGS="${CXXFLAGS} -DCHIMERA_PATH=${chimera_path}"
+export CXXFLAGS="${CXXFLAGS} -DCHIMERA_PATH=${chimera_path}"
 
 export LLVM_PROFILE_FILE="${PWD}/build/coverage/llvm-profile.%c%p.profraw"
 

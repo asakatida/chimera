@@ -13,9 +13,6 @@ async def main() -> None:
     source = Path(__file__).parent.parent.resolve()
     environ["CCACHE_CONFIGPATH"] = str(source / ".github" / "ccache" / "ccache.conf")
     environ["CCACHE_DIR"] = str(source / ".ccache")
-    environ["CXXFLAGS"] = environ.get("CXXFLAGS", "").translate(
-        {ord("\n"): " ", ord("\r"): " "}
-    )
     await cmd_no_timeout(
         "/bin/bash",
         "-eo",
