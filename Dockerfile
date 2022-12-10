@@ -32,10 +32,10 @@ SHELL
 
 USER github:github
 
-ENV CC /usr/local/bin/clang
+ENV CC clang
 ENV CMAKE_BUILD_TYPE Debug
-ENV CXXFLAGS -stdlib=c++
+ENV CXXFLAGS -stdlib=libc++
 ENV CMAKE_C_COMPILER_LAUNCHER ccache
 ENV CMAKE_CXX_COMPILER_LAUNCHER ccache
 ENV CMAKE_EXPORT_COMPILE_COMMANDS YES
-ENV CXX /usr/local/bin/clang++
+ENV CXX clang++
