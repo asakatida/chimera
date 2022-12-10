@@ -23,12 +23,21 @@ class TimeIt:
         self.start = monotonic_ns()
 
     async def __aexit__(self, *_: object) -> None:
-        seconds, nanoseconds = divmod(monotonic_ns() - self.start, 1000)
+        milliseconds, nanoseconds = divmod(monotonic_ns() - self.start, 1000)
+        seconds, milliseconds = divmod(milliseconds, 1000)
+        minutes, seconds = divmod(seconds, 60)
+        hours, minutes = divmod(minutes, 60)
         print(
             "-",
             "took",
+            hours,
+            "h",
+            minutes,
+            "m",
             seconds,
             "s",
+            milliseconds,
+            "ms",
             nanoseconds,
             "ns",
             *self.args,
