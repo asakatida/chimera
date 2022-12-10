@@ -34,12 +34,10 @@ export CXX="${CXX:-clang++}" CXXFLAGS="${CXXFLAGS} -DCHIMERA_PATH=${chimera_path
 
 export LLVM_PROFILE_FILE="${PWD}/build/coverage/llvm-profile.%c%p.profraw"
 
-env \
-  CMAKE_BUILD_TYPE=Debug \
-  tools/cmake.sh "${PWD}/build/debug" -Wdev -Werror=dev
+tools/cmake.sh "${PWD}/build/debug" -Wdev -Werror=dev
 
 env \
-  CMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE:-MinSizeRel}" \
+  CMAKE_BUILD_TYPE=MinSizeRel \
   CXXFLAGS="${CXXFLAGS} -DNDEBUG" \
   tools/cmake.sh "${PWD}/build/release"
 

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22.0)
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 project(
   chimera
   VERSION 1.0.0
@@ -13,11 +13,6 @@ set(
   -runtime-counter-relocation
   CACHE STRING
   "Flags used by the C++ compiler during coverage builds.")
-set(
-  CMAKE_CXX_FLAGS_DEBUG
-  -O0 -g -Wall -Wextra -Wpedantic -Werror
-  CACHE STRING
-  "Flags used by the C++ compiler during debug builds.")
 
 if(MSVC)
   add_compile_options(/W4 /WX)
@@ -181,14 +176,23 @@ if(
     -fsanitize-coverage=trace-loads
     -fsanitize-coverage=trace-stores
     -fsanitize=fuzzer)
-  add_library(chimera-fuzz unit_tests/fuzz/cases.cpp)
+  add_library(chimera-fuzz STATIC unit_tests/fuzz/cases.cpp)
   target_compile_options(
     chimera-fuzz
     PUBLIC
     ${FUZZ_CXXFLAGS})
   target_compile_features(chimera-fuzz PUBLIC c_std_23 cxx_std_20)
   target_include_directories(chimera-fuzz PUBLIC unit_tests)
-  target_link_libraries(chimera-fuzz chimera-core pthread)
+  target_link_directories(
+    chimera-fuzz
+    PUBLIC
+    /usr/lib/gcc/x86_64-linux-gnu/11)
+  target_link_libraries(
+    chimera-fuzz
+    chimera-core
+    pthread
+    stdc++
+    -rtlib=compiler-rt)
   add_custom_target(corpus)
   add_custom_target(fuzzers)
   add_custom_target(regression)
@@ -222,7 +226,6 @@ if(
       fuzz-${fuzzer}
       chimera-core
       chimera-fuzz
-      ${FUZZ_CXXFLAGS}
       -rtlib=compiler-rt)
     add_custom_target(
       corpus-${fuzzer}

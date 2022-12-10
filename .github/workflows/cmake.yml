@@ -1,16 +1,4 @@
 ---
-env:
-  CMAKE_BUILD_TYPE: Debug
-  CPPFLAGS: -DCHIMERA_PATH="/github/workspace/stdlib"
-  CXXFLAGS: >
-    -fsanitize-coverage=no-prune
-    -fsanitize-coverage=trace-cmp
-    -fsanitize-coverage=trace-div
-    -fsanitize-coverage=trace-gep
-    -fsanitize-coverage=trace-loads
-    -fsanitize-coverage=trace-stores
-  LDFLAGS: ""
-
 jobs:
   corpus:
     concurrency:
@@ -68,8 +56,17 @@ jobs:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
       group: debug-${{ github.workflow }}-${{ github.ref }}
     env:
-      CMAKE_BUILD_TYPE: Debug
-      CXXFLAGS: ""
+      CXXFLAGS: >
+        -O0 -g -pedantic
+        -Wall -Wdeprecated -Werror -Wextra -Wpedantic
+        -fsanitize-coverage=no-prune
+        -fsanitize-coverage=trace-cmp
+        -fsanitize-coverage=trace-div
+        -fsanitize-coverage=trace-gep
+        -fsanitize-coverage=trace-loads
+        -fsanitize-coverage=trace-stores
+        -fsanitize=undefined
+      LDFLAGS: -rtlib=compiler-rt
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.3.0
@@ -232,7 +229,6 @@ jobs:
       group: release-${{ github.workflow }}-${{ github.ref }}
     env:
       CMAKE_BUILD_TYPE: Release
-      CXXFLAGS: ""
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.3.0
