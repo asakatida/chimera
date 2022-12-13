@@ -2,10 +2,9 @@ from asyncio import run
 from itertools import repeat
 from pathlib import Path
 from sys import argv, stderr
-from typing import Sequence
 
 from asyncio_as_completed import as_completed
-from asyncio_cmd import ProcessError, cmd,cmd_no_timeout
+from asyncio_cmd import ProcessError, cmd, cmd_no_timeout
 from g_ls_tree import g_ls_tree
 
 
@@ -42,9 +41,7 @@ async def clang_tidy(build: str, checks: str) -> None:
 
 async def main(build: str, *args: str) -> None:
     if args:
-        await as_completed(
-            map(clang_tidy, repeat(build), ("", *args)), limit=4
-        )
+        await as_completed(map(clang_tidy, repeat(build), ("", *args)), limit=4)
     else:
         await clang_tidy_fix(build)
 

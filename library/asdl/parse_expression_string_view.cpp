@@ -20,14 +20,17 @@
 
 //! wrapper for tao::pegtl::parse
 
-#include "asdl/parse.hpp"
+#include <string>      // for basic_string
+#include <string_view> // for basic_string_view
+#include <vector>      // for vector
 
-#include <string_view>
+#include <tao/pegtl/memory_input.hpp> // for memory_input
+#include <tao/pegtl/parse_error.hpp>  // for parse_error
 
-#include <tao/pegtl.hpp>
-
-#include "asdl/asdl.hpp"
-#include "grammar/grammar.hpp"
+#include "asdl/asdl.hpp"       // for Expression
+#include "grammar/grammar.hpp" // for EvalInput
+#include "grammar/input.hpp"   // for Input
+#include "grammar/parse.hpp"   // for parse
 #include "options.hpp"
 
 namespace chimera::library::asdl {

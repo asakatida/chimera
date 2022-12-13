@@ -57,6 +57,7 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
                         *args,
                         log=False,
                         stdout=PIPE,
+                        timeout=60,
                     ),
                     chunks(rglob, 255),
                 )
@@ -79,6 +80,7 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
                         *args,
                         log=False,
                         stdout=PIPE,
+                        timeout=60,
                     ),
                     chunks(paths, 255),
                 ),
