@@ -79,6 +79,7 @@
         "set": "cpp",
         "shared_mutex": "cpp",
         "span": "cpp",
+        "span_ext": "cpp",
         "sstream": "cpp",
         "stack": "cpp",
         "stdexcept": "cpp",

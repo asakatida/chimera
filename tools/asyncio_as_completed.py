@@ -1,4 +1,4 @@
-from asyncio import Event, Queue, gather, wait_for
+from asyncio import Event, Queue, TimeoutError, gather, wait_for
 from os import cpu_count
 from sys import stderr
 from typing import Awaitable, Iterable, Sequence, TypeVar, Union

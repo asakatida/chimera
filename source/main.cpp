@@ -20,17 +20,23 @@
 
 //! main interpreter start
 
-#include <exception>
-#include <iostream>
-#include <iterator>
+#include <cstring>   // for size_t, strncmp, strlen
+#include <exception> // for exception
+#include <iostream>  // for operator<<, char_traits
+#include <iterator>  // for distance, literals, next
+#include <stdexcept> // for runtime_error
+#include <string>    // for basic_string, to_string
+#include <vector>    // for vector
 
-#include <gsl/gsl>
+#include <gsl/narrow>   // for narrow
+#include <gsl/span>     // for span_iterator, span
+#include <gsl/span_ext> // for make_span
 
-#include "builtins/builtins.hpp"
-#include "object/object.hpp"
-#include "options.hpp"
-#include "version.hpp"
-#include "virtual_machine/global_context.hpp"
+#include "builtins/builtins.hpp"              // for builtins
+#include "object/object.hpp"                  // for Object
+#include "options.hpp"                        // for Options, BytesCompare
+#include "version.hpp"                        // for CHIMERA_GIT_HEAD, CHIM...
+#include "virtual_machine/global_context.hpp" // for GlobalContext
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
