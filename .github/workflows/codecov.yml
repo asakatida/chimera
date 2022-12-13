@@ -42,6 +42,8 @@ on:
       - CMakeLists.txt
       - external/**
       - stdlib/**
+      - tools/asyncio_cmd.py
+      - tools/codecov.py
       - tools/ninja.py
       - tools/regression.sh
       - unit_tests/**
