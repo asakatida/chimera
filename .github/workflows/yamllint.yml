@@ -12,7 +12,7 @@ jobs:
         with:
           run: >
             python tools/before.py;
-            tools/g-ls-tree.sh -name '*.yml' |
+            python tools/g_ls_tree.py yml |
             xargs --no-run-if-empty --null --
             yamllint -f github
 

@@ -10,9 +10,11 @@ jobs:
       - name: Lint Ansible
         uses: ./
         with:
-          run: |
-            python tools/before.py
-            rg --files-with-matches 'ansible.*:' | xargs -- ansible-lint
+          run: >
+            python tools/before.py;
+            rg --files-with-matches 'ansible.*:' --null |
+            xargs --no-run-if-empty --null --
+            ansible-lint
 
 name: Ansible Lint
 

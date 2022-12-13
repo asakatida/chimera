@@ -26,16 +26,16 @@ esac
 
 cmakelint
 
-tools/g-ls-tree.sh -name '*.py' | \
+python tools/g_ls_tree.py py | \
   tools/xargs.sh -- \
   isort --python-version auto
-tools/g-ls-tree.sh -name '*.py' | \
+python tools/g_ls_tree.py py | \
   tools/xargs.sh -- \
   black --preview --target-version py311
-tools/g-ls-tree.sh -name '*.py' | \
+python tools/g_ls_tree.py py | \
   tools/xargs.sh -- \
   pylama
-tools/g-ls-tree.sh -not -path "./stdlib/*" -name '*.py' | \
+python tools/g_ls_tree.py py --exclude 'stdlib/|.*/stdlib/' | \
   tools/xargs.sh -- \
   mypy
 
