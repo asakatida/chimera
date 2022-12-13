@@ -6,7 +6,7 @@ jobs:
       group: mypy-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@v3.2.0
       - name: MyPy Cache
         uses: actions/cache@v3.0.11
         with:
@@ -27,7 +27,7 @@ jobs:
       group: ${{ matrix.lints }}-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@v3.2.0
       - name: Lint python code
         uses: ./
         with:
