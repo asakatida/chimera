@@ -94,8 +94,8 @@ async def cmd(
 
 @TimeIt
 async def cmd_env(
-    env: dict[str, object],
     *args: object,
+    env: dict[str, object],
     stdout: Optional[Union[int, TextIO]] = DEVNULL,
     timeout: int = 20,
 ) -> bytes:

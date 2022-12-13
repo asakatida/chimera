@@ -9,11 +9,11 @@ from asyncio_cmd import ProcessError, cmd_env
 async def main() -> None:
     for line in (
         await cmd_env(
-            {"PATH": environ["PATH"], "PWD": environ["PWD"]},
             "pip",
             "install",
             "-r",
             "requirements.txt",
+            env={"PATH": environ["PATH"], "PWD": environ["PWD"]},
             stdout=PIPE,
             timeout=120,
         )

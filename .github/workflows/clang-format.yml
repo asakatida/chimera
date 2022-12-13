@@ -11,7 +11,7 @@ jobs:
         uses: ./
         with:
           run: >
-            tools/g-ls-tree.sh '(' -name '*.cpp' -or -name '*.h' -or -name '*.hpp' ')' |
+            python tools/g_ls_tree.py cpp h hpp |
             xargs --no-run-if-empty --null --
             clang-format --dry-run -style=file -Werror
 
