@@ -25,7 +25,7 @@ async def main() -> None:
                     *files,
                     log=False,
                     stdout=PIPE,
-                    timeout=180,
+                    timeout=300,
                 ),
                 cmd(
                     "isort",
@@ -35,9 +35,9 @@ async def main() -> None:
                     *files,
                     log=False,
                     stdout=PIPE,
-                    timeout=180,
+                    timeout=300,
                 ),
-                cmd("pylama", *files, log=False, stdout=PIPE, timeout=180),
+                cmd("pylama", *files, log=False, stdout=PIPE, timeout=300),
             )
         )
     if files_mypy:
@@ -47,7 +47,7 @@ async def main() -> None:
                 *files_mypy,
                 log=False,
                 stdout=PIPE,
-                timeout=180,
+                timeout=300,
             )
         )
     if jobs:

@@ -42,7 +42,14 @@ async def main() -> None:
     instr_profile = llvm_profile_dir / "llvm-profile.profdata"
     chdir(Path(__file__).parent.parent)
     await cmd_env(
-        dict(
+        "cmake",
+        "-G",
+        "Ninja",
+        "-B",
+        "build",
+        "-S",
+        ".",
+        env=dict(
             environ,
             CMAKE_BUILD_TYPE="Coverage",
             CXXFLAGS=" ".join(
@@ -62,13 +69,6 @@ async def main() -> None:
                 )
             ),
         ),
-        "cmake",
-        "-G",
-        "Ninja",
-        "-B",
-        "build",
-        "-S",
-        ".",
     )
     try:
         llvm_profile_dir.rmdir()
