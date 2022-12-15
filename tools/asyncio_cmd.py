@@ -2,6 +2,7 @@ from asyncio import create_subprocess_exec, wait_for
 from asyncio.subprocess import DEVNULL, PIPE, Process
 from itertools import chain, islice, repeat, takewhile
 from os import environ
+from pathlib import Path
 from sys import stderr
 from time import monotonic_ns
 from typing import Iterable, Optional, Sequence, TextIO, TypeVar, Union
@@ -114,6 +115,27 @@ async def cmd_env(
         stdout=out,
     )
     return await communicate(args, b"", proc, timeout)
+
+
+@TimeIt
+async def cmd_flog(
+    *args: object,
+    log: bool = True,
+    out: Optional[str] = None,
+    timeout: int = 20,
+) -> bytes:
+    if log:
+        print("+", *args, file=stderr)
+    if out is None:
+        proc = await create_subprocess_exec(
+            *map(str, args), stderr=DEVNULL, stdout=DEVNULL
+        )
+        return await communicate(args, b"logs in /dev/null\n", proc, timeout)
+    with Path(out).open("wb") as ostream:
+        proc = await create_subprocess_exec(
+            *map(str, args), stderr=ostream, stdout=ostream
+        )
+        return await communicate(args, f"logs in {out}\n".encode(), proc, timeout)
 
 
 @TimeIt
