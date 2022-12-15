@@ -55,7 +55,7 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
                 out=PIPE,
                 timeout=60,
             ),
-            chunks(rglob, 255),
+            chunks(rglob, 4096),
         )
     ):
         CACHE[cache_key].extend(splitlines(lines))
@@ -76,7 +76,7 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
                 out=PIPE,
                 timeout=60,
             ),
-            chunks(paths, 255),
+            chunks(paths, 4096),
         ),
     ):
         CACHE[cache_key].extend(splitlines(lines))

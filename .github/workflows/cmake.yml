@@ -189,7 +189,6 @@ on:
       - CMakeLists.txt
       - external/**
       - requirements.txt
-      - tools/regression.sh
   push:
     branches:
       - stable
@@ -205,5 +204,4 @@ on:
       - CMakeLists.txt
       - external/**
       - requirements.txt
-      - tools/regression.sh
   workflow_dispatch: ~

@@ -45,7 +45,6 @@ on:
       - external/**
       - requirements.txt
       - stdlib/**
-      - tools/regression.sh
       - unit_tests/**
   push:
     branches:
@@ -65,6 +64,5 @@ on:
       - external/**
       - requirements.txt
       - stdlib/**
-      - tools/regression.sh
       - unit_tests/**
   workflow_dispatch: ~

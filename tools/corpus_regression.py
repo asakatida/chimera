@@ -47,7 +47,7 @@ async def regression_one(file: Path) -> None:
 
 
 async def regression(fuzz: Iterable[Path]) -> None:
-    async for _ in as_completed(c_tqdm(map(regression_one, fuzz), "Regression")):
+    async for _ in as_completed(c_tqdm(map(regression_one, fuzz), "Regression", 1_000)):
         pass
 
 
