@@ -1,6 +1,7 @@
 from asyncio import create_subprocess_exec, wait_for
 from asyncio.subprocess import DEVNULL, PIPE
 from itertools import islice, repeat, takewhile
+from os import environ
 from sys import stderr
 from time import monotonic_ns
 from typing import Iterable, Optional, TextIO, TypeVar, Union
@@ -23,8 +24,8 @@ class TimeIt:
         self.start = monotonic_ns()
 
     async def __aexit__(self, *_: object) -> None:
-        milliseconds, nanoseconds = divmod(monotonic_ns() - self.start, 1000)
-        seconds, milliseconds = divmod(milliseconds, 1000)
+        milliseconds, nanoseconds = divmod(monotonic_ns() - self.start, 1_000_000)
+        seconds, milliseconds = divmod(milliseconds, 1_000)
         minutes, seconds = divmod(seconds, 60)
         hours, minutes = divmod(minutes, 60)
         print(
@@ -95,14 +96,16 @@ async def cmd(
 @TimeIt
 async def cmd_env(
     *args: object,
-    env: dict[str, object],
+    env: dict[str, object] = {},
     stdout: Optional[Union[int, TextIO]] = DEVNULL,
     timeout: int = 20,
 ) -> bytes:
     print("+", *args, file=stderr)
+    _env = {"PATH": environ["PATH"], "PWD": environ["PWD"]}
+    _env.update(zip(env.keys(), map(str, env.values())))
     proc = await create_subprocess_exec(
         *map(str, args),
-        env=dict(zip(env.keys(), map(str, env.values()))),
+        env=_env,
         stderr=PIPE,
         stdout=stdout,
     )
