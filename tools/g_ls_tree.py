@@ -8,7 +8,7 @@ from itertools import chain, filterfalse
 from os import environ
 from pathlib import Path
 from sys import stderr
-from typing import Iterable, Optional, Pattern, Union
+from typing import Iterable, Optional, Pattern, Sequence, Union
 
 from asyncio_cmd import ProcessError, chunks, cmd
 
@@ -17,7 +17,7 @@ IN_CI = environ.get("CI", "") == "true"
 SOURCE = Path(__file__).resolve().parent.parent
 
 
-def splitlines(results: list[Union[bytes, BaseException]]) -> Iterable[str]:
+def splitlines(results: Sequence[Union[bytes, BaseException]]) -> Iterable[str]:
     errors: list[BaseException] = list(
         filter(lambda elem: isinstance(elem, BaseException), results)  # type: ignore
     )
