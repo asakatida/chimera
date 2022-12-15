@@ -192,31 +192,11 @@ namespace chimera::library::grammar {
     struct Action<EscapeControl> {
       template <typename Input, typename Top>
       static void apply(const Input &in, Top &&top) {
-        switch (in.peek_char()) {
-          case 'a':
-            top.apply("\a"sv);
-            break;
-          case 'b':
-            top.apply("\b"sv);
-            break;
-          case 'f':
-            top.apply("\f"sv);
-            break;
-          case 'n':
-            top.apply("\n"sv);
-            break;
-          case 'r':
-            top.apply("\r"sv);
-            break;
-          case 't':
-            top.apply("\t"sv);
-            break;
-          case 'v':
-            top.apply("\v"sv);
-            break;
-          default:
-            Expects(false);
-        }
+        static const std::map<char, std::string_view> escapes{
+            {'a', "\a"sv}, {'b', "\b"sv}, {'f', "\f"sv}, {'n', "\n"sv},
+            {'r', "\r"sv}, {'t', "\t"sv}, {'v', "\v"sv}};
+        Ensures(escapes.contains(in.peek_char()));
+        top.apply(escapes.at(in.peek_char()));
       }
     };
     template <typename Chars>
