@@ -46,4 +46,4 @@ git ls-tree --full-tree --name-only -r -z HEAD | \
   tools/xargs.sh -- \
   python3 tools/trim.py
 tools/clang-format.sh
-tools/clang-tidy.sh build/debug
+python tools/clang_tidy.py build/debug
