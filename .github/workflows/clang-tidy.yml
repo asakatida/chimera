@@ -3,7 +3,7 @@ jobs:
   clangtidy:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: ${{ matrix.lints }}-${{ github.workflow }}-${{ github.ref }}
+      group: ${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.2.0
@@ -12,48 +12,31 @@ jobs:
       - name: CCache
         uses: actions/cache@v3.0.11
         with:
-          key: clang-tidy-${{ hashFiles('CMakeLists.txt') }}-${{ github.run_id }}
+          key: clang-tidy-${{ github.run_id }}
           path: .ccache
-          restore-keys: |
-            clang-tidy-${{ hashFiles('CMakeLists.txt') }}
-            build-${{ hashFiles('CMakeLists.txt') }}
-            build
+          restore-keys: build-
       - name: Configure CMake
         uses: ./
         with:
           run: cmake -B build -S .
-      - if: matrix.lints
-        name: Lint c++ code
+      - name: Lint c++ code
         uses: ./
         with:
           run: >
-            python tools/g_ls_tree.py cpp |
-            xargs --no-run-if-empty --null --
-            clang-tidy -p=build -checks=-*,${{ matrix.lints }}
-      - if: ${{ !matrix.lints }}
-        name: Lint c++ code
-        uses: ./
-        with:
-          run: >
-            python tools/g_ls_tree.py cpp |
-            xargs --no-run-if-empty --null --
-            clang-tidy -p=build
-    strategy:
-      matrix:
-        lints:
-          - false
-          - bugprone-*,bugprone-use-after-move,-bugprone-easily-swappable-parameters,-bugprone-exception-escape
-          - cert-*
-          - clang-*
-          - concurrency-*
-          - cppcoreguidelines-*
-          - hicpp-*,hicpp-invalid-access-moved
-          - misc-*,misc-const-correctness,-misc-confusable-identifiers,-misc-no-recursion
-          - misc-confusable-identifiers
-          - modernize-*
-          - performance-*
-          - portability-*
-          - readability-*,-readability-identifier-length,-readability-static-accessed-through-instance
+            python tools/before.py;
+            python tools/clang_tidy.py build
+            bugprone-*,bugprone-use-after-move,-bugprone-easily-swappable-parameters,-bugprone-exception-escape
+            cert-*
+            clang-*
+            concurrency-*
+            cppcoreguidelines-*
+            hicpp-*,hicpp-invalid-access-moved
+            misc-*,misc-const-correctness,-misc-confusable-identifiers,-misc-no-recursion
+            misc-confusable-identifiers
+            modernize-*
+            performance-*
+            portability-*
+            readability-*,-readability-identifier-length,-readability-static-accessed-through-instance
 
 name: ClangTidy
 

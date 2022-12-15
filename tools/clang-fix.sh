@@ -10,4 +10,4 @@ tools/cmake.sh "${PWD}/${build}"
 python tools/ninja.py "${build}"
 tools/clang-format.sh
 python tools/ninja.py "${build}"
-tools/clang-tidy.sh "${build}"
+python tools/clang_tidy.py "${build}"

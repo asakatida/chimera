@@ -24,7 +24,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 from re import sub
 from sys import argv
-from typing import Optional
+from typing import Optional, Sequence
 
 
 class Extract(HTMLParser):
@@ -51,7 +51,9 @@ class Extract(HTMLParser):
             "var": self.var_act,
         }
 
-    def handle_starttag(self, tag: str, attrs: list[tuple[str, Optional[str]]]) -> None:
+    def handle_starttag(
+        self, tag: str, attrs: Sequence[tuple[str, Optional[str]]]
+    ) -> None:
         """handle_starttag."""
         if tag == "body":
             self.enable = True

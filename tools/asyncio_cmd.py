@@ -4,7 +4,7 @@ from itertools import islice, repeat, takewhile
 from os import environ
 from sys import stderr
 from time import monotonic_ns
-from typing import Iterable, Optional, TextIO, TypeVar, Union
+from typing import Iterable, Optional, Sequence, TextIO, TypeVar, Union
 
 T = TypeVar("T")
 
@@ -47,7 +47,7 @@ class TimeIt:
 
 
 class ProcessError(Exception):
-    def __init__(self, cmd: tuple[object, ...], stderr: bytes, returncode: int) -> None:
+    def __init__(self, cmd: Sequence[object], stderr: bytes, returncode: int) -> None:
         super().__init__(f"{cmd} failed with {returncode}")
         self.cmd = cmd
         self.stderr = stderr.decode().strip()
