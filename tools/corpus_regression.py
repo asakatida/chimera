@@ -46,7 +46,7 @@ async def regression_one(file: Path) -> None:
 
 
 async def regression(fuzz: Iterable[Path]) -> None:
-    await as_completed(c_tqdm(map(regression_one, fuzz), "Regression"), limit=12)
+    await as_completed(c_tqdm(map(regression_one, fuzz), "Regression"))
 
 
 async def main() -> None:
