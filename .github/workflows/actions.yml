@@ -22,13 +22,16 @@ jobs:
                   .head_branch != "stable"
                 ) or (
                   (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 7) and
-                  (.head_branch | contains("-refs/"))
+                  (
+                    (.head_branch | contains("-refs/")) or
+                    (.head_branch | startswith("dependabot/"))
+                  )
                 )
               ) |
               .url
             )[]
           ' |
-          xargs --max-lines=1 --max-procs=4 --no-run-if-empty --verbose --
+          xargs --max-lines=1 --max-procs=2 --no-run-if-empty --verbose --
           gh api -X DELETE
 
 name: Meta Actions
