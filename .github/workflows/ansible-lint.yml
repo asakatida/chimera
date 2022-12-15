@@ -25,6 +25,8 @@ on:
       - .github/workflows/ansible-lint.yml
       - requirements.txt
       - tools/before.py
+      - tools/boot.yml
+      - tools/devcontainer.yml
   push:
     branches:
       - stable
@@ -32,4 +34,6 @@ on:
       - .github/workflows/ansible-lint.yml
       - requirements.txt
       - tools/before.py
+      - tools/boot.yml
+      - tools/devcontainer.yml
   workflow_dispatch: ~
