@@ -11,7 +11,6 @@ jobs:
         uses: ./
         with:
           run: >
-            python tools/before.py;
             python tools/g_ls_tree.py yml |
             xargs --no-run-if-empty --null --
             yamllint -f github
@@ -21,17 +20,23 @@ name: YamlLint
 # yamllint disable-line rule:truthy
 on:
   pull_request:
-    branches:
-      - stable
     paths:
       - .github/workflows/yamllint.yml
       - "**.yml"
+      - action.yml
       - requirements.txt
+      - tools/action.py
+      - tools/asyncio_cmd.py
+      - tools/g_ls_tree.py
   push:
     branches:
       - stable
     paths:
       - .github/workflows/yamllint.yml
       - "**.yml"
+      - action.yml
       - requirements.txt
+      - tools/action.py
+      - tools/asyncio_cmd.py
+      - tools/g_ls_tree.py
   workflow_dispatch: ~

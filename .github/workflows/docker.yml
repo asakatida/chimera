@@ -35,8 +35,6 @@ name: Docker
 # yamllint disable-line rule:truthy
 on:
   pull_request:
-    branches:
-      - stable
     paths:
       - .dockerignore
       - .github/workflows/docker.yml

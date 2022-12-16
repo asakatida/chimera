@@ -7,14 +7,11 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.2.0
-      - name: Build dev tools
+      - name: Freeze dependencies
         run: |
           python3 -m venv --upgrade --upgrade-deps env
           env/bin/pip install --upgrade pip setuptools wheel
           env/bin/pip install -r requirements.txt
-        working-directory: ${{ github.workspace }}
-      - name: Freeze dependencies
-        run: >
           env/bin/pip freeze | grep -v -e '^pkg_resources==' >requirements.txt
         working-directory: ${{ github.workspace }}
       - if: ${{ github.ref == 'refs/heads/stable' }}
@@ -31,15 +28,19 @@ name: Requirements.txt
 # yamllint disable-line rule:truthy
 on:
   pull_request:
-    branches:
-      - stable
     paths:
       - .github/workflows/requirements-txt.yml
+      - action.yml
       - requirements.txt
+      - tools/action.py
+      - tools/asyncio_cmd.py
   push:
     branches:
       - stable
     paths:
       - .github/workflows/requirements-txt.yml
+      - action.yml
       - requirements.txt
+      - tools/action.py
+      - tools/asyncio_cmd.py
   workflow_dispatch: ~
