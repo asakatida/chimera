@@ -1,20 +1,31 @@
 from asyncio import run
+from asyncio.subprocess import PIPE
 from os import environ
 from pathlib import Path
 from sys import argv, stderr
 
-from asyncio_cmd import ProcessError, cmd_no_timeout
+from asyncio_cmd import ProcessError, cmd_env, cmd_no_timeout
 
 
 async def main() -> None:
-    environ["PATH"] = ":".join(
-        ("/opt/virtualenv/bin", "/usr/local/bin", environ["PATH"])
-    )
+    environ["PATH"] = ":".join(("/opt/virtualenv/bin", environ["PATH"]))
+    for line in (
+        await cmd_env(
+            "pip",
+            "install",
+            "-r",
+            "requirements.txt",
+            stdout=PIPE,
+            timeout=120,
+        )
+    ).splitlines():
+        if not line.startswith(b"Requirement already satisfied: "):
+            print(line.decode(), file=stderr)
     source = Path(__file__).parent.parent.resolve()
     environ["CCACHE_CONFIGPATH"] = str(source / ".github" / "ccache" / "ccache.conf")
     environ["CCACHE_DIR"] = str(source / ".ccache")
     environ["CXXFLAGS"] = environ.get("CXXFLAGS", "").translate(
-        {ord("\n"): " ", ord("\r"): " "}
+        dict(zip(b"\n\r", "  "))
     )
     await cmd_no_timeout(
         "/bin/bash",

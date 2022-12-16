@@ -11,7 +11,6 @@ jobs:
         uses: ./
         with:
           run: >
-            python tools/before.py;
             find tools -name 'generate_utf8_*.py' -not -name '*insane*' -print0 |
             xargs --no-run-if-empty --null -n1 -P3 --
             python;
@@ -32,19 +31,25 @@ name: Utf8 Generate
 # yamllint disable-line rule:truthy
 on:
   pull_request:
-    branches:
-      - stable
     paths:
       - .github/workflows/utf8-generate.yml
-      - tools/generate_utf8_*.py
+      - action.yml
       - requirements.txt
+      - tools/action.py
+      - tools/asyncio_cmd.py
+      - tools/g_ls_tree.py
+      - tools/generate_utf8_*.py
   push:
     branches:
       - stable
     paths:
       - .github/workflows/utf8-generate.yml
-      - tools/generate_utf8_*.py
+      - action.yml
       - requirements.txt
+      - tools/action.py
+      - tools/asyncio_cmd.py
+      - tools/g_ls_tree.py
+      - tools/generate_utf8_*.py
   schedule:
     - cron: 20 14 * * *
   workflow_dispatch: ~

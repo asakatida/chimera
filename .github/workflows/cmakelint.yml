@@ -7,33 +7,35 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.2.0
-      - name: Lint CMakeList.txt
+      - name: Lint CMakeLists.txt
         uses: ./
         with:
-          run: |
-            python tools/before.py
-            cmakelint
+          run: cmakelint
 
 name: Cmake Lint
 
 # yamllint disable-line rule:truthy
 on:
   pull_request:
-    branches:
-      - stable
     paths:
       - .cmakelintrc
       - .github/workflows/cmakelint.yml
+      - action.yml
       - cmake/**
-      - CMakeList.txt
+      - CMakeLists.txt
       - requirements.txt
+      - tools/action.py
+      - tools/asyncio_cmd.py
   push:
     branches:
       - stable
     paths:
       - .cmakelintrc
       - .github/workflows/cmakelint.yml
+      - action.yml
       - cmake/**
-      - CMakeList.txt
+      - CMakeLists.txt
       - requirements.txt
+      - tools/action.py
+      - tools/asyncio_cmd.py
   workflow_dispatch: ~

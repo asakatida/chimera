@@ -16,20 +16,17 @@ jobs:
       - name: Lint python code
         uses: ./
         with:
-          run: |
-            python tools/before.py
-            python tools/self_check.py
+          run: python tools/self_check.py
 
 name: Python
 
 # yamllint disable-line rule:truthy
 on:
   pull_request:
-    branches:
-      - stable
     paths:
       - .github/workflows/python.yml
       - "**.py"
+      - action.yml
       - requirements.txt
   push:
     branches:
@@ -37,5 +34,6 @@ on:
     paths:
       - .github/workflows/python.yml
       - "**.py"
+      - action.yml
       - requirements.txt
   workflow_dispatch: ~

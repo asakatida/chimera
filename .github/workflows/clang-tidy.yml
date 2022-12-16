@@ -60,23 +60,31 @@ name: ClangTidy
 # yamllint disable-line rule:truthy
 on:
   pull_request:
-    branches:
-      - stable
     paths:
+      - .clang-tidy
       - .github/workflows/clang-tidy.yml
       - "**.cpp"
-      - "**.hpp"
       - "**.h"
-      - .clang-tidy
+      - "**.hpp"
+      - action.yml
       - CMakeLists.txt
+      - requirements.txt
+      - tools/action.py
+      - tools/asyncio_cmd.py
+      - tools/g_ls_tree.py
   push:
     branches:
       - stable
     paths:
+      - .clang-tidy
       - .github/workflows/clang-tidy.yml
       - "**.cpp"
-      - "**.hpp"
       - "**.h"
-      - .clang-tidy
+      - "**.hpp"
+      - action.yml
       - CMakeLists.txt
+      - requirements.txt
+      - tools/action.py
+      - tools/asyncio_cmd.py
+      - tools/g_ls_tree.py
   workflow_dispatch: ~
