@@ -12,7 +12,7 @@ jobs:
         with:
           key: mypy-${{ github.run_id }}
           path: .mypy_cache
-          restore-keys: mypy
+          restore-keys: mypy-
       - name: Lint python code
         uses: ./
         with:

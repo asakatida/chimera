@@ -23,8 +23,8 @@ jobs:
           key: codeql-${{ github.run_id }}
           path: .ccache
           restore-keys: |
-            codeql
-            build
+            codeql-
+            build-
       - run: >
           sudo apt-get update &&
           sudo apt-get install --no-install-recommends --yes ccache

@@ -23,11 +23,11 @@ jobs:
       - name: CCache
         uses: actions/cache@v3.2.2
         with:
-          key: build-${{ hashFiles('CMakeLists.txt') }}-${{ github.run_id }}
+          key: corpus-${{ github.run_id }}
           path: .ccache
           restore-keys: |
-            build-${{ hashFiles('CMakeLists.txt') }}
-            build
+            corpus-
+            build-
       - name: Run regression
         uses: ./
         with:
@@ -100,11 +100,11 @@ jobs:
       - name: CCache
         uses: actions/cache@v3.2.2
         with:
-          key: build-${{ github.run_id }}
+          key: regression-${{ github.run_id }}
           path: .ccache
           restore-keys: |
-            build-${{ hashFiles('CMakeLists.txt') }}
-            build
+            regression-
+            build-
       - name: Build fuzzers
         uses: ./
         with:
