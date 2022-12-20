@@ -9,7 +9,7 @@ from asyncio_cmd import ProcessError, cmd,cmd_no_timeout
 from g_ls_tree import g_ls_tree
 
 
-async def clang_tidy_fix(build: str, files: Sequence[object]) -> None:
+async def clang_tidy_fix(build: str) -> None:
     with (Path(build) / "clang-tidy.log").open("w") as log:
         await cmd(
             "clang-tidy",
@@ -18,36 +18,35 @@ async def clang_tidy_fix(build: str, files: Sequence[object]) -> None:
             "-fix",
             "-fix-errors",
             "-fix-notes",
-            *files,
+            *await g_ls_tree("cpp"),
             stdout=log,
             timeout=3600,
         )
 
 
-async def clang_tidy(build: str, checks: str, files: Sequence[object]) -> None:
+async def clang_tidy(build: str, checks: str) -> None:
     if checks:
         await cmd_no_timeout(
             "clang-tidy",
             f"-p={build}",
             f"-checks=-*,{checks}",
-            *files,
+            *await g_ls_tree("cpp"),
         )
     else:
         await cmd_no_timeout(
             "clang-tidy",
             f"-p={build}",
-            *files,
+            *await g_ls_tree("cpp"),
         )
 
 
 async def main(build: str, *args: str) -> None:
-    files = await g_ls_tree("cpp")
     if args:
         await as_completed(
-            map(clang_tidy, repeat(build), ("", *args), repeat(files)), limit=4
+            map(clang_tidy, repeat(build), ("", *args)), limit=4
         )
     else:
-        await clang_tidy_fix(build, files)
+        await clang_tidy_fix(build)
 
 
 if __name__ == "__main__":
