@@ -20,12 +20,12 @@
 
 """corpus_utils.py"""
 
-from asyncio import gather
 from functools import cache, partial
 from itertools import chain, repeat
 from pathlib import Path
 from typing import Iterable, Optional, TypeVar
 
+from asyncio_as_completed import as_completed
 from asyncio_cmd import cmd, cmd_no_timeout
 from tqdm import tqdm  # type: ignore
 
@@ -70,8 +70,8 @@ async def fuzz_test(*args: object) -> list[Exception]:
     return list(
         filter(
             None,
-            await gather(
-                *map(
+            await as_completed(
+                map(
                     partial(fuzz_test_one),
                     fuzz_star(),
                     *map(repeat, args),  # type: ignore
