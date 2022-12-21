@@ -1,7 +1,7 @@
 from asyncio import Event, Queue, gather, wait_for
 from os import cpu_count
 from sys import stderr
-from typing import Coroutine, Iterable, TypeVar
+from typing import Awaitable, Iterable, Sequence, TypeVar, Union
 
 T = TypeVar("T")
 
@@ -10,19 +10,22 @@ DEFAULT_LIMIT = max(cpu_count() or 0, 4) // 4
 
 async def worker(
     end: Event,
-    queue: Queue[Coroutine[object, object, T]],
+    queue: Queue[Awaitable[T]],
     output: Queue[T],
 ) -> None:
     while not (end.is_set() and queue.empty()):
-        coroutine = await queue.get()
-        await output.put(await coroutine)
-        queue.task_done()
+        try:
+            coroutine = await wait_for(queue.get(), 0.5)
+            await output.put(await coroutine)
+            queue.task_done()
+        except TimeoutError:
+            pass
 
 
 async def producer(
     end: Event,
-    coroutines: Iterable[Coroutine[object, object, T]],
-    queue: Queue[Coroutine[object, object, T]],
+    coroutines: Iterable[Awaitable[T]],
+    queue: Queue[Awaitable[T]],
 ) -> None:
     for coroutine in coroutines:
         await queue.put(coroutine)
@@ -45,7 +48,7 @@ async def _as_completed(
 
 
 async def as_completed(
-    coroutines: Iterable[Coroutine[object, object, T]],
+    coroutines: Union[Iterable[Awaitable[T]], Sequence[Awaitable[T]]],
     limit: int = max(12, DEFAULT_LIMIT),
 ) -> list[T]:
     if limit != DEFAULT_LIMIT:
@@ -56,7 +59,7 @@ async def as_completed(
             DEFAULT_LIMIT,
             file=stderr,
         )
-    queue: Queue[Coroutine[object, object, T]] = Queue(1)
+    queue: Queue[Awaitable[T]] = Queue(1)
     output: Queue[T] = Queue()
     end = Event()
     results = await gather(
@@ -66,8 +69,19 @@ async def as_completed(
         end.wait(),
         return_exceptions=True,
     )
+    raise_errors("Warning: as_completed() got multiple errors:", results)
+    return next(filter(lambda result: isinstance(result, list), results))
+
+
+def raise_errors(warning: str, results: Sequence[object]) -> None:
     if errors := list(
         filter(lambda result: isinstance(result, BaseException), results)
     ):
-        raise errors[0]
-    return next(filter(lambda result: isinstance(result, list), results))
+        error = errors.pop()
+        if errors:
+            print(
+                warning,
+                errors,
+                file=stderr,
+            )
+        raise error  # type: ignore

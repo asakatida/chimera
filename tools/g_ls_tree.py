@@ -2,7 +2,7 @@
 # filter by file extension. It is used by the build system to generate
 # lists of files to be processed by other tools.
 
-from asyncio import gather, run
+from asyncio import run
 from asyncio.subprocess import PIPE
 from itertools import chain, filterfalse
 from os import environ
@@ -10,6 +10,7 @@ from pathlib import Path
 from sys import stderr
 from typing import Iterable, Optional, Pattern, Sequence, Union
 
+from asyncio_as_completed import as_completed, raise_errors
 from asyncio_cmd import ProcessError, chunks, cmd
 
 CACHE: dict[str, list[Path]] = {}
@@ -18,11 +19,7 @@ SOURCE = Path(__file__).resolve().parent.parent
 
 
 def splitlines(results: Sequence[Union[bytes, BaseException]]) -> Iterable[str]:
-    errors: list[BaseException] = list(
-        filter(lambda elem: isinstance(elem, BaseException), results)  # type: ignore
-    )
-    if errors:
-        raise errors[0]
+    raise_errors("Warning: got multiple errors:", results)
     byte_results: Iterable[bytes] = filter(
         lambda elem: isinstance(elem, bytes), results  # type: ignore
     )
@@ -49,8 +46,8 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
     rglob = chain.from_iterable(map(SOURCE.rglob, map("*.{}".format, args)))
     paths = splitlines(
         list(
-            await gather(
-                *map(
+            await as_completed(
+                map(
                     lambda args: cmd(
                         "git",
                         "ls-tree",
@@ -71,8 +68,8 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
         return CACHE[cache_key]
     paths = splitlines(
         list(
-            await gather(
-                *map(
+            await as_completed(
+                map(
                     lambda args: cmd(
                         "git",
                         "diff",
@@ -85,7 +82,6 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
                     ),
                     chunks(paths, 255),
                 ),
-                return_exceptions=True,
             )
         )
     )

@@ -1,9 +1,10 @@
-from asyncio import gather, run
+from asyncio import run
 from asyncio.subprocess import PIPE
 from re import compile
 from sys import stderr
 from typing import Awaitable
 
+from asyncio_as_completed import as_completed, raise_errors
 from asyncio_cmd import ProcessError, cmd
 from g_ls_tree import g_ls_tree
 
@@ -51,17 +52,8 @@ async def main() -> None:
             )
         )
     if jobs:
-        results = await gather(*jobs, return_exceptions=True)
-        if errors := list(
-            filter(
-                lambda elem: isinstance(elem, Exception),
-                results,
-            )
-        ):
-            error = errors.pop()
-            if errors:
-                print("Extra Errors:", *errors, file=stderr, sep="\n")
-            raise error
+        results = await as_completed(jobs)
+        raise_errors("Warning: got multiple errors:", results)
         print(
             *map(
                 bytes.decode,
