@@ -20,11 +20,12 @@
 
 """generate_utf8_space.py."""
 
-from itertools import chain, count, groupby, islice, repeat, takewhile
+from itertools import chain, count, groupby
 from pathlib import Path
 from re import MULTILINE, subn
-from typing import Iterator, Tuple
+from typing import Iterable, Tuple
 
+from asyncio_cmd import chunks
 from tqdm import tqdm  # type: ignore
 
 utf8_space = (
@@ -32,18 +33,16 @@ utf8_space = (
 ).resolve()
 
 
-def _slices(total: int, it: Iterator[int]) -> Iterator[Iterator[str]]:
-    return map(islice, repeat(iter(tqdm(map(hex, it), total=total))), repeat(64))
+def _slices(total: int, it: Iterable[int]) -> Iterable[Iterable[str]]:
+    return chunks(tqdm(map(hex, it), total=total), 64)
 
 
-def _ranges(total: int, it: Iterator[int]) -> str:
-    ranges = ">, ranges<".join(
-        takewhile(lambda r: r, map(",".join, _slices(total, it)))
-    )
+def _ranges(total: int, it: Iterable[int]) -> str:
+    ranges = ">, ranges<".join(map(",".join, _slices(total, it)))
     return f"sor<ranges<{ranges}>>"
 
 
-def _a(t: Tuple[int, Iterator[Tuple[int, int]]]) -> Tuple[int, int]:
+def _a(t: tuple[int, Iterable[Tuple[int, int]]]) -> Tuple[int, int]:
     groups = tuple(e[0] for e in t[1])
     return (min(groups), max(groups))
 

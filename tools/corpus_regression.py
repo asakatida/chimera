@@ -24,7 +24,7 @@ from asyncio import run
 from pathlib import Path
 from random import sample
 from sys import stderr
-from typing import Iterable, TypeVar
+from typing import Iterable
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError
@@ -35,7 +35,6 @@ SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
 CRASHES = FUZZ / "crashes"
-T = TypeVar("T")
 
 
 async def regression_one(file: Path) -> None:

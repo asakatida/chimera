@@ -7,25 +7,19 @@ from asyncio_cmd import ProcessError, cmd_no_timeout
 from g_ls_tree import g_ls_tree
 
 
+async def clang_tidy_cmd(build: object, *args: object) -> None:
+    await cmd_no_timeout("clang-tidy", f"-p={build}", *args, *await g_ls_tree("cpp"))
+
+
 async def clang_tidy_fix(build: str) -> None:
-    await cmd_no_timeout(
-        "clang-tidy",
-        f"-p={build}",
-        "-quiet",
-        "-fix",
-        "-fix-errors",
-        "-fix-notes",
-        *await g_ls_tree("cpp"),
-    )
+    await clang_tidy_cmd(build, "-quiet", "-fix", "-fix-errors", "-fix-notes")
 
 
 async def clang_tidy(build: str, checks: str) -> None:
     if checks:
-        await cmd_no_timeout(
-            "clang-tidy", f"-p={build}", f"-checks=-*,{checks}", *await g_ls_tree("cpp")
-        )
+        await clang_tidy_cmd(build, f"-checks=-*,{checks}")
     else:
-        await cmd_no_timeout("clang-tidy", f"-p={build}", *await g_ls_tree("cpp"))
+        await clang_tidy_cmd(build)
 
 
 async def main(build: str, *args: str) -> None:

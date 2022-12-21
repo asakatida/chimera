@@ -37,17 +37,31 @@ async def git_cmd(*args: object) -> None:
     await cmd("git", *args, err=PIPE, log=False, out=DEVNULL)
 
 
+async def git_cmd_remote(*args: object) -> None:
+    await cmd("git", *args, err=None, out=None, timeout=600)
+
+
 async def main() -> None:
-    await cmd("git", "fetch", "--all", "--tags", timeout=600)
-    await cmd("git", "remote", "prune", "origin", timeout=600)
-    await cmd("git", "remote", "set-head", "origin", "--auto", timeout=600)
-    await cmd("git", "add", *FUZZ_DIRS)
-    await cmd("git", "commit", "--allow-empty", "-m", "WIP")
-    stdout = await cmd(
-        "git", "log", "--all", "--format=%h", "^origin/HEAD", "--", *FUZZ_DIRS, out=PIPE
+    await git_cmd_remote("fetch", "--all", "--tags")
+    await git_cmd_remote("remote", "prune", "origin")
+    await git_cmd_remote("remote", "set-head", "origin", "--auto")
+    await git_cmd_remote("add", *FUZZ_DIRS)
+    await git_cmd_remote("commit", "--allow-empty", "-m", "WIP")
+    git_log = await cmd(
+        "git",
+        "log",
+        "--all",
+        "--format=%h",
+        "^origin/HEAD",
+        "--",
+        *FUZZ_DIRS,
+        err=None,
+        out=PIPE
     )
     for sha in tqdm(
-        islice(filter(None, map(str.strip, stdout.decode().splitlines())), 10),
+        islice(
+            map(bytes.decode, filter(None, map(bytes.strip, git_log.splitlines()))), 10
+        ),
         desc="Refs",
         unit_scale=True,
         total=10,
@@ -56,7 +70,7 @@ async def main() -> None:
         await git_cmd("restore", "--worktree", FUZZ)
         await git_cmd("add", FUZZ)
         await git_cmd("commit", "--allow-empty", "--amend", "--no-edit")
-    await cmd("git", "reset", "HEAD^", timeout=600)
+    await git_cmd_remote("reset", "HEAD^")
 
 
 if __name__ == "__main__":

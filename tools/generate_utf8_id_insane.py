@@ -20,22 +20,21 @@
 
 """generate_utf8_id_insane.py."""
 
-from itertools import islice, product, repeat, takewhile
+from itertools import product, repeat
 from pathlib import Path
 from re import MULTILINE, subn
-from typing import Iterator
+from typing import Iterable
 
+from asyncio_cmd import chunks
 from tqdm import tqdm  # type: ignore
 
 
-def _slices(total: int, it: Iterator[int]) -> Iterator[Iterator[str]]:
-    return map(islice, repeat(iter(tqdm(map(hex, it), total=total))), repeat(64))
+def _slices(total: int, it: Iterable[int]) -> Iterable[Iterable[str]]:
+    return chunks(tqdm(map(hex, it), total=total), 64)
 
 
-def _ranges(total: int, it: Iterator[int]) -> str:
-    ranges = ">, ranges<".join(
-        takewhile(lambda r: r, map(",".join, _slices(total, it)))
-    )
+def _ranges(total: int, it: Iterable[int]) -> str:
+    ranges = ">, ranges<".join(map(",".join, _slices(total, it)))
     return f"sor<ranges<{ranges}>>"
 
 
@@ -59,22 +58,20 @@ id_continue = set(
 ranges = _ranges(
     1234,
     next(
-        iter(
-            tqdm(
-                filter(
-                    str.isidentifier,
-                    map(
-                        "".join,
-                        product(
-                            id_start,
-                            set(map(chr, range(0x10FFFF))).difference(
-                                id_start, id_continue
-                            ),
+        tqdm(
+            filter(
+                str.isidentifier,
+                map(
+                    "".join,
+                    product(
+                        id_start,
+                        set(map(chr, range(0x10FFFF))).difference(
+                            id_start, id_continue
                         ),
                     ),
                 ),
-                total=1,
-            )
+            ),
+            total=1,
         )
     ).encode(),
 )

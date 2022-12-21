@@ -28,7 +28,7 @@ from asyncio_cmd import ProcessError, cmd, cmd_no_timeout
 
 
 async def ninja_cmd(*args: object, timeout: int) -> None:
-    await cmd("ninja", "-C", *args, timeout=timeout)
+    await cmd("ninja", "-C", *args, err=None, out=None, timeout=timeout)
 
 
 async def ninja(build: object, *args: object) -> None:
