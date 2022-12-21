@@ -24,7 +24,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 from re import sub
 from sys import argv
-from typing import Optional, Sequence
+from typing import Iterable, Optional
 
 
 class Extract(HTMLParser):
@@ -52,7 +52,7 @@ class Extract(HTMLParser):
         }
 
     def handle_starttag(
-        self, tag: str, attrs: Sequence[tuple[str, Optional[str]]]
+        self, tag: str, attrs: Iterable[tuple[str, Optional[str]]]
     ) -> None:
         """handle_starttag."""
         if tag == "body":

@@ -8,6 +8,7 @@ from time import monotonic_ns
 from typing import Iterable, Optional, Sequence, TextIO, TypeVar, Union
 
 T = TypeVar("T")
+ProcessInput = Optional[Union[int, TextIO]]
 
 
 class TimeIt:
@@ -69,9 +70,9 @@ def chunks(iterable: Iterable[T], size: int) -> Iterable[list[T]]:
 @TimeIt
 async def cmd(
     *args: object,
-    err: Optional[Union[int, TextIO]] = None,
+    err: ProcessInput,
     log: bool = True,
-    out: Optional[Union[int, TextIO]] = None,
+    out: ProcessInput,
     timeout: int = 20,
 ) -> bytes:
     if log:
@@ -95,8 +96,8 @@ async def cmd_check(*args: object, timeout: int = 20) -> Optional[Exception]:
 async def cmd_env(
     *args: object,
     env: dict[str, object] = {},
-    err: Optional[Union[int, TextIO]] = None,
-    out: Optional[Union[int, TextIO]] = None,
+    err: ProcessInput,
+    out: ProcessInput,
     timeout: int = 20,
 ) -> bytes:
     print("+", *args, file=stderr)
@@ -154,9 +155,10 @@ async def communicate(
 
 
 async def status(
-    args: Sequence[object], cmd_stderr: bytes, proc: Process, timeout: int
+    args: Sequence[object], err: bytes, proc: Process, timeout: int
 ) -> None:
     returncode = proc.returncode
+    cmd_stderr = b""
     if returncode is None:
         proc.terminate()
         returncode = await proc.wait()
@@ -166,4 +168,4 @@ async def status(
             f"\nThe process was terminated by timeout {timeout} seconds".encode()
         )
     if returncode != 0:
-        raise ProcessError(args, cmd_stderr, returncode or 1)
+        raise ProcessError(args, err + cmd_stderr, returncode or 1)

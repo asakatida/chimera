@@ -10,7 +10,9 @@ from asyncio_cmd import ProcessError, cmd_env, cmd_no_timeout
 async def main() -> None:
     environ["PATH"] = ":".join(("/opt/virtualenv/bin", environ["PATH"]))
     for line in (
-        await cmd_env("pip", "install", "-r", "requirements.txt", out=PIPE, timeout=120)
+        await cmd_env(
+            "pip", "install", "-r", "requirements.txt", out=PIPE, err=None, timeout=120
+        )
     ).splitlines():
         if not line.startswith(b"Requirement already satisfied: "):
             print(line.decode(), file=stderr)

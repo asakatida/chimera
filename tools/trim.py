@@ -5,10 +5,10 @@ from re import MULTILINE, Pattern, compile
 from sys import argv
 
 ROOT = Path(__file__).parent.parent.resolve()
-# patches need to stay as is
-# fuzz corpus is ignored for utf8 nonsense
 IGNORE = (
+    # patches need to stay as is
     (ROOT / "patches"),
+    # fuzz corpus is ignored for utf8 nonsense
     (ROOT / "unit_tests" / "fuzz" / "corpus"),
     (ROOT / "unit_tests" / "fuzz" / "crashes"),
 )
@@ -22,10 +22,10 @@ SEARCHES = (
 
 
 def test(f: Path) -> bool:
-    # markdown is ignored
-    # python linting is covered by black
     return (
         (not any(map(f.resolve().is_relative_to, IGNORE)))
+        # markdown is ignored
+        # python linting is covered by black
         and f.suffix not in (".md", ".py")
         and any(map(Pattern.search, SEARCHES, repeat(f.read_bytes())))
     )

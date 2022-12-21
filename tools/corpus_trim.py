@@ -27,7 +27,7 @@ from operator import attrgetter
 from pathlib import Path
 from re import MULTILINE, compile
 from sys import stderr
-from typing import Iterable, TypeVar
+from typing import Iterable
 
 from asyncio_cmd import ProcessError
 from corpus_utils import c_tqdm, fuzz_star, fuzz_test, gather_paths
@@ -39,7 +39,6 @@ FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
 CORPUS_ORIGINAL = FUZZ / "corpus_original"
 CRASHES = FUZZ / "crashes"
-T = TypeVar("T")
 CONFLICT = compile(rb"^((<{8}|>{8})\s.+|={8})$\s", MULTILINE)
 
 

@@ -18,6 +18,10 @@ IN_CI = environ.get("CI", "") == "true"
 SOURCE = Path(__file__).resolve().parent.parent
 
 
+async def git_cmd(*args: object) -> bytes:
+    return await cmd("git", *args, err=PIPE, log=False, out=PIPE, timeout=60)
+
+
 def splitlines(lines: bytes) -> Iterable[Path]:
     return map(
         Path, map(bytes.decode, filter(None, map(bytes.strip, lines.splitlines())))
@@ -37,16 +41,8 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
     CACHE[cache_key] = []
     async for lines in as_completed(
         map(
-            lambda args: cmd(
-                "git",
-                "ls-tree",
-                "--full-tree",
-                "--name-only",
-                "HEAD",
-                *args,
-                log=False,
-                out=PIPE,
-                timeout=60,
+            lambda args: git_cmd(
+                "ls-tree", "--full-tree", "--name-only", "HEAD", *args
             ),
             chunks(rglob, 4096),
         )
@@ -58,17 +54,7 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
     paths, CACHE[cache_key] = CACHE[cache_key], []
     async for lines in as_completed(
         map(
-            lambda args: cmd(
-                "git",
-                "diff",
-                "--name-only",
-                "HEAD^",
-                "--",
-                *args,
-                log=False,
-                out=PIPE,
-                timeout=60,
-            ),
+            lambda args: git_cmd("diff", "--name-only", "HEAD^", "--", *args),
             chunks(paths, 4096),
         )
     ):

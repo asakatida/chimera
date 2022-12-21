@@ -69,6 +69,8 @@ async def main() -> None:
                 )
             ),
         ),
+        out=None,
+        err=None,
     )
     try:
         llvm_profile_dir.rmdir()
@@ -83,7 +85,9 @@ async def main() -> None:
         "-sparse",
         *llvm_profile_files,
         f"--output={instr_profile}",
-        timeout=3600,
+        err=None,
+        out=None,
+        timeout=600,
     )
     await cmd(
         "llvm-cov",
@@ -92,6 +96,8 @@ async def main() -> None:
         "--ignore-filename-regex=.*/(catch2|external|unit_tests)/.*",
         f"-instr-profile={instr_profile}",
         "--format=lcov",
+        err=None,
+        out=None,
     )
 
 
