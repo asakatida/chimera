@@ -78,6 +78,20 @@ async def cmd(
     return await communicate(args, b"", proc, timeout)
 
 
+async def cmd_check(
+    *args: object,
+    timeout: int = 20,
+) -> Optional[Exception]:
+    try:
+        proc = await create_subprocess_exec(
+            *map(str, args), stderr=DEVNULL, stdout=DEVNULL
+        )
+        await communicate(args, b"", proc, timeout)
+    except Exception as error:
+        return error
+    return None
+
+
 @TimeIt
 async def cmd_env(
     *args: object,
