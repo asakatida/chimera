@@ -20,13 +20,13 @@
 
 """corpus_utils.py"""
 
-from functools import cache, partial
+from functools import cache
 from itertools import chain, repeat
 from pathlib import Path
 from typing import Iterable, Optional, TypeVar
 
 from asyncio_as_completed import as_completed
-from asyncio_cmd import cmd, cmd_no_timeout
+from asyncio_cmd import cmd_check
 from tqdm import tqdm  # type: ignore
 
 DIRECTORIES = ("corpus", "crashes")
@@ -51,19 +51,8 @@ def fuzz_star() -> tuple[Path, ...]:
     )
 
 
-async def fuzz_test_one(regression: Path, *args: object) -> Optional[Exception]:
-    try:
-        if len(args) == 1:
-            await cmd(
-                regression, "-detect_leaks=0", "-use_value_profile=1", *args, log=False
-            )
-        else:
-            await cmd_no_timeout(
-                regression, "-detect_leaks=0", "-use_value_profile=1", *args
-            )
-    except Exception as error:
-        return error
-    return None
+async def fuzz_test_one(*args: object) -> Optional[Exception]:
+    return await cmd_check(*args, timeout=120)
 
 
 async def fuzz_test(*args: object) -> list[Exception]:
@@ -72,10 +61,10 @@ async def fuzz_test(*args: object) -> list[Exception]:
             None,
             await as_completed(
                 map(
-                    partial(fuzz_test_one),
+                    fuzz_test_one,
                     fuzz_star(),
-                    *map(repeat, args),  # type: ignore
-                ),
+                    *map(repeat, ("-detect_leaks=0", "-use_value_profile=1") + args),  # type: ignore
+                )
             ),
         )
     )
