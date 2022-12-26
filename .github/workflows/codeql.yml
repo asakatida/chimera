@@ -18,7 +18,7 @@ jobs:
         with:
           submodules: true
       - name: CCache
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v3.2.1
         with:
           key: codeql-${{ github.run_id }}
           path: .ccache
