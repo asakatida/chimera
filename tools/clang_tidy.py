@@ -5,7 +5,7 @@ from sys import argv, stderr
 from typing import Sequence
 
 from asyncio_as_completed import as_completed
-from asyncio_cmd import ProcessError, cmd
+from asyncio_cmd import ProcessError, cmd,cmd_no_timeout
 from g_ls_tree import g_ls_tree
 
 
@@ -26,21 +26,17 @@ async def clang_tidy_fix(build: str, files: Sequence[object]) -> None:
 
 async def clang_tidy(build: str, checks: str, files: Sequence[object]) -> None:
     if checks:
-        await cmd(
+        await cmd_no_timeout(
             "clang-tidy",
             f"-p={build}",
             f"-checks=-*,{checks}",
             *files,
-            stdout=None,
-            timeout=3600,
         )
     else:
-        await cmd(
+        await cmd_no_timeout(
             "clang-tidy",
             f"-p={build}",
             *files,
-            stdout=None,
-            timeout=3600,
         )
 
 
