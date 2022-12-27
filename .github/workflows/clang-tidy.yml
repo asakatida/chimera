@@ -53,6 +53,7 @@ on:
       - requirements.txt
       - tools/action.py
       - tools/asyncio_cmd.py
+      - tools/clang_tidy.py
       - tools/g_ls_tree.py
   push:
     branches:
@@ -68,5 +69,6 @@ on:
       - requirements.txt
       - tools/action.py
       - tools/asyncio_cmd.py
+      - tools/clang_tidy.py
       - tools/g_ls_tree.py
   workflow_dispatch: ~
