@@ -20,16 +20,20 @@
 
 //! wrapper for tao::pegtl::parse
 
-#include <iostream> // for istream
+#include <iostream>    // for istream
+#include <string>      // for basic_string
+#include <string_view> // for basic_string_view
+#include <vector>      // for vector
 
 #include <tao/pegtl/istream_input.hpp> // for istream_input
+#include <tao/pegtl/parse_error.hpp>   // for parse_error
 
 #include "asdl/asdl.hpp"       // for Expression
 #include "asdl/parse.hpp"      // for bufferSize
 #include "grammar/grammar.hpp" // for EvalInput
 #include "grammar/input.hpp"   // for Input
 #include "grammar/parse.hpp"   // for parse
-#include "options.hpp"
+#include "options.hpp"         // for Optimize
 
 namespace chimera::library::asdl {
   Expression::Expression(const Optimize &optimize, std::istream &&input,

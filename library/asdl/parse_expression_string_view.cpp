@@ -31,7 +31,7 @@
 #include "grammar/grammar.hpp" // for EvalInput
 #include "grammar/input.hpp"   // for Input
 #include "grammar/parse.hpp"   // for parse
-#include "options.hpp"
+#include "options.hpp"         // for Optimize
 
 namespace chimera::library::asdl {
   Expression::Expression(const Optimize &optimize, const std::string_view &data,
