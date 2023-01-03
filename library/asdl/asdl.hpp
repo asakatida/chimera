@@ -22,19 +22,20 @@
 
 #pragma once
 
-#include <iosfwd> // for istream, string
-#include <memory>
-#include <optional> // for optional
-#include <string>   // for basic_string
-#include <variant>  // for get_if, variant, visit
-#include <vector>   // for vector
+#include <algorithm>   // for reverse
+#include <iosfwd>      // for istream, string
+#include <memory>      // for make_shared, shared_ptr
+#include <optional>    // for optional
+#include <string>      // for basic_string
+#include <string_view> // for string_view
+#include <variant>     // for get_if, variant, visit
+#include <vector>      // for vector
 
-#include <metal/lambda/apply.hpp>  // for apply
-#include <metal/list/contains.hpp> // for contains
-#include <metal/list/list.hpp>     // for list
+#include <metal/lambda.hpp> // for apply, lambda
+#include <metal/list.hpp>   // for contains, list
 
 #include "object/object.hpp" // for Object
-#include "options.hpp"
+#include "options.hpp"       // for Optimize
 
 namespace chimera::library::asdl {
   namespace detail {
