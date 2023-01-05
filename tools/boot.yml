@@ -288,12 +288,15 @@
             group: github
             mode: "0755"
             owner: github
-            path: /opt/virtualenv
+            path: "{{ item }}"
             state: directory
+          with_items:
+            - /opt/virtualenv
+            - /opt/edge-virtualenv
         - name: Run user scoped tasks
           become_user: github
           block:
-            - name: Setup git config and Python virtualenv
+            - name: Setup git config
               ansible.builtin.shell: |
                 set -e
                 git config --global advice.detachedHead true
@@ -316,11 +319,17 @@
                 git config --global rebase.updateRefs true
                 git config --global status.submoduleSummary true
                 git config --global submodule.recurse true
-                python{{ py_version }} -m venv /opt/virtualenv
-                /opt/virtualenv/bin/pip install --upgrade pip setuptools wheel
-                /opt/virtualenv/bin/pip install -r /tmp/requirements.txt
-              register: result
-              changed_when: result.stdout | length != 0
+            - name: Setup Python virtualenv
+              ansible.builtin.shell: |
+                set -e
+                {{ item.python }} -m venv {{ item.venv }}
+                {{ item.venv }}/bin/pip install --upgrade pip setuptools wheel
+                {{ item.venv }}/bin/pip install -r /tmp/requirements.txt
+              with_items:
+                - python: python3
+                  venv: /opt/virtualenv
+                - python: python{{ py_version }}
+                  venv: /opt/edge-virtualenv
             - name: Get fish shell
               # noqa: command-instead-of-shell
               ansible.builtin.shell: command -v fish

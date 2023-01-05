@@ -69,12 +69,13 @@ def chunks(iterable: Iterable[T], size: int) -> Iterable[list[T]]:
 async def cmd(
     *args: object,
     log: bool = True,
-    stdout: Optional[Union[int, TextIO]] = DEVNULL,
+    err: Optional[Union[int, TextIO]] = PIPE,
+    out: Optional[Union[int, TextIO]] = DEVNULL,
     timeout: int = 20,
 ) -> bytes:
     if log:
         print("+", *args, file=stderr)
-    proc = await create_subprocess_exec(*map(str, args), stderr=PIPE, stdout=stdout)
+    proc = await create_subprocess_exec(*map(str, args), stderr=err, stdout=out)
     return await communicate(args, b"", proc, timeout)
 
 
@@ -96,7 +97,8 @@ async def cmd_check(
 async def cmd_env(
     *args: object,
     env: dict[str, object] = {},
-    stdout: Optional[Union[int, TextIO]] = DEVNULL,
+    err: Optional[Union[int, TextIO]] = PIPE,
+    out: Optional[Union[int, TextIO]] = DEVNULL,
     timeout: int = 20,
 ) -> bytes:
     print("+", *args, file=stderr)
@@ -108,8 +110,8 @@ async def cmd_env(
                 zip(env.keys(), map(str, env.values())),
             )
         ),
-        stderr=PIPE,
-        stdout=stdout,
+        stderr=err,
+        stdout=out,
     )
     return await communicate(args, b"", proc, timeout)
 

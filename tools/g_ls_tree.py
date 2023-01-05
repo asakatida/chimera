@@ -8,9 +8,9 @@ from itertools import chain, filterfalse
 from os import environ
 from pathlib import Path
 from sys import stderr
-from typing import Iterable, Optional, Pattern, Sequence, Union
+from typing import Iterable, Optional, Pattern, Sequence
 
-from asyncio_as_completed import as_completed, raise_errors
+from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError, chunks, cmd
 
 CACHE: dict[str, list[Path]] = {}
@@ -18,17 +18,13 @@ IN_CI = environ.get("CI", "") == "true"
 SOURCE = Path(__file__).resolve().parent.parent
 
 
-def splitlines(results: Sequence[Union[bytes, BaseException]]) -> Iterable[str]:
-    raise_errors("Warning: got multiple errors:", results)
-    byte_results: Iterable[bytes] = filter(
-        lambda elem: isinstance(elem, bytes), results  # type: ignore
-    )
+def splitlines(results: Sequence[bytes]) -> Iterable[str]:
     return chain.from_iterable(
         map(
             str.splitlines,
             map(
                 bytes.decode,
-                byte_results,
+                results,
             ),
         )
     )
@@ -56,7 +52,7 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
                         "HEAD",
                         *args,
                         log=False,
-                        stdout=PIPE,
+                        out=PIPE,
                         timeout=60,
                     ),
                     chunks(rglob, 255),
@@ -79,7 +75,7 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
                         "--",
                         *args,
                         log=False,
-                        stdout=PIPE,
+                        out=PIPE,
                         timeout=60,
                     ),
                     chunks(paths, 255),

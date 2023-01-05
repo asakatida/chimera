@@ -18,7 +18,7 @@ async def clang_tidy_fix(build: str) -> None:
             "-fix-errors",
             "-fix-notes",
             *await g_ls_tree("cpp"),
-            stdout=log,
+            out=log,
             timeout=3600,
         )
 

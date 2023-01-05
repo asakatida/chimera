@@ -47,7 +47,7 @@ async def main() -> None:
         "^origin/HEAD",
         "--",
         *FUZZ_DIRS,
-        stdout=PIPE,
+        out=PIPE,
     )
     for sha in tqdm(
         islice(

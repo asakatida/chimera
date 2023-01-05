@@ -51,14 +51,6 @@ async def as_completed(
     coroutines: Union[Iterable[Awaitable[T]], Sequence[Awaitable[T]]],
     limit: int = max(12, DEFAULT_LIMIT),
 ) -> list[T]:
-    if limit != DEFAULT_LIMIT:
-        print(
-            "Warning: as_completed() is using custom tuning",
-            limit,
-            "instead of default",
-            DEFAULT_LIMIT,
-            file=stderr,
-        )
     queue: Queue[Awaitable[T]] = Queue(1)
     output: Queue[T] = Queue()
     end = Event()
