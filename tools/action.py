@@ -15,7 +15,7 @@ async def main() -> None:
             "install",
             "-r",
             "requirements.txt",
-            stdout=PIPE,
+            out=PIPE,
             timeout=120,
         )
     ).splitlines():

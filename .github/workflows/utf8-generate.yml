@@ -13,7 +13,7 @@ jobs:
           run: >
             find tools -name 'generate_utf8_*.py' -not -name '*insane*' -print0 |
             xargs --no-run-if-empty --null -n1 -P3 --
-            python;
+            /opt/edge-virtualenv/python;
             python tools/g_ls_tree.py hpp |
             xargs --no-run-if-empty --null --
             clang-format -style=file -i
