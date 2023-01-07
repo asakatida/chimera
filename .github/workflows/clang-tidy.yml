@@ -46,6 +46,7 @@ on:
   pull_request:
     paths:
       - .clang-tidy
+      - .github/ccache/**
       - .github/workflows/clang-tidy.yml
       - "**.cpp"
       - "**.h"
@@ -62,6 +63,7 @@ on:
       - stable
     paths:
       - .clang-tidy
+      - .github/ccache/**
       - .github/workflows/clang-tidy.yml
       - "**.cpp"
       - "**.h"

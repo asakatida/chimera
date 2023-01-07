@@ -178,6 +178,7 @@ name: CMake
 on:
   pull_request:
     paths:
+      - .github/ccache/**
       - .github/workflows/cmake.yml
       - "**.cpp"
       - "**.h"
@@ -197,6 +198,7 @@ on:
     branches:
       - stable
     paths:
+      - .github/ccache/**
       - .github/workflows/cmake.yml
       - "**.cpp"
       - "**.h"

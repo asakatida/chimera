@@ -33,6 +33,7 @@ name: CodeCov
 on:
   pull_request:
     paths:
+      - .github/ccache/**
       - .github/workflows/codecov.yml
       - "**.cpp"
       - "**.h"
@@ -41,7 +42,9 @@ on:
       - cmake/**
       - CMakeLists.txt
       - external/**
+      - requirements.txt
       - stdlib/**
+      - tools/action.py
       - tools/asyncio_cmd.py
       - tools/codecov.py
       - tools/ninja.py
@@ -53,6 +56,7 @@ on:
       - regression-refs/**
       - update-fuzz-refs/**
     paths:
+      - .github/ccache/**
       - .github/workflows/codecov.yml
       - "**.cpp"
       - "**.h"
@@ -61,7 +65,9 @@ on:
       - cmake/**
       - CMakeLists.txt
       - external/**
+      - requirements.txt
       - stdlib/**
+      - tools/action.py
       - tools/asyncio_cmd.py
       - tools/codecov.py
       - tools/ninja.py
