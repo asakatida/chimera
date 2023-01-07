@@ -25,6 +25,7 @@ on:
       - action.yml
       - requirements.txt
       - tools/action.py
+      - tools/asyncio_cmd.py
       - tools/boot.yml
       - tools/devcontainer.yml
   push:
@@ -35,6 +36,7 @@ on:
       - action.yml
       - requirements.txt
       - tools/action.py
+      - tools/asyncio_cmd.py
       - tools/boot.yml
       - tools/devcontainer.yml
   workflow_dispatch: ~
