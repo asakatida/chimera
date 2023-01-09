@@ -27,7 +27,7 @@ pathspec==0.10.3
 platformdirs==2.6.2
 pycodestyle==2.10.0
 pycparser==2.21
-pydocstyle==6.1.1
+pydocstyle==6.2.3
 pyflakes==3.0.1
 Pygments==2.13.0
 pylama==8.4.1
