@@ -68,8 +68,8 @@ def chunks(iterable: Iterable[T], size: int) -> Iterable[list[T]]:
 @TimeIt
 async def cmd(
     *args: object,
-    log: bool = True,
     err: Optional[Union[int, TextIO]] = PIPE,
+    log: bool = True,
     out: Optional[Union[int, TextIO]] = DEVNULL,
     timeout: int = 20,
 ) -> bytes:
@@ -127,13 +127,14 @@ async def cmd_no_timeout(*args: object) -> None:
 
 
 async def communicate(
-    args: Sequence[object], cmd_stderr: bytes, proc: Process, timeout: int
+    args: Sequence[object], err: bytes, proc: Process, timeout: int
 ) -> bytes:
+    cmd_stderr = b""
     try:
         cmd_stdout, cmd_stderr = await wait_for(proc.communicate(), timeout=timeout)
     finally:
-        await status(args, cmd_stderr, proc, timeout)
-    return cmd_stdout
+        await status(args, err + (cmd_stderr or b""), proc, timeout)
+    return cmd_stdout or b""
 
 
 async def status(
