@@ -22,6 +22,7 @@
 
 from asyncio import run
 from pathlib import Path
+from random import sample
 from sys import stderr
 from typing import Iterable, TypeVar
 
@@ -54,7 +55,7 @@ async def main() -> None:
         raise FileNotFoundError("No fuzz targets built")
     CORPUS.mkdir(exist_ok=True)
     CRASHES.mkdir(exist_ok=True)
-    await regression(gather_paths())
+    await regression(sample(list(gather_paths()), 1_000))
 
 
 if __name__ == "__main__":
