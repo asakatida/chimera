@@ -41,7 +41,10 @@ async def clang_tidy(build: str, checks: str) -> None:
 
 async def main(build: str, *args: str) -> None:
     if args:
-        await as_completed(map(clang_tidy, repeat(build), ("", *args)), limit=4)
+        async for _ in as_completed(
+            map(clang_tidy, repeat(build), ("", *args)), limit=4
+        ):
+            pass
     else:
         await clang_tidy_fix(build)
 

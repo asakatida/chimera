@@ -51,11 +51,9 @@ async def main() -> None:
     if files_mypy:
         jobs.append(mypy(files_mypy))
     if jobs:
-        results = await as_completed(jobs)
-        print(
-            *map(bytes.decode, filter(None, map(bytes.strip, results))),
-            sep="\n",
-        )
+        async for result in as_completed(jobs):
+            if result := result.strip():
+                print(result.decode())
 
 
 if __name__ == "__main__":
