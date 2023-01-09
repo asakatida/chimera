@@ -37,8 +37,8 @@ CRASHES = FUZZ / "crashes"
 T = TypeVar("T")
 
 
-def c_tqdm(iterable: Iterable[T], desc: str) -> Iterable[T]:
-    return tqdm(iterable, desc=desc, maxinterval=60, miniters=100, unit_scale=True)  # type: ignore
+def c_tqdm(iterable: Iterable[T], desc: str, total: int = 0) -> Iterable[T]:
+    return tqdm(iterable, desc=desc, maxinterval=60, miniters=100, total=total, unit_scale=True)  # type: ignore
 
 
 @cache
