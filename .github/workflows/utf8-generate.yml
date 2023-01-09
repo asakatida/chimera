@@ -36,6 +36,7 @@ on:
       - action.yml
       - requirements.txt
       - tools/action.py
+      - tools/asyncio_as_completed.py
       - tools/asyncio_cmd.py
       - tools/g_ls_tree.py
       - tools/generate_utf8_*.py
@@ -47,6 +48,7 @@ on:
       - action.yml
       - requirements.txt
       - tools/action.py
+      - tools/asyncio_as_completed.py
       - tools/asyncio_cmd.py
       - tools/g_ls_tree.py
       - tools/generate_utf8_*.py

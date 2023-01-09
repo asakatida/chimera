@@ -26,6 +26,7 @@ on:
       - action.yml
       - requirements.txt
       - tools/action.py
+      - tools/asyncio_as_completed.py
       - tools/asyncio_cmd.py
       - tools/g_ls_tree.py
   push:
@@ -37,6 +38,7 @@ on:
       - action.yml
       - requirements.txt
       - tools/action.py
+      - tools/asyncio_as_completed.py
       - tools/asyncio_cmd.py
       - tools/g_ls_tree.py
   workflow_dispatch: ~
