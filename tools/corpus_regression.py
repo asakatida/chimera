@@ -24,7 +24,7 @@ from asyncio import run
 from pathlib import Path
 from random import sample
 from sys import stderr
-from typing import Iterable, TypeVar
+from typing import Iterable
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError
@@ -34,14 +34,21 @@ DIRECTORIES = ("corpus", "crashes")
 SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
+CORPUS_ORIGINAL = FUZZ / "corpus_original"
 CRASHES = FUZZ / "crashes"
-T = TypeVar("T")
 
 
 async def regression_one(file: Path) -> None:
-    if file == CRASHES / file.name:
+    if file.relative_to(CRASHES):
         if await fuzz_test(file):
-            file.rename(CORPUS / file.name)
+            file.rename(CORPUS_ORIGINAL / file.name)
+            file = CORPUS_ORIGINAL / file.name
+            if await fuzz_test(
+                "-merge=1", "-reduce_inputs=1", "-shrink=1", CORPUS, CORPUS_ORIGINAL
+            ):
+                pass
+            else:
+                file.rename(CRASHES / file.name)
     elif not await fuzz_test(file):
         file.rename(CRASHES / file.name)
 
@@ -55,6 +62,7 @@ async def main() -> None:
     if not fuzz_star():
         raise FileNotFoundError("No fuzz targets built")
     CORPUS.mkdir(exist_ok=True)
+    CORPUS_ORIGINAL.mkdir(exist_ok=True)
     CRASHES.mkdir(exist_ok=True)
     await regression(sample(list(gather_paths()), 1_000))
 

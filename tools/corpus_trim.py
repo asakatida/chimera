@@ -95,8 +95,8 @@ def corpus_trim_one(fuzz: Iterable[Path]) -> None:
     for file in filter(
         Path.exists,
         map(
-            CORPUS.joinpath,
-            map(attrgetter("name"), c_tqdm(CRASHES.iterdir(), "Regression trim")),
+            CRASHES.joinpath,
+            map(attrgetter("name"), c_tqdm(CORPUS.iterdir(), "Regression trim")),
         ),
     ):
         file.unlink()
