@@ -55,6 +55,7 @@ on:
       - CMakeLists.txt
       - requirements.txt
       - tools/action.py
+      - tools/asyncio_as_completed.py
       - tools/asyncio_cmd.py
       - tools/clang_tidy.py
       - tools/g_ls_tree.py
@@ -72,6 +73,7 @@ on:
       - CMakeLists.txt
       - requirements.txt
       - tools/action.py
+      - tools/asyncio_as_completed.py
       - tools/asyncio_cmd.py
       - tools/clang_tidy.py
       - tools/g_ls_tree.py

@@ -38,16 +38,13 @@ on:
       - "**.cpp"
       - "**.h"
       - "**.hpp"
+      - "**.py"
       - action.yml
       - cmake/**
       - CMakeLists.txt
       - external/**
       - requirements.txt
       - stdlib/**
-      - tools/action.py
-      - tools/asyncio_cmd.py
-      - tools/codecov.py
-      - tools/ninja.py
       - tools/regression.sh
       - unit_tests/**
   push:
@@ -61,16 +58,13 @@ on:
       - "**.cpp"
       - "**.h"
       - "**.hpp"
+      - "**.py"
       - action.yml
       - cmake/**
       - CMakeLists.txt
       - external/**
       - requirements.txt
       - stdlib/**
-      - tools/action.py
-      - tools/asyncio_cmd.py
-      - tools/codecov.py
-      - tools/ninja.py
       - tools/regression.sh
       - unit_tests/**
   workflow_dispatch: ~
