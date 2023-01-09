@@ -1,79 +1,76 @@
-from asyncio import Event, Queue, TimeoutError, gather, wait_for
+from asyncio import FIRST_COMPLETED, Event, Queue
+from asyncio import as_completed as _as_completed
+from asyncio import create_task, wait
+from collections.abc import AsyncIterable, AsyncIterator
 from os import cpu_count
-from sys import stderr
-from typing import Awaitable, Iterable, Sequence, TypeVar, Union
+from typing import Awaitable, Iterable, TypeVar
 
 T = TypeVar("T")
+U = TypeVar("U")
 
 DEFAULT_LIMIT = max(cpu_count() or 0, 4) // 4
 
 
-async def worker(
-    end: Event,
-    queue: Queue[Awaitable[T]],
-    output: Queue[T],
-) -> None:
-    while not (end.is_set() and queue.empty()):
-        try:
-            coroutine = await wait_for(queue.get(), 0.5)
-            await output.put(await coroutine)
-            queue.task_done()
-        except TimeoutError:
-            pass
+class _AsCompleted:
+    class QueueEmpty(Exception):
+        pass
+
+    def __init__(
+        self, coroutines: Iterable[Awaitable[T]], limit: int = max(12, DEFAULT_LIMIT)
+    ) -> None:
+        self.queue: Queue[Awaitable[T]] = Queue(limit)
+        self.output: Queue[T] = Queue(limit)
+        self.end = Event()
+        self.background_tasks = [
+            create_task(self.producer(coroutines)),
+            *(create_task(self.worker()) for _ in range(limit)),
+            create_task(self.end.wait()),
+        ]
+
+    def __aiter__(self) -> AsyncIterator[T]:
+        return self
+
+    async def __anext__(self) -> T:
+        while True:
+            try:
+                result = await self.queue_consume(self.output)
+            except self.QueueEmpty:
+                break
+            self.output.task_done()
+            return result
+        if self.background_tasks:
+            for background_result in _as_completed(self.background_tasks):
+                await background_result
+            self.background_tasks = []
+        raise StopAsyncIteration
+
+    async def queue_consume(self, queue: Queue[U]) -> U:
+        done, pending = await wait(
+            [queue.get(), self.end.wait()], return_when=FIRST_COMPLETED
+        )
+        set(map(lambda task: task.cancel(), pending))
+        for task in done:
+            if (result := task.result()) is not True:
+                return result  # type: ignore
+        raise self.QueueEmpty
+
+    async def worker(self) -> None:
+        while True:
+            try:
+                coroutine = await self.queue_consume(self.queue)
+            except self.QueueEmpty:
+                break
+            await self.output.put(await coroutine)
+            self.queue.task_done()
+
+    async def producer(self, coroutines: Iterable[Awaitable[T]]) -> None:
+        for coroutine in coroutines:
+            await self.queue.put(coroutine)
+        await self.queue.join()
+        self.end.set()
 
 
-async def producer(
-    end: Event,
-    coroutines: Iterable[Awaitable[T]],
-    queue: Queue[Awaitable[T]],
-) -> None:
-    for coroutine in coroutines:
-        await queue.put(coroutine)
-    await queue.join()
-    end.set()
-
-
-async def _as_completed(
-    end: Event,
-    output: Queue[T],
-) -> list[T]:
-    results = []
-    while not (end.is_set() and output.empty()):
-        try:
-            results.append(await wait_for(output.get(), 0.5))
-            output.task_done()
-        except TimeoutError:
-            pass
-    return results
-
-
-async def as_completed(
-    coroutines: Union[Iterable[Awaitable[T]], Sequence[Awaitable[T]]],
-    limit: int = max(12, DEFAULT_LIMIT),
-) -> list[T]:
-    queue: Queue[Awaitable[T]] = Queue(1)
-    output: Queue[T] = Queue()
-    end = Event()
-    results = await gather(
-        producer(end, coroutines, queue),
-        *(worker(end, queue, output) for _ in range(limit)),
-        _as_completed(end, output),
-        end.wait(),
-        return_exceptions=True,
-    )
-    raise_errors("Warning: as_completed() got multiple errors:", results)
-    return next(filter(lambda result: isinstance(result, list), results))
-
-
-def raise_errors(warning: str, results: Sequence[object]) -> None:
-    if errors := list(
-        filter(lambda result: isinstance(result, BaseException), results)
-    ):
-        error = errors.pop()
-        if errors:
-            print(
-                warning,
-                errors,
-                file=stderr,
-            )
-        raise error  # type: ignore
+def as_completed(
+    coroutines: Iterable[Awaitable[T]], limit: int = max(12, DEFAULT_LIMIT)
+) -> AsyncIterable[T]:
+    return _AsCompleted(coroutines, limit)

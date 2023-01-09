@@ -8,7 +8,7 @@ from itertools import chain, filterfalse
 from os import environ
 from pathlib import Path
 from sys import stderr
-from typing import Iterable, Optional, Pattern, Sequence
+from typing import Iterable, Optional, Pattern
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError, chunks, cmd
@@ -18,15 +18,16 @@ IN_CI = environ.get("CI", "") == "true"
 SOURCE = Path(__file__).resolve().parent.parent
 
 
-def splitlines(results: Sequence[bytes]) -> Iterable[str]:
-    return chain.from_iterable(
+def splitlines(lines: bytes) -> Iterable[Path]:
+    return map(
+        Path,
         map(
-            str.splitlines,
-            map(
-                bytes.decode,
-                results,
+            bytes.decode,
+            filter(
+                None,
+                map(bytes.strip, lines.splitlines()),
             ),
-        )
+        ),
     )
 
 
@@ -40,50 +41,46 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
         )
         return CACHE[cache_key]
     rglob = chain.from_iterable(map(SOURCE.rglob, map("*.{}".format, args)))
-    paths = splitlines(
-        list(
-            await as_completed(
-                map(
-                    lambda args: cmd(
-                        "git",
-                        "ls-tree",
-                        "--full-tree",
-                        "--name-only",
-                        "HEAD",
-                        *args,
-                        log=False,
-                        out=PIPE,
-                        timeout=60,
-                    ),
-                    chunks(rglob, 255),
-                )
-            )
+    CACHE[cache_key] = []
+    async for lines in as_completed(
+        map(
+            lambda args: cmd(
+                "git",
+                "ls-tree",
+                "--full-tree",
+                "--name-only",
+                "HEAD",
+                *args,
+                log=False,
+                out=PIPE,
+                timeout=60,
+            ),
+            chunks(rglob, 255),
         )
-    )
+    ):
+        CACHE[cache_key].extend(splitlines(lines))
     if IN_CI:
-        CACHE[cache_key] = list(map(Path, paths))
+        CACHE[cache_key] = sorted(set(CACHE[cache_key]))
         return CACHE[cache_key]
-    paths = splitlines(
-        list(
-            await as_completed(
-                map(
-                    lambda args: cmd(
-                        "git",
-                        "diff",
-                        "--name-only",
-                        "HEAD^",
-                        "--",
-                        *args,
-                        log=False,
-                        out=PIPE,
-                        timeout=60,
-                    ),
-                    chunks(paths, 255),
-                ),
-            )
-        )
-    )
-    CACHE[cache_key] = list(map(Path, paths))
+    paths, CACHE[cache_key] = CACHE[cache_key], []
+    async for lines in as_completed(
+        map(
+            lambda args: cmd(
+                "git",
+                "diff",
+                "--name-only",
+                "HEAD^",
+                "--",
+                *args,
+                log=False,
+                out=PIPE,
+                timeout=60,
+            ),
+            chunks(paths, 255),
+        ),
+    ):
+        CACHE[cache_key].extend(splitlines(lines))
+    CACHE[cache_key] = sorted(set(CACHE[cache_key]))
     return CACHE[cache_key]
 
 
