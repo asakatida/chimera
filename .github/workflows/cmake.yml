@@ -21,7 +21,7 @@ jobs:
         with:
           submodules: true
       - name: CCache
-        uses: actions/cache@v3.2.2
+        uses: actions/cache@v3.2.3
         with:
           key: corpus-${{ github.run_id }}
           path: .ccache
@@ -75,7 +75,7 @@ jobs:
         with:
           submodules: true
       - name: CCache
-        uses: actions/cache@v3.2.2
+        uses: actions/cache@v3.2.3
         with:
           key: debug-${{ github.run_id }}
           path: .ccache
@@ -98,7 +98,7 @@ jobs:
         with:
           submodules: true
       - name: CCache
-        uses: actions/cache@v3.2.2
+        uses: actions/cache@v3.2.3
         with:
           key: regression-${{ github.run_id }}
           path: .ccache
@@ -136,7 +136,7 @@ jobs:
         with:
           submodules: true
       - name: CCache
-        uses: actions/cache@v3.2.2
+        uses: actions/cache@v3.2.3
         with:
           key: release-${{ github.run_id }}
           path: .ccache

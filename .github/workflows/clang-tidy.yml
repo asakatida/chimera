@@ -10,7 +10,7 @@ jobs:
         with:
           submodules: true
       - name: CCache
-        uses: actions/cache@v3.2.2
+        uses: actions/cache@v3.2.3
         with:
           key: clang-tidy-${{ github.run_id }}
           path: .ccache
