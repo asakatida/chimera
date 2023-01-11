@@ -29,7 +29,7 @@ pycodestyle==2.10.0
 pycparser==2.21
 pydocstyle==6.2.3
 pyflakes==3.0.1
-Pygments==2.13.0
+Pygments==2.14.0
 pylama==8.4.1
 pyrsistent==0.19.3
 PyYAML==6.0
