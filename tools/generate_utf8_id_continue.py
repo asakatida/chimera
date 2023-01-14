@@ -20,7 +20,7 @@
 
 """generate_utf8_id_continue.py."""
 
-from itertools import chain, count, groupby, islice, repeat, starmap, takewhile
+from itertools import chain, count, groupby, islice, repeat, takewhile
 from pathlib import Path
 from re import MULTILINE, subn
 from typing import Iterator, Set, Tuple
@@ -57,17 +57,17 @@ def _a(id_start: Set[int]) -> Iterator[int]:
         return all(c())
 
     id_continue_pos: Set[int] = set(range(0x10FFFF)) - id_start
-    return chain(
-        *starmap(
+    return chain.from_iterable(
+        map(
             _b,
             groupby(zip(filter(b, id_continue_pos), count()), lambda t: t[0] - t[1]),
         )
     )
 
 
-def _b(_: int, group: Iterator[Tuple[int, int]]) -> Tuple[int, int]:
-    t = tuple(e[0] for e in group)
-    return (min(t), max(t))
+def _b(t: Tuple[int, Iterator[Tuple[int, int]]]) -> Tuple[int, int]:
+    groups = tuple(e[0] for e in t[1])
+    return (min(groups), max(groups))
 
 
 def _d(i: int) -> bool:

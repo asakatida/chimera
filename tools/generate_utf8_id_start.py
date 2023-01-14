@@ -20,7 +20,7 @@
 
 """generate_utf8_id_start.py."""
 
-from itertools import chain, count, groupby, islice, repeat, starmap, takewhile
+from itertools import chain, count, groupby, islice, repeat, takewhile
 from pathlib import Path
 from re import MULTILINE, subn
 from typing import Iterator, Tuple
@@ -46,15 +46,15 @@ def _ranges(total: int, it: Iterator[int]) -> str:
     return f"sor<ranges<{ranges}>>"
 
 
-def _a(_: int, group: Iterator[Tuple[int, int]]) -> Tuple[int, ...]:
-    t = tuple(e[0] for e in group)
-    return (min(t), max(t))
+def _a(t: Tuple[int, Iterator[Tuple[int, int]]]) -> Tuple[int, ...]:
+    groups = tuple(e[0] for e in t[1])
+    return (min(groups), max(groups))
 
 
 ranges = _ranges(
     1334,
-    chain(
-        *starmap(
+    chain.from_iterable(
+        map(
             _a,
             groupby(
                 zip(
