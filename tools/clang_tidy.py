@@ -40,6 +40,8 @@ async def clang_tidy(build: str, checks: str) -> None:
 
 
 async def main(build: str, *args: str) -> None:
+    if not await g_ls_tree("cpp"):
+        return
     if args:
         async for _ in as_completed(
             map(clang_tidy, repeat(build), ("", *args)), limit=4
