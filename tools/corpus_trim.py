@@ -141,8 +141,8 @@ async def main() -> None:
         if errors:
             print("Extra Errors:", *errors, file=stderr, sep="\n")
         raise error
-    for file in chain(
-        SOURCE.rglob("crash-*"), SOURCE.rglob("leak-*"), SOURCE.rglob("timeout-*")
+    for file in chain.from_iterable(
+        map(SOURCE.rglob, ("crash-*", "leak-*", "timeout-*"))
     ):
         file.rename(CRASHES / sha(file))
     corpus_trim()

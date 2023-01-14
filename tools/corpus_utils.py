@@ -70,4 +70,4 @@ async def fuzz_test(*args: object) -> list[Exception]:
 
 
 def gather_paths() -> Iterable[Path]:
-    return chain(*map(Path.iterdir, map(FUZZ.joinpath, DIRECTORIES)))  # type: ignore
+    return chain.from_iterable(map(Path.iterdir, map(FUZZ.joinpath, DIRECTORIES)))
