@@ -57,15 +57,16 @@ async def fuzz_test_one(*args: object) -> Optional[Exception]:
 
 async def fuzz_test(*args: object) -> list[Exception]:
     results = []
-    async for err in as_completed(
+    async with as_completed(
         map(
             fuzz_test_one,
             fuzz_star(),
             *map(repeat, ("-detect_leaks=0", "-use_value_profile=1") + args),  # type: ignore
         )
-    ):
-        if err:
-            results.append(err)
+    ) as tasks:
+        async for err in tasks:
+            if err:
+                results.append(err)
     return results
 
 

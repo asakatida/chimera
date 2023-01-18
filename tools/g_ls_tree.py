@@ -42,7 +42,7 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
         return CACHE[cache_key]
     rglob = chain.from_iterable(map(SOURCE.rglob, map("*.{}".format, args)))
     CACHE[cache_key] = []
-    async for lines in as_completed(
+    async with as_completed(
         map(
             lambda args: cmd(
                 "git",
@@ -57,13 +57,14 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
             ),
             chunks(rglob, 4096),
         )
-    ):
-        CACHE[cache_key].extend(splitlines(lines))
+    ) as tasks:
+        async for lines in tasks:
+            CACHE[cache_key].extend(splitlines(lines))
     if IN_CI:
         CACHE[cache_key] = sorted(set(CACHE[cache_key]))
         return CACHE[cache_key]
     paths, CACHE[cache_key] = CACHE[cache_key], []
-    async for lines in as_completed(
+    async with as_completed(
         map(
             lambda args: cmd(
                 "git",
@@ -78,8 +79,9 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
             ),
             chunks(paths, 4096),
         ),
-    ):
-        CACHE[cache_key].extend(splitlines(lines))
+    ) as tasks:
+        async for lines in tasks:
+            CACHE[cache_key].extend(splitlines(lines))
     CACHE[cache_key] = sorted(set(CACHE[cache_key]))
     return CACHE[cache_key]
 
