@@ -1,26 +1,22 @@
 from asyncio import run
 from itertools import repeat
-from pathlib import Path
 from sys import argv, stderr
 
 from asyncio_as_completed import as_completed
-from asyncio_cmd import ProcessError, cmd, cmd_no_timeout
+from asyncio_cmd import ProcessError, cmd_no_timeout
 from g_ls_tree import g_ls_tree
 
 
 async def clang_tidy_fix(build: str) -> None:
-    with (Path(build) / "clang-tidy.log").open("w") as log:
-        await cmd(
-            "clang-tidy",
-            f"-p={build}",
-            "-quiet",
-            "-fix",
-            "-fix-errors",
-            "-fix-notes",
-            *await g_ls_tree("cpp"),
-            out=log,
-            timeout=3600,
-        )
+    await cmd_no_timeout(
+        "clang-tidy",
+        f"-p={build}",
+        "-quiet",
+        "-fix",
+        "-fix-errors",
+        "-fix-notes",
+        *await g_ls_tree("cpp"),
+    )
 
 
 async def clang_tidy(build: str, checks: str) -> None:
@@ -44,7 +40,7 @@ async def main(build: str, *args: str) -> None:
         return
     if args:
         async with as_completed(
-            map(clang_tidy, repeat(build), ("", *args)), limit=4
+            map(clang_tidy, repeat(build), ("",)), limit=4
         ) as tasks:
             async for _ in tasks:
                 pass
