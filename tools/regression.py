@@ -7,7 +7,7 @@ from asyncio_cmd import ProcessError, chunks, cmd_flog
 
 
 async def regression(fuzzer: str, corpus: str) -> None:
-    async for _ in as_completed(
+    async with as_completed(
         map(
             lambda args: cmd_flog(
                 f"./fuzz-{fuzzer}",
@@ -18,8 +18,9 @@ async def regression(fuzzer: str, corpus: str) -> None:
             chunks(Path(corpus).iterdir(), 4096),
         ),
         limit=2,
-    ):
-        pass
+    ) as tasks:
+        async for _ in tasks:
+            pass
 
 
 if __name__ == "__main__":
