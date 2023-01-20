@@ -18,13 +18,13 @@ class TimeIt:
         if not kwds.get("log", True):
             return await self.callable(*args, **kwds)  # type: ignore
         self.args = args
-        async with self:
+        with self:
             return await self.callable(*args, **kwds)  # type: ignore
 
-    async def __aenter__(self) -> None:
+    async def __enter__(self) -> None:
         self.start = monotonic_ns()
 
-    async def __aexit__(self, *_: object) -> None:
+    async def __exit__(self, *_: object) -> None:
         milliseconds, nanoseconds = divmod(monotonic_ns() - self.start, 1_000_000)
         seconds, milliseconds = divmod(milliseconds, 1_000)
         minutes, seconds = divmod(seconds, 60)
