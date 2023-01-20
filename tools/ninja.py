@@ -21,18 +21,25 @@
 """ninja.py"""
 
 from asyncio import run
+from asyncio.subprocess import PIPE
 from sys import argv, stderr
 
 from asyncio_cmd import ProcessError, cmd, cmd_no_timeout
 
 
+async def ninja_cmd(*args: object, timeout: int) -> None:
+    await cmd("ninja", "-C", *args, timeout=timeout)
+
+
 async def ninja(build: object, *args: object) -> None:
-    await cmd("ninja", "-C", build, "-j1", "chimera-grammar", timeout=1200)
-    await cmd("ninja", "-C", build, "-j3", "libchimera", timeout=600)
-    await cmd_no_timeout("ninja", "-C", build, "-j1", "fuzzers")
-    await cmd("ninja", "-C", build, "Catch2", timeout=600)
-    await cmd_no_timeout("ninja", "-C", build, "-j2", "chimera", "unit-test")
-    await cmd_no_timeout("ninja", "-C", build)
+    targets = await cmd("ninja", "-C", build, "help", out=PIPE)
+    await ninja_cmd(build, "-j1", "chimera-grammar", timeout=2400)
+    await ninja_cmd(build, "-j3", "libchimera", timeout=600)
+    if b"fuzzers: phony" in targets.splitlines():
+        await ninja_cmd(build, "-j1", "fuzzers", timeout=2400)
+    await ninja_cmd(build, "Catch2", timeout=120)
+    await ninja_cmd(build, "-j2", "chimera", "unit-test", timeout=1200)
+    await ninja_cmd(build, timeout=600)
     await cmd_no_timeout("ninja", "-C", build, "-j3", *args)
 
 

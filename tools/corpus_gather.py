@@ -21,7 +21,7 @@
 """corpus_gather.py"""
 
 from asyncio import run
-from asyncio.subprocess import PIPE
+from asyncio.subprocess import DEVNULL, PIPE
 from itertools import islice
 from pathlib import Path
 from sys import stderr
@@ -31,6 +31,10 @@ from tqdm import tqdm  # type: ignore
 
 FUZZ = Path(__file__).parent.parent.resolve() / "unit_tests" / "fuzz"
 FUZZ_DIRS = tuple(map(FUZZ.joinpath, ("crashes", "corpus", "dictionaries")))
+
+
+async def git_cmd(*args: object) -> None:
+    await cmd("git", *args, err=PIPE, log=False, out=DEVNULL)
 
 
 async def main() -> None:
@@ -48,10 +52,10 @@ async def main() -> None:
         unit_scale=True,
         total=10,
     ):
-        await cmd("git", "restore", "--source", sha, "--staged", *FUZZ_DIRS, log=False)
-        await cmd("git", "restore", "--worktree", FUZZ, log=False)
-        await cmd("git", "add", FUZZ, log=False)
-        await cmd("git", "commit", "--allow-empty", "--amend", "--no-edit", log=False)
+        await git_cmd("restore", "--source", sha, "--staged", *FUZZ_DIRS)
+        await git_cmd("restore", "--worktree", FUZZ)
+        await git_cmd("add", FUZZ)
+        await git_cmd("commit", "--allow-empty", "--amend", "--no-edit")
     await cmd("git", "reset", "HEAD^", timeout=600)
 
 

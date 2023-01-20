@@ -92,7 +92,6 @@ async def main() -> None:
         "--ignore-filename-regex=.*/(catch2|external|unit_tests)/.*",
         f"-instr-profile={instr_profile}",
         "--format=lcov",
-        out=None,
     )
 
 

@@ -1,5 +1,5 @@
 from asyncio import create_subprocess_exec, wait_for
-from asyncio.subprocess import DEVNULL, PIPE, Process
+from asyncio.subprocess import DEVNULL, Process
 from itertools import chain, islice, repeat, takewhile
 from os import environ
 from pathlib import Path
@@ -69,9 +69,9 @@ def chunks(iterable: Iterable[T], size: int) -> Iterable[list[T]]:
 @TimeIt
 async def cmd(
     *args: object,
-    err: Optional[Union[int, TextIO]] = PIPE,
+    err: Optional[Union[int, TextIO]] = None,
     log: bool = True,
-    out: Optional[Union[int, TextIO]] = DEVNULL,
+    out: Optional[Union[int, TextIO]] = None,
     timeout: int = 20,
 ) -> bytes:
     if log:
@@ -95,8 +95,8 @@ async def cmd_check(*args: object, timeout: int = 20) -> Optional[Exception]:
 async def cmd_env(
     *args: object,
     env: dict[str, object] = {},
-    err: Optional[Union[int, TextIO]] = PIPE,
-    out: Optional[Union[int, TextIO]] = DEVNULL,
+    err: Optional[Union[int, TextIO]] = None,
+    out: Optional[Union[int, TextIO]] = None,
     timeout: int = 20,
 ) -> bytes:
     print("+", *args, file=stderr)
