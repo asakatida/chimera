@@ -16,30 +16,24 @@ def ci_args(*args: object) -> tuple[object, ...]:
     return args if IN_CI else ()
 
 
+async def lint(*args: object) -> bytes:
+    return await cmd(*args, err=PIPE, log=False, out=PIPE, timeout=300)
+
+
 async def black(files: Sequence[object]) -> bytes:
-    return await cmd(
-        "black",
-        *ci_args("--check", "--diff"),
-        "--preview",
-        *files,
-        log=False,
-        out=PIPE,
-        timeout=300,
-    )
+    return await lint("black", *ci_args("--check", "--diff"), "--preview", *files)
 
 
 async def isort(files: Sequence[object]) -> bytes:
-    return await cmd(
-        "isort", *ci_args("--check-only"), *files, log=False, out=PIPE, timeout=300
-    )
+    return await lint("isort", *ci_args("--check-only"), *files)
 
 
 async def pylama(files: Sequence[object]) -> bytes:
-    return await cmd("pylama", *files, log=False, out=PIPE, timeout=300)
+    return await lint("pylama", *files)
 
 
 async def mypy(files: Sequence[object]) -> bytes:
-    return await cmd("mypy", *files, log=False, out=PIPE, timeout=300)
+    return await lint("mypy", *files)
 
 
 async def main() -> None:
