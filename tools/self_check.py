@@ -51,10 +51,9 @@ async def main() -> None:
     if files_mypy:
         jobs.append(mypy(files_mypy))
     if jobs:
-        async with as_completed(jobs) as tasks:
-            async for result in tasks:
-                if result := result.strip():
-                    print(result.decode())
+        async for result in as_completed(jobs):
+            if result := result.strip():
+                print(result.decode())
 
 
 if __name__ == "__main__":

@@ -2,47 +2,46 @@ from asyncio import FIRST_COMPLETED, Event, Queue, Task
 from asyncio import as_completed as _as_completed
 from asyncio import create_task, wait
 from collections.abc import AsyncIterator
-from contextlib import AbstractAsyncContextManager
 from os import cpu_count
-from typing import Awaitable, Coroutine, Generator, Iterable, TypeVar, Union
+from typing import Awaitable, Coroutine, Iterable, Optional, TypeVar
 
 T = TypeVar("T")
 U = TypeVar("U")
 
 DEFAULT_LIMIT = max(cpu_count() or 0, 4) // 4
-TaskInput = Union[Generator[object, None, T], Coroutine[object, object, T]]
 
 
-class TaskGroup(AbstractAsyncContextManager["TaskGroup[T]"]):
+def cancel_tasks(tasks: Iterable[Task[object]]) -> None:
+    set(
+        map(
+            lambda task: task.cancel(),
+            filter(lambda task: not task.done(), tasks),
+        )
+    )
+
+
+class TaskGroupInternal:
+    def __init__(self, task_group: "TaskGroup") -> None:
+        self.task_group = task_group
+
+    def create_task(self, coroutine: Coroutine[object, object, T]) -> Task[T]:
+        task: Task[T] = create_task(coroutine)
+        self.task_group.tasks.append(task)
+        return task
+
+
+class TaskGroup:
     def __init__(self) -> None:
         self.tasks: list[Task[object]] = []
 
-    def __del__(self) -> None:
-        for task in self.tasks:
-            task.cancel()
+    def __enter__(self) -> TaskGroupInternal:
+        return TaskGroupInternal(self)
 
-    async def __aenter__(self) -> "TaskGroup[T]":
-        return self
-
-    async def __aexit__(self, *_: object) -> None:
-        await self.cancel()
-
-    async def cancel(self) -> None:
-        for task in self.tasks:
-            task.cancel()
-        await self.wait()
-
-    def create_task(self, coroutine: TaskInput[T]) -> Awaitable[T]:
-        task = create_task(coroutine)
-        self.tasks.append(task)
-        return task
-
-    async def wait(self) -> None:
-        for task in _as_completed(self.tasks):
-            await task
+    def __exit__(self, *_: object) -> None:
+        cancel_tasks(self.tasks)
 
 
-class _AsCompleted(AbstractAsyncContextManager[AsyncIterator[T]], AsyncIterator[T]):
+class _AsCompleted(AsyncIterator[T]):
     class QueueEmpty(Exception):
         pass
 
@@ -52,19 +51,13 @@ class _AsCompleted(AbstractAsyncContextManager[AsyncIterator[T]], AsyncIterator[
         self.queue: Queue[Awaitable[T]] = Queue(limit)
         self.output: Queue[T] = Queue(limit)
         self.end = Event()
-        self.task_group: TaskGroup[object] = TaskGroup()
-        self.background_tasks = [
-            self.task_group.create_task(self.producer(coroutines)),
-            *(self.task_group.create_task(self.worker()) for _ in range(limit)),
-            self.task_group.create_task(self.end.wait()),
-        ]
+        self._background_task: Optional[Task[None]] = create_task(
+            self._background(coroutines, limit)
+        )
 
-    async def __aenter__(self) -> AsyncIterator[T]:
-        await self.task_group.__aenter__()
-        return self
-
-    async def __aexit__(self, *args: object) -> None:
-        await self.task_group.__aexit__(*args)
+    def __del__(self) -> None:
+        if self._background_task is not None:
+            self._background_task.cancel()
 
     def __aiter__(self) -> AsyncIterator[T]:
         return self
@@ -72,44 +65,54 @@ class _AsCompleted(AbstractAsyncContextManager[AsyncIterator[T]], AsyncIterator[
     async def __anext__(self) -> T:
         while True:
             try:
-                result = await self.queue_consume(self.output)
+                result = await self._queue_consume(self.output)
             except self.QueueEmpty:
                 break
             self.output.task_done()
             return result
-        if self.background_tasks:
-            for background_result in _as_completed(self.background_tasks):
-                await background_result
-            self.background_tasks = []
+        if self._background_task is not None:
+            await self._background_task
+            self._background_task = None
         raise StopAsyncIteration
 
-    async def queue_consume(self, queue: Queue[U]) -> U:
+    async def _background(self, coroutines: Iterable[Awaitable[T]], limit: int) -> None:
+        with TaskGroup() as task_group:
+            background_tasks = [
+                task_group.create_task(self._worker()) for _ in range(limit)
+            ]
+            await self._producer(coroutines)
+            for task in _as_completed(background_tasks):
+                await task
+
+    async def _producer(self, coroutines: Iterable[Awaitable[T]]) -> None:
+        try:
+            for coroutine in coroutines:
+                await self.queue.put(coroutine)
+            await self.queue.join()
+        finally:
+            self.end.set()
+
+    async def _queue_consume(self, queue: Queue[U]) -> U:
         done, pending = await wait(
             [queue.get(), self.end.wait()], return_when=FIRST_COMPLETED
         )
-        set(map(lambda task: task.cancel(), pending))
+        cancel_tasks(pending)
         for task in done:
             if (result := task.result()) is not True:
                 return result  # type: ignore
         raise self.QueueEmpty
 
-    async def worker(self) -> None:
+    async def _worker(self) -> None:
         while True:
             try:
-                coroutine = await self.queue_consume(self.queue)
+                coroutine = await self._queue_consume(self.queue)
             except self.QueueEmpty:
                 break
             await self.output.put(await coroutine)
             self.queue.task_done()
 
-    async def producer(self, coroutines: Iterable[Awaitable[T]]) -> None:
-        for coroutine in coroutines:
-            await self.queue.put(coroutine)
-        await self.queue.join()
-        self.end.set()
-
 
 def as_completed(
     coroutines: Iterable[Awaitable[T]], limit: int = max(12, DEFAULT_LIMIT)
-) -> AbstractAsyncContextManager[AsyncIterator[T]]:
+) -> AsyncIterator[T]:
     return _AsCompleted(coroutines, limit)
