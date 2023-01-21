@@ -80,10 +80,7 @@ async def cmd(
     return await communicate(args, b"", proc, timeout)
 
 
-async def cmd_check(
-    *args: object,
-    timeout: int = 20,
-) -> Optional[Exception]:
+async def cmd_check(*args: object, timeout: int = 20) -> Optional[Exception]:
     try:
         proc = await create_subprocess_exec(
             *map(str, args), stderr=DEVNULL, stdout=DEVNULL
@@ -119,10 +116,7 @@ async def cmd_env(
 
 @TimeIt
 async def cmd_flog(
-    *args: object,
-    log: bool = True,
-    out: Optional[str] = None,
-    timeout: int = 20,
+    *args: object, log: bool = True, out: Optional[str] = None, timeout: int = 20
 ) -> bytes:
     if log:
         print("+", *args, file=stderr)

@@ -12,12 +12,7 @@ DEFAULT_LIMIT = max(cpu_count() or 0, 4) // 4
 
 
 def cancel_tasks(tasks: Iterable[Task[object]]) -> None:
-    set(
-        map(
-            lambda task: task.cancel(),
-            filter(lambda task: not task.done(), tasks),
-        )
-    )
+    set(map(lambda task: task.cancel(), filter(lambda task: not task.done(), tasks)))
 
 
 class TaskGroupInternal:

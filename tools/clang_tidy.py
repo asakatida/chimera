@@ -22,17 +22,10 @@ async def clang_tidy_fix(build: str) -> None:
 async def clang_tidy(build: str, checks: str) -> None:
     if checks:
         await cmd_no_timeout(
-            "clang-tidy",
-            f"-p={build}",
-            f"-checks=-*,{checks}",
-            *await g_ls_tree("cpp"),
+            "clang-tidy", f"-p={build}", f"-checks=-*,{checks}", *await g_ls_tree("cpp")
         )
     else:
-        await cmd_no_timeout(
-            "clang-tidy",
-            f"-p={build}",
-            *await g_ls_tree("cpp"),
-        )
+        await cmd_no_timeout("clang-tidy", f"-p={build}", *await g_ls_tree("cpp"))
 
 
 async def main(build: str, *args: str) -> None:
