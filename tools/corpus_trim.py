@@ -64,10 +64,7 @@ def conflicts(fuzz: Iterable[Path]) -> None:
         c_tqdm(
             map(
                 conflicts_one,
-                filter(
-                    lambda file: CONFLICT.search(file.read_bytes()),
-                    fuzz,
-                ),
+                filter(lambda file: CONFLICT.search(file.read_bytes()), fuzz),
             ),
             "Conflicts",
         )
@@ -130,11 +127,7 @@ async def main() -> None:
     CORPUS.rename(CORPUS_ORIGINAL)
     CORPUS.mkdir(exist_ok=True)
     errors = await fuzz_test(
-        "-merge=1",
-        "-reduce_inputs=1",
-        "-shrink=1",
-        CORPUS,
-        CORPUS_ORIGINAL,
+        "-merge=1", "-reduce_inputs=1", "-shrink=1", CORPUS, CORPUS_ORIGINAL
     )
     if errors:
         error = errors.pop()

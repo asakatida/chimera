@@ -20,14 +20,7 @@ SOURCE = Path(__file__).resolve().parent.parent
 
 def splitlines(lines: bytes) -> Iterable[Path]:
     return map(
-        Path,
-        map(
-            bytes.decode,
-            filter(
-                None,
-                map(bytes.strip, lines.splitlines()),
-            ),
-        ),
+        Path, map(bytes.decode, filter(None, map(bytes.strip, lines.splitlines())))
     )
 
 
@@ -77,7 +70,7 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
                 timeout=60,
             ),
             chunks(paths, 4096),
-        ),
+        )
     ):
         CACHE[cache_key].extend(splitlines(lines))
     CACHE[cache_key] = sorted(set(CACHE[cache_key]))

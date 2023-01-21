@@ -10,10 +10,7 @@ async def regression(fuzzer: str, corpus: str) -> None:
     async for _ in as_completed(
         map(
             lambda args: cmd_flog(
-                f"./fuzz-{fuzzer}",
-                "-detect_leaks=0",
-                *args,
-                log=False,
+                f"./fuzz-{fuzzer}", "-detect_leaks=0", *args, log=False
             ),
             chunks(Path(corpus).iterdir(), 4096),
         ),

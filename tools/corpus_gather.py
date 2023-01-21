@@ -40,26 +40,10 @@ async def main() -> None:
     await cmd("git", "add", *FUZZ_DIRS)
     await cmd("git", "commit", "--allow-empty", "-m", "WIP")
     stdout = await cmd(
-        "git",
-        "log",
-        "--all",
-        "--format=%h",
-        "^origin/HEAD",
-        "--",
-        *FUZZ_DIRS,
-        out=PIPE,
+        "git", "log", "--all", "--format=%h", "^origin/HEAD", "--", *FUZZ_DIRS, out=PIPE
     )
     for sha in tqdm(
-        islice(
-            filter(
-                None,
-                map(
-                    str.strip,
-                    stdout.decode().splitlines(),
-                ),
-            ),
-            10,
-        ),
+        islice(filter(None, map(str.strip, stdout.decode().splitlines())), 10),
         desc="Refs",
         unit_scale=True,
         total=10,

@@ -38,10 +38,7 @@ def _slices(total: int, it: Iterator[int]) -> Iterator[Iterator[str]]:
 
 def _ranges(total: int, it: Iterator[int]) -> str:
     ranges = ">, ranges<".join(
-        takewhile(
-            lambda r: r,
-            map(",".join, _slices(total, it)),
-        )
+        takewhile(lambda r: r, map(",".join, _slices(total, it)))
     )
     return f"sor<ranges<{ranges}>>"
 
@@ -59,8 +56,7 @@ def _a(id_start: Set[int]) -> Iterator[int]:
     id_continue_pos: Set[int] = set(range(0x10FFFF)) - id_start
     return chain.from_iterable(
         map(
-            _b,
-            groupby(zip(filter(b, id_continue_pos), count()), lambda t: t[0] - t[1]),
+            _b, groupby(zip(filter(b, id_continue_pos), count()), lambda t: t[0] - t[1])
         )
     )
 
