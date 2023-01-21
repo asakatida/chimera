@@ -21,10 +21,10 @@ class TimeIt:
         with self:
             return await self.callable(*args, **kwds)  # type: ignore
 
-    async def __enter__(self) -> None:
+    def __enter__(self) -> None:
         self.start = monotonic_ns()
 
-    async def __exit__(self, *_: object) -> None:
+    def __exit__(self, *_: object) -> None:
         milliseconds, nanoseconds = divmod(monotonic_ns() - self.start, 1_000_000)
         seconds, milliseconds = divmod(milliseconds, 1_000)
         minutes, seconds = divmod(seconds, 60)
