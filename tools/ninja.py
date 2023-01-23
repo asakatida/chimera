@@ -32,7 +32,7 @@ async def ninja_cmd(*args: object, timeout: int) -> None:
 
 
 async def ninja(build: object, *args: object) -> None:
-    targets = await cmd("ninja", "-C", build, "help", out=PIPE)
+    targets = await cmd("ninja", "-C", build, "help", err=None, out=PIPE)
     await ninja_cmd(build, "-j1", "chimera-grammar", timeout=2400)
     await ninja_cmd(build, "-j3", "libchimera", "chimera-core", timeout=600)
     if b"fuzzers: phony" in targets.splitlines():
