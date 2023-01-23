@@ -25,7 +25,7 @@ from itertools import chain, repeat
 from pathlib import Path
 from typing import Iterable, TypeVar
 
-from asyncio_as_completed import as_completed
+from asyncio_as_completed import a_list, as_completed
 from asyncio_cmd import cmd_check
 from tqdm import tqdm  # type: ignore
 
@@ -37,7 +37,7 @@ CRASHES = FUZZ / "crashes"
 T = TypeVar("T")
 
 
-def c_tqdm(iterable: Iterable[T], desc: str, total: int = 0) -> Iterable[T]:
+def c_tqdm(iterable: T, desc: str, total: int = 0) -> T:
     return tqdm(iterable, desc=desc, maxinterval=60, miniters=100, total=total, unit_scale=True)  # type: ignore
 
 
@@ -52,17 +52,20 @@ def fuzz_star() -> tuple[Path, ...]:
 
 
 async def fuzz_test(*args: object) -> list[Exception]:
-    results = []
-    async for err in as_completed(
-        map(
-            lambda *args: cmd_check(*args, timeout=240),
-            fuzz_star(),
-            *map(repeat, ("-detect_leaks=0",) + args),  # type: ignore
+    return list(
+        filter(
+            None,
+            await a_list(
+                as_completed(
+                    map(
+                        lambda *args: cmd_check(*args, timeout=240),
+                        fuzz_star(),
+                        *map(repeat, args)  # type: ignore
+                    )
+                )
+            ),
         )
-    ):
-        if err is not None:
-            results.append(err)
-    return results
+    )
 
 
 def gather_paths() -> Iterable[Path]:

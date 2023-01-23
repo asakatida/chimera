@@ -3,9 +3,9 @@ from asyncio.subprocess import PIPE
 from os import environ
 from re import compile
 from sys import stderr
-from typing import Awaitable, Sequence
+from typing import Sequence
 
-from asyncio_as_completed import as_completed
+from asyncio_as_completed import a_list, as_completed
 from asyncio_cmd import ProcessError, cmd
 from g_ls_tree import g_ls_tree
 
@@ -21,33 +21,58 @@ async def lint(*args: object) -> bytes:
 
 
 async def black(files: Sequence[object]) -> bytes:
-    return await lint("black", *ci_args("--check", "--diff"), "--preview", *files)
+    if files:
+        return await lint("black", *ci_args("--check", "--diff"), "--preview", *files)
+    return b""
 
 
 async def isort(files: Sequence[object]) -> bytes:
-    return await lint("isort", *ci_args("--check-only"), *files)
+    if files:
+        return await lint("isort", *ci_args("--check-only"), *files)
+    return b""
 
 
 async def pylama(files: Sequence[object]) -> bytes:
-    return await lint("pylama", *files)
+    if files:
+        return await lint("pylama", *files)
+    return b""
 
 
 async def mypy(files: Sequence[object]) -> bytes:
-    return await lint("mypy", *files)
+    if files:
+        return await lint("mypy", *files)
+    return b""
 
 
 async def main() -> None:
     files = await g_ls_tree("py")
     files_mypy = await g_ls_tree("py", exclude=compile(r"stdlib/|.*/stdlib/"))
-    jobs: list[Awaitable[bytes]] = []
-    if files:
-        jobs.extend((black(files), isort(files), pylama(files)))
-    if files_mypy:
-        jobs.append(mypy(files_mypy))
-    if jobs:
-        async for result in as_completed(jobs):
-            if result := result.strip():
-                print(result.decode())
+    set(
+        map(
+            print,
+            map(
+                bytes.decode,
+                filter(
+                    None,
+                    map(
+                        bytes.strip,
+                        await a_list(
+                            as_completed(
+                                iter(
+                                    (
+                                        black(files),
+                                        isort(files),
+                                        pylama(files),
+                                        mypy(files_mypy),
+                                    )
+                                )
+                            )
+                        ),
+                    ),
+                ),
+            ),
+        )
+    )
 
 
 if __name__ == "__main__":
