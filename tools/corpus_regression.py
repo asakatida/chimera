@@ -39,7 +39,7 @@ CRASHES = FUZZ / "crashes"
 
 
 async def regression_one(file: Path) -> None:
-    if file.relative_to(CRASHES):
+    if file.is_relative_to(CRASHES):
         if await fuzz_test(file):
             file.rename(CORPUS_ORIGINAL / file.name)
             file = CORPUS_ORIGINAL / file.name
