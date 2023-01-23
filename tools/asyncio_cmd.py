@@ -117,12 +117,9 @@ async def cmd_env(
     return await communicate(args, b"", proc, timeout)
 
 
-@TimeIt
 async def cmd_flog(
-    *args: object, log: bool = True, out: Optional[str] = None, timeout: int = 20
+    *args: object, out: Optional[str] = None, timeout: int = 20
 ) -> bytes:
-    if log:
-        print("+", *args, file=stderr)
     if out is None:
         proc = await create_subprocess_exec(
             *map(str, args), stderr=DEVNULL, stdout=DEVNULL

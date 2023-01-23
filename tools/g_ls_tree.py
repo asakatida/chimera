@@ -10,7 +10,7 @@ from pathlib import Path
 from sys import stderr
 from typing import Iterable, Optional, Pattern
 
-from asyncio_as_completed import as_completed
+from asyncio_as_completed import a_list, as_completed
 from asyncio_cmd import ProcessError, chunks, cmd
 
 CACHE: dict[str, list[Path]] = {}
@@ -38,28 +38,50 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
         )
         return CACHE[cache_key]
     rglob = chain.from_iterable(map(SOURCE.rglob, map("*.{}".format, args)))
-    CACHE[cache_key] = []
-    async for lines in as_completed(
-        map(
-            lambda args: git_cmd(
-                "ls-tree", "--full-tree", "--name-only", "HEAD", *args
-            ),
-            chunks(rglob, 4096),
+    CACHE[cache_key] = sorted(
+        set(
+            chain.from_iterable(
+                map(
+                    splitlines,
+                    await a_list(
+                        as_completed(
+                            map(
+                                lambda args: git_cmd(
+                                    "ls-tree",
+                                    "--full-tree",
+                                    "--name-only",
+                                    "HEAD",
+                                    *args,
+                                ),
+                                chunks(rglob, 4096),
+                            )
+                        )
+                    ),
+                )
+            )
         )
-    ):
-        CACHE[cache_key].extend(splitlines(lines))
-    CACHE[cache_key] = sorted(set(CACHE[cache_key]))
+    )
     if IN_CI:
         return CACHE[cache_key]
-    paths, CACHE[cache_key] = CACHE[cache_key], []
-    async for lines in as_completed(
-        map(
-            lambda args: git_cmd("diff", "--name-only", "HEAD^", "--", *args),
-            chunks(paths, 4096),
+    CACHE[cache_key] = sorted(
+        set(
+            chain.from_iterable(
+                map(
+                    splitlines,
+                    await a_list(
+                        as_completed(
+                            map(
+                                lambda args: git_cmd(
+                                    "diff", "--name-only", "HEAD^", "--", *args
+                                ),
+                                chunks(CACHE[cache_key], 4096),
+                            )
+                        )
+                    ),
+                )
+            )
         )
-    ):
-        CACHE[cache_key].extend(splitlines(lines))
-    CACHE[cache_key] = sorted(set(CACHE[cache_key]))
+    )
     return CACHE[cache_key]
 
 

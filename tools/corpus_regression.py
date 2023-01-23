@@ -26,7 +26,7 @@ from random import sample
 from sys import stderr
 from typing import Iterable
 
-from asyncio_as_completed import as_completed
+from asyncio_as_completed import a_list, as_completed
 from asyncio_cmd import ProcessError
 from corpus_utils import c_tqdm, fuzz_star, fuzz_test, gather_paths
 
@@ -54,8 +54,7 @@ async def regression_one(file: Path) -> None:
 
 
 async def regression(fuzz: Iterable[Path]) -> None:
-    async for _ in as_completed(c_tqdm(map(regression_one, fuzz), "Regression", 1_000)):
-        pass
+    await a_list(as_completed(c_tqdm(map(regression_one, fuzz), "Regression", 1_000)))
 
 
 async def main() -> None:

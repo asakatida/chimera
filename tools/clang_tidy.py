@@ -2,7 +2,7 @@ from asyncio import run
 from itertools import repeat
 from sys import argv, stderr
 
-from asyncio_as_completed import as_completed
+from asyncio_as_completed import a_list, as_completed
 from asyncio_cmd import ProcessError, cmd_no_timeout
 from g_ls_tree import g_ls_tree
 
@@ -26,8 +26,7 @@ async def main(build: str, *args: str) -> None:
     if not await g_ls_tree("cpp"):
         return
     if args:
-        async for _ in as_completed(map(clang_tidy, repeat(build), ("",)), limit=4):
-            pass
+        await a_list(as_completed(map(clang_tidy, repeat(build), ("",)), limit=4))
     else:
         await clang_tidy_fix(build)
 
