@@ -63,7 +63,7 @@ class ProcessError(Exception):
 
 def chunks(iterable: Iterable[T], size: int) -> Iterable[list[T]]:
     return takewhile(
-        lambda i: i, map(list, map(islice, repeat(iterable), repeat(size)))  # type: ignore
+        lambda i: i, map(list, map(islice, repeat(iter(iterable)), repeat(size)))  # type: ignore
     )
 
 
