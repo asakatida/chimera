@@ -48,8 +48,8 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
         )
     ):
         CACHE[cache_key].extend(splitlines(lines))
+    CACHE[cache_key] = sorted(set(CACHE[cache_key]))
     if IN_CI:
-        CACHE[cache_key] = sorted(set(CACHE[cache_key]))
         return CACHE[cache_key]
     paths, CACHE[cache_key] = CACHE[cache_key], []
     async for lines in as_completed(
