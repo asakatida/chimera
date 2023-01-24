@@ -1,4 +1,4 @@
-from asyncio import create_subprocess_exec, wait_for
+from asyncio import CancelledError, create_subprocess_exec, wait_for
 from asyncio.subprocess import DEVNULL, Process
 from itertools import chain, islice, repeat, takewhile
 from os import environ
@@ -87,6 +87,8 @@ async def cmd_check(*args: object, timeout: int = 20) -> Optional[Exception]:
             *map(str, args), stderr=DEVNULL, stdout=DEVNULL
         )
         await communicate(args, b"", proc, timeout)
+    except CancelledError:
+        raise
     except Exception as error:
         return error
     return None
