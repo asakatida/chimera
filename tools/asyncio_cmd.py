@@ -1,9 +1,9 @@
-from asyncio import create_subprocess_exec, wait_for
+from asyncio import CancelledError, create_subprocess_exec, wait_for
 from asyncio.subprocess import DEVNULL, Process
 from itertools import chain, islice, repeat, takewhile
 from os import environ
 from pathlib import Path
-from sys import stderr
+from sys import exc_info, stderr
 from time import monotonic_ns
 from typing import Iterable, Optional, Sequence, TextIO, TypeVar, Union
 
@@ -168,4 +168,5 @@ async def status(
             f"\nThe process was terminated by timeout {timeout} seconds".encode()
         )
     if returncode != 0:
-        raise ProcessError(args, err + cmd_stderr, returncode or 1)
+        if not isinstance(exc_info()[1], CancelledError):
+            raise ProcessError(args, err + cmd_stderr, returncode or 1)
