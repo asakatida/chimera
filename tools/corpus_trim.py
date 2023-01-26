@@ -126,7 +126,12 @@ async def main() -> None:
     CORPUS.rename(CORPUS_ORIGINAL)
     CORPUS.mkdir(exist_ok=True)
     errors = await fuzz_test(
-        "-merge=1", "-reduce_inputs=1", "-shrink=1", CORPUS, CORPUS_ORIGINAL
+        "-merge=1",
+        "-reduce_inputs=1",
+        "-shrink=1",
+        CORPUS,
+        CORPUS_ORIGINAL,
+        timeout=3600,
     )
     if errors:
         error = errors.pop()
