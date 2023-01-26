@@ -51,14 +51,14 @@ def fuzz_star() -> tuple[Path, ...]:
     )
 
 
-async def fuzz_test(*args: object) -> list[Exception]:
+async def fuzz_test(*args: object, timeout: int = 240) -> list[Exception]:
     return list(
         filter(
             None,
             await a_list(
                 as_completed(
                     map(
-                        lambda *args: cmd_check(*args, timeout=240),
+                        lambda *args: cmd_check(*args, timeout=timeout),
                         fuzz_star(),
                         *map(repeat, args)  # type: ignore
                     )

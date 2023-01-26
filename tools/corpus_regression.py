@@ -44,7 +44,12 @@ async def regression_one(file: Path) -> None:
             file.rename(CORPUS_ORIGINAL / file.name)
             file = CORPUS_ORIGINAL / file.name
             if await fuzz_test(
-                "-merge=1", "-reduce_inputs=1", "-shrink=1", CORPUS, CORPUS_ORIGINAL
+                "-merge=1",
+                "-reduce_inputs=1",
+                "-shrink=1",
+                CORPUS,
+                CORPUS_ORIGINAL,
+                timeout=3600,
             ):
                 pass
             else:
