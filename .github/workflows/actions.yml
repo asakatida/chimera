@@ -16,12 +16,12 @@ jobs:
             .workflow_runs |
             map(
               select(
-                (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 31 * 6) or
+                (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 90) or
                 (
-                  (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 28) and
+                  (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 14) and
                   .head_branch != "stable"
                 ) or (
-                  (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 7) and
+                  (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 5) and
                   (
                     (.head_branch | contains("-refs/")) or
                     (.head_branch | startswith("dependabot/"))
