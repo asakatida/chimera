@@ -1,25 +1,5 @@
 ---
 AnalyzeTemporaryDtors: true
-Checks: >
-  bugprone-*,
-  cert-*,
-  clang-*,
-  concurrency-*,
-  cppcoreguidelines-*,
-  hicpp-*,
-  misc-*,
-  modernize-*,
-  performance-*,
-  portability-*,
-  readability-*,
-  bugprone-use-after-move,
-  hicpp-invalid-access-moved,
-  misc-const-correctness,
-  -bugprone-easily-swappable-parameters,
-  -bugprone-exception-escape,
-  -misc-no-recursion,
-  -readability-identifier-length,
-  -readability-static-accessed-through-instance
+Checks: "*"
 FormatStyle: file
-HeaderFilterRegex: ".*"
 WarningsAsErrors: "*"
