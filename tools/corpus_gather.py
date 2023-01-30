@@ -27,7 +27,7 @@ from pathlib import Path
 from sys import stderr
 
 from asyncio_cmd import ProcessError, cmd
-from tqdm import tqdm  # type: ignore
+from tqdm import tqdm
 
 FUZZ = Path(__file__).parent.parent.resolve() / "unit_tests" / "fuzz"
 FUZZ_DIRS = tuple(map(FUZZ.joinpath, ("crashes", "corpus", "dictionaries")))

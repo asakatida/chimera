@@ -26,7 +26,7 @@ from re import MULTILINE, subn
 from typing import Iterable, Tuple
 
 from asyncio_cmd import chunks
-from tqdm import tqdm  # type: ignore
+from tqdm import tqdm
 
 utf8_id_start = (
     Path(__file__).parent.parent / "library" / "grammar" / "utf8_id_start.hpp"

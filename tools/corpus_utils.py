@@ -27,7 +27,7 @@ from typing import Iterable, TypeVar
 
 from asyncio_as_completed import a_list, as_completed
 from asyncio_cmd import cmd_check
-from tqdm import tqdm  # type: ignore
+from tqdm import tqdm
 
 DIRECTORIES = ("corpus", "crashes")
 SOURCE = Path(__file__).parent.parent.resolve()
@@ -37,8 +37,10 @@ CRASHES = FUZZ / "crashes"
 T = TypeVar("T")
 
 
-def c_tqdm(iterable: T, desc: str, total: int = 0) -> T:
-    return tqdm(iterable, desc=desc, maxinterval=60, miniters=100, total=total, unit_scale=True)  # type: ignore
+def c_tqdm(iterable: Iterable[T], desc: str, total: int = 0) -> Iterable[T]:
+    return tqdm(
+        iterable, desc=desc, maxinterval=60, miniters=100, total=total, unit_scale=True
+    )
 
 
 @cache
