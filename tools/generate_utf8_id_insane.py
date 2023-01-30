@@ -26,7 +26,7 @@ from re import MULTILINE, subn
 from typing import Iterable
 
 from asyncio_cmd import chunks
-from tqdm import tqdm  # type: ignore
+from tqdm import tqdm
 
 
 def _slices(total: int, it: Iterable[int]) -> Iterable[Iterable[str]]:
@@ -57,7 +57,7 @@ id_continue = set(
 
 ranges = _ranges(
     1234,
-    next(
+    next(  # type: ignore
         tqdm(
             filter(
                 str.isidentifier,
