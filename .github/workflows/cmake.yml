@@ -188,6 +188,7 @@ on:
       - cmake/**
       - CMakeLists.txt
       - external/**
+      - requirements.core.txt
       - requirements.txt
   push:
     branches:
@@ -203,5 +204,6 @@ on:
       - cmake/**
       - CMakeLists.txt
       - external/**
+      - requirements.core.txt
       - requirements.txt
   workflow_dispatch: ~

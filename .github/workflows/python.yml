@@ -27,6 +27,7 @@ on:
       - .github/workflows/python.yml
       - "**.py"
       - action.yml
+      - requirements.core.txt
       - requirements.txt
   push:
     branches:
@@ -35,5 +36,6 @@ on:
       - .github/workflows/python.yml
       - "**.py"
       - action.yml
+      - requirements.core.txt
       - requirements.txt
   workflow_dispatch: ~

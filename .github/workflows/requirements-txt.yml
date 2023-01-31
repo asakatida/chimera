@@ -11,6 +11,7 @@ jobs:
         run: |
           python3 -m venv --upgrade --upgrade-deps env
           env/bin/pip install --upgrade pip setuptools wheel
+          env/bin/pip list --format freeze >requirements.core.txt
           env/bin/pip install -r requirements.txt
           env/bin/pip freeze | grep -v -e '^pkg_resources==' >requirements.txt
         working-directory: ${{ github.workspace }}
@@ -20,7 +21,7 @@ jobs:
           branch: requirements-txt
           commit_message: Update requirements.txt.
           create_branch: true
-          file_pattern: requirements.txt
+          file_pattern: requirements*.txt
           repository: ${{ github.workspace }}
 
 name: Requirements.txt
@@ -31,6 +32,7 @@ on:
     paths:
       - .github/workflows/requirements-txt.yml
       - action.yml
+      - requirements.core.txt
       - requirements.txt
       - tools/action.py
       - tools/asyncio_cmd.py
@@ -40,7 +42,10 @@ on:
     paths:
       - .github/workflows/requirements-txt.yml
       - action.yml
+      - requirements.core.txt
       - requirements.txt
       - tools/action.py
       - tools/asyncio_cmd.py
+  schedule:
+    - cron: 20 14 * * *
   workflow_dispatch: ~

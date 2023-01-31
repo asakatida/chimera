@@ -325,7 +325,7 @@
               ansible.builtin.shell: |
                 set -e
                 {{ item.python }} -m venv {{ item.venv }}
-                {{ item.venv }}/bin/pip install --upgrade pip setuptools wheel
+                {{ item.venv }}/bin/pip install -r /tmp/requirements.core.txt
                 {{ item.venv }}/bin/pip install -r /tmp/requirements.txt
               register: pip_install
               changed_when: pip_install.stdout | length != 0

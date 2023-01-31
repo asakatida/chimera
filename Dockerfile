@@ -2,6 +2,7 @@ FROM ubuntu:22.04
 
 ENV TZ Etc/UTC
 
+COPY requirements.core.txt /tmp/requirements.core.txt
 COPY requirements.txt /tmp/requirements.txt
 COPY tools/boot.yml /tmp/boot.yml
 
@@ -19,11 +20,11 @@ RUN <<SHELL bash
     apt-get install --no-install-recommends --yes \
         python3-venv=3.10.6-1~22.04
     python3 -m venv /tmp/env
-    /tmp/env/bin/pip install --upgrade pip setuptools wheel
+    /tmp/env/bin/pip install -r /tmp/requirements.core.txt
     /tmp/env/bin/pip install -r /tmp/requirements.txt
     /tmp/env/bin/ansible-playbook /tmp/boot.yml
     rm -rf /tmp/env
-    rm /tmp/boot.yml /tmp/requirements.txt
+    rm /tmp/boot.yml /tmp/requirements*.txt
     apt-get clean
     rm -rf /var/lib/apt/lists
 SHELL
