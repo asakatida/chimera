@@ -43,6 +43,7 @@ on:
       - cmake/**
       - CMakeLists.txt
       - external/**
+      - requirements.core.txt
       - requirements.txt
       - stdlib/**
       - unit_tests/**
@@ -62,6 +63,7 @@ on:
       - cmake/**
       - CMakeLists.txt
       - external/**
+      - requirements.core.txt
       - requirements.txt
       - stdlib/**
       - unit_tests/**

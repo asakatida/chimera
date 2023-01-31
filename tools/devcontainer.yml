@@ -3,6 +3,10 @@
 - hosts: localhost
   name: Boot localhost for building
   tasks:
+    - name: Install core packages
+      ansible.builtin.pip:
+        requirements: "{{ playbook_dir }}/../requirements.core.txt"
+        state: present
     - name: Install packages
       ansible.builtin.pip:
         requirements: "{{ playbook_dir }}/../requirements.txt"

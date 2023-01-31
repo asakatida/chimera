@@ -23,6 +23,7 @@ on:
     paths:
       - .github/workflows/ansible-lint.yml
       - action.yml
+      - requirements.core.txt
       - requirements.txt
       - tools/action.py
       - tools/asyncio_cmd.py
@@ -34,6 +35,7 @@ on:
     paths:
       - .github/workflows/ansible-lint.yml
       - action.yml
+      - requirements.core.txt
       - requirements.txt
       - tools/action.py
       - tools/asyncio_cmd.py
