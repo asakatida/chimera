@@ -10,7 +10,7 @@ jobs:
         with:
           submodules: true
       - name: CCache
-        uses: actions/cache@v3.2.3
+        uses: actions/cache@v3.2.4
         with:
           key: codecov-${{ github.run_id }}
           path: .ccache
