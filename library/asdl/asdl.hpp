@@ -24,18 +24,33 @@
 
 #include <algorithm>   // for reverse
 #include <iosfwd>      // for istream, string
+#include <iterator>    // for back_inserter
 #include <memory>      // for make_shared, shared_ptr
 #include <optional>    // for optional
 #include <string>      // for basic_string
 #include <string_view> // for string_view
+#include <type_traits> // for enable_if_t
+#include <utility>     // for forward, move
 #include <variant>     // for get_if, variant, visit
 #include <vector>      // for vector
 
-#include <metal/lambda.hpp> // for apply, lambda
-#include <metal/list.hpp>   // for contains, list
+#include <metal/lambda/apply.hpp>  // for apply
+#include <metal/list/contains.hpp> // for contains
+#include <metal/list/list.hpp>     // for list
 
 #include "object/object.hpp" // for Object
-#include "options.hpp"       // for Optimize
+
+namespace metal {
+  template <template <class...> class expr>
+  struct lambda;
+} // namespace metal
+
+namespace chimera::library {
+  enum class Optimize;
+  namespace asdl {
+    struct ExtSlice;
+  }
+} // namespace chimera::library
 
 namespace chimera::library::asdl {
   namespace detail {
@@ -153,7 +168,6 @@ namespace chimera::library::asdl {
   struct Index {
     ExprImpl value;
   };
-  struct ExtSlice;
   using SliceImpl = detail::Impl<ExtSlice, Index, Slice>;
   struct ExtSlice {
     std::vector<SliceImpl> dims{};

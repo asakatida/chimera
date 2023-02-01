@@ -21,7 +21,7 @@
 //! wrapper for tao::pegtl::parse
 
 #include <string>      // for basic_string
-#include <string_view> // for basic_string_view
+#include <string_view> // for basic_string_view, string_view
 #include <vector>      // for vector
 
 #include <tao/pegtl/memory_input.hpp> // for memory_input
@@ -31,7 +31,10 @@
 #include "grammar/grammar.hpp" // for EvalInput
 #include "grammar/input.hpp"   // for Input
 #include "grammar/parse.hpp"   // for parse
-#include "options.hpp"         // for Optimize
+
+namespace chimera::library {
+  enum class Optimize;
+} // namespace chimera::library
 
 namespace chimera::library::asdl {
   Expression::Expression(const Optimize &optimize, const std::string_view &data,

@@ -167,16 +167,17 @@ add_custom_target(check unit-test VERBATIM)
 add_custom_target(check-stat perf stat ./unit-test VERBATIM)
 add_custom_target(check-rand unit-test --order rand VERBATIM)
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  set(NOT_APPLE_CLANG $<NOT:$<CXX_COMPILER_ID:AppleClang>>)
+if(
+  CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND
+  NOT CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
   set(
     FUZZ_CXXFLAGS
     -fsanitize-coverage=no-prune
     -fsanitize-coverage=trace-cmp
     -fsanitize-coverage=trace-div
     -fsanitize-coverage=trace-gep
-    $<${NOT_APPLE_CLANG}:-fsanitize-coverage=trace-loads>
-    $<${NOT_APPLE_CLANG}:-fsanitize-coverage=trace-stores>
+    -fsanitize-coverage=trace-loads
+    -fsanitize-coverage=trace-stores
     -fsanitize=fuzzer)
   add_library(chimera-fuzz unit_tests/fuzz/cases.cpp)
   target_compile_options(

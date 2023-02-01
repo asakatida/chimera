@@ -20,15 +20,23 @@
 
 //! wrapper for tao::pegtl::parse
 
-#include "asdl/parse.hpp"
+#include <iostream>    // for istream
+#include <string>      // for basic_string
+#include <string_view> // for basic_string_view
+#include <vector>      // for vector
 
-#include <iostream>
+#include <tao/pegtl/istream_input.hpp> // for istream_input
+#include <tao/pegtl/parse_error.hpp>   // for parse_error
 
-#include <tao/pegtl.hpp>
+#include "asdl/asdl.hpp"       // for Interactive
+#include "asdl/parse.hpp"      // for bufferSize
+#include "grammar/grammar.hpp" // for SingleInput
+#include "grammar/input.hpp"   // for Input
+#include "grammar/parse.hpp"   // for parse
 
-#include "asdl/asdl.hpp"
-#include "grammar/grammar.hpp"
-#include "options.hpp"
+namespace chimera::library {
+  enum class Optimize;
+} // namespace chimera::library
 
 namespace chimera::library::asdl {
   Interactive::Interactive(const Optimize &optimize, std::istream &&input,
