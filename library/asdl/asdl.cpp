@@ -21,6 +21,7 @@
 //! wrapper for tao::pegtl::parse
 
 #include "asdl/asdl.hpp"
+#include "object/number/number.hpp"
 
 namespace chimera::library::asdl {
   auto Expression::expr() const -> const ExprImpl & { return body; }

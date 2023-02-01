@@ -22,9 +22,10 @@
 
 #pragma once
 
-#include <memory>
-
-#include <metal.hpp>
+#include <memory>      // for shared_ptr, weak_ptr
+#include <type_traits> // for add_lvalue_reference, add_pointer_t, enable_if_t
+#include <utility>     // for declval, forward
+#include <variant>     // for swap
 
 namespace chimera::library::object {
   namespace internal {

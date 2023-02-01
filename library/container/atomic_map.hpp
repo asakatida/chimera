@@ -22,9 +22,10 @@
 
 #pragma once
 
-#include <map>
+#include <map>     // for map
+#include <utility> // for forward
 
-#include "container/atomic_container.hpp"
+#include "container/atomic_container.hpp" // for AtomicContainer
 
 namespace chimera::library::container {
   void atomic_map();

@@ -22,19 +22,30 @@
 
 #pragma once
 
-#include <exception>
-#include <future>
-#include <map>
-#include <memory>
-#include <optional>
-#include <string>
-#include <string_view>
+#include <cstdint>     // for uint64_t, uint8_t
+#include <exception>   // for exception
+#include <future>      // for future
+#include <iosfwd>      // for string
+#include <map>         // for map
+#include <memory>      // for shared_ptr, make_shared, unique_ptr
+#include <optional>    // for optional
+#include <string>      // for basic_string, operator<
+#include <type_traits> // for remove_extent_t
+#include <utility>     // for forward, move
+#include <variant>     // for holds_alternative, variant
+#include <vector>      // for vector
 
-#include "container/atomic_map.hpp"
+#include "container/atomic_map.hpp" // for AtomicMap
 #include "object/number/number.hpp"
 
 namespace chimera::library::object {
+  namespace number {
+    class Number;
+  } // namespace number
   struct Object;
+} // namespace chimera::library::object
+
+namespace chimera::library::object {
   using Id = std::uint64_t;
   struct Instance {};
   using Bytes = std::vector<std::uint8_t>;

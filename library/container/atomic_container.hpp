@@ -22,9 +22,10 @@
 
 #pragma once
 
-#include <memory>
-#include <mutex>
-#include <shared_mutex>
+#include <memory>       // for make_unique, unique_ptr
+#include <mutex>        // for unique_lock
+#include <shared_mutex> // for shared_mutex, shared_lock
+#include <utility>      // for forward
 
 namespace chimera::library::container {
   void atomic_container();

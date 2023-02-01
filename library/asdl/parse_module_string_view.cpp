@@ -20,15 +20,21 @@
 
 //! wrapper for tao::pegtl::parse
 
-#include "asdl/parse.hpp"
+#include <string>      // for basic_string
+#include <string_view> // for basic_string_view, string_view
+#include <vector>      // for vector
 
-#include <string_view>
+#include <tao/pegtl/memory_input.hpp> // for memory_input
+#include <tao/pegtl/parse_error.hpp>  // for parse_error
 
-#include <tao/pegtl.hpp>
+#include "asdl/asdl.hpp"       // for Module
+#include "grammar/grammar.hpp" // for FileInput
+#include "grammar/input.hpp"   // for Input
+#include "grammar/parse.hpp"   // for parse
 
-#include "asdl/asdl.hpp"
-#include "grammar/grammar.hpp"
-#include "options.hpp"
+namespace chimera::library {
+  enum class Optimize;
+} // namespace chimera::library
 
 namespace chimera::library::asdl {
   Module::Module(const Optimize &optimize, const std::string_view &data,
