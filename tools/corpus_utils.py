@@ -62,7 +62,7 @@ async def fuzz_test(*args: object, timeout: int = 240) -> list[Exception]:
                     map(
                         lambda *args: cmd_check(*args, timeout=timeout),
                         fuzz_star(),
-                        *map(repeat, args)  # type: ignore
+                        *map(repeat, args),  # type: ignore
                     )
                 )
             ),
