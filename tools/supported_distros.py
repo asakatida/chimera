@@ -1,11 +1,8 @@
-import pathlib
+from pathlib import Path
 
-import jinja2
-import yaml
+from yaml import dump, safe_load
 
-supported_distros_matrix = yaml.safe_load(
-    pathlib.Path("tools/supported_distros.yml").read_text()
-)
+supported_distros_matrix = safe_load(Path("tools/supported_distros.yml").read_text())
 
 
 def key(item: dict[str, str]) -> tuple[int, str, str, str]:
@@ -40,22 +37,14 @@ min_supported_distros = [
     for distro in supported_distros
 ]
 
-jinja2.Template(
-    pathlib.Path("tools/docker.yml.j2").read_text(),
-    autoescape=True,
-    block_end_string="%>",
-    block_start_string="<%",
-    comment_end_string="#>",
-    comment_start_string="<#",
-    enable_async=True,
-    keep_trailing_newline=False,
-    lstrip_blocks=True,
-    optimized=True,
-    trim_blocks=True,
-    variable_end_string=">>",
-    variable_start_string="<<",
-).stream(
-    supported_distros=supported_distros, min_supported_distros=min_supported_distros
-).dump(
-    "tools/docker.yml"
-)
+group_vars = Path("tools/group_vars/all")
+group_vars.mkdir(parents=True, exist_ok=True)
+
+with (group_vars / "supported_distros.yml").open("w") as ostream:
+    dump(
+        {
+            "supported_distros": supported_distros,
+            "min_supported_distros": min_supported_distros,
+        },
+        ostream,
+    )

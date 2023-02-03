@@ -29,6 +29,7 @@ on:
       - tools/asyncio_cmd.py
       - tools/boot.yml
       - tools/devcontainer.yml
+      - tools/docker.yml
   push:
     branches:
       - stable
@@ -41,4 +42,5 @@ on:
       - tools/asyncio_cmd.py
       - tools/boot.yml
       - tools/devcontainer.yml
+      - tools/docker.yml
   workflow_dispatch: ~

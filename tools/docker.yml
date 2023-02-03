@@ -1,0 +1,37 @@
+---
+# yamllint disable rule:key-ordering
+- name: Build docker images
+  hosts: localhost
+  diff: true
+  tasks:
+    - name: Directory
+      ansible.builtin.file:
+        path: ../build/{{ item.image }}/{{ item.distro }}/{{ item.tag }}
+        state: directory
+        mode: "0755"
+      loop: "{{ min_supported_distros }}"
+    - name: Dockerfile
+      ansible.builtin.template:
+        dest: ../build/{{ item.image }}/{{ item.distro }}/{{ item.tag }}/Dockerfile
+        src: Dockerfile.j2
+        mode: "0644"
+      loop: "{{ supported_distros }}"
+    - name: Ubuntu block
+      when: ansible_facts.os_family != 'Darwin'
+      block:
+        - name: Docker build
+          community.docker.docker_image:
+            build:
+              path: ../build/{{ item.image }}/{{ item.distro }}/{{ item.tag }}
+            name: chimera/{{ item.image }}-{{ item.distro }}:{{ item.tag }}
+            source: build
+          loop: "{{ min_supported_distros }}"
+          when: item.distro == 'alpine' and item.image == 'base'
+        - name: Test
+          ansible.builtin.command: >
+            docker run
+            'chimera/{{ item.image }}-{{ item.distro }}:{{ item.tag }}'
+            ./ninja-intense.sh
+            '../build/{{ item.image }}/{{ item.distro }}/{{ item.tag }}'
+          loop: "{{ min_supported_distros }}"
+# yamllint enable rule:key-ordering

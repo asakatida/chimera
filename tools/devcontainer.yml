@@ -11,15 +11,11 @@
       ansible.builtin.pip:
         requirements: "{{ playbook_dir }}/../requirements.txt"
         state: present
-    - name: Update submodules
-      # noqa: command-instead-of-module
+    - name: Update submodules  # noqa: command-instead-of-module
       ansible.builtin.command: git submodule update --init
-      register: result
-      changed_when: result.stdout | length > 0
     - name: Gather chimera path
       ansible.builtin.command: python3 {{ playbook_dir }}/chimera_path.py
       register: chimera_path
-      changed_when: chimera_path.stdout | length > 0
     - name: Clean newlines in CXXFLAGS
       ansible.builtin.set_fact:
         cxxflags: >
@@ -55,8 +51,6 @@
     - name: Build project
       ansible.builtin.command: ninja -C {{ playbook_dir }}/../{{ item }} -j1 -k0
       failed_when: false
-      register: result
-      changed_when: result.stdout | length > 0
       loop:
         - build/debug
         - build/release
