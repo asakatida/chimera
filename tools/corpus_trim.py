@@ -20,7 +20,6 @@
 
 """corpus_trim.py"""
 
-from asyncio import run
 from hashlib import sha256
 from itertools import chain, repeat
 from operator import attrgetter
@@ -29,15 +28,13 @@ from re import MULTILINE, compile
 from sys import stderr
 from typing import Iterable
 
-from asyncio_cmd import ProcessError
-from corpus_utils import c_tqdm, fuzz_star, fuzz_test, gather_paths
+from corpus_utils import c_tqdm, gather_paths, sha
 
 LENGTH = 8
 DIRECTORIES = ("corpus", "crashes")
 SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
-CORPUS_ORIGINAL = FUZZ / "corpus_original"
 CRASHES = FUZZ / "crashes"
 CONFLICT = compile(rb"^((<{8}|>{8})\s.+|={8})$\s", MULTILINE)
 
@@ -112,32 +109,10 @@ def corpus_trim() -> None:
         break
 
 
-def sha(path: Path) -> str:
-    return sha256(path.read_bytes()).hexdigest()
-
-
-async def main() -> None:
-    if not fuzz_star():
-        raise FileNotFoundError("No fuzz targets built")
+def main() -> None:
     CORPUS.mkdir(exist_ok=True)
     CRASHES.mkdir(exist_ok=True)
     conflicts(gather_paths())
-    corpus_trim()
-    CORPUS.rename(CORPUS_ORIGINAL)
-    CORPUS.mkdir(exist_ok=True)
-    errors = await fuzz_test(
-        "-merge=1",
-        "-reduce_inputs=1",
-        "-shrink=1",
-        CORPUS,
-        CORPUS_ORIGINAL,
-        timeout=3600,
-    )
-    if errors:
-        error = errors.pop()
-        if errors:
-            print("Extra Errors:", *errors, file=stderr, sep="\n")
-        raise error
     for file in chain.from_iterable(
         map(SOURCE.rglob, ("crash-*", "leak-*", "timeout-*"))
     ):
@@ -147,8 +122,6 @@ async def main() -> None:
 
 if __name__ == "__main__":
     try:
-        run(main())
-    except ProcessError as error:
-        error.exit()
+        main()
     except KeyboardInterrupt:
         print("KeyboardInterrupt", file=stderr)

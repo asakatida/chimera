@@ -21,6 +21,7 @@
 """corpus_utils.py"""
 
 from functools import cache
+from hashlib import sha256
 from itertools import chain, repeat
 from pathlib import Path
 from typing import Iterable, TypeVar
@@ -72,3 +73,7 @@ async def fuzz_test(*args: object, timeout: int = 240) -> list[Exception]:
 
 def gather_paths() -> Iterable[Path]:
     return chain.from_iterable(map(Path.iterdir, map(FUZZ.joinpath, DIRECTORIES)))
+
+
+def sha(path: Path) -> str:
+    return sha256(path.read_bytes()).hexdigest()
