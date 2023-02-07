@@ -322,12 +322,16 @@
                 set -e
                 {{ item.python }} -m venv {{ item.venv }}
                 {{ item.venv }}/bin/pip install -r /tmp/requirements.core.txt
-                {{ item.venv }}/bin/pip install -r /tmp/requirements.txt
               with_items:
                 - python: python3
                   venv: /opt/virtualenv
                 - python: python{{ py_version }}
                   venv: /opt/edge-virtualenv
+            - name: Bootstrap Python virtualenv
+              ansible.builtin.pip:
+                chdir: /tmp
+                requirements: requirements.txt
+                virtualenv: /opt/virtualenv
             - name: Get fish shell  # noqa: command-instead-of-shell
               ansible.builtin.shell: command -v fish
               register: fish_shell
