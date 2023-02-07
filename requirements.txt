@@ -23,7 +23,7 @@ markdown-it-py==2.1.0
 MarkupSafe==2.1.2
 mccabe==0.7.0
 mdurl==0.1.2
-mypy==0.991
+mypy==1.0.0
 mypy-extensions==1.0.0
 packaging==23.0
 pathspec==0.11.0
