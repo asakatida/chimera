@@ -2,7 +2,8 @@ from pathlib import Path
 
 from yaml import dump, safe_load
 
-supported_distros_matrix = safe_load(Path("tools/supported_distros.yml").read_text())
+tools = Path(__file__).parent.resolve()
+supported_distros_matrix = safe_load((tools / "supported_distros.yml").read_text())
 
 
 def key(item: dict[str, str]) -> tuple[int, str, str, str]:
@@ -37,7 +38,7 @@ min_supported_distros = [
     for distro in supported_distros
 ]
 
-group_vars = Path("tools/group_vars/all")
+group_vars = tools / "group_vars" / "all"
 group_vars.mkdir(parents=True, exist_ok=True)
 
 with (group_vars / "supported_distros.yml").open("w") as ostream:
