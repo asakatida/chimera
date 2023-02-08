@@ -2,6 +2,12 @@
 # yamllint disable rule:key-ordering
 - hosts: localhost
   name: Boot localhost for building
+  vars:
+    pythons:
+      - python: python3
+        venv: /opt/virtualenv
+      - python: python{{ py_version }}
+        venv: /opt/edge-virtualenv
   tasks:
     - name: Set Python version
       ansible.builtin.set_fact:
@@ -286,11 +292,9 @@
             group: github
             mode: "0755"
             owner: github
-            path: "{{ item }}"
+            path: "{{ item.venv }}"
             state: directory
-          with_items:
-            - /opt/virtualenv
-            - /opt/edge-virtualenv
+          with_items: "{{ pythons }}"
         - name: Run user scoped tasks
           become_user: github
           block:
@@ -322,16 +326,17 @@
                 set -e
                 {{ item.python }} -m venv {{ item.venv }}
                 {{ item.venv }}/bin/pip install -r /tmp/requirements.core.txt
-              with_items:
-                - python: python3
-                  venv: /opt/virtualenv
-                - python: python{{ py_version }}
-                  venv: /opt/edge-virtualenv
+              with_items: "{{ pythons }}"
             - name: Bootstrap Python virtualenv
               ansible.builtin.pip:
                 chdir: /tmp
                 requirements: requirements.txt
                 virtualenv: /opt/virtualenv
+            - name: Bootstrap Python virtualenv {{ py_version }}
+              ansible.builtin.pip:
+                chdir: /tmp
+                name: tqdm==4.64.1
+                virtualenv: /opt/edge-virtualenv
             - name: Get fish shell  # noqa: command-instead-of-shell
               ansible.builtin.shell: command -v fish
               register: fish_shell
