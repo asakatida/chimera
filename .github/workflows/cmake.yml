@@ -1,14 +1,15 @@
 ---
 env:
   CMAKE_BUILD_TYPE: Debug
+  CPPFLAGS: -DCHIMERA_PATH="/github/workspace/stdlib"
   CXXFLAGS: >
-    -DCHIMERA_PATH="/github/workspace/stdlib"
     -fsanitize-coverage=no-prune
     -fsanitize-coverage=trace-cmp
     -fsanitize-coverage=trace-div
     -fsanitize-coverage=trace-gep
     -fsanitize-coverage=trace-loads
     -fsanitize-coverage=trace-stores
+  LDFLAGS: ""
 
 jobs:
   corpus:

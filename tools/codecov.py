@@ -52,6 +52,7 @@ async def main() -> None:
         env=dict(
             environ,
             CMAKE_BUILD_TYPE="Coverage",
+            CPPFLAGS=f"-DCHIMERA_PATH={Path().resolve()}/stdlib",
             CXXFLAGS=" ".join(
                 (
                     "-O1",
@@ -68,6 +69,7 @@ async def main() -> None:
                     "-runtime-counter-relocation",
                 )
             ),
+            LDFLAGS="",
         ),
         out=None,
         err=None,
