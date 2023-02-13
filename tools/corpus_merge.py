@@ -26,7 +26,7 @@ from pathlib import Path
 from sys import stderr
 
 from asyncio_cmd import ProcessError
-from corpus_utils import fuzz_star, fuzz_test, sha
+from corpus_utils import corpus_merge, sha
 
 SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
@@ -36,20 +36,9 @@ CRASHES = FUZZ / "crashes"
 
 
 async def main() -> None:
-    if not fuzz_star():
-        raise FileNotFoundError("No fuzz targets built")
-    CORPUS.mkdir(exist_ok=True)
-    CRASHES.mkdir(exist_ok=True)
     CORPUS.rename(CORPUS_ORIGINAL)
     CORPUS.mkdir(exist_ok=True)
-    errors = await fuzz_test(
-        "-merge=1",
-        "-reduce_inputs=1",
-        "-shrink=1",
-        CORPUS,
-        CORPUS_ORIGINAL,
-        timeout=3600,
-    )
+    errors = await corpus_merge(CORPUS_ORIGINAL)
     if errors:
         error = errors.pop()
         if errors:
