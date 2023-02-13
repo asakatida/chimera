@@ -44,6 +44,12 @@ def c_tqdm(iterable: Iterable[T], desc: str, total: int = 0) -> Iterable[T]:
     )
 
 
+async def corpus_merge(path: object) -> list[Exception]:
+    return await fuzz_test(
+        "-merge=1", "-reduce_inputs=1", "-shrink=1", CORPUS, path, timeout=3600
+    )
+
+
 @cache
 def fuzz_star() -> tuple[Path, ...]:
     return tuple(
@@ -55,6 +61,8 @@ def fuzz_star() -> tuple[Path, ...]:
 
 
 async def fuzz_test(*args: object, timeout: int = 240) -> list[Exception]:
+    if not fuzz_star():
+        raise FileNotFoundError("No fuzz targets built")
     return list(
         filter(
             None,

@@ -24,11 +24,10 @@ from asyncio import run
 from pathlib import Path
 from random import sample
 from sys import stderr
-from typing import Iterable
 
 from asyncio_as_completed import a_list, as_completed
 from asyncio_cmd import ProcessError
-from corpus_utils import c_tqdm, fuzz_star, fuzz_test, gather_paths
+from corpus_utils import c_tqdm, corpus_merge, fuzz_test, gather_paths
 
 DIRECTORIES = ("corpus", "crashes")
 SOURCE = Path(__file__).parent.parent.resolve()
@@ -43,14 +42,7 @@ async def regression_one(file: Path) -> None:
         if await fuzz_test(file):
             file.rename(CORPUS_ORIGINAL / file.name)
             file = CORPUS_ORIGINAL / file.name
-            if await fuzz_test(
-                "-merge=1",
-                "-reduce_inputs=1",
-                "-shrink=1",
-                CORPUS,
-                CORPUS_ORIGINAL,
-                timeout=3600,
-            ):
+            if await corpus_merge(file):
                 pass
             else:
                 file.rename(CRASHES / file.name)
@@ -58,22 +50,22 @@ async def regression_one(file: Path) -> None:
         file.rename(CRASHES / file.name)
 
 
-async def regression(fuzz: Iterable[Path]) -> None:
-    await a_list(as_completed(c_tqdm(map(regression_one, fuzz), "Regression", 1_000)))
-
-
-async def main() -> None:
-    if not fuzz_star():
-        raise FileNotFoundError("No fuzz targets built")
-    CORPUS.mkdir(exist_ok=True)
+async def corpus_regression() -> None:
     CORPUS_ORIGINAL.mkdir(exist_ok=True)
-    CRASHES.mkdir(exist_ok=True)
-    await regression(sample(list(gather_paths()), 1_000))
+    await a_list(
+        as_completed(
+            c_tqdm(
+                map(regression_one, sample(list(gather_paths()), 1_000)),
+                "Regression",
+                1_000,
+            )
+        )
+    )
 
 
 if __name__ == "__main__":
     try:
-        run(main())
+        run(corpus_regression())
     except ProcessError as error:
         error.exit()
     except KeyboardInterrupt:

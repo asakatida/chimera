@@ -21,7 +21,7 @@
 """corpus_trim.py"""
 
 from hashlib import sha256
-from itertools import chain, repeat
+from itertools import repeat
 from operator import attrgetter
 from pathlib import Path
 from re import MULTILINE, compile
@@ -109,19 +109,8 @@ def corpus_trim() -> None:
         break
 
 
-def main() -> None:
-    CORPUS.mkdir(exist_ok=True)
-    CRASHES.mkdir(exist_ok=True)
-    conflicts(gather_paths())
-    for file in chain.from_iterable(
-        map(SOURCE.rglob, ("crash-*", "leak-*", "timeout-*"))
-    ):
-        file.rename(CRASHES / sha(file))
-    corpus_trim()
-
-
 if __name__ == "__main__":
     try:
-        main()
+        corpus_trim()
     except KeyboardInterrupt:
         print("KeyboardInterrupt", file=stderr)
