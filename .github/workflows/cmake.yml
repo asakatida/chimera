@@ -96,6 +96,34 @@ jobs:
           run: |
             cmake -GNinja -B build -S .
             python tools/ninja.py build check-rand regression
+  libcpp:
+    concurrency:
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      group: libcpp-${{ github.workflow }}-${{ github.ref }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.3.0
+        with:
+          submodules: true
+      - name: CCache
+        uses: actions/cache@v3.2.4
+        with:
+          key: libcpp-${{ github.run_id }}
+          path: .ccache
+          restore-keys: |
+            libcpp-
+            build-
+      - env:
+          CMAKE_BUILD_TYPE: RelWithDebInfo
+          CPPFLAGS: -stdlib=libc++
+          CXXFLAGS: -stdlib=libc++
+          LDFLAGS: -stdlib=libc++
+        name: Build fuzzers
+        uses: ./
+        with:
+          run: |
+            cmake -GNinja -B build -S .
+            ninja -C build -j2 check-rand
   regression:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
