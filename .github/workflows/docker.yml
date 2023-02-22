@@ -36,7 +36,7 @@ name: Docker
 # yamllint disable-line rule:truthy
 on:
   pull_request:
-    paths:
+    paths: &paths
       - .dockerignore
       - .github/workflows/docker.yml
       - Dockerfile*
@@ -46,13 +46,7 @@ on:
   push:
     branches:
       - stable
-    paths:
-      - .dockerignore
-      - .github/workflows/docker.yml
-      - Dockerfile*
-      - requirements.core.txt
-      - requirements.txt
-      - tools/boot.yml
+    paths: *paths
   schedule:
     - cron: 20 14 * * *
   workflow_dispatch: ~

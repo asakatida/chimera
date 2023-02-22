@@ -29,7 +29,7 @@ name: Requirements.txt
 # yamllint disable-line rule:truthy
 on:
   pull_request:
-    paths:
+    paths: &paths
       - .github/workflows/requirements-txt.yml
       - action.yml
       - requirements.core.txt
@@ -39,13 +39,7 @@ on:
   push:
     branches:
       - stable
-    paths:
-      - .github/workflows/requirements-txt.yml
-      - action.yml
-      - requirements.core.txt
-      - requirements.txt
-      - tools/action.py
-      - tools/asyncio_cmd.py
+    paths: *paths
   schedule:
     - cron: 20 14 * * *
   workflow_dispatch: ~

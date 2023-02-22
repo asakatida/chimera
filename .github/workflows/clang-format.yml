@@ -20,7 +20,7 @@ name: ClangFormat
 # yamllint disable-line rule:truthy
 on:
   pull_request:
-    paths:
+    paths: &paths
       - .clang-format
       - .github/workflows/clang-format.yml
       - "**.cpp"
@@ -36,17 +36,5 @@ on:
   push:
     branches:
       - stable
-    paths:
-      - .clang-format
-      - .github/workflows/clang-format.yml
-      - "**.cpp"
-      - "**.h"
-      - "**.hpp"
-      - action.yml
-      - requirements.core.txt
-      - requirements.txt
-      - tools/action.py
-      - tools/asyncio_as_completed.py
-      - tools/asyncio_cmd.py
-      - tools/g_ls_tree.py
+    paths: *paths
   workflow_dispatch: ~

@@ -20,7 +20,7 @@ name: Ansible Lint
 # yamllint disable-line rule:truthy
 on:
   pull_request:
-    paths:
+    paths: &paths
       - .github/workflows/ansible-lint.yml
       - action.yml
       - requirements.core.txt
@@ -33,14 +33,5 @@ on:
   push:
     branches:
       - stable
-    paths:
-      - .github/workflows/ansible-lint.yml
-      - action.yml
-      - requirements.core.txt
-      - requirements.txt
-      - tools/action.py
-      - tools/asyncio_cmd.py
-      - tools/boot.yml
-      - tools/devcontainer.yml
-      - tools/docker.yml
+    paths: *paths
   workflow_dispatch: ~

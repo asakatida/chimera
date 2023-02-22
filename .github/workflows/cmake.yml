@@ -14,9 +14,9 @@ env:
 jobs:
   corpus:
     concurrency:
-      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      cancel-in-progress: &not_stable ${{ github.ref != 'refs/heads/stable' }}
       group: corpus-${{ github.workflow }}-${{ github.ref }}
-    runs-on: ubuntu-22.04
+    runs-on: &runs_on ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.3.0
         with:
@@ -32,7 +32,7 @@ jobs:
       - name: Run regression
         uses: ./
         with:
-          run: |
+          run: &build_regression |
             cmake -GNinja -B build -S .
             python tools/ninja.py build check-rand regression
       - if: github.ref == 'refs/heads/stable'
@@ -62,7 +62,7 @@ jobs:
         uses: ./
         with:
           run: ninja -C build -j1 regression
-      - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
+      - continue-on-error: *not_stable
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
           branch: regression-${{ github.workflow }}-${{ github.ref }}/${{ github.run_id }}
@@ -72,12 +72,12 @@ jobs:
           repository: ${{ github.workspace }}
   debug:
     concurrency:
-      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      cancel-in-progress: *not_stable
       group: debug-${{ github.workflow }}-${{ github.ref }}
     env:
       CMAKE_BUILD_TYPE: Debug
       CXXFLAGS: ""
-    runs-on: ubuntu-22.04
+    runs-on: *runs_on
     steps:
       - uses: actions/checkout@v3.3.0
         with:
@@ -93,14 +93,12 @@ jobs:
       - name: Run regression
         uses: ./
         with:
-          run: |
-            cmake -GNinja -B build -S .
-            python tools/ninja.py build check-rand regression
+          run: *build_regression
   libcpp:
     concurrency:
-      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      cancel-in-progress: *not_stable
       group: libcpp-${{ github.workflow }}-${{ github.ref }}
-    runs-on: ubuntu-22.04
+    runs-on: *runs_on
     steps:
       - uses: actions/checkout@v3.3.0
         with:
@@ -126,9 +124,9 @@ jobs:
             ninja -C build -j2 check-rand
   regression:
     concurrency:
-      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      cancel-in-progress: *not_stable
       group: regression-${{ github.workflow }}-${{ github.ref }}
-    runs-on: ubuntu-22.04
+    runs-on: *runs_on
     steps:
       - uses: actions/checkout@v3.3.0
         with:
@@ -159,7 +157,7 @@ jobs:
         uses: ./
         with:
           run: ninja -C build -j1 regression
-      - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
+      - continue-on-error: *not_stable
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
           branch: update-fuzz-${{ github.ref }}/${{ github.run_id }}
@@ -169,12 +167,12 @@ jobs:
           repository: ${{ github.workspace }}
   release:
     concurrency:
-      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      cancel-in-progress: *not_stable
       group: release-${{ github.workflow }}-${{ github.ref }}
     env:
       CMAKE_BUILD_TYPE: Release
       CXXFLAGS: ""
-    runs-on: ubuntu-22.04
+    runs-on: *runs_on
     steps:
       - uses: actions/checkout@v3.3.0
         with:
@@ -190,14 +188,12 @@ jobs:
       - name: Run regression
         uses: ./
         with:
-          run: |
-            cmake -GNinja -B build -S .
-            python tools/ninja.py build check-rand regression
+          run: *build_regression
   scan-build:
     concurrency:
-      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      cancel-in-progress: *not_stable
       group: scan-build-${{ github.workflow }}-${{ github.ref }}
-    runs-on: ubuntu-22.04
+    runs-on: *runs_on
     steps:
       - uses: actions/checkout@v3.3.0
         with:
@@ -221,7 +217,7 @@ name: CMake
 # yamllint disable-line rule:truthy
 on:
   pull_request:
-    paths:
+    paths: &paths
       - .github/ccache/**
       - .github/workflows/cmake.yml
       - "**.cpp"
@@ -237,17 +233,5 @@ on:
   push:
     branches:
       - stable
-    paths:
-      - .github/ccache/**
-      - .github/workflows/cmake.yml
-      - "**.cpp"
-      - "**.h"
-      - "**.hpp"
-      - "**.py"
-      - action.yml
-      - cmake/**
-      - CMakeLists.txt
-      - external/**
-      - requirements.core.txt
-      - requirements.txt
+    paths: *paths
   workflow_dispatch: ~

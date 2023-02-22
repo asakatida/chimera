@@ -20,7 +20,7 @@ name: YamlLint
 # yamllint disable-line rule:truthy
 on:
   pull_request:
-    paths:
+    paths: &paths
       - .github/workflows/yamllint.yml
       - "**.yml"
       - action.yml
@@ -33,14 +33,5 @@ on:
   push:
     branches:
       - stable
-    paths:
-      - .github/workflows/yamllint.yml
-      - "**.yml"
-      - action.yml
-      - requirements.core.txt
-      - requirements.txt
-      - tools/action.py
-      - tools/asyncio_as_completed.py
-      - tools/asyncio_cmd.py
-      - tools/g_ls_tree.py
+    paths: *paths
   workflow_dispatch: ~
