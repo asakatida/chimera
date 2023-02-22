@@ -13,6 +13,6 @@ else
   export PATH="${PWD}/env/bin:${PATH}"
 fi
 
-python tools/g_ls_tree.py yml | \
+python tools/g_ls_tree.py yml yaml | \
   tools/xargs.sh -- \
   yamllint "$@"
