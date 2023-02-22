@@ -11,7 +11,7 @@ jobs:
         uses: ./
         with:
           run: >
-            python tools/g_ls_tree.py yml |
+            python tools/g_ls_tree.py yml yaml |
             xargs --no-run-if-empty --null --
             yamllint -f github
 
