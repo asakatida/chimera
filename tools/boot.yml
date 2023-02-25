@@ -12,7 +12,7 @@
     - name: Set Python version
       ansible.builtin.set_fact:
         llvm_version: 16
-        py_version: 3.12
+        py_version: 3.13
     - name: Unix block
       become: true
       when: ansible_facts.os_family != 'Darwin'

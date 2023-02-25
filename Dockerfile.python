@@ -42,6 +42,6 @@ RUN <<SHELL bash
     set -ex
     ./configure
     make -j3
-    ./python -c 'from sys import version_info; assert (3, 12) < version_info < (3, 13)'
+    ./python -c 'import sys; assert "3.13" < sys.version < "3.14"'
     make install
 SHELL

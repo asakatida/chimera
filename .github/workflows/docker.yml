@@ -21,7 +21,7 @@ jobs:
         uses: docker/build-push-action@v4.0.0
         with:
           file: Dockerfile.python
-          tags: asakatida/python:${{ github.sha }}
+          tags: asakatida/chimera:3.13${{ github.sha }}
       - uses: docker/build-push-action@v4.0.0
         with:
           tags: asakatida/chimera:${{ github.sha }}
