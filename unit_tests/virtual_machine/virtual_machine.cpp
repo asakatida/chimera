@@ -18,8 +18,7 @@ TEST_CASE("grammar VirtualMachine ``") {
     auto module = processContext.parse_file(""sv, "<test>");
     chimera::library::virtual_machine::ThreadContext threadContext{
         processContext, processContext.make_module("__main__")};
-    REQUIRE_THROWS_AS(threadContext.evaluate(module),
-                      chimera::library::object::AttributeError);
+    REQUIRE_NOTHROW(threadContext.evaluate(module));
   }
   REQUIRE(true);
 }
@@ -68,8 +67,7 @@ TEST_CASE("grammar VirtualMachine `()`") {
   auto module = processContext.parse_file("()"sv, "<test>");
   chimera::library::virtual_machine::ThreadContext threadContext{
       processContext, processContext.make_module("__main__")};
-  REQUIRE_THROWS_AS(threadContext.evaluate(module),
-                    chimera::library::object::BaseException);
+  REQUIRE_NOTHROW(threadContext.evaluate(module));
 }
 
 TEST_CASE("grammar VirtualMachine `(' ',)`") {
@@ -80,8 +78,7 @@ TEST_CASE("grammar VirtualMachine `(' ',)`") {
   auto module = processContext.parse_file("(' ',)"sv, "<test>");
   chimera::library::virtual_machine::ThreadContext threadContext{
       processContext, processContext.make_module("__main__")};
-  REQUIRE_THROWS_AS(threadContext.evaluate(module),
-                    chimera::library::object::BaseException);
+  REQUIRE_NOTHROW(threadContext.evaluate(module));
 }
 
 TEST_CASE("grammar VirtualMachine `(' ', None)`") {
@@ -92,8 +89,7 @@ TEST_CASE("grammar VirtualMachine `(' ', None)`") {
   auto module = processContext.parse_file("(' ', None)"sv, "<test>");
   chimera::library::virtual_machine::ThreadContext threadContext{
       processContext, processContext.make_module("__main__")};
-  REQUIRE_THROWS_AS(threadContext.evaluate(module),
-                    chimera::library::object::BaseException);
+  REQUIRE_NOTHROW(threadContext.evaluate(module));
 }
 
 TEST_CASE("grammar VirtualMachine `(' ', None, )`") {
@@ -104,6 +100,5 @@ TEST_CASE("grammar VirtualMachine `(' ', None, )`") {
   auto module = processContext.parse_file("(' ', None, )"sv, "<test>");
   chimera::library::virtual_machine::ThreadContext threadContext{
       processContext, processContext.make_module("__main__")};
-  REQUIRE_THROWS_AS(threadContext.evaluate(module),
-                    chimera::library::object::BaseException);
+  REQUIRE_NOTHROW(threadContext.evaluate(module));
 }
