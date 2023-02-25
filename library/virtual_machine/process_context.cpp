@@ -47,7 +47,9 @@ static const std::string_view CHIMERA_IMPORT_PATH_VIEW(STRINGIFY(CHIMERA_PATH));
 
 namespace chimera::library::virtual_machine {
   ProcessContext::ProcessContext(const GlobalContext &global_context)
-      : global_context(global_context) {}
+      : global_context(global_context) {
+    modules::builtins(builtins_);
+  }
   auto ProcessContext::builtins() const -> const object::Object & {
     return builtins_;
   }

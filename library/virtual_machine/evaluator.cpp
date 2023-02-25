@@ -349,10 +349,7 @@ namespace chimera::library::virtual_machine {
   }
   void Evaluator::evaluate(const asdl::Global & /*global*/) {}
   void Evaluator::evaluate(const asdl::Nonlocal & /*nonlocal*/) {}
-  void Evaluator::evaluate(const asdl::Expr &expr) {
-    push([](Evaluator *evaluator) { evaluator->stack_pop(); });
-    evaluate_get(expr.value);
-  }
+  void Evaluator::evaluate(const asdl::Expr &expr) { evaluate_get(expr.value); }
   void Evaluator::evaluate(const asdl::Raise &raise) {
     if (raise.exc) {
       if (raise.cause) {
