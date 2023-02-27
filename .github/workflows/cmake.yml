@@ -118,7 +118,7 @@ jobs:
           CPPFLAGS: -stdlib=libc++
           CXXFLAGS: -stdlib=libc++
           LDFLAGS: -stdlib=libc++
-        name: Build fuzzers
+        name: Basic unit tests
         uses: ./
         with:
           run: |
