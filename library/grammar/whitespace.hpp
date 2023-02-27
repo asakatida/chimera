@@ -60,9 +60,10 @@ namespace chimera::library::grammar {
       return in.dedent();
     }
   };
-  struct DEDENT : sor<seq<eof, DedentConsume>,
-                      seq<at<BlankLines, DedentCheck>,
-                          opt<BlankLines, DedentConsume, discard>>> {};
+  struct DEDENT
+      : sor<seq<eof, DedentConsume>, seq<at<BlankLines, DedentCheck>,
+                                         BlankLines, DedentConsume, discard>> {
+  };
   struct NextIndentCheck : not_at<Utf8NonLineBreak> {
     template <typename Input, typename... Args>
     static auto match(Input &&in, Args &&...args) -> bool {

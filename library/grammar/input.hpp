@@ -36,7 +36,7 @@ namespace chimera::library::grammar {
     using Base::column;
     using Base::current;
     using Base::empty;
-    auto indent() -> bool {
+    [[nodiscard]] auto indent() -> bool {
       const auto i = column();
       if ((indentStack.empty() || indentStack.top() < i) && validate()) {
         indentStack.push(i);
@@ -44,22 +44,26 @@ namespace chimera::library::grammar {
       }
       return false;
     }
-    [[nodiscard]] auto is_dedent() const -> bool {
+    [[nodiscard]] auto is_dedent() -> bool {
       if (indentStack.empty()) {
         return false;
       }
-      return column() < indentStack.top();
+      return empty() || column() < indentStack.top();
     }
-    auto dedent() -> bool {
+    [[nodiscard]] auto dedent() -> bool {
       using namespace std::literals;
       if (indentStack.empty()) {
         return false;
       }
       indentStack.pop();
+      if (indentStack.empty()) {
+        indentType = '\0';
+      }
       if (empty()) {
         return true;
       }
-      if (column() > indentStack.top()) {
+      if ((indentStack.empty() && column() > 1) ||
+          (!indentStack.empty() && column() > indentStack.top())) {
         throw tao::pegtl::parse_error("bad dedent"s, *this);
       }
       return true;
@@ -67,33 +71,42 @@ namespace chimera::library::grammar {
     [[nodiscard]] auto is_newline() const -> bool {
       const auto i = column();
       if (indentStack.empty()) {
-        return 0 == i;
+        return 1 == i;
       }
       return indentStack.top() == i;
     }
-    auto validate() -> bool {
+    [[nodiscard]] auto validate() -> bool {
       auto begin = current();
-      const auto i = column();
-      std::advance(begin, -i);
-      const std::string_view line(begin, i);
-      if (indentType == 0) {
-        indentType = static_cast<std::uint8_t>(*begin);
-        if (const auto result = validateBasic(line); !result) {
-          indentType = 0;
-          return result;
-        }
-        return true;
+      auto i = column();
+      if (i == 0) {
+        return false;
       }
-      return validateBasic(line);
+      std::advance(begin, -i);
+      while (*begin == '\n' || *begin == '\r') {
+        i -= 1;
+        if (i == 0) {
+          return false;
+        }
+        std::advance(begin, 1);
+      }
+      const std::string_view line(begin, i);
+      if (indentType == '\0') {
+        if (validateBasic(line, *begin)) {
+          indentType = *begin;
+          return true;
+        }
+        return false;
+      }
+      return validateBasic(line, indentType);
     }
     template <typename Line>
-    auto validateBasic(Line &&line) -> bool {
+    [[nodiscard]] auto validateBasic(Line &&line, char type) -> bool {
       return std::all_of(line.begin(), line.end(),
-                         [this](auto &&c) { return c == indentType; });
+                         [type](auto &&c) { return c == type; });
     }
 
   private:
-    std::uint32_t indentType = 0;
+    char indentType = '\0';
     std::stack<std::uintmax_t> indentStack{};
   };
 } // namespace chimera::library::grammar
