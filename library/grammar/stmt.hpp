@@ -42,12 +42,8 @@ namespace chimera::library::grammar {
   struct SuiteSeqStmtStar;
   template <flags::Flag Option>
   using SuiteWithDoc =
-      if_must<Colon<Option>,
-              sor<DocString<Option>, SuiteSimpleStmt<Option>,
-                  if_must<INDENT,
-                          sor<seq<DocString<Option>, SuiteSeqStmtStar<Option>>,
-                              SuiteSeqStmtPlus<Option>>,
-                          DEDENT>>>;
+      seq<Colon<Option>, if_must<seq<INDENT, DocString<Option>>,
+                                 SuiteSeqStmtStar<Option>, DEDENT>>;
   template <flags::Flag Option>
   using Suite = if_must<Colon<Option>,
                         sor<SuiteSimpleStmt<Option>,

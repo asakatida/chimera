@@ -53,3 +53,26 @@ TEST_CASE("virtual machine parse `\\0hello_world`") {
 TEST_CASE("virtual machine parse `0=help`") {
   REQUIRE_NOTHROW(chimera::library::test_parse("0=help"s));
 }
+
+TEST_CASE("virtual machine parse `if True:\\n\\t  False`") {
+  REQUIRE_THROWS_AS(chimera::library::test_parse("if True:\n\t  False"sv),
+                    tao::pegtl::parse_error);
+}
+
+TEST_CASE("virtual machine parse `if True:\\n\\tFalse`") {
+  REQUIRE_NOTHROW(chimera::library::test_parse("if True:\n\tFalse"sv));
+}
+
+TEST_CASE("virtual machine parse `if True:\\n  False`") {
+  REQUIRE_NOTHROW(chimera::library::test_parse("if True:\n  False"sv));
+}
+
+TEST_CASE("virtual machine parse `if True:\\n  False\\nelse:\\n  True`") {
+  REQUIRE_NOTHROW(
+      chimera::library::test_parse("if True:\n  False\nelse:\n  True"sv));
+}
+
+TEST_CASE("virtual machine parse `if True:\\n  False\\nTrue\\nFalse`") {
+  REQUIRE_NOTHROW(
+      chimera::library::test_parse("if True:\n  False\nTrue\nFalse"sv));
+}
