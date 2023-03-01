@@ -1,0 +1,31 @@
+---
+jobs:
+  cleanup:
+    concurrency:
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      group: ${{ github.workflow }}-${{ github.ref }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Rebase
+        uses: ./
+        with:
+          run: >
+            set -x;
+            git fetch --all --prune --prune-tags --tags;
+            git remote set-head origin -a;
+            git branch -r | grep -Fv -e origin/dependabot/ -e origin/HEAD |
+            awk '{print substr($1, 8)}' | xargs -L1 -- git switch;
+            git branch | sed 's/^* //' | awk '{$1=$1};1' | xargs -L1 -- bash -c '
+            git rebase --exec
+            "python tools/corpus_trim.py; git add .; git commit --amend --no-edit"
+            origin/HEAD "$@" || git rebase --abort' --;
+            git push --force origin ':'
+
+name: Rebase
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    branches:
+      - stable
+  workflow_dispatch: ~
