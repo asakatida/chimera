@@ -125,7 +125,7 @@ async def cmd_flog(
             *map(str, args), stderr=DEVNULL, stdout=DEVNULL
         )
         return await communicate(args, b"logs in /dev/null\n", proc, timeout)
-    with Path(out).open("wb") as ostream:
+    with Path(out).open("ab") as ostream:
         proc = await create_subprocess_exec(
             *map(str, args), stderr=ostream, stdout=ostream
         )
