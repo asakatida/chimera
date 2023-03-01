@@ -1,6 +1,6 @@
 from asyncio import FIRST_COMPLETED, Task
 from asyncio import as_completed as _as_completed
-from asyncio import create_task, wait
+from asyncio import create_task, gather, wait
 from contextlib import contextmanager
 from itertools import repeat
 from os import cpu_count
@@ -62,7 +62,12 @@ async def _unwrap(task: Awaitable[Task[T]]) -> T:
 
 
 async def a_list(iter: Iterable[Awaitable[T]]) -> list[T]:
-    return [await task for task in iter]
+    try:
+        return [await task for task in iter]
+    except Exception:
+        set(map(lambda task: task.cancel(), map(create_task, iter)))  # type: ignore
+        gather(*iter, return_exceptions=True)
+        raise
 
 
 def as_completed(
