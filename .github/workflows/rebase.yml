@@ -24,7 +24,7 @@ jobs:
             git rebase --exec
             "python tools/corpus_trim.py; git add .; git commit --amend --no-edit"
             origin/HEAD "$@" || git rebase --abort' --;
-            git push --force origin ':'
+            git push --force origin ':' || true
 
 name: Rebase
 
