@@ -18,54 +18,26 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""regression_log.py"""
+"""corpus_retest.py"""
 
 from asyncio import run
 from pathlib import Path
-from re import escape, finditer
 from sys import argv, stderr
 
-from asyncio_as_completed import as_completed
-from asyncio_cmd import ProcessError, chunks, cmd_flog
+from asyncio_cmd import ProcessError, cmd_check
+from ninja import ninja
 
 
-def fuzz_output_paths(prefix: bytes, output: bytes) -> set[bytes]:
-    return set(
-        map(
-            lambda m: m[1],
-            finditer(escape(prefix) + rb"\s+(\S+/fuzz/corpus/[0-9a-f]+)", output),
+async def regression() -> None:
+    await ninja("build")
+    while await cmd_check(
+        "ninja", "-C", "build", "-j3", "-k0", "regression-log", timeout=1200
+    ):
+        print(
+            "Regression failed, retrying with",
+            len(list(Path("unit_tests/fuzz/corpus").iterdir())),
+            file=stderr,
         )
-    )
-
-
-async def regression(fuzzer: str, corpus: str) -> None:
-    log_file = f"/tmp/{fuzzer}.log"
-    Path(log_file).write_bytes(b"")
-    try:
-        await as_completed(
-            map(
-                lambda args: cmd_flog(
-                    f"./fuzz-{fuzzer}",
-                    "-detect_leaks=0",
-                    *args,
-                    out=log_file,
-                    timeout=1200,
-                ),
-                chunks(Path(corpus).iterdir(), 512),
-            ),
-            limit=5,
-        )
-    finally:
-        log_output = Path(log_file).read_bytes()
-        for file in map(
-            Path,
-            map(
-                bytes.decode,
-                fuzz_output_paths(b"Running:", log_output)
-                - fuzz_output_paths(b"Executed", log_output),
-            ),
-        ):
-            file.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":
