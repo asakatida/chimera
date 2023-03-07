@@ -10,7 +10,7 @@ from pathlib import Path
 from sys import stderr
 from typing import Iterable, Optional, Pattern
 
-from asyncio_as_completed import a_list, as_completed
+from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError, chunks, cmd
 
 CACHE: dict[str, list[Path]] = {}
@@ -43,19 +43,14 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
             chain.from_iterable(
                 map(
                     splitlines,
-                    await a_list(
-                        as_completed(
-                            map(
-                                lambda args: git_cmd(
-                                    "ls-tree",
-                                    "--full-tree",
-                                    "--name-only",
-                                    "HEAD",
-                                    *args,
-                                ),
-                                chunks(rglob, 4096),
-                            )
-                        )
+                    await as_completed(
+                        map(
+                            lambda args: git_cmd(
+                                "ls-tree", "--full-tree", "--name-only", "HEAD", *args
+                            ),
+                            chunks(rglob, 4096),
+                        ),
+                        cancel=True,
                     ),
                 )
             )
@@ -68,15 +63,14 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
             chain.from_iterable(
                 map(
                     splitlines,
-                    await a_list(
-                        as_completed(
-                            map(
-                                lambda args: git_cmd(
-                                    "diff", "--name-only", "HEAD^", "--", *args
-                                ),
-                                chunks(CACHE[cache_key], 4096),
-                            )
-                        )
+                    await as_completed(
+                        map(
+                            lambda args: git_cmd(
+                                "diff", "--name-only", "HEAD^", "--", *args
+                            ),
+                            chunks(CACHE[cache_key], 4096),
+                        ),
+                        cancel=True,
                     ),
                 )
             )

@@ -2,21 +2,20 @@ from asyncio import run
 from pathlib import Path
 from sys import argv, stderr
 
-from asyncio_as_completed import a_list, as_completed
+from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError, chunks, cmd_flog
 
 
 async def regression(fuzzer: str, corpus: str) -> None:
-    await a_list(
-        as_completed(
-            map(
-                lambda args: cmd_flog(
-                    f"./fuzz-{fuzzer}", "-detect_leaks=0", *args, timeout=120
-                ),
-                chunks(Path(corpus).iterdir(), 4096),
+    await as_completed(
+        map(
+            lambda args: cmd_flog(
+                f"./fuzz-{fuzzer}", "-detect_leaks=0", *args, timeout=120
             ),
-            limit=2,
-        )
+            chunks(Path(corpus).iterdir(), 4096),
+        ),
+        limit=2,
+        cancel=True,
     )
 
 

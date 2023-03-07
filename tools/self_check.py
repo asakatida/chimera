@@ -5,7 +5,7 @@ from re import compile
 from sys import stderr
 from typing import Sequence
 
-from asyncio_as_completed import a_list, as_completed
+from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError, cmd
 from g_ls_tree import g_ls_tree
 
@@ -56,15 +56,13 @@ async def main() -> None:
                     None,
                     map(
                         bytes.strip,
-                        await a_list(
-                            as_completed(
-                                iter(
-                                    (
-                                        black(files),
-                                        isort(files),
-                                        pylama(files),
-                                        mypy(files_mypy),
-                                    )
+                        await as_completed(
+                            iter(
+                                (
+                                    black(files),
+                                    isort(files),
+                                    pylama(files),
+                                    mypy(files_mypy),
                                 )
                             )
                         ),

@@ -25,7 +25,7 @@ from pathlib import Path
 from random import sample
 from sys import stderr
 
-from asyncio_as_completed import a_list, as_completed
+from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError
 from corpus_utils import c_tqdm, corpus_merge, fuzz_test, gather_paths
 
@@ -52,13 +52,11 @@ async def regression_one(file: Path) -> None:
 
 async def corpus_regression() -> None:
     CORPUS_ORIGINAL.mkdir(exist_ok=True)
-    await a_list(
-        as_completed(
-            c_tqdm(
-                map(regression_one, sample(list(gather_paths()), 1_000)),
-                "Regression",
-                1_000,
-            )
+    await as_completed(
+        c_tqdm(
+            map(regression_one, sample(list(gather_paths()), 1_000)),
+            "Regression",
+            1_000,
         )
     )
 
