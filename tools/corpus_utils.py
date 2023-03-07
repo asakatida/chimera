@@ -26,7 +26,7 @@ from itertools import chain, repeat
 from pathlib import Path
 from typing import Iterable, TypeVar
 
-from asyncio_as_completed import a_list, as_completed
+from asyncio_as_completed import as_completed
 from asyncio_cmd import cmd_check
 from tqdm import tqdm
 
@@ -66,13 +66,11 @@ async def fuzz_test(*args: object, timeout: int = 240) -> list[Exception]:
     return list(
         filter(
             None,
-            await a_list(
-                as_completed(
-                    map(
-                        lambda *args: cmd_check(*args, timeout=timeout),
-                        fuzz_star(),
-                        *map(repeat, args),  # type: ignore
-                    )
+            await as_completed(
+                map(
+                    lambda *args: cmd_check(*args, timeout=timeout),
+                    fuzz_star(),
+                    *map(repeat, args),  # type: ignore
                 )
             ),
         )
