@@ -22,10 +22,14 @@ async def _list(iter: Iterable[Task[T]], cancel: bool) -> list[T]:
 
 
 async def _next(background_tasks: set[Task[T]], coroutine: Task[T]) -> Task[T]:
-    done, pending = await wait(background_tasks, return_when=FIRST_COMPLETED)
-    background_tasks.clear()
-    background_tasks |= done | pending | {coroutine}
-    return done.pop()
+    try:
+        done, pending = await wait(
+            background_tasks | {coroutine}, return_when=FIRST_COMPLETED
+        )
+        return done.pop()
+    finally:
+        background_tasks.clear()
+        background_tasks |= done | pending
 
 
 def _schedule_tasks(coroutines: Iterator[Task[T]], limit: int) -> Iterable[Task[T]]:
