@@ -16,6 +16,10 @@ jobs:
             .workflow_runs |
             map(
               select(
+                .conclusion != null and
+                .status != "in_progress"
+              ) |
+              select(
                 (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 90) or
                 (
                   (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 14) and
