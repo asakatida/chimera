@@ -89,6 +89,7 @@ namespace chimera::library::virtual_machine {
   };
   struct Evaluator {
     explicit Evaluator(ThreadContext &thread_context) noexcept;
+    ~Evaluator() noexcept;
     [[nodiscard]] auto builtins() const -> const object::Object &;
     void enter_scope(const object::Object &object);
     void enter();
