@@ -48,6 +48,9 @@ namespace chimera::library::object {
     }
     return keys;
   }
+  auto Object::dir_size() const -> std::vector<std::string>::size_type {
+    return object->attributes.read().value.size();
+  }
   auto Object::get_attribute(const std::string &key) const -> const Object & {
     if (object->attributes.contains(key)) {
       return object->attributes.at(key);

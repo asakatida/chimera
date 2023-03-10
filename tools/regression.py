@@ -9,9 +9,7 @@ from asyncio_cmd import ProcessError, chunks, cmd_flog
 async def regression(fuzzer: str, corpus: str) -> None:
     await as_completed(
         map(
-            lambda args: cmd_flog(
-                f"./fuzz-{fuzzer}", "-detect_leaks=0", *args, timeout=120
-            ),
+            lambda args: cmd_flog(f"./fuzz-{fuzzer}", *args, timeout=120),
             chunks(Path(corpus).iterdir(), 4096),
         ),
         limit=2,

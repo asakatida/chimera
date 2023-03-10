@@ -26,6 +26,7 @@
 #include <exception>
 #include <istream>
 #include <string_view>
+#include <unordered_set>
 
 #include <gsl/gsl>
 
@@ -38,6 +39,23 @@
 using namespace std::literals;
 
 namespace chimera::library::virtual_machine {
+  void destroy_object(object::Object &leftover,
+                      std::unordered_set<object::Id> &visited) noexcept {
+    if (visited.contains(leftover.id())) {
+      return;
+    }
+    visited.reserve(visited.size() + leftover.dir_size());
+    visited.emplace(leftover.id());
+    std::vector<object::Object> attributes;
+    attributes.reserve(leftover.dir_size());
+    for (auto key : leftover.dir()) {
+      attributes.push_back(leftover.get_attribute(key));
+      leftover.set_attribute(key, object::Object());
+    }
+    for (auto &attribute : attributes) {
+      destroy_object(attribute, visited);
+    }
+  }
   class ReRaise final : std::exception {
     [[nodiscard]] auto what() const noexcept -> const char * override;
   };
@@ -53,6 +71,12 @@ namespace chimera::library::virtual_machine {
   void Scopes::exit_scope() { scopes.pop(); }
   Evaluator::Evaluator(ThreadContext &thread_context) noexcept
       : thread_context(thread_context) {}
+  Evaluator::~Evaluator() noexcept {
+    std::unordered_set<object::Id> visited;
+    for (; stack.size() > 0; stack.pop()) {
+      destroy_object(stack.top(), visited);
+    }
+  }
   auto Evaluator::self() -> object::Object & { return scope.self(); }
   auto Evaluator::builtins() const -> const object::Object & {
     return thread_context.builtins();

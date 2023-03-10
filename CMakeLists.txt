@@ -227,7 +227,6 @@ if(
     add_custom_target(
       corpus-${fuzzer}
       fuzz-${fuzzer}
-      -detect_leaks=0
       -dict=${CMAKE_SOURCE_DIR}/unit_tests/fuzz/dictionaries/${fuzzer}.dict
       -max_len=16384
       -max_total_time=120

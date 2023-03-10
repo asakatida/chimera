@@ -36,6 +36,7 @@
 namespace chimera::library::virtual_machine {
   struct ProcessContext {
     explicit ProcessContext(const GlobalContext &global_context);
+    ~ProcessContext() noexcept;
     [[nodiscard]] auto builtins() const -> const object::Object &;
     auto import_object(std::string_view &&name,
                        std::string_view &&relativeModule)

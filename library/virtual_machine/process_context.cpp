@@ -28,6 +28,7 @@
 #include <iostream>
 #include <string>
 #include <string_view>
+#include <unordered_set>
 
 #include <gsl/gsl>
 
@@ -46,9 +47,34 @@ static const std::string_view CHIMERA_IMPORT_PATH_VIEW(STRINGIFY(CHIMERA_PATH));
 #undef STRINGIFY
 
 namespace chimera::library::virtual_machine {
+  void destroy_module(object::Object &module,
+                      std::unordered_set<object::Id> &visited) noexcept {
+    if (visited.contains(module.id())) {
+      return;
+    }
+    visited.reserve(visited.size() + module.dir_size());
+    visited.emplace(module.id());
+    std::vector<object::Object> attributes;
+    attributes.reserve(module.dir_size());
+    for (auto key : module.dir()) {
+      attributes.push_back(module.get_attribute(key));
+      module.set_attribute(key, object::Object());
+    }
+    for (auto &attribute : attributes) {
+      destroy_module(attribute, visited);
+    }
+  }
   ProcessContext::ProcessContext(const GlobalContext &global_context)
       : global_context(global_context) {
     modules::builtins(builtins_);
+  }
+  ProcessContext::~ProcessContext() noexcept {
+    std::unordered_set<object::Id> visited;
+    auto builtins = builtins_;
+    destroy_module(builtins, visited);
+    for (auto &module : modules.write().value) {
+      destroy_module(module.second, visited);
+    }
   }
   auto ProcessContext::builtins() const -> const object::Object & {
     return builtins_;

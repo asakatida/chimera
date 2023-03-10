@@ -90,6 +90,7 @@ namespace chimera::library::object {
     void delete_attribute(std::string &&key) noexcept;
     void delete_attribute(const std::string &key) noexcept;
     [[nodiscard]] auto dir() const -> std::vector<std::string>;
+    [[nodiscard]] auto dir_size() const -> std::vector<std::string>::size_type;
     [[nodiscard]] auto get_attribute(const std::string &key) const
         -> const Object &;
     auto has_attribute(std::string &&key) const noexcept -> bool;
