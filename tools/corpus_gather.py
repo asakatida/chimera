@@ -55,7 +55,7 @@ async def main() -> None:
         "--",
         *FUZZ_DIRS,
         err=None,
-        out=PIPE,
+        out=PIPE
     )
     for sha in tqdm(
         map(bytes.decode, filter(None, map(bytes.strip, git_log.splitlines()))),

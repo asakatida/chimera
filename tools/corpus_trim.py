@@ -29,7 +29,7 @@ from typing import Iterable
 
 from corpus_utils import bucket, c_tqdm, gather_paths, sha
 
-LENGTH = 8
+LENGTH = 14
 DIRECTORIES = ("corpus", "crashes")
 SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
@@ -71,14 +71,15 @@ def corpus_trim_one(fuzz: Iterable[Path]) -> None:
     for file in c_tqdm(fuzz, "Corpus rehash"):
         src_sha = sha(file)
         name = src_sha[:LENGTH]
-        if name == file.name:
+        if name == (file.parent.name + file.name):
             continue
+        sha_bucket, name = name[:2], name[2:]
         if set(
             map(
-                sha,  # type: ignore
+                sha,
                 filter(
-                    Path.exists,  # type: ignore
-                    map(Path.joinpath, map(FUZZ.joinpath, DIRECTORIES), repeat(name)),  # type: ignore
+                    Path.exists,
+                    map(FUZZ.joinpath, DIRECTORIES, repeat(sha_bucket), repeat(name)),
                 ),
             )
         ).difference({src_sha}):
@@ -86,7 +87,9 @@ def corpus_trim_one(fuzz: Iterable[Path]) -> None:
             raise Increment(
                 f"Collision found, update corpus_trim.py `LENGTH`: {LENGTH}"
             )
-        file.rename(bucket(file) / name)
+        new_file = bucket(file) / sha_bucket / name
+        new_file.parent.mkdir(parents=True, exist_ok=True)
+        file.rename(new_file)
     for file in filter(
         Path.exists,
         map(
@@ -113,6 +116,7 @@ def corpus_trim() -> None:
 
 if __name__ == "__main__":
     try:
+        conflicts(gather_paths())
         corpus_trim()
     except KeyboardInterrupt:
         print("KeyboardInterrupt", file=stderr)

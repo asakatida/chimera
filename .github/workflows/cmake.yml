@@ -12,10 +12,10 @@ env:
   LDFLAGS: ""
 
 jobs:
-  corpus:
+  corpus-new:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: corpus-${{ github.workflow }}-${{ github.ref }}
+      group: corpus-new-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.4.0
@@ -24,16 +24,69 @@ jobs:
       - name: CCache
         uses: actions/cache@v3.3.1
         with:
-          key: corpus-${{ github.run_id }}
+          key: corpus-new-${{ github.run_id }}
           path: .ccache
           restore-keys: |
-            corpus-
+            corpus-new-
             build-
       - name: Build project
         uses: ./
         with:
           run: |
             cmake -GNinja -B build -S .
+            python tools/ninja.py build
+      - if: github.ref == 'refs/heads/stable'
+        name: Run corpus
+        uses: ./
+        with:
+          run: python tools/ninja.py build -k0 corpus || true
+      - name: Corpus recheck
+        uses: ./
+        with:
+          run: python tools/corpus_retest.py
+      - name: Corpus merge
+        uses: ./
+        with:
+          run: python tools/corpus_merge.py
+      - name: Corpus trim
+        uses: ./
+        with:
+          run: python tools/corpus_trim.py
+      - name: Run regression
+        uses: ./
+        with:
+          run: ninja -C build -j1 regression
+      - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
+        uses: stefanzweifel/git-auto-commit-action@v4.16.0
+        with:
+          branch: corpus-new-${{ github.run_id }}
+          commit_message: Update fuzzing corpus.
+          create_branch: true
+          file_pattern: unit_tests/fuzz
+          repository: ${{ github.workspace }}
+  corpus-retest:
+    concurrency:
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      group: corpus-retest-${{ github.ref }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.4.0
+        with:
+          submodules: true
+      - name: CCache
+        uses: actions/cache@v3.3.1
+        with:
+          key: corpus-retest-${{ github.run_id }}
+          path: .ccache
+          restore-keys: |
+            corpus-retest-
+            build-
+      - name: Build project
+        uses: ./
+        with:
+          run: |
+            cmake -GNinja -B build -S .
+            python tools/ninja.py build
       - name: Gather crashes for recheck
         uses: ./
         with:
@@ -58,7 +111,7 @@ jobs:
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
-          branch: corpus-${{ github.ref }}/${{ github.run_id }}
+          branch: corpus-retest-${{ github.run_id }}
           commit_message: Update fuzzing corpus.
           create_branch: true
           file_pattern: unit_tests/fuzz
@@ -66,7 +119,7 @@ jobs:
   debug:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: debug-${{ github.workflow }}-${{ github.ref }}
+      group: debug-${{ github.ref }}
     env:
       CMAKE_BUILD_TYPE: Debug
       CXXFLAGS: ""
@@ -92,7 +145,7 @@ jobs:
   gather:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: gather-${{ github.workflow }}-${{ github.ref }}
+      group: gather-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.4.0
@@ -106,18 +159,17 @@ jobs:
           restore-keys: |
             gather-
             build-
-      - name: Run regression
+      - name: Build project
         uses: ./
         with:
           run: |
             cmake -GNinja -B build -S .
-            python tools/ninja.py build check-rand regression
+            python tools/ninja.py build
       - if: github.ref == 'refs/heads/stable'
         name: Run corpus
         uses: ./
         with:
           run: |
-            python tools/ninja.py build -k0 corpus || true
             git config --global user.email email
             git config --global user.name name
             python tools/corpus_gather.py
@@ -146,7 +198,7 @@ jobs:
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
-          branch: gather-${{ github.ref }}/${{ github.run_id }}
+          branch: gather-${{ github.run_id }}
           commit_message: Update fuzzing corpus.
           create_branch: true
           file_pattern: unit_tests/fuzz
@@ -154,7 +206,7 @@ jobs:
   libcpp:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: libcpp-${{ github.workflow }}-${{ github.ref }}
+      group: libcpp-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.4.0
@@ -182,7 +234,7 @@ jobs:
   regression:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: regression-${{ github.workflow }}-${{ github.ref }}
+      group: regression-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.4.0
@@ -221,7 +273,7 @@ jobs:
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
-          branch: update-fuzz-${{ github.ref }}/${{ github.run_id }}
+          branch: regression-${{ github.run_id }}
           commit_message: Update fuzzing corpus.
           create_branch: true
           file_pattern: unit_tests/fuzz
@@ -229,7 +281,7 @@ jobs:
   release:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: release-${{ github.workflow }}-${{ github.ref }}
+      group: release-${{ github.ref }}
     env:
       CMAKE_BUILD_TYPE: Release
       CXXFLAGS: ""
@@ -255,7 +307,7 @@ jobs:
   scan-build:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: scan-build-${{ github.workflow }}-${{ github.ref }}
+      group: scan-build-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.4.0

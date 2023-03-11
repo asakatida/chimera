@@ -29,7 +29,6 @@ from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError
 from corpus_utils import c_tqdm, corpus_merge, fuzz_test, gather_paths
 
-DIRECTORIES = ("corpus", "crashes")
 SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
