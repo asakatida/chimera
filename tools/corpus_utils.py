@@ -44,9 +44,17 @@ def c_tqdm(iterable: Iterable[T], desc: str, total: int = 0) -> Iterable[T]:
     )
 
 
-async def corpus_merge(path: object) -> list[Exception]:
+async def corpus_merge(path: Path) -> list[Exception]:
     return await fuzz_test(
-        "-merge=1", "-reduce_inputs=1", "-shrink=1", CORPUS, path, timeout=3600
+        "-merge=1",
+        "-reduce_inputs=1",
+        "-shrink=1",
+        CORPUS,
+        *filter(
+            Path.is_dir,
+            chain.from_iterable(map(lambda path: path.rglob("*"), (CORPUS, path))),
+        ),
+        timeout=3600
     )
 
 

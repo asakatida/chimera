@@ -32,8 +32,11 @@ from asyncio_cmd import ProcessError, chunks, cmd_flog
 def fuzz_output_paths(prefix: bytes, output: bytes) -> set[bytes]:
     return set(
         map(
-            lambda m: m[1],
-            finditer(escape(prefix) + rb"\s+(\S+/fuzz/corpus/[0-9a-f]+)", output),
+            lambda m: m["path"],
+            finditer(
+                escape(prefix) + rb"\s+(?P<path>\S+/fuzz/corpus/[0-9a-f]{2}/[0-9a-f]+)",
+                output,
+            ),
         )
     )
 

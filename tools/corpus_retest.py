@@ -35,7 +35,7 @@ async def regression() -> None:
     ):
         print(
             "Regression failed, retrying with",
-            len(list(Path("unit_tests/fuzz/corpus").rglob("*"))),
+            len(list(filter(Path.is_file, Path("unit_tests/fuzz/corpus").rglob("*")))),
             file=stderr,
         )
 
