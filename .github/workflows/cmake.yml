@@ -43,14 +43,14 @@ jobs:
         uses: ./
         with:
           run: python tools/corpus_retest.py
-      - name: Corpus trim
-        uses: ./
-        with:
-          run: python tools/corpus_trim.py
       - name: Corpus merge
         uses: ./
         with:
           run: python tools/corpus_merge.py
+      - name: Corpus trim
+        uses: ./
+        with:
+          run: python tools/corpus_trim.py
       - name: Run regression
         uses: ./
         with:
