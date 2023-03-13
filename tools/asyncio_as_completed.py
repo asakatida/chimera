@@ -14,7 +14,11 @@ async def _list(iter: Iterable[Task[T]], cancel: bool) -> list[T]:
     finally:
         for task in iter:
             if cancel:
-                task.cancel()
+                try:
+                    if not task.done():
+                        task.cancel()
+                except AttributeError:
+                    pass
             try:
                 await task
             except Exception:
