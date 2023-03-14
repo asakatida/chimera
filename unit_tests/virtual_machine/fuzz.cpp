@@ -45,7 +45,23 @@ void TestOne(Data &&data, std::size_t size) {
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   LLVMFuzzerTestOneInput(reinterpret_cast<const std::uint8_t *>(data), size);
 }
+
 TEST_CASE(R"(fuzz `()`)") {
   auto test_case = R"(())"sv;
+  REQUIRE_NOTHROW(TestOne(test_case.data(), test_case.size()));
+}
+
+TEST_CASE(R"(fuzz `'\Uffffffffffffffffffff'`)") {
+  auto test_case = R"('\Uffffffffffffffffffff')"sv;
+  REQUIRE_NOTHROW(TestOne(test_case.data(), test_case.size()));
+}
+
+TEST_CASE(R"(fuzz `'\xffff`)") {
+  auto test_case = R"('\xffff')"sv;
+  REQUIRE_NOTHROW(TestOne(test_case.data(), test_case.size()));
+}
+
+TEST_CASE(R"(fuzz `'\7777`)") {
+  auto test_case = R"('\7777')"sv;
   REQUIRE_NOTHROW(TestOne(test_case.data(), test_case.size()));
 }

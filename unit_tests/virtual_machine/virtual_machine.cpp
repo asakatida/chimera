@@ -102,3 +102,25 @@ TEST_CASE("grammar VirtualMachine `(' ', None, )`") {
       processContext, processContext.make_module("__main__")};
   REQUIRE_NOTHROW(threadContext.evaluate(module));
 }
+
+TEST_CASE("grammar VirtualMachine `'\\xffff'`") {
+  chimera::library::Options options{.chimera = "chimera", .script = "test.py"};
+  const chimera::library::virtual_machine::GlobalContext globalContext(options);
+  chimera::library::virtual_machine::ProcessContext processContext{
+      globalContext};
+  auto module = processContext.parse_file("'\\xffff'"sv, "<test>");
+  chimera::library::virtual_machine::ThreadContext threadContext{
+      processContext, processContext.make_module("__main__")};
+  REQUIRE_NOTHROW(threadContext.evaluate(module));
+}
+
+TEST_CASE("grammar VirtualMachine `'\\77'`") {
+  chimera::library::Options options{.chimera = "chimera", .script = "test.py"};
+  const chimera::library::virtual_machine::GlobalContext globalContext(options);
+  chimera::library::virtual_machine::ProcessContext processContext{
+      globalContext};
+  auto module = processContext.parse_file("'\\77'"sv, "<test>");
+  chimera::library::virtual_machine::ThreadContext threadContext{
+      processContext, processContext.make_module("__main__")};
+  REQUIRE_NOTHROW(threadContext.evaluate(module));
+}

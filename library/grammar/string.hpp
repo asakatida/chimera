@@ -159,12 +159,15 @@ namespace chimera::library::grammar {
     template <unsigned Len>
     struct Action<Hexseq<Len>> {
       template <typename Input, typename Top, typename... Args>
-      static void apply(const Input &in, Top &&top, Args &&...args) {
+      static bool apply(const Input &in, Top &&top, Args &&...args) {
         std::string string;
-        Expects(tao::pegtl::unescape::utf8_append_utf32(
-            string, tao::pegtl::unescape::unhex_string<std::uint32_t>(
-                        in.begin(), in.end())));
-        top.apply(std::move(string));
+        if (tao::pegtl::unescape::utf8_append_utf32(
+                string, tao::pegtl::unescape::unhex_string<std::uint32_t>(
+                            in.begin(), in.end()))) {
+          top.apply(std::move(string));
+          return true;
+        }
+        return false;
       }
     };
     template <char Open, unsigned Len>
@@ -173,16 +176,19 @@ namespace chimera::library::grammar {
     template <>
     struct Action<Octseq> {
       template <typename Input, typename Top, typename... Args>
-      static void apply(const Input &in, Top &&top, Args &&...args) {
+      static bool apply(const Input &in, Top &&top, Args &&...args) {
         std::string string;
-        Expects(tao::pegtl::unescape::utf8_append_utf32(
-            string, std::accumulate(in.begin(), in.end(), std::uint32_t(0),
-                                    [](auto &&init, auto &&c) {
-                                      return (init << 2U) |
-                                             gsl::narrow<std::uint32_t>(c -
-                                                                        '0');
-                                    })));
-        top.apply(std::move(string));
+        if (tao::pegtl::unescape::utf8_append_utf32(
+                string, std::accumulate(in.begin(), in.end(), std::uint32_t(0),
+                                        [](auto &&init, auto &&c) {
+                                          return (init << 2U) |
+                                                 gsl::narrow<std::uint32_t>(
+                                                     c - '0');
+                                        }))) {
+          top.apply(std::move(string));
+          return true;
+        }
+        return false;
       }
     };
     struct EscapeControl : one<'a', 'b', 'f', 'n', 'r', 't', 'v'> {};
