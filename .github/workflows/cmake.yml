@@ -22,7 +22,7 @@ jobs:
         with:
           submodules: true
       - name: CCache
-        uses: actions/cache@v3.3.0
+        uses: actions/cache@v3.3.1
         with:
           key: corpus-${{ github.run_id }}
           path: .ccache
@@ -76,7 +76,7 @@ jobs:
         with:
           submodules: true
       - name: CCache
-        uses: actions/cache@v3.3.0
+        uses: actions/cache@v3.3.1
         with:
           key: debug-${{ github.run_id }}
           path: .ccache
@@ -99,7 +99,7 @@ jobs:
         with:
           submodules: true
       - name: CCache
-        uses: actions/cache@v3.3.0
+        uses: actions/cache@v3.3.1
         with:
           key: gather-${{ github.run_id }}
           path: .ccache
@@ -161,7 +161,7 @@ jobs:
         with:
           submodules: true
       - name: CCache
-        uses: actions/cache@v3.3.0
+        uses: actions/cache@v3.3.1
         with:
           key: libcpp-${{ github.run_id }}
           path: .ccache
@@ -189,7 +189,7 @@ jobs:
         with:
           submodules: true
       - name: CCache
-        uses: actions/cache@v3.3.0
+        uses: actions/cache@v3.3.1
         with:
           key: regression-${{ github.run_id }}
           path: .ccache
@@ -239,7 +239,7 @@ jobs:
         with:
           submodules: true
       - name: CCache
-        uses: actions/cache@v3.3.0
+        uses: actions/cache@v3.3.1
         with:
           key: release-${{ github.run_id }}
           path: .ccache
