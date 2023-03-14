@@ -58,6 +58,7 @@ target_include_directories(
 
 add_library(
   chimera-core
+  OBJECT
   library/container/atomic_container.cpp
   library/container/atomic_map.cpp
   library/container/reverse.cpp
@@ -114,10 +115,7 @@ target_include_directories(
   SYSTEM PUBLIC
   external/GSL/include
   external/metal/include
-  external/operators/include
-  external/PEGTL/include)
-
-target_link_libraries(chimera-core chimera-grammar pthread)
+  external/operators/include)
 
 add_library(
   libchimera
@@ -136,7 +134,7 @@ set_target_properties(libchimera PROPERTIES OUTPUT_NAME "chimera")
 
 add_executable(chimera source/main.cpp)
 target_compile_features(chimera PUBLIC c_std_23 cxx_std_20)
-target_link_libraries(chimera chimera-core)
+target_link_libraries(chimera chimera-core chimera-grammar)
 
 add_subdirectory(external/Catch EXCLUDE_FROM_ALL)
 
@@ -157,14 +155,25 @@ add_executable(
 
 target_compile_features(unit-test PUBLIC c_std_23 cxx_std_20)
 
-target_include_directories(unit-test PUBLIC unit_tests)
+target_include_directories(
+  unit-test
+  PUBLIC
+  library
+  stdlib
+  unit_tests)
 
 target_include_directories(
   unit-test
   SYSTEM PUBLIC
-  external/Catch/src)
+  external/Catch/src
+  external/PEGTL/include)
 
-target_link_libraries(unit-test Catch2WithMain chimera-core)
+target_link_libraries(
+  unit-test
+  Catch2WithMain
+  chimera-core
+  chimera-grammar
+  pthread)
 
 add_custom_target(check unit-test VERBATIM)
 add_custom_target(check-stat perf stat ./unit-test VERBATIM)
@@ -182,14 +191,25 @@ if(
     -fsanitize-coverage=trace-loads
     -fsanitize-coverage=trace-stores
     -fsanitize=fuzzer)
-  add_library(chimera-fuzz unit_tests/fuzz/cases.cpp)
+  add_library(chimera-fuzz OBJECT unit_tests/fuzz/cases.cpp)
   target_compile_options(
     chimera-fuzz
     PUBLIC
     ${FUZZ_CXXFLAGS})
   target_compile_features(chimera-fuzz PUBLIC c_std_23 cxx_std_20)
-  target_include_directories(chimera-fuzz PUBLIC unit_tests)
-  target_link_libraries(chimera-fuzz chimera-core pthread)
+  target_include_directories(
+    chimera-fuzz
+    PUBLIC
+    library
+    stdlib
+    unit_tests)
+  target_include_directories(
+    chimera-fuzz
+    SYSTEM PUBLIC
+    external/GSL/include
+    external/metal/include
+    external/operators/include
+    external/PEGTL/include)
   add_custom_target(corpus)
   add_custom_target(fuzzers)
   add_custom_target(regression)
@@ -219,10 +239,16 @@ if(
       PUBLIC
       ${FUZZ_CXXFLAGS})
     target_include_directories(fuzz-${fuzzer} PUBLIC unit_tests)
+    target_include_directories(
+      fuzz-${fuzzer}
+      SYSTEM PUBLIC
+      external/PEGTL/include)
     target_link_libraries(
       fuzz-${fuzzer}
       chimera-core
       chimera-fuzz
+      chimera-grammar
+      pthread
       ${FUZZ_CXXFLAGS}
       -rtlib=compiler-rt)
     add_custom_target(
@@ -271,7 +297,7 @@ target_include_directories(
   external/metal/include
   external/PEGTL/include)
 
-add_library(modules-tools tools/modules/modules.cpp)
+add_library(modules-tools OBJECT tools/modules/modules.cpp)
 
 target_compile_features(modules-tools PUBLIC c_std_23 cxx_std_20)
 
@@ -286,15 +312,23 @@ target_include_directories(
 
 target_include_directories(modules-tools PUBLIC tools)
 
-add_executable(builtins tools/modules/builtins.cpp)
-target_compile_features(builtins PUBLIC c_std_23 cxx_std_20)
-target_link_libraries(builtins modules-tools chimera-core)
+add_custom_target(modules)
 
-add_executable(importlib tools/modules/importlib.cpp)
-target_compile_features(importlib PUBLIC c_std_23 cxx_std_20)
-target_link_libraries(importlib modules-tools chimera-core)
-
-add_custom_target(modules DEPENDS builtins importlib)
+set(
+  REGEN_MODULES
+  builtins
+  importlib)
+foreach(regen_module IN LISTS REGEN_MODULES)
+  add_executable(${regen_module} tools/modules/${regen_module}.cpp)
+  target_compile_features(${regen_module} PUBLIC c_std_23 cxx_std_20)
+  target_link_libraries(
+    ${regen_module}
+    modules-tools
+    chimera-core
+    chimera-grammar
+    pthread)
+  add_dependencies(modules ${regen_module})
+endforeach()
 
 add_custom_target(
   spec
