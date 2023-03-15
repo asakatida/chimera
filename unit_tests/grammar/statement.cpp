@@ -49,3 +49,9 @@ TEST_CASE("grammar statement `0=help`") {
           tao::pegtl::seq<chimera::library::grammar::Stmt<0>, tao::pegtl::eof>>(
       Input("0=help"s, "<unit>")));
 }
+
+TEST_CASE("grammar statement `raise`") {
+  REQUIRE(tao::pegtl::parse<
+          tao::pegtl::seq<chimera::library::grammar::Stmt<0>, tao::pegtl::eof>>(
+      Input("raise"s, "<unit>")));
+}

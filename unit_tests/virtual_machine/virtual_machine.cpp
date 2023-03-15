@@ -124,3 +124,15 @@ TEST_CASE("grammar VirtualMachine `'\\77'`") {
       processContext, processContext.make_module("__main__")};
   REQUIRE_NOTHROW(threadContext.evaluate(module));
 }
+
+TEST_CASE("grammar VirtualMachine `raise`") {
+  chimera::library::Options options{.chimera = "chimera", .script = "test.py"};
+  const chimera::library::virtual_machine::GlobalContext globalContext(options);
+  chimera::library::virtual_machine::ProcessContext processContext{
+      globalContext};
+  auto module = processContext.parse_file("raise"sv, "<test>");
+  chimera::library::virtual_machine::ThreadContext threadContext{
+      processContext, processContext.make_module("__main__")};
+  REQUIRE_THROWS_AS(threadContext.evaluate(module),
+                    chimera::library::object::BaseException);
+}

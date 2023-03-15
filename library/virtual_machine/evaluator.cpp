@@ -147,10 +147,14 @@ namespace chimera::library::virtual_machine {
     throw object::BaseException(builtins().get_attribute("AttributeError"));
   }
   void Evaluator::evaluate() {
-    while (scope) {
-      thread_context.process_interrupts();
-      //! where all defered work gets done
-      scope.visit([this](auto &&value) { value(this); });
+    try {
+      while (scope) {
+        thread_context.process_interrupts();
+        //! where all defered work gets done
+        scope.visit([this](auto &&value) { value(this); });
+      }
+    } catch (const ReRaise &) {
+      throw object::BaseException(builtins().get_attribute("RuntimeError"));
     }
   }
   void Evaluator::evaluate(const asdl::Module &module) {

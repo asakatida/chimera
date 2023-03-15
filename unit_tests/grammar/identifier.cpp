@@ -1,4 +1,5 @@
 #include "grammar/identifier.hpp"
+#include "grammar/expr.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -10,12 +11,12 @@ TEST_CASE("grammar identifier ``") {
 }
 
 TEST_CASE("grammar identifier `a`") {
-  REQUIRE(tao::pegtl::parse<chimera::library::grammar::Name<0>>(
+  REQUIRE(tao::pegtl::parse<chimera::library::grammar::AtomName<0>>(
       tao::pegtl::string_input<>("a"s, "<unit>")));
 }
 
 TEST_CASE("grammar identifier `hello_world`") {
-  REQUIRE(tao::pegtl::parse<chimera::library::grammar::Name<0>>(
+  REQUIRE(tao::pegtl::parse<chimera::library::grammar::AtomName<0>>(
       tao::pegtl::string_input<>("hello_world"s, "<unit>")));
 }
 
@@ -32,4 +33,9 @@ TEST_CASE("grammar identifier `\\0hello_world`") {
 TEST_CASE("grammar identifier `\\xf3\\x0c\\x00\\x00`") {
   REQUIRE_FALSE(tao::pegtl::parse<chimera::library::grammar::Name<0>>(
       tao::pegtl::string_input<>("\xf3\x0c\x00\x00"s, "<unit>")));
+}
+
+TEST_CASE("grammar identifier `raise`") {
+  REQUIRE_FALSE(tao::pegtl::parse<chimera::library::grammar::AtomName<0>>(
+      tao::pegtl::string_input<>("raise"s, "<unit>")));
 }

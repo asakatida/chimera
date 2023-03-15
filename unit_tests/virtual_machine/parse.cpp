@@ -76,3 +76,7 @@ TEST_CASE("virtual machine parse `if True:\\n  False\\nTrue\\nFalse`") {
   REQUIRE_NOTHROW(
       chimera::library::test_parse("if True:\n  False\nTrue\nFalse"sv));
 }
+
+TEST_CASE("virtual machine parse `raise`") {
+  REQUIRE_NOTHROW(chimera::library::test_parse("raise"sv));
+}
