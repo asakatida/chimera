@@ -15,7 +15,7 @@ from asyncio_cmd import ProcessError, chunks, cmd
 
 CACHE: dict[str, list[Path]] = {}
 IN_CI = environ.get("CI", "") == "true"
-SOURCE = Path(__file__).resolve().parent.parent
+SOURCE = Path(__file__).parent.parent.resolve()
 
 
 async def git_cmd(*args: object) -> bytes:

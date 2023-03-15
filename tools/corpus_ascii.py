@@ -26,7 +26,7 @@ from string import printable
 from sys import stderr
 from typing import Iterable
 
-from corpus_utils import gather_paths
+from corpus_utils import bucket, gather_paths
 
 FUZZ = Path(__file__).parent.parent.resolve() / "unit_tests" / "fuzz"
 PRINTABLE = set(printable.encode())
@@ -41,9 +41,7 @@ if __name__ == "__main__":
         paths = sorted(corpus_ascii())
         for file in paths:
             print(file)
-        for name, contents in groupby(
-            paths, lambda file: file.relative_to(FUZZ).parts[0]
-        ):
+        for name, contents in groupby(paths, lambda file: bucket(file).name):
             total = len(tuple(contents))
             print(name, total, total * 100 // len(paths) / 100, file=stderr)
     except KeyboardInterrupt:

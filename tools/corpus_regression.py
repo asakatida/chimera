@@ -33,25 +33,18 @@ DIRECTORIES = ("corpus", "crashes")
 SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
-CORPUS_ORIGINAL = FUZZ / "corpus_original"
 CRASHES = FUZZ / "crashes"
 
 
 async def regression_one(file: Path) -> None:
     if file.is_relative_to(CRASHES):
         if await fuzz_test(file):
-            file.rename(CORPUS_ORIGINAL / file.name)
-            file = CORPUS_ORIGINAL / file.name
-            if await corpus_merge(file):
-                pass
-            else:
-                file.rename(CRASHES / file.name)
+            await corpus_merge(file)
     elif not await fuzz_test(file):
-        file.rename(CRASHES / file.name)
+        file.rename(CRASHES / file.relative_to(CORPUS))
 
 
 async def corpus_regression() -> None:
-    CORPUS_ORIGINAL.mkdir(exist_ok=True)
     await as_completed(
         c_tqdm(
             map(regression_one, sample(list(gather_paths()), 1_000)),

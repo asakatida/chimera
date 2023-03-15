@@ -28,7 +28,7 @@ from re import MULTILINE, compile
 from sys import stderr
 from typing import Iterable
 
-from corpus_utils import c_tqdm, gather_paths, sha
+from corpus_utils import bucket, c_tqdm, gather_paths, sha
 
 LENGTH = 8
 DIRECTORIES = ("corpus", "crashes")
@@ -87,7 +87,7 @@ def corpus_trim_one(fuzz: Iterable[Path]) -> None:
             raise Increment(
                 f"Collision found, update corpus_trim.py `LENGTH`: {LENGTH}"
             )
-        file.rename(file.parent / name)
+        file.rename(bucket(file) / name)
     for file in filter(
         Path.exists,
         map(

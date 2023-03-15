@@ -4,13 +4,13 @@ from pathlib import Path
 from re import MULTILINE, Pattern, compile
 from sys import argv
 
-ROOT = Path(__file__).parent.parent.resolve()
+SOURCE = Path(__file__).parent.parent.resolve()
 IGNORE = (
     # patches need to stay as is
-    (ROOT / "patches"),
+    (SOURCE / "patches"),
     # fuzz corpus is ignored for utf8 nonsense
-    (ROOT / "unit_tests" / "fuzz" / "corpus"),
-    (ROOT / "unit_tests" / "fuzz" / "crashes"),
+    (SOURCE / "unit_tests" / "fuzz" / "corpus"),
+    (SOURCE / "unit_tests" / "fuzz" / "crashes"),
 )
 SEARCHES = (
     compile(
