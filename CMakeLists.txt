@@ -143,6 +143,7 @@ add_subdirectory(external/Catch EXCLUDE_FROM_ALL)
 add_executable(
   unit-test
   unit_tests/fuzz/cases.cpp
+  unit_tests/grammar/expression.cpp
   unit_tests/grammar/grammar.cpp
   unit_tests/grammar/identifier.cpp
   unit_tests/grammar/number_parse.cpp
