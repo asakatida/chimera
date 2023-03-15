@@ -50,6 +50,10 @@ async def corpus_merge(path: object) -> list[Exception]:
     )
 
 
+def bucket(path: Path) -> Path:
+    return FUZZ / path.relative_to(FUZZ).parts[0]
+
+
 @cache
 def fuzz_star() -> tuple[Path, ...]:
     return tuple(
