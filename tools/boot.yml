@@ -208,7 +208,6 @@
               - libpcre3
               - libpng-dev
               - libpq-dev
-              - libprocps8
               - libreadline-dev
               - libsasl2-2
               - libseccomp2
