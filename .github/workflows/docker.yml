@@ -2,7 +2,7 @@
 jobs:
   docker:
     concurrency:
-      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      cancel-in-progress: ${{ github.event_name != 'release' }}
       group: ${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
@@ -26,12 +26,28 @@ jobs:
         uses: docker/build-push-action@v4.0.0
         with:
           file: Dockerfile.python
-          push: ${{ github.ref == 'refs/heads/stable' }}
-          tags: asakatida/python:3.12
+          password: ${{ secrets.GITHUB_TOKEN }}
+          push: ${{ github.event_name == 'release' }}
+          registry: ghcr.io
+          tags: >
+            asakatida/python:${{
+              github.event_name == 'release' &&
+              github.ref_name ||
+              github.sha
+            }}
+          username: ${{ github.repository_owner }}
       - uses: docker/build-push-action@v4.0.0
         with:
-          push: ${{ github.ref == 'refs/heads/stable' }}
-          tags: asakatida/chimera:latest
+          password: ${{ secrets.GITHUB_TOKEN }}
+          push: ${{ github.event_name == 'release' }}
+          registry: ghcr.io
+          tags: >
+            asakatida/chimera:${{
+              github.event_name == 'release' &&
+              github.ref_name ||
+              github.sha
+            }}
+          username: ${{ github.repository_owner }}
 name: Docker
 # yamllint disable-line rule:truthy
 on:
@@ -43,16 +59,7 @@ on:
       - requirements.core.txt
       - requirements.txt
       - tools/boot.yml
-  push:
-    branches:
-      - stable
-    paths:
-      - .dockerignore
-      - .github/workflows/docker.yml
-      - Dockerfile*
-      - requirements.core.txt
-      - requirements.txt
-      - tools/boot.yml
-  schedule:
-    - cron: 20 14 * * *
+  release:
+    types:
+      - created
   workflow_dispatch: ~
