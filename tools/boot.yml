@@ -11,7 +11,7 @@
   tasks:
     - name: Set Python version
       ansible.builtin.set_fact:
-        llvm_version: 15
+        llvm_version: 16
         py_version: 3.12
     - name: Unix block
       become: true
