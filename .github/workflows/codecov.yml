@@ -21,7 +21,6 @@ jobs:
         uses: ./
         with:
           run: python tools/codecov.py >llvm-profile.lcov
-      - run: ls -al ${{ github.workspace }}
       - uses: codecov/codecov-action@v3.1.1
         with:
           directory: ${{ github.workspace }}
