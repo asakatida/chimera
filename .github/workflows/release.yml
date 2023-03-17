@@ -19,6 +19,7 @@ on:
       - stable
     paths:
       - .dockerignore
+      - .github/workflows/docker.yml
       - .github/workflows/release.yml
       - Dockerfile*
       - requirements.core.txt
