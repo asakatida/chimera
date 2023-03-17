@@ -6,6 +6,7 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
+      - uses: actions/checkout@v3.4.0
       - run: git tag 0.${{ github.run_number }}.0+${{ github.sha }} ${{ github.sha }}
       - run: git push --tags
       - uses: softprops/action-gh-release@v1
