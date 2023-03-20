@@ -22,7 +22,6 @@
 
 from hashlib import sha256
 from itertools import repeat
-from operator import attrgetter
 from pathlib import Path
 from re import MULTILINE, compile
 from sys import stderr
@@ -92,7 +91,10 @@ def corpus_trim_one(fuzz: Iterable[Path]) -> None:
         Path.exists,
         map(
             CRASHES.joinpath,
-            map(attrgetter("name"), c_tqdm(CORPUS.iterdir(), "Regression trim")),
+            map(
+                lambda path: path.relative_to(bucket(path)),
+                filter(Path.is_file, c_tqdm(CORPUS.rglob("*"), "Regression trim")),
+            ),
         ),
     ):
         file.unlink()

@@ -22,7 +22,6 @@
 
 from asyncio import run
 from asyncio.subprocess import DEVNULL, PIPE
-from itertools import islice
 from pathlib import Path
 from sys import stderr
 
@@ -59,12 +58,9 @@ async def main() -> None:
         out=PIPE,
     )
     for sha in tqdm(
-        islice(
-            map(bytes.decode, filter(None, map(bytes.strip, git_log.splitlines()))), 10
-        ),
+        map(bytes.decode, filter(None, map(bytes.strip, git_log.splitlines()))),
         desc="Refs",
         unit_scale=True,
-        total=10,
     ):
         await git_cmd("restore", "--source", sha, "--staged", *FUZZ_DIRS)
         await git_cmd("restore", "--worktree", FUZZ)
