@@ -72,9 +72,9 @@ async def fuzz_test(*args: object, timeout: int = 240) -> list[Exception]:
             None,
             await as_completed(
                 map(
-                    lambda *args: cmd_check(*args, timeout=timeout),
+                    lambda cmd, args: cmd_check(cmd, *args, timeout=timeout),
                     fuzz_star(),
-                    *map(repeat, args),  # type: ignore
+                    repeat(args),
                 )
             ),
         )
@@ -82,7 +82,12 @@ async def fuzz_test(*args: object, timeout: int = 240) -> list[Exception]:
 
 
 def gather_paths() -> Iterable[Path]:
-    return chain.from_iterable(map(Path.iterdir, map(FUZZ.joinpath, DIRECTORIES)))
+    return filter(
+        Path.is_file,
+        chain.from_iterable(
+            map(Path.rglob, map(FUZZ.joinpath, DIRECTORIES), repeat("*"))  # type: ignore
+        ),
+    )
 
 
 def sha(path: Path) -> str:
