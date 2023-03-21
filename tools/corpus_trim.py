@@ -35,7 +35,7 @@ SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
 CRASHES = FUZZ / "crashes"
-CONFLICT = compile(rb"^((<{8}|>{8})\s.+|={8})$\s", MULTILINE)
+CONFLICT = compile(rb"^(?:(?:<{7,8}|>{7,8})(?:\s.+)?|={7,8})$\s?", MULTILINE)
 
 
 class Increment(Exception):
