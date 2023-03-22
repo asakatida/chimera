@@ -49,10 +49,19 @@ namespace chimera::library::grammar {
   using tao::pegtl::star;
   using tao::pegtl::success;
   using tao::pegtl::until;
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+  using tao::pegtl::any;
+  using tao::pegtl::not_one;
+  using tao::pegtl::not_range;
+  using tao::pegtl::one;
+  using tao::pegtl::range;
+  using tao::pegtl::ranges;
+#else
   using tao::pegtl::utf8::any;
   using tao::pegtl::utf8::not_one;
   using tao::pegtl::utf8::not_range;
   using tao::pegtl::utf8::one;
   using tao::pegtl::utf8::range;
   using tao::pegtl::utf8::ranges;
+#endif
 } // namespace chimera::library::grammar

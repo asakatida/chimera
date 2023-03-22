@@ -8,6 +8,9 @@
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 namespace chimera::library::grammar {
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+  using Utf8IdContinue = sor<ranges<0x30, 0x39>>;
+#else
   using Utf8IdContinue = sor<
       ranges<0x30, 0x39, 0xb7, 0xb7, 0x300, 0x36f, 0x387, 0x387, 0x483, 0x487,
              0x591, 0x5bd, 0x5bf, 0x5bf, 0x5c1, 0x5c2, 0x5c4, 0x5c5, 0x5c7,
@@ -110,6 +113,7 @@ namespace chimera::library::grammar {
              0x1e2ae, 0x1e2ae, 0x1e2ec, 0x1e2f9, 0x1e4ec, 0x1e4f9, 0x1e8d0,
              0x1e8d6, 0x1e944, 0x1e94a, 0x1e950, 0x1e959, 0x1fbf0, 0x1fbf9,
              0xe0100, 0xe01ef>>;
+#endif
 } // namespace chimera::library::grammar
 
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

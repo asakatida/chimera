@@ -29,11 +29,19 @@ from typing import Iterable
 from corpus_utils import bucket, gather_paths
 
 FUZZ = Path(__file__).parent.parent.resolve() / "unit_tests" / "fuzz"
-PRINTABLE = set(printable.encode())
+PRINTABLE = set(printable)
+
+
+def _is_ascii(path: Path) -> bool:
+    try:
+        data = path.read_bytes()
+        return all(c in PRINTABLE or ord(c) > 0xFF for c in data.decode())
+    except UnicodeDecodeError:
+        return False
 
 
 def corpus_ascii() -> Iterable[Path]:
-    return filter(lambda file: set(file.read_bytes()) <= PRINTABLE, gather_paths())
+    return filter(_is_ascii, gather_paths())
 
 
 if __name__ == "__main__":

@@ -47,23 +47,44 @@ def _a(t: tuple[int, Iterable[Tuple[int, int]]]) -> Tuple[int, int]:
     return (min(groups), max(groups))
 
 
-ranges = _ranges(
-    20,
-    chain.from_iterable(
-        map(
-            _a,
-            groupby(
-                zip(map(ord, filter(str.isspace, map(chr, range(0x10FFFF)))), count()),
-                lambda t: t[0] - t[1],
+ranges = iter(
+    (
+        _ranges(
+            4,
+            chain.from_iterable(
+                map(
+                    _a,
+                    groupby(
+                        zip(
+                            map(ord, filter(str.isspace, map(chr, range(127)))), count()
+                        ),
+                        lambda t: t[0] - t[1],
+                    ),
+                )
             ),
-        )
-    ),
+        ),
+        _ranges(
+            20,
+            chain.from_iterable(
+                map(
+                    _a,
+                    groupby(
+                        zip(
+                            map(ord, filter(str.isspace, map(chr, range(0x10FFFF)))),
+                            count(),
+                        ),
+                        lambda t: t[0] - t[1],
+                    ),
+                )
+            ),
+        ),
+    )
 )
 
 utf8_space.write_text(
     subn(
         r"\bUtf8Space\b[^;]+",
-        f"Utf8Space = {ranges}",
+        lambda _: f"Utf8Space = {next(ranges)}",
         utf8_space.read_text(),
         1,
         MULTILINE,
