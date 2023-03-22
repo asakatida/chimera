@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <iosfwd>
 
+#define FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+
 #include "grammar/grammar.hpp"
 
 namespace chimera::library {

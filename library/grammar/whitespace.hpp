@@ -30,8 +30,13 @@
 #include "grammar/utf8_space.hpp"
 
 namespace chimera::library::grammar {
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+  template <char... Chars>
+  using String = tao::pegtl::string<Chars...>;
+#else
   template <char... Chars>
   using String = tao::pegtl::utf8::string<Chars...>;
+#endif
   using Eol = sor<String<'\r', '\n'>, one<'\r', '\n'>>;
   using Eolf = sor<eof, Eol>;
   template <flags::Flag Option>

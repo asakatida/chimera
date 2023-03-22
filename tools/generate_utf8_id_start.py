@@ -47,26 +47,47 @@ def _a(t: tuple[int, Iterable[Tuple[int, int]]]) -> Tuple[int, ...]:
     return (min(groups), max(groups))
 
 
-ranges = _ranges(
-    1334,
-    chain.from_iterable(
-        map(
-            _a,
-            groupby(
-                zip(
-                    map(ord, filter(str.isidentifier, map(chr, range(0x10FFFF)))),
-                    count(),
-                ),
-                lambda t: t[0] - t[1],
+ranges = iter(
+    (
+        _ranges(
+            6,
+            chain.from_iterable(
+                map(
+                    _a,
+                    groupby(
+                        zip(
+                            map(ord, filter(str.isidentifier, map(chr, range(127)))),
+                            count(),
+                        ),
+                        lambda t: t[0] - t[1],
+                    ),
+                )
             ),
-        )
-    ),
+        ),
+        _ranges(
+            1334,
+            chain.from_iterable(
+                map(
+                    _a,
+                    groupby(
+                        zip(
+                            map(
+                                ord, filter(str.isidentifier, map(chr, range(0x10FFFF)))
+                            ),
+                            count(),
+                        ),
+                        lambda t: t[0] - t[1],
+                    ),
+                )
+            ),
+        ),
+    )
 )
 
 utf8_id_start.write_text(
     subn(
         r"\bUtf8IdStart\b[^;]+",
-        f"Utf8IdStart = {ranges}",
+        lambda _: f"Utf8IdStart = {next(ranges)}",
         utf8_id_start.read_text(),
         1,
         MULTILINE,

@@ -42,7 +42,7 @@ def _ranges(total: int, it: Iterable[int]) -> str:
     return f"sor<ranges<{ranges}>>"
 
 
-def _a(id_start: Set[int]) -> Iterable[int]:
+def _a(id_start: Set[int], end: int) -> Iterable[int]:
     def b(i: int) -> bool:
         def c() -> Iterable[bool]:
             def d(j: int) -> bool:
@@ -52,7 +52,7 @@ def _a(id_start: Set[int]) -> Iterable[int]:
 
         return all(c())
 
-    id_continue_pos: Set[int] = set(range(0x10FFFF)) - id_start
+    id_continue_pos: Set[int] = set(range(end)) - id_start
     return chain.from_iterable(
         map(
             _b, groupby(zip(filter(b, id_continue_pos), count()), lambda t: t[0] - t[1])
@@ -69,12 +69,17 @@ def _d(i: int) -> bool:
     return chr(i).isidentifier()
 
 
-ranges = _ranges(748, _a(set(filter(_d, range(0x10FFFF)))))
+ranges = iter(
+    (
+        _ranges(2, _a(set(filter(_d, range(127))), 127)),
+        _ranges(748, _a(set(filter(_d, range(0x10FFFF))), 0x10FFFF)),
+    )
+)
 
 utf8_id_continue.write_text(
     subn(
         r"\bUtf8IdContinue\b[^;]+",
-        f"Utf8IdContinue = {ranges}",
+        lambda _: f"Utf8IdContinue = {next(ranges)}",
         utf8_id_continue.read_text(),
         1,
         MULTILINE,
