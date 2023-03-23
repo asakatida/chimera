@@ -15,7 +15,7 @@ jobs:
   corpus-new:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: corpus-new-${{ github.ref }}
+      group: corpus-new-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.4.0
@@ -67,7 +67,7 @@ jobs:
   corpus-retest:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: corpus-retest-${{ github.ref }}
+      group: corpus-retest-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.4.0
@@ -119,7 +119,7 @@ jobs:
   debug:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: debug-${{ github.ref }}
+      group: debug-${{ github.workflow }}-${{ github.ref }}
     env:
       CMAKE_BUILD_TYPE: Debug
       CXXFLAGS: ""
@@ -145,7 +145,7 @@ jobs:
   gather:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: gather-${{ github.ref }}
+      group: gather-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.4.0
@@ -206,7 +206,7 @@ jobs:
   libcpp:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: libcpp-${{ github.ref }}
+      group: libcpp-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.4.0
@@ -234,7 +234,7 @@ jobs:
   regression:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: regression-${{ github.ref }}
+      group: regression-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.4.0
@@ -281,7 +281,7 @@ jobs:
   release:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: release-${{ github.ref }}
+      group: release-${{ github.workflow }}-${{ github.ref }}
     env:
       CMAKE_BUILD_TYPE: Release
       CXXFLAGS: ""
@@ -307,7 +307,7 @@ jobs:
   scan-build:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: scan-build-${{ github.ref }}
+      group: scan-build-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.4.0
