@@ -298,6 +298,22 @@
         - name: Run user scoped tasks
           become_user: github
           block:
+            - name: Download rustup install script
+              ansible.builtin.get_url:
+                dest: /tmp/sh.rustup.rs
+                mode: "0644"
+                url: https://sh.rustup.rs
+            - name: Install rustup
+              ansible.builtin.script: >
+                /tmp/sh.rustup.rs -y
+                --default-toolchain none
+                --no-modify-path
+                --profile minimal
+                --quiet
+            - name: Cleanup rust install script
+              ansible.builtin.file:
+                path: /tmp/sh.rustup.rs
+                state: absent
             - name: Setup git config
               ansible.builtin.shell: |
                 set -e

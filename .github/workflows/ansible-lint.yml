@@ -11,7 +11,7 @@ jobs:
         uses: ./
         with:
           run: >
-            rg --files-with-matches 'ansible.*:' --null |
+            rg --files-with-matches --glob '*.yml' --null 'ansible.*:' |
             xargs --no-run-if-empty --null --
             ansible-lint
 
