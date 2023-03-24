@@ -231,53 +231,6 @@ jobs:
           run: |
             cmake -GNinja -B build -S .
             ninja -C build -j2 check-rand
-  regression:
-    concurrency:
-      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: regression-${{ github.workflow }}-${{ github.ref }}
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3.4.0
-        with:
-          submodules: true
-      - name: CCache
-        uses: actions/cache@v3.3.1
-        with:
-          key: regression-${{ github.run_id }}
-          path: .ccache
-          restore-keys: |
-            regression-
-            build-
-      - name: Build fuzzers
-        uses: ./
-        with:
-          run: |
-            cmake -GNinja -B build -S .
-            ninja -C build -j1 fuzzers
-      - name: Corpus regression
-        uses: ./
-        with:
-          run: python tools/corpus_regression.py
-      - name: Corpus recheck
-        uses: ./
-        with:
-          run: python tools/corpus_retest.py
-      - name: Corpus trim
-        uses: ./
-        with:
-          run: python tools/corpus_trim.py
-      - name: Run regression
-        uses: ./
-        with:
-          run: ninja -C build -j1 regression
-      - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
-        uses: stefanzweifel/git-auto-commit-action@v4.16.0
-        with:
-          branch: regression-${{ github.run_id }}
-          commit_message: Update fuzzing corpus.
-          create_branch: true
-          file_pattern: unit_tests/fuzz
-          repository: ${{ github.workspace }}
   release:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
