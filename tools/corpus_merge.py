@@ -25,7 +25,7 @@ from itertools import chain
 from pathlib import Path
 from sys import stderr
 
-from asyncio_cmd import ProcessError
+from asyncio_cmd import ProcessError, cmd
 from corpus_utils import corpus_merge, sha
 
 SOURCE = Path(__file__).parent.parent.resolve()
@@ -35,9 +35,15 @@ CORPUS_ORIGINAL = FUZZ / "corpus_original"
 CRASHES = FUZZ / "crashes"
 
 
+async def git_cmd(*args: object) -> None:
+    await cmd("git", *args, err=None, out=None, timeout=600)
+
+
 async def main() -> None:
     CORPUS.rename(CORPUS_ORIGINAL)
-    CORPUS.mkdir(exist_ok=True)
+    await git_cmd("fetch")
+    await git_cmd("remote", "set-head", "origin", "--auto")
+    await git_cmd("restore", "--source", "origin/HEAD", CORPUS)
     errors = await corpus_merge(CORPUS_ORIGINAL)
     if errors:
         error = errors.pop()

@@ -25,18 +25,13 @@ from pathlib import Path
 from re import escape, finditer
 from sys import argv, stderr
 
-from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError, chunks, cmd_flog
 
 
 def fuzz_output_paths(prefix: bytes, output: bytes) -> set[bytes]:
     return set(
         map(
-            lambda m: m["path"],
-            finditer(
-                escape(prefix) + rb"\s+(?P<path>\S+/fuzz/corpus/[0-9a-f]{2}/[0-9a-f]+)",
-                output,
-            ),
+            lambda m: m["path"], finditer(escape(prefix) + rb"\s+(?P<path>\S+)", output)
         )
     )
 
@@ -44,27 +39,27 @@ def fuzz_output_paths(prefix: bytes, output: bytes) -> set[bytes]:
 async def regression(fuzzer: str, corpus: str) -> None:
     log_file = f"/tmp/{fuzzer}.log"
     Path(log_file).write_bytes(b"")
-    try:
-        await as_completed(
-            map(
-                lambda args: cmd_flog(
-                    f"./fuzz-{fuzzer}", *args, out=log_file, timeout=1200
-                ),
-                chunks(filter(Path.is_file, Path(corpus).rglob("*")), 512),
-            ),
-            limit=5,
-        )
-    finally:
-        log_output = Path(log_file).read_bytes()
-        for file in map(
-            Path,
-            map(
-                bytes.decode,
-                fuzz_output_paths(b"Running:", log_output)
-                - fuzz_output_paths(b"Executed", log_output),
-            ),
-        ):
-            file.unlink(missing_ok=True)
+    errors = []
+    for chunk in chunks(filter(Path.is_file, Path(corpus).rglob("*")), 512):
+        try:
+            await cmd_flog(f"./fuzz-{fuzzer}", *chunk, out=log_file, timeout=1200)
+        except ProcessError as err:
+            errors.append(err)
+    log_output = Path(log_file).read_bytes()
+    for file in map(
+        Path,
+        map(
+            bytes.decode,
+            fuzz_output_paths(b"Running:", log_output)
+            - fuzz_output_paths(b"Executed", log_output),
+        ),
+    ):
+        file.unlink(missing_ok=True)
+    if errors:
+        error = errors.pop()
+        if errors:
+            print("Extra Errors:", *errors, file=stderr, sep="\n")
+        raise error
 
 
 if __name__ == "__main__":
