@@ -66,7 +66,11 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
                     await as_completed(
                         map(
                             lambda args: git_cmd(
-                                "diff", "--name-only", "HEAD^", "--", *args
+                                "diff",
+                                "--name-only",
+                                f"{environ.get('BASE_COMMIT', 'HEAD')}^",
+                                "--",
+                                *args,
                             ),
                             chunks(CACHE[cache_key], 4096),
                         ),
