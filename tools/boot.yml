@@ -306,7 +306,7 @@
             - name: Install rustup
               ansible.builtin.script: >
                 /tmp/sh.rustup.rs -y
-                --default-toolchain none
+                --default-toolchain stable
                 --no-modify-path
                 --profile minimal
                 --quiet
