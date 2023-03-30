@@ -45,5 +45,5 @@ python3 tools/generate_utf8_space.py
 git ls-tree --full-tree --name-only -r -z HEAD | \
   tools/xargs.sh -- \
   python3 tools/trim.py
-tools/clang-format.sh
+python tools/clang_format.py
 python tools/clang_tidy.py build/debug
