@@ -66,7 +66,7 @@ async def main() -> None:
         await git_cmd("restore", "--worktree", FUZZ)
         await git_cmd("add", FUZZ)
         await git_cmd("commit", "--allow-empty", "--amend", "--no-edit")
-    await git_cmd_remote("reset", "HEAD^")
+    await cmd("git", "reset", "HEAD^", err=DEVNULL, out=DEVNULL, timeout=900)
 
 
 if __name__ == "__main__":
