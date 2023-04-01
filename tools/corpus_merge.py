@@ -21,12 +21,11 @@
 """corpus_merge.py"""
 
 from asyncio import run
-from itertools import chain
 from pathlib import Path
 from sys import stderr
 
 from asyncio_cmd import ProcessError, cmd
-from corpus_utils import corpus_merge, sha
+from corpus_utils import corpus_merge
 
 SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
@@ -50,10 +49,6 @@ async def main() -> None:
         if errors:
             print("Extra Errors:", *errors, file=stderr, sep="\n")
         raise error
-    for file in chain.from_iterable(
-        map(SOURCE.rglob, ("crash-*", "leak-*", "timeout-*"))
-    ):
-        file.rename(CRASHES / sha(file))
 
 
 if __name__ == "__main__":

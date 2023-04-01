@@ -21,7 +21,7 @@
 """corpus_trim.py"""
 
 from hashlib import sha256
-from itertools import repeat
+from itertools import chain, repeat
 from pathlib import Path
 from re import MULTILINE, compile
 from sys import stderr
@@ -104,6 +104,10 @@ def corpus_trim_one(fuzz: Iterable[Path]) -> None:
 
 
 def corpus_trim() -> None:
+    for file in chain.from_iterable(
+        map(SOURCE.rglob, ("crash-*", "leak-*", "timeout-*"))
+    ):
+        file.rename(CRASHES / sha(file))
     while True:
         try:
             corpus_trim_one(gather_paths())
