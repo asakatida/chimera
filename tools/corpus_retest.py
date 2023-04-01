@@ -24,24 +24,52 @@ from asyncio import run
 from pathlib import Path
 from sys import argv, stderr
 
-from asyncio_cmd import ProcessError, cmd_check
+from asyncio_cmd import ProcessError, cmd_check, cmd_no_timeout
+from corpus_trim import conflicts, corpus_trim
+from corpus_utils import corpus_merge, gather_paths
 from ninja import ninja
 
+SOURCE = Path(__file__).parent.parent.resolve()
+FUZZ = SOURCE / "unit_tests" / "fuzz"
+CORPUS = FUZZ / "corpus"
+CORPUS_ORIGINAL = FUZZ / "corpus_original"
 
-async def regression() -> None:
-    await ninja("build")
+
+async def corpus_retest(build: str) -> None:
+    await ninja(build)
     while await cmd_check(
-        "ninja", "-C", "build", "-j3", "-k0", "regression-log", timeout=1200
+        "ninja", "-C", build, "-j3", "-k0", "regression-log", timeout=1200
     ):
         print(
             "Regression failed, retrying with",
             len(list(filter(Path.is_file, Path("unit_tests/fuzz/corpus").rglob("*")))),
             file=stderr,
         )
+    CORPUS.rename(CORPUS_ORIGINAL)
+    CORPUS.mkdir(parents=True, exist_ok=True)
+    errors = await corpus_merge(CORPUS_ORIGINAL)
+    if errors:
+        error = errors.pop()
+        if errors:
+            print("Extra Errors:", *errors, file=stderr, sep="\n")
+        raise error
+
+
+async def regression(build: str) -> None:
+    await cmd_no_timeout("ninja", "-C", build, "-j1", "regression")
+
+
+def trim() -> None:
+    """trim corpus"""
+    conflicts(gather_paths())
+    corpus_trim()
 
 
 if __name__ == "__main__":
     try:
+        trim()
+        run(corpus_retest(*argv[1:]))
+        trim()
         run(regression(*argv[1:]))
     except ProcessError as error:
         error.exit()

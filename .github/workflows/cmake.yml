@@ -43,19 +43,7 @@ jobs:
       - name: Corpus recheck
         uses: ./
         with:
-          run: python tools/corpus_retest.py
-      - name: Corpus merge
-        uses: ./
-        with:
-          run: python tools/corpus_merge.py
-      - name: Corpus trim
-        uses: ./
-        with:
-          run: python tools/corpus_trim.py
-      - name: Run regression
-        uses: ./
-        with:
-          run: ninja -C build -j1 regression
+          run: python tools/corpus_retest.py build
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
@@ -95,19 +83,7 @@ jobs:
       - name: Corpus recheck
         uses: ./
         with:
-          run: python tools/corpus_retest.py
-      - name: Corpus merge
-        uses: ./
-        with:
-          run: python tools/corpus_merge.py
-      - name: Corpus trim
-        uses: ./
-        with:
-          run: python tools/corpus_trim.py
-      - name: Run regression
-        uses: ./
-        with:
-          run: ninja -C build -j1 regression
+          run: python tools/corpus_retest.py build
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
@@ -182,19 +158,7 @@ jobs:
       - name: Corpus recheck
         uses: ./
         with:
-          run: python tools/corpus_retest.py
-      - name: Corpus merge
-        uses: ./
-        with:
-          run: python tools/corpus_merge.py
-      - name: Corpus trim
-        uses: ./
-        with:
-          run: python tools/corpus_trim.py
-      - name: Run regression
-        uses: ./
-        with:
-          run: ninja -C build -j1 regression
+          run: python tools/corpus_retest.py build
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
