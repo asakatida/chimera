@@ -1,30 +1,18 @@
 ---
 updates:
-  - commit-message:
-      include: scope
-      prefix: docker
-    directory: /
+  - directory: /
     package-ecosystem: docker
     schedule:
       interval: daily
-  - commit-message:
-      include: scope
-      prefix: github-actions
-    directory: /
+  - directory: /
     package-ecosystem: github-actions
     schedule:
       interval: daily
-  - commit-message:
-      include: scope
-      prefix: gitsubmodule
-    directory: /
+  - directory: /
     package-ecosystem: gitsubmodule
     schedule:
       interval: daily
-  - commit-message:
-      include: scope
-      prefix: pip
-    directory: /
+  - directory: /
     package-ecosystem: pip
     schedule:
       interval: daily
