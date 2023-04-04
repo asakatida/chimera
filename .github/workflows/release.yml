@@ -4,6 +4,9 @@ jobs:
     concurrency:
       cancel-in-progress: false
       group: ${{ github.workflow }}-${{ github.ref }}
+    permissions:
+      contents: write
+      packages: write
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.5.0
@@ -42,6 +45,3 @@ on:
   schedule:
     - cron: 20 14 * * *
   workflow_dispatch: ~
-permissions:
-  contents: write
-  packages: write
