@@ -1,4 +1,6 @@
 ---
+env:
+  IMAGE: ghcr.io/asakatida/chimera
 jobs:
   release:
     concurrency:
@@ -21,15 +23,29 @@ jobs:
         with:
           push: true
           tags: |
-            ghcr.io/asakatida/chimera:0.${{ github.run_number }}.0
-            ghcr.io/asakatida/chimera:latest
+            {{ env.IMAGE }}:0.${{ github.run_number }}.0
+            {{ env.IMAGE }}:latest
+      - name: Update tags
+        # yamllint disable rule:line-length
+        run: >
+          grep --files-with-matches --recursive --regexp '{{ env.IMAGE }}' . |
+          xargs --max-procs=2 --no-run-if-empty --verbose --
+          sed -E -i ''
+          's#{{ env.IMAGE }}:[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+#{{ env.IMAGE }}:0.${{ github.run_number }}.0#g'
+        # yamllint enable rule:line-length
       - uses: softprops/action-gh-release@v1
         with:
           body: |
-            docker pull ghcr.io/asakatida/chimera:0.${{ github.run_number }}.0
+            docker pull {{ env.IMAGE }}:0.${{ github.run_number }}.0
           generate_release_notes: true
           tag_name: 0.${{ github.run_number }}.0+${{ github.sha }}
           target_commitish: ${{ github.sha }}
+      - uses: stefanzweifel/git-auto-commit-action@v4.16.0
+        with:
+          branch: pin-0.${{ github.run_number }}.0
+          commit_message: Update docker tag pins to 0.${{ github.run_number }}.0
+          create_branch: true
+          repository: ${{ github.workspace }}
 name: Release
 # yamllint disable-line rule:truthy
 on:
