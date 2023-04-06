@@ -21,12 +21,14 @@
 """corpus_merge.py"""
 
 from asyncio import run
+from os import environ
 from pathlib import Path
 from sys import stderr
 
 from asyncio_cmd import ProcessError, cmd
 from corpus_utils import corpus_merge
 
+IN_CI = environ.get("CI", "") == "true"
 SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
@@ -38,7 +40,18 @@ async def git_cmd(*args: object) -> None:
     await cmd("git", *args, err=None, out=None, timeout=600)
 
 
+def rmdir(path: Path) -> None:
+    if path.is_dir():
+        for child in path.iterdir():
+            rmdir(child)
+        path.rmdir()
+    else:
+        path.unlink(missing_ok=True)
+
+
 async def main() -> None:
+    if IN_CI:
+        rmdir(CORPUS_ORIGINAL)
     CORPUS.rename(CORPUS_ORIGINAL)
     await git_cmd("restore", "--source", "origin/HEAD", CORPUS)
     errors = await corpus_merge(CORPUS_ORIGINAL)

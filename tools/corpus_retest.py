@@ -21,6 +21,7 @@
 """corpus_retest.py"""
 
 from asyncio import run
+from os import environ
 from pathlib import Path
 from sys import argv, stderr
 
@@ -29,10 +30,20 @@ from corpus_trim import conflicts, corpus_trim
 from corpus_utils import corpus_merge, gather_paths
 from ninja import ninja
 
+IN_CI = environ.get("CI", "") == "true"
 SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
 CORPUS_ORIGINAL = FUZZ / "corpus_original"
+
+
+def rmdir(path: Path) -> None:
+    if path.is_dir():
+        for child in path.iterdir():
+            rmdir(child)
+        path.rmdir()
+    else:
+        path.unlink(missing_ok=True)
 
 
 async def corpus_retest(build: str) -> None:
@@ -45,6 +56,8 @@ async def corpus_retest(build: str) -> None:
             len(list(filter(Path.is_file, Path("unit_tests/fuzz/corpus").rglob("*")))),
             file=stderr,
         )
+    if IN_CI:
+        rmdir(CORPUS_ORIGINAL)
     CORPUS.rename(CORPUS_ORIGINAL)
     CORPUS.mkdir(parents=True, exist_ok=True)
     errors = await corpus_merge(CORPUS_ORIGINAL)
