@@ -107,6 +107,7 @@ def corpus_trim() -> None:
     for file in chain.from_iterable(
         map(SOURCE.rglob, ("crash-*", "leak-*", "timeout-*"))
     ):
+        CRASHES.mkdir(parents=True, exist_ok=True)
         file.rename(CRASHES / sha(file))
     while True:
         try:

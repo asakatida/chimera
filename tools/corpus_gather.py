@@ -41,7 +41,7 @@ async def git_cmd_remote(*args: object) -> None:
 
 
 async def main() -> None:
-    await git_cmd_remote("add", *FUZZ_DIRS)
+    await git_cmd_remote("add", FUZZ)
     await git_cmd_remote("commit", "--allow-empty", "-m", "WIP")
     git_log = await cmd(
         "git",
