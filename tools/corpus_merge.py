@@ -40,8 +40,6 @@ async def git_cmd(*args: object) -> None:
 
 async def main() -> None:
     CORPUS.rename(CORPUS_ORIGINAL)
-    await git_cmd("fetch")
-    await git_cmd("remote", "set-head", "origin", "--auto")
     await git_cmd("restore", "--source", "origin/HEAD", CORPUS)
     errors = await corpus_merge(CORPUS_ORIGINAL)
     if errors:

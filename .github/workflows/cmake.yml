@@ -20,6 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3.5.0
         with:
+          fetch-depth: 0
           submodules: true
       - name: CCache
         uses: actions/cache@v3.3.1
@@ -44,6 +45,12 @@ jobs:
         uses: ./
         with:
           run: python tools/corpus_retest.py build
+      - name: Corpus recheck
+        uses: ./
+        with:
+          run: |
+            git remote set-head origin --auto
+            python tools/corpus_merge.py
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
@@ -126,6 +133,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3.5.0
         with:
+          fetch-depth: 0
           submodules: true
       - name: CCache
         uses: actions/cache@v3.3.1
@@ -148,6 +156,7 @@ jobs:
           run: |
             git config --global user.email email
             git config --global user.name name
+            git remote set-head origin --auto
             python tools/corpus_gather.py
             set +e
             for opt in --global --local --system --worktree; do
