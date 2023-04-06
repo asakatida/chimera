@@ -23,20 +23,20 @@ jobs:
         with:
           push: true
           tags: |
-            {{ env.IMAGE }}:0.${{ github.run_number }}.0
-            {{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:0.${{ github.run_number }}.0
+            ${{ env.IMAGE }}:latest
       - name: Update tags
         # yamllint disable rule:line-length
         run: >
-          grep --files-with-matches --recursive --regexp '{{ env.IMAGE }}' . |
+          grep --files-with-matches --recursive --regexp "${IMAGE}" . |
           xargs --max-procs=2 --no-run-if-empty --verbose --
           sed -E -i ''
-          's#{{ env.IMAGE }}:[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+#{{ env.IMAGE }}:0.${{ github.run_number }}.0#g'
+          's#'"${IMAGE}"':[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+#'"${IMAGE}"':0.${{ github.run_number }}.0#g'
         # yamllint enable rule:line-length
       - uses: softprops/action-gh-release@v1
         with:
           body: |
-            docker pull {{ env.IMAGE }}:0.${{ github.run_number }}.0
+            docker pull ${{ env.IMAGE }}:0.${{ github.run_number }}.0
           generate_release_notes: true
           tag_name: 0.${{ github.run_number }}.0+${{ github.sha }}
           target_commitish: ${{ github.sha }}
@@ -61,5 +61,5 @@ on:
       - requirements.txt
       - tools/boot.yml
   schedule:
-    - cron: 20 14 * * *
+    - cron: 37 1 * * 2
   workflow_dispatch: ~
