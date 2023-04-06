@@ -85,8 +85,7 @@ jobs:
       - name: Gather crashes for recheck
         uses: ./
         with:
-          run: >
-            find unit_tests/fuzz/crashes -type f -exec cp '{}' unit_tests/fuzz/corpus ';'
+          run: python tools/crash_reset.py
       - name: Corpus recheck
         uses: ./
         with:
