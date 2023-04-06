@@ -31,7 +31,7 @@ jobs:
           grep --files-with-matches --recursive --regexp "${IMAGE}" . |
           xargs --max-procs=2 --no-run-if-empty --verbose --
           sed -E -i ''
-          's#'"${IMAGE}"':[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+#'"${IMAGE}"':0.${{ github.run_number }}.0#g'
+          -e 's#'"${IMAGE}"':[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+#'"${IMAGE}"':0.${{ github.run_number }}.0#g'
         # yamllint enable rule:line-length
       - uses: softprops/action-gh-release@v1
         with:
