@@ -22,14 +22,10 @@
 
 from asyncio import run
 from asyncio.subprocess import DEVNULL, PIPE
-from pathlib import Path
-from sys import stderr
+from sys import argv, stderr
 
 from asyncio_cmd import ProcessError, cmd
 from tqdm import tqdm
-
-FUZZ = Path(__file__).parent.parent.resolve() / "unit_tests" / "fuzz"
-FUZZ_DIRS = tuple(map(FUZZ.joinpath, ("crashes", "corpus", "dictionaries")))
 
 
 async def git_cmd(*args: object) -> None:
@@ -40,8 +36,8 @@ async def git_cmd_remote(*args: object) -> None:
     await cmd("git", *args, err=None, out=None, timeout=600)
 
 
-async def main() -> None:
-    await git_cmd_remote("add", FUZZ)
+async def main(*paths: str) -> None:
+    await git_cmd_remote("add", *paths)
     await git_cmd_remote("commit", "--allow-empty", "-m", "WIP")
     git_log = await cmd(
         "git",
@@ -50,7 +46,7 @@ async def main() -> None:
         "--format=%h",
         "^origin/HEAD",
         "--",
-        *FUZZ_DIRS,
+        *paths,
         err=None,
         out=PIPE
     )
@@ -59,16 +55,16 @@ async def main() -> None:
         desc="Refs",
         unit_scale=True,
     ):
-        await git_cmd("restore", "--source", sha, "--staged", *FUZZ_DIRS)
-        await git_cmd("restore", "--worktree", FUZZ)
-        await git_cmd("add", FUZZ)
+        await git_cmd("restore", "--source", sha, "--staged", *paths)
+        await git_cmd("restore", "--worktree", *paths)
+        await git_cmd("add", *paths)
         await git_cmd("commit", "--allow-empty", "--amend", "--no-edit")
     await cmd("git", "reset", "HEAD^", err=DEVNULL, out=DEVNULL, timeout=900)
 
 
 if __name__ == "__main__":
     try:
-        run(main())
+        run(main(*argv[1:]))
     except ProcessError as error:
         error.exit()
     except KeyboardInterrupt:
