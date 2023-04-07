@@ -12,8 +12,8 @@ ProcessInput = Optional[Union[int, TextIO]]
 
 
 class TimeIt:
-    def __init__(self, _callable: T) -> None:
-        self.callable = _callable
+    def __init__(self, callable: T) -> None:
+        self.callable = callable
 
     async def __call__(self, *args: object, **kwds: object) -> bytes:
         if not kwds.get("log", True):

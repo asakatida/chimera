@@ -33,7 +33,6 @@ SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
 CORPUS_ORIGINAL = FUZZ / "corpus_original"
-CRASHES = FUZZ / "crashes"
 
 
 async def git_cmd(*args: object) -> None:
