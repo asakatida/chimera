@@ -102,6 +102,7 @@ namespace chimera::library::grammar {
     template <typename Line>
     [[nodiscard]] auto validateBasic(Line &&line, char type) -> bool {
       return std::all_of(line.begin(), line.end(),
+                         // NOLINTNEXTLINE(readability-identifier-length)
                          [type](auto &&c) { return c == type; });
     }
 

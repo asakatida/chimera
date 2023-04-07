@@ -43,7 +43,7 @@
 #include "object/number/sub.hpp"
 #include "object/number/xor.hpp"
 
-// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,misc-use-anonymous-namespace,readability-identifier-length,readability-magic-numbers)
 
 namespace chimera::library::object::number {
   static auto reduce(Base value) -> NumberValue { return value; }
@@ -192,17 +192,17 @@ namespace chimera::library::object::number {
   }
   template <typename Arg>
   struct MakeComplex {
-    auto operator()(Arg &&arg) const noexcept -> Number {
+    auto operator()(Arg &&arg) const -> Number {
       return Number(std::decay_t<Arg>(arg));
     }
   };
   struct MakeComplexVisit {
     template <typename Arg>
-    auto operator()(Arg &&arg) const noexcept -> Number {
+    auto operator()(Arg &&arg) const -> Number {
       return MakeComplex<Arg>{}(std::forward<Arg>(arg));
     }
   };
   auto Number::complex() const -> Number { return visit(MakeComplexVisit{}); }
 } // namespace chimera::library::object::number
 
-// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,misc-use-anonymous-namespace,readability-identifier-length,readability-magic-numbers)

@@ -35,7 +35,7 @@
 
 using namespace std::literals;
 
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables,misc-use-anonymous-namespace)
 static std::atomic_flag SIG_INT{};
 
 extern "C" void interupt_handler(int /*signal*/) { SIG_INT.clear(); }

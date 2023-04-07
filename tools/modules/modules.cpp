@@ -69,24 +69,26 @@ namespace chimera::library {
   auto PrintState::is_printed(const object::Object &object) -> bool {
     return m_printed.contains(id(object));
   }
-  auto Compare::operator()(const SetAttribute &a, const SetAttribute &b) const
-      -> bool {
-    if (a.base_name == b.base_name) {
-      return a.name < b.name;
+  auto Compare::operator()(const SetAttribute &left,
+                           const SetAttribute &right) const -> bool {
+    if (left.base_name == right.base_name) {
+      return left.name < right.name;
     }
-    return a.base_name < b.base_name;
+    return left.base_name < right.base_name;
   }
-  auto Compare::operator()(const Work &a, const Work &b) const -> bool {
-    if (a.printer->is_printed(b.object) && !b.printer->is_printed(a.object)) {
+  auto Compare::operator()(const Work &left, const Work &right) const -> bool {
+    if (left.printer->is_printed(right.object) &&
+        !right.printer->is_printed(left.object)) {
       return true;
     }
-    if (b.printer->is_printed(a.object) && !a.printer->is_printed(b.object)) {
+    if (right.printer->is_printed(left.object) &&
+        !left.printer->is_printed(right.object)) {
       return false;
     }
-    if (a.base_name == b.base_name) {
-      return a.name > b.name;
+    if (left.base_name == right.base_name) {
+      return left.name > right.name;
     }
-    return a.base_name > b.base_name;
+    return left.base_name > right.base_name;
   }
   void IncompleteTuple::operator()(const object::Tuple &tuple) {
     for (const auto &object : tuple) {

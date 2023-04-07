@@ -27,6 +27,8 @@
 #include "object/number/div.hpp"
 #include "object/number/util.hpp"
 
+// NOLINTBEGIN(readability-identifier-length)
+
 namespace chimera::library::object::number {
   auto operator-(Base base) -> Number { return Number(Negative{base}); }
   auto operator-(const Natural &natural) -> Number {
@@ -43,3 +45,5 @@ namespace chimera::library::object::number {
   auto operator-(const Complex & /*complex*/) -> Number { Expects(false); }
 
 } // namespace chimera::library::object::number
+
+// NOLINTEND(readability-identifier-length)

@@ -38,7 +38,7 @@
 #include "version.hpp"                        // for CHIMERA_GIT_HEAD, CHIM...
 #include "virtual_machine/global_context.hpp" // for GlobalContext
 
-// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,misc-use-anonymous-namespace,readability-magic-numbers)
 
 using namespace std::literals;
 
@@ -236,4 +236,4 @@ auto main(int argc, const char *argv[]) -> int {
   return chimera::library::main(gsl::make_span(argv, argc));
 }
 
-// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,misc-use-anonymous-namespace,readability-magic-numbers)

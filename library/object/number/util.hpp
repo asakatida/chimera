@@ -142,10 +142,12 @@ namespace chimera::library::object::number {
   }
   template <typename Left>
   auto pow(Left &&left, Number &&right) -> Number {
+    // NOLINTNEXTLINE(readability-static-accessed-through-instance)
     return Number(std::decay_t<Left>(left)).pow(right);
   }
   template <typename Right>
   auto pow(Number &&left, Right &&right) -> Number {
+    // NOLINTNEXTLINE(readability-static-accessed-through-instance)
     return left.pow(Number(std::decay_t<Right>(right)));
   }
 } // namespace chimera::library::object::number

@@ -25,6 +25,8 @@
 #include "object/number/mult.hpp"
 #include "object/number/util.hpp"
 
+// NOLINTBEGIN(readability-identifier-length)
+
 #define LESS_LEFT_RATIONAL                                                     \
   std::visit([&right](auto &&lN, auto &&lD) { return lN < (lD * right); },     \
              left.numerator, left.denominator)
@@ -186,3 +188,5 @@ namespace chimera::library::object::number {
     return false;
   }
 } // namespace chimera::library::object::number
+
+// NOLINTEND(readability-identifier-length)

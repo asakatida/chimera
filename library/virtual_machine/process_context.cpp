@@ -56,7 +56,7 @@ namespace chimera::library::virtual_machine {
     visited.emplace(module.id());
     std::vector<object::Object> attributes;
     attributes.reserve(module.dir_size());
-    for (auto key : module.dir()) {
+    for (const auto &key : module.dir()) {
       attributes.push_back(module.get_attribute(key));
       module.set_attribute(key, object::Object());
     }

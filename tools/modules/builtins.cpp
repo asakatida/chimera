@@ -42,7 +42,8 @@
 #include "virtual_machine/thread_context.hpp"
 
 namespace chimera::library {
-  static void main() {
+  // NOLINTNEXTLINE(misc-use-anonymous-namespace)
+  static void execute() {
     const virtual_machine::GlobalContext globalContext({});
     virtual_machine::ProcessContext processContext{globalContext};
     auto module = processContext.parse_file(std::move(std::cin), "<input>");
@@ -55,7 +56,8 @@ namespace chimera::library {
   }
 } // namespace chimera::library
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 auto main() -> int {
-  chimera::library::main();
+  chimera::library::execute();
   return 0;
 }

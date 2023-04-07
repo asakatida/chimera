@@ -31,15 +31,16 @@
 #include "grammar/whitespace.hpp"
 #include "object/object.hpp"
 
-// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-identifier-length,readability-magic-numbers)
 
 namespace chimera::library::grammar {
   namespace token {
     struct NumberHolder {
       template <std::uint8_t Base, typename Input, typename... Args>
-      void apply(const Input &in, Args &&...args) {
-        number *= object::Number(Base).pow(object::Number(in.size())) +
-                  object::Number(std::stoul(in.string(), nullptr, Base));
+      void apply(const Input &input, Args &&.../*args*/) {
+        // NOLINTNEXTLINE(readability-static-accessed-through-instance)
+        number *= object::Number(Base).pow(object::Number(input.size())) +
+                  object::Number(std::stoul(input.string(), nullptr, Base));
       }
       object::Number number = object::Number(0U);
     };
@@ -47,32 +48,32 @@ namespace chimera::library::grammar {
     template <>
     struct Action<Nonzerodigit> {
       template <typename Input, typename Top, typename... Args>
-      static void apply(const Input &in, Top &&top, Args &&...args) {
-        top.template apply<10>(in);
+      static void apply(const Input &input, Top &&top, Args &&.../*args*/) {
+        top.template apply<10>(input);
       }
     };
     struct Digit : seq<range<'0', '9'>, rep_opt<18, range<'0', '9'>>> {};
     template <>
     struct Action<Digit> {
       template <typename Input, typename Top, typename... Args>
-      static void apply(const Input &in, Top &&top, Args &&...args) {
-        top.template apply<10>(in);
+      static void apply(const Input &input, Top &&top, Args &&.../*args*/) {
+        top.template apply<10>(input);
       }
     };
     struct Bindigit : seq<range<'0', '1'>, rep_opt<63, range<'0', '1'>>> {};
     template <>
     struct Action<Bindigit> {
       template <typename Input, typename Top, typename... Args>
-      static void apply(const Input &in, Top &&top, Args &&...args) {
-        top.template apply<2>(in);
+      static void apply(const Input &input, Top &&top, Args &&.../*args*/) {
+        top.template apply<2>(input);
       }
     };
     struct Octdigit : seq<range<'0', '7'>, rep_opt<31, range<'0', '7'>>> {};
     template <>
     struct Action<Octdigit> {
       template <typename Input, typename Top, typename... Args>
-      static void apply(const Input &in, Top &&top, Args &&...args) {
-        top.template apply<8>(in);
+      static void apply(const Input &input, Top &&top, Args &&.../*args*/) {
+        top.template apply<8>(input);
       }
     };
     struct Hexdigit : seq<ranges<'0', '9', 'a', 'f', 'A', 'F'>,
@@ -80,8 +81,8 @@ namespace chimera::library::grammar {
     template <>
     struct Action<Hexdigit> {
       template <typename Input, typename Top, typename... Args>
-      static void apply(const Input &in, Top &&top, Args &&...args) {
-        top.template apply<16>(in);
+      static void apply(const Input &input, Top &&top, Args &&.../*args*/) {
+        top.template apply<16>(input);
       }
     };
     using DecIntegerNonZeroDigit =
@@ -111,6 +112,7 @@ namespace chimera::library::grammar {
       struct Transform : NumberHolder {
         template <typename Top>
         void success(Top &&top) {
+          // NOLINTNEXTLINE(readability-static-accessed-through-instance)
           top.number *= object::Number(10).pow(number);
         }
       };
@@ -123,12 +125,13 @@ namespace chimera::library::grammar {
         object::Number denominator = object::Number(1);
         template <typename Top>
         void success(Top &&top) {
+          // NOLINTNEXTLINE(readability-static-accessed-through-instance)
           top.number += number / object::Number(10).pow(denominator);
         }
         template <std::uint8_t Base, typename Input, typename... Args>
-        void apply(const Input &in, Args &&...args) {
-          denominator += object::Number(in.size());
-          NumberHolder::apply<Base>(in);
+        void apply(const Input &input, Args &&.../*args*/) {
+          denominator += object::Number(input.size());
+          NumberHolder::apply<Base>(input);
         }
       };
     };
@@ -146,7 +149,7 @@ namespace chimera::library::grammar {
     template <>
     struct Action<Numberliteral> {
       template <typename Top, typename... Args>
-      static void apply0(Top &&top, Args &&...args) {
+      static void apply0(Top &&top, Args &&.../*args*/) {
         top.push(object::Object(std::move(top.number), {}));
       }
     };
@@ -155,4 +158,4 @@ namespace chimera::library::grammar {
   struct NUMBER : token::Token<Option, token::Numberliteral> {};
 } // namespace chimera::library::grammar
 
-// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-identifier-length,readability-magic-numbers)
