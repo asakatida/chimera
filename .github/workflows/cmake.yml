@@ -156,7 +156,7 @@ jobs:
             git config --global user.email email
             git config --global user.name name
             git remote set-head origin --auto
-            python tools/corpus_gather.py
+            python tools/corpus_gather.py unit_tests/fuzz/corpus
             set +e
             for opt in --global --local --system --worktree; do
               git config "${opt}" --unset-all user.email
