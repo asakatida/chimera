@@ -29,7 +29,7 @@
 #include "object/number/negative.hpp"
 #include "object/number/overflow.hpp"
 
-// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-identifier-length,readability-magic-numbers)
 
 namespace chimera::library::object::number {
   auto operator>>(std::uint64_t left, Base right) -> Number {
@@ -236,4 +236,4 @@ namespace chimera::library::object::number {
   }
 } // namespace chimera::library::object::number
 
-// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-identifier-length,readability-magic-numbers)

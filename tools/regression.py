@@ -12,8 +12,8 @@ async def regression(fuzzer: str, corpus: str) -> None:
             lambda args: cmd_flog(f"./fuzz-{fuzzer}", *args, timeout=120),
             chunks(filter(Path.is_file, Path(corpus).rglob("*")), 4096),
         ),
-        limit=2,
         cancel=True,
+        limit=2,
     )
 
 

@@ -99,7 +99,8 @@
         "unordered_set": "cpp",
         "utility": "cpp",
         "variant": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "charconv": "cpp"
     },
     "git.autofetch": false,
     "git.autorefresh": false,

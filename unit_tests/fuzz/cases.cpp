@@ -22,15 +22,15 @@
 namespace chimera::library {
   using NumericLimits = std::numeric_limits<std::uint16_t>;
   constexpr static auto bufferSize = NumericLimits::max();
-  auto fuzz_input(std::istream &in) -> Input {
-    return {in, bufferSize, "fuzz"};
+  auto fuzz_input(std::istream &input) -> Input {
+    return {input, bufferSize, "fuzz"};
   }
   auto fuzz_istream(const std::uint8_t *data, std::size_t size)
       -> std::istringstream {
-    std::istringstream in(
+    std::istringstream input(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         std::string(reinterpret_cast<const char *>(data), size));
-    return in;
+    return input;
   }
   auto fuzz_options() -> Options {
     Options options{};
@@ -41,13 +41,13 @@ namespace chimera::library {
   auto fuzz_expression_eval(const std::uint8_t *data, std::size_t size) -> int {
     return fuzz_expression_eval(fuzz_istream(data, size));
   }
-  auto fuzz_expression_eval(std::istream &&in) -> int {
+  auto fuzz_expression_eval(std::istream &&input) -> int {
     auto options = fuzz_options();
     const virtual_machine::GlobalContext globalContext(options);
     virtual_machine::ProcessContext processContext{globalContext};
     std::optional<asdl::Expression> expression;
     try {
-      expression = processContext.parse_expression(std::move(in), "<fuzz>");
+      expression = processContext.parse_expression(std::move(input), "<fuzz>");
     } catch (const tao::pegtl::parse_error &) {
       return -1;
     } catch (const chimera::library::grammar::SyntaxError &) {
@@ -66,13 +66,13 @@ namespace chimera::library {
   auto fuzz_file_eval(const std::uint8_t *data, std::size_t size) -> int {
     return fuzz_file_eval(fuzz_istream(data, size));
   }
-  auto fuzz_file_eval(std::istream &&in) -> int {
+  auto fuzz_file_eval(std::istream &&input) -> int {
     auto options = fuzz_options();
     const virtual_machine::GlobalContext globalContext(options);
     virtual_machine::ProcessContext processContext{globalContext};
     std::optional<asdl::Module> module;
     try {
-      module = processContext.parse_file(std::move(in), "<fuzz>");
+      module = processContext.parse_file(std::move(input), "<fuzz>");
     } catch (const tao::pegtl::parse_error &) {
       return -1;
     } catch (const chimera::library::grammar::SyntaxError &) {
@@ -92,13 +92,13 @@ namespace chimera::library {
       -> int {
     return fuzz_interactive_eval(fuzz_istream(data, size));
   }
-  auto fuzz_interactive_eval(std::istream &&in) -> int {
+  auto fuzz_interactive_eval(std::istream &&input) -> int {
     auto options = fuzz_options();
     const virtual_machine::GlobalContext globalContext(options);
     virtual_machine::ProcessContext processContext{globalContext};
     std::optional<asdl::Interactive> interactive;
     try {
-      interactive = processContext.parse_input(std::move(in), "<fuzz>");
+      interactive = processContext.parse_input(std::move(input), "<fuzz>");
     } catch (const tao::pegtl::parse_error &) {
       return -1;
     } catch (const chimera::library::grammar::SyntaxError &) {

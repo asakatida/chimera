@@ -50,8 +50,9 @@ namespace chimera::library {
     std::string name{};
   };
   struct Compare {
-    auto operator()(const SetAttribute &a, const SetAttribute &b) const -> bool;
-    auto operator()(const Work &a, const Work &b) const -> bool;
+    auto operator()(const SetAttribute &left, const SetAttribute &right) const
+        -> bool;
+    auto operator()(const Work &left, const Work &right) const -> bool;
   };
   struct IncompleteTuple {
     explicit IncompleteTuple(PrintState *printer) : printer(printer) {}

@@ -36,8 +36,8 @@ namespace chimera::library::grammar {
     template <>
     struct Action<Name> {
       template <typename Input, typename Stack, typename... Args>
-      static void apply(const Input &in, Stack &&stack, Args &&...args) {
-        stack.push(asdl::Name{in.string()});
+      static void apply(const Input &input, Stack &&stack, Args &&...args) {
+        stack.push(asdl::Name{input.string()});
       }
     };
   } // namespace token

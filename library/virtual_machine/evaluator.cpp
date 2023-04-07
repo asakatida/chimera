@@ -48,7 +48,7 @@ namespace chimera::library::virtual_machine {
     visited.emplace(leftover.id());
     std::vector<object::Object> attributes;
     attributes.reserve(leftover.dir_size());
-    for (auto key : leftover.dir()) {
+    for (const auto &key : leftover.dir()) {
       attributes.push_back(leftover.get_attribute(key));
       leftover.set_attribute(key, object::Object());
     }
@@ -73,7 +73,7 @@ namespace chimera::library::virtual_machine {
       : thread_context(thread_context) {}
   Evaluator::~Evaluator() noexcept {
     std::unordered_set<object::Id> visited;
-    for (; stack.size() > 0; stack.pop()) {
+    for (; !stack.empty(); stack.pop()) {
       destroy_object(stack.top(), visited);
     }
   }

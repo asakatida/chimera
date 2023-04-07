@@ -32,7 +32,7 @@
 #undef Py_TYPE
 
 // maintain some level of API compatability with upstream
-// NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-macro-usage,cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,cppcoreguidelines-pro-type-reinterpret-cast,hicpp-no-malloc)
+// NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-macro-usage,cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,cppcoreguidelines-pro-type-reinterpret-cast,hicpp-no-malloc,misc-use-anonymous-namespace,readability-identifier-length)
 
 static auto Py_TYPE(PyObject *o) -> auto & { return o->ob_type; }
 
@@ -3603,4 +3603,4 @@ extern "C" auto PyWeakref_GET_OBJECT(PyObject * /*ref*/) -> PyObject * {
   return nullptr;
 }
 
-// NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-macro-usage,cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,cppcoreguidelines-pro-type-reinterpret-cast,hicpp-no-malloc)
+// NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-macro-usage,cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,cppcoreguidelines-pro-type-reinterpret-cast,hicpp-no-malloc,misc-use-anonymous-namespace,readability-identifier-length)

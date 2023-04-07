@@ -29,6 +29,8 @@
 #include "object/number/sub.hpp"
 #include "object/number/util.hpp"
 
+// NOLINTBEGIN(readability-identifier-length)
+
 namespace chimera::library::object::number {
   struct Plus {
     template <typename Left>
@@ -250,3 +252,5 @@ namespace chimera::library::object::number {
   }
 
 } // namespace chimera::library::object::number
+
+// NOLINTEND(readability-identifier-length)

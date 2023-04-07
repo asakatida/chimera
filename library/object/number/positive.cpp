@@ -22,6 +22,8 @@
 
 #include <gsl/gsl>
 
+// NOLINTBEGIN(readability-identifier-length)
+
 namespace chimera::library::object::number {
   auto operator+(Base base) -> Number { return Number(base); }
   auto operator+(const Natural &natural) -> Number {
@@ -37,3 +39,5 @@ namespace chimera::library::object::number {
   auto operator+(const Imag & /*imag*/) -> Number { Expects(false); }
   auto operator+(const Complex & /*complex*/) -> Number { Expects(false); }
 } // namespace chimera::library::object::number
+
+// NOLINTEND(readability-identifier-length)

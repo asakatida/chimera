@@ -36,7 +36,7 @@
 
 namespace chimera::library {
   enum class Optimize;
-}
+} // namespace chimera::library
 
 namespace chimera::library::asdl {
   Expression::Expression(const Optimize &optimize, std::istream &&input,

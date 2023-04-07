@@ -29,6 +29,8 @@
 #include "object/number/overflow.hpp"
 #include "object/number/util.hpp"
 
+// NOLINTBEGIN(readability-identifier-length)
+
 namespace chimera::library::object::number {
   auto operator-(std::uint64_t left, Base right) -> Number {
     if (left < right.value) {
@@ -241,3 +243,5 @@ namespace chimera::library::object::number {
     Expects(false);
   }
 } // namespace chimera::library::object::number
+
+// NOLINTEND(readability-identifier-length)

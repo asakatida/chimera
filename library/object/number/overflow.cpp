@@ -22,7 +22,7 @@
 
 #include <limits>
 
-// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-identifier-length,readability-magic-numbers)
 
 namespace chimera::library::object::number {
   using NumericLimits = std::numeric_limits<std::uint64_t>;
@@ -54,4 +54,4 @@ namespace chimera::library::object::number {
   }
 } // namespace chimera::library::object::number
 
-// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-identifier-length,readability-magic-numbers)

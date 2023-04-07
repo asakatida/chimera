@@ -49,9 +49,9 @@ namespace chimera::library::virtual_machine {
   private:
     void collect();
     struct Compare {
-      auto operator()(const object::Object &a, const object::Object &b)
+      auto operator()(const object::Object &left, const object::Object &right)
           -> bool {
-        return a.id() < b.id();
+        return left.id() < right.id();
       }
     };
     std::atomic_flag flag = ATOMIC_FLAG_INIT;

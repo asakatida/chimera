@@ -35,6 +35,8 @@
 #include "object/number/sub.hpp"
 #include "object/number/util.hpp"
 
+// NOLINTBEGIN(bugprone-easily-swappable-parameters,readability-identifier-length)
+
 namespace chimera::library::object::number {
   template <typename Left>
   auto div(const Left &left, const Rational &right) -> Number {
@@ -219,3 +221,5 @@ namespace chimera::library::object::number {
     Expects(false);
   }
 } // namespace chimera::library::object::number
+
+// NOLINTEND(bugprone-easily-swappable-parameters,readability-identifier-length)

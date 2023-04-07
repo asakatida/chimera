@@ -1,5 +1,12 @@
 ---
 AnalyzeTemporaryDtors: true
-Checks: "*"
+Checks: >
+  *,
+  -altera-*,
+  -bugprone-easily-swappable-parameters,
+  -fuchsia-*,
+  -google-*,
+  -llvmlibc-*,
+  -misc-no-recursion
 FormatStyle: file
 WarningsAsErrors: "*"

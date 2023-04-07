@@ -36,7 +36,7 @@ struct BnfAction : tao::pegtl::nothing<Rule> {};
 template <char Constant>
 struct BnfPrint {
   template <typename... Args>
-  static void apply0(Args &&...args) {
+  static void apply0(Args &&.../*args*/) {
     std::cout << Constant;
   }
 };
@@ -46,8 +46,8 @@ struct CommentBody : tao::pegtl::until<tao::pegtl::eolf> {};
 template <>
 struct BnfAction<CommentBody> {
   template <typename Input, typename... Args>
-  static void apply(const Input &in, Args &&...args) {
-    std::cout << ';' << in.string();
+  static void apply(const Input &input, Args &&.../*args*/) {
+    std::cout << ';' << input.string();
   }
 };
 
@@ -67,8 +67,8 @@ struct RuleName : tao::pegtl::identifier {};
 template <>
 struct BnfAction<RuleName> {
   template <typename Input, typename... Args>
-  static void apply(const Input &in, Args &&...args) {
-    auto str = in.string();
+  static void apply(const Input &input, Args &&.../*args*/) {
+    auto str = input.string();
     std::replace(str.begin(), str.end(), '_', '-');
     std::cout << str;
   }
@@ -82,8 +82,8 @@ struct TermIdentifier
 template <>
 struct BnfAction<TermIdentifier> {
   template <typename Input, typename... Args>
-  static void apply(const Input &in, Args &&...args) {
-    auto str = in.string();
+  static void apply(const Input &input, Args &&.../*args*/) {
+    auto str = input.string();
     std::replace(str.begin(), str.end(), '_', '-');
     std::cout << str;
   }
@@ -95,8 +95,9 @@ struct Literal : tao::pegtl::seq<tao::pegtl::one<'\''>,
 template <>
 struct BnfAction<Literal> {
   template <typename Input, typename... Args>
-  static void apply(const Input &in, Args &&...args) {
-    std::cout << '"' << in.string().substr(1, in.string().size() - 2) << '"';
+  static void apply(const Input &input, Args &&.../*args*/) {
+    std::cout << '"' << input.string().substr(1, input.string().size() - 2)
+              << '"';
   }
 };
 
@@ -140,7 +141,7 @@ struct BnfPlus : tao::pegtl::at<Term, tao::pegtl::one<'+'>> {};
 template <>
 struct BnfAction<BnfPlus> {
   template <typename... Args>
-  static void apply0(Args &&...args) {
+  static void apply0(Args &&.../*args*/) {
     std::cout << "1*";
   }
 };
@@ -176,9 +177,10 @@ struct Syntax
     : tao::pegtl::seq<OptWhitespace, tao::pegtl::plus<Rule>, tao::pegtl::eof> {
 };
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 auto main() -> int {
-  tao::pegtl::istream_input<> in(std::cin, 1024, "<input>");
-  return tao::pegtl::parse<Syntax, BnfAction>(in) ? 0 : 1;
+  tao::pegtl::istream_input<> istream(std::cin, 1024, "<input>");
+  return tao::pegtl::parse<Syntax, BnfAction>(istream) ? 0 : 1;
 }
 
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

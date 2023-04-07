@@ -33,6 +33,8 @@
 #include "object/number/sub.hpp"
 #include "object/number/util.hpp"
 
+// NOLINTBEGIN(readability-identifier-length)
+
 namespace chimera::library::object::number {
   template <typename Left>
   auto mod(const Left &left, const Rational &right) -> Number {
@@ -228,3 +230,5 @@ namespace chimera::library::object::number {
     Expects(false);
   }
 } // namespace chimera::library::object::number
+
+// NOLINTEND(readability-identifier-length)

@@ -24,6 +24,8 @@
 
 #include "object/number/negative.hpp"
 
+// NOLINTBEGIN(readability-identifier-length)
+
 namespace chimera::library::object::number {
   auto operator^(std::uint64_t left, Base right) -> Number {
     return Number(left ^ right.value);
@@ -209,3 +211,5 @@ namespace chimera::library::object::number {
     Expects(false);
   }
 } // namespace chimera::library::object::number
+
+// NOLINTEND(readability-identifier-length)
