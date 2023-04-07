@@ -32,7 +32,7 @@ FUZZ = Path(__file__).parent.parent.resolve() / "unit_tests" / "fuzz"
 PRINTABLE = set(printable)
 
 
-def _is_ascii(path: Path) -> bool:
+def is_ascii(path: Path) -> bool:
     try:
         data = path.read_bytes()
         return all(c in PRINTABLE or ord(c) > 0xFF for c in data.decode())
@@ -41,7 +41,7 @@ def _is_ascii(path: Path) -> bool:
 
 
 def corpus_ascii() -> Iterable[Path]:
-    return filter(_is_ascii, gather_paths())
+    return filter(is_ascii, gather_paths())
 
 
 if __name__ == "__main__":

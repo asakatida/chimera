@@ -34,7 +34,6 @@ DIRECTORIES = ("corpus", "crashes")
 SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
-CRASHES = FUZZ / "crashes"
 T = TypeVar("T")
 
 
