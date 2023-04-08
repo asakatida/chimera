@@ -36,6 +36,13 @@ async def git_cmd_remote(*args: object) -> None:
     await cmd("git", *args, err=None, out=None, timeout=600)
 
 
+async def git_restore(sha: str, *paths: object) -> None:
+    await git_cmd("restore", "--source", sha, "--staged", *paths)
+    await git_cmd("restore", "--worktree", *paths)
+    await git_cmd("add", *paths)
+    await git_cmd("commit", "--allow-empty", "--amend", "--no-edit")
+
+
 async def main(*paths: str) -> None:
     await git_cmd_remote("add", *paths)
     await git_cmd_remote("commit", "--allow-empty", "-m", "WIP")
@@ -55,10 +62,8 @@ async def main(*paths: str) -> None:
         desc="Refs",
         unit_scale=True,
     ):
-        await git_cmd("restore", "--source", sha, "--staged", *paths)
-        await git_cmd("restore", "--worktree", *paths)
-        await git_cmd("add", *paths)
-        await git_cmd("commit", "--allow-empty", "--amend", "--no-edit")
+        await git_restore(sha, *paths)
+    await git_restore("origin/HEAD", *paths)
     await cmd("git", "reset", "HEAD^", err=DEVNULL, out=DEVNULL, timeout=900)
 
 
