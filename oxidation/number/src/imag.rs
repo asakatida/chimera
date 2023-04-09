@@ -1,7 +1,6 @@
 use core::{cmp, fmt, ops};
 
 use crate::base::Base;
-use crate::natural::Natural;
 use crate::negative::Negative;
 use crate::number::Number;
 use crate::rational::Rational;
@@ -12,7 +11,7 @@ use crate::utils::{fmt_ptr, gcd};
 #[non_exhaustive]
 pub enum Imag {
     Base(Base),
-    Natural(Natural),
+    Natural(num_bigint::BigUint),
     Rational(Rational),
     Negative(Negative),
 }
@@ -222,6 +221,15 @@ impl ops::Not for Imag {
     }
 }
 
+impl num_traits::pow::Pow<Imag> for Imag {
+    type Output = Number;
+
+    #[inline]
+    fn pow(self, _other: Self) -> Number {
+        Number::NaN
+    }
+}
+
 impl ops::Rem for Imag {
     type Output = Number;
 
@@ -262,20 +270,15 @@ impl NumberBase for Imag {
     #[inline]
     fn abs(&self) -> Number {
         match self.clone() {
-            Self::Base(i) => i.abs(),
-            Self::Natural(i) => i.abs(),
-            Self::Rational(i) => i.abs(),
-            Self::Negative(i) => i.abs(),
+            Self::Base(i) => Imag::from(i).into(),
+            Self::Natural(i) => Imag::from(i).into(),
+            Self::Rational(i) => Imag::from(i).into(),
+            Self::Negative(i) => i.abs().imag(),
         }
     }
 
     #[inline]
     fn gcd(&self, other: &Self) -> Number {
         gcd(self, other)
-    }
-
-    #[inline]
-    fn pow(&self, _other: &Self) -> Number {
-        Number::NaN
     }
 }

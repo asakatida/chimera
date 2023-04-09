@@ -11,7 +11,6 @@
 pub mod base;
 pub mod complex;
 pub mod imag;
-pub mod natural;
 pub mod negative;
 pub mod number;
 pub mod rational;
@@ -25,14 +24,19 @@ use crate::negative::Negative;
 use crate::number::Number;
 use crate::traits::NumberBase;
 
+#[allow(clippy::mem_forget)]
+#[allow(clippy::print_stderr)]
+#[allow(clippy::use_debug)]
 #[inline]
 #[must_use]
 pub fn export_number(value: Number) -> *mut PythonNumber {
-    let mut inner = mem::ManuallyDrop::new(value);
-    let mut outer = mem::ManuallyDrop::new(PythonNumber {
-        value: ptr::addr_of_mut!(*inner).cast(),
-    });
-    ptr::addr_of_mut!(*outer)
+    eprintln!("export_number(value: {value:p})");
+    let mut outer = PythonNumber::new(value);
+    eprintln!("export_number(outer: {outer:?})");
+    let result = ptr::addr_of_mut!(outer);
+    mem::forget(outer);
+    eprintln!("export_number(result: {result:?})");
+    result
 }
 
 #[inline]
@@ -65,20 +69,37 @@ impl fmt::Write for Writer {
     }
 }
 
+/// cbindgen:ignore
+#[derive(Debug)]
 #[non_exhaustive]
 #[repr(C)]
 pub struct PythonNumber {
-    pub value: *mut ffi::c_void,
+    value: *mut ffi::c_void,
 }
 
 impl PythonNumber {
+    fn new(mut value: Number) -> Self {
+        let inner = ptr::addr_of_mut!(value);
+        mem::forget(value);
+        Self {
+            value: inner.cast(),
+        }
+    }
+
+    #[allow(clippy::print_stderr)]
+    #[allow(clippy::use_debug)]
     #[inline]
     #[must_use]
-    #[allow(clippy::as_conversions)]
     fn get(&self) -> Number {
+        eprintln!("get(self: {:?})", ptr::addr_of!(*self));
+        eprintln!("get({:?})", self.value);
         // SAFETY:
         // - The pointer is valid for the lifetime of the PythonNumber.
-        let inner = mem::ManuallyDrop::<Number>::new(unsafe { ptr::read(self.value.cast()) });
+        eprintln!("get({:?})", unsafe { self.value.offset(-24) });
+        let inner =
+        // SAFETY:
+        // - The pointer is valid for the lifetime of the PythonNumber.
+        mem::ManuallyDrop::<Number>::new(unsafe { ptr::read(self.value.offset(-24).cast()) });
         mem::ManuallyDrop::into_inner(inner.clone())
     }
 }
@@ -87,9 +108,9 @@ impl PythonNumber {
 impl Drop for PythonNumber {
     #[inline]
     fn drop(&mut self) {
-        // // SAFETY:
-        // // - The pointer is valid for the lifetime of the PythonNumber.
-        // drop(unsafe { ptr::read(self.value.cast::<Number>()) });
+        // SAFETY:
+        // - The pointer is valid for the lifetime of the PythonNumber.
+        drop(unsafe { ptr::read(self.value.cast::<Number>()) });
     }
 }
 

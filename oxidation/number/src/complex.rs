@@ -2,7 +2,6 @@ use core::{cmp, fmt, ops};
 
 use crate::base::Base;
 use crate::imag::Imag;
-use crate::natural::Natural;
 use crate::negative::Negative;
 use crate::number::Number;
 use crate::rational::Rational;
@@ -74,18 +73,18 @@ impl From<&Base> for Complex {
         }
     }
 }
-impl From<Natural> for Complex {
+impl From<num_bigint::BigUint> for Complex {
     #[inline]
-    fn from(i: Natural) -> Self {
+    fn from(i: num_bigint::BigUint) -> Self {
         Complex {
             real: Imag::Natural(i),
             imag: Imag::Base(0.into()),
         }
     }
 }
-impl From<&Natural> for Complex {
+impl From<&num_bigint::BigUint> for Complex {
     #[inline]
-    fn from(i: &Natural) -> Self {
+    fn from(i: &num_bigint::BigUint) -> Self {
         i.clone().into()
     }
 }
@@ -271,6 +270,15 @@ impl ops::Not for Complex {
     }
 }
 
+impl num_traits::pow::Pow<Complex> for Complex {
+    type Output = Number;
+
+    #[inline]
+    fn pow(self, _other: Self) -> Number {
+        Number::NaN
+    }
+}
+
 impl ops::Rem for Complex {
     type Output = Number;
 
@@ -316,10 +324,5 @@ impl NumberBase for Complex {
     #[inline]
     fn gcd(&self, other: &Self) -> Number {
         gcd(self, other)
-    }
-
-    #[inline]
-    fn pow(&self, _other: &Self) -> Number {
-        Number::NaN
     }
 }

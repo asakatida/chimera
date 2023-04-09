@@ -1,6 +1,5 @@
 use core::{cmp, fmt, ops};
 
-use crate::natural::Natural;
 use crate::negative::Negative;
 use crate::number::Number;
 use crate::rational::{Part, Rational};
@@ -115,7 +114,7 @@ impl ops::Add for Base {
     fn add(self, other: Self) -> Self::Output {
         match self.value.overflowing_add(other.value) {
             (i, false) => i.into(),
-            (i, true) => Natural { value: vec![1, i] }.into(),
+            (_, true) => (num_bigint::BigUint::from(self.value) + other.value).into(),
         }
     }
 }
@@ -183,7 +182,7 @@ impl ops::Mul for Base {
     fn mul(self, other: Self) -> Self::Output {
         match self.value.overflowing_mul(other.value) {
             (i, false) => Self::new(i).into(),
-            (_, true) => Natural::from(self) * other.into(),
+            (_, true) => (num_bigint::BigUint::from(self.value) * other.value).into(),
         }
     }
 }
@@ -203,6 +202,22 @@ impl ops::Not for Base {
     #[inline]
     fn not(self) -> Self::Output {
         (!self.value).into()
+    }
+}
+
+impl num_traits::pow::Pow<Base> for Base {
+    type Output = Number;
+
+    #[inline]
+    fn pow(self, other: Self) -> Number {
+        if let Ok(value) = other.value.try_into() {
+            match self.value.overflowing_pow(value) {
+                (i, false) => Self::new(i).into(),
+                (_, true) => num_bigint::BigUint::from(self.value).pow(other.value).into(),
+            }
+        } else {
+            num_bigint::BigUint::from(self.value).pow(other.value).into()
+        }
     }
 }
 
@@ -263,17 +278,5 @@ impl NumberBase for Base {
             a_prime = temp;
         }
         a_prime.into()
-    }
-
-    #[inline]
-    fn pow(&self, other: &Self) -> Number {
-        if let Ok(value) = other.value.try_into() {
-            match self.value.overflowing_pow(value) {
-                (i, false) => Self::new(i).into(),
-                (_, true) => Natural::from(*self).pow(&(*other).into()),
-            }
-        } else {
-            Natural::from(*self).pow(&(*other).into())
-        }
     }
 }

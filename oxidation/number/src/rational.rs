@@ -1,7 +1,6 @@
 use core::{cmp, fmt, ops};
 
 use crate::base::Base;
-use crate::natural::Natural;
 use crate::negative::Negative;
 use crate::number::Number;
 use crate::traits::NumberBase;
@@ -11,7 +10,7 @@ use crate::utils::{fmt_ptr, gcd, rem};
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Part {
     Base(Base),
-    Natural(Natural),
+    Natural(num_bigint::BigUint),
 }
 
 impl fmt::Display for Part {
@@ -107,18 +106,18 @@ impl From<&Base> for Rational {
         }
     }
 }
-impl From<Natural> for Rational {
+impl From<num_bigint::BigUint> for Rational {
     #[inline]
-    fn from(i: Natural) -> Self {
+    fn from(i: num_bigint::BigUint) -> Self {
         Rational {
             numerator: Part::Natural(i),
             denominator: Part::Base(1.into()),
         }
     }
 }
-impl From<&Natural> for Rational {
+impl From<&num_bigint::BigUint> for Rational {
     #[inline]
-    fn from(i: &Natural) -> Self {
+    fn from(i: &num_bigint::BigUint) -> Self {
         i.clone().into()
     }
 }
@@ -301,6 +300,15 @@ impl ops::Not for Rational {
     }
 }
 
+impl num_traits::pow::Pow<Rational> for Rational {
+    type Output = Number;
+
+    #[inline]
+    fn pow(self, _other: Self) -> Number {
+        Number::NaN
+    }
+}
+
 impl ops::Rem for Rational {
     type Output = Number;
 
@@ -358,10 +366,5 @@ impl NumberBase for Rational {
     #[inline]
     fn gcd(&self, other: &Self) -> Number {
         gcd(self, other)
-    }
-
-    #[inline]
-    fn pow(&self, _other: &Self) -> Number {
-        Number::NaN
     }
 }

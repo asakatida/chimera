@@ -1,7 +1,6 @@
 use core::{cmp, fmt, ops};
 
 use crate::base::Base;
-use crate::natural::Natural;
 use crate::number::Number;
 use crate::rational::Rational;
 use crate::traits::NumberBase;
@@ -11,7 +10,7 @@ use crate::utils::{fmt_ptr, gcd};
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Negative {
     Base(Base),
-    Natural(Natural),
+    Natural(num_bigint::BigUint),
     Rational(Rational),
 }
 
@@ -225,7 +224,7 @@ impl ops::Div for Negative {
     fn div(self, other: Self) -> Self::Output {
         match (self, other) {
             (Self::Base(a), Self::Base(b)) => a / b,
-            (Self::Base(a), Self::Natural(b)) => Natural::from(a) / b,
+            (Self::Base(a), Self::Natural(b)) => num_bigint::BigUint::from(a) / b,
             (Self::Base(a), Self::Rational(b)) => Rational::from(a) / b,
             (Self::Natural(a), Self::Base(b)) => a / b.into(),
             (Self::Natural(a), Self::Natural(b)) => a / b,
@@ -282,6 +281,15 @@ impl ops::Not for Negative {
     }
 }
 
+impl num_traits::pow::Pow<Negative> for Negative {
+    type Output = Number;
+
+    #[inline]
+    fn pow(self, _other: Self) -> Number {
+        Number::NaN
+    }
+}
+
 impl ops::Rem for Negative {
     type Output = Number;
 
@@ -289,7 +297,7 @@ impl ops::Rem for Negative {
     fn rem(self, other: Self) -> Self::Output {
         match (self, other) {
             (Self::Base(a), Self::Base(b)) => a % b,
-            (Self::Base(a), Self::Natural(b)) => Natural::from(a) % b,
+            (Self::Base(a), Self::Natural(b)) => num_bigint::BigUint::from(a) % b,
             (Self::Base(a), Self::Rational(b)) => Rational::from(a) % b,
             (Self::Natural(a), Self::Base(b)) => a % b.into(),
             (Self::Natural(a), Self::Natural(b)) => a % b,
@@ -308,7 +316,7 @@ impl ops::Shl for Negative {
     fn shl(self, other: Self) -> Self::Output {
         match (self, other) {
             (Self::Base(a), Self::Base(b)) => a << b,
-            (Self::Base(a), Self::Natural(b)) => Natural::from(a) << b,
+            (Self::Base(a), Self::Natural(b)) => num_bigint::BigUint::from(a) << b,
             (Self::Base(a), Self::Rational(b)) => Rational::from(a) << b,
             (Self::Natural(a), Self::Base(b)) => a << b.into(),
             (Self::Natural(a), Self::Natural(b)) => a << b,
@@ -327,7 +335,7 @@ impl ops::Shr for Negative {
     fn shr(self, other: Self) -> Self::Output {
         match (self, other) {
             (Self::Base(a), Self::Base(b)) => a >> b,
-            (Self::Base(a), Self::Natural(b)) => Natural::from(a) >> b,
+            (Self::Base(a), Self::Natural(b)) => num_bigint::BigUint::from(a) >> b,
             (Self::Base(a), Self::Rational(b)) => Rational::from(a) >> b,
             (Self::Natural(a), Self::Base(b)) => a >> b.into(),
             (Self::Natural(a), Self::Natural(b)) => a >> b,
@@ -348,7 +356,7 @@ impl ops::Sub for Negative {
             (Self::Base(a), Self::Base(b)) => -(b - a),
             (Self::Base(a), Self::Natural(b)) => -(b - a.into()),
             (Self::Base(a), Self::Rational(b)) => -(b - a.into()),
-            (Self::Natural(a), Self::Base(b)) => -(Natural::from(b) - a),
+            (Self::Natural(a), Self::Base(b)) => -(num_bigint::BigUint::from(b) - a),
             (Self::Natural(a), Self::Natural(b)) => -(b - a),
             (Self::Natural(a), Self::Rational(b)) => -(b - a.into()),
             (Self::Rational(a), Self::Base(b)) => -(Rational::from(b) - a),
@@ -371,10 +379,5 @@ impl NumberBase for Negative {
     #[inline]
     fn gcd(&self, other: &Self) -> Number {
         gcd(self, other)
-    }
-
-    #[inline]
-    fn pow(&self, _other: &Self) -> Number {
-        Number::NaN
     }
 }

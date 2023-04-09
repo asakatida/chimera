@@ -56,27 +56,7 @@ target_include_directories(
   external/operators/include
   external/PEGTL/include)
 
-file(GLOB_RECURSE NUMBER_SOURCES "*.rs")
-add_custom_command(
-  OUTPUT
-  ${CMAKE_SOURCE_DIR}/oxidation/number-rust.hpp
-  ${CMAKE_SOURCE_DIR}/oxidation/number/target/debug/libnumber.a
-  COMMAND
-  cargo build
-  WORKING_DIRECTORY
-  ${CMAKE_SOURCE_DIR}/oxidation/number
-  DEPENDS
-  ${NUMBER_SOURCES})
-add_custom_target(
-  chimera-number-header
-  DEPENDS
-  ${CMAKE_SOURCE_DIR}/oxidation/number-rust.hpp)
-add_custom_target(
-  chimera-number
-  DEPENDS
-  ${CMAKE_SOURCE_DIR}/oxidation/number/target/debug/libnumber.a)
 add_library(number STATIC IMPORTED GLOBAL)
-add_dependencies(number chimera-number)
 set_target_properties(
   number
   PROPERTIES
@@ -125,8 +105,6 @@ target_include_directories(
   external/GSL/include
   external/metal/include
   external/operators/include)
-
-add_dependencies(chimera-core chimera-number-header)
 
 add_library(
   libchimera
