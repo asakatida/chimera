@@ -30,6 +30,12 @@ jobs:
           restore-keys: |
             corpus-new-
             build-
+      - name: Install rust
+        uses: ./
+        with:
+          run: >
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs |
+            sh -s -- -y --default-toolchain stable --no-modify-path --profile minimal
       - name: Build project
         uses: ./
         with:
@@ -84,10 +90,18 @@ jobs:
           restore-keys: |
             corpus-retest-
             build-
+      - name: Install rust
+        uses: ./
+        with:
+          run: >
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs |
+            sh -s -- -y --default-toolchain stable --no-modify-path --profile minimal
       - name: Build project
         uses: ./
         with:
           run: |
+            ls -al $HOME/.cargo/bin
+            rustup update
             cmake -GNinja -B build -S .
             python tools/ninja.py build
       - name: Gather crashes for recheck
@@ -134,6 +148,12 @@ jobs:
           restore-keys: |
             debug-
             build-
+      - name: Install rust
+        uses: ./
+        with:
+          run: >
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs |
+            sh -s -- -y --default-toolchain stable --no-modify-path --profile minimal
       - name: Run regression
         uses: ./
         with:
@@ -158,6 +178,12 @@ jobs:
           restore-keys: |
             gather-
             build-
+      - name: Install rust
+        uses: ./
+        with:
+          run: >
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs |
+            sh -s -- -y --default-toolchain stable --no-modify-path --profile minimal
       - name: Build project
         uses: ./
         with:
@@ -216,6 +242,12 @@ jobs:
           restore-keys: |
             libcpp-
             build-
+      - name: Install rust
+        uses: ./
+        with:
+          run: >
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs |
+            sh -s -- -y --default-toolchain stable --no-modify-path --profile minimal
       - env:
           CMAKE_BUILD_TYPE: RelWithDebInfo
           CPPFLAGS: -stdlib=libc++
@@ -247,6 +279,12 @@ jobs:
           restore-keys: |
             release-
             build-
+      - name: Install rust
+        uses: ./
+        with:
+          run: >
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs |
+            sh -s -- -y --default-toolchain stable --no-modify-path --profile minimal
       - name: Run regression
         uses: ./
         with:
@@ -262,6 +300,12 @@ jobs:
       - uses: actions/checkout@v3.5.0
         with:
           submodules: true
+      - name: Install rust
+        uses: ./
+        with:
+          run: >
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs |
+            sh -s -- -y --default-toolchain stable --no-modify-path --profile minimal
       - name: Scan Build
         uses: ./
         with:

@@ -9,11 +9,6 @@
 using chimera::library::object::number::Number;
 using NumericLimits = std::numeric_limits<std::uint64_t>;
 
-template <typename OStream>
-auto operator<<(OStream &os, const Number &number) -> OStream & {
-  return number.debug(os);
-}
-
 TEST_CASE("number Number") {
   Number number(0);
   const Number other(2);

@@ -81,3 +81,13 @@ TEST_CASE(R"(fuzz `raise`)") {
   auto test_case = R"(raise)"sv;
   TestOne(test_case.data(), test_case.size());
 }
+
+TEST_CASE(R"(fuzz `0o40000000000`)") {
+  auto test_case = "0o40000000000"sv;
+  TestOne(test_case.data(), test_case.size());
+}
+
+// TEST_CASE(R"(fuzz `False.x=x=1`)") {
+//   auto test_case = "False.x=x=1"sv;
+//   TestOne(test_case.data(), test_case.size());
+// }

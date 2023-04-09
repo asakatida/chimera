@@ -37,10 +37,33 @@ namespace chimera::library::grammar {
   namespace token {
     struct NumberHolder {
       template <std::uint8_t Base, typename Input, typename... Args>
-      void apply(const Input &input, Args &&.../*args*/) {
-        // NOLINTNEXTLINE(readability-static-accessed-through-instance)
-        number *= object::Number(Base).pow(object::Number(input.size())) +
-                  object::Number(std::stoul(input.string(), nullptr, Base));
+      void apply(const Input &in, Args &&...args) {
+        std::uint8_t mantisa;
+        switch (Base) {
+          case 2:
+            mantisa = 63;
+            break;
+          case 8:
+            mantisa = 19;
+            break;
+          case 10:
+            mantisa = 17;
+            break;
+          case 16:
+            mantisa = 15;
+            break;
+          default:
+            Ensures(false);
+        }
+        for (auto input = in.string(); !input.empty();
+             input.erase(0, mantisa)) {
+          std::size_t len = 0;
+          auto section = input.substr(0, mantisa);
+          auto parsed_number = std::stoul(section, &len, Base);
+          Ensures(len == section.size());
+          number *= object::Number(Base).pow(object::Number(len));
+          number += object::Number(parsed_number);
+        }
       }
       object::Number number = object::Number(0U);
     };
@@ -139,7 +162,7 @@ namespace chimera::library::grammar {
       struct Transform : NumberHolder {
         template <typename Top>
         void success(Top &&top) {
-          top.number = number.complex();
+          top.number = number.imag();
         }
       };
     };

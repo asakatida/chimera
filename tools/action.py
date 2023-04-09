@@ -16,7 +16,9 @@ async def pip_install(file: object) -> None:
 
 
 async def main() -> None:
-    environ["PATH"] = ":".join(("/opt/virtualenv/bin", environ["PATH"]))
+    environ["PATH"] = ":".join(
+        ("/opt/virtualenv/bin", environ["PATH"], environ["HOME"] + "/.cargo/bin")
+    )
     await pip_install("requirements.core.txt")
     await pip_install("requirements.txt")
     source = Path(__file__).parent.parent.resolve()
