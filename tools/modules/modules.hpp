@@ -32,7 +32,6 @@
 #include <gsl/gsl>
 
 #include "asdl/asdl.hpp"
-#include "object/number/repr.hpp"
 #include "object/object.hpp"
 #include "options.hpp"
 #include "virtual_machine/global_context.hpp"

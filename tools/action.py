@@ -16,7 +16,10 @@ async def pip_install(file: object) -> None:
 
 
 async def main() -> None:
-    environ["PATH"] = ":".join(("/opt/virtualenv/bin", environ["PATH"]))
+    environ["PATH"] = ":".join(
+        ("/opt/virtualenv/bin", "/home/github/.cargo/bin", environ["PATH"])
+    )
+    await cmd_env("rustup", "default", "stable", err=None, out=None)
     await pip_install("requirements.core.txt")
     await pip_install("requirements.txt")
     source = Path(__file__).parent.parent.resolve()

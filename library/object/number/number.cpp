@@ -20,189 +20,74 @@
 
 #include "object/number/number.hpp"
 
-#include <functional>
-#include <limits>
-
-#include <gsl/gsl>
-
-#include "object/number/add.hpp"
-#include "object/number/and.hpp"
-#include "object/number/compare.hpp"
-#include "object/number/div.hpp"
-#include "object/number/floor_div.hpp"
-#include "object/number/gcd.hpp"
-#include "object/number/invert.hpp"
-#include "object/number/left_shift.hpp"
-#include "object/number/less.hpp"
-#include "object/number/mod.hpp"
-#include "object/number/mult.hpp"
-#include "object/number/negative.hpp"
-#include "object/number/or.hpp"
-#include "object/number/positive.hpp"
-#include "object/number/right_shift.hpp"
-#include "object/number/sub.hpp"
-#include "object/number/xor.hpp"
-
-// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,misc-use-anonymous-namespace,readability-identifier-length,readability-magic-numbers)
+#include "number-rust.hpp"
 
 namespace chimera::library::object::number {
-  static auto reduce(Base value) -> NumberValue { return value; }
-  static auto reduce(Natural &&value) -> NumberValue {
-    while ((!value.value.empty()) && value.value.back() == 0) {
-      value.value.pop_back();
-    }
-    if (value.value.empty()) {
-      return Base{0U};
-    }
-    if (value.value.size() == 1) {
-      return Base{value.value[0]};
-    }
-    value.value.shrink_to_fit();
-    return value;
+  Number::Number() : ref(r_create_number(0)) {}
+  Number::Number(std::uint64_t i) : ref(r_create_number(i)) {}
+  Number::Number(PythonNumber ref, bool _unused) noexcept : ref(ref) {}
+  Number::Number(const Number &other) : ref(r_copy_number(other.ref)) {}
+  Number::Number(Number &&other) noexcept { swap(std::move(other)); }
+  Number &Number::operator=(const Number &other) {
+    auto ptr = r_copy_number(other.ref);
+    using std::swap;
+    swap(ptr, ref);
+    r_delete_number(ptr);
+    return *this;
   }
-  static auto reduce(Negative &&negative) -> NumberValue { return negative; }
-  template <typename Left, typename Right>
-  auto reduce(Left &&left, Right &&right) -> NumberValue {
-    if (left == Base{0U}) {
-      return Base{0U};
-    }
-    if (left == right) {
-      return Base{1U};
-    }
-    if (left == Base{1U} || right == Base{0U}) {
-      return Rational{std::forward<Left>(left), std::forward<Right>(right)};
-    }
-    if (right == Base{1U}) {
-      return reduce(std::forward<Left>(left));
-    }
-    auto aPrime = gcd(left, right);
-    if (aPrime == Number(1U)) {
-      return Rational{std::forward<Left>(left), std::forward<Right>(right)};
-    }
-    const Number nLeft(std::forward<Left>(left));
-    const Number nRight(std::forward<Right>(right));
-    if (nLeft == aPrime) {
-      return (Number(1U) / nRight.floor_div(aPrime)).unpack();
-    }
-    if (nRight == aPrime) {
-      return nLeft.floor_div(aPrime).unpack();
-    }
-    return (nLeft.floor_div(aPrime) / nRight.floor_div(aPrime)).unpack();
+  Number &Number::operator=(Number &&other) noexcept {
+    swap(std::move(other));
+    return *this;
   }
-  struct Reduce {
-    template <typename Left, typename Right>
-    auto operator()(Left &&left, Right &&right) -> NumberValue {
-      return reduce(std::forward<Left>(left), std::forward<Right>(right));
-    }
-  };
-  static auto reduce(Rational &&rational) -> NumberValue {
-    return std::visit(Reduce{}, std::move(rational.numerator),
-                      std::move(rational.denominator));
-  }
-  template <typename Visitor>
-  auto Number::visit(Visitor &&visitor) const -> Number {
-    return std::visit(std::forward<Visitor>(visitor), value);
-  }
-  template <typename Visitor>
-  auto Number::visit(const Number &right, Visitor &&visitor) const -> Number {
-    return std::visit(std::forward<Visitor>(visitor), value, right.value);
-  }
-  Number::Number(std::uint64_t i) : value(Base{i}) {}
-  Number::Number(Base base) : value(base) {}
-  Number::Number(Natural natural) : value(reduce(std::move(natural))) {}
-  Number::Number(Negative negative) : value(reduce(std::move(negative))) {}
-  Number::Number(Rational rational) : value(reduce(std::move(rational))) {}
-  Number::Number(Imag imag) : value(std::move(imag)) {}
-  Number::Number(Complex complex) : value(std::move(complex)) {}
+  Number::~Number() { r_delete_number(ref); }
   void Number::swap(Number &&other) noexcept {
     using std::swap;
-    swap(value, other.value);
+    swap(ref, other.ref);
   }
-  auto Number::operator+() const -> Number { return visit(UnaryPositive{}); }
-  auto Number::operator-() const -> Number { return visit(std::negate<>{}); }
-  auto Number::operator+=(const Number &right) -> Number & {
-    *this = visit(right, std::plus<>{});
-    return *this;
+  Number::operator int64_t() const noexcept { return r_cast_int(ref); }
+  Number::operator uint64_t() const noexcept { return r_cast_unsigned(ref); }
+  Number::operator double() const noexcept { return r_cast_float(ref); }
+#define NUM_OP_MONO(op, name)                                                  \
+  auto Number::operator op() const->Number { return Number(name(ref), false); }
+#define NUM_OP(op, name)                                                       \
+  auto Number::operator op(const Number &right)->Number & {                    \
+    auto ptr = name(ref, right.ref);                                           \
+    using std::swap;                                                           \
+    swap(ptr, ref);                                                            \
+    r_delete_number(ptr);                                                      \
+    return *this;                                                              \
   }
-  auto Number::operator-=(const Number &right) -> Number & {
-    *this = visit(right, std::minus<>{});
-    return *this;
+#define NUM_OP_NAMED(op, name)                                                 \
+  auto Number::op(const Number &right) const->Number {                         \
+    return Number(name(ref, right.ref), false);                                \
   }
-  auto Number::operator*=(const Number &right) -> Number & {
-    *this = visit(right, std::multiplies<>{});
-    return *this;
-  }
-  auto Number::operator/=(const Number &right) -> Number & {
-    *this = visit(right, std::divides<>{});
-    return *this;
-  }
-  auto Number::operator%=(const Number &right) -> Number & {
-    *this = visit(right, std::modulus<>{});
-    return *this;
-  }
-  auto Number::operator~() const -> Number { return visit(std::bit_not<>{}); }
-  auto Number::operator&=(const Number &right) -> Number & {
-    *this = visit(right, std::bit_and<>{});
-    return *this;
-  }
-  auto Number::operator|=(const Number &right) -> Number & {
-    *this = visit(right, std::bit_or<>{});
-    return *this;
-  }
-  auto Number::operator^=(const Number &right) -> Number & {
-    *this = visit(right, [](auto &&a, auto &&b) { return Number(a ^ b); });
-    return *this;
-  }
-  auto Number::operator<<=(const Number &right) -> Number & {
-    *this = visit(right, [](auto &&a, auto &&b) { return Number(a << b); });
-    return *this;
-  }
-  auto Number::operator>>=(const Number &right) -> Number & {
-    *this = visit(right, [](auto &&a, auto &&b) { return Number(a >> b); });
-    return *this;
-  }
+  NUM_OP_MONO(-, r_neg)
+  NUM_OP_MONO(+, r_abs)
+  NUM_OP_MONO(~, r_bit_not)
+  NUM_OP(-=, r_sub)
+  NUM_OP(*=, r_mul)
+  NUM_OP(/=, r_div)
+  NUM_OP(&=, r_bit_and)
+  NUM_OP(%=, r_modu)
+  NUM_OP(^=, r_bit_xor)
+  NUM_OP(+=, r_add)
+  NUM_OP(<<=, r_bit_lshift)
+  NUM_OP(>>=, r_bit_rshift)
+  NUM_OP(|=, r_bit_or)
   auto Number::operator==(const Number &right) const -> bool {
-    return value.index() == right.value.index() &&
-           std::visit(std::equal_to<>{}, value, right.value);
+    return r_eq(ref, right.ref);
   }
   auto Number::operator<(const Number &right) const -> bool {
-    return std::visit(std::less<>{}, value, right.value);
+    return r_lt(ref, right.ref);
   }
-  auto Number::floor_div(const Number &right) const -> Number {
-    return visit(right, [](auto &&a, auto &&b) {
-      return Number(number::floor_div(a, b));
-    });
-  }
-  auto Number::gcd(const Number &right) const -> Number {
-    return visit(right,
-                 [](auto &&a, auto &&b) { return Number(number::gcd(a, b)); });
-  }
-  auto Number::pow(const Number &right) -> Number { return right; }
-  auto Number::pow(const Number &y, const Number & /*z*/) -> Number {
+  auto Number::floor_div(const Number &right) const -> Number { return right; }
+  NUM_OP_NAMED(gcd, r_gcd)
+  NUM_OP_NAMED(pow, r_pow)
+  auto Number::pow(const Number &y, const Number & /*z*/) const -> Number {
     return y;
   }
-  auto Number::is_int() const -> bool {
-    return std::holds_alternative<Base>(value) ||
-           std::holds_alternative<Natural>(value) ||
-           std::holds_alternative<Negative>(value);
-  }
-  auto Number::is_complex() const -> bool {
-    return std::holds_alternative<Imag>(value) ||
-           std::holds_alternative<Complex>(value);
-  }
-  template <typename Arg>
-  struct MakeComplex {
-    auto operator()(Arg &&arg) const -> Number {
-      return Number(std::decay_t<Arg>(arg));
-    }
-  };
-  struct MakeComplexVisit {
-    template <typename Arg>
-    auto operator()(Arg &&arg) const -> Number {
-      return MakeComplex<Arg>{}(std::forward<Arg>(arg));
-    }
-  };
-  auto Number::complex() const -> Number { return visit(MakeComplexVisit{}); }
+  auto Number::is_complex() const -> bool { return r_is_complex(ref); }
+  auto Number::is_int() const -> bool { return r_is_int(ref); }
+  auto Number::is_nan() const -> bool { return r_is_nan(ref); }
+  auto Number::imag() const -> Number { return Number(r_imag(ref), false); }
 } // namespace chimera::library::object::number
-
-// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,misc-use-anonymous-namespace,readability-identifier-length,readability-magic-numbers)

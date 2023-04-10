@@ -35,6 +35,7 @@ SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
 T = TypeVar("T")
+CORPUS.mkdir(parents=True, exist_ok=True)
 
 
 def c_tqdm(iterable: Iterable[T], desc: str, total: int = 0) -> Iterable[T]:

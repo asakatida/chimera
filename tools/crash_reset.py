@@ -32,6 +32,7 @@ CRASHES = FUZZ / "crashes"
 
 
 def crash_reset() -> None:
+    CRASHES.mkdir(parents=True, exist_ok=True)
     for crash in filter(Path.is_file, CRASHES.rglob("*")):
         src_sha = sha(crash)
         sha_bucket, name = src_sha[:2], src_sha[2:]

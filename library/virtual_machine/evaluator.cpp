@@ -61,7 +61,12 @@ namespace chimera::library::virtual_machine {
   };
   auto ReRaise::what() const noexcept -> const char * { return "ReRaise"; }
   Scopes::operator bool() const { return !scopes.empty(); }
-  auto Scopes::self() -> object::Object & { return scopes.top().self; }
+  auto Scopes::self() -> object::Object & {
+    if (scopes.empty()) {
+      enter_scope({});
+    }
+    return scopes.top().self;
+  }
   void Scopes::enter_scope(const object::Object &main) {
     scopes.emplace(Scope{main});
     enter();
