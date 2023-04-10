@@ -208,7 +208,6 @@
               - libpcre3
               - libpng-dev
               - libpq-dev
-              - libprocps8
               - libreadline-dev
               - libsasl2-2
               - libseccomp2
@@ -277,16 +276,6 @@
               - zip
               - zlib1g
               - zlib1g-dev
-        - name: Add repo deadsnakes
-          ansible.builtin.apt_repository:
-            repo: ppa:deadsnakes/nightly
-        - name: Install Python {{ py_version }}
-          ansible.builtin.apt:
-            install_recommends: false
-            name:
-              - python{{ py_version }}-dev
-              - python{{ py_version }}-venv
-            update_cache: true
         - name: Create directory for virtualenv
           ansible.builtin.file:
             group: github
@@ -368,10 +357,10 @@
                 chdir: /tmp
                 requirements: requirements.txt
                 virtualenv: /opt/virtualenv
-            - name: Bootstrap Python virtualenv {{ py_version }}
+            - name: Bootstrap Python virtualenv
               ansible.builtin.pip:
                 chdir: /tmp
-                name: tqdm==4.64.1
+                name: tqdm==4.65.0
                 virtualenv: /opt/edge-virtualenv
             - name: Get fish shell  # noqa: command-instead-of-shell
               ansible.builtin.shell: command -v fish
