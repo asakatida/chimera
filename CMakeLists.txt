@@ -46,7 +46,7 @@ add_library(
 
 target_compile_features(chimera-grammar PUBLIC c_std_23 cxx_std_20)
 
-target_include_directories(chimera-grammar PUBLIC library stdlib)
+target_include_directories(chimera-grammar PUBLIC library oxidation stdlib)
 
 target_include_directories(
   chimera-grammar
@@ -56,31 +56,35 @@ target_include_directories(
   external/operators/include
   external/PEGTL/include)
 
+file(GLOB_RECURSE NUMBER_SOURCES "*.rs")
+add_custom_command(
+  OUTPUT
+  ${CMAKE_SOURCE_DIR}/oxidation/number-rust.hpp
+  ${CMAKE_SOURCE_DIR}/oxidation/number/target/release/libnumber.a
+  COMMAND
+  cargo build --release
+  WORKING_DIRECTORY
+  ${CMAKE_SOURCE_DIR}/oxidation/number
+  DEPENDS
+  ${NUMBER_SOURCES})
+add_custom_target(
+  chimera-number-header
+  DEPENDS
+  ${CMAKE_SOURCE_DIR}/oxidation/number-rust.hpp)
+add_library(number STATIC IMPORTED GLOBAL)
+set_target_properties(
+  number
+  PROPERTIES
+  IMPORTED_LOCATION
+  ${CMAKE_SOURCE_DIR}/oxidation/number/target/release/libnumber.a)
+
 add_library(
   chimera-core
   OBJECT
   library/container/atomic_container.cpp
   library/container/atomic_map.cpp
   library/container/reverse.cpp
-  library/object/number/add.cpp
-  library/object/number/and.cpp
-  library/object/number/compare.cpp
-  library/object/number/div.cpp
-  library/object/number/floor_div.cpp
-  library/object/number/gcd.cpp
-  library/object/number/invert.cpp
-  library/object/number/left_shift.cpp
-  library/object/number/less.cpp
-  library/object/number/mod.cpp
-  library/object/number/mult.cpp
-  library/object/number/negative.cpp
   library/object/number/number.cpp
-  library/object/number/or.cpp
-  library/object/number/overflow.cpp
-  library/object/number/positive.cpp
-  library/object/number/right_shift.cpp
-  library/object/number/sub.cpp
-  library/object/number/xor.cpp
   library/object/object.cpp
   library/object/reference.cpp
   library/virtual_machine/bin_evaluator.cpp
@@ -108,7 +112,7 @@ add_library(
 
 target_compile_features(chimera-core PUBLIC c_std_23 cxx_std_20)
 
-target_include_directories(chimera-core PUBLIC library stdlib)
+target_include_directories(chimera-core PUBLIC library oxidation stdlib)
 
 target_include_directories(
   chimera-core
@@ -116,6 +120,8 @@ target_include_directories(
   external/GSL/include
   external/metal/include
   external/operators/include)
+
+add_dependencies(chimera-core chimera-number-header)
 
 add_library(
   libchimera
@@ -134,7 +140,11 @@ set_target_properties(libchimera PROPERTIES OUTPUT_NAME "chimera")
 
 add_executable(chimera source/main.cpp)
 target_compile_features(chimera PUBLIC c_std_23 cxx_std_20)
-target_link_libraries(chimera chimera-core chimera-grammar)
+target_link_libraries(
+  chimera
+  chimera-core
+  chimera-grammar
+  number)
 
 add_subdirectory(external/Catch EXCLUDE_FROM_ALL)
 
@@ -159,6 +169,7 @@ target_include_directories(
   unit-test
   PUBLIC
   library
+  oxidation
   stdlib
   unit_tests)
 
@@ -173,6 +184,7 @@ target_link_libraries(
   Catch2WithMain
   chimera-core
   chimera-grammar
+  number
   pthread)
 
 add_custom_target(check unit-test VERBATIM)
@@ -201,6 +213,7 @@ if(
     chimera-fuzz
     PUBLIC
     library
+    oxidation
     stdlib
     unit_tests)
   target_include_directories(
@@ -248,6 +261,7 @@ if(
       chimera-core
       chimera-fuzz
       chimera-grammar
+      number
       pthread
       ${FUZZ_CXXFLAGS}
       -rtlib=compiler-rt)
@@ -326,6 +340,7 @@ foreach(regen_module IN LISTS REGEN_MODULES)
     modules-tools
     chimera-core
     chimera-grammar
+    number
     pthread)
   add_dependencies(modules ${regen_module})
 endforeach()

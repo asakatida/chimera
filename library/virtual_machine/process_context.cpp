@@ -32,6 +32,8 @@
 
 #include <gsl/gsl>
 
+#include "number-rust.hpp"
+
 #include "asdl/asdl.hpp"
 #include "builtins/builtins.hpp"
 #include "importlib/importlib.hpp"
@@ -75,6 +77,7 @@ namespace chimera::library::virtual_machine {
     for (auto &module : modules.write().value) {
       destroy_module(module.second, visited);
     }
+    r_vm_clear();
   }
   auto ProcessContext::builtins() const -> const object::Object & {
     return builtins_;

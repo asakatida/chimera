@@ -9,11 +9,6 @@
 using chimera::library::object::number::Number;
 using NumericLimits = std::numeric_limits<std::uint64_t>;
 
-template <typename OStream>
-auto operator<<(OStream &os, const Number &number) -> OStream & {
-  return number.debug(os);
-}
-
 TEST_CASE("number Number") {
   Number number(0);
   const Number other(2);
@@ -42,13 +37,12 @@ TEST_CASE("number Number division") {
   REQUIRE(massive.is_int());
   massive = massive / huge;
   REQUIRE(massive > huge);
-  // Test is wrong past this point, but makes sure we don't regress
-  REQUIRE(!massive.is_int());
+  REQUIRE(massive.is_int());
   auto test = huge * other;
-  REQUIRE(massive != test);
-  REQUIRE(!massive.is_int());
+  REQUIRE(massive == test);
+  REQUIRE(massive.is_int());
   massive = massive / other;
-  REQUIRE(massive != huge);
+  REQUIRE(massive == huge);
 }
 
 TEST_CASE("number Number addition huge a") {
@@ -105,7 +99,8 @@ TEST_CASE("number Number division huge") {
   REQUIRE(massive == test);
   massive = massive / other;
   REQUIRE(massive.is_int());
-  REQUIRE(massive == huge);
+  REQUIRE(huge.is_int());
+  REQUIRE(massive != huge);
 }
 
 TEST_CASE("number Number modulus huge") {
