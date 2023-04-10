@@ -1,4 +1,4 @@
-FROM ubuntu:22.10
+FROM ubuntu:23.04
 
 ENV TZ Etc/UTC
 
@@ -8,29 +8,35 @@ RUN <<SHELL bash
     sed 's/# deb-src /deb-src /' -i /etc/apt/sources.list
     apt-get update
     apt-get install --no-install-recommends --yes \
-        ca-certificates=20211016 \
-        git=1:2.37.2-1ubuntu1
-    apt-get build-dep --no-install-recommends --yes python3=3.10.6-1
+        apt-transport-https=2.6.0 \
+        apt-utils=2.6.0 \
+        apt=2.6.0 \
+        aptitude=0.8.13-5ubuntu1 \
+        libapt-pkg6.0=2.6.0
+    apt-get install --no-install-recommends --yes \
+        ca-certificates=20230311 \
+        git=1:2.39.2-1ubuntu1
+    apt-get build-dep --no-install-recommends --yes \
+        python3-venv=3.11.2-1
     apt-get install --no-install-recommends --yes \
         build-essential=12.9ubuntu3 \
-        gdb=12.1-3ubuntu2 \
+        gdb=13.1-2ubuntu2 \
         lcov=1.16-1 \
         libbz2-dev=1.0.8-5build1 \
-        libffi-dev=3.4.2-4 \
-        libgdbm-compat-dev=1.23-1 \
-        libgdbm-dev=1.23-1 \
-        liblzma-dev=5.2.5-2.1 \
-        libncurses5-dev=6.3+20220423-2 \
-        libreadline-dev=8.2-1 \
-        libsqlite3-dev=3.39.3-1 \
-        libssl-dev=3.0.5-2ubuntu2 \
+        libffi-dev=3.4.4-1 \
+        libgdbm-compat-dev=1.23-3 \
+        libgdbm-dev=1.23-3 \
+        liblzma-dev=5.4.1-0.2 \
+        libncurses5-dev=6.4-2 \
+        libreadline-dev=8.2-1.3 \
+        libsqlite3-dev=3.40.1-1 \
+        libssl-dev=3.0.8-1ubuntu1 \
         lzma-dev=9.22-2.2 \
         lzma=9.22-2.2 \
-        pkg-config=0.29.2-1ubuntu3 \
-        python3-venv=3.10.6-1 \
-        tk-dev=8.6.11+1build2 \
-        uuid-dev=2.38-4ubuntu1 \
-        zlib1g-dev=1:1.2.11.dfsg-4.1ubuntu1
+        pkg-config=1.8.1-1ubuntu2 \
+        tk-dev=8.6.13 \
+        uuid-dev=2.38.1-4ubuntu1 \
+        zlib1g-dev=1:1.2.13.dfsg-1ubuntu4
     apt-get clean
     rm -rf /var/lib/apt/lists
 SHELL

@@ -1,30 +1,32 @@
-FROM ubuntu:22.04
+FROM ghcr.io/asakatida/chimera:python3.12 AS builder
+
+FROM ubuntu:23.04
+
+COPY --from=builder /usr/local/bin/python3.12 /usr/local/bin/python3.12
+COPY --from=builder /usr/local/lib/python3.12 /usr/local/lib/python3.12
 
 ENV TZ Etc/UTC
 
-COPY requirements.core.txt /tmp/requirements.core.txt
-COPY requirements.txt /tmp/requirements.txt
-COPY tools/boot.yml /tmp/boot.yml
+COPY . /tmp
 
 RUN <<SHELL bash
     export DEBIAN_FRONTEND=noninteractive
     set -ex
     apt-get update
     apt-get install --no-install-recommends --yes \
-        apt-transport-https=2.4.8 \
-        apt-utils=2.4.8 \
-        apt=2.4.8 \
-        aptitude=0.8.13-3ubuntu1 \
-        libapt-pkg6.0=2.4.8
+        apt-transport-https=2.6.0 \
+        apt-utils=2.6.0 \
+        apt=2.6.0 \
+        aptitude=0.8.13-5ubuntu1 \
+        libapt-pkg6.0=2.6.0
     apt-get update
     apt-get install --no-install-recommends --yes \
-        python3-venv=3.10.6-1~22.04
+        python3-venv=3.11.2-1
     python3 -m venv /tmp/env
     /tmp/env/bin/pip install -r /tmp/requirements.core.txt
     /tmp/env/bin/pip install -r /tmp/requirements.txt
-    /tmp/env/bin/ansible-playbook /tmp/boot.yml
-    rm -rf /tmp/env
-    rm /tmp/boot.yml /tmp/requirements*.txt
+    /tmp/env/bin/ansible-playbook /tmp/tools/boot.yml
+    rm -rf /tmp/*
     apt-get clean
     rm -rf /var/lib/apt/lists
 SHELL
