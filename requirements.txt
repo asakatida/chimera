@@ -1,6 +1,6 @@
 ansible==7.4.0
 ansible-core==2.14.4
-ansible-lint==6.14.4
+ansible-lint==6.14.5
 attrs==22.2.0
 black==23.3.0
 bracex==2.3.post1
