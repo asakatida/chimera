@@ -308,8 +308,10 @@
                 /tmp/sh.rustup.rs -y
                 --default-toolchain stable
                 --no-modify-path
-                --profile minimal
-                --quiet
+            - name: Install rustup
+              ansible.builtin.command: /home/github/.cargo/bin/rustup --version
+            - name: Install rustup
+              ansible.builtin.command: /home/github/.cargo/bin/cargo --version
             - name: Cleanup rust install script
               ansible.builtin.file:
                 path: /tmp/sh.rustup.rs
