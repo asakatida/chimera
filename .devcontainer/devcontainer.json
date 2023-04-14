@@ -35,7 +35,7 @@
         "memory": "12gb",
         "storage": "32gb"
     },
-    "image": "ghcr.io/asakatida/chimera:0.53.0",
+    "image": "ghcr.io/asakatida/chimera:0.54.0",
     "name": "chimera",
     "postAttachCommand": [
         "/opt/virtualenv/bin/ansible-playbook",
