@@ -20,9 +20,7 @@ jobs:
       - name: Run regression with coverage
         uses: ./
         with:
-          run: |
-            rustup default stable
-            python tools/codecov.py >llvm-profile.lcov
+          run: python tools/codecov.py >llvm-profile.lcov
       - uses: codecov/codecov-action@v3.1.2
         with:
           directory: ${{ github.workspace }}
