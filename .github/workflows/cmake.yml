@@ -34,6 +34,7 @@ jobs:
         uses: ./
         with:
           run: |
+            rustup default stable
             cmake -GNinja -B build -S .
             python tools/ninja.py build
       - if: github.ref == 'refs/heads/stable'
@@ -88,6 +89,7 @@ jobs:
         uses: ./
         with:
           run: |
+            rustup default stable
             cmake -GNinja -B build -S .
             python tools/ninja.py build
       - name: Gather crashes for recheck
@@ -138,6 +140,7 @@ jobs:
         uses: ./
         with:
           run: |
+            rustup default stable
             cmake -GNinja -B build -S .
             python tools/ninja.py build check-rand regression
   gather:
@@ -162,6 +165,7 @@ jobs:
         uses: ./
         with:
           run: |
+            rustup default stable
             cmake -GNinja -B build -S .
             python tools/ninja.py build
       - if: github.ref == 'refs/heads/stable'
@@ -225,6 +229,7 @@ jobs:
         uses: ./
         with:
           run: |
+            rustup default stable
             cmake -GNinja -B build -S .
             ninja -C build -j2 check-rand
   release:
@@ -251,6 +256,7 @@ jobs:
         uses: ./
         with:
           run: |
+            rustup default stable
             cmake -GNinja -B build -S .
             python tools/ninja.py build check-rand regression
   scan-build:
@@ -271,6 +277,7 @@ jobs:
             --use-c++ "${CXX}"
             bash -c '
               set -e -o pipefail
+              rustup default stable
               cmake -GNinja -B build -S .
               python tools/ninja.py build
             '
