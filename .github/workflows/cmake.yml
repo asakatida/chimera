@@ -41,7 +41,7 @@ jobs:
         name: Run corpus
         uses: ./
         with:
-          run: python tools/ninja.py build -k0 corpus || true
+          run: python tools/ninja.py build corpus
       - name: Corpus recheck
         uses: ./
         with:

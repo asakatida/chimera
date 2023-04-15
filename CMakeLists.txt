@@ -267,14 +267,8 @@ if(
       -rtlib=compiler-rt)
     add_custom_target(
       corpus-${fuzzer}
-      fuzz-${fuzzer}
-      -dict=${CMAKE_SOURCE_DIR}/unit_tests/fuzz/dictionaries/${fuzzer}.dict
-      -max_len=16384
-      -max_total_time=120
-      -print_final_stats=1
-      -reduce_inputs=1
-      -shrink=1
-      -use_value_profile=1
+      python ${CMAKE_SOURCE_DIR}/tools/fuzz.py ${fuzzer}
+      ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/dictionaries/${fuzzer}.dict
       ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/corpus
       ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/crashes
       DEPENDS fuzz-${fuzzer}
