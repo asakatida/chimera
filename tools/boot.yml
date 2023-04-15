@@ -301,21 +301,39 @@
             - name: Download rustup install script
               ansible.builtin.get_url:
                 dest: /tmp/sh.rustup.rs
-                mode: "0644"
+                mode: "0755"
                 url: https://sh.rustup.rs
+            - name: Setup install template
+              ansible.builtin.copy:
+                content: |
+                  #!/bin/bash
+                  set -ex -o pipefail
+                  /tmp/sh.rustup.rs -y --no-modify-path
+                  export PATH="/home/github/.cargo/bin:{{ lookup('env', 'PATH') }}"
+                  rustup default stable
+                  cargo --version
+                dest: /tmp/rustup.sh.j2
+                group: github
+                mode: "0644"
+                owner: github
+            - name: Setup install script
+              ansible.builtin.template:
+                dest: /tmp/rustup.sh
+                group: github
+                mode: "0644"
+                owner: github
+                src: /tmp/rustup.sh.j2
             - name: Install rustup
-              ansible.builtin.script: >
-                /tmp/sh.rustup.rs -y
-                --default-toolchain stable
-                --no-modify-path
-            - name: Install rustup
-              ansible.builtin.command: /home/github/.cargo/bin/rustup --version
-            - name: Install rustup
-              ansible.builtin.command: /home/github/.cargo/bin/cargo --version
+              ansible.builtin.script: /tmp/rustup.sh
+              args:
+                chdir: /home/github
             - name: Cleanup rust install script
               ansible.builtin.file:
-                path: /tmp/sh.rustup.rs
+                path: "{{ item }}"
                 state: absent
+              with_items:
+                - /tmp/sh.rustup.rs
+                - /tmp/rustup.sh
             - name: Setup git config
               ansible.builtin.shell: |
                 set -e
