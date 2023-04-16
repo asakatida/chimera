@@ -60,6 +60,7 @@ jobs:
             git remote set-head origin --auto
             git restore --source origin/HEAD --staged unit_tests/fuzz/corpus
             git restore --worktree unit_tests/fuzz/corpus
+            python tools/corpus_trim.py
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
@@ -108,6 +109,7 @@ jobs:
             git remote set-head origin --auto
             git restore --source origin/HEAD --staged unit_tests/fuzz/corpus
             git restore --worktree unit_tests/fuzz/corpus
+            python tools/corpus_trim.py
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
@@ -195,6 +197,7 @@ jobs:
             git remote set-head origin --auto
             git restore --source origin/HEAD --staged unit_tests/fuzz/corpus
             git restore --worktree unit_tests/fuzz/corpus
+            python tools/corpus_trim.py
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
