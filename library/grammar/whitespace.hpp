@@ -34,7 +34,7 @@
 namespace chimera::library::grammar {
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
   template <char... Chars>
-  using String = tao::pegtl::string<Chars...>;
+  using String = tao::pegtl::ascii::string<Chars...>;
 #else
   template <char... Chars>
   using String = tao::pegtl::utf8::string<Chars...>;
