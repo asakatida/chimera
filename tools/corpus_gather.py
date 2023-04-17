@@ -24,7 +24,10 @@ from asyncio import run
 from asyncio.subprocess import DEVNULL, PIPE
 from sys import argv, stderr
 
-from asyncio_cmd import ProcessError, cmd
+from asyncio_cmd import ProcessError, cmd, cmd_check
+from corpus_retest import corpus_retest
+from corpus_trim import corpus_trim
+from ninja import ninja
 from tqdm import tqdm
 
 
@@ -43,7 +46,7 @@ async def git_restore(sha: str, *paths: object) -> None:
     await git_cmd("commit", "--allow-empty", "--amend", "--no-edit")
 
 
-async def main(*paths: str) -> None:
+async def corpus_gather(*paths: str) -> None:
     await git_cmd_remote("add", *paths)
     await git_cmd_remote("commit", "--allow-empty", "-m", "WIP")
     git_log = await cmd(
@@ -65,6 +68,24 @@ async def main(*paths: str) -> None:
         await git_restore(sha, *paths)
     await git_restore("origin/HEAD", *paths)
     await cmd("git", "reset", "HEAD^", err=DEVNULL, out=DEVNULL, timeout=900)
+
+
+async def main(ref: str) -> None:
+    await git_cmd("config", "--local", "user.email", "email")
+    await git_cmd("config", "--local", "user.name", "name")
+    await cmd("rustup", "default", "stable", err=None, out=None)
+    await cmd("cmake", "-GNinja", "-B", "build", "-S", ".", err=None, out=None)
+    await ninja("build")
+    path = "unit_tests/fuzz/corpus"
+    if ref == "refs/heads/stable":
+        await git_cmd("remote", "set-head", "origin", "--auto")
+        await corpus_gather(path)
+    await corpus_retest("build")
+    await ninja("build", "regression")
+    for opt in ("--global", "--local", "--system", "--worktree"):
+        await cmd_check("git", "config", opt, "--unset-all", "user.email")
+        await cmd_check("git", "config", opt, "--unset-all", "user.name")
+    corpus_trim()
 
 
 if __name__ == "__main__":

@@ -26,6 +26,7 @@
         "bit": "cpp",
         "bitset": "cpp",
         "cctype": "cpp",
+        "charconv": "cpp",
         "chrono": "cpp",
         "cinttypes": "cpp",
         "clocale": "cpp",
@@ -97,10 +98,10 @@
         "typeinfo": "cpp",
         "unordered_map": "cpp",
         "unordered_set": "cpp",
+        "util": "cpp",
         "utility": "cpp",
         "variant": "cpp",
-        "vector": "cpp",
-        "charconv": "cpp"
+        "vector": "cpp"
     },
     "git.autofetch": false,
     "git.autorefresh": false,

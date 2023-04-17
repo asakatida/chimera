@@ -15,7 +15,7 @@ async def pip_install(file: object) -> None:
             print(line.decode(), file=stderr)
 
 
-async def main() -> None:
+async def main(cmd: str, *args: str) -> None:
     environ["PATH"] = ":".join(
         ("/opt/virtualenv/bin", "/home/github/.cargo/bin", environ["PATH"])
     )
@@ -27,12 +27,12 @@ async def main() -> None:
     environ["CXXFLAGS"] = environ.get("CXXFLAGS", "").translate(
         dict(zip(b"\n\r", "  "))
     )
-    await cmd_no_timeout("/bin/bash", "-eo", "pipefail", "-c", *argv[1:])
+    await cmd_no_timeout("/bin/bash", "-eo", "pipefail", "-c", cmd, *args)
 
 
 if __name__ == "__main__":
     try:
-        run(main())
+        run(main(*argv[1:]))
     except ProcessError as error:
         error.exit()
     except KeyboardInterrupt:
