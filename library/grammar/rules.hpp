@@ -52,12 +52,12 @@ namespace chimera::library::grammar {
   using tao::pegtl::success;
   using tao::pegtl::until;
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
-  using tao::pegtl::any;
-  using tao::pegtl::not_one;
-  using tao::pegtl::not_range;
-  using tao::pegtl::one;
-  using tao::pegtl::range;
-  using tao::pegtl::ranges;
+  using tao::pegtl::ascii::any;
+  using tao::pegtl::ascii::not_one;
+  using tao::pegtl::ascii::not_range;
+  using tao::pegtl::ascii::one;
+  using tao::pegtl::ascii::range;
+  using tao::pegtl::ascii::ranges;
 #else
   using tao::pegtl::utf8::any;
   using tao::pegtl::utf8::not_one;
