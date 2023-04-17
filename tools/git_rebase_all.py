@@ -18,9 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-git_rebase_all.py.
-"""
+"""git_rebase_all.py."""
 
 from asyncio import run
 from asyncio.subprocess import PIPE

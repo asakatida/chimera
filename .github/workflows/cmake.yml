@@ -163,41 +163,10 @@ jobs:
           restore-keys: |
             gather-
             build-
-      - name: Build project
+      - name: Corpus gather
         uses: ./
         with:
-          run: |
-            rustup default stable
-            cmake -GNinja -B build -S .
-            python tools/ninja.py build
-      - if: github.ref == 'refs/heads/stable'
-        name: Run corpus
-        uses: ./
-        with:
-          run: |
-            git config --global user.email email
-            git config --global user.name name
-            git remote set-head origin --auto
-            python tools/corpus_gather.py unit_tests/fuzz/corpus
-            set +e
-            for opt in --global --local --system --worktree; do
-              git config "${opt}" --unset-all user.email
-              git config "${opt}" --unset-all user.name
-            done
-            exit 0
-      - name: Corpus recheck
-        uses: ./
-        with:
-          run: python tools/corpus_retest.py build
-      - name: Corpus baseline
-        uses: ./
-        with:
-          run: |
-            git fetch
-            git remote set-head origin --auto
-            git restore --source origin/HEAD --staged unit_tests/fuzz/corpus
-            git restore --worktree unit_tests/fuzz/corpus
-            python tools/corpus_trim.py
+          run: python tools/corpus_gather.py ${{ github.ref }}
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
