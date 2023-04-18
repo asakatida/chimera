@@ -21,13 +21,18 @@
 """corpus_retest.py"""
 
 from asyncio import run
+from itertools import product
 from os import environ
 from pathlib import Path
+from re import escape, finditer
 from sys import argv, stderr
+from typing import Optional
+from uuid import uuid4
 
-from asyncio_cmd import ProcessError, cmd_check, cmd_no_timeout
+from asyncio_as_completed import as_completed
+from asyncio_cmd import ProcessError, chunks, cmd_flog, cmd_no_timeout
 from corpus_trim import conflicts, corpus_trim
-from corpus_utils import corpus_merge, gather_paths
+from corpus_utils import corpus_merge, fuzz_star, gather_paths
 from ninja import ninja
 
 IN_CI = environ.get("CI", "") == "true"
@@ -35,6 +40,52 @@ SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
 CORPUS_ORIGINAL = FUZZ / "corpus_original"
+
+
+def fuzz_output_paths(prefix: bytes, output: bytes) -> set[bytes]:
+    return set(
+        map(
+            lambda m: m["path"], finditer(escape(prefix) + rb"\s+(?P<path>\S+)", output)
+        )
+    )
+
+
+async def regression_log_one(fuzzer: Path, chunk: list[Path]) -> Optional[Exception]:
+    log_file = f"/tmp/{fuzzer.name}-{uuid4().hex}.log"
+    Path(log_file).write_bytes(b"")
+    try:
+        await cmd_flog(fuzzer, *chunk, out=log_file, timeout=1200)
+    except ProcessError as err:
+        return err
+    finally:
+        log_output = Path(log_file).read_bytes()
+        for file in map(
+            Path,
+            map(
+                bytes.decode,
+                fuzz_output_paths(b"Running:", log_output)
+                - fuzz_output_paths(b"Executed", log_output),
+            ),
+        ):
+            file.unlink(missing_ok=True)
+    return None
+
+
+async def regression_log() -> list[Exception]:
+    return list(
+        filter(
+            None,
+            await as_completed(
+                map(
+                    lambda args: regression_log_one(*args),
+                    product(
+                        fuzz_star(),
+                        chunks(filter(Path.is_file, CORPUS.rglob("*")), 512),
+                    ),
+                )
+            ),
+        )
+    )
 
 
 def rmdir(path: Path) -> None:
@@ -48,12 +99,10 @@ def rmdir(path: Path) -> None:
 
 async def corpus_retest(build: str) -> None:
     await ninja(build)
-    while await cmd_check(
-        "ninja", "-C", build, "-j3", "-k0", "regression-log", timeout=1200
-    ):
+    while await regression_log():
         print(
             "Regression failed, retrying with",
-            len(list(filter(Path.is_file, Path("unit_tests/fuzz/corpus").rglob("*")))),
+            len(list(filter(Path.is_file, CORPUS.rglob("*")))),
             file=stderr,
         )
     if IN_CI:

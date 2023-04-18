@@ -226,7 +226,6 @@ if(
   add_custom_target(corpus)
   add_custom_target(fuzzers)
   add_custom_target(regression)
-  add_custom_target(regression-log)
   set(
     FUZZERS
     ellipsis
@@ -279,16 +278,8 @@ if(
       ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/corpus
       DEPENDS fuzz-${fuzzer}
       VERBATIM)
-    add_custom_target(
-      regression-log-${fuzzer}
-      python ${CMAKE_SOURCE_DIR}/tools/regression_log.py ${fuzzer}
-      ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/corpus
-      DEPENDS fuzz-${fuzzer}
-      VERBATIM)
-      add_dependencies(corpus corpus-${fuzzer})
     add_dependencies(fuzzers fuzz-${fuzzer})
     add_dependencies(regression regression-${fuzzer})
-    add_dependencies(regression-log regression-log-${fuzzer})
   endforeach()
 endif()
 
