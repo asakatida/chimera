@@ -32,27 +32,7 @@ name: CodeCov
 
 # yamllint disable-line rule:truthy
 on:
-  pull_request:
-    paths:
-      - .github/ccache/**
-      - .github/workflows/codecov.yml
-      - "**.cpp"
-      - "**.h"
-      - "**.hpp"
-      - "**.py"
-      - action.yml
-      - cmake/**
-      - CMakeLists.txt
-      - external/**
-      - requirements.core.txt
-      - requirements.txt
-      - stdlib/**
-      - unit_tests/**
   push:
-    branches:
-      - stable
-      - regression-refs/**
-      - update-fuzz-refs/**
     paths:
       - .github/ccache/**
       - .github/workflows/codecov.yml
