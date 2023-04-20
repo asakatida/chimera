@@ -40,8 +40,15 @@ async def git_cmd_remote(*args: object) -> None:
 
 
 async def git_restore(sha: str, *paths: object) -> None:
-    await git_cmd("restore", "--source", sha, "--staged", *paths)
-    await git_cmd("restore", "--worktree", *paths)
+    try:
+        await git_cmd("restore", "--source", sha, "--staged", *paths)
+    except ProcessError:
+        return
+    try:
+        await git_cmd("restore", "--worktree", *paths)
+    except ProcessError:
+        pass
+    corpus_trim()
     await git_cmd("add", *paths)
     await git_cmd("commit", "--allow-empty", "--amend", "--no-edit")
 
