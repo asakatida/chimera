@@ -1,4 +1,5 @@
 from asyncio import run
+from asyncio.subprocess import PIPE
 from itertools import chain, repeat
 from pathlib import Path
 from sys import argv, stderr
@@ -11,7 +12,7 @@ async def fuzz(fuzzer: str, dictionary: str, *dirs: str) -> None:
         f"./fuzz-{fuzzer}",
         f"-dict={dictionary}",
         "-max_len=16384",
-        "-max_total_time=120",
+        "-max_total_time=240",
         "-print_final_stats=1",
         "-reduce_inputs=1",
         "-shrink=1",
@@ -20,9 +21,10 @@ async def fuzz(fuzzer: str, dictionary: str, *dirs: str) -> None:
             Path.is_dir,  # type: ignore
             chain.from_iterable(map(Path.rglob, map(Path, dirs), repeat("*"))),  # type: ignore
         ),
-        err=None,
-        out=None,
-        timeout=120,
+        err=PIPE,
+        log=False,
+        out=PIPE,
+        timeout=300,
     )
 
 

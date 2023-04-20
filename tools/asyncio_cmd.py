@@ -49,15 +49,21 @@ class TimeIt:
 
 
 class ProcessError(Exception):
-    def __init__(self, cmd: Sequence[object], stderr: bytes, returncode: int) -> None:
+    def __init__(
+        self, cmd: Sequence[object], stdout: bytes, stderr: bytes, returncode: int
+    ) -> None:
         super().__init__(f"{cmd} failed with {returncode}")
         self.cmd = cmd
         self.stderr = stderr.decode().strip()
+        self.stdout = stdout.decode().strip()
         self.returncode = returncode
 
     def exit(self) -> None:
         print(*self.cmd, file=stderr)
-        print(self.stderr, file=stderr)
+        if self.stdout:
+            print(self.stdout)
+        if self.stderr:
+            print(self.stderr, file=stderr)
         exit(self.returncode)
 
 
@@ -139,33 +145,40 @@ async def cmd_no_timeout(*args: object) -> None:
     try:
         await proc.communicate()
     finally:
-        await status(args, b"", proc, -1)
+        await status(args, b"", b"", proc, -1)
 
 
 async def communicate(
     args: Sequence[object], err: bytes, proc: Process, timeout: int
 ) -> bytes:
-    cmd_stderr = b""
+    cmd_stderr = cmd_stdout = None
     try:
         cmd_stdout, cmd_stderr = await wait_for(proc.communicate(), timeout=timeout)
     finally:
-        await status(args, err + (cmd_stderr or b""), proc, timeout)
+        await status(
+            args, (cmd_stdout or b""), err + (cmd_stderr or b""), proc, timeout
+        )
     return cmd_stdout or b""
 
 
 async def status(
-    args: Sequence[object], err: bytes, proc: Process, timeout: int
+    args: Sequence[object], out: bytes, err: bytes, proc: Process, timeout: int
 ) -> None:
     returncode = proc.returncode
     cmd_stderr = b""
+    cmd_stdout = b""
     if returncode is None:
         proc.terminate()
         returncode = await proc.wait()
         if proc.stderr is not None:
-            cmd_stderr += await proc.stderr.read()
+            cmd_stderr = await proc.stderr.read()
+        if proc.stdout is not None:
+            cmd_stdout = await proc.stdout.read()
         cmd_stderr += (
             f"\nThe process was terminated by timeout {timeout} seconds".encode()
         )
     if returncode != 0:
         if not isinstance(exc_info()[1], CancelledError):
-            raise ProcessError(args, err + cmd_stderr, returncode or 1)
+            raise ProcessError(
+                args, out + cmd_stdout, err + cmd_stderr, returncode or 1
+            )
