@@ -93,7 +93,6 @@ namespace chimera::library::object::number {
 
   private:
     Number(PythonNumber ref, bool _unused) noexcept;
-
     PythonNumber ref;
   };
 } // namespace chimera::library::object::number

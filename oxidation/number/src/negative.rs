@@ -67,7 +67,6 @@ impl num_traits::ToPrimitive for Negative {
             Self::Rational(a) => a.to_i64(),
         }
     }
-
     #[inline]
     fn to_u64(&self) -> Option<u64> {
         match self.clone() {
@@ -76,7 +75,6 @@ impl num_traits::ToPrimitive for Negative {
             Self::Rational(a) => a.to_u64(),
         }
     }
-
     #[inline]
     fn to_f64(&self) -> Option<f64> {
         match self.clone() {
@@ -173,7 +171,6 @@ impl fmt::UpperHex for Negative {
 
 impl ops::Add for Negative {
     type Output = Number;
-
     #[inline]
     fn add(self, other: Self) -> Self::Output {
         match (self, other) {
@@ -195,7 +192,6 @@ impl ops::Add for Negative {
 
 impl ops::BitAnd for Negative {
     type Output = Number;
-
     #[inline]
     fn bitand(self, other: Self) -> Self::Output {
         match (self, other) {
@@ -217,7 +213,6 @@ impl ops::BitAnd for Negative {
 
 impl ops::BitOr for Negative {
     type Output = Number;
-
     #[inline]
     fn bitor(self, other: Self) -> Self::Output {
         match (self, other) {
@@ -239,7 +234,6 @@ impl ops::BitOr for Negative {
 
 impl ops::BitXor for Negative {
     type Output = Number;
-
     #[inline]
     fn bitxor(self, other: Self) -> Self::Output {
         match (self, other) {
@@ -259,7 +253,6 @@ impl ops::BitXor for Negative {
 
 impl ops::Div for Negative {
     type Output = Number;
-
     #[inline]
     fn div(self, other: Self) -> Self::Output {
         match (self, other) {
@@ -278,7 +271,6 @@ impl ops::Div for Negative {
 
 impl ops::Mul for Negative {
     type Output = Number;
-
     #[inline]
     fn mul(self, other: Self) -> Self::Output {
         match (self, other) {
@@ -298,7 +290,6 @@ impl ops::Mul for Negative {
 
 impl ops::Neg for Negative {
     type Output = Number;
-
     #[inline]
     fn neg(self) -> Self::Output {
         match self {
@@ -311,7 +302,6 @@ impl ops::Neg for Negative {
 
 impl ops::Not for Negative {
     type Output = Number;
-
     #[inline]
     fn not(self) -> Self::Output {
         match self {
@@ -324,7 +314,6 @@ impl ops::Not for Negative {
 
 impl num_traits::pow::Pow<Negative> for Negative {
     type Output = Number;
-
     #[inline]
     fn pow(self, _other: Self) -> Number {
         Number::NaN
@@ -333,7 +322,6 @@ impl num_traits::pow::Pow<Negative> for Negative {
 
 impl ops::Rem for Negative {
     type Output = Number;
-
     #[inline]
     fn rem(self, other: Self) -> Self::Output {
         match (self, other) {
@@ -352,7 +340,6 @@ impl ops::Rem for Negative {
 
 impl ops::Shl for Negative {
     type Output = Number;
-
     #[inline]
     fn shl(self, other: Self) -> Self::Output {
         match (self, other) {
@@ -369,7 +356,6 @@ impl ops::Shl for Negative {
 
 impl ops::Shr for Negative {
     type Output = Number;
-
     #[inline]
     fn shr(self, other: Self) -> Self::Output {
         match (self, other) {
@@ -386,7 +372,6 @@ impl ops::Shr for Negative {
 
 impl ops::Sub for Negative {
     type Output = Number;
-
     #[inline]
     fn sub(self, other: Self) -> Self::Output {
         match (self, other) {
@@ -416,7 +401,6 @@ impl NumberBase for Negative {
             Self::Rational(a) => a.into(),
         }
     }
-
     #[inline]
     fn div_floor(self, other: Self) -> Number {
         match (self, other) {
@@ -435,7 +419,6 @@ impl NumberBase for Negative {
             (Self::Rational(a), Self::Rational(b)) => a.div_floor(b),
         }
     }
-
     #[inline]
     fn gcd(self, other: Self) -> Number {
         gcd(self, other)

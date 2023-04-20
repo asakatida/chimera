@@ -148,12 +148,10 @@ impl num_traits::ToPrimitive for Complex {
     fn to_i64(&self) -> Option<i64> {
         self.real.to_i64()
     }
-
     #[inline]
     fn to_u64(&self) -> Option<u64> {
         self.real.to_u64()
     }
-
     #[inline]
     fn to_f64(&self) -> Option<f64> {
         self.real.to_f64()
@@ -218,7 +216,6 @@ impl fmt::UpperHex for Complex {
 
 impl ops::Add for Complex {
     type Output = Number;
-
     #[inline]
     fn add(self, other: Self) -> Self::Output {
         self.real + other.real + (self.imag + other.imag).imag()
@@ -227,7 +224,6 @@ impl ops::Add for Complex {
 
 impl ops::BitAnd for Complex {
     type Output = Number;
-
     #[inline]
     fn bitand(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -236,7 +232,6 @@ impl ops::BitAnd for Complex {
 
 impl ops::BitOr for Complex {
     type Output = Number;
-
     #[inline]
     fn bitor(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -245,7 +240,6 @@ impl ops::BitOr for Complex {
 
 impl ops::BitXor for Complex {
     type Output = Number;
-
     #[inline]
     fn bitxor(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -254,7 +248,6 @@ impl ops::BitXor for Complex {
 
 impl ops::Div for Complex {
     type Output = Number;
-
     #[inline]
     fn div(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -263,7 +256,6 @@ impl ops::Div for Complex {
 
 impl ops::Mul for Complex {
     type Output = Number;
-
     #[inline]
     fn mul(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -272,7 +264,6 @@ impl ops::Mul for Complex {
 
 impl ops::Neg for Complex {
     type Output = Number;
-
     #[inline]
     fn neg(self) -> Self::Output {
         Number::NaN
@@ -281,7 +272,6 @@ impl ops::Neg for Complex {
 
 impl ops::Not for Complex {
     type Output = Number;
-
     #[inline]
     fn not(self) -> Self::Output {
         Number::NaN
@@ -290,7 +280,6 @@ impl ops::Not for Complex {
 
 impl num_traits::pow::Pow<Complex> for Complex {
     type Output = Number;
-
     #[inline]
     fn pow(self, _other: Self) -> Number {
         Number::NaN
@@ -299,7 +288,6 @@ impl num_traits::pow::Pow<Complex> for Complex {
 
 impl ops::Rem for Complex {
     type Output = Number;
-
     #[inline]
     fn rem(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -308,7 +296,6 @@ impl ops::Rem for Complex {
 
 impl ops::Shl for Complex {
     type Output = Number;
-
     #[inline]
     fn shl(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -317,7 +304,6 @@ impl ops::Shl for Complex {
 
 impl ops::Shr for Complex {
     type Output = Number;
-
     #[inline]
     fn shr(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -326,7 +312,6 @@ impl ops::Shr for Complex {
 
 impl ops::Sub for Complex {
     type Output = Number;
-
     #[inline]
     fn sub(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -338,12 +323,10 @@ impl NumberBase for Complex {
     fn abs(self) -> Number {
         self.real.abs() + self.imag.abs()
     }
-
     #[inline]
     fn div_floor(self, other: Self) -> Number {
         self.real.div_floor(other.real) + self.imag.div_floor(other.imag)
     }
-
     #[inline]
     fn gcd(self, other: Self) -> Number {
         gcd(self, other)

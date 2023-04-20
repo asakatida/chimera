@@ -248,7 +248,6 @@ impl Number {
     pub fn new(i: u64) -> Self {
         Base::new(i).into()
     }
-
     #[inline]
     #[must_use]
     pub fn imag(&self) -> Self {
@@ -266,13 +265,11 @@ impl Number {
             .into(),
         }
     }
-
     #[inline]
     #[must_use]
     pub fn is_complex(&self) -> bool {
         matches!(*self, Self::Imag(_) | Self::Complex(_))
     }
-
     #[inline]
     #[must_use]
     pub fn is_int(&self) -> bool {
@@ -283,7 +280,6 @@ impl Number {
                 | Self::Negative(Negative::Base(_) | Negative::Natural(_))
         )
     }
-
     #[inline]
     #[must_use]
     pub fn is_nan(&self) -> bool {
@@ -305,7 +301,6 @@ impl num_traits::ToPrimitive for Number {
             Self::NaN => None,
         }
     }
-
     #[inline]
     fn to_u64(&self) -> Option<u64> {
         match self.clone() {
@@ -318,7 +313,6 @@ impl num_traits::ToPrimitive for Number {
             Self::NaN => None,
         }
     }
-
     #[inline]
     fn to_f64(&self) -> Option<f64> {
         match self.clone() {
@@ -447,7 +441,6 @@ impl fmt::UpperHex for Number {
 
 impl ops::Add for Number {
     type Output = Self;
-
     #[inline]
     fn add(self, other: Self) -> Self::Output {
         match (self, other) {
@@ -510,7 +503,6 @@ impl ops::Add for Number {
 
 impl ops::BitAnd for Number {
     type Output = Self;
-
     #[inline]
     fn bitand(self, other: Self) -> Self::Output {
         match (self, other) {
@@ -547,7 +539,6 @@ impl ops::BitAnd for Number {
 
 impl ops::BitOr for Number {
     type Output = Self;
-
     #[inline]
     fn bitor(self, other: Self) -> Self::Output {
         match (self, other) {
@@ -584,7 +575,6 @@ impl ops::BitOr for Number {
 
 impl ops::BitXor for Number {
     type Output = Self;
-
     #[inline]
     fn bitxor(self, other: Self) -> Self::Output {
         match (self, other) {
@@ -621,7 +611,6 @@ impl ops::BitXor for Number {
 
 impl ops::Div for Number {
     type Output = Self;
-
     #[inline]
     fn div(self, other: Self) -> Self::Output {
         match (self, other) {
@@ -694,7 +683,6 @@ impl ops::Div for Number {
 
 impl ops::Mul for Number {
     type Output = Self;
-
     #[inline]
     fn mul(self, other: Self) -> Self::Output {
         match (self, other) {
@@ -754,7 +742,6 @@ impl ops::Mul for Number {
 
 impl ops::Neg for Number {
     type Output = Self;
-
     #[inline]
     fn neg(self) -> Self::Output {
         match self {
@@ -771,7 +758,6 @@ impl ops::Neg for Number {
 
 impl ops::Not for Number {
     type Output = Self;
-
     #[inline]
     fn not(self) -> Self::Output {
         match self {
@@ -788,7 +774,6 @@ impl ops::Not for Number {
 
 impl num_traits::pow::Pow<Number> for Number {
     type Output = Self;
-
     #[inline]
     fn pow(self, other: Self) -> Self {
         match (self, other) {
@@ -859,7 +844,6 @@ impl num_traits::pow::Pow<Number> for Number {
 
 impl ops::Rem for Number {
     type Output = Self;
-
     #[inline]
     fn rem(self, other: Self) -> Self::Output {
         match (self, other) {
@@ -930,7 +914,6 @@ impl ops::Rem for Number {
 
 impl ops::Shl for Number {
     type Output = Self;
-
     #[inline]
     fn shl(self, other: Self) -> Self::Output {
         match (self, other) {
@@ -967,7 +950,6 @@ impl ops::Shl for Number {
 
 impl ops::Shr for Number {
     type Output = Self;
-
     #[inline]
     fn shr(self, other: Self) -> Self::Output {
         match (self, other) {
@@ -1004,7 +986,6 @@ impl ops::Shr for Number {
 
 impl ops::Sub for Number {
     type Output = Self;
-
     #[inline]
     fn sub(self, other: Self) -> Self::Output {
         match (self, other) {
@@ -1106,7 +1087,6 @@ impl NumberBase for Number {
             Self::NaN => Self::NaN,
         }
     }
-
     #[inline]
     fn div_floor(self, other: Self) -> Self {
         match (self, other) {
@@ -1189,7 +1169,6 @@ impl NumberBase for Number {
             (Self::Complex(a), Self::Complex(b)) => a - b,
         }
     }
-
     #[inline]
     fn gcd(self, other: Self) -> Self {
         match (self, other) {

@@ -71,7 +71,6 @@ impl num_traits::ToPrimitive for Imag {
             Self::Negative(a) => a.to_i64(),
         }
     }
-
     #[inline]
     fn to_u64(&self) -> Option<u64> {
         match self.clone() {
@@ -81,7 +80,6 @@ impl num_traits::ToPrimitive for Imag {
             Self::Negative(a) => a.to_u64(),
         }
     }
-
     #[inline]
     fn to_f64(&self) -> Option<f64> {
         match self.clone() {
@@ -186,7 +184,6 @@ impl fmt::UpperHex for Imag {
 
 impl ops::Add for Imag {
     type Output = Number;
-
     #[inline]
     fn add(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -195,7 +192,6 @@ impl ops::Add for Imag {
 
 impl ops::BitAnd for Imag {
     type Output = Number;
-
     #[inline]
     fn bitand(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -204,7 +200,6 @@ impl ops::BitAnd for Imag {
 
 impl ops::BitOr for Imag {
     type Output = Number;
-
     #[inline]
     fn bitor(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -213,7 +208,6 @@ impl ops::BitOr for Imag {
 
 impl ops::BitXor for Imag {
     type Output = Number;
-
     #[inline]
     fn bitxor(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -222,7 +216,6 @@ impl ops::BitXor for Imag {
 
 impl ops::Div for Imag {
     type Output = Number;
-
     #[inline]
     fn div(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -231,7 +224,6 @@ impl ops::Div for Imag {
 
 impl ops::Mul for Imag {
     type Output = Number;
-
     #[inline]
     fn mul(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -240,7 +232,6 @@ impl ops::Mul for Imag {
 
 impl ops::Neg for Imag {
     type Output = Number;
-
     #[inline]
     fn neg(self) -> Self::Output {
         Number::NaN
@@ -249,7 +240,6 @@ impl ops::Neg for Imag {
 
 impl ops::Not for Imag {
     type Output = Number;
-
     #[inline]
     fn not(self) -> Self::Output {
         Number::NaN
@@ -258,7 +248,6 @@ impl ops::Not for Imag {
 
 impl num_traits::pow::Pow<Imag> for Imag {
     type Output = Number;
-
     #[inline]
     fn pow(self, _other: Self) -> Number {
         Number::NaN
@@ -267,7 +256,6 @@ impl num_traits::pow::Pow<Imag> for Imag {
 
 impl ops::Rem for Imag {
     type Output = Number;
-
     #[inline]
     fn rem(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -276,7 +264,6 @@ impl ops::Rem for Imag {
 
 impl ops::Shl for Imag {
     type Output = Number;
-
     #[inline]
     fn shl(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -285,7 +272,6 @@ impl ops::Shl for Imag {
 
 impl ops::Shr for Imag {
     type Output = Number;
-
     #[inline]
     fn shr(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -294,7 +280,6 @@ impl ops::Shr for Imag {
 
 impl ops::Sub for Imag {
     type Output = Number;
-
     #[inline]
     fn sub(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -312,7 +297,6 @@ impl NumberBase for Imag {
         }
         .imag()
     }
-
     #[inline]
     fn div_floor(self, other: Self) -> Number {
         match (self, other) {
@@ -365,7 +349,6 @@ impl NumberBase for Imag {
         }
         .imag()
     }
-
     #[inline]
     fn gcd(self, other: Self) -> Number {
         gcd(self, other).imag()

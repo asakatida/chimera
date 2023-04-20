@@ -153,7 +153,6 @@ impl num_traits::ToPrimitive for Rational {
             }
         }
     }
-
     #[inline]
     fn to_u64(&self) -> Option<u64> {
         match (self.numerator.clone(), self.denominator.clone()) {
@@ -165,7 +164,6 @@ impl num_traits::ToPrimitive for Rational {
             }
         }
     }
-
     #[inline]
     fn to_f64(&self) -> Option<f64> {
         match (self.numerator.clone(), self.denominator.clone()) {
@@ -237,7 +235,6 @@ impl fmt::UpperHex for Rational {
 
 impl ops::Add for Rational {
     type Output = Number;
-
     #[inline]
     fn add(self, other: Self) -> Self::Output {
         (match (self.numerator, other.denominator.clone()) {
@@ -264,7 +261,6 @@ impl ops::Add for Rational {
 
 impl ops::BitAnd for Rational {
     type Output = Number;
-
     #[inline]
     fn bitand(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -273,7 +269,6 @@ impl ops::BitAnd for Rational {
 
 impl ops::BitOr for Rational {
     type Output = Number;
-
     #[inline]
     fn bitor(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -282,7 +277,6 @@ impl ops::BitOr for Rational {
 
 impl ops::BitXor for Rational {
     type Output = Number;
-
     #[inline]
     fn bitxor(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -291,7 +285,6 @@ impl ops::BitXor for Rational {
 
 impl ops::Div for Rational {
     type Output = Number;
-
     #[inline]
     fn div(self, other: Self) -> Self::Output {
         let mut numerator = match (self.numerator, other.denominator) {
@@ -338,7 +331,6 @@ impl ops::Div for Rational {
 
 impl ops::Mul for Rational {
     type Output = Number;
-
     #[inline]
     fn mul(self, other: Self) -> Self::Output {
         (match (self.numerator, other.numerator) {
@@ -359,7 +351,6 @@ impl ops::Mul for Rational {
 
 impl ops::Neg for Rational {
     type Output = Number;
-
     #[inline]
     fn neg(self) -> Self::Output {
         Negative::Rational(self).into()
@@ -368,7 +359,6 @@ impl ops::Neg for Rational {
 
 impl ops::Not for Rational {
     type Output = Number;
-
     #[inline]
     fn not(self) -> Self::Output {
         Number::NaN
@@ -377,7 +367,6 @@ impl ops::Not for Rational {
 
 impl num_traits::pow::Pow<Rational> for Rational {
     type Output = Number;
-
     #[inline]
     fn pow(self, _other: Self) -> Number {
         Number::NaN
@@ -386,7 +375,6 @@ impl num_traits::pow::Pow<Rational> for Rational {
 
 impl ops::Rem for Rational {
     type Output = Number;
-
     #[inline]
     fn rem(self, other: Self) -> Self::Output {
         rem(self, other)
@@ -395,7 +383,6 @@ impl ops::Rem for Rational {
 
 impl ops::Shl for Rational {
     type Output = Number;
-
     #[inline]
     fn shl(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -404,7 +391,6 @@ impl ops::Shl for Rational {
 
 impl ops::Shr for Rational {
     type Output = Number;
-
     #[inline]
     fn shr(self, _other: Self) -> Self::Output {
         Number::NaN
@@ -413,7 +399,6 @@ impl ops::Shr for Rational {
 
 impl ops::Sub for Rational {
     type Output = Number;
-
     #[inline]
     fn sub(self, other: Self) -> Self::Output {
         (match (self.numerator, other.denominator.clone()) {
@@ -443,7 +428,6 @@ impl NumberBase for Rational {
     fn abs(self) -> Number {
         self.into()
     }
-
     #[inline]
     fn div_floor(self, other: Self) -> Number {
         (match (self.numerator, other.denominator) {
@@ -467,7 +451,6 @@ impl NumberBase for Rational {
             (Part::Natural(a), Part::Natural(b)) => a.div_floor(&b).into(),
         })
     }
-
     #[inline]
     fn gcd(self, other: Self) -> Number {
         gcd(self, other)

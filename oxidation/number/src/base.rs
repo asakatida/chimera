@@ -56,12 +56,10 @@ impl num_traits::ToPrimitive for Base {
     fn to_i64(&self) -> Option<i64> {
         self.value.to_i64()
     }
-
     #[inline]
     fn to_u64(&self) -> Option<u64> {
         self.value.to_u64()
     }
-
     #[inline]
     fn to_f64(&self) -> Option<f64> {
         self.value.to_f64()
@@ -126,7 +124,6 @@ impl fmt::UpperHex for Base {
 
 impl ops::Add for Base {
     type Output = Number;
-
     #[inline]
     fn add(self, other: Self) -> Self::Output {
         match self.value.overflowing_add(other.value) {
@@ -138,7 +135,6 @@ impl ops::Add for Base {
 
 impl ops::BitAnd for Base {
     type Output = Number;
-
     #[inline]
     fn bitand(self, other: Self) -> Self::Output {
         (self.value & other.value).into()
@@ -147,7 +143,6 @@ impl ops::BitAnd for Base {
 
 impl ops::BitOr for Base {
     type Output = Number;
-
     #[inline]
     fn bitor(self, other: Self) -> Self::Output {
         (self.value | other.value).into()
@@ -156,7 +151,6 @@ impl ops::BitOr for Base {
 
 impl ops::BitXor for Base {
     type Output = Number;
-
     #[inline]
     fn bitxor(self, other: Self) -> Self::Output {
         (self.value ^ other.value).into()
@@ -165,7 +159,6 @@ impl ops::BitXor for Base {
 
 impl ops::Div for Base {
     type Output = Number;
-
     #[inline]
     fn div(self, other: Self) -> Self::Output {
         if other.value == 0 {
@@ -194,7 +187,6 @@ impl ops::Div for Base {
 
 impl ops::Mul for Base {
     type Output = Number;
-
     #[inline]
     fn mul(self, other: Self) -> Self::Output {
         match self.value.overflowing_mul(other.value) {
@@ -206,7 +198,6 @@ impl ops::Mul for Base {
 
 impl ops::Neg for Base {
     type Output = Number;
-
     #[inline]
     fn neg(self) -> Self::Output {
         Negative::Base(self).into()
@@ -215,7 +206,6 @@ impl ops::Neg for Base {
 
 impl ops::Not for Base {
     type Output = Number;
-
     #[inline]
     fn not(self) -> Self::Output {
         (!self.value).into()
@@ -224,7 +214,6 @@ impl ops::Not for Base {
 
 impl num_traits::pow::Pow<Base> for Base {
     type Output = Number;
-
     #[inline]
     fn pow(self, other: Self) -> Number {
         if let Ok(value) = other.value.try_into() {
@@ -246,7 +235,6 @@ impl num_traits::pow::Pow<Base> for Base {
 
 impl ops::Rem for Base {
     type Output = Number;
-
     #[inline]
     fn rem(self, other: Self) -> Self::Output {
         self.value
@@ -257,7 +245,6 @@ impl ops::Rem for Base {
 
 impl ops::Shl for Base {
     type Output = Number;
-
     #[inline]
     fn shl(self, other: Self) -> Self::Output {
         (self.value << other.value).into()
@@ -266,7 +253,6 @@ impl ops::Shl for Base {
 
 impl ops::Shr for Base {
     type Output = Number;
-
     #[inline]
     fn shr(self, other: Self) -> Self::Output {
         (self.value >> other.value).into()
@@ -275,7 +261,6 @@ impl ops::Shr for Base {
 
 impl ops::Sub for Base {
     type Output = Number;
-
     #[inline]
     fn sub(self, other: Self) -> Self::Output {
         match self.value.overflowing_sub(other.value) {
@@ -290,13 +275,11 @@ impl NumberBase for Base {
     fn abs(self) -> Number {
         self.value.into()
     }
-
     #[allow(clippy::integer_division)]
     #[inline]
     fn div_floor(self, other: Self) -> Number {
         (self.value / other.value).into()
     }
-
     #[inline]
     fn gcd(self, other: Self) -> Number {
         let mut a_prime = self.value;
