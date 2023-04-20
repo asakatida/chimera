@@ -278,6 +278,7 @@ if(
       ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/corpus
       DEPENDS fuzz-${fuzzer}
       VERBATIM)
+    add_dependencies(corpus corpus-${fuzzer})
     add_dependencies(fuzzers fuzz-${fuzzer})
     add_dependencies(regression regression-${fuzzer})
   endforeach()
