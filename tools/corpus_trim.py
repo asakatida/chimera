@@ -104,10 +104,11 @@ def corpus_trim_one(fuzz: Iterable[Path]) -> None:
 
 
 def corpus_trim() -> None:
-    for file in chain.from_iterable(
-        map(SOURCE.rglob, ("crash-*", "leak-*", "timeout-*"))
+    CRASHES.mkdir(parents=True, exist_ok=True)
+    for file in c_tqdm(
+        chain.from_iterable(map(SOURCE.rglob, ("crash-*", "leak-*", "timeout-*"))),
+        "Crashes gather",
     ):
-        CRASHES.mkdir(parents=True, exist_ok=True)
         file.rename(CRASHES / sha(file))
     while True:
         try:
