@@ -27,6 +27,7 @@ from sys import argv, stderr
 from asyncio_cmd import ProcessError, cmd, cmd_check
 from corpus_retest import corpus_retest
 from corpus_trim import corpus_trim
+from corpus_utils import regression
 from ninja import ninja
 from tqdm import tqdm
 
@@ -88,7 +89,7 @@ async def main(ref: str) -> None:
         await git_cmd("remote", "set-head", "origin", "--auto")
         await corpus_gather(path)
     await corpus_retest("build")
-    await ninja("build", "regression")
+    await regression("build")
     for opt in ("--global", "--local", "--system", "--worktree"):
         await cmd_check("git", "config", opt, "--unset-all", "user.email")
         await cmd_check("git", "config", opt, "--unset-all", "user.name")
