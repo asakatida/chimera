@@ -23,7 +23,7 @@ jobs:
           run: |
             rustup default stable
             python tools/codecov.py >llvm-profile.lcov
-      - uses: codecov/codecov-action@v3.1.2
+      - uses: codecov/codecov-action@v3.1.3
         with:
           directory: ${{ github.workspace }}
           files: llvm-profile.lcov
