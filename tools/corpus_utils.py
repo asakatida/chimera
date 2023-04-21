@@ -22,12 +22,12 @@
 
 from functools import cache
 from hashlib import sha256
-from itertools import chain, repeat
+from itertools import chain, product, repeat
 from pathlib import Path
 from typing import Iterable, TypeVar
 
 from asyncio_as_completed import as_completed
-from asyncio_cmd import cmd_check
+from asyncio_cmd import chunks, cmd_check, cmd_flog
 from tqdm import tqdm
 
 DIRECTORIES = ("corpus", "crashes")
@@ -54,7 +54,7 @@ async def corpus_merge(path: Path) -> list[Exception]:
             Path.is_dir,
             chain.from_iterable(map(lambda path: path.rglob("*"), (CORPUS, path))),
         ),
-        timeout=3600
+        timeout=3600,
     )
 
 
@@ -63,11 +63,11 @@ def bucket(path: Path) -> Path:
 
 
 @cache
-def fuzz_star() -> tuple[Path, ...]:
+def fuzz_star(build: Path = SOURCE) -> tuple[Path, ...]:
     return tuple(
         filter(
             lambda path: path.stat().st_mode & 0o110,
-            filter(Path.is_file, SOURCE.rglob("fuzz-*")),
+            filter(Path.is_file, build.rglob("fuzz-*")),
         )
     )
 
@@ -95,6 +95,29 @@ def gather_paths() -> Iterable[Path]:
         chain.from_iterable(
             map(Path.rglob, map(FUZZ.joinpath, DIRECTORIES), repeat("*"))  # type: ignore
         ),
+    )
+
+
+async def regression_one(fuzzer: Path, chunk: list[Path]) -> None:
+    await cmd_flog(fuzzer, *chunk, timeout=300)
+
+
+async def regression(build: str, fuzzer: str = "", corpus: str = "") -> None:
+    fuzzers = (Path(build) / f"fuzz-{fuzzer}",) if fuzzer else fuzz_star(Path(build))
+    await as_completed(
+        map(
+            lambda args: regression_one(*args),
+            product(
+                fuzzers,
+                chunks(
+                    filter(
+                        Path.is_file, (Path(corpus) if corpus else CORPUS).rglob("*")
+                    ),
+                    4096,
+                ),
+            ),
+        ),
+        cancel=True,
     )
 
 

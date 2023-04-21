@@ -26,6 +26,7 @@ from pathlib import Path
 from sys import stderr
 
 from asyncio_cmd import ProcessError, cmd, cmd_env
+from corpus_utils import regression
 from ninja import ninja
 
 
@@ -79,7 +80,8 @@ async def main() -> None:
     except FileNotFoundError:
         pass
     llvm_profile_dir.mkdir()
-    await ninja("build", "check", "regression")
+    await ninja("build", "check")
+    await regression("build")
     llvm_profile_files = filter(Path.is_file, llvm_profile_dir.iterdir())
     await cmd(
         "llvm-profdata",

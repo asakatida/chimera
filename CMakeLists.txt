@@ -274,7 +274,9 @@ if(
       VERBATIM)
     add_custom_target(
       regression-${fuzzer}
-      python ${CMAKE_SOURCE_DIR}/tools/regression.py ${fuzzer}
+      python ${CMAKE_SOURCE_DIR}/tools/regression.py
+      ${CMAKE_BINARY_DIR}
+      ${fuzzer}
       ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/corpus
       DEPENDS fuzz-${fuzzer}
       VERBATIM)
