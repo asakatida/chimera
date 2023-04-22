@@ -405,3 +405,60 @@ TEST_CASE(R"(fuzz `""""\\"\\j"""`)") {
   auto test_case = R"(""""\\"\\j""")"sv;
   TestOne(test_case.data(), test_case.size());
 }
+
+TEST_CASE(R"(fuzz `0b_0`)") {
+  auto test_case = R"(0b_0)"sv;
+  TestOne(test_case.data(), test_case.size());
+}
+
+TEST_CASE(R"(fuzz `0O021000'`)") {
+  auto test_case = R"(0O021000')"sv;
+  TestOne(test_case.data(), test_case.size());
+}
+
+TEST_CASE(R"(fuzz `3J`)") {
+  auto test_case = R"(3J)"sv;
+  TestOne(test_case.data(), test_case.size());
+}
+
+TEST_CASE(R"(fuzz `r"""""\'"""`)") {
+  auto test_case = R"(r"""""\'""")"sv;
+  TestOne(test_case.data(), test_case.size());
+}
+
+TEST_CASE(R"(fuzz `'\\UC788885A\\UC78888\\UC788885A\\UC78878'`)") {
+  auto test_case = R"('\\UC788885A\\UC78888\\UC788885A\\UC78878')"sv;
+  TestOne(test_case.data(), test_case.size());
+}
+
+TEST_CASE(R"(fuzz `r"""fe;"""`)") {
+  auto test_case = R"(r"""fe;""")"sv;
+  TestOne(test_case.data(), test_case.size());
+}
+
+TEST_CASE(R"(fuzz `se__gt__`)") {
+  auto test_case = R"(se__gt__)"sv;
+  TestOne(test_case.data(), test_case.size());
+}
+
+TEST_CASE(R"(fuzz `lcacammb`)") {
+  auto test_case = R"(lcacammb)"sv;
+  TestOne(test_case.data(), test_case.size());
+}
+
+TEST_CASE(
+    R"(fuzz `''\x0b''\x0b''\x0b''\x0b''\x0b''\x0b''\x0b''\x0b''\x0b''\x0b''\x0b''\x0b''f''\x0b''\x0b''`)") {
+  auto test_case =
+      R"(''\x0b''\x0b''\x0b''\x0b''\x0b''\x0b''\x0b''\x0b''\x0b''\x0b''\x0b''\x0b''f''\x0b''\x0b'')"sv;
+  TestOne(test_case.data(), test_case.size());
+}
+
+TEST_CASE(R"(fuzz `F#\n`)") {
+  auto test_case = R"(F#\n)"sv;
+  TestOne(test_case.data(), test_case.size());
+}
+
+TEST_CASE(R"(fuzz `0#MMMMMKMMMMMMMM:MMMMMMMMMMMMMM\x0b\n`)") {
+  auto test_case = R"(0#MMMMMKMMMMMMMM:MMMMMMMMMMMMMM\x0b\n)"sv;
+  TestOne(test_case.data(), test_case.size());
+}
