@@ -39,9 +39,14 @@ TEST_CASE(R"(fuzz `{data}`)") {{
 
 
 async def corpus_freeze(output: str) -> None:
+    file = Path(output)
     paths = sorted(corpus_ascii())
-    with Path(output).open("a") as ostream:
+    current_state = file.read_text()
+    with file.open("a") as ostream:
         for file in paths:
+            test_data = repr(file.read_text())[1:-1]
+            if len(test_data) > 120 or test_data in current_state:
+                continue
             if await cmd(
                 "git",
                 "log",
@@ -54,7 +59,7 @@ async def corpus_freeze(output: str) -> None:
                 log=False,
                 out=PIPE,
             ):
-                ostream.write(TEST_CASE(data=repr(file.read_text())[1:-1]))
+                ostream.write(TEST_CASE(data=test_data))
 
 
 if __name__ == "__main__":
