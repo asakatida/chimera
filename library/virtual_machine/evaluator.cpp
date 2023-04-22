@@ -69,9 +69,24 @@ namespace chimera::library::virtual_machine {
     scopes.emplace(Scope{main});
     enter();
   }
-  void Scopes::enter() { scopes.top().bodies.emplace(); }
-  void Scopes::exit() { scopes.top().bodies.pop(); }
-  void Scopes::exit_scope() { scopes.pop(); }
+  void Scopes::enter() {
+    if (scopes.empty()) {
+      scopes.emplace();
+    }
+    scopes.top().bodies.emplace();
+  }
+  void Scopes::exit() {
+    if (!scopes.empty()) {
+      if (!scopes.top().bodies.empty()) {
+        scopes.top().bodies.pop();
+      }
+    }
+  }
+  void Scopes::exit_scope() {
+    if (!scopes.empty()) {
+      scopes.pop();
+    }
+  }
   Evaluator::Evaluator(ThreadContext &thread_context) noexcept
       : thread_context(thread_context) {}
   Evaluator::~Evaluator() noexcept {
@@ -115,6 +130,9 @@ namespace chimera::library::virtual_machine {
   }
   auto Evaluator::stack_size() const -> std::size_t { return stack.size(); }
   auto Evaluator::stack_top() const -> const object::Object & {
+    if (stack.empty()) {
+      throw object::BaseException("stack is empty");
+    }
     return stack.top();
   }
   void Evaluator::stack_top_update(const object::Object &object) {
