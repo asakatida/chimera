@@ -222,6 +222,9 @@ namespace chimera::library {
           }
         }
         return virtual_machine::GlobalContext(options).interactive();
+      } catch (const object::BaseException &error) {
+        std::cerr << error << std::endl;
+        return 1;
       } catch (const std::exception &error) {
         std::cerr << error.what() << std::endl;
         return 1;

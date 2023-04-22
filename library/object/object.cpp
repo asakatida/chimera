@@ -29,15 +29,6 @@
 using namespace std::literals;
 
 namespace chimera::library::object::internal {
-  struct BaseWhat {
-    auto operator()(const object::String &what) const noexcept -> const char * {
-      return what.c_str();
-    }
-    template <typename Type>
-    auto operator()(const Type & /*what*/) const noexcept -> const char * {
-      return "BaseException";
-    }
-  };
   BaseException::BaseException(std::string anException)
       : exception(ObjectRef(std::move(anException), {})) {}
   BaseException::BaseException(ObjectRef anException)
@@ -53,7 +44,7 @@ namespace chimera::library::object::internal {
   }
   auto BaseException::id() const noexcept -> Id { return exception.id(); }
   auto BaseException::what() const noexcept -> const char * {
-    return exception.visit(BaseWhat{});
+    return "BaseException";
   }
   // NOLINTBEGIN(bugprone-throw-keyword-missing)
   AttributeError::AttributeError(const std::string &type,

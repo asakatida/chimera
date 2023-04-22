@@ -241,8 +241,25 @@ namespace chimera::library::object::internal {
     [[nodiscard]] auto class_id() const noexcept -> Id;
     [[nodiscard]] auto id() const noexcept -> Id;
     [[nodiscard]] auto what() const noexcept -> const char * override;
+    template <typename OStream>
+    auto debug(OStream &os) const -> OStream & {
+      return repr(os);
+    }
+    template <typename OStream>
+    auto repr(OStream &os) const -> OStream & {
+      return os << exception.visit(BaseWhat{});
+    }
 
   private:
+    struct BaseWhat {
+      auto operator()(const String &what) const -> const char * {
+        return what.c_str();
+      }
+      template <typename Type>
+      auto operator()(const Type & /*what*/) const -> const char * {
+        return "BaseException";
+      }
+    };
     ObjectRef exception;
   };
   class AttributeError final : virtual public BaseException {
@@ -301,3 +318,10 @@ namespace chimera::library::object {
 namespace chimera {
   using library::object::Object;
 } // namespace chimera
+
+template <typename OStream>
+auto operator<<(OStream &os,
+                const chimera::library::object::BaseException &exception)
+    -> OStream & {
+  return exception.debug(os);
+}
