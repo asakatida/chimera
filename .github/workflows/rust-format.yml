@@ -1,0 +1,45 @@
+---
+jobs:
+  rustformat:
+    concurrency:
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      group: ${{ github.workflow }}-${{ github.ref }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.5.2
+      - name: Lint rust code
+        uses: ./
+        with:
+          run: >
+            rustup default stable &&
+            find . -name Cargo.toml
+            -exec cargo fmt --all --check --manifest-path '{}' --verbose ';'
+name: RustFormat
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    paths:
+      - .github/workflows/rust-format.yml
+      - action.yml
+      - oxidation/**
+      - requirements.core.txt
+      - requirements.txt
+      - tools/action.py
+      - tools/asyncio_as_completed.py
+      - tools/asyncio_cmd.py
+      - tools/g_ls_tree.py
+  push:
+    branches:
+      - stable
+    paths:
+      - .github/workflows/rust-format.yml
+      - action.yml
+      - oxidation/**
+      - requirements.core.txt
+      - requirements.txt
+      - tools/action.py
+      - tools/asyncio_as_completed.py
+      - tools/asyncio_cmd.py
+      - tools/g_ls_tree.py
+  workflow_dispatch: ~

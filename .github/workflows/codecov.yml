@@ -44,8 +44,8 @@ on:
       - cmake/**
       - CMakeLists.txt
       - external/**
+      - oxidation/**
       - requirements.core.txt
       - requirements.txt
-      - stdlib/**
-      - unit_tests/**
+      - unit_tests/fuzz/corpus/**
   workflow_dispatch: ~
