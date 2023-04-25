@@ -1,19 +1,12 @@
 from asyncio import run
 from asyncio.subprocess import PIPE
-from os import environ
 from re import compile
 from sys import stderr
 from typing import Sequence
 
 from asyncio_as_completed import as_completed
-from asyncio_cmd import ProcessError, cmd
+from asyncio_cmd import ProcessError, ci_args, cmd
 from g_ls_tree import g_ls_tree
-
-IN_CI = environ.get("CI", "") == "true"
-
-
-def ci_args(*args: object) -> tuple[object, ...]:
-    return args if IN_CI else ()
 
 
 async def lint(*args: object) -> bytes:
