@@ -271,6 +271,7 @@ on:
       - cmake/**
       - CMakeLists.txt
       - external/**
+      - oxidation/**
       - requirements.core.txt
       - requirements.txt
   push:
@@ -287,6 +288,7 @@ on:
       - cmake/**
       - CMakeLists.txt
       - external/**
+      - oxidation/**
       - requirements.core.txt
       - requirements.txt
   workflow_dispatch: ~
