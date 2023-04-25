@@ -133,7 +133,7 @@ impl From<&Base> for Number {
 impl From<num_bigint::BigUint> for Number {
     #[inline]
     fn from(i: num_bigint::BigUint) -> Self {
-        condense_bigint(i).map_or_else(Self::Base, Self::Natural)
+        condense_bigint(&i).map_or_else(Self::Base, Self::Natural)
     }
 }
 impl From<&num_bigint::BigUint> for Number {
@@ -1074,6 +1074,7 @@ impl ops::Sub for Number {
     }
 }
 
+#[allow(clippy::missing_trait_methods)]
 impl NumberBase for Number {
     #[inline]
     fn abs(self) -> Self {
@@ -1186,7 +1187,7 @@ impl NumberBase for Number {
             }
             (Self::Rational(a), Self::Rational(b)) => a.gcd(b),
             (Self::Negative(a), Self::Negative(b)) => a.gcd(b),
-            (n, Self::Negative(i)) | (Self::Negative(i), n) => -match (i, n) {
+            (n, Self::Negative(i)) | (Self::Negative(i), n) => match (i, n) {
                 (_, Self::Negative(_) | Self::NaN) => Self::NaN,
                 (Negative::Base(a), Self::Base(b)) => a.gcd(b),
                 (Negative::Base(a), Self::Natural(b)) | (Negative::Natural(b), Self::Base(a)) => {

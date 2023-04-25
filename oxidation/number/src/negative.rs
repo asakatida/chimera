@@ -6,7 +6,7 @@ use crate::base::Base;
 use crate::number::Number;
 use crate::rational::Rational;
 use crate::traits::NumberBase;
-use crate::utils::{fmt_ptr, gcd};
+use crate::utils::fmt_ptr;
 
 #[non_exhaustive]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -392,6 +392,7 @@ impl ops::Sub for Negative {
     }
 }
 
+#[allow(clippy::missing_trait_methods)]
 impl NumberBase for Negative {
     #[inline]
     fn abs(self) -> Number {
@@ -418,9 +419,5 @@ impl NumberBase for Negative {
             (Self::Rational(a), Self::Natural(b)) => a.div_floor(b.into()),
             (Self::Rational(a), Self::Rational(b)) => a.div_floor(b),
         }
-    }
-    #[inline]
-    fn gcd(self, other: Self) -> Number {
-        gcd(self, other)
     }
 }

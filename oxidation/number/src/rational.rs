@@ -6,7 +6,7 @@ use crate::base::Base;
 use crate::negative::Negative;
 use crate::number::Number;
 use crate::traits::NumberBase;
-use crate::utils::{condense_bigint, fmt_ptr, gcd, rem};
+use crate::utils::{condense_bigint, fmt_ptr, rem};
 
 #[non_exhaustive]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -116,7 +116,7 @@ impl From<num_bigint::BigUint> for Rational {
     #[inline]
     fn from(i: num_bigint::BigUint) -> Self {
         Rational {
-            numerator: condense_bigint(i).map_or_else(Part::Base, Part::Natural),
+            numerator: condense_bigint(&i).map_or_else(Part::Base, Part::Natural),
             denominator: Part::Base(1.into()),
         }
     }
@@ -423,6 +423,7 @@ impl ops::Sub for Rational {
     }
 }
 
+#[allow(clippy::missing_trait_methods)]
 impl NumberBase for Rational {
     #[inline]
     fn abs(self) -> Number {
@@ -450,9 +451,5 @@ impl NumberBase for Rational {
             }
             (Part::Natural(a), Part::Natural(b)) => a.div_floor(&b).into(),
         })
-    }
-    #[inline]
-    fn gcd(self, other: Self) -> Number {
-        gcd(self, other)
     }
 }

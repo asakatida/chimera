@@ -6,7 +6,7 @@ use crate::negative::Negative;
 use crate::number::Number;
 use crate::rational::Rational;
 use crate::traits::NumberBase;
-use crate::utils::{condense_bigint, fmt_ptr, gcd};
+use crate::utils::{condense_bigint, fmt_ptr};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[non_exhaustive]
@@ -77,7 +77,7 @@ impl From<num_bigint::BigUint> for Complex {
     #[inline]
     fn from(i: num_bigint::BigUint) -> Self {
         Complex {
-            real: condense_bigint(i).map_or_else(Imag::Base, Imag::Natural),
+            real: condense_bigint(&i).map_or_else(Imag::Base, Imag::Natural),
             imag: Imag::Base(0.into()),
         }
     }
@@ -318,6 +318,7 @@ impl ops::Sub for Complex {
     }
 }
 
+#[allow(clippy::missing_trait_methods)]
 impl NumberBase for Complex {
     #[inline]
     fn abs(self) -> Number {
@@ -326,9 +327,5 @@ impl NumberBase for Complex {
     #[inline]
     fn div_floor(self, other: Self) -> Number {
         self.real.div_floor(other.real) + self.imag.div_floor(other.imag)
-    }
-    #[inline]
-    fn gcd(self, other: Self) -> Number {
-        gcd(self, other)
     }
 }

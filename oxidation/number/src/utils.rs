@@ -4,9 +4,8 @@ use crate::base::Base;
 use crate::number::Number;
 
 /// # Errors
-#[allow(clippy::needless_pass_by_value)]
 #[inline]
-pub fn condense_bigint(i: num_bigint::BigUint) -> Result<num_bigint::BigUint, Base> {
+pub fn condense_bigint(i: &num_bigint::BigUint) -> Result<num_bigint::BigUint, Base> {
     let mut value = i.to_u32_digits();
     while value.ends_with(&[0]) {
         value.pop();

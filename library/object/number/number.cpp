@@ -80,11 +80,14 @@ namespace chimera::library::object::number {
   auto Number::operator<(const Number &right) const -> bool {
     return r_lt(ref, right.ref);
   }
-  auto Number::floor_div(const Number &right) const -> Number { return right; }
+  [[nodiscard]] auto Number::floor_div(const Number &right) const -> Number {
+    return {r_floor_div(ref, right.ref), false};
+  }
   NUM_OP_NAMED(gcd, r_gcd)
   NUM_OP_NAMED(pow, r_pow)
-  auto Number::pow(const Number &y, const Number & /*z*/) const -> Number {
-    return y;
+  [[nodiscard]] auto Number::pow(const Number &exp, const Number &mod) const
+      -> Number {
+    return {r_mod_pow(ref, exp.ref, mod.ref), false};
   }
   auto Number::is_complex() const -> bool { return r_is_complex(ref); }
   auto Number::is_int() const -> bool { return r_is_int(ref); }

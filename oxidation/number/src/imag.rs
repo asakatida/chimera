@@ -7,7 +7,7 @@ use crate::negative::Negative;
 use crate::number::Number;
 use crate::rational::Rational;
 use crate::traits::NumberBase;
-use crate::utils::{fmt_ptr, gcd};
+use crate::utils::fmt_ptr;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[non_exhaustive]
@@ -286,6 +286,7 @@ impl ops::Sub for Imag {
     }
 }
 
+#[allow(clippy::missing_trait_methods)]
 impl NumberBase for Imag {
     #[inline]
     fn abs(self) -> Number {
@@ -348,9 +349,5 @@ impl NumberBase for Imag {
             },
         }
         .imag()
-    }
-    #[inline]
-    fn gcd(self, other: Self) -> Number {
-        gcd(self, other).imag()
     }
 }
