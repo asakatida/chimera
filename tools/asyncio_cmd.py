@@ -7,6 +7,7 @@ from sys import exc_info, stderr
 from time import monotonic_ns
 from typing import Iterable, Optional, Sequence, TextIO, TypeVar, Union
 
+IN_CI = environ.get("CI", "") == "true"
 T = TypeVar("T")
 ProcessInput = Optional[Union[int, TextIO]]
 
@@ -71,6 +72,10 @@ def chunks(iterable: Iterable[T], size: int) -> Iterable[list[T]]:
     return takewhile(
         lambda i: i, map(list, map(islice, repeat(iter(iterable)), repeat(size)))  # type: ignore
     )
+
+
+def ci_args(*args: object, invert: bool = False) -> tuple[object, ...]:
+    return args if IN_CI != invert else ()
 
 
 @TimeIt
