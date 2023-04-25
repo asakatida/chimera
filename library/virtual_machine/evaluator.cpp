@@ -40,7 +40,7 @@ using namespace std::literals;
 namespace chimera::library::virtual_machine {
   void destroy_object(object::Object &leftover) noexcept {
     std::vector<object::Object> todo = {leftover};
-    do {
+    while (!todo.empty()) {
       std::vector<object::Object> attributes;
       for (auto &work : todo) {
         attributes.reserve(attributes.size() + work.dir_size());
@@ -52,14 +52,16 @@ namespace chimera::library::virtual_machine {
         }
       }
       todo = attributes;
-    } while (todo.size() > 0);
+    }
   }
   class ReRaise final : virtual public std::exception {
     [[nodiscard]] auto what() const noexcept -> const char * override;
   };
-  auto ReRaise::what() const noexcept -> const char * { return "ReRaise"; }
+  [[nodiscard]] auto ReRaise::what() const noexcept -> const char * {
+    return "ReRaise";
+  }
   Scopes::operator bool() const { return !scopes.empty(); }
-  auto Scopes::self() -> object::Object & {
+  [[nodiscard]] auto Scopes::self() -> object::Object & {
     if (scopes.empty()) {
       enter_scope({});
     }
@@ -88,15 +90,17 @@ namespace chimera::library::virtual_machine {
     }
   }
   Evaluator::Evaluator(ThreadContext &thread_context) noexcept
-      : thread_context(thread_context) {}
+      : thread_context(gsl::make_not_null(&thread_context)) {}
   Evaluator::~Evaluator() noexcept {
     for (; !stack.empty(); stack.pop()) {
       destroy_object(stack.top());
     }
   }
-  auto Evaluator::self() -> object::Object & { return scope.self(); }
-  auto Evaluator::builtins() const -> const object::Object & {
-    return thread_context.builtins();
+  [[nodiscard]] auto Evaluator::self() -> object::Object & {
+    return scope.self();
+  }
+  [[nodiscard]] auto Evaluator::builtins() const -> const object::Object & {
+    return thread_context->builtins();
   }
   void Evaluator::enter_scope(const object::Object &object) {
     scope.enter_scope(object);
@@ -117,19 +121,21 @@ namespace chimera::library::virtual_machine {
       evaluate_get(instruction);
     }
   }
-  auto Evaluator::return_value() const -> object::Object {
-    return thread_context.return_value();
+  [[nodiscard]] auto Evaluator::return_value() const -> object::Object {
+    return thread_context->return_value();
   }
   void Evaluator::stack_pop() { stack.pop(); }
   void Evaluator::stack_push(const object::Object &object) {
     stack.push(object);
   }
-  auto Evaluator::stack_remove() -> object::Object {
+  [[nodiscard]] auto Evaluator::stack_remove() -> object::Object {
     auto finally = gsl::finally([this] { this->stack.pop(); });
     return std::move(stack.top());
   }
-  auto Evaluator::stack_size() const -> std::size_t { return stack.size(); }
-  auto Evaluator::stack_top() const -> const object::Object & {
+  [[nodiscard]] auto Evaluator::stack_size() const -> std::size_t {
+    return stack.size();
+  }
+  [[nodiscard]] auto Evaluator::stack_top() const -> const object::Object & {
     if (stack.empty()) {
       throw object::BaseException("stack is empty");
     }
@@ -169,7 +175,7 @@ namespace chimera::library::virtual_machine {
   void Evaluator::evaluate() {
     try {
       while (scope) {
-        thread_context.process_interrupts();
+        thread_context->process_interrupts();
         //! where all defered work gets done
         scope.visit([this](auto &&value) { value(this); });
       }
@@ -178,7 +184,7 @@ namespace chimera::library::virtual_machine {
     }
   }
   void Evaluator::evaluate(const asdl::Module &module) {
-    enter_scope(thread_context.body());
+    enter_scope(thread_context->body());
     if (const auto &doc_string = module.doc(); doc_string) {
       self().set_attribute("__doc__"s, doc_string->string);
     } else {
@@ -188,14 +194,14 @@ namespace chimera::library::virtual_machine {
     return evaluate();
   }
   void Evaluator::evaluate(const asdl::Interactive &interactive) {
-    enter_scope(thread_context.body());
+    enter_scope(thread_context->body());
     extend(interactive.iter());
     return evaluate();
   }
   void Evaluator::evaluate(const asdl::Expression &expression) {
-    enter_scope(thread_context.body());
+    enter_scope(thread_context->body());
     push([](Evaluator *evaluator) {
-      evaluator->thread_context.return_value(evaluator->stack_remove());
+      evaluator->thread_context->return_value(evaluator->stack_remove());
     });
     evaluate_get(expression.expr());
     return evaluate();
@@ -240,10 +246,10 @@ namespace chimera::library::virtual_machine {
           object::Object(object::String(functionDef.name.value), {})},
          {"__qualname__",
           object::Object(object::String(functionDef.name.value), {})},
-         {"__module__", thread_context.body().get_attribute("__name__")},
+         {"__module__", thread_context->body().get_attribute("__name__")},
          {"__defaults__", builtins().get_attribute("None")},
          {"__code__", {}},
-         {"__globals__", thread_context.body()},
+         {"__globals__", thread_context->body()},
          {"__closure__", self()},
          {"__annotations__", {}},
          {"__kwdefaults__", {}}})});
@@ -267,7 +273,7 @@ namespace chimera::library::virtual_machine {
   void Evaluator::evaluate(const asdl::For &asdlFor) {
     push([&asdlFor](Evaluator *evaluatorA) {
       try {
-        Evaluator evaluatorB{evaluatorA->thread_context};
+        Evaluator evaluatorB{*evaluatorA->thread_context};
         evaluatorB.enter_scope(evaluatorA->self());
         evaluatorB.push([](Evaluator *evaluatorC) {
           evaluatorC->push(CallEvaluator{evaluatorC->stack_remove()});
@@ -341,10 +347,11 @@ namespace chimera::library::virtual_machine {
   }
   void Evaluator::evaluate(const asdl::With &with) {
     push([&with](Evaluator *evaluator) {
-      if (auto exception = evaluator->do_try(with.body, {}); exception) {
-        evaluator->do_try(with.body, exception);
-      } else {
-        evaluator->do_try(with.body, {});
+      if (auto exception1 = evaluator->do_try(with.body, {}); exception1) {
+        if (auto exception2 = evaluator->do_try(with.body, exception1);
+            exception2) {
+          throw object::BaseException(*exception2);
+        }
       }
     });
     for (const auto &withItem : container::reverse(with.items)) {
@@ -368,7 +375,7 @@ namespace chimera::library::virtual_machine {
         });
       }
       push([&alias](Evaluator *evaluator) {
-        evaluator->push(PushStack{evaluator->thread_context.import_object(
+        evaluator->push(PushStack{evaluator->thread_context->import_object(
             "module_name"sv, alias.name.value)});
       });
     }
@@ -391,7 +398,7 @@ namespace chimera::library::virtual_machine {
       }
     }
     push([&importFrom](Evaluator *evaluator) {
-      evaluator->push(PushStack{evaluator->thread_context.import_object(
+      evaluator->push(PushStack{evaluator->thread_context->import_object(
           "module_name"sv, importFrom.module.value)});
     });
   }
@@ -419,7 +426,7 @@ namespace chimera::library::virtual_machine {
   }
   void Evaluator::evaluate(const asdl::Try &asdlTry) {
     push([](Evaluator *evaluator) {
-      if (evaluator->thread_context.return_value().get_bool()) {
+      if (evaluator->thread_context->return_value().get_bool()) {
         evaluator->exit_scope();
       }
     });
@@ -463,7 +470,7 @@ namespace chimera::library::virtual_machine {
   void Evaluator::evaluate(const asdl::Return &asdlReturn) {
     if (asdlReturn.value) {
       push([](Evaluator *evaluator) {
-        evaluator->thread_context.return_value(evaluator->stack_remove());
+        evaluator->thread_context->return_value(evaluator->stack_remove());
         evaluator->exit_scope();
       });
       evaluate_get(*asdlReturn.value);
@@ -480,11 +487,12 @@ namespace chimera::library::virtual_machine {
   void Evaluator::evaluate(const asdl::Continue & /*continue*/) {
     push([](Evaluator *evaluator) { evaluator->exit(); });
   }
-  auto Evaluator::do_try(const std::vector<asdl::StmtImpl> &body,
-                         const std::optional<object::BaseException> &context)
+  [[nodiscard]] auto
+  Evaluator::do_try(const std::vector<asdl::StmtImpl> &body,
+                    const std::optional<object::BaseException> &context)
       -> std::optional<object::BaseException> {
     try {
-      Evaluator evaluator{thread_context};
+      Evaluator evaluator{*thread_context};
       evaluator.enter_scope(self());
       evaluator.extend(body);
       evaluator.evaluate();

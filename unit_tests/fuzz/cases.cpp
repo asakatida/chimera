@@ -22,28 +22,29 @@
 namespace chimera::library {
   using NumericLimits = std::numeric_limits<std::uint16_t>;
   constexpr static auto bufferSize = NumericLimits::max();
-  auto fuzz_input(std::istream &input) -> Input {
+  [[nodiscard]] auto fuzz_input(std::istream &input) -> Input {
     return {input, bufferSize, "fuzz"};
   }
-  auto fuzz_istream(const std::uint8_t *data, std::size_t size)
+  [[nodiscard]] auto fuzz_istream(const std::uint8_t *data, std::size_t size)
       -> std::istringstream {
     std::istringstream input(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         std::string(reinterpret_cast<const char *>(data), size));
     return input;
   }
-  auto fuzz_options() -> Options {
+  [[nodiscard]] auto fuzz_options() -> Options {
     Options options{};
     options.chimera = "chimera";
     options.script = "fuzzer.py";
     return options;
   }
-  auto fuzz_expression_eval(const std::uint8_t *data, std::size_t size) -> int {
+  [[nodiscard]] auto fuzz_expression_eval(const std::uint8_t *data,
+                                          std::size_t size) -> int {
     return fuzz_expression_eval(fuzz_istream(data, size));
   }
-  auto fuzz_expression_eval(std::istream &&input) -> int {
+  [[nodiscard]] auto fuzz_expression_eval(std::istream &&input) -> int {
     auto options = fuzz_options();
-    const virtual_machine::GlobalContext globalContext(options);
+    virtual_machine::GlobalContext globalContext(options);
     virtual_machine::ProcessContext processContext{globalContext};
     std::optional<asdl::Expression> expression;
     try {
@@ -63,12 +64,13 @@ namespace chimera::library {
     }
     return 0;
   }
-  auto fuzz_file_eval(const std::uint8_t *data, std::size_t size) -> int {
+  [[nodiscard]] auto fuzz_file_eval(const std::uint8_t *data, std::size_t size)
+      -> int {
     return fuzz_file_eval(fuzz_istream(data, size));
   }
-  auto fuzz_file_eval(std::istream &&input) -> int {
+  [[nodiscard]] auto fuzz_file_eval(std::istream &&input) -> int {
     auto options = fuzz_options();
-    const virtual_machine::GlobalContext globalContext(options);
+    virtual_machine::GlobalContext globalContext(options);
     virtual_machine::ProcessContext processContext{globalContext};
     std::optional<asdl::Module> module;
     try {
@@ -88,13 +90,13 @@ namespace chimera::library {
     }
     return 0;
   }
-  auto fuzz_interactive_eval(const std::uint8_t *data, std::size_t size)
-      -> int {
+  [[nodiscard]] auto fuzz_interactive_eval(const std::uint8_t *data,
+                                           std::size_t size) -> int {
     return fuzz_interactive_eval(fuzz_istream(data, size));
   }
-  auto fuzz_interactive_eval(std::istream &&input) -> int {
+  [[nodiscard]] auto fuzz_interactive_eval(std::istream &&input) -> int {
     auto options = fuzz_options();
-    const virtual_machine::GlobalContext globalContext(options);
+    virtual_machine::GlobalContext globalContext(options);
     virtual_machine::ProcessContext processContext{globalContext};
     std::optional<asdl::Interactive> interactive;
     try {

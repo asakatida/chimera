@@ -22,21 +22,27 @@
 
 #include "number-rust.hpp"
 
+// NOLINTBEGIN(cppcoreguidelines-macro-usage)
+
 namespace chimera::library::object::number {
   Number::Number() : ref(r_create_number(0)) {}
-  Number::Number(std::uint64_t i) : ref(r_create_number(i)) {}
-  Number::Number(PythonNumber ref, bool _unused) noexcept : ref(ref) {}
+  Number::Number(std::uint64_t number) : ref(r_create_number(number)) {}
+  Number::Number(PythonNumber ref, bool /*unused*/) noexcept : ref(ref) {}
   Number::Number(const Number &other) : ref(r_copy_number(other.ref)) {}
-  Number::Number(Number &&other) noexcept { swap(std::move(other)); }
-  Number &Number::operator=(const Number &other) {
-    auto ptr = r_copy_number(other.ref);
-    using std::swap;
-    swap(ptr, ref);
-    r_delete_number(ptr);
+  Number::Number(Number &&other) noexcept : ref(0) { swap(std::move(other)); }
+  auto Number::operator=(const Number &other) -> Number & {
+    if (this != &other) {
+      auto ptr = r_copy_number(other.ref);
+      using std::swap;
+      swap(ptr, ref);
+      r_delete_number(ptr);
+    }
     return *this;
   }
-  Number &Number::operator=(Number &&other) noexcept {
-    swap(std::move(other));
+  auto Number::operator=(Number &&other) noexcept -> Number & {
+    if (this != &other) {
+      swap(std::move(other));
+    }
     return *this;
   }
   Number::~Number() { r_delete_number(ref); }
@@ -48,7 +54,7 @@ namespace chimera::library::object::number {
   Number::operator uint64_t() const noexcept { return r_cast_unsigned(ref); }
   Number::operator double() const noexcept { return r_cast_float(ref); }
 #define NUM_OP_MONO(op, name)                                                  \
-  auto Number::operator op() const->Number { return Number(name(ref), false); }
+  auto Number::operator op() const->Number { return {name(ref), false}; }
 #define NUM_OP(op, name)                                                       \
   auto Number::operator op(const Number &right)->Number & {                    \
     auto ptr = name(ref, right.ref);                                           \
@@ -58,8 +64,8 @@ namespace chimera::library::object::number {
     return *this;                                                              \
   }
 #define NUM_OP_NAMED(op, name)                                                 \
-  auto Number::op(const Number &right) const->Number {                         \
-    return Number(name(ref, right.ref), false);                                \
+  [[nodiscard]] auto Number::op(const Number &right) const->Number {           \
+    return {name(ref, right.ref), false};                                      \
   }
   NUM_OP_MONO(-, r_neg)
   NUM_OP_MONO(+, r_abs)
@@ -74,10 +80,10 @@ namespace chimera::library::object::number {
   NUM_OP(<<=, r_bit_lshift)
   NUM_OP(>>=, r_bit_rshift)
   NUM_OP(|=, r_bit_or)
-  auto Number::operator==(const Number &right) const -> bool {
+  [[nodiscard]] auto Number::operator==(const Number &right) const -> bool {
     return r_eq(ref, right.ref);
   }
-  auto Number::operator<(const Number &right) const -> bool {
+  [[nodiscard]] auto Number::operator<(const Number &right) const -> bool {
     return r_lt(ref, right.ref);
   }
   [[nodiscard]] auto Number::floor_div(const Number &right) const -> Number {
@@ -89,8 +95,14 @@ namespace chimera::library::object::number {
       -> Number {
     return {r_mod_pow(ref, exp.ref, mod.ref), false};
   }
-  auto Number::is_complex() const -> bool { return r_is_complex(ref); }
-  auto Number::is_int() const -> bool { return r_is_int(ref); }
-  auto Number::is_nan() const -> bool { return r_is_nan(ref); }
-  auto Number::imag() const -> Number { return Number(r_imag(ref), false); }
+  [[nodiscard]] auto Number::is_complex() const -> bool {
+    return r_is_complex(ref);
+  }
+  [[nodiscard]] auto Number::is_int() const -> bool { return r_is_int(ref); }
+  [[nodiscard]] auto Number::is_nan() const -> bool { return r_is_nan(ref); }
+  [[nodiscard]] auto Number::imag() const -> Number {
+    return {r_imag(ref), false};
+  }
 } // namespace chimera::library::object::number
+
+// NOLINTEND(cppcoreguidelines-macro-usage)

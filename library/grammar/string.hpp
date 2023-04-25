@@ -28,6 +28,8 @@
 #include <string>
 #include <string_view>
 
+// NOLINTBEGIN(misc-no-recursion)
+
 #include <gsl/gsl>
 #include <tao/pegtl.hpp>
 #include <tao/pegtl/contrib/unescape.hpp>
@@ -39,8 +41,6 @@
 #include "grammar/rules.hpp"
 #include "grammar/whitespace.hpp"
 #include "object/object.hpp"
-
-// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 namespace chimera::library::grammar {
   namespace token {
@@ -183,10 +183,9 @@ namespace chimera::library::grammar {
         if (tao::pegtl::unescape::utf8_append_utf32(
                 string,
                 std::accumulate(input.begin(), input.end(), std::uint32_t(0),
-                                // NOLINTNEXTLINE(readability-identifier-length)
-                                [](auto &&init, auto &&c) {
+                                [](auto &&init, auto &&byte) {
                                   return (init << 2U) |
-                                         gsl::narrow<std::uint32_t>(c - '0');
+                                         gsl::narrow<std::uint32_t>(byte - '0');
                                 }))) {
           top.apply(std::move(string));
           return true;
@@ -393,21 +392,25 @@ namespace chimera::library::grammar {
     struct Action<JoinedStrOne<Option>> {
       using State = std::variant<std::string, asdl::JoinedStr>;
       struct Visitor {
-        auto operator()(std::string &&value, std::string &&element) {
+        [[nodiscard]] auto operator()(std::string &&value,
+                                      std::string &&element) {
           value.append(element);
           return State{std::move(value)};
         }
-        auto operator()(std::string &&value, asdl::JoinedStr &&joinedStr) {
+        [[nodiscard]] auto operator()(std::string &&value,
+                                      asdl::JoinedStr &&joinedStr) {
           joinedStr.values.emplace(joinedStr.values.begin(),
                                    object::Object(object::String(value), {}));
           return State{std::move(joinedStr)};
         }
-        auto operator()(asdl::JoinedStr &&value, std::string &&element) {
+        [[nodiscard]] auto operator()(asdl::JoinedStr &&value,
+                                      std::string &&element) {
           value.values.emplace_back(
               object::Object(object::String(element), {}));
           return State{std::move(value)};
         }
-        auto operator()(asdl::JoinedStr &&value, asdl::JoinedStr &&joinedStr) {
+        [[nodiscard]] auto operator()(asdl::JoinedStr &&value,
+                                      asdl::JoinedStr &&joinedStr) {
           std::move(joinedStr.values.begin(), joinedStr.values.end(),
                     std::back_inserter(value.values));
           return State{std::move(value)};
@@ -428,11 +431,13 @@ namespace chimera::library::grammar {
           : rules::Stack<std::string, asdl::JoinedStr, object::Object> {
         struct Push {
           using State = std::variant<asdl::JoinedStr, object::Object>;
-          auto operator()(std::string && /*value*/) -> State { Expects(false); }
-          auto operator()(asdl::JoinedStr &&value) {
+          [[nodiscard]] auto operator()(std::string && /*value*/) -> State {
+            Expects(false);
+          }
+          [[nodiscard]] auto operator()(asdl::JoinedStr &&value) {
             return State{std::move(value)};
           }
-          auto operator()(object::Object &&value) {
+          [[nodiscard]] auto operator()(object::Object &&value) {
             return State{std::move(value)};
           }
         };
@@ -446,13 +451,13 @@ namespace chimera::library::grammar {
     struct Action<JoinedStr<Option>> {
       struct Push {
         using State = std::variant<asdl::JoinedStr, object::Object>;
-        auto operator()(std::string &&value) {
+        [[nodiscard]] auto operator()(std::string &&value) {
           return State{object::Object(object::String(value), {})};
         }
-        auto operator()(asdl::JoinedStr &&value) {
+        [[nodiscard]] auto operator()(asdl::JoinedStr &&value) {
           return State{std::move(value)};
         }
-        auto operator()(object::Object &&value) {
+        [[nodiscard]] auto operator()(object::Object &&value) {
           return State{std::move(value)};
         }
       };
@@ -470,4 +475,4 @@ namespace chimera::library::grammar {
   struct STRING : sor<token::Bytes<Option>, token::JoinedStr<Option>> {};
 } // namespace chimera::library::grammar
 
-// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+// NOLINTEND(misc-no-recursion)

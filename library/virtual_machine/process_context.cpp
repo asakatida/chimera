@@ -50,7 +50,7 @@ static const std::string_view CHIMERA_IMPORT_PATH_VIEW(STRINGIFY(CHIMERA_PATH));
 namespace chimera::library::virtual_machine {
   void destroy_module(object::Object &module) noexcept {
     std::vector<object::Object> todo = {module};
-    do {
+    while (!todo.empty()) {
       std::vector<object::Object> attributes;
       for (auto &work : todo) {
         attributes.reserve(attributes.size() + work.dir_size());
@@ -62,11 +62,11 @@ namespace chimera::library::virtual_machine {
         }
       }
       todo = attributes;
-    } while (todo.size() > 0);
+    }
   }
-  ProcessContext::ProcessContext(const GlobalContext &global_context)
+  ProcessContext::ProcessContext(GlobalContext &global_context)
       : builtins_(std::map<std::string, object::Object>{}),
-        global_context(global_context),
+        global_context(gsl::make_not_null(&global_context)),
         modules(
             std::map<std::string, object::Object>({{"builtins", builtins_}})) {
     modules::builtins(builtins_);
@@ -79,10 +79,12 @@ namespace chimera::library::virtual_machine {
     }
     r_vm_clear();
   }
-  auto ProcessContext::builtins() const -> const object::Object & {
+  [[nodiscard]] auto ProcessContext::builtins() const
+      -> const object::Object & {
     return builtins_;
   }
-  auto ProcessContext::make_module(std::string_view &&name) -> object::Object {
+  [[nodiscard]] auto ProcessContext::make_module(std::string_view &&name)
+      -> object::Object {
     auto result = modules.try_emplace(std::string(name));
     if (result.second) {
       modules::builtins(result.first->second);
@@ -94,8 +96,8 @@ namespace chimera::library::virtual_machine {
     }
     return result.first->second;
   }
-  auto ProcessContext::import_module(std::string &&module)
-      -> const asdl::Module & {
+  [[nodiscard]] auto ProcessContext::import_module(std::string &&module)
+      -> asdl::Module {
     std::replace(module.begin(), module.end(), '.', '/');
     for (std::string_view::size_type
              pos = CHIMERA_IMPORT_PATH_VIEW.find_first_of(':'),
@@ -104,25 +106,27 @@ namespace chimera::library::virtual_machine {
              pos = CHIMERA_IMPORT_PATH_VIEW.find_first_of(':', prev)) {
       auto path = CHIMERA_IMPORT_PATH_VIEW.substr(prev, pos - 1);
       try {
-        import_module(path, std::string(module).append("/__init__.py"sv));
+        return import_module(path,
+                             std::string(module).append("/__init__.py"sv));
       } catch (const std::exception &) {
       }
       try {
-        import_module(path, std::string(module).append(".py"sv));
+        return import_module(path, std::string(module).append(".py"sv));
       } catch (const std::exception &) {
       }
     }
     Ensures(false);
   }
-  auto ProcessContext::import_object(std::string_view &&name,
-                                     std::string_view &&relativeModule)
+  [[nodiscard]] auto
+  ProcessContext::import_object(std::string_view &&name,
+                                std::string_view &&relativeModule)
       -> const object::Object & {
     if (relativeModule.empty() || relativeModule.at(0) != '.') {
       return import_object(std::string_view{relativeModule});
     }
     auto parent = name;
     auto index = relativeModule.find_first_not_of('.');
-    for (std::size_t i = 1; i < index; ++i) {
+    for (std::size_t size = 1; size < index; ++size) {
       auto ending = parent.find_last_of('.');
       if (ending > parent.size()) {
         throw std::runtime_error("module "s.append(relativeModule)
@@ -133,77 +137,93 @@ namespace chimera::library::virtual_machine {
     return import_object(std::string(parent).append(1, '.').append(
         relativeModule.substr(index)));
   }
-  auto ProcessContext::import_object(std::string_view &&module)
+  [[nodiscard]] auto
+  ProcessContext::import_object(std::string_view &&request_module)
       -> const object::Object & {
-    if (!modules.contains(std::string(module))) {
-      auto result = make_module(std::string_view{module});
-      auto index = module.find_last_of('.');
-      if (index < module.size()) {
-        result = import_object(module.substr(0, index));
-        result.set_attribute(std::string(module.substr(index + 1)), result);
+    if (!modules.contains(std::string(request_module))) {
+      std::vector<std::string_view> path{request_module};
+      path.reserve(
+          std::count(request_module.cbegin(), request_module.cend(), '.'));
+      for (auto index = path.back().find_last_of('.');
+           index != std::string_view::npos;
+           index = path[-1].find_last_of('.')) {
+        path.emplace_back(path.back().substr(0, index));
       }
-      try {
-        auto importModule = import_module(std::string(module));
-        ThreadContext{*this, result}.evaluate(importModule);
-      } catch (const std::exception &) {
-        if (module == "importlib"sv) {
-          modules::importlib(result);
-        } else if (module == "marshal"sv) {
-          modules::marshal(result);
-        } else if (module == "sys"sv) {
-          modules::sys(result);
-          global_context.sys_argv(result);
-        } else {
-          throw std::runtime_error(
-              "no module "s.append(module).append(" found"sv));
+      std::reverse(path.begin(), path.end());
+      for (auto &module : path) {
+        auto result = make_module(std::string_view{module});
+        auto index = module.find_last_of('.');
+        if (index < module.size()) {
+          object::Object(modules.at(std::string(module.substr(0, index))))
+              .set_attribute(std::string(module.substr(index + 1)), result);
+        }
+        try {
+          auto importModule = import_module(std::string(module));
+          ThreadContext{*this, result}.evaluate(importModule);
+        } catch (const std::exception &) {
+          if (module == "importlib"sv) {
+            modules::importlib(result);
+          } else if (module == "marshal"sv) {
+            modules::marshal(result);
+          } else if (module == "sys"sv) {
+            modules::sys(result);
+            global_context->sys_argv(result);
+          } else {
+            throw std::runtime_error(
+                "no module "s.append(module).append(" found"sv));
+          }
         }
       }
     }
-    return modules.at(std::string(module));
+    return modules.at(std::string(request_module));
   }
-  auto ProcessContext::import_module(const std::string_view &path,
-                                     const std::string &module)
+  [[nodiscard]] auto ProcessContext::import_module(const std::string_view &path,
+                                                   const std::string &module)
       -> asdl::Module {
-    if (global_context.verbose_init() == VerboseInit::SEARCH) {
+    if (global_context->verbose_init() == VerboseInit::SEARCH) {
       std::cout << path << module << '\n';
     }
     auto source = std::string(path).append(module);
     std::ifstream ifstream(source, std::iostream::in | std::iostream::binary);
     Ensures(ifstream.is_open() && ifstream.good());
-    if (global_context.verbose_init() == VerboseInit::LOAD) {
+    if (global_context->verbose_init() == VerboseInit::LOAD) {
       std::cout << path << module << '\n';
     }
     std::cerr << path << module << '\n';
     return parse_file(std::move(ifstream), source.c_str());
   }
-  auto ProcessContext::parse_expression(const std::string_view &data,
-                                        const char *source) const
-      -> asdl::Expression {
-    return {global_context.optimize(), data, source};
-  }
-  auto ProcessContext::parse_expression(std::istream &&input,
-                                        const char *source) const
-      -> asdl::Expression {
-    return {global_context.optimize(), std::move(input), source};
-  }
-  auto ProcessContext::parse_file(const std::string_view &data,
-                                  const char *source) const -> asdl::Module {
-    return {global_context.optimize(), data, source};
-  }
-  auto ProcessContext::parse_file(std::istream &&input, const char *source)
-      -> asdl::Module {
-    return {global_context.optimize(), std::move(input), source};
-  }
-  auto ProcessContext::parse_input(const std::string_view &data,
+  [[nodiscard]] auto
+  ProcessContext::parse_expression(const std::string_view &data,
                                    const char *source) const
-      -> asdl::Interactive {
-    return {global_context.optimize(), data, source};
+      -> asdl::Expression {
+    return {global_context->optimize(), data, source};
   }
-  auto ProcessContext::parse_input(std::istream &&input, const char *source)
+  [[nodiscard]] auto ProcessContext::parse_expression(std::istream &&input,
+                                                      const char *source) const
+      -> asdl::Expression {
+    return {global_context->optimize(), std::move(input), source};
+  }
+  [[nodiscard]] auto ProcessContext::parse_file(const std::string_view &data,
+                                                const char *source) const
+      -> asdl::Module {
+    return {global_context->optimize(), data, source};
+  }
+  [[nodiscard]] auto ProcessContext::parse_file(std::istream &&input,
+                                                const char *source) const
+      -> asdl::Module {
+    return {global_context->optimize(), std::move(input), source};
+  }
+  [[nodiscard]] auto ProcessContext::parse_input(const std::string_view &data,
+                                                 const char *source) const
       -> asdl::Interactive {
-    return {global_context.optimize(), std::move(input), source};
+    return {global_context->optimize(), data, source};
+  }
+  [[nodiscard]] auto ProcessContext::parse_input(std::istream &&input,
+                                                 const char *source) const
+      -> asdl::Interactive {
+    return {global_context->optimize(), std::move(input), source};
   }
   void ProcessContext::process_interrupts() const {
-    global_context.process_interrupts();
+    global_context->process_interrupts();
   }
 } // namespace chimera::library::virtual_machine

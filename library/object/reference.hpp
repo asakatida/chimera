@@ -31,14 +31,15 @@ namespace chimera::library::object {
   namespace internal {
     template <template <typename...> class Pointer, typename Type>
     struct CopyReference {
-      auto operator()(const Pointer<Type> &pointer) const noexcept
+      [[nodiscard]] auto operator()(const Pointer<Type> &pointer) const noexcept
           -> std::shared_ptr<Type> {
         return pointer;
       }
     };
     template <typename Type>
     struct CopyReference<std::weak_ptr, Type> {
-      auto operator()(const std::weak_ptr<Type> &pointer) const noexcept
+      [[nodiscard]] auto
+      operator()(const std::weak_ptr<Type> &pointer) const noexcept
           -> std::shared_ptr<Type> {
         return pointer.lock();
       }
@@ -85,11 +86,12 @@ namespace chimera::library::object {
         using std::swap;
         swap(pointer, other.pointer);
       }
-      auto operator*() const noexcept(noexcept(*std::declval<Pointer<Type>>()))
-          -> typename std::add_lvalue_reference<Type>::type {
+      [[nodiscard]] auto operator*() const
+          noexcept(noexcept(*std::declval<Pointer<Type>>())) ->
+          typename std::add_lvalue_reference<Type>::type {
         return *pointer;
       }
-      auto operator->() const noexcept -> RawPointer {
+      [[nodiscard]] auto operator->() const noexcept -> RawPointer {
         return CopyReference<Pointer, Type>{}(pointer).get();
       }
 

@@ -15,13 +15,15 @@ using namespace std::literals;
 
 namespace chimera::library {
   template <typename Data>
-  void test_parse(Data &&data) {
+  void test_parse(Data &&data, std::size_t size) {
     Options options;
     options.chimera = "chimera";
     options.script = "unit_test.py";
-    const virtual_machine::GlobalContext globalContext(options);
+    virtual_machine::GlobalContext globalContext(options);
     const virtual_machine::ProcessContext processContext{globalContext};
-    processContext.parse_file(data, "<unit_tests/virtual_machine/parse.cpp>");
+    auto module = processContext.parse_file(
+        data, "<unit_tests/virtual_machine/parse.cpp>");
+    REQUIRE(module.iter().size() == size);
   }
   struct EmptyNode {
     template <typename Stack>
@@ -30,53 +32,53 @@ namespace chimera::library {
 } // namespace chimera::library
 
 TEST_CASE("virtual machine parse ``") {
-  REQUIRE_NOTHROW(chimera::library::test_parse(""s));
+  REQUIRE_NOTHROW(chimera::library::test_parse(""s, 0));
 }
 
 TEST_CASE("virtual machine parse `a`") {
-  REQUIRE_NOTHROW(chimera::library::test_parse("a"s));
+  REQUIRE_NOTHROW(chimera::library::test_parse("a"s, 1));
 }
 
 TEST_CASE("virtual machine parse `hello_world`") {
-  REQUIRE_NOTHROW(chimera::library::test_parse("hello_world"s));
+  REQUIRE_NOTHROW(chimera::library::test_parse("hello_world"s, 1));
 }
 
 TEST_CASE("virtual machine parse `;hello_world`") {
-  REQUIRE_NOTHROW(chimera::library::test_parse(";hello_world"s));
+  REQUIRE_NOTHROW(chimera::library::test_parse(";hello_world"s, 1));
 }
 
 TEST_CASE("virtual machine parse `\\0hello_world`") {
-  REQUIRE_THROWS_AS(chimera::library::test_parse("\0hello_world"s),
+  REQUIRE_THROWS_AS(chimera::library::test_parse("\0hello_world"s, -1),
                     tao::pegtl::parse_error);
 }
 
 TEST_CASE("virtual machine parse `0=help`") {
-  REQUIRE_NOTHROW(chimera::library::test_parse("0=help"s));
+  REQUIRE_NOTHROW(chimera::library::test_parse("0=help"s, 1));
 }
 
 TEST_CASE("virtual machine parse `if True:\\n\\t  False`") {
-  REQUIRE_THROWS_AS(chimera::library::test_parse("if True:\n\t  False"sv),
+  REQUIRE_THROWS_AS(chimera::library::test_parse("if True:\n\t  False"sv, -1),
                     tao::pegtl::parse_error);
 }
 
 TEST_CASE("virtual machine parse `if True:\\n\\tFalse`") {
-  REQUIRE_NOTHROW(chimera::library::test_parse("if True:\n\tFalse"sv));
+  REQUIRE_NOTHROW(chimera::library::test_parse("if True:\n\tFalse"sv, 1));
 }
 
 TEST_CASE("virtual machine parse `if True:\\n  False`") {
-  REQUIRE_NOTHROW(chimera::library::test_parse("if True:\n  False"sv));
+  REQUIRE_NOTHROW(chimera::library::test_parse("if True:\n  False"sv, 1));
 }
 
 TEST_CASE("virtual machine parse `if True:\\n  False\\nelse:\\n  True`") {
   REQUIRE_NOTHROW(
-      chimera::library::test_parse("if True:\n  False\nelse:\n  True"sv));
+      chimera::library::test_parse("if True:\n  False\nelse:\n  True"sv, 1));
 }
 
 TEST_CASE("virtual machine parse `if True:\\n  False\\nTrue\\nFalse`") {
   REQUIRE_NOTHROW(
-      chimera::library::test_parse("if True:\n  False\nTrue\nFalse"sv));
+      chimera::library::test_parse("if True:\n  False\nTrue\nFalse"sv, 3));
 }
 
 TEST_CASE("virtual machine parse `raise`") {
-  REQUIRE_NOTHROW(chimera::library::test_parse("raise"sv));
+  REQUIRE_NOTHROW(chimera::library::test_parse("raise"sv, 1));
 }

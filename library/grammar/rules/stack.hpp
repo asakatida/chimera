@@ -41,7 +41,7 @@ namespace chimera::library::grammar::rules {
       stack.emplace_back(ValueT{std::forward<Type>(type)});
     }
     [[nodiscard]] auto top() const -> const ValueT & { return stack.back(); }
-    auto top() -> ValueT & { return stack.back(); }
+    [[nodiscard]] auto top() -> ValueT & { return stack.back(); }
     template <typename Type,
               typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
     [[nodiscard]] auto top() const -> const Type & {
@@ -50,31 +50,31 @@ namespace chimera::library::grammar::rules {
     }
     template <typename Type,
               typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
-    auto top() -> Type & {
+    [[nodiscard]] auto top() -> Type & {
       Ensures(std::holds_alternative<Type>(top()));
       return std::get<Type>(top());
     }
-    auto pop() -> ValueT {
+    [[nodiscard]] auto pop() -> ValueT {
       auto finally = gsl::finally([this] { this->stack.pop_back(); });
       return std::move(top());
     }
     template <typename Type,
               typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
-    auto pop() -> Type {
+    [[nodiscard]] auto pop() -> Type {
       auto finally = gsl::finally([this] { this->stack.pop_back(); });
       return std::move(top<Type>());
     }
     template <typename Type, typename... Args>
     struct Reshape {
       template <typename Iter, std::size_t... I>
-      static auto reshape(Iter &&it, std::index_sequence<I...> /*unused*/)
+      static auto reshape(Iter &&iter, std::index_sequence<I...> /*unused*/)
           -> Type {
-        Ensures(std::holds_alternative<Args>(*(it + I)) && ...);
-        return Type{std::move(std::get<Args>(*(it + I)))...};
+        Ensures(std::holds_alternative<Args>(*(iter + I)) && ...);
+        return Type{std::move(std::get<Args>(*(iter + I)))...};
       }
     };
     template <typename Type, typename... Args>
-    auto reshape() -> Type {
+    [[nodiscard]] auto reshape() -> Type {
       using LocalStack = Reshape<Type, Args...>;
       auto finally = gsl::finally([this] { this->stack.clear(); });
       if (sizeof...(Args) == size()) {
@@ -86,9 +86,9 @@ namespace chimera::library::grammar::rules {
     [[nodiscard]] auto vector() const -> const std::vector<ValueT> & {
       return stack;
     }
-    auto vector() -> std::vector<ValueT> & { return stack; }
+    [[nodiscard]] auto vector() -> std::vector<ValueT> & { return stack; }
     template <typename OutputIt>
-    auto transform(OutputIt &&outputIt) {
+    [[nodiscard]] auto transform(OutputIt &&outputIt) {
       using IteratorTraits = std::iterator_traits<OutputIt>;
       return transform<typename IteratorTraits::value_type>(
           std::forward<OutputIt>(outputIt));

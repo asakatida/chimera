@@ -31,6 +31,6 @@ namespace chimera::library::virtual_machine {
     void operator()(Evaluator *evaluator) const;
 
   private:
-    const std::size_t size;
+    std::size_t size;
   };
 } // namespace chimera::library::virtual_machine

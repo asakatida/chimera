@@ -24,6 +24,8 @@
 
 #include <type_traits>
 
+// NOLINTBEGIN(misc-no-recursion)
+
 #include "asdl/asdl.hpp"
 #include "grammar/rules.hpp"
 #include "grammar/whitespace.hpp"
@@ -278,3 +280,5 @@ namespace chimera::library::grammar {
   using token::Unpack;
   using token::USub;
 } // namespace chimera::library::grammar
+
+// NOLINTEND(misc-no-recursion)

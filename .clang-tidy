@@ -4,9 +4,13 @@ Checks: >
   *,
   -altera-*,
   -bugprone-easily-swappable-parameters,
+  -cppcoreguidelines-avoid-magic-numbers,
   -fuchsia-*,
   -google-*,
+  -llvm-header-guard,
   -llvmlibc-*,
-  -misc-no-recursion
+  -misc-no-recursion,
+  -readability-magic-numbers
 FormatStyle: file
+HeaderFilterRegex: ".*"
 WarningsAsErrors: "*"

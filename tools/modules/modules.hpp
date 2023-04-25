@@ -49,9 +49,10 @@ namespace chimera::library {
     std::string name{};
   };
   struct Compare {
-    auto operator()(const SetAttribute &left, const SetAttribute &right) const
+    [[nodiscard]] auto operator()(const SetAttribute &left,
+                                  const SetAttribute &right) const -> bool;
+    [[nodiscard]] auto operator()(const Work &left, const Work &right) const
         -> bool;
-    auto operator()(const Work &left, const Work &right) const -> bool;
   };
   struct IncompleteTuple {
     explicit IncompleteTuple(PrintState *printer) : printer(printer) {}
@@ -68,208 +69,210 @@ namespace chimera::library {
       m_printed.try_emplace(id(main), module);
     }
     auto printed(const object::Object &object) -> std::string;
-    auto id(const object::Object &object) -> object::Id;
+    [[nodiscard]] auto id(const object::Object &object) -> object::Id;
     void remap(const object::Object &module, const object::Object &previous);
-    auto is_printed(const object::Object &object) -> bool;
+    [[nodiscard]] auto is_printed(const object::Object &object) -> bool;
     template <typename OStream>
-    auto print(OStream &os, const object::Instance & /*instance*/)
+    auto print(OStream &ostream, const object::Instance & /*instance*/)
         -> OStream & {
-      return os;
+      return ostream;
     }
     template <typename OStream>
-    auto print(OStream &os, const object::Bytes &bytes) -> OStream & {
-      os << "object::Bytes{";
+    auto print(OStream &ostream, const object::Bytes &bytes) -> OStream & {
+      ostream << "object::Bytes{";
       bool first = true;
       for (const auto &byte : bytes) {
         if (!first) {
-          os << ",";
+          ostream << ",";
         } else {
           first = false;
         }
-        os << byte;
+        ostream << byte;
       }
-      return os << "},";
+      return ostream << "},";
     }
     template <typename OStream>
-    auto print(OStream &os, const object::BytesMethod &bytesMethod)
+    auto print(OStream &ostream, const object::BytesMethod &bytesMethod)
         -> OStream & {
-      os << "object::BytesMethod::";
+      ostream << "object::BytesMethod::";
       // NOLINTNEXTLINE(hicpp-multiway-paths-covered)
       switch (bytesMethod) {}
-      return os << ",";
+      return ostream << ",";
     }
     template <typename OStream>
-    auto print(OStream &os, const object::Expr &expr) -> OStream & {
-      return os << &expr << ",";
+    auto print(OStream &ostream, const object::Expr &expr) -> OStream & {
+      return ostream << &expr << ",";
     }
     template <typename OStream>
-    auto print(OStream &os, const object::False & /*false*/) -> OStream & {
-      return os << "object::False{},";
+    auto print(OStream &ostream, const object::False & /*false*/) -> OStream & {
+      return ostream << "object::False{},";
     }
     template <typename OStream>
-    auto print(OStream &os, const object::Future & /*future*/) -> OStream & {
+    auto print(OStream &ostream, const object::Future & /*future*/)
+        -> OStream & {
       Expects(false);
-      return os;
+      return ostream;
     }
     template <typename OStream>
-    auto print(OStream &os, const object::None & /*none*/) -> OStream & {
-      return os << "object::None{},";
+    auto print(OStream &ostream, const object::None & /*none*/) -> OStream & {
+      return ostream << "object::None{},";
     }
     template <typename OStream>
-    auto print(OStream &os, const object::NullFunction & /*nullFunction*/)
+    auto print(OStream &ostream, const object::NullFunction & /*nullFunction*/)
         -> OStream & {
-      return os << "object::NullFunction{},";
+      return ostream << "object::NullFunction{},";
     }
     template <typename OStream>
-    auto print(OStream &os, const object::Number &number) -> OStream & {
-      return number.repr(os) << ",";
+    auto print(OStream &ostream, const object::Number &number) -> OStream & {
+      return number.repr(ostream) << ",";
     }
     template <typename OStream>
-    auto print(OStream &os, const object::NumberMethod &numberMethod)
+    auto print(OStream &ostream, const object::NumberMethod &numberMethod)
         -> OStream & {
-      os << "object::NumberMethod::";
+      ostream << "object::NumberMethod::";
       // NOLINTNEXTLINE(hicpp-multiway-paths-covered)
       switch (numberMethod) {}
-      return os << ",";
+      return ostream << ",";
     }
     template <typename OStream>
-    auto print(OStream &os, const object::ObjectMethod &objectMethod)
+    auto print(OStream &ostream, const object::ObjectMethod &objectMethod)
         -> OStream & {
-      os << "object::ObjectMethod::";
+      ostream << "object::ObjectMethod::";
       switch (objectMethod) {
         case object::ObjectMethod::DELATTR:
-          return os << "DELATTR";
+          return ostream << "DELATTR";
         case object::ObjectMethod::DIR:
-          return os << "DIR";
+          return ostream << "DIR";
         case object::ObjectMethod::GETATTRIBUTE:
-          return os << "GETATTRIBUTE";
+          return ostream << "GETATTRIBUTE";
         case object::ObjectMethod::SETATTR:
-          return os << "SETATTR";
+          return ostream << "SETATTR";
       }
-      return os << ",";
+      return ostream << ",";
     }
     template <typename OStream>
-    auto print(OStream &os, const object::Stmt &stmt) -> OStream & {
-      return os << &stmt << ",";
+    auto print(OStream &ostream, const object::Stmt &stmt) -> OStream & {
+      return ostream << &stmt << ",";
     }
     template <typename OStream>
-    auto print(OStream &os, const object::String &string) -> OStream & {
-      return os << "object::String(" << std::quoted(string) << "s),";
+    auto print(OStream &ostream, const object::String &string) -> OStream & {
+      return ostream << "object::String(" << std::quoted(string) << "s),";
     }
     template <typename OStream>
-    auto print(OStream &os, const object::StringMethod &stringMethod)
+    auto print(OStream &ostream, const object::StringMethod &stringMethod)
         -> OStream & {
-      os << "object::StringMethod::";
+      ostream << "object::StringMethod::";
       // NOLINTNEXTLINE(hicpp-multiway-paths-covered)
       switch (stringMethod) {}
-      return os << ",";
+      return ostream << ",";
     }
     template <typename OStream>
-    auto print(OStream &os, const object::True & /*true*/) -> OStream & {
-      return os << "object::True{},";
+    auto print(OStream &ostream, const object::True & /*true*/) -> OStream & {
+      return ostream << "object::True{},";
     }
     template <typename OStream>
-    auto print(OStream &os, const object::Tuple &tuple) -> OStream & {
-      os << "object::Tuple{";
+    auto print(OStream &ostream, const object::Tuple &tuple) -> OStream & {
+      ostream << "object::Tuple{";
       bool first = true;
       for (const auto &object : tuple) {
         if (!first) {
-          os << ",";
+          ostream << ",";
         } else {
           first = false;
         }
-        os << printed(object);
+        ostream << printed(object);
       }
-      return os << "},";
+      return ostream << "},";
     }
     template <typename OStream>
-    auto print(OStream &os, const object::TupleMethod &tupleMethod)
+    auto print(OStream &ostream, const object::TupleMethod &tupleMethod)
         -> OStream & {
-      os << "object::TupleMethod::";
+      ostream << "object::TupleMethod::";
       // NOLINTNEXTLINE(hicpp-multiway-paths-covered)
       switch (tupleMethod) {}
-      return os << ",";
+      return ostream << ",";
     }
     template <typename OStream>
-    auto print(OStream &os, const object::SysCall &sysCall) -> OStream & {
-      os << "object::SysCall::";
+    auto print(OStream &ostream, const object::SysCall &sysCall) -> OStream & {
+      ostream << "object::SysCall::";
       switch (sysCall) {
         case object::SysCall::COMPILE:
-          return os << "COMPILE";
+          return ostream << "COMPILE";
         case object::SysCall::EVAL:
-          return os << "EVAL";
+          return ostream << "EVAL";
         case object::SysCall::EXEC:
-          return os << "EXEC";
+          return ostream << "EXEC";
         case object::SysCall::GLOBALS:
-          return os << "GLOBALS";
+          return ostream << "GLOBALS";
         case object::SysCall::ID:
-          return os << "ID";
+          return ostream << "ID";
         case object::SysCall::INPUT:
-          return os << "INPUT";
+          return ostream << "INPUT";
         case object::SysCall::LOCALS:
-          return os << "LOCALS";
+          return ostream << "LOCALS";
         case object::SysCall::PRINT:
-          return os << "PRINT";
+          return ostream << "PRINT";
         case object::SysCall::OPEN:
-          return os << "OPEN";
+          return ostream << "OPEN";
       }
-      return os << ",";
+      return ostream << ",";
     }
     template <typename OStream>
-    auto print(OStream &os, const Work &work) -> OStream & {
+    auto print(OStream &ostream, const Work &work) -> OStream & {
       auto baseName = std::string(work.base_name).append("_").append(work.name);
       work.object.visit(IncompleteTuple(this));
       while (tuple_want) {
-        print(os, Work{this, *tuple_want, baseName,
-                       std::to_string(m_printed.size())});
+        print(ostream, Work{this, *tuple_want, baseName,
+                            std::to_string(m_printed.size())});
         work.object.visit(IncompleteTuple(this));
       }
       if (is_printed(work.object)) {
-        return os;
+        return ostream;
       }
-      os << "object::Object " << baseName << "(";
-      work.object.visit([this, &os](auto &&value) { this->print(os, value); });
-      os << "{";
+      ostream << "object::Object " << baseName << "(";
+      work.object.visit(
+          [this, &ostream](auto &&value) { this->print(ostream, value); });
+      ostream << "{";
       bool first = true;
       for (const auto &name : work.object.dir()) {
         if (!first) {
-          os << ",";
+          ostream << ",";
         } else {
           first = false;
         }
-        os << "{" << std::quoted(name) << "s,";
+        ostream << "{" << std::quoted(name) << "s,";
         if (is_printed(work.object.get_attribute(name))) {
-          os << printed(work.object.get_attribute(name));
+          ostream << printed(work.object.get_attribute(name));
         } else {
-          os << "{/*set below*/}";
+          ostream << "{/*set below*/}";
           wanted[id(work.object.get_attribute(name))].emplace_back(
               SetAttribute{baseName, name});
           queue.push(
               Work{this, work.object.get_attribute(name), baseName, name});
         }
-        os << "}";
+        ostream << "}";
       }
       m_printed.try_emplace(id(work.object), baseName);
-      os << "});";
+      ostream << "});";
       if (wanted.contains(id(work.object))) {
         auto setAttributes = std::move(wanted.at(id(work.object)));
         wanted.erase(id(work.object));
         std::sort(setAttributes.begin(), setAttributes.end(), Compare{});
         for (const auto &setAttribute : setAttributes) {
-          os << setAttribute.base_name << ".set_attribute("
-             << std::quoted(setAttribute.name) << "s," << printed(work.object)
-             << ");";
+          ostream << setAttribute.base_name << ".set_attribute("
+                  << std::quoted(setAttribute.name) << "s,"
+                  << printed(work.object) << ");";
         }
       }
-      return os;
+      return ostream;
     }
-    auto main_printed() -> std::string { return printed(main); }
+    [[nodiscard]] auto main_printed() -> std::string { return printed(main); }
     template <typename OStream>
-    void print_all(OStream &os) {
+    void print_all(OStream &ostream) {
       for (const auto &name : main.dir()) {
         if (is_printed(main.get_attribute(name))) {
-          os << "module.set_attribute(" << std::quoted(name) << "s,"
-             << printed(main.get_attribute(name)) << ");";
+          ostream << "module.set_attribute(" << std::quoted(name) << "s,"
+                  << printed(main.get_attribute(name)) << ");";
         } else {
           wanted[id(main.get_attribute(name))].emplace_back(
               SetAttribute{"module", name});
@@ -279,7 +282,7 @@ namespace chimera::library {
       while (!queue.empty()) {
         auto work = queue.top();
         queue.pop();
-        print(os, work);
+        print(ostream, work);
       }
     }
 
@@ -298,28 +301,29 @@ namespace chimera::library {
     std::optional<object::Object> remap{};
   };
   template <typename OStream>
-  auto operator<<(OStream &os, const Printer &printer) -> OStream & {
+  auto operator<<(OStream &ostream, const Printer &printer) -> OStream & {
     PrintState state(printer.main, printer.module);
     if (printer.remap) {
       state.remap(printer.main, *printer.remap);
     }
     auto moduleName = state.main_printed();
-    os << "//! generated file see tools/modules/" << moduleName
-       << ".cpp\n\n"
-          "#include \""
-       << moduleName << "/" << moduleName
-       << ".hpp\"\n\n"
-          "#include \"object/object.hpp\"\n\n"
-          "using namespace std::literals;\n\n"
-          "namespace chimera::library::virtual_machine::modules {\n"
-          // TODO(asakatida): this can be determined at print time
-          "// NOLINTBEGIN(misc-const-correctness)\n"
-          "void "
-       << moduleName << "(const object::Object &" << moduleName
-       << ") {auto module = " << moduleName << ";";
-    state.print_all(os);
-    return os << "// NOLINTEND(misc-const-correctness)\n"
-              << "} // namespace chimera::library::virtual_machine::modules"
-              << std::endl;
+    ostream << "//! generated file see tools/modules/" << moduleName
+            << ".cpp\n\n"
+               "#include \""
+            << moduleName << "/" << moduleName
+            << ".hpp\"\n\n"
+               "#include \"object/object.hpp\"\n\n"
+               "using namespace std::literals;\n\n"
+               "namespace chimera::library::virtual_machine::modules {\n"
+               // TODO(asakatida): this can be determined at print time
+               "// NOLINTBEGIN(misc-const-correctness)\n"
+               "void "
+            << moduleName << "(const object::Object &" << moduleName
+            << ") {auto module = " << moduleName << ";";
+    state.print_all(ostream);
+    return ostream
+           << "// NOLINTEND(misc-const-correctness)\n"
+           << "} // namespace chimera::library::virtual_machine::modules"
+           << std::endl;
   }
 } // namespace chimera::library

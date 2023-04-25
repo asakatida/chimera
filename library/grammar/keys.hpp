@@ -22,6 +22,8 @@
 
 #pragma once
 
+// NOLINTBEGIN(misc-no-recursion)
+
 #include "asdl/asdl.hpp"
 #include "grammar/identifier.hpp"
 #include "grammar/rules.hpp"
@@ -76,7 +78,6 @@ namespace chimera::library::grammar {
     template <flags::Flag Option>
     struct Global : Key<Option, String<'g', 'l', 'o', 'b', 'a', 'l'>> {};
     template <flags::Flag Option>
-    // NOLINTNEXTLINE(misc-confusable-identifiers)
     struct If : Key<Option, String<'i', 'f'>> {};
     template <flags::Flag Option>
     struct Import : Key<Option, String<'i', 'm', 'p', 'o', 'r', 't'>> {};
@@ -194,3 +195,5 @@ namespace chimera::library::grammar {
   using token::With;
   using token::Yield;
 } // namespace chimera::library::grammar
+
+// NOLINTEND(misc-no-recursion)

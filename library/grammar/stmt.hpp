@@ -26,6 +26,8 @@
 #include <numeric>
 #include <type_traits>
 
+// NOLINTBEGIN(misc-no-recursion)
+
 #include "asdl/asdl.hpp"
 #include "grammar/expr.hpp"
 #include "grammar/flags.hpp"
@@ -188,12 +190,12 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::ExprImpl> {
       template <typename Outer>
       void success(Outer &&outer) {
-        if (auto s = size(); s > 1) {
+        if (auto length = size(); length > 1) {
           asdl::Tuple tuple;
-          tuple.elts.reserve(s);
+          tuple.elts.reserve(length);
           transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
           outer.push(std::move(tuple));
-        } else if (s == 1) {
+        } else if (length == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
       }
@@ -257,10 +259,10 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::ExprImpl> {
       template <typename Outer>
       void success(Outer &&outer) {
-        if (auto s = size(); s == 3) {
+        if (auto length = size(); length == 3) {
           outer.push(reshape<asdl::AnnAssign, asdl::ExprImpl, asdl::ExprImpl,
                              asdl::ExprImpl>());
-        } else if (s == 2) {
+        } else if (length == 2) {
           outer.push(
               reshape<asdl::AnnAssign, asdl::ExprImpl, asdl::ExprImpl>());
         }
@@ -351,18 +353,17 @@ namespace chimera::library::grammar {
         std::vector<asdl::Name> identifiers;
         identifiers.reserve(size());
         transform<asdl::Name>(std::back_inserter(identifiers));
-        outer.push(
-            std::accumulate(identifiers.begin(), identifiers.end(),
-                            // NOLINTNEXTLINE(readability-identifier-length)
-                            asdl::Name{}, [](auto &&ida, auto &&idb) {
-                              auto id = ida.value;
-                              id.reserve(id.size() + idb.value.size() + 1);
-                              if (!id.empty()) {
-                                id.append(1, '.');
-                              }
-                              id.append(idb.value);
-                              return asdl::Name{id};
-                            }));
+        outer.push(std::accumulate(identifiers.begin(), identifiers.end(),
+                                   asdl::Name{}, [](auto &&ida, auto &&idb) {
+                                     auto value = ida.value;
+                                     value.reserve(value.size() +
+                                                   idb.value.size() + 1);
+                                     if (!value.empty()) {
+                                       value.append(1, '.');
+                                     }
+                                     value.append(idb.value);
+                                     return asdl::Name{value};
+                                   }));
       }
     };
   };
@@ -627,9 +628,9 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::ExprImpl> {
       template <typename Outer>
       void success(Outer &&outer) {
-        if (auto s = size(); s == 2) {
+        if (auto length = size(); length == 2) {
           outer.push(reshape<asdl::Withitem, asdl::ExprImpl, asdl::ExprImpl>());
-        } else if (s == 1) {
+        } else if (length == 1) {
           outer.push(reshape<asdl::Withitem, asdl::ExprImpl>());
         }
       }
@@ -738,7 +739,7 @@ namespace chimera::library::grammar {
                     FuncDef<flags::set<Option, flags::ASYNC_FLOW>>>> {
     struct Transform : rules::Stack<asdl::FunctionDef, asdl::With, asdl::For> {
       struct Push {
-        auto operator()(asdl::FunctionDef &&functionDef)
+        [[nodiscard]] auto operator()(asdl::FunctionDef &&functionDef)
             -> asdl::AsyncFunctionDef {
           return {std::move(functionDef.name),
                   functionDef.doc_string,
@@ -747,10 +748,10 @@ namespace chimera::library::grammar {
                   std::move(functionDef.decorator_list),
                   std::move(functionDef.returns)};
         }
-        auto operator()(asdl::With &&with) -> asdl::AsyncWith {
+        [[nodiscard]] auto operator()(asdl::With &&with) -> asdl::AsyncWith {
           return {std::move(with.items), std::move(with.body)};
         }
-        auto operator()(asdl::For &&asdlFor) -> asdl::AsyncFor {
+        [[nodiscard]] auto operator()(asdl::For &&asdlFor) -> asdl::AsyncFor {
           return {std::move(asdlFor.target), std::move(asdlFor.iter),
                   std::move(asdlFor.body), std::move(asdlFor.orelse)};
         }
@@ -786,3 +787,5 @@ namespace chimera::library::grammar {
     using Transform = rules::VectorCapture<asdl::StmtImpl>;
   };
 } // namespace chimera::library::grammar
+
+// NOLINTEND(misc-no-recursion)

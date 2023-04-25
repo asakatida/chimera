@@ -41,7 +41,7 @@ namespace chimera::library::virtual_machine {
         -> GarbageCollector & = delete;
     auto operator=(GarbageCollector &&collector) -> GarbageCollector & = delete;
     template <typename... Args>
-    auto emplace(Args &&...args) {
+    [[nodiscard]] auto emplace(Args &&...args) {
       const std::lock_guard<std::mutex> lock(mutex);
       return fibonacciHeap.emplace(std::forward<Args>(args)...);
     }
@@ -49,8 +49,8 @@ namespace chimera::library::virtual_machine {
   private:
     void collect();
     struct Compare {
-      auto operator()(const object::Object &left, const object::Object &right)
-          -> bool {
+      [[nodiscard]] auto operator()(const object::Object &left,
+                                    const object::Object &right) -> bool {
         return left.id() < right.id();
       }
     };

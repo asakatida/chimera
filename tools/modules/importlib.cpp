@@ -44,7 +44,7 @@
 namespace chimera::library {
   // NOLINTNEXTLINE(misc-use-anonymous-namespace)
   static void execute() {
-    const virtual_machine::GlobalContext globalContext({});
+    virtual_machine::GlobalContext globalContext({});
     virtual_machine::ProcessContext processContext{globalContext};
     auto module = processContext.parse_file(std::move(std::cin), "<input>");
     auto main = processContext.make_module("importlib");

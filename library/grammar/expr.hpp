@@ -26,6 +26,8 @@
 #include <numeric>
 #include <type_traits>
 
+// NOLINTBEGIN(misc-no-recursion)
+
 #include "asdl/asdl.hpp"
 #include "grammar/flags.hpp"
 #include "grammar/identifier.hpp"
@@ -185,12 +187,12 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::ExprImpl> {
       template <typename Outer>
       void success(Outer &&outer) {
-        if (auto s = size(); s > 1) {
+        if (auto length = size(); length > 1) {
           asdl::Bin bin{asdl::Operator::BIT_AND, {}};
-          bin.values.reserve(s);
+          bin.values.reserve(length);
           transform<asdl::ExprImpl>(std::back_inserter(bin.values));
           outer.push(std::move(bin));
-        } else if (s == 1) {
+        } else if (length == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
       }
@@ -201,12 +203,12 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::ExprImpl> {
       template <typename Outer>
       void success(Outer &&outer) {
-        if (auto s = size(); s > 1) {
+        if (auto length = size(); length > 1) {
           asdl::Bin bin{asdl::Operator::BIT_XOR, {}};
-          bin.values.reserve(s);
+          bin.values.reserve(length);
           transform<asdl::ExprImpl>(std::back_inserter(bin.values));
           outer.push(std::move(bin));
-        } else if (s == 1) {
+        } else if (length == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
       }
@@ -217,12 +219,12 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::ExprImpl> {
       template <typename Outer>
       void success(Outer &&outer) {
-        if (auto s = size(); s > 1) {
+        if (auto length = size(); length > 1) {
           asdl::Bin bin{asdl::Operator::BIT_OR, {}};
-          bin.values.reserve(s);
+          bin.values.reserve(length);
           transform<asdl::ExprImpl>(std::back_inserter(bin.values));
           outer.push(std::move(bin));
-        } else if (s == 1) {
+        } else if (length == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
       }
@@ -281,12 +283,12 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::ExprImpl> {
       template <typename Outer>
       void success(Outer &&outer) {
-        if (auto s = size(); s > 1) {
+        if (auto length = size(); length > 1) {
           asdl::Bool asdlBool{asdl::Bool::AND, {}};
-          asdlBool.values.reserve(s);
+          asdlBool.values.reserve(length);
           transform<asdl::ExprImpl>(std::back_inserter(asdlBool.values));
           outer.push(std::move(asdlBool));
-        } else if (s == 1) {
+        } else if (length == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
       }
@@ -297,12 +299,12 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::ExprImpl> {
       template <typename Outer>
       void success(Outer &&outer) {
-        if (auto s = size(); s > 1) {
+        if (auto length = size(); length > 1) {
           asdl::Bool asdlBool{asdl::Bool::OR, {}};
-          asdlBool.values.reserve(s);
+          asdlBool.values.reserve(length);
           transform<asdl::ExprImpl>(std::back_inserter(asdlBool.values));
           outer.push(std::move(asdlBool));
-        } else if (s == 1) {
+        } else if (length == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
       }
@@ -321,10 +323,10 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::ExprImpl> {
       template <typename Outer>
       void success(Outer &&outer) {
-        if (auto s = size(); s > 1) {
+        if (auto length = size(); length > 1) {
           outer.push(reshape<asdl::IfExp, asdl::ExprImpl, asdl::ExprImpl,
                              asdl::ExprImpl>());
-        } else if (s == 1) {
+        } else if (length == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
       }
@@ -370,12 +372,12 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::ExprImpl> {
       template <typename Outer>
       void success(Outer &&outer) {
-        if (auto s = size(); s > 0) {
+        if (auto length = size(); length > 0) {
           asdl::Tuple tuple;
-          tuple.elts.reserve(s);
+          tuple.elts.reserve(length);
           transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
           outer.push(std::move(tuple));
-        } else if (s == 1) {
+        } else if (length == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
       }
@@ -386,7 +388,7 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::ExprImpl, asdl::Operator> {
       template <typename Outer>
       void success(Outer &&outer) {
-        if (auto s = size(); s == 3) {
+        if (auto length = size(); length == 3) {
           asdl::Bin bin;
           bin.values.reserve(2);
           {
@@ -396,7 +398,7 @@ namespace chimera::library::grammar {
             bin.values.emplace_back(std::move(expr));
           }
           outer.push(std::move(bin));
-        } else if (s == 1) {
+        } else if (length == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
       }
@@ -661,9 +663,9 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::ExprImpl> {
       template <typename Outer>
       void success(Outer &&outer) {
-        if (auto s = size(); s > 0) {
+        if (auto length = size(); length > 0) {
           asdl::Tuple tuple;
-          tuple.elts.reserve(s);
+          tuple.elts.reserve(length);
           transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
           outer.push(std::move(tuple));
         } else {
@@ -710,9 +712,9 @@ namespace chimera::library::grammar {
                                     std::move(generators)});
         } else {
           asdl::Dict dict;
-          auto s = size() / 2;
-          dict.keys.reserve(s);
-          dict.values.reserve(s);
+          auto length = size() / 2;
+          dict.keys.reserve(length);
+          dict.values.reserve(length);
           while (has_value()) {
             dict.values.emplace_back(pop<asdl::ExprImpl>());
             dict.keys.emplace_back(pop<asdl::ExprImpl>());
@@ -729,9 +731,9 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::ExprImpl, asdl::Comprehension> {
       template <typename Outer>
       void success(Outer &&outer) {
-        if (auto s = size(); s > 1) {
+        if (auto length = size(); length > 1) {
           std::vector<asdl::Comprehension> generators;
-          generators.reserve(size() - 1);
+          generators.reserve(length - 1);
           while (size() > 1) {
             generators.emplace_back(pop<asdl::Comprehension>());
           }
@@ -810,3 +812,5 @@ namespace chimera::library::grammar {
     };
   };
 } // namespace chimera::library::grammar
+
+// NOLINTEND(misc-no-recursion)

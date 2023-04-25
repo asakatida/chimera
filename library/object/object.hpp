@@ -217,7 +217,9 @@ namespace chimera::library::object::internal {
       attributes.insert_or_assign(std::forward<Args>(args)...);
     }
     template <typename Visitor>
-    auto visit(Visitor &&visitor) const -> decltype(auto) {
+    auto visit(Visitor &&visitor) const
+        noexcept(noexcept(std::visit(std::forward<Visitor>(visitor), value)))
+            -> decltype(auto) {
       return std::visit(std::forward<Visitor>(visitor), value);
     }
 
@@ -242,12 +244,12 @@ namespace chimera::library::object::internal {
     [[nodiscard]] auto id() const noexcept -> Id;
     [[nodiscard]] auto what() const noexcept -> const char * override;
     template <typename OStream>
-    auto debug(OStream &os) const -> OStream & {
-      return repr(os);
+    auto debug(OStream &ostream) const -> OStream & {
+      return repr(ostream);
     }
     template <typename OStream>
-    auto repr(OStream &os) const -> OStream & {
-      return os << exception.visit(BaseWhat{});
+    auto repr(OStream &ostream) const -> OStream & {
+      return ostream << exception.visit(BaseWhat{});
     }
 
   private:
@@ -320,8 +322,8 @@ namespace chimera {
 } // namespace chimera
 
 template <typename OStream>
-auto operator<<(OStream &os,
+auto operator<<(OStream &ostream,
                 const chimera::library::object::BaseException &exception)
     -> OStream & {
-  return exception.debug(os);
+  return exception.debug(ostream);
 }

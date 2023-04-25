@@ -9,10 +9,9 @@ using namespace std::literals;
 
 TEST_CASE("grammar VirtualMachine ``") {
   SECTION("destructor") {
-    chimera::library::Options options{.chimera = "chimera",
-                                      .script = "test.py"};
-    const chimera::library::virtual_machine::GlobalContext globalContext(
-        options);
+    const chimera::library::Options options{.chimera = "chimera",
+                                            .script = "test.py"};
+    chimera::library::virtual_machine::GlobalContext globalContext(options);
     chimera::library::virtual_machine::ProcessContext processContext{
         globalContext};
     auto module = processContext.parse_file(""sv, "<test>");
@@ -24,8 +23,9 @@ TEST_CASE("grammar VirtualMachine ``") {
 }
 
 TEST_CASE("grammar VirtualMachine `type`") {
-  chimera::library::Options options{.chimera = "chimera", .script = "test.py"};
-  const chimera::library::virtual_machine::GlobalContext globalContext(options);
+  const chimera::library::Options options{.chimera = "chimera",
+                                          .script = "test.py"};
+  chimera::library::virtual_machine::GlobalContext globalContext(options);
   chimera::library::virtual_machine::ProcessContext processContext{
       globalContext};
   auto module = processContext.parse_file("type"sv, "<test>");
@@ -36,8 +36,9 @@ TEST_CASE("grammar VirtualMachine `type`") {
 }
 
 TEST_CASE("grammar VirtualMachine `a@b=c`") {
-  chimera::library::Options options{.chimera = "chimera", .script = "test.py"};
-  const chimera::library::virtual_machine::GlobalContext globalContext(options);
+  const chimera::library::Options options{.chimera = "chimera",
+                                          .script = "test.py"};
+  chimera::library::virtual_machine::GlobalContext globalContext(options);
   chimera::library::virtual_machine::ProcessContext processContext{
       globalContext};
   auto module = processContext.parse_file("a@b=c"sv, "<test>");
@@ -48,8 +49,9 @@ TEST_CASE("grammar VirtualMachine `a@b=c`") {
 }
 
 TEST_CASE("grammar VirtualMachine `0x10 & 0x01`") {
-  chimera::library::Options options{.chimera = "chimera", .script = "test.py"};
-  const chimera::library::virtual_machine::GlobalContext globalContext(options);
+  const chimera::library::Options options{.chimera = "chimera",
+                                          .script = "test.py"};
+  chimera::library::virtual_machine::GlobalContext globalContext(options);
   chimera::library::virtual_machine::ProcessContext processContext{
       globalContext};
   auto module = processContext.parse_file("0x10 & 0x01"sv, "<test>");
@@ -60,8 +62,9 @@ TEST_CASE("grammar VirtualMachine `0x10 & 0x01`") {
 }
 
 TEST_CASE("grammar VirtualMachine `()`") {
-  chimera::library::Options options{.chimera = "chimera", .script = "test.py"};
-  const chimera::library::virtual_machine::GlobalContext globalContext(options);
+  const chimera::library::Options options{.chimera = "chimera",
+                                          .script = "test.py"};
+  chimera::library::virtual_machine::GlobalContext globalContext(options);
   chimera::library::virtual_machine::ProcessContext processContext{
       globalContext};
   auto module = processContext.parse_file("()"sv, "<test>");
@@ -71,8 +74,9 @@ TEST_CASE("grammar VirtualMachine `()`") {
 }
 
 TEST_CASE("grammar VirtualMachine `(' ',)`") {
-  chimera::library::Options options{.chimera = "chimera", .script = "test.py"};
-  const chimera::library::virtual_machine::GlobalContext globalContext(options);
+  const chimera::library::Options options{.chimera = "chimera",
+                                          .script = "test.py"};
+  chimera::library::virtual_machine::GlobalContext globalContext(options);
   chimera::library::virtual_machine::ProcessContext processContext{
       globalContext};
   auto module = processContext.parse_file("(' ',)"sv, "<test>");
@@ -82,8 +86,9 @@ TEST_CASE("grammar VirtualMachine `(' ',)`") {
 }
 
 TEST_CASE("grammar VirtualMachine `(' ', None)`") {
-  chimera::library::Options options{.chimera = "chimera", .script = "test.py"};
-  const chimera::library::virtual_machine::GlobalContext globalContext(options);
+  const chimera::library::Options options{.chimera = "chimera",
+                                          .script = "test.py"};
+  chimera::library::virtual_machine::GlobalContext globalContext(options);
   chimera::library::virtual_machine::ProcessContext processContext{
       globalContext};
   auto module = processContext.parse_file("(' ', None)"sv, "<test>");
@@ -93,8 +98,9 @@ TEST_CASE("grammar VirtualMachine `(' ', None)`") {
 }
 
 TEST_CASE("grammar VirtualMachine `(' ', None, )`") {
-  chimera::library::Options options{.chimera = "chimera", .script = "test.py"};
-  const chimera::library::virtual_machine::GlobalContext globalContext(options);
+  const chimera::library::Options options{.chimera = "chimera",
+                                          .script = "test.py"};
+  chimera::library::virtual_machine::GlobalContext globalContext(options);
   chimera::library::virtual_machine::ProcessContext processContext{
       globalContext};
   auto module = processContext.parse_file("(' ', None, )"sv, "<test>");
@@ -104,30 +110,33 @@ TEST_CASE("grammar VirtualMachine `(' ', None, )`") {
 }
 
 TEST_CASE("grammar VirtualMachine `'\\xffff'`") {
-  chimera::library::Options options{.chimera = "chimera", .script = "test.py"};
-  const chimera::library::virtual_machine::GlobalContext globalContext(options);
+  const chimera::library::Options options{.chimera = "chimera",
+                                          .script = "test.py"};
+  chimera::library::virtual_machine::GlobalContext globalContext(options);
   chimera::library::virtual_machine::ProcessContext processContext{
       globalContext};
-  auto module = processContext.parse_file("'\\xffff'"sv, "<test>");
+  auto module = processContext.parse_file(R"('\xffff')"sv, "<test>");
   chimera::library::virtual_machine::ThreadContext threadContext{
       processContext, processContext.make_module("__main__")};
   REQUIRE_NOTHROW(threadContext.evaluate(module));
 }
 
 TEST_CASE("grammar VirtualMachine `'\\77'`") {
-  chimera::library::Options options{.chimera = "chimera", .script = "test.py"};
-  const chimera::library::virtual_machine::GlobalContext globalContext(options);
+  const chimera::library::Options options{.chimera = "chimera",
+                                          .script = "test.py"};
+  chimera::library::virtual_machine::GlobalContext globalContext(options);
   chimera::library::virtual_machine::ProcessContext processContext{
       globalContext};
-  auto module = processContext.parse_file("'\\77'"sv, "<test>");
+  auto module = processContext.parse_file(R"('\77')"sv, "<test>");
   chimera::library::virtual_machine::ThreadContext threadContext{
       processContext, processContext.make_module("__main__")};
   REQUIRE_NOTHROW(threadContext.evaluate(module));
 }
 
 TEST_CASE("grammar VirtualMachine `raise`") {
-  chimera::library::Options options{.chimera = "chimera", .script = "test.py"};
-  const chimera::library::virtual_machine::GlobalContext globalContext(options);
+  const chimera::library::Options options{.chimera = "chimera",
+                                          .script = "test.py"};
+  chimera::library::virtual_machine::GlobalContext globalContext(options);
   chimera::library::virtual_machine::ProcessContext processContext{
       globalContext};
   auto module = processContext.parse_file("raise"sv, "<test>");

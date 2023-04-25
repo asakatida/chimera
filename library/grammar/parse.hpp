@@ -22,6 +22,8 @@
 
 #pragma once
 
+// NOLINTBEGIN(misc-no-recursion)
+
 #include <gsl/gsl>
 #include <tao/pegtl.hpp>
 
@@ -42,3 +44,5 @@ namespace chimera::library::grammar {
     }
   }
 } // namespace chimera::library::grammar
+
+// NOLINTEND(misc-no-recursion)

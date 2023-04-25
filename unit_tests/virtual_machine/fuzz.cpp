@@ -4,6 +4,7 @@
 
 using namespace std::literals;
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 void LLVMFuzzerTestOneInput(const std::uint8_t *data, std::size_t size) {
   REQUIRE_NOTHROW(
       chimera::library::fuzz_parse<chimera::library::grammar::Ellipsis<0>>(
@@ -470,5 +471,10 @@ TEST_CASE(R"(fuzz `b"""\xb0\x19"""`)") {
 
 TEST_CASE(R"(fuzz `b'\xFalse1'`)") {
   auto test_case = R"(b'\xFalse1')"sv;
+  TestOne(test_case.data(), test_case.size());
+}
+
+TEST_CASE(R"(fuzz `False.x=x=1`)") {
+  auto test_case = "False.x=x=1"sv;
   TestOne(test_case.data(), test_case.size());
 }

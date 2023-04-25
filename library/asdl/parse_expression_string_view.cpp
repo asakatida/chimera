@@ -24,6 +24,8 @@
 #include <string_view> // for basic_string_view, string_view
 #include <vector>      // for vector
 
+// NOLINTBEGIN(misc-no-recursion)
+
 #include <tao/pegtl/memory_input.hpp> // for memory_input
 #include <tao/pegtl/parse_error.hpp>  // for parse_error
 
@@ -46,3 +48,5 @@ namespace chimera::library::asdl {
         *this);
   }
 } // namespace chimera::library::asdl
+
+// NOLINTEND(misc-no-recursion)

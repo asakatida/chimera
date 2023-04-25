@@ -26,19 +26,19 @@
 #include <numeric>
 #include <vector>
 
+// NOLINTBEGIN(misc-no-recursion)
+
 #include "asdl/asdl.hpp"
 #include "grammar/rules.hpp"
 #include "grammar/whitespace.hpp"
 #include "object/object.hpp"
 
-// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-identifier-length,readability-magic-numbers)
-
 namespace chimera::library::grammar {
   namespace token {
     struct NumberHolder {
       template <std::uint8_t Base, typename Input, typename... Args>
-      void apply(const Input &in, Args &&...args) {
-        std::uint8_t mantisa;
+      void apply(const Input &input, Args &&.../*args*/) {
+        std::uint8_t mantisa = 0;
         switch (Base) {
           case 2:
             mantisa = 63;
@@ -55,10 +55,10 @@ namespace chimera::library::grammar {
           default:
             Ensures(false);
         }
-        for (auto input = in.string(); !input.empty();
-             input.erase(0, mantisa)) {
+        for (auto parse_string = input.string(); !parse_string.empty();
+             parse_string.erase(0, mantisa)) {
           std::size_t len = 0;
-          auto section = input.substr(0, mantisa);
+          auto section = parse_string.substr(0, mantisa);
           auto parsed_number = std::stoul(section, &len, Base);
           Ensures(len == section.size());
           number *= object::Number(Base).pow(object::Number(len));
@@ -135,7 +135,6 @@ namespace chimera::library::grammar {
       struct Transform : NumberHolder {
         template <typename Top>
         void success(Top &&top) {
-          // NOLINTNEXTLINE(readability-static-accessed-through-instance)
           top.number *= object::Number(10).pow(number);
         }
       };
@@ -148,7 +147,6 @@ namespace chimera::library::grammar {
         object::Number denominator = object::Number(1);
         template <typename Top>
         void success(Top &&top) {
-          // NOLINTNEXTLINE(readability-static-accessed-through-instance)
           top.number += number / object::Number(10).pow(denominator);
         }
         template <std::uint8_t Base, typename Input, typename... Args>
@@ -181,4 +179,4 @@ namespace chimera::library::grammar {
   struct NUMBER : token::Token<Option, token::Numberliteral> {};
 } // namespace chimera::library::grammar
 
-// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-identifier-length,readability-magic-numbers)
+// NOLINTEND(misc-no-recursion)

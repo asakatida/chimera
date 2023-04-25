@@ -13,7 +13,7 @@ namespace chimera::library {
     Options options;
     options.chimera = "chimera";
     options.script = "unit_test.py";
-    const virtual_machine::GlobalContext globalContext(options);
+    virtual_machine::GlobalContext globalContext(options);
     virtual_machine::ProcessContext processContext{globalContext};
     std::istringstream input(std::forward<Data>(data)...);
     auto module = processContext.parse_file(std::move(input), "<unit_test>");

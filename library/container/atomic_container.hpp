@@ -51,6 +51,7 @@ namespace chimera::library::container {
       }
       return *this;
     }
+    // NOLINTBEGIN(cppcoreguidelines-avoid-const-or-ref-data-members)
     struct Read {
       const std::shared_lock<std::shared_mutex> lock;
       const Value &value;
@@ -59,8 +60,10 @@ namespace chimera::library::container {
       const std::unique_lock<std::shared_mutex> lock;
       Value &value;
     };
+    // NOLINTEND(cppcoreguidelines-avoid-const-or-ref-data-members)
     [[nodiscard]] auto read() const -> Read {
       return Read{std::shared_lock<std::shared_mutex>(
+                      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
                       const_cast<std::shared_mutex &>(mutex)),
                   value};
     }

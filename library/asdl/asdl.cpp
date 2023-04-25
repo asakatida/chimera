@@ -24,12 +24,17 @@
 #include "object/number/number.hpp"
 
 namespace chimera::library::asdl {
-  auto Expression::expr() const -> const ExprImpl & { return body; }
-  auto Module::doc() const -> const std::optional<DocString> & {
+  [[nodiscard]] auto Expression::expr() const -> const ExprImpl & {
+    return body;
+  }
+  [[nodiscard]] auto Module::doc() const -> const std::optional<DocString> & {
     return doc_string;
   }
-  auto Module::iter() const -> const std::vector<StmtImpl> & { return body; }
-  auto Interactive::iter() const -> const std::vector<StmtImpl> & {
+  [[nodiscard]] auto Module::iter() const -> const std::vector<StmtImpl> & {
+    return body;
+  }
+  [[nodiscard]] auto Interactive::iter() const
+      -> const std::vector<StmtImpl> & {
     return body;
   }
 } // namespace chimera::library::asdl
