@@ -41,42 +41,56 @@
 #include "virtual_machine/global_context.hpp"
 
 namespace chimera::library {
-  auto PrintState::printed(const object::Object &object) -> std::string {
+  [[nodiscard]] auto PrintState::printed(const object::Object &object)
+      -> std::string {
     if (!m_printed.contains(id(object))) {
       return "";
     }
     return m_printed.at(id(object));
   }
-  auto PrintState::id(const object::Object &object) -> object::Id {
+  [[nodiscard]] auto PrintState::id(const object::Object &object)
+      -> object::Id {
     return m_remap.try_emplace(object.id(), object.id()).first->second;
   }
   void PrintState::remap(const object::Object &module,
                          const object::Object &previous) {
-    if (!m_remap.try_emplace(previous.id(), module.id()).second) {
-      return;
-    }
-    for (const auto &name : module.dir()) {
-      if (previous.has_attribute(name)) {
-        remap(module.get_attribute(name), previous.get_attribute(name));
+    std::vector modules{std::tuple{module, previous}};
+    while (!modules.empty()) {
+      std::vector<std::tuple<object::Object, object::Object>> next_modules{};
+      for (const auto &work : modules) {
+        if (m_remap.try_emplace(std::get<1>(work).id(), std::get<0>(work).id())
+                .second) {
+          for (const auto &name : std::get<0>(work).dir()) {
+            if (std::get<1>(work).has_attribute(name)) {
+              next_modules.emplace_back(std::get<0>(work).get_attribute(name),
+                                        std::get<1>(work).get_attribute(name));
+            }
+          }
+          for (const auto &name : std::get<1>(work).dir()) {
+            if (std::get<0>(work).has_attribute(name)) {
+              next_modules.emplace_back(std::get<0>(work).get_attribute(name),
+                                        std::get<1>(work).get_attribute(name));
+            }
+          }
+        }
       }
-    }
-    for (const auto &name : previous.dir()) {
-      if (module.has_attribute(name)) {
-        remap(module.get_attribute(name), previous.get_attribute(name));
-      }
+      modules = next_modules;
     }
   }
-  auto PrintState::is_printed(const object::Object &object) -> bool {
+  [[nodiscard]] auto PrintState::is_printed(const object::Object &object)
+      -> bool {
     return m_printed.contains(id(object));
   }
-  auto Compare::operator()(const SetAttribute &left,
-                           const SetAttribute &right) const -> bool {
+  [[nodiscard]] auto Compare::operator()(const SetAttribute &left,
+                                         const SetAttribute &right) const
+      -> bool {
     if (left.base_name == right.base_name) {
       return left.name < right.name;
     }
     return left.base_name < right.base_name;
   }
-  auto Compare::operator()(const Work &left, const Work &right) const -> bool {
+  [[nodiscard]] auto Compare::operator()(const Work &left,
+                                         const Work &right) const -> bool {
     if (left.printer->is_printed(right.object) &&
         !right.printer->is_printed(left.object)) {
       return true;

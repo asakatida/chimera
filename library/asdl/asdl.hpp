@@ -49,7 +49,7 @@ namespace chimera::library {
   enum class Optimize;
   namespace asdl {
     struct ExtSlice;
-  }
+  } // namespace asdl
 } // namespace chimera::library
 
 namespace chimera::library::asdl {
@@ -472,9 +472,9 @@ namespace chimera::library::asdl {
     [[nodiscard]] auto expr() const -> const ExprImpl &;
     template <typename Stack>
     void success(Stack &&stack) {
-      if (auto s = stack.size(); s > 1) {
+      if (auto size = stack.size(); size > 1) {
         asdl::Tuple tuple;
-        tuple.elts.reserve(s);
+        tuple.elts.reserve(size);
         stack.template transform<asdl::ExprImpl>(
             std::back_inserter(tuple.elts));
         body = std::move(tuple);

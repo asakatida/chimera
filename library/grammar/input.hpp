@@ -27,6 +27,8 @@
 #include <iterator>
 #include <stack>
 
+// NOLINTBEGIN(misc-no-recursion)
+
 #include <tao/pegtl.hpp>
 
 namespace chimera::library::grammar {
@@ -37,9 +39,9 @@ namespace chimera::library::grammar {
     using Base::current;
     using Base::empty;
     [[nodiscard]] auto indent() -> bool {
-      const auto i = column();
-      if ((indentStack.empty() || indentStack.top() < i) && validate()) {
-        indentStack.push(i);
+      const auto col = column();
+      if ((indentStack.empty() || indentStack.top() < col) && validate()) {
+        indentStack.push(col);
         return true;
       }
       return false;
@@ -69,27 +71,27 @@ namespace chimera::library::grammar {
       return true;
     }
     [[nodiscard]] auto is_newline() const -> bool {
-      const auto i = column();
+      const auto col = column();
       if (indentStack.empty()) {
-        return 1 == i;
+        return 1 == col;
       }
-      return indentStack.top() == i;
+      return indentStack.top() == col;
     }
     [[nodiscard]] auto validate() -> bool {
       auto begin = current();
-      auto i = column();
-      if (i == 0) {
+      auto col = column();
+      if (col == 0) {
         return false;
       }
-      std::advance(begin, -i);
+      std::advance(begin, -col);
       while (*begin == '\n' || *begin == '\r') {
-        i -= 1;
-        if (i == 0) {
+        col -= 1;
+        if (col == 0) {
           return false;
         }
         std::advance(begin, 1);
       }
-      const std::string_view line(begin, i);
+      const std::string_view line(begin, col);
       if (indentType == '\0') {
         if (validateBasic(line, *begin)) {
           indentType = *begin;
@@ -101,9 +103,9 @@ namespace chimera::library::grammar {
     }
     template <typename Line>
     [[nodiscard]] auto validateBasic(Line &&line, char type) -> bool {
-      return std::all_of(line.begin(), line.end(),
-                         // NOLINTNEXTLINE(readability-identifier-length)
-                         [type](auto &&c) { return c == type; });
+      return std::all_of(line.begin(), line.end(), [type](auto &&whitespace) {
+        return whitespace == type;
+      });
     }
 
   private:
@@ -111,3 +113,5 @@ namespace chimera::library::grammar {
     std::stack<std::uintmax_t> indentStack{};
   };
 } // namespace chimera::library::grammar
+
+// NOLINTEND(misc-no-recursion)

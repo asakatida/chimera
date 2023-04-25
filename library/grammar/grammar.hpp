@@ -24,6 +24,8 @@
 
 #include <algorithm>
 
+// NOLINTBEGIN(misc-no-recursion)
+
 #include "asdl/asdl.hpp"
 #include "grammar/expr.hpp"
 #include "grammar/flags.hpp"
@@ -65,3 +67,5 @@ namespace chimera::library::grammar {
     };
   };
 } // namespace chimera::library::grammar
+
+// NOLINTEND(misc-no-recursion)

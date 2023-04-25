@@ -35,35 +35,45 @@
 
 namespace chimera::library::virtual_machine {
   struct ProcessContext {
-    explicit ProcessContext(const GlobalContext &global_context);
+    explicit ProcessContext(GlobalContext &global_context);
+    ProcessContext(const ProcessContext &) = delete;
+    ProcessContext(ProcessContext &&) noexcept = delete;
     ~ProcessContext() noexcept;
+    auto operator=(const ProcessContext &) -> ProcessContext & = delete;
+    auto operator=(ProcessContext &&) noexcept -> ProcessContext & = delete;
     [[nodiscard]] auto builtins() const -> const object::Object &;
-    auto import_object(std::string_view &&name,
-                       std::string_view &&relativeModule)
+    [[nodiscard]] auto import_object(std::string_view &&name,
+                                     std::string_view &&relativeModule)
         -> const object::Object &;
-    auto import_module(std::string &&module) -> const asdl::Module &;
-    auto make_module(std::string_view &&name) -> object::Object;
-    auto parse_expression(const std::string_view &data,
-                          const char *source) const -> asdl::Expression;
-    auto parse_expression(std::istream &&input, const char *source) const
+    [[nodiscard]] auto import_module(std::string &&module) -> asdl::Module;
+    [[nodiscard]] auto make_module(std::string_view &&name) -> object::Object;
+    [[nodiscard]] auto parse_expression(const std::string_view &data,
+                                        const char *source) const
         -> asdl::Expression;
-    auto parse_file(const std::string_view &data, const char *source) const
-        -> asdl::Module;
-    auto parse_file(std::istream &&input, const char *source) -> asdl::Module;
-    auto parse_input(const std::string_view &data, const char *source) const
+    [[nodiscard]] auto parse_expression(std::istream &&input,
+                                        const char *source) const
+        -> asdl::Expression;
+    [[nodiscard]] auto parse_file(const std::string_view &data,
+                                  const char *source) const -> asdl::Module;
+    [[nodiscard]] auto parse_file(std::istream &&input,
+                                  const char *source) const -> asdl::Module;
+    [[nodiscard]] auto parse_input(const std::string_view &data,
+                                   const char *source) const
         -> asdl::Interactive;
-    auto parse_input(std::istream &&input, const char *source)
+    [[nodiscard]] auto parse_input(std::istream &&input,
+                                   const char *source) const
         -> asdl::Interactive;
     void process_interrupts() const;
 
   private:
-    const object::Object builtins_;
-    const GlobalContext &global_context;
+    [[nodiscard]] auto import_module(const std::string_view &path,
+                                     const std::string &module) -> asdl::Module;
+    [[nodiscard]] auto import_object(std::string_view &&request_module)
+        -> const object::Object &;
+    object::Object builtins_;
+    gsl::not_null<GlobalContext *> global_context;
     // TODO(asakatida)
     // GarbageCollector garbage_collector{};
     container::AtomicMap<std::string, object::Object> modules;
-    auto import_module(const std::string_view &path, const std::string &module)
-        -> asdl::Module;
-    auto import_object(std::string_view &&module) -> const object::Object &;
   };
 } // namespace chimera::library::virtual_machine

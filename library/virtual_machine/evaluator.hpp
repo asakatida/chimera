@@ -40,7 +40,7 @@ namespace chimera::library::virtual_machine {
   struct Evaluator;
   struct Scopes {
     explicit operator bool() const;
-    auto self() -> object::Object &;
+    [[nodiscard]] auto self() -> object::Object &;
     void enter_scope(const object::Object &main);
     void enter();
     void exit();
@@ -89,7 +89,11 @@ namespace chimera::library::virtual_machine {
   };
   struct Evaluator {
     explicit Evaluator(ThreadContext &thread_context) noexcept;
+    Evaluator(const Evaluator &) = delete;
+    Evaluator(Evaluator &&) noexcept = delete;
     ~Evaluator() noexcept;
+    auto operator=(const Evaluator &) -> Evaluator & = delete;
+    auto operator=(Evaluator &&) noexcept -> Evaluator & = delete;
     [[nodiscard]] auto builtins() const -> const object::Object &;
     void enter_scope(const object::Object &object);
     void enter();
@@ -103,7 +107,7 @@ namespace chimera::library::virtual_machine {
       scope.push(std::forward<Instruction>(instruction));
     }
     [[nodiscard]] auto return_value() const -> object::Object;
-    auto self() -> object::Object &;
+    [[nodiscard]] auto self() -> object::Object &;
     void stack_pop();
     void stack_push(const object::Object &object);
     [[nodiscard]] auto stack_remove() -> object::Object;
@@ -145,14 +149,15 @@ namespace chimera::library::virtual_machine {
     void evaluate(const asdl::With &with);
 
   private:
-    auto do_try(const std::vector<asdl::StmtImpl> &body,
-                const std::optional<object::BaseException> &context)
+    [[nodiscard]] auto
+    do_try(const std::vector<asdl::StmtImpl> &body,
+           const std::optional<object::BaseException> &context)
         -> std::optional<object::BaseException>;
     void get_attr(const object::Object &object, const std::string &name);
     void get_attribute(const object::Object &object,
                        const object::Object &getAttribute,
                        const std::string &name);
-    ThreadContext &thread_context;
+    gsl::not_null<ThreadContext *> thread_context;
     Scopes scope{};
     std::stack<object::Object> stack{};
   };

@@ -40,15 +40,15 @@ namespace chimera::library::container {
       return read().value.at(std::forward<Args>(args)...);
     }
     template <typename... Args>
-    auto at(Args &&...args) -> auto & {
+    [[nodiscard]] auto at(Args &&...args) -> auto & {
       return read().value.at(std::forward<Args>(args)...);
     }
     template <typename... Args>
-    auto cbegin(Args &&...args) const {
+    [[nodiscard]] auto cbegin(Args &&...args) const {
       return read().value.cbegin(std::forward<Args>(args)...);
     }
     template <typename... Args>
-    auto cend(Args &&...args) const {
+    [[nodiscard]] auto cend(Args &&...args) const {
       return read().value.cend(std::forward<Args>(args)...);
     }
     template <typename... Args>
@@ -60,23 +60,23 @@ namespace chimera::library::container {
       return read().value.count(std::forward<Args>(args)...);
     }
     template <typename... Args>
-    auto size(Args &&...args) const {
+    [[nodiscard]] auto size(Args &&...args) const {
       return read().value.size(std::forward<Args>(args)...);
     }
     template <typename... Args>
-    auto operator[](Args &&...args) -> auto & {
+    [[nodiscard]] auto operator[](Args &&...args) -> auto & {
       return write().value.operator[](std::forward<Args>(args)...);
     }
     template <typename... Args>
-    auto erase(Args &&...args) {
-      return write().value.erase(std::forward<Args>(args)...);
+    void erase(Args &&...args) {
+      write().value.erase(std::forward<Args>(args)...);
     }
     template <typename... Args>
-    auto insert_or_assign(Args &&...args) {
-      return write().value.insert_or_assign(std::forward<Args>(args)...);
+    void insert_or_assign(Args &&...args) {
+      write().value.insert_or_assign(std::forward<Args>(args)...);
     }
     template <typename... Args>
-    auto try_emplace(Args &&...args) {
+    [[nodiscard]] auto try_emplace(Args &&...args) {
       return write().value.try_emplace(std::forward<Args>(args)...);
     }
   };

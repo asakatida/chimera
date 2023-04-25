@@ -4,9 +4,6 @@
 
 #include "grammar/rules.hpp"
 
-// this is generated and doesn't need this noise
-// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-
 namespace chimera::library::grammar {
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
   using Utf8IdStart = sor<ranges<0x41, 0x5a, 0x5f, 0x5f, 0x61, 0x7a>>;
@@ -196,5 +193,3 @@ namespace chimera::library::grammar {
              0x2fa1d, 0x30000, 0x3134a, 0x31350, 0x323af>>;
 #endif
 } // namespace chimera::library::grammar
-
-// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

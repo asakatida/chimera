@@ -31,18 +31,18 @@ namespace chimera::library::virtual_machine {
   struct GlobalContext {
     explicit GlobalContext(Options options);
     [[nodiscard]] auto debug() const -> bool;
-    [[nodiscard]] auto interactive() const -> int;
-    [[nodiscard]] auto execute_script() const -> int;
-    [[nodiscard]] auto execute_script_string() const -> int;
-    [[nodiscard]] auto execute_script_input() const -> int;
-    [[nodiscard]] auto execute_module() const -> int;
+    [[nodiscard]] auto interactive() -> int;
+    [[nodiscard]] auto execute_script() -> int;
+    [[nodiscard]] auto execute_script_string() -> int;
+    [[nodiscard]] auto execute_script_input() -> int;
+    [[nodiscard]] auto execute_module() -> int;
     [[nodiscard]] auto optimize() const -> const Optimize &;
     void process_interrupts() const;
     void sys_argv(const object::Object &module) const;
     [[nodiscard]] auto verbose_init() const -> const VerboseInit &;
 
   private:
-    const Options options;
+    Options options;
     std::atomic_flag *sig_int;
   };
 } // namespace chimera::library::virtual_machine

@@ -31,6 +31,6 @@ namespace chimera::library::virtual_machine {
     void operator()(Evaluator *evaluator) const;
 
   private:
-    const object::Object object;
+    object::Object object;
   };
 } // namespace chimera::library::virtual_machine

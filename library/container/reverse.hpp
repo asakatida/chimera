@@ -44,7 +44,7 @@ namespace chimera::library::container {
     std::add_pointer_t<Container> container;
   };
   template <typename Container>
-  auto reverse(Container &&container) {
+  [[nodiscard]] auto reverse(Container &&container) {
     return Reverse(container);
   }
 } // namespace chimera::library::container

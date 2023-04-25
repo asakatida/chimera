@@ -38,14 +38,14 @@
 #include "version.hpp"                        // for CHIMERA_GIT_HEAD, CHIM...
 #include "virtual_machine/global_context.hpp" // for GlobalContext
 
-// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,misc-use-anonymous-namespace,readability-magic-numbers)
+// NOLINTBEGIN(misc-use-anonymous-namespace)
 
 using namespace std::literals;
 
 namespace chimera::library {
   using Span = gsl::span<const char *>;
   template <typename InputIt>
-  auto forward_args(InputIt &&begin, const InputIt &end) {
+  [[nodiscard]] auto forward_args(InputIt &&begin, const InputIt &end) {
     if (auto distance = std::distance(begin, end); distance > 0) {
       return gsl::make_span(&*begin, gsl::narrow<Span::size_type>(distance));
     }
@@ -239,4 +239,4 @@ auto main(int argc, const char *argv[]) -> int {
   return chimera::library::main(gsl::make_span(argv, argc));
 }
 
-// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,misc-use-anonymous-namespace,readability-magic-numbers)
+// NOLINTEND(misc-use-anonymous-namespace)

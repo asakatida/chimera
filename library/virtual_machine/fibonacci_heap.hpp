@@ -71,28 +71,30 @@ namespace chimera::library::virtual_machine {
     }
     template <typename... Args>
     [[nodiscard]] auto emplace(Args &&...args) -> const Key & {
-      auto x = std::make_unique<Node>(Key{std::forward<Args>(args)...});
+      auto new_node = std::make_unique<Node>(Key{std::forward<Args>(args)...});
       if (min == nullptr) {
-        min = (x->left = std::move(x)).get_left();
+        min = (new_node->left = std::move(new_node)).get_left();
         min->right = min;
         ++n;
         return min->key;
       }
-      if (x < min) {
-        min = (x->left = std::move(x)).get_left();
+      if (new_node < min) {
+        min = (new_node->left = std::move(new_node)).get_left();
         min->right = min;
         ++n;
         return min->key;
       }
-      x->left = std::move(min->left);
-      x->left->right = x.get();
-      x->right = min;
-      min->left = std::move(x);
+      new_node->left = std::move(min->left);
+      new_node->left->right = new_node.get();
+      new_node->right = min;
+      min->left = std::move(new_node);
       ++n;
       return min->key;
     }
     template <typename Predicate>
     void remove_if(Predicate && /*predicate*/) {}
+
+  private:
     //! Internal node structure
     struct Node {
       template <typename... Args>
@@ -106,7 +108,7 @@ namespace chimera::library::virtual_machine {
       }
       auto operator=(const Node &node) -> Node & = delete;
       auto operator=(Node &&node) noexcept -> Node & = default;
-      auto operator<(const Node &node) -> bool;
+      [[nodiscard]] auto operator<(const Node &node) -> bool;
       [[nodiscard]] auto get_left() const -> const Node * { return left.get(); }
       void remove_left() { std::ignore = std::move(left); }
       void reset_left() {
@@ -126,7 +128,6 @@ namespace chimera::library::virtual_machine {
       Node *child = nullptr;
     };
 
-  private:
     Node *min = nullptr; //! owned by its own left member
     std::uint64_t n = 0;
   };

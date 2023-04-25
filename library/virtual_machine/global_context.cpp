@@ -46,8 +46,10 @@ namespace chimera::library::virtual_machine {
     SIG_INT.test_and_set();
     std::ignore = std::signal(SIGINT, interupt_handler);
   }
-  auto GlobalContext::debug() const -> bool { return options.debug; }
-  auto GlobalContext::interactive() const -> int {
+  [[nodiscard]] auto GlobalContext::debug() const -> bool {
+    return options.debug;
+  }
+  [[nodiscard]] auto GlobalContext::interactive() -> int {
     if (!options.dont_display_copyright) {
       std::cout << "chimera " << CHIMERA_VERSION
                 << " (default, " __DATE__ ", " __TIME__ ")\n"
@@ -66,7 +68,7 @@ namespace chimera::library::virtual_machine {
     }
     return 0;
   }
-  auto GlobalContext::execute_script() const -> int {
+  [[nodiscard]] auto GlobalContext::execute_script() -> int {
     std::ifstream input(options.script);
     ProcessContext processContext{*this};
     auto module = processContext.parse_file(std::move(input), options.script);
@@ -74,28 +76,28 @@ namespace chimera::library::virtual_machine {
     ThreadContext(processContext, main).evaluate(module);
     return 0;
   }
-  auto GlobalContext::execute_script_string() const -> int {
+  [[nodiscard]] auto GlobalContext::execute_script_string() -> int {
     ProcessContext processContext{*this};
     auto module = processContext.parse_file(options.command, "<string>");
     auto main = processContext.make_module("__main__");
     ThreadContext(processContext, main).evaluate(module);
     return 0;
   }
-  auto GlobalContext::execute_script_input() const -> int {
+  [[nodiscard]] auto GlobalContext::execute_script_input() -> int {
     ProcessContext processContext{*this};
     auto module = processContext.parse_file(std::move(std::cin), "<input>");
     auto main = processContext.make_module("__main__");
     ThreadContext(processContext, main).evaluate(module);
     return 0;
   }
-  auto GlobalContext::execute_module() const -> int {
+  [[nodiscard]] auto GlobalContext::execute_module() -> int {
     ProcessContext processContext{*this};
     auto module = processContext.import_module(options.module_name);
     auto main = processContext.make_module("__main__");
     ThreadContext(processContext, main).evaluate(module);
     return 0;
   }
-  auto GlobalContext::optimize() const -> const Optimize & {
+  [[nodiscard]] auto GlobalContext::optimize() const -> const Optimize & {
     return options.optimize;
   }
   void GlobalContext::process_interrupts() const {
@@ -116,7 +118,8 @@ namespace chimera::library::virtual_machine {
         "argv"s,
         object::Object(argv, {{"__class__", sys.get_attribute("tuple")}}));
   }
-  auto GlobalContext::verbose_init() const -> const VerboseInit & {
+  [[nodiscard]] auto GlobalContext::verbose_init() const
+      -> const VerboseInit & {
     return options.verbose_init;
   }
 } // namespace chimera::library::virtual_machine
