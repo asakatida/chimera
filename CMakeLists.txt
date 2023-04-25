@@ -46,7 +46,7 @@ add_library(
 
 target_compile_features(chimera-grammar PUBLIC c_std_23 cxx_std_20)
 
-target_include_directories(chimera-grammar PUBLIC library oxidation stdlib)
+target_include_directories(chimera-grammar PUBLIC library stdlib)
 
 target_include_directories(
   chimera-grammar
@@ -54,7 +54,8 @@ target_include_directories(
   external/GSL/include
   external/metal/include
   external/operators/include
-  external/PEGTL/include)
+  external/PEGTL/include
+  oxidation)
 
 file(GLOB_RECURSE NUMBER_SOURCES "*.rs")
 add_custom_command(
@@ -112,14 +113,15 @@ add_library(
 
 target_compile_features(chimera-core PUBLIC c_std_23 cxx_std_20)
 
-target_include_directories(chimera-core PUBLIC library oxidation stdlib)
+target_include_directories(chimera-core PUBLIC library stdlib)
 
 target_include_directories(
   chimera-core
   SYSTEM PUBLIC
   external/GSL/include
   external/metal/include
-  external/operators/include)
+  external/operators/include
+  oxidation)
 
 add_dependencies(chimera-core chimera-number-header)
 
@@ -169,7 +171,6 @@ target_include_directories(
   unit-test
   PUBLIC
   library
-  oxidation
   stdlib
   unit_tests)
 
@@ -177,7 +178,8 @@ target_include_directories(
   unit-test
   SYSTEM PUBLIC
   external/Catch/src
-  external/PEGTL/include)
+  external/PEGTL/include
+  oxidation)
 
 target_link_libraries(
   unit-test
@@ -213,7 +215,6 @@ if(
     chimera-fuzz
     PUBLIC
     library
-    oxidation
     stdlib
     unit_tests)
   target_include_directories(
@@ -222,7 +223,8 @@ if(
     external/GSL/include
     external/metal/include
     external/operators/include
-    external/PEGTL/include)
+    external/PEGTL/include
+    oxidation)
   add_custom_target(corpus)
   add_custom_target(fuzzers)
   add_custom_target(regression)
