@@ -122,23 +122,32 @@ pub fn get(key: u64) -> Number {
 #[non_exhaustive]
 pub struct Writer {
     pub buffer: *mut u8,
-    pub len: isize,
+    pub len: usize,
+    pub capacity: usize,
 }
 
 #[allow(clippy::missing_trait_methods)]
+#[allow(clippy::question_mark_used)]
 impl fmt::Write for Writer {
     #[inline]
     fn write_str(&mut self, s: &str) -> fmt::Result {
-        // SAFETY: not really safe
+        if s.is_empty() {
+            return Ok(());
+        }
+        let bytes = s.as_bytes();
+        let length = bytes.len();
+        if self.capacity.checked_sub(self.len).ok_or(fmt::Error)? < length {
+            return Err(fmt::Error);
+        }
+        let buffer = self.len.try_into().ok().ok_or(fmt::Error).map(|len| {
+            // SAFETY: depends on capacity being honest
+            unsafe { self.buffer.offset(len) }
+        })?;
+        // SAFETY: depends on capacity being honest
         unsafe {
-            self.buffer
-                .offset(self.len)
-                .copy_from_nonoverlapping(s.as_bytes().as_ptr(), s.len());
+            buffer.copy_from_nonoverlapping(bytes.as_ptr(), length);
         };
-        self.len = self
-            .len
-            .checked_add(s.len().try_into().unwrap_or_default())
-            .unwrap_or_default();
+        self.len = self.len.checked_add(length).ok_or(fmt::Error)?;
         Ok(())
     }
 }
@@ -200,6 +209,11 @@ pub extern "C" fn r_div_floor(left: u64, right: u64) -> u64 {
 }
 #[inline]
 #[no_mangle]
+pub extern "C" fn r_floor_div(left: u64, right: u64) -> u64 {
+    export_number(get(left).div_floor(get(right)))
+}
+#[inline]
+#[no_mangle]
 pub extern "C" fn r_gcd(left: u64, right: u64) -> u64 {
     export_number(get(left).gcd(get(right)))
 }
@@ -250,11 +264,24 @@ pub extern "C" fn r_pow(left: u64, right: u64) -> u64 {
 }
 #[inline]
 #[no_mangle]
-pub extern "C" fn r_repr(s: *mut u8, value: u64) -> i32 {
-    write!(Writer { buffer: s, len: 0 }, "{}", get(value))
-        .err()
-        .map(fmt_code)
-        .unwrap_or_default()
+pub extern "C" fn r_mod_pow(base: u64, exp: u64, modu: u64) -> u64 {
+    export_number(get(base).mod_pow(get(exp), get(modu)))
+}
+#[inline]
+#[no_mangle]
+pub extern "C" fn r_repr(buffer: *mut u8, capacity: usize, value: u64) -> i32 {
+    write!(
+        Writer {
+            buffer,
+            len: 0,
+            capacity,
+        },
+        "{}",
+        get(value)
+    )
+    .err()
+    .map(fmt_code)
+    .unwrap_or_default()
 }
 #[inline]
 #[no_mangle]

@@ -270,6 +270,7 @@ impl ops::Sub for Base {
     }
 }
 
+#[allow(clippy::missing_trait_methods)]
 impl NumberBase for Base {
     #[inline]
     fn abs(self) -> Number {

@@ -1,9 +1,11 @@
 use core::{fmt, ops};
 
 use crate::number::Number;
+use crate::utils::gcd;
 
 pub trait NumberBase:
     Sized
+    + Into<Number>
     + num_traits::ToPrimitive
     + num_traits::pow::Pow<Self, Output = Number>
     // + num_integer::Integer<Output = Number>
@@ -31,5 +33,14 @@ pub trait NumberBase:
 {
     fn abs(self) -> Number;
     fn div_floor(self, other: Self) -> Number;
-    fn gcd(self, other: Self) -> Number;
+
+    #[inline]
+    fn gcd(self, other: Self) -> Number {
+        gcd(self, other)
+    }
+
+    #[inline]
+    fn mod_pow(self, exp: Self, modu: Self) -> Number {
+        self.pow(exp) % modu.into()
+    }
 }

@@ -32,7 +32,7 @@
 using PythonNumber = uint64_t;
 
 extern "C" {
-int32_t r_repr(uint8_t *s, PythonNumber value);
+int32_t r_repr(uint8_t *buffer, size_t capacity, PythonNumber value);
 size_t r_repr_len(PythonNumber value);
 } // extern "C"
 
@@ -83,12 +83,13 @@ namespace chimera::library::object::number {
     }
     template <typename OStream>
     auto repr(OStream &os) const -> OStream & {
-      std::string buffer(r_repr_len(ref), '\0');
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-      if (r_repr(reinterpret_cast<std::uint8_t *>(buffer.data()), ref) != 0) {
+      auto size = r_repr_len(ref);
+      auto buffer = std::make_unique<std::uint8_t[]>(size);
+      if (r_repr(buffer.get(), size, ref) != 0) {
         throw std::runtime_error("Failed to represent number");
       }
-      return os << buffer;
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+      return os << reinterpret_cast<char *>(buffer.get());
     }
 
   private:
