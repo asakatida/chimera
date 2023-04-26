@@ -54,7 +54,7 @@ namespace chimera::library::virtual_machine {
       todo = attributes;
     } while (todo.size() > 0);
   }
-  class ReRaise final : std::exception {
+  class ReRaise final : virtual public std::exception {
     [[nodiscard]] auto what() const noexcept -> const char * override;
   };
   auto ReRaise::what() const noexcept -> const char * { return "ReRaise"; }

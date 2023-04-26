@@ -30,11 +30,16 @@
 #include "grammar/rules/control.hpp"
 
 namespace chimera::library::grammar::rules {
-  struct SyntaxError : std::exception {};
-  struct ExprAssignError : SyntaxError {
+  struct SyntaxError : virtual public std::exception {};
+  struct ExprAssignError final : virtual public SyntaxError {
     [[nodiscard]] auto what() const noexcept -> const char * final {
       return "SyntaxError: cannot assign to expression here. Maybe you meant "
              "'==' instead of '='?";
+    }
+  };
+  struct BytesASCIIOnlyError final : virtual public SyntaxError {
+    [[nodiscard]] auto what() const noexcept -> const char * final {
+      return "SyntaxError: bytes can only contain ASCII literal characters";
     }
   };
   template <typename... Types>
