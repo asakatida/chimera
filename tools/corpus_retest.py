@@ -31,8 +31,8 @@ from uuid import uuid4
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError, chunks, cmd_flog
-from corpus_trim import conflicts, corpus_trim
-from corpus_utils import corpus_merge, fuzz_star, gather_paths, regression
+from corpus_trim import corpus_trim
+from corpus_utils import corpus_merge, fuzz_star, regression
 from ninja import ninja
 
 IN_CI = environ.get("CI", "") == "true"
@@ -80,7 +80,7 @@ async def regression_log() -> list[Exception]:
                     lambda args: regression_log_one(*args),
                     product(
                         fuzz_star(),
-                        chunks(filter(Path.is_file, CORPUS.rglob("*")), 512),
+                        chunks(filter(Path.is_file, CORPUS.rglob("*")), 4096),
                     ),
                 )
             ),
@@ -117,22 +117,16 @@ async def corpus_retest(build: str) -> None:
         raise error
 
 
-def trim() -> None:
-    """trim corpus"""
-    conflicts(gather_paths())
-    corpus_trim()
-
-
-async def main(*args: str) -> None:
-    trim()
+async def main(*args: str, disable_bars: bool) -> None:
+    corpus_trim(disable_bars=disable_bars)
     await corpus_retest(*args)
-    trim()
+    corpus_trim(disable_bars=disable_bars)
     await regression(*args)
 
 
 if __name__ == "__main__":
     try:
-        run(main(*argv[1:]))
+        run(main(*argv[1:], disable_bars=False))
     except ProcessError as error:
         error.exit()
     except KeyboardInterrupt:

@@ -78,6 +78,10 @@ def ci_args(*args: object, invert: bool = False) -> tuple[object, ...]:
     return args if IN_CI != invert else ()
 
 
+def splitlines(lines: bytes) -> Iterable[str]:
+    return map(bytes.decode, filter(None, map(bytes.strip, lines.splitlines())))
+
+
 @TimeIt
 async def cmd(
     *args: object,

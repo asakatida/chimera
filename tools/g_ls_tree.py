@@ -8,10 +8,10 @@ from itertools import chain, filterfalse
 from os import environ
 from pathlib import Path
 from sys import stderr
-from typing import Iterable, Optional, Pattern
+from typing import Optional, Pattern
 
 from asyncio_as_completed import as_completed
-from asyncio_cmd import ProcessError, chunks, cmd
+from asyncio_cmd import ProcessError, chunks, cmd, splitlines
 
 CACHE: dict[str, list[Path]] = {}
 IN_CI = environ.get("CI", "") == "true"
@@ -20,12 +20,6 @@ SOURCE = Path(__file__).parent.parent.resolve()
 
 async def git_cmd(*args: object) -> bytes:
     return await cmd("git", *args, err=PIPE, log=False, out=PIPE, timeout=60)
-
-
-def splitlines(lines: bytes) -> Iterable[Path]:
-    return map(
-        Path, map(bytes.decode, filter(None, map(bytes.strip, lines.splitlines())))
-    )
 
 
 async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[Path]:
@@ -39,45 +33,55 @@ async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[
         return CACHE[cache_key]
     rglob = chain.from_iterable(map(SOURCE.rglob, map("*.{}".format, args)))
     CACHE[cache_key] = sorted(
-        set(
-            chain.from_iterable(
-                map(
-                    splitlines,
-                    await as_completed(
-                        map(
-                            lambda args: git_cmd(
-                                "ls-tree", "--full-tree", "--name-only", "HEAD", *args
+        map(
+            Path,
+            set(
+                chain.from_iterable(
+                    map(
+                        splitlines,
+                        await as_completed(
+                            map(
+                                lambda args: git_cmd(
+                                    "ls-tree",
+                                    "--full-tree",
+                                    "--name-only",
+                                    "HEAD",
+                                    *args,
+                                ),
+                                chunks(rglob, 4096),
                             ),
-                            chunks(rglob, 4096),
+                            cancel=True,
                         ),
-                        cancel=True,
-                    ),
+                    )
                 )
-            )
+            ),
         )
     )
     if IN_CI:
         return CACHE[cache_key]
     CACHE[cache_key] = sorted(
-        set(
-            chain.from_iterable(
-                map(
-                    splitlines,
-                    await as_completed(
-                        map(
-                            lambda args: git_cmd(
-                                "diff",
-                                "--name-only",
-                                f"{environ.get('BASE_COMMIT', 'HEAD')}^",
-                                "--",
-                                *args,
+        map(
+            Path,
+            set(
+                chain.from_iterable(
+                    map(
+                        splitlines,
+                        await as_completed(
+                            map(
+                                lambda args: git_cmd(
+                                    "diff",
+                                    "--name-only",
+                                    f"{environ.get('BASE_COMMIT', 'HEAD')}^",
+                                    "--",
+                                    *args,
+                                ),
+                                chunks(CACHE[cache_key], 4096),
                             ),
-                            chunks(CACHE[cache_key], 4096),
+                            cancel=True,
                         ),
-                        cancel=True,
-                    ),
+                    )
                 )
-            )
+            ),
         )
     )
     return CACHE[cache_key]
