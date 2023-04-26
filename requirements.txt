@@ -24,7 +24,7 @@ mypy==1.2.0
 mypy-extensions==1.0.0
 packaging==23.1
 pathspec==0.11.1
-platformdirs==3.3.0
+platformdirs==3.4.0
 pycodestyle==2.10.0
 pycparser==2.21
 pydocstyle==6.3.0
@@ -33,7 +33,7 @@ Pygments==2.15.1
 pylama==8.4.1
 pyrsistent==0.19.3
 PyYAML==6.0
-requests==2.28.2
+requests==2.29.0
 resolvelib==0.8.1
 rich==13.3.4
 ruamel.yaml==0.17.21
