@@ -23,17 +23,12 @@
 from asyncio import run
 from asyncio.subprocess import PIPE
 from sys import argv, stderr
-from typing import Iterable
 
-from asyncio_cmd import ProcessError, cmd, cmd_env
+from asyncio_cmd import ProcessError, cmd, cmd_env, splitlines
 
 
 async def git_cmd(*args: object) -> bytes:
     return await cmd("git", *args, err=PIPE, log=False, out=PIPE, timeout=60)
-
-
-def splitlines(lines: bytes) -> Iterable[str]:
-    return map(bytes.decode, filter(None, map(bytes.strip, lines.splitlines())))
 
 
 async def git_rebase_all(*args: str) -> None:
@@ -59,12 +54,7 @@ async def git_rebase_all(*args: str) -> None:
         await cmd("bash", "-c", *args, err=None, out=None)
         await git_cmd("add", "--update")
         await cmd_env(
-            "git",
-            "rebase",
-            "--continue",
-            env={"EDITOR": "true"},
-            err=None,
-            out=None,
+            "git", "rebase", "--continue", env={"EDITOR": "true"}, err=None, out=None
         )
 
 

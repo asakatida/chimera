@@ -38,9 +38,17 @@ T = TypeVar("T")
 CORPUS.mkdir(parents=True, exist_ok=True)
 
 
-def c_tqdm(iterable: Iterable[T], desc: str, total: int = 0) -> Iterable[T]:
+def c_tqdm(
+    iterable: Iterable[T], desc: str, disable: bool, total: int = 0
+) -> Iterable[T]:
     return tqdm(
-        iterable, desc=desc, maxinterval=60, miniters=100, total=total, unit_scale=True
+        iterable,
+        desc=desc,
+        disable=disable,
+        maxinterval=60,
+        miniters=100,
+        total=total,
+        unit_scale=True,
     )
 
 

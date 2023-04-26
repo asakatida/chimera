@@ -54,7 +54,7 @@ def conflicts_one(file: Path) -> None:
     file.unlink()
 
 
-def conflicts(fuzz: Iterable[Path]) -> None:
+def conflicts(fuzz: Iterable[Path], disable_bars: bool) -> None:
     set(
         c_tqdm(
             map(
@@ -62,13 +62,14 @@ def conflicts(fuzz: Iterable[Path]) -> None:
                 filter(lambda file: CONFLICT.search(file.read_bytes()), fuzz),
             ),
             "Conflicts",
+            disable_bars,
         )
     )
 
 
-def corpus_trim_one(fuzz: Iterable[Path]) -> None:
+def corpus_trim_one(fuzz: Iterable[Path], disable_bars: bool) -> None:
     global LENGTH
-    for file in c_tqdm(fuzz, "Corpus rehash"):
+    for file in c_tqdm(fuzz, "Corpus rehash", disable_bars):
         src_sha = sha(file)
         name = src_sha[:LENGTH]
         if name == (file.parent.name + file.name):
@@ -96,23 +97,28 @@ def corpus_trim_one(fuzz: Iterable[Path]) -> None:
             CRASHES.joinpath,
             map(
                 lambda path: path.relative_to(bucket(path)),
-                filter(Path.is_file, c_tqdm(CORPUS.rglob("*"), "Regression trim")),
+                filter(
+                    Path.is_file,
+                    c_tqdm(CORPUS.rglob("*"), "Regression trim", disable_bars),
+                ),
             ),
         ),
     ):
         file.unlink()
 
 
-def corpus_trim() -> None:
+def corpus_trim(disable_bars: bool = False) -> None:
+    conflicts(gather_paths(), disable_bars)
     CRASHES.mkdir(parents=True, exist_ok=True)
     for file in c_tqdm(
         chain.from_iterable(map(SOURCE.rglob, ("crash-*", "leak-*", "timeout-*"))),
         "Crashes gather",
+        disable_bars,
     ):
         file.rename(CRASHES / sha(file))
     while True:
         try:
-            corpus_trim_one(gather_paths())
+            corpus_trim_one(gather_paths(), disable_bars)
         except Increment:
             if LENGTH > 32:
                 raise
@@ -122,7 +128,6 @@ def corpus_trim() -> None:
 
 if __name__ == "__main__":
     try:
-        conflicts(gather_paths())
         corpus_trim()
     except KeyboardInterrupt:
         print("KeyboardInterrupt", file=stderr)

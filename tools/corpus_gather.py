@@ -24,7 +24,7 @@ from asyncio import run
 from asyncio.subprocess import DEVNULL, PIPE
 from sys import argv, stderr
 
-from asyncio_cmd import ProcessError, cmd, cmd_check
+from asyncio_cmd import ProcessError, cmd, cmd_check, splitlines
 from corpus_retest import corpus_retest
 from corpus_trim import corpus_trim
 from corpus_utils import regression
@@ -40,45 +40,55 @@ async def git_cmd_remote(*args: object) -> None:
     await cmd("git", *args, err=None, out=None, timeout=600)
 
 
-async def git_restore(sha: str, *paths: object) -> None:
+async def git_restore(sha: str, *paths: object, disable_bars: bool) -> None:
     try:
-        await git_cmd("restore", "--source", sha, "--staged", *paths)
+        await git_cmd("restore", "--source", sha, *paths)
     except ProcessError:
         return
-    try:
-        await git_cmd("restore", "--worktree", *paths)
-    except ProcessError:
-        pass
-    corpus_trim()
+    deleted = tuple(
+        filter(
+            lambda line: line.startswith(" D "),
+            splitlines(
+                await cmd("git", "status", "--porcelain", err=PIPE, log=False, out=PIPE)
+            ),
+        )
+    )
+    if deleted:
+        await git_cmd("restore", *map(lambda line: line[-1], map(str.split, deleted)))
+    corpus_trim(disable_bars=disable_bars)
     await git_cmd("add", *paths)
     await git_cmd("commit", "--allow-empty", "--amend", "--no-edit")
 
 
-async def corpus_gather(*paths: str) -> None:
+async def corpus_gather(*paths: str, disable_bars: bool) -> None:
     await git_cmd_remote("add", *paths)
     await git_cmd_remote("commit", "--allow-empty", "-m", "WIP")
-    git_log = await cmd(
-        "git",
-        "log",
-        "--all",
-        "--format=%h",
-        "^origin/HEAD",
-        "--",
-        *paths,
-        err=None,
-        out=PIPE
-    )
     for sha in tqdm(
-        map(bytes.decode, filter(None, map(bytes.strip, git_log.splitlines()))),
+        list(
+            splitlines(
+                await cmd(
+                    "git",
+                    "log",
+                    "--all",
+                    "--format=%h",
+                    "^origin/HEAD",
+                    "--",
+                    *paths,
+                    err=None,
+                    out=PIPE
+                )
+            )
+        ),
         desc="Refs",
+        disable=disable_bars,
         unit_scale=True,
     ):
-        await git_restore(sha, *paths)
-    await git_restore("origin/HEAD", *paths)
+        await git_restore(sha, *paths, disable_bars=True)
+    await git_restore("origin/HEAD", *paths, disable_bars=disable_bars)
     await cmd("git", "reset", "HEAD^", err=DEVNULL, out=DEVNULL, timeout=900)
 
 
-async def main(ref: str) -> None:
+async def main(ref: str, *, disable_bars: bool) -> None:
     await git_cmd("config", "--local", "user.email", "email")
     await git_cmd("config", "--local", "user.name", "name")
     await cmd("rustup", "default", "stable", err=None, out=None)
@@ -87,18 +97,18 @@ async def main(ref: str) -> None:
     path = "unit_tests/fuzz/corpus"
     if ref == "refs/heads/stable":
         await git_cmd("remote", "set-head", "origin", "--auto")
-        await corpus_gather(path)
+        await corpus_gather(path, disable_bars=disable_bars)
     await corpus_retest("build")
     await regression("build")
     for opt in ("--global", "--local", "--system", "--worktree"):
         await cmd_check("git", "config", opt, "--unset-all", "user.email")
         await cmd_check("git", "config", opt, "--unset-all", "user.name")
-    corpus_trim()
+    corpus_trim(disable_bars=disable_bars)
 
 
 if __name__ == "__main__":
     try:
-        run(main(*argv[1:]))
+        run(main(*argv[1:], disable_bars=False))
     except ProcessError as error:
         error.exit()
     except KeyboardInterrupt:

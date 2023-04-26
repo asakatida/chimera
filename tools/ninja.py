@@ -24,7 +24,7 @@ from asyncio import run
 from asyncio.subprocess import PIPE
 from sys import argv, stderr
 
-from asyncio_cmd import ProcessError, cmd, cmd_no_timeout
+from asyncio_cmd import ProcessError, cmd, cmd_no_timeout, splitlines
 
 
 async def ninja_cmd(*args: object, timeout: int) -> None:
@@ -32,12 +32,14 @@ async def ninja_cmd(*args: object, timeout: int) -> None:
 
 
 async def ninja(build: object, *args: object) -> None:
-    targets = await cmd("ninja", "-C", build, "help", err=None, out=PIPE)
+    targets = tuple(
+        splitlines(await cmd("ninja", "-C", build, "help", err=None, out=PIPE))
+    )
     await ninja_cmd(build, "-j1", "chimera-grammar", timeout=2400)
     await ninja_cmd(build, "-j3", "chimera", "chimera-core", "libchimera", timeout=720)
     await ninja_cmd(build, "Catch2WithMain", timeout=180)
     await ninja_cmd(build, "-j2", "unit-test", timeout=720)
-    if b"fuzzers: phony" in targets.splitlines():
+    if "fuzzers: phony" in targets:
         await ninja_cmd(build, "-j1", "fuzzers", timeout=2400)
     await ninja_cmd(build, timeout=720)
     await cmd_no_timeout("ninja", "-C", build, "-j3", *args)
