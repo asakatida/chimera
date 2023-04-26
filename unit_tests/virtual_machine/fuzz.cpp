@@ -462,3 +462,8 @@ TEST_CASE(R"(fuzz `0#MMMMMKMMMMMMMM:MMMMMMMMMMMMMM\x0b\n`)") {
   auto test_case = R"(0#MMMMMKMMMMMMMM:MMMMMMMMMMMMMM\x0b\n)"sv;
   TestOne(test_case.data(), test_case.size());
 }
+
+TEST_CASE(R"(fuzz `b"""\xb0\x19"""`)") {
+  auto test_case = R"(b"""\xb0\x19""")"sv;
+  TestOne(test_case.data(), test_case.size());
+}

@@ -302,6 +302,10 @@ namespace chimera::library::grammar {
         template <typename String, typename... Args>
         void apply(String &&input, Args &&.../*args*/) {
           for (const auto &byte : input) {
+            if (byte > gsl::narrow<std::uint32_t>(
+                           std::numeric_limits<std::uint8_t>::max())) {
+              throw rules::BytesASCIIOnlyError();
+            }
             bytes.emplace_back(gsl::narrow<std::uint8_t>(byte));
           }
         }
