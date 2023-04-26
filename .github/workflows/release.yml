@@ -33,8 +33,10 @@ jobs:
       - name: Update tags
         # yamllint disable rule:line-length
         run: >
+          set -e -o pipefail;
+          apt-get install ripgrep;
           rg --files-with-matches --null --regexp "${IMAGE}" |
-          xargs --max-procs=2 --no-run-if-empty --null --verbose --
+          xargs --no-run-if-empty --null --verbose --
           sed -E -i
           -e 's#'"${IMAGE}"':[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+#'"${IMAGE}"':0.${{ github.run_number }}.0#g'
         # yamllint enable rule:line-length
