@@ -29,6 +29,7 @@ on:
       - action.yml
       - requirements.core.txt
       - requirements.txt
+      - setup.cfg
   push:
     branches:
       - stable
@@ -38,4 +39,5 @@ on:
       - action.yml
       - requirements.core.txt
       - requirements.txt
+      - setup.cfg
   workflow_dispatch: ~
