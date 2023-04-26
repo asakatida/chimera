@@ -34,7 +34,7 @@ jobs:
         # yamllint disable rule:line-length
         run: >
           set -e -o pipefail;
-          apt-get install ripgrep;
+          sudo apt-get install ripgrep;
           rg --files-with-matches --null --regexp "${IMAGE}" |
           xargs --no-run-if-empty --null --verbose --
           sed -E -i
