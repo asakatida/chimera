@@ -367,7 +367,11 @@
               register: fish_shell
             - name: Update Fish user paths  # noqa: command-instead-of-shell
               ansible.builtin.shell:
-                cmd: set -U fish_user_paths /opt/virtualenv/bin /usr/local/bin
+                cmd: >
+                  set -U fish_user_paths
+                  /home/github/.cargo/bin
+                  /opt/virtualenv/bin
+                  /usr/local/bin
                 executable: "{{ fish_shell.stdout }}"
         - name: Set fish shell
           ansible.builtin.user:
