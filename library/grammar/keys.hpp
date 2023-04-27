@@ -78,6 +78,7 @@ namespace chimera::library::grammar {
     template <flags::Flag Option>
     struct Global : Key<Option, String<'g', 'l', 'o', 'b', 'a', 'l'>> {};
     template <flags::Flag Option>
+    // NOLINTNEXTLINE(misc-confusable-identifiers)
     struct If : Key<Option, String<'i', 'f'>> {};
     template <flags::Flag Option>
     struct Import : Key<Option, String<'i', 'm', 'p', 'o', 'r', 't'>> {};
