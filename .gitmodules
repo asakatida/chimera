@@ -17,6 +17,6 @@
   path = external/operators
   url = https://github.com/taocpp/operators.git
 [submodule "external/PEGTL"]
-  branch = 3.x
+  branch = main
   path = external/PEGTL
   url = https://github.com/taocpp/PEGTL.git
