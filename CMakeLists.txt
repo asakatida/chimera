@@ -46,6 +46,8 @@ add_library(
 
 target_compile_features(chimera-grammar PUBLIC c_std_23 cxx_std_20)
 
+target_compile_options(chimera-grammar PRIVATE -Oz)
+
 target_include_directories(chimera-grammar PUBLIC library stdlib)
 
 target_include_directories(
