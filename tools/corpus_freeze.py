@@ -23,6 +23,7 @@
 from asyncio import run
 from asyncio.subprocess import PIPE
 from pathlib import Path
+from string import ascii_letters
 from sys import argv, stderr
 
 from asyncio_cmd import ProcessError, cmd
@@ -40,11 +41,22 @@ TEST_CASE(R"(fuzz `{data}`)") {{
 
 async def corpus_freeze(output: str) -> None:
     file = Path(output)
-    paths = sorted(corpus_ascii())
     current_state = file.read_text()
     with file.open("a") as ostream:
-        for file in paths:
-            test_data = repr(file.read_text())[1:-1]
+        for file in sorted(corpus_ascii()):
+            test_data = "".join(
+                map(
+                    lambda c: (
+                        c
+                        if c in ascii_letters
+                        else "\\x"
+                        + "\\x".join(
+                            map(lambda h: h[2:].rjust(2, "0"), map(hex, c.encode()))
+                        )
+                    ),
+                    file.read_text(),
+                )
+            )
             if len(test_data) > 120 or test_data in current_state:
                 continue
             if await cmd(
