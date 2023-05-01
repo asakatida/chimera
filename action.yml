@@ -10,5 +10,5 @@ runs:
     - tools/action.py
     - ${{ inputs.run }}
   entrypoint: /opt/virtualenv/bin/python
-  image: ghcr.io/asakatida/chimera:0.81.0
+  image: ghcr.io/asakatida/chimera:0.82.0
   using: docker
