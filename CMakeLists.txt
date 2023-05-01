@@ -180,6 +180,7 @@ target_include_directories(
   unit-test
   SYSTEM PUBLIC
   external/Catch/src
+  external/json/include/tao
   external/PEGTL/include
   oxidation)
 
@@ -191,9 +192,24 @@ target_link_libraries(
   number
   pthread)
 
-add_custom_target(check unit-test VERBATIM)
-add_custom_target(check-stat perf stat ./unit-test VERBATIM)
-add_custom_target(check-rand unit-test --order rand VERBATIM)
+add_custom_target(
+  check
+  ${CMAKE_BINARY_DIR}/unit-test
+  DEPENDS unit-test
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  VERBATIM)
+add_custom_target(
+  check-stat
+  perf stat ${CMAKE_BINARY_DIR}/unit-test
+  DEPENDS unit-test
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  VERBATIM)
+add_custom_target(
+  check-rand
+  ${CMAKE_BINARY_DIR}/unit-test --order rand
+  DEPENDS unit-test
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  VERBATIM)
 
 if(
   CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND
