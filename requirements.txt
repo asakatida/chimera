@@ -45,7 +45,7 @@ tqdm==4.65.0
 types-PyYAML==6.0.12.9
 types-requests==2.29.0.0
 types-tqdm==4.65.0.1
-types-urllib3==1.26.25.11
+types-urllib3==1.26.25.12
 typing_extensions==4.5.0
 urllib3==1.26.15
 wcmatch==8.4.1
