@@ -10,11 +10,10 @@ use crate::imag::Imag;
 use crate::negative::Negative;
 use crate::rational::{Part, Rational};
 use crate::traits::NumberBase;
-use crate::utils::{condense_bigint, fmt_ptr, gcd};
+use crate::utils::{condense_bigint, fmt_ptr, gcd, MaybeBigUint};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[non_exhaustive]
-#[repr(align(8))]
 pub enum Number {
     Base(Base),
     Natural(num_bigint::BigUint),
@@ -133,7 +132,12 @@ impl From<&Base> for Number {
 impl From<num_bigint::BigUint> for Number {
     #[inline]
     fn from(i: num_bigint::BigUint) -> Self {
-        condense_bigint(&i).map_or_else(Self::Base, Self::Natural)
+        condense_bigint(&i)
+            .map(|real| match real {
+                MaybeBigUint::Base(v) => Self::Base(v),
+                MaybeBigUint::BigUint(v) => Self::Natural(v),
+            })
+            .unwrap_or_default()
     }
 }
 impl From<&num_bigint::BigUint> for Number {
@@ -778,66 +782,70 @@ impl num_traits::pow::Pow<Number> for Number {
     fn pow(self, other: Self) -> Self {
         match (self, other) {
             (Self::Base(a), Self::Base(b)) => a.pow(b),
-            (Self::Base(a), Self::Natural(b)) => Into::<num_bigint::BigUint>::into(a).pow(b).into(),
-            (Self::Natural(a), Self::Base(b)) => a.pow(Into::<num_bigint::BigUint>::into(b)).into(),
-            (Self::Natural(a), Self::Natural(b)) => a.pow(b).into(),
+            // (Self::Base(a), Self::Natural(b)) => Into::<num_bigint::BigUint>::into(a).pow(b).into(),
+            // (Self::Natural(a), Self::Base(b)) => a.pow(Into::<num_bigint::BigUint>::into(b)).into(),
+            // (Self::Natural(a), Self::Natural(b)) => a.pow(b).into(),
             (Self::Base(a), Self::Rational(b)) => Rational::from(a).pow(b),
-            (Self::Natural(a), Self::Rational(b)) => Rational::from(a).pow(b),
+            // (Self::Natural(a), Self::Rational(b)) => Rational::from(a).pow(b),
             (Self::Rational(a), Self::Base(b)) => a.pow(b.into()),
-            (Self::Rational(a), Self::Natural(b)) => a.pow(b.into()),
+            // (Self::Rational(a), Self::Natural(b)) => a.pow(b.into()),
             (Self::Rational(a), Self::Rational(b)) => a.pow(b),
             (Self::Base(a), Self::Negative(i)) => -match i {
                 Negative::Base(b) => a.pow(b),
-                Negative::Natural(b) => Into::<num_bigint::BigUint>::into(a).pow(b).into(),
+                Negative::Natural(_) => Self::NaN,
+                // Negative::Natural(b) => Into::<num_bigint::BigUint>::into(a).pow(b).into(),
                 Negative::Rational(b) => Rational::from(a).pow(b),
             },
-            (Self::Natural(a), Self::Negative(i)) => -match i {
-                Negative::Base(b) => a.pow(Into::<num_bigint::BigUint>::into(b)).into(),
-                Negative::Natural(b) => a.pow(b).into(),
-                Negative::Rational(b) => Rational::from(a).pow(b),
-            },
+            // (Self::Natural(a), Self::Negative(i)) => -match i {
+            //     Negative::Base(b) => a.pow(Into::<num_bigint::BigUint>::into(b)).into(),
+            //     Negative::Natural(b) => a.pow(b).into(),
+            //     Negative::Rational(b) => Rational::from(a).pow(b),
+            // },
             (Self::Rational(a), Self::Negative(i)) => -match i {
                 Negative::Base(b) => a.pow(b.into()),
-                Negative::Natural(b) => a.pow(b.into()),
+                Negative::Natural(_) => Self::NaN,
+                // Negative::Natural(b) => a.pow(b.into()),
                 Negative::Rational(b) => a.pow(b),
             },
             (Self::Negative(i), Self::Base(b)) => match i {
                 Negative::Base(a) => b.pow(a),
-                Negative::Natural(a) => Into::<num_bigint::BigUint>::into(b).pow(a).into(),
+                Negative::Natural(_) => Self::NaN,
+                // Negative::Natural(a) => Into::<num_bigint::BigUint>::into(b).pow(a).into(),
                 Negative::Rational(a) => Rational::from(b).pow(a),
             },
-            (Self::Negative(i), Self::Natural(b)) => match i {
-                Negative::Base(a) => b.pow(Into::<num_bigint::BigUint>::into(a)).into(),
-                Negative::Natural(a) => b.pow(a).into(),
-                Negative::Rational(a) => Rational::from(b).pow(a),
-            },
+            // (Self::Negative(i), Self::Natural(b)) => match i {
+            //     Negative::Base(a) => b.pow(Into::<num_bigint::BigUint>::into(a)).into(),
+            //     Negative::Natural(a) => b.pow(a).into(),
+            //     Negative::Rational(a) => Rational::from(b).pow(a),
+            // },
             (Self::Negative(i), Self::Rational(b)) => match i {
                 Negative::Base(a) => b.pow(a.into()),
-                Negative::Natural(a) => b.pow(a.into()),
+                Negative::Natural(_) => Self::NaN,
+                // Negative::Natural(a) => b.pow(a.into()),
                 Negative::Rational(a) => b.pow(a),
             },
             (Self::Negative(a), Self::Negative(b)) => a.pow(b),
             (Self::Base(a), Self::Imag(b)) => Complex::from(a).pow(b.into()),
-            (Self::Natural(a), Self::Imag(b)) => Complex::from(a).pow(b.into()),
+            // (Self::Natural(a), Self::Imag(b)) => Complex::from(a).pow(b.into()),
             (Self::Rational(a), Self::Imag(b)) => Complex::from(a).pow(b.into()),
             (Self::Negative(a), Self::Imag(b)) => Complex::from(a).pow(b.into()),
             (Self::Imag(a), Self::Base(b)) => Complex::from(a).pow(b.into()),
-            (Self::Imag(a), Self::Natural(b)) => Complex::from(a).pow(b.into()),
+            // (Self::Imag(a), Self::Natural(b)) => Complex::from(a).pow(b.into()),
             (Self::Imag(a), Self::Rational(b)) => Complex::from(a).pow(b.into()),
             (Self::Imag(a), Self::Negative(b)) => Complex::from(a).pow(b.into()),
             (Self::Imag(a), Self::Imag(b)) => a.pow(b),
             (Self::Base(a), Self::Complex(b)) => Complex::from(a).pow(b),
-            (Self::Natural(a), Self::Complex(b)) => Complex::from(a).pow(b),
+            // (Self::Natural(a), Self::Complex(b)) => Complex::from(a).pow(b),
             (Self::Rational(a), Self::Complex(b)) => Complex::from(a).pow(b),
             (Self::Negative(a), Self::Complex(b)) => Complex::from(a).pow(b),
             (Self::Imag(a), Self::Complex(b)) => Complex::from(a).pow(b),
             (Self::Complex(a), Self::Base(b)) => a.pow(b.into()),
-            (Self::Complex(a), Self::Natural(b)) => a.pow(b.into()),
+            // (Self::Complex(a), Self::Natural(b)) => a.pow(b.into()),
             (Self::Complex(a), Self::Rational(b)) => a.pow(b.into()),
             (Self::Complex(a), Self::Negative(b)) => a.pow(b.into()),
             (Self::Complex(a), Self::Imag(b)) => a.pow(b.into()),
             (Self::Complex(a), Self::Complex(b)) => a.pow(b),
-            (Self::NaN, _) | (_, Self::NaN) => Self::NaN,
+            (Self::Natural(_) | Self::NaN, _) | (_, Self::Natural(_) | Self::NaN) => Self::NaN,
         }
     }
 }

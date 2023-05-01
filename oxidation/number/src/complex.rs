@@ -6,7 +6,7 @@ use crate::negative::Negative;
 use crate::number::Number;
 use crate::rational::Rational;
 use crate::traits::NumberBase;
-use crate::utils::{condense_bigint, fmt_ptr};
+use crate::utils::{condense_bigint, fmt_ptr, MaybeBigUint};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[non_exhaustive]
@@ -77,7 +77,12 @@ impl From<num_bigint::BigUint> for Complex {
     #[inline]
     fn from(i: num_bigint::BigUint) -> Self {
         Complex {
-            real: condense_bigint(&i).map_or_else(Imag::Base, Imag::Natural),
+            real: condense_bigint(&i)
+                .map(|real| match real {
+                    MaybeBigUint::Base(v) => Imag::Base(v),
+                    MaybeBigUint::BigUint(v) => Imag::Natural(v),
+                })
+                .unwrap_or(Imag::Base(0.into())),
             imag: Imag::Base(0.into()),
         }
     }

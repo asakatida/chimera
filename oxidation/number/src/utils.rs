@@ -1,24 +1,27 @@
-use core::fmt;
+use core::{convert, fmt};
 
 use crate::base::Base;
 use crate::number::Number;
 
+#[non_exhaustive]
+pub enum MaybeBigUint {
+    Base(Base),
+    BigUint(num_bigint::BigUint),
+}
+
 /// # Errors
 #[inline]
-pub fn condense_bigint(i: &num_bigint::BigUint) -> Result<num_bigint::BigUint, Base> {
+pub fn condense_bigint(i: &num_bigint::BigUint) -> Result<MaybeBigUint, convert::Infallible> {
     let mut value = i.to_u32_digits();
     while value.ends_with(&[0]) {
         value.pop();
     }
     if value.len() < 2 {
-        Err(Base::from(
-            value
-                .pop()
-                .and_then(|x| TryInto::<u64>::try_into(x).ok())
-                .unwrap_or_default(),
-        ))
+        TryInto::<u64>::try_into(value.pop().unwrap_or_default())
+            .map(Into::into)
+            .map(MaybeBigUint::Base)
     } else {
-        Ok(num_bigint::BigUint::new(value))
+        Ok(MaybeBigUint::BigUint(num_bigint::BigUint::new(value)))
     }
 }
 

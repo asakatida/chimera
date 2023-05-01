@@ -6,7 +6,7 @@ use crate::base::Base;
 use crate::negative::Negative;
 use crate::number::Number;
 use crate::traits::NumberBase;
-use crate::utils::{condense_bigint, fmt_ptr, rem};
+use crate::utils::{condense_bigint, fmt_ptr, rem, MaybeBigUint};
 
 #[non_exhaustive]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -116,7 +116,12 @@ impl From<num_bigint::BigUint> for Rational {
     #[inline]
     fn from(i: num_bigint::BigUint) -> Self {
         Rational {
-            numerator: condense_bigint(&i).map_or_else(Part::Base, Part::Natural),
+            numerator: condense_bigint(&i)
+                .map(|real| match real {
+                    MaybeBigUint::Base(v) => Part::Base(v),
+                    MaybeBigUint::BigUint(v) => Part::Natural(v),
+                })
+                .unwrap_or(Part::Base(0.into())),
             denominator: Part::Base(1.into()),
         }
     }
