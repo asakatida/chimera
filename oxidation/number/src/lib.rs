@@ -35,45 +35,49 @@ enum Event {
     Syn(sync::Arc<(sync::Condvar, sync::Mutex<bool>)>),
 }
 
+fn gc_loop(receiver: &sync::mpsc::Receiver<Event>) {
+    let mut heap = collections::BTreeMap::<u64, Number>::new();
+    while let Ok(event) = receiver.recv() {
+        match event {
+            Event::Del(key) => {
+                heap.remove(&key);
+            }
+            Event::Get(key, wait) => {
+                if let Ok(mut started) = wait.1.lock() {
+                    if let Some(value) = heap.get(&key) {
+                        *started = (true, value.clone());
+                        wait.0.notify_one();
+                    }
+                } else {
+                    return;
+                }
+            }
+            Event::New(value, wait) => {
+                if let Ok(mut started) = wait.1.lock() {
+                    let key = heap.keys().rev().next().copied().unwrap_or_default() + 1;
+                    heap.insert(key, value);
+                    *started = (true, key);
+                    wait.0.notify_one();
+                } else {
+                    return;
+                }
+            }
+            Event::Syn(wait) => {
+                if let Ok(mut started) = wait.1.lock() {
+                    *started = true;
+                    wait.0.notify_one();
+                } else {
+                    return;
+                }
+            }
+        }
+    }
+}
+
 lazy_static::lazy_static! {
     static ref EVENTS: sync::mpsc::SyncSender<Event> = {
         let (sender, receiver) = sync::mpsc::sync_channel(12);
-        thread::spawn(move || {
-            let mut heap = collections::BTreeMap::<u64, Number>::new();
-            while let Ok(event) = receiver.recv() {
-                match event {
-                    Event::Del(key) => {
-                        heap.remove(&key);
-                    }
-                    Event::Get(key, wait) => {
-                        if let Ok(mut started) = wait.1.lock() {
-                        *started = (true, heap.get(&key).cloned().unwrap_or_default());
-                        wait.0.notify_one();
-                        } else {
-                            return;
-                        }
-                    }
-                    Event::New(value, wait) => {
-                        if let Ok(mut started) = wait.1.lock() {
-                            let key = heap.keys().rev().next().copied().unwrap_or_default() + 1;
-                        heap.insert(key, value);
-                        *started = (true, key);
-                        wait.0.notify_one();
-                    } else {
-                        return;
-                    }
-                    }
-                    Event::Syn(wait) => {
-                        if let Ok(mut started) = wait.1.lock() {
-                            *started = true;
-                            wait.0.notify_one();
-                        } else {
-                            return;
-                        }
-                    }
-                }
-            }
-        });
+        thread::spawn(move || gc_loop(&receiver));
         sender
     };
 }
