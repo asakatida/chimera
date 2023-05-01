@@ -23,15 +23,16 @@
 from asyncio import run
 from asyncio.subprocess import PIPE
 from pathlib import Path
-from string import ascii_letters
+from string import printable
 from sys import argv, stderr
 
 from asyncio_cmd import ProcessError, cmd
 from corpus_ascii import corpus_ascii
+from corpus_utils import sha
 
 TEST_CASE = """
 
-TEST_CASE(R"(fuzz `{data}`)") {{
+TEST_CASE(R"(fuzz `{data}`)", "[{tag}]") {{
   auto test_case = R"({data})"sv;
   TestOne(test_case.data(), test_case.size());
 }}
@@ -48,7 +49,7 @@ async def corpus_freeze(output: str) -> None:
                 map(
                     lambda c: (
                         c
-                        if c in ascii_letters
+                        if c in printable
                         else "\\x"
                         + "\\x".join(
                             map(lambda h: h[2:].rjust(2, "0"), map(hex, c.encode()))
@@ -71,7 +72,7 @@ async def corpus_freeze(output: str) -> None:
                 log=False,
                 out=PIPE,
             ):
-                ostream.write(TEST_CASE(data=test_data))
+                ostream.write(TEST_CASE(data=test_data, tag=sha(file)))
 
 
 if __name__ == "__main__":
