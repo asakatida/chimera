@@ -22,57 +22,37 @@
 
 from asyncio import run
 from asyncio.subprocess import PIPE
+from json import dumps, loads
 from pathlib import Path
-from string import printable
 from sys import argv, stderr
 
 from asyncio_cmd import ProcessError, cmd
 from corpus_ascii import corpus_ascii
 from corpus_utils import sha
 
-TEST_CASE = """
-
-TEST_CASE(R"(fuzz `{data}`)", "[{tag}]") {{
-  auto test_case = R"({data})"sv;
-  TestOne(test_case.data(), test_case.size());
-}}
-
-""".format
-
 
 async def corpus_freeze(output: str) -> None:
     file = Path(output)
-    current_state = file.read_text()
-    with file.open("a") as ostream:
-        for file in sorted(corpus_ascii()):
-            test_data = "".join(
-                map(
-                    lambda c: (
-                        c
-                        if c in printable
-                        else "\\x"
-                        + "\\x".join(
-                            map(lambda h: h[2:].rjust(2, "0"), map(hex, c.encode()))
-                        )
-                    ),
-                    file.read_text(),
-                )
-            )
-            if len(test_data) > 120 or test_data in current_state:
-                continue
+    cases = loads(file.read_text())
+    cases.update(
+        {
+            sha(file): file.read_text()
+            for file in sorted(corpus_ascii())
             if await cmd(
                 "git",
                 "log",
                 "--all",
-                "--format=%H",
-                "^origin/HEAD",
+                "--oneline",
+                "^HEAD",
                 "--",
                 file,
                 err=PIPE,
                 log=False,
                 out=PIPE,
-            ):
-                ostream.write(TEST_CASE(data=test_data, tag=sha(file)))
+            )
+        }
+    )
+    file.write_text(dumps(cases, indent=4, sort_keys=True))
 
 
 if __name__ == "__main__":

@@ -9,6 +9,9 @@
   branch = main
   path = external/GSL
   url = https://github.com/Microsoft/GSL.git
+[submodule "external/json"]
+  path = external/json
+  url = https://github.com/taocpp/json.git
 [submodule "external/metal"]
   path = external/metal
   url = https://github.com/brunocodutra/metal.git
