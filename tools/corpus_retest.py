@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""corpus_retest.py"""
+"""corpus_retest.py."""
 
 from asyncio import run
 from itertools import product
@@ -26,7 +26,6 @@ from os import environ
 from pathlib import Path
 from re import escape, finditer
 from sys import argv, stderr
-from typing import Optional
 from uuid import uuid4
 
 from asyncio_as_completed import as_completed
@@ -50,7 +49,7 @@ def fuzz_output_paths(prefix: bytes, output: bytes) -> set[bytes]:
     )
 
 
-async def regression_log_one(fuzzer: Path, chunk: list[Path]) -> Optional[Exception]:
+async def regression_log_one(fuzzer: Path, chunk: list[Path]) -> Exception | None:
     log_file = f"/tmp/{fuzzer.name}-{uuid4().hex}.log"
     Path(log_file).write_bytes(b"")
     try:

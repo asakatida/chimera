@@ -1,7 +1,7 @@
 from asyncio import run
 from asyncio.subprocess import PIPE
 from re import compile
-from sys import stderr
+from sys import stderr, version_info
 from typing import Sequence
 
 from asyncio_as_completed import as_completed
@@ -15,25 +15,49 @@ async def lint(*args: object) -> bytes:
 
 async def black(files: Sequence[object]) -> bytes:
     if files:
-        return await lint("black", *ci_args("--check", "--diff"), "--preview", *files)
+        return await lint(
+            "black",
+            *ci_args("--check", "--diff"),
+            "--preview",
+            "--target-version",
+            f"py{version_info.major}{version_info.minor}",
+            *files,
+        )
     return b""
 
 
 async def isort(files: Sequence[object]) -> bytes:
     if files:
-        return await lint("isort", *ci_args("--check-only"), *files)
+        return await lint(
+            "isort",
+            *ci_args("--check-only"),
+            "--python-version",
+            f"{version_info.major}{version_info.minor}",
+            *files,
+        )
     return b""
 
 
 async def pylama(files: Sequence[object]) -> bytes:
     if files:
-        return await lint("pylama", *files)
+        return await lint(
+            "pylama",
+            "--linters",
+            # "mccabe,mypy,pycodestyle,pydocstyle,pyflakes,isort",
+            "mccabe,pycodestyle,pyflakes,isort",
+            *files,
+        )
     return b""
 
 
 async def mypy(files: Sequence[object]) -> bytes:
     if files:
-        return await lint("mypy", *files)
+        return await lint(
+            "mypy",
+            "--python-version",
+            f"{version_info.major}.{version_info.minor}",
+            *files,
+        )
     return b""
 
 

@@ -24,16 +24,13 @@ from html.parser import HTMLParser
 from pathlib import Path
 from re import sub
 from sys import argv
-from typing import Iterable, Optional
+from typing import Iterable
 
 
 class Extract(HTMLParser):
-    """Extract."""
-
     def __init__(self) -> None:
-        """__init__."""
         super().__init__()
-        self.c_type: Optional[str] = ""
+        self.c_type: str | None = ""
         self.c_code = False
         self.code = 0
         self.div = 0
@@ -52,9 +49,8 @@ class Extract(HTMLParser):
         }
 
     def handle_starttag(
-        self, tag: str, attrs: Iterable[tuple[str, Optional[str]]]
+        self, tag: str, attrs: Iterable[tuple[str, str | None]]
     ) -> None:
-        """handle_starttag."""
         if tag == "body":
             self.enable = True
         if not self.enable:
@@ -76,7 +72,6 @@ class Extract(HTMLParser):
                 self.div += 1
 
     def handle_endtag(self, tag: str) -> None:
-        """handle_endtag."""
         if tag == "body":
             self.enable = False
         if not self.enable:
@@ -102,7 +97,6 @@ class Extract(HTMLParser):
                 self.c_code = False
 
     def handle_data(self, data: str) -> None:
-        """handle_data."""
         if self.code and not self.name:
             self.name = data.strip()
         elif self.name and self.c_code:
@@ -111,29 +105,23 @@ class Extract(HTMLParser):
             print("//", data)
 
     def data_act(self) -> None:
-        """data_act."""
         print("extern int", self.name, self.data, end=";\n")
 
     def print_comment(self) -> None:
-        """print_comment."""
         print("// ", self.c_type, ":", self.name, self.data.replace("\n", " "))
 
     def function_act(self) -> None:
-        """function_act."""
         print("extern", self.name, self.data, end=";\n")
 
     def macro_act(self) -> None:
-        """macro_act."""
         if "\n" in self.data:
             self.data = self.data.replace("\n", " ")
         print("#define", self.name, self.data)
 
     def member_act(self) -> None:
-        """member_act."""
         print(sub(r"\w+\.", "", self.name), self.data, ";")
 
     def type_act(self) -> None:
-        """type_act."""
         if "struct " in self.name:
             self.name = self.name.replace("struct ", "")
         if "Py" in self.name:
@@ -142,12 +130,10 @@ class Extract(HTMLParser):
         self.unclosed_type = True
 
     def var_act(self) -> None:
-        """var_act."""
         print("extern", self.name, self.data, ";")
 
 
 def mapper(p: Path) -> None:
-    """mapper."""
     print("/* start", p.name, "*/")
     extract = Extract()
     extract.feed(p.read_text())
@@ -156,7 +142,6 @@ def mapper(p: Path) -> None:
 
 
 def main() -> None:
-    """main."""
     header = """#pragma once
 
 #include <assert.h>

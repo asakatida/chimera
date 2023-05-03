@@ -127,7 +127,6 @@ namespace chimera::library::virtual_machine {
       Node *parent = nullptr;
       Node *child = nullptr;
     };
-
     Node *min = nullptr; //! owned by its own left member
     std::uint64_t n = 0;
   };

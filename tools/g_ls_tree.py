@@ -8,7 +8,7 @@ from itertools import chain, filterfalse
 from os import environ
 from pathlib import Path
 from sys import stderr
-from typing import Optional, Pattern
+from typing import Pattern
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError, chunks, cmd, splitlines
@@ -22,7 +22,7 @@ async def git_cmd(*args: object) -> bytes:
     return await cmd("git", *args, err=PIPE, log=False, out=PIPE, timeout=60)
 
 
-async def g_ls_tree(*args: str, exclude: Optional[Pattern[str]] = None) -> list[Path]:
+async def g_ls_tree(*args: str, exclude: Pattern[str] | None = None) -> list[Path]:
     cache_key = f"{args}, {exclude}"
     if cache_key in CACHE:
         return CACHE[cache_key]
