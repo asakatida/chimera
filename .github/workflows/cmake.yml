@@ -274,6 +274,7 @@ on:
       - oxidation/**
       - requirements.core.txt
       - requirements.txt
+      - unit_tests/fuzz/cases.json
   push:
     branches:
       - stable
@@ -291,4 +292,5 @@ on:
       - oxidation/**
       - requirements.core.txt
       - requirements.txt
+      - unit_tests/fuzz/cases.json
   workflow_dispatch: ~
