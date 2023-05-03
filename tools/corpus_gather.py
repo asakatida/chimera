@@ -75,7 +75,7 @@ async def corpus_gather(*paths: str, disable_bars: bool) -> None:
                     "--",
                     *paths,
                     err=None,
-                    out=PIPE
+                    out=PIPE,
                 )
             )
         ),

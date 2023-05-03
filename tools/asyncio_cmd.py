@@ -4,49 +4,11 @@ from itertools import chain, islice, repeat, takewhile
 from os import environ
 from pathlib import Path
 from sys import exc_info, stderr
-from time import monotonic_ns
-from typing import Iterable, Optional, Sequence, TextIO, TypeVar, Union
+from typing import Iterable, Sequence, TextIO, TypeVar
 
 IN_CI = environ.get("CI", "") == "true"
 T = TypeVar("T")
-ProcessInput = Optional[Union[int, TextIO]]
-
-
-class TimeIt:
-    def __init__(self, callable: T) -> None:
-        self.callable = callable
-
-    async def __call__(self, *args: object, **kwds: object) -> bytes:
-        if not kwds.get("log", True):
-            return await self.callable(*args, **kwds)  # type: ignore
-        self.args = args
-        with self:
-            return await self.callable(*args, **kwds)  # type: ignore
-
-    def __enter__(self) -> None:
-        self.start = monotonic_ns()
-
-    def __exit__(self, *_: object) -> None:
-        milliseconds, nanoseconds = divmod(monotonic_ns() - self.start, 1_000_000)
-        seconds, milliseconds = divmod(milliseconds, 1_000)
-        minutes, seconds = divmod(seconds, 60)
-        hours, minutes = divmod(minutes, 60)
-        print(
-            "-",
-            "took",
-            hours,
-            "h",
-            minutes,
-            "m",
-            seconds,
-            "s",
-            milliseconds,
-            "ms",
-            nanoseconds,
-            "ns",
-            *self.args,
-            file=stderr,
-        )
+ProcessInput = int | TextIO | None
 
 
 class ProcessError(Exception):
@@ -82,7 +44,6 @@ def splitlines(lines: bytes) -> Iterable[str]:
     return map(bytes.decode, filter(None, map(bytes.strip, lines.splitlines())))
 
 
-@TimeIt
 async def cmd(
     *args: object,
     err: ProcessInput,
@@ -96,7 +57,7 @@ async def cmd(
     return await communicate(args, b"", proc, timeout)
 
 
-async def cmd_check(*args: object, timeout: int = 20) -> Optional[Exception]:
+async def cmd_check(*args: object, timeout: int = 20) -> Exception | None:
     try:
         proc = await create_subprocess_exec(
             *map(str, args), stderr=DEVNULL, stdout=DEVNULL
@@ -109,7 +70,6 @@ async def cmd_check(*args: object, timeout: int = 20) -> Optional[Exception]:
     return None
 
 
-@TimeIt
 async def cmd_env(
     *args: object,
     env: dict[str, object] = {},
@@ -132,9 +92,7 @@ async def cmd_env(
     return await communicate(args, b"", proc, timeout)
 
 
-async def cmd_flog(
-    *args: object, out: Optional[str] = None, timeout: int = 20
-) -> bytes:
+async def cmd_flog(*args: object, out: str | None = None, timeout: int = 20) -> bytes:
     if out is None:
         proc = await create_subprocess_exec(
             *map(str, args), stderr=DEVNULL, stdout=DEVNULL
@@ -147,7 +105,6 @@ async def cmd_flog(
         return await communicate(args, f"logs in {out}\n".encode(), proc, timeout)
 
 
-@TimeIt
 async def cmd_no_timeout(*args: object) -> None:
     print("+", *args, file=stderr)
     proc = await create_subprocess_exec(*map(str, args))

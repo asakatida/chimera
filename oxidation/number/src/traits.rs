@@ -33,12 +33,10 @@ pub trait NumberBase:
 {
     fn abs(self) -> Number;
     fn div_floor(self, other: Self) -> Number;
-
     #[inline]
     fn gcd(self, other: Self) -> Number {
         gcd(self, other)
     }
-
     #[inline]
     fn mod_pow(self, exp: Self, modu: Self) -> Number {
         self.pow(exp) % modu.into()
