@@ -28,7 +28,6 @@
 #include <memory>      // for make_shared, shared_ptr
 #include <optional>    // for optional
 #include <string>      // for basic_string
-#include <string_view> // for string_view
 #include <type_traits> // for enable_if_t
 #include <utility>     // for forward, move
 #include <variant>     // for get_if, variant, visit
@@ -426,8 +425,6 @@ namespace chimera::library::asdl {
   };
   struct Module {
     Module() = default;
-    Module(const Optimize &optimize, const std::string_view &data,
-           const char *source);
     Module(const Optimize &optimize, std::istream &&input, const char *source);
     [[nodiscard]] auto doc() const -> const std::optional<DocString> &;
     [[nodiscard]] auto iter() const -> const std::vector<StmtImpl> &;
@@ -449,8 +446,6 @@ namespace chimera::library::asdl {
   };
   struct Interactive {
     Interactive() = default;
-    Interactive(const Optimize &optimize, const std::string_view &data,
-                const char *source);
     Interactive(const Optimize &optimize, std::istream &&input,
                 const char *source);
     [[nodiscard]] auto iter() const -> const std::vector<StmtImpl> &;
@@ -465,8 +460,6 @@ namespace chimera::library::asdl {
   };
   struct Expression {
     Expression() = default;
-    Expression(const Optimize &optimize, const std::string_view &data,
-               const char *source);
     Expression(const Optimize &optimize, std::istream &&input,
                const char *source);
     [[nodiscard]] auto expr() const -> const ExprImpl &;

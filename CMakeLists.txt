@@ -36,13 +36,9 @@ endif()
 add_library(
   chimera-grammar
   OBJECT
-  library/asdl/asdl.cpp
   library/asdl/parse_expression_istream.cpp
-  library/asdl/parse_expression_string_view.cpp
   library/asdl/parse_interactive_istream.cpp
-  library/asdl/parse_interactive_string_view.cpp
-  library/asdl/parse_module_istream.cpp
-  library/asdl/parse_module_string_view.cpp)
+  library/asdl/parse_module_istream.cpp)
 
 target_compile_features(chimera-grammar PUBLIC c_std_23 cxx_std_20)
 

@@ -20,10 +20,9 @@
 
 //! wrapper for tao::pegtl::parse
 
-#include <iostream>    // for istream
-#include <string>      // for basic_string
-#include <string_view> // for basic_string_view
-#include <vector>      // for vector
+#include <iostream> // for istream
+#include <string>   // for basic_string
+#include <vector>   // for vector
 
 // NOLINTBEGIN(misc-no-recursion)
 
@@ -47,6 +46,9 @@ namespace chimera::library::asdl {
         optimize,
         grammar::Input<tao::pegtl::istream_input<>>(input, bufferSize, source),
         *this);
+  }
+  [[nodiscard]] auto Expression::expr() const -> const ExprImpl & {
+    return body;
   }
 } // namespace chimera::library::asdl
 

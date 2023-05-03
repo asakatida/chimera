@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "builtins/builtins.hpp"
 #include "grammar/grammar.hpp"
 #include "grammar/rules.hpp"
@@ -14,15 +16,15 @@
 using namespace std::literals;
 
 namespace chimera::library {
-  template <typename Data>
-  void test_parse(Data &&data, std::size_t size) {
+  void test_parse(std::string_view &&data, std::size_t size) {
     Options options;
     options.chimera = "chimera";
     options.script = "unit_test.py";
     virtual_machine::GlobalContext globalContext(options);
     const virtual_machine::ProcessContext processContext{globalContext};
+    std::istringstream istream{std::string{data}};
     auto module = processContext.parse_file(
-        data, "<unit_tests/virtual_machine/parse.cpp>");
+        std::move(istream), "<unit_tests/virtual_machine/parse.cpp>");
     REQUIRE(module.iter().size() == size);
   }
   struct EmptyNode {
@@ -32,28 +34,28 @@ namespace chimera::library {
 } // namespace chimera::library
 
 TEST_CASE("virtual machine parse ``") {
-  REQUIRE_NOTHROW(chimera::library::test_parse(""s, 0));
+  REQUIRE_NOTHROW(chimera::library::test_parse(""sv, 0));
 }
 
 TEST_CASE("virtual machine parse `a`") {
-  REQUIRE_NOTHROW(chimera::library::test_parse("a"s, 1));
+  REQUIRE_NOTHROW(chimera::library::test_parse("a"sv, 1));
 }
 
 TEST_CASE("virtual machine parse `hello_world`") {
-  REQUIRE_NOTHROW(chimera::library::test_parse("hello_world"s, 1));
+  REQUIRE_NOTHROW(chimera::library::test_parse("hello_world"sv, 1));
 }
 
 TEST_CASE("virtual machine parse `;hello_world`") {
-  REQUIRE_NOTHROW(chimera::library::test_parse(";hello_world"s, 1));
+  REQUIRE_NOTHROW(chimera::library::test_parse(";hello_world"sv, 1));
 }
 
 TEST_CASE("virtual machine parse `\\0hello_world`") {
-  REQUIRE_THROWS_AS(chimera::library::test_parse("\0hello_world"s, -1),
+  REQUIRE_THROWS_AS(chimera::library::test_parse("\0hello_world"sv, -1),
                     tao::pegtl::parse_error);
 }
 
 TEST_CASE("virtual machine parse `0=help`") {
-  REQUIRE_NOTHROW(chimera::library::test_parse("0=help"s, 1));
+  REQUIRE_NOTHROW(chimera::library::test_parse("0=help"sv, 1));
 }
 
 TEST_CASE("virtual machine parse `if True:\\n\\t  False`") {

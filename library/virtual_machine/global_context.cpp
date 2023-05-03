@@ -25,7 +25,7 @@
 #include <csignal>
 #include <fstream>
 #include <iostream>
-#include <string_view>
+#include <sstream>
 #include <utility>
 
 #include "object/object.hpp"
@@ -68,27 +68,22 @@ namespace chimera::library::virtual_machine {
     }
     return 0;
   }
-  [[nodiscard]] auto GlobalContext::execute_script() -> int {
-    std::ifstream input(options.script);
+  [[nodiscard]] auto GlobalContext::execute(std::istream &&istream,
+                                            const char *source) -> int {
     ProcessContext processContext{*this};
-    auto module = processContext.parse_file(std::move(input), options.script);
+    auto module = processContext.parse_file(std::move(istream), source);
     auto main = processContext.make_module("__main__");
     ThreadContext(processContext, main).evaluate(module);
     return 0;
+  }
+  [[nodiscard]] auto GlobalContext::execute_script() -> int {
+    return execute(std::ifstream(options.script), options.script);
   }
   [[nodiscard]] auto GlobalContext::execute_script_string() -> int {
-    ProcessContext processContext{*this};
-    auto module = processContext.parse_file(options.command, "<string>");
-    auto main = processContext.make_module("__main__");
-    ThreadContext(processContext, main).evaluate(module);
-    return 0;
+    return execute(std::istringstream(options.command), "<string>");
   }
   [[nodiscard]] auto GlobalContext::execute_script_input() -> int {
-    ProcessContext processContext{*this};
-    auto module = processContext.parse_file(std::move(std::cin), "<input>");
-    auto main = processContext.make_module("__main__");
-    ThreadContext(processContext, main).evaluate(module);
-    return 0;
+    return execute(std::move(std::cin), "<input>");
   }
   [[nodiscard]] auto GlobalContext::execute_module() -> int {
     ProcessContext processContext{*this};
