@@ -192,31 +192,15 @@ namespace chimera::library::virtual_machine {
     std::cerr << path << module << '\n';
     return parse_file(std::move(ifstream), source.c_str());
   }
-  [[nodiscard]] auto
-  ProcessContext::parse_expression(const std::string_view &data,
-                                   const char *source) const
-      -> asdl::Expression {
-    return {global_context->optimize(), data, source};
-  }
   [[nodiscard]] auto ProcessContext::parse_expression(std::istream &&input,
                                                       const char *source) const
       -> asdl::Expression {
     return {global_context->optimize(), std::move(input), source};
   }
-  [[nodiscard]] auto ProcessContext::parse_file(const std::string_view &data,
-                                                const char *source) const
-      -> asdl::Module {
-    return {global_context->optimize(), data, source};
-  }
   [[nodiscard]] auto ProcessContext::parse_file(std::istream &&input,
                                                 const char *source) const
       -> asdl::Module {
     return {global_context->optimize(), std::move(input), source};
-  }
-  [[nodiscard]] auto ProcessContext::parse_input(const std::string_view &data,
-                                                 const char *source) const
-      -> asdl::Interactive {
-    return {global_context->optimize(), data, source};
   }
   [[nodiscard]] auto ProcessContext::parse_input(std::istream &&input,
                                                  const char *source) const
