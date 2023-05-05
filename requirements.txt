@@ -33,7 +33,7 @@ Pygments==2.15.1
 pylama==8.4.1
 pyrsistent==0.19.3
 PyYAML==6.0
-requests==2.29.0
+requests==2.30.0
 resolvelib==0.8.1
 rich==13.3.5
 ruamel.yaml==0.17.22
@@ -43,11 +43,11 @@ subprocess-tee==0.4.1
 tomli==2.0.1
 tqdm==4.65.0
 types-PyYAML==6.0.12.9
-types-requests==2.29.0.0
+types-requests==2.30.0.0
 types-tqdm==4.65.0.1
 types-urllib3==1.26.25.12
 typing_extensions==4.5.0
-urllib3==1.26.15
+urllib3==2.0.2
 wcmatch==8.4.1
 websocket-client==1.5.1
 yamllint==1.31.0
