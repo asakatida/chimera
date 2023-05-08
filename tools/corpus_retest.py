@@ -25,14 +25,15 @@ from itertools import product
 from os import environ
 from pathlib import Path
 from re import escape, finditer
-from sys import argv, stderr
+from sys import argv
 from uuid import uuid4
 
 from asyncio_as_completed import as_completed
-from asyncio_cmd import ProcessError, chunks, cmd_flog
+from asyncio_cmd import ProcessError, chunks, cmd_flog, main
 from corpus_trim import corpus_trim
 from corpus_utils import corpus_merge, fuzz_star, regression
 from ninja import ninja
+from structlog import get_logger
 
 IN_CI = environ.get("CI", "") == "true"
 SOURCE = Path(__file__).parent.parent.resolve()
@@ -99,10 +100,9 @@ def rmdir(path: Path) -> None:
 async def corpus_retest(build: str) -> None:
     await ninja(build)
     while await regression_log():
-        print(
-            "Regression failed, retrying with",
-            len(list(filter(Path.is_file, CORPUS.rglob("*")))),
-            file=stderr,
+        get_logger().info(
+            "Regression failed, retrying with"
+            f" {len(list(filter(Path.is_file, CORPUS.rglob('*'))))}"
         )
     if IN_CI:
         rmdir(CORPUS_ORIGINAL)
@@ -112,11 +112,12 @@ async def corpus_retest(build: str) -> None:
     if errors:
         error = errors.pop()
         if errors:
-            print("Extra Errors:", *errors, file=stderr, sep="\n")
+            for error in errors:
+                get_logger().error(f"Extra Error: {error}")
         raise error
 
 
-async def main(*args: str, disable_bars: bool) -> None:
+async def corpus_retest_main(*args: str, disable_bars: bool) -> None:
     corpus_trim(disable_bars=disable_bars)
     await corpus_retest(*args)
     corpus_trim(disable_bars=disable_bars)
@@ -124,9 +125,5 @@ async def main(*args: str, disable_bars: bool) -> None:
 
 
 if __name__ == "__main__":
-    try:
-        run(main(*argv[1:], disable_bars=False))
-    except ProcessError as error:
-        error.exit()
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt", file=stderr)
+    with main():
+        run(corpus_retest_main(*argv[1:], disable_bars=False))

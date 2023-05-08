@@ -1,16 +1,17 @@
 from asyncio import run
-from asyncio.subprocess import PIPE
+from itertools import chain
 from re import compile
-from sys import stderr, version_info
+from sys import version_info
 from typing import Sequence
 
 from asyncio_as_completed import as_completed
-from asyncio_cmd import ProcessError, ci_args, cmd
+from asyncio_cmd import ci_args, cmd, main, splitlines
 from g_ls_tree import g_ls_tree
+from structlog import get_logger
 
 
 async def lint(*args: object) -> bytes:
-    return await cmd(*args, err=PIPE, log=False, out=PIPE, timeout=300)
+    return await cmd(*args, log=False, timeout=300)
 
 
 async def black(files: Sequence[object]) -> bytes:
@@ -61,28 +62,24 @@ async def mypy(files: Sequence[object]) -> bytes:
     return b""
 
 
-async def main() -> None:
+async def self_check() -> None:
     files = await g_ls_tree("py")
     files_mypy = await g_ls_tree("py", exclude=compile(r"stdlib/|.*/stdlib/"))
     set(
         map(
-            print,
-            map(
-                bytes.decode,
-                filter(
-                    None,
-                    map(
-                        bytes.strip,
-                        await as_completed(
-                            iter(
-                                (
-                                    black(files),
-                                    isort(files),
-                                    pylama(files),
-                                    mypy(files_mypy),
-                                )
+            get_logger().info,
+            chain.from_iterable(
+                map(
+                    splitlines,
+                    await as_completed(
+                        iter(
+                            (
+                                black(files),
+                                isort(files),
+                                pylama(files),
+                                mypy(files_mypy),
                             )
-                        ),
+                        )
                     ),
                 ),
             ),
@@ -91,9 +88,5 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    try:
-        run(main())
-    except ProcessError as error:
-        error.exit()
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt", file=stderr)
+    with main():
+        run(self_check())

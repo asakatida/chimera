@@ -21,15 +21,15 @@
 """git_rebase_all.py."""
 
 from asyncio import run
-from asyncio.subprocess import PIPE
 from itertools import combinations
-from sys import argv, stderr
+from sys import argv
 
-from asyncio_cmd import ProcessError, cmd, cmd_env, splitlines
+from asyncio_cmd import ProcessError, cmd, cmd_env, main, splitlines
+from structlog import get_logger
 
 
 async def git_cmd(*args: object) -> bytes:
-    return await cmd("git", *args, err=PIPE, log=False, out=PIPE, timeout=60)
+    return await cmd("git", *args, log=False, timeout=60)
 
 
 async def set_upstream(*remote_branches: str) -> None:
@@ -61,15 +61,13 @@ async def git_rebase_all(*args: str) -> None:
     )
     for local_branch in local_branches:
         try:
-            await cmd("git", "rebase", "origin/HEAD", local_branch, err=None, out=None)
+            await cmd("git", "rebase", "origin/HEAD", local_branch)
             continue
         except ProcessError:
             pass
-        await cmd("bash", "-c", *args, err=None, out=None)
+        await cmd("bash", "-c", *args)
         await git_cmd("add", "--update")
-        await cmd_env(
-            "git", "rebase", "--continue", env={"EDITOR": "true"}, err=None, out=None
-        )
+        await cmd_env("git", "rebase", "--continue", env={"EDITOR": "true"})
     remote_branches = list(
         map(
             lambda remote_branch: remote_branch.split("/", maxsplit=1)[1],
@@ -80,13 +78,12 @@ async def git_rebase_all(*args: str) -> None:
         if left in remote_branches and right in remote_branches:
             continue
         if not await git_cmd("diff", left, right):
-            print(left, right)
+            if left not in remote_branches:
+                get_logger().info(left)
+            if right not in remote_branches:
+                get_logger().info(right)
 
 
 if __name__ == "__main__":
-    try:
+    with main():
         run(git_rebase_all(*argv[1:]))
-    except ProcessError as error:
-        error.exit()
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt", file=stderr)
