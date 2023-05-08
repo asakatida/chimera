@@ -38,7 +38,7 @@ ENV CC=clang \
     CMAKE_C_COMPILER_LAUNCHER=ccache \
     CMAKE_CXX_COMPILER_LAUNCHER=ccache \
     CMAKE_EXPORT_COMPILE_COMMANDS=YES \
-    CPPFLAGS="-std=c++20" \
+    CPPFLAGS="-std=c++23" \
     CXX=clang++
 ENV CXXFLAGS="${CPPFLAGS}"
 ENV LDFLAGS="${CXXFLAGS} -rtlib=compiler-rt"

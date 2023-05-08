@@ -40,7 +40,7 @@ add_library(
   library/asdl/parse_interactive_istream.cpp
   library/asdl/parse_module_istream.cpp)
 
-target_compile_features(chimera-grammar PUBLIC c_std_23 cxx_std_20)
+target_compile_features(chimera-grammar PUBLIC c_std_23 cxx_std_23)
 
 target_compile_options(chimera-grammar PRIVATE -Oz)
 
@@ -106,7 +106,7 @@ add_library(
   stdlib/marshal/marshal.cpp
   stdlib/sys/sys.cpp)
 
-target_compile_features(chimera-core PUBLIC c_std_23 cxx_std_20)
+target_compile_features(chimera-core PUBLIC c_std_23 cxx_std_23)
 
 target_include_directories(chimera-core PUBLIC library stdlib)
 
@@ -125,7 +125,7 @@ add_library(
   include/chimera.h
   library/c-api/chimera.cpp)
 
-target_compile_features(libchimera PUBLIC c_std_23 cxx_std_20)
+target_compile_features(libchimera PUBLIC c_std_23 cxx_std_23)
 
 target_include_directories(
   libchimera
@@ -136,7 +136,7 @@ target_include_directories(
 set_target_properties(libchimera PROPERTIES OUTPUT_NAME "chimera")
 
 add_executable(chimera source/main.cpp)
-target_compile_features(chimera PUBLIC c_std_23 cxx_std_20)
+target_compile_features(chimera PUBLIC c_std_23 cxx_std_23)
 target_link_libraries(
   chimera
   chimera-core
@@ -160,7 +160,7 @@ add_executable(
   unit_tests/virtual_machine/trace.cpp
   unit_tests/virtual_machine/virtual_machine.cpp)
 
-target_compile_features(unit-test PUBLIC c_std_23 cxx_std_20)
+target_compile_features(unit-test PUBLIC c_std_23 cxx_std_23)
 
 target_include_directories(
   unit-test
@@ -221,7 +221,7 @@ if(
     chimera-fuzz
     PUBLIC
     ${FUZZ_CXXFLAGS})
-  target_compile_features(chimera-fuzz PUBLIC c_std_23 cxx_std_20)
+  target_compile_features(chimera-fuzz PUBLIC c_std_23 cxx_std_23)
   target_include_directories(
     chimera-fuzz
     PUBLIC
@@ -258,7 +258,7 @@ if(
     vm-interact)
   foreach(fuzzer IN LISTS FUZZERS)
     add_executable(fuzz-${fuzzer} unit_tests/fuzz/target-${fuzzer}.cpp)
-    target_compile_features(fuzz-${fuzzer} PUBLIC c_std_23 cxx_std_20)
+    target_compile_features(fuzz-${fuzzer} PUBLIC c_std_23 cxx_std_23)
     target_compile_options(
       fuzz-${fuzzer}
       PUBLIC
@@ -301,7 +301,7 @@ endif()
 
 add_executable(bnf2abnf tools/bnf2abnf.cpp)
 
-target_compile_features(bnf2abnf PUBLIC c_std_23 cxx_std_20)
+target_compile_features(bnf2abnf PUBLIC c_std_23 cxx_std_23)
 
 target_include_directories(bnf2abnf PUBLIC library)
 
@@ -314,7 +314,7 @@ target_include_directories(
 
 add_library(modules-tools OBJECT tools/modules/modules.cpp)
 
-target_compile_features(modules-tools PUBLIC c_std_23 cxx_std_20)
+target_compile_features(modules-tools PUBLIC c_std_23 cxx_std_23)
 
 target_include_directories(modules-tools PUBLIC library)
 
@@ -335,7 +335,7 @@ set(
   importlib)
 foreach(regen_module IN LISTS REGEN_MODULES)
   add_executable(${regen_module} tools/modules/${regen_module}.cpp)
-  target_compile_features(${regen_module} PUBLIC c_std_23 cxx_std_20)
+  target_compile_features(${regen_module} PUBLIC c_std_23 cxx_std_23)
   target_link_libraries(
     ${regen_module}
     modules-tools
