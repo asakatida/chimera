@@ -39,6 +39,7 @@ rich==13.3.5
 ruamel.yaml==0.17.24
 ruamel.yaml.clib==0.2.7
 snowballstemmer==2.2.0
+structlog==23.1.0
 subprocess-tee==0.4.1
 tomli==2.0.1
 tqdm==4.65.0
@@ -51,4 +52,3 @@ urllib3==2.0.2
 wcmatch==8.4.1
 websocket-client==1.5.1
 yamllint==1.31.0
-structlog
