@@ -20,20 +20,18 @@
 
 //! wrapper for tao::pegtl::parse
 
-#include <iostream> // for istream
-#include <string>   // for basic_string
-#include <vector>   // for vector
-
-// NOLINTBEGIN(misc-no-recursion)
-
-#include <tao/pegtl/istream_input.hpp> // for istream_input
-#include <tao/pegtl/parse_error.hpp>   // for parse_error
-
 #include "asdl/asdl.hpp"       // for Module
 #include "asdl/parse.hpp"      // for bufferSize
 #include "grammar/grammar.hpp" // for FileInput
 #include "grammar/input.hpp"   // for Input
 #include "grammar/parse.hpp"   // for parse
+
+#include <tao/pegtl/istream_input.hpp> // for istream_input
+#include <tao/pegtl/parse_error.hpp>   // for parse_error
+
+#include <iostream> // for istream
+#include <string>   // for basic_string
+#include <vector>   // for vector
 
 namespace chimera::library {
   enum class Optimize;
@@ -54,5 +52,3 @@ namespace chimera::library::asdl {
     return body;
   }
 } // namespace chimera::library::asdl
-
-// NOLINTEND(misc-no-recursion)

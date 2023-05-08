@@ -22,11 +22,11 @@
 
 #pragma once
 
-#include <optional>
-
 #include "asdl/asdl.hpp"
 #include "object/object.hpp"
 #include "virtual_machine/process_context.hpp"
+
+#include <optional>
 
 namespace chimera::library::virtual_machine {
   struct ThreadContext {

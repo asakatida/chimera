@@ -22,18 +22,16 @@
 
 #pragma once
 
-#include <algorithm>
-#include <numeric>
-#include <type_traits>
-
-// NOLINTBEGIN(misc-no-recursion)
-
 #include "asdl/asdl.hpp"
 #include "grammar/expr.hpp"
 #include "grammar/flags.hpp"
 #include "grammar/keys.hpp"
 #include "grammar/oper.hpp"
 #include "grammar/rules.hpp"
+
+#include <algorithm>
+#include <numeric>
+#include <type_traits>
 
 namespace chimera::library::grammar {
   template <flags::Flag Option>
@@ -787,5 +785,3 @@ namespace chimera::library::grammar {
     using Transform = rules::VectorCapture<asdl::StmtImpl>;
   };
 } // namespace chimera::library::grammar
-
-// NOLINTEND(misc-no-recursion)

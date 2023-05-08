@@ -22,14 +22,12 @@
 
 #pragma once
 
-// NOLINTBEGIN(misc-no-recursion)
-
-#include <gsl/gsl>
-#include <tao/pegtl.hpp>
-
 #include "grammar/rules.hpp"
 #include "grammar/rules/control.hpp"
 #include "options.hpp"
+
+#include <gsl/gsl>
+#include <tao/pegtl.hpp>
 
 namespace chimera::library::grammar {
   template <typename Grammar, typename... Args>
@@ -44,5 +42,3 @@ namespace chimera::library::grammar {
     }
   }
 } // namespace chimera::library::grammar
-
-// NOLINTEND(misc-no-recursion)

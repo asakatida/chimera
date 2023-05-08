@@ -1,8 +1,8 @@
 #include "object/number/number.hpp"
 
-#include <limits>
-
 #include <catch2/catch_test_macros.hpp>
+
+#include <limits>
 
 using chimera::library::object::number::Number;
 using NumericLimits = std::numeric_limits<std::uint64_t>;

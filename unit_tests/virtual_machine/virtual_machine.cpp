@@ -1,10 +1,9 @@
-#include <sstream>
+#include "virtual_machine/global_context.hpp"
+#include "virtual_machine/thread_context.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 
-#include "builtins/builtins.hpp"
-#include "virtual_machine/global_context.hpp"
-#include "virtual_machine/thread_context.hpp"
+#include <sstream>
 
 using namespace std::literals;
 

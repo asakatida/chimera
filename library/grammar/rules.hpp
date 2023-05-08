@@ -22,11 +22,9 @@
 
 #pragma once
 
-// NOLINTBEGIN(misc-no-recursion)
+#include "grammar/rules/rules.hpp"
 
 #include <tao/pegtl.hpp>
-
-#include "grammar/rules/rules.hpp"
 
 namespace chimera::library::grammar {
   using tao::pegtl::at;
@@ -67,5 +65,3 @@ namespace chimera::library::grammar {
   using tao::pegtl::utf8::ranges;
 #endif
 } // namespace chimera::library::grammar
-
-// NOLINTEND(misc-no-recursion)

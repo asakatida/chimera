@@ -24,8 +24,6 @@
 
 #include <type_traits>
 
-// NOLINTBEGIN(misc-no-recursion)
-
 namespace chimera::library::grammar::flags {
   enum {
     ASYNC_FLOW,
@@ -48,5 +46,3 @@ namespace chimera::library::grammar::flags {
   template <Flag Options, auto... Flags>
   constexpr static Flag unSet = ((~(1U << Flags)) & ... & Options);
 } // namespace chimera::library::grammar::flags
-
-// NOLINTEND(misc-no-recursion)

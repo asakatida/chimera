@@ -23,10 +23,10 @@
 
 #pragma once
 
-#include <type_traits>
-
 #include <gsl/gsl>
 #include <tao/pegtl.hpp>
+
+#include <type_traits>
 
 namespace chimera::library::grammar {
   template <template <typename...> class OtherControl = tao::pegtl::normal>

@@ -22,12 +22,12 @@
 
 #include "sys/sys.hpp"
 
-#include <algorithm>
-#include <vector>
+#include "options.hpp"
 
 #include <gsl/gsl>
 
-#include "options.hpp"
+#include <algorithm>
+#include <vector>
 
 using namespace std::literals;
 

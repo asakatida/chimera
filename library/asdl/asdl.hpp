@@ -22,6 +22,12 @@
 
 #pragma once
 
+#include "object/object.hpp" // for Object
+
+#include <metal/lambda/apply.hpp>  // for apply
+#include <metal/list/contains.hpp> // for contains
+#include <metal/list/list.hpp>     // for list
+
 #include <algorithm>   // for reverse
 #include <iosfwd>      // for istream, string
 #include <iterator>    // for back_inserter
@@ -32,12 +38,6 @@
 #include <utility>     // for forward, move
 #include <variant>     // for get_if, variant, visit
 #include <vector>      // for vector
-
-#include <metal/lambda/apply.hpp>  // for apply
-#include <metal/list/contains.hpp> // for contains
-#include <metal/list/list.hpp>     // for list
-
-#include "object/object.hpp" // for Object
 
 namespace metal {
   template <template <class...> class expr>

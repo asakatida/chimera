@@ -1,6 +1,3 @@
-#include <sstream>
-
-#include "builtins/builtins.hpp"
 #include "grammar/grammar.hpp"
 #include "grammar/rules.hpp"
 #include "grammar/rules/control.hpp"
@@ -12,6 +9,8 @@
 #include <catch2/catch_test_macros.hpp>
 #include <tao/pegtl.hpp>
 #include <tao/pegtl/contrib/trace.hpp>
+
+#include <sstream>
 
 using namespace std::literals;
 

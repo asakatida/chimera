@@ -21,6 +21,16 @@
 //! evaluates importlib to construct the importlib module.
 //! Then prints the module construction.
 
+#include "asdl/asdl.hpp"
+#include "modules.hpp"
+#include "object/object.hpp"
+#include "options.hpp"
+#include "virtual_machine/global_context.hpp"
+#include "virtual_machine/process_context.hpp"
+#include "virtual_machine/thread_context.hpp"
+
+#include <gsl/gsl>
+
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
@@ -29,17 +39,6 @@
 #include <queue>
 #include <string>
 #include <vector>
-
-#include <gsl/gsl>
-
-#include "asdl/asdl.hpp"
-#include "builtins/builtins.hpp"
-#include "modules.hpp"
-#include "object/object.hpp"
-#include "options.hpp"
-#include "virtual_machine/global_context.hpp"
-#include "virtual_machine/process_context.hpp"
-#include "virtual_machine/thread_context.hpp"
 
 namespace chimera::library {
   // NOLINTNEXTLINE(misc-use-anonymous-namespace)

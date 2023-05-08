@@ -1,6 +1,5 @@
 #pragma once
 
-#include "builtins/builtins.hpp"
 #include "object/object.hpp"
 #include "options.hpp"
 #include "virtual_machine/global_context.hpp"

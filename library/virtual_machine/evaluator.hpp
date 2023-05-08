@@ -22,10 +22,6 @@
 
 #pragma once
 
-#include <functional>
-#include <stack>
-#include <variant>
-
 #include "asdl/asdl.hpp"
 #include "virtual_machine/bin_evaluator.hpp"
 #include "virtual_machine/bool_evaluator.hpp"
@@ -35,6 +31,10 @@
 #include "virtual_machine/to_bool_evaluator.hpp"
 #include "virtual_machine/tuple_evaluator.hpp"
 #include "virtual_machine/unary_evaluator.hpp"
+
+#include <functional>
+#include <stack>
+#include <variant>
 
 namespace chimera::library::virtual_machine {
   struct Evaluator;

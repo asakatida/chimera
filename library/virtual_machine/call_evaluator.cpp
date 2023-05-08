@@ -23,10 +23,10 @@
 
 #include "virtual_machine/call_evaluator.hpp"
 
-#include <gsl/gsl>
-
 #include "object/object.hpp"
 #include "virtual_machine/evaluator.hpp"
+
+#include <gsl/gsl>
 
 namespace chimera::library::virtual_machine {
   struct UnpackCallObject {

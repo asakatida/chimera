@@ -22,8 +22,6 @@
 
 #pragma once
 
-// NOLINTBEGIN(misc-no-recursion)
-
 #include "asdl/asdl.hpp"
 #include "grammar/rules.hpp"
 #include "grammar/utf8_id_continue.hpp"
@@ -46,5 +44,3 @@ namespace chimera::library::grammar {
   template <flags::Flag Option>
   struct Name : token::Token<Option, token::Name> {};
 } // namespace chimera::library::grammar
-
-// NOLINTEND(misc-no-recursion)

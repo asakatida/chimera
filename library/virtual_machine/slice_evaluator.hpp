@@ -22,9 +22,9 @@
 
 #pragma once
 
-#include <vector>
-
 #include "asdl/asdl.hpp"
+
+#include <vector>
 
 namespace chimera::library::virtual_machine {
   struct Evaluator;

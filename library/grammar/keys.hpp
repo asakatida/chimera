@@ -22,8 +22,6 @@
 
 #pragma once
 
-// NOLINTBEGIN(misc-no-recursion)
-
 #include "asdl/asdl.hpp"
 #include "grammar/identifier.hpp"
 #include "grammar/rules.hpp"
@@ -196,5 +194,3 @@ namespace chimera::library::grammar {
   using token::With;
   using token::Yield;
 } // namespace chimera::library::grammar
-
-// NOLINTEND(misc-no-recursion)

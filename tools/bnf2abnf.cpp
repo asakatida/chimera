@@ -20,13 +20,13 @@
 
 //! helper to generate abnf from bnf
 
-#include <algorithm>
-#include <iostream>
-#include <string_view>
+#include "grammar/utf8_space.hpp"
 
 #include <tao/pegtl.hpp>
 
-#include "grammar/utf8_space.hpp"
+#include <algorithm>
+#include <iostream>
+#include <string_view>
 
 template <typename Rule>
 struct BnfAction : tao::pegtl::nothing<Rule> {};
