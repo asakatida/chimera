@@ -27,7 +27,6 @@
 #include <type_traits> // for add_pointer_t
 
 namespace chimera::library::container {
-  void reverse();
   template <typename Container>
   struct Reverse {
     explicit Reverse(Container &container) : container(&container) {}

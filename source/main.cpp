@@ -20,6 +20,15 @@
 
 //! main interpreter start
 
+#include "object/object.hpp"                  // for Object
+#include "options.hpp"                        // for Options, BytesCompare
+#include "version.hpp"                        // for CHIMERA_GIT_HEAD, CHIM...
+#include "virtual_machine/global_context.hpp" // for GlobalContext
+
+#include <gsl/narrow>   // for narrow
+#include <gsl/span>     // for span_iterator, span
+#include <gsl/span_ext> // for make_span
+
 #include <cstring>   // for size_t, strncmp, strlen
 #include <exception> // for exception
 #include <iostream>  // for operator<<, char_traits
@@ -27,16 +36,6 @@
 #include <stdexcept> // for runtime_error
 #include <string>    // for basic_string, to_string
 #include <vector>    // for vector
-
-#include <gsl/narrow>   // for narrow
-#include <gsl/span>     // for span_iterator, span
-#include <gsl/span_ext> // for make_span
-
-#include "builtins/builtins.hpp"              // for builtins
-#include "object/object.hpp"                  // for Object
-#include "options.hpp"                        // for Options, BytesCompare
-#include "version.hpp"                        // for CHIMERA_GIT_HEAD, CHIM...
-#include "virtual_machine/global_context.hpp" // for GlobalContext
 
 // NOLINTBEGIN(misc-use-anonymous-namespace)
 
@@ -75,8 +74,6 @@ namespace chimera::library {
     try {
       try {
         Options options{};
-        const object::Object builtins;
-        virtual_machine::modules::builtins(builtins);
         auto arg = args.begin();
         options.chimera = *arg++;
         for (; arg != args.end(); ++arg) {

@@ -22,13 +22,12 @@
 
 #pragma once
 
+#include "container/atomic_container.hpp" // for AtomicContainer
+
 #include <map>     // for map
 #include <utility> // for forward
 
-#include "container/atomic_container.hpp" // for AtomicContainer
-
 namespace chimera::library::container {
-  void atomic_map();
   template <typename Key, typename Value>
   struct AtomicMap : AtomicContainer<std::map<Key, Value>> {
     using Container = AtomicContainer<std::map<Key, Value>>;

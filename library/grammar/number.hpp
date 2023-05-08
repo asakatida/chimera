@@ -22,16 +22,14 @@
 
 #pragma once
 
-#include <cstdint>
-#include <numeric>
-#include <vector>
-
-// NOLINTBEGIN(misc-no-recursion)
-
 #include "asdl/asdl.hpp"
 #include "grammar/rules.hpp"
 #include "grammar/whitespace.hpp"
 #include "object/object.hpp"
+
+#include <cstdint>
+#include <numeric>
+#include <vector>
 
 namespace chimera::library::grammar {
   namespace token {
@@ -178,5 +176,3 @@ namespace chimera::library::grammar {
   template <flags::Flag Option>
   struct NUMBER : token::Token<Option, token::Numberliteral> {};
 } // namespace chimera::library::grammar
-
-// NOLINTEND(misc-no-recursion)

@@ -20,14 +20,14 @@
 
 #pragma once
 
+#include <gsl/gsl>
+#include <tao/operators.hpp>
+
 #include <cstdint>
 #include <limits>
 #include <numeric>
 #include <variant>
 #include <vector>
-
-#include <gsl/gsl>
-#include <tao/operators.hpp>
 
 // NOLINTBEGIN(readability-redundant-declaration)
 using PythonNumber = uint64_t;

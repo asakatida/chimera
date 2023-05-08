@@ -22,14 +22,14 @@
 
 #pragma once
 
-#include <atomic>
-#include <mutex>
-#include <thread>
+#include "object/object.hpp"
+#include "virtual_machine/fibonacci_heap.hpp"
 
 #include <gsl/gsl>
 
-#include "object/object.hpp"
-#include "virtual_machine/fibonacci_heap.hpp"
+#include <atomic>
+#include <mutex>
+#include <thread>
 
 namespace chimera::library::virtual_machine {
   struct GarbageCollector {

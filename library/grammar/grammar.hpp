@@ -22,10 +22,6 @@
 
 #pragma once
 
-#include <algorithm>
-
-// NOLINTBEGIN(misc-no-recursion)
-
 #include "asdl/asdl.hpp"
 #include "grammar/expr.hpp"
 #include "grammar/flags.hpp"
@@ -33,6 +29,8 @@
 #include "grammar/parse.hpp"
 #include "grammar/rules.hpp"
 #include "grammar/stmt.hpp"
+
+#include <algorithm>
 
 namespace chimera::library::grammar {
   constexpr static flags::Flag option = flags::list<flags::IMPORT_ALL>;
@@ -67,5 +65,3 @@ namespace chimera::library::grammar {
     };
   };
 } // namespace chimera::library::grammar
-
-// NOLINTEND(misc-no-recursion)

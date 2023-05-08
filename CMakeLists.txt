@@ -80,9 +80,6 @@ set_target_properties(
 add_library(
   chimera-core
   OBJECT
-  library/container/atomic_container.cpp
-  library/container/atomic_map.cpp
-  library/container/reverse.cpp
   library/object/number/number.cpp
   library/object/object.cpp
   library/object/reference.cpp

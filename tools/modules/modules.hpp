@@ -21,6 +21,13 @@
 //! evaluates importlib to construct the importlib module.
 //! Then prints the module construction.
 
+#include "asdl/asdl.hpp"
+#include "object/object.hpp"
+#include "options.hpp"
+#include "virtual_machine/global_context.hpp"
+
+#include <gsl/gsl>
+
 #include <algorithm>
 #include <iomanip>
 #include <map>
@@ -28,13 +35,6 @@
 #include <queue>
 #include <string>
 #include <vector>
-
-#include <gsl/gsl>
-
-#include "asdl/asdl.hpp"
-#include "object/object.hpp"
-#include "options.hpp"
-#include "virtual_machine/global_context.hpp"
 
 namespace chimera::library {
   struct PrintState;

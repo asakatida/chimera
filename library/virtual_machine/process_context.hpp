@@ -22,16 +22,16 @@
 
 #pragma once
 
-#include <iosfwd>
-#include <optional>
-#include <string>
-#include <string_view>
-
 #include "asdl/asdl.hpp"
 #include "container/atomic_map.hpp"
 #include "object/object.hpp"
 #include "virtual_machine/garbage.hpp"
 #include "virtual_machine/global_context.hpp"
+
+#include <iosfwd>
+#include <optional>
+#include <string>
+#include <string_view>
 
 namespace chimera::library::virtual_machine {
   struct ProcessContext {

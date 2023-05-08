@@ -28,7 +28,6 @@
 #include <utility>      // for forward
 
 namespace chimera::library::container {
-  void atomic_container();
   template <typename Value>
   struct AtomicContainer {
     AtomicContainer() = default;

@@ -1,7 +1,6 @@
-#include <catch2/catch_test_macros.hpp>
-
 #include "fuzz/cases.hpp"
 
+#include <catch2/catch_test_macros.hpp>
 #include <json.hpp>
 
 using namespace std::literals;

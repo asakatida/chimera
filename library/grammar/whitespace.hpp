@@ -23,13 +23,11 @@
 
 #pragma once
 
-#include <type_traits>
-
-// NOLINTBEGIN(misc-no-recursion)
-
 #include "grammar/flags.hpp"
 #include "grammar/rules.hpp"
 #include "grammar/utf8_space.hpp"
+
+#include <type_traits>
 
 namespace chimera::library::grammar {
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
@@ -91,5 +89,3 @@ namespace chimera::library::grammar {
     using Token = seq<Rule, Space<Option>>;
   } // namespace token
 } // namespace chimera::library::grammar
-
-// NOLINTEND(misc-no-recursion)

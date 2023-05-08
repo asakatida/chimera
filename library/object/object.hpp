@@ -22,6 +22,10 @@
 
 #pragma once
 
+#include "container/atomic_map.hpp" // for AtomicMap
+#include "object/number/number.hpp"
+#include "object/reference.hpp"
+
 #include <cstdint>     // for uint64_t, uint8_t
 #include <exception>   // for exception
 #include <future>      // for future
@@ -34,10 +38,6 @@
 #include <utility>     // for forward, move
 #include <variant>     // for holds_alternative, variant
 #include <vector>      // for vector
-
-#include "container/atomic_map.hpp" // for AtomicMap
-#include "object/number/number.hpp"
-#include "object/reference.hpp"
 
 namespace chimera::library::object {
   namespace internal {

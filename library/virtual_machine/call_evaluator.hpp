@@ -23,9 +23,9 @@
 
 #pragma once
 
-#include <optional>
-
 #include "object/object.hpp"
+
+#include <optional>
 
 namespace chimera::library::virtual_machine {
   struct Evaluator;

@@ -22,12 +22,12 @@
 
 #pragma once
 
-#include <metal.hpp>
-#include <tao/pegtl.hpp>
-
 #include "grammar/rules/action.hpp"
 #include "grammar/rules/captures.hpp"
 #include "grammar/rules/control.hpp"
+
+#include <metal.hpp>
+#include <tao/pegtl.hpp>
 
 namespace chimera::library::grammar::rules {
   struct SyntaxError : virtual public std::exception {};

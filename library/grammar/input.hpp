@@ -23,13 +23,11 @@
 
 #pragma once
 
+#include <tao/pegtl.hpp>
+
 #include <cstdint>
 #include <iterator>
 #include <stack>
-
-// NOLINTBEGIN(misc-no-recursion)
-
-#include <tao/pegtl.hpp>
 
 namespace chimera::library::grammar {
   template <typename Base>
@@ -113,5 +111,3 @@ namespace chimera::library::grammar {
     std::stack<std::uintmax_t> indentStack{};
   };
 } // namespace chimera::library::grammar
-
-// NOLINTEND(misc-no-recursion)

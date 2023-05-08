@@ -22,9 +22,9 @@
 
 #pragma once
 
-#include <vector>
-
 #include <gsl/gsl>
+
+#include <vector>
 
 namespace chimera::library {
   void options();

@@ -22,17 +22,6 @@
 
 #include "virtual_machine/process_context.hpp"
 
-#include <csignal>
-#include <exception>
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <string_view>
-
-#include <gsl/gsl>
-
-#include "number-rust.hpp"
-
 #include "asdl/asdl.hpp"
 #include "builtins/builtins.hpp"
 #include "importlib/importlib.hpp"
@@ -40,6 +29,17 @@
 #include "object/object.hpp"
 #include "sys/sys.hpp"
 #include "virtual_machine/thread_context.hpp"
+
+#include "number-rust.hpp"
+
+#include <gsl/gsl>
+
+#include <csignal>
+#include <exception>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <string_view>
 
 using namespace std::literals;
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)

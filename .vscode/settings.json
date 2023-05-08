@@ -101,7 +101,8 @@
         "util": "cpp",
         "utility": "cpp",
         "variant": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "log": "cpp"
     },
     "git.autofetch": false,
     "git.autorefresh": false,

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
-#include <iosfwd>
-
 #define FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
 
 #include "grammar/grammar.hpp"
+
+#include <cstddef>
+#include <cstdint>
+#include <iosfwd>
 
 namespace chimera::library {
   using Input = grammar::Input<tao::pegtl::istream_input<>>;

@@ -24,12 +24,12 @@
 
 #pragma once
 
+#include <gsl/gsl>
+
 #include <algorithm>
 #include <tuple>
 #include <variant>
 #include <vector>
-
-#include <gsl/gsl>
 
 namespace chimera::library::grammar::rules {
   template <typename... Types>

@@ -1,16 +1,6 @@
 #include "fuzz/cases.hpp"
 
-#include <cstddef>
-#include <cstdint>
-#include <exception>
-#include <iostream>
-#include <sstream>
-#include <string>
-
-#include <tao/pegtl.hpp>
-
 #include "asdl/asdl.hpp"
-#include "builtins/builtins.hpp"
 #include "grammar/number.hpp"
 #include "grammar/rules.hpp"
 #include "object/object.hpp"
@@ -18,6 +8,15 @@
 #include "virtual_machine/global_context.hpp"
 #include "virtual_machine/process_context.hpp"
 #include "virtual_machine/thread_context.hpp"
+
+#include <tao/pegtl.hpp>
+
+#include <cstddef>
+#include <cstdint>
+#include <exception>
+#include <iostream>
+#include <sstream>
+#include <string>
 
 namespace chimera::library {
   using NumericLimits = std::numeric_limits<std::uint16_t>;

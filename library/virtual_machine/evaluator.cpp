@@ -23,16 +23,16 @@
 
 #include "virtual_machine/evaluator.hpp"
 
-#include <exception>
-#include <istream>
-
-#include <gsl/gsl>
-
 #include "asdl/asdl.hpp"
 #include "container/reverse.hpp"
 #include "virtual_machine/del_evaluator.hpp"
 #include "virtual_machine/get_evaluator.hpp"
 #include "virtual_machine/set_evaluator.hpp"
+
+#include <gsl/gsl>
+
+#include <exception>
+#include <istream>
 
 using namespace std::literals;
 

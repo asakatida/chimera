@@ -22,18 +22,6 @@
 
 #pragma once
 
-#include <algorithm>
-#include <cstdint>
-#include <numeric>
-#include <string>
-#include <string_view>
-
-// NOLINTBEGIN(misc-no-recursion)
-
-#include <gsl/gsl>
-#include <tao/pegtl.hpp>
-#include <tao/pegtl/contrib/unescape.hpp>
-
 #include "asdl/asdl.hpp"
 #include "grammar/exprfwd.hpp"
 #include "grammar/flags.hpp"
@@ -41,6 +29,16 @@
 #include "grammar/rules.hpp"
 #include "grammar/whitespace.hpp"
 #include "object/object.hpp"
+
+#include <gsl/gsl>
+#include <tao/pegtl.hpp>
+#include <tao/pegtl/contrib/unescape.hpp>
+
+#include <algorithm>
+#include <cstdint>
+#include <numeric>
+#include <string>
+#include <string_view>
 
 namespace chimera::library::grammar {
   namespace token {
@@ -474,5 +472,3 @@ namespace chimera::library::grammar {
   template <flags::Flag Option>
   struct STRING : sor<token::Bytes<Option>, token::JoinedStr<Option>> {};
 } // namespace chimera::library::grammar
-
-// NOLINTEND(misc-no-recursion)

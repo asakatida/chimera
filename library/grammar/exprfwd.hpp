@@ -23,8 +23,6 @@
 
 #pragma once
 
-// NOLINTBEGIN(misc-no-recursion)
-
 namespace chimera::library::grammar {
   template <flags::Flag Option>
   struct ConditionalExpression;
@@ -33,5 +31,3 @@ namespace chimera::library::grammar {
   template <flags::Flag Option>
   struct YieldExpr;
 } // namespace chimera::library::grammar
-
-// NOLINTEND(misc-no-recursion)

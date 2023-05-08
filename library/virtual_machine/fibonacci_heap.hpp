@@ -22,11 +22,11 @@
 
 #pragma once
 
+#include <gsl/gsl>
+
 #include <cstdint>
 #include <memory>
 #include <mutex>
-
-#include <gsl/gsl>
 
 namespace chimera::library::virtual_machine {
   //! Fibonacci heap

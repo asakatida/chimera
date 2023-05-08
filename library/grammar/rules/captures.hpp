@@ -22,11 +22,11 @@
 
 #pragma once
 
-#include <optional>
-#include <vector>
-
 #include "grammar/rules/set.hpp"
 #include "grammar/rules/stack.hpp"
+
+#include <optional>
+#include <vector>
 
 namespace chimera::library::grammar::rules {
   template <typename... Types>

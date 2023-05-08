@@ -22,10 +22,10 @@
 
 #pragma once
 
-#include <atomic>
-
 #include "object/object.hpp"
 #include "options.hpp"
+
+#include <atomic>
 
 namespace chimera::library::virtual_machine {
   struct GlobalContext {
