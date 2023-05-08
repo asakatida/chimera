@@ -360,7 +360,9 @@
             - name: Bootstrap Python virtualenv
               ansible.builtin.pip:
                 chdir: /tmp
-                name: tqdm==4.65.0
+                name:
+                  - structlog==23.1.0
+                  - tqdm==4.65.0
                 virtualenv: /opt/edge-virtualenv
             - name: Get fish shell  # noqa: command-instead-of-shell
               ansible.builtin.shell: command -v fish
