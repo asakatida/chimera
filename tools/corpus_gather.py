@@ -21,10 +21,10 @@
 """corpus_gather.py"""
 
 from asyncio import run
-from asyncio.subprocess import DEVNULL, PIPE
-from sys import argv, stderr
+from asyncio.subprocess import DEVNULL
+from sys import argv
 
-from asyncio_cmd import ProcessError, cmd, cmd_check, splitlines
+from asyncio_cmd import ProcessError, cmd, cmd_check, main, splitlines
 from corpus_retest import corpus_retest
 from corpus_trim import corpus_trim
 from corpus_utils import regression
@@ -33,11 +33,11 @@ from tqdm import tqdm
 
 
 async def git_cmd(*args: object) -> None:
-    await cmd("git", *args, err=PIPE, log=False, out=DEVNULL)
+    await cmd("git", *args, log=False, out=DEVNULL)
 
 
 async def git_cmd_remote(*args: object) -> None:
-    await cmd("git", *args, err=None, out=None, timeout=600)
+    await cmd("git", *args, timeout=600)
 
 
 async def git_restore(sha: str, *paths: object, disable_bars: bool) -> None:
@@ -48,9 +48,7 @@ async def git_restore(sha: str, *paths: object, disable_bars: bool) -> None:
     deleted = tuple(
         filter(
             lambda line: line.startswith(" D "),
-            splitlines(
-                await cmd("git", "status", "--porcelain", err=PIPE, log=False, out=PIPE)
-            ),
+            splitlines(await cmd("git", "status", "--porcelain", log=False)),
         )
     )
     if deleted:
@@ -67,15 +65,7 @@ async def corpus_gather(*paths: str, disable_bars: bool) -> None:
         list(
             splitlines(
                 await cmd(
-                    "git",
-                    "log",
-                    "--all",
-                    "--format=%h",
-                    "^origin/HEAD",
-                    "--",
-                    *paths,
-                    err=None,
-                    out=PIPE,
+                    "git", "log", "--all", "--format=%h", "^origin/HEAD", "--", *paths
                 )
             )
         ),
@@ -88,11 +78,11 @@ async def corpus_gather(*paths: str, disable_bars: bool) -> None:
     await cmd("git", "reset", "HEAD^", err=DEVNULL, out=DEVNULL, timeout=900)
 
 
-async def main(ref: str, *, disable_bars: bool) -> None:
+async def corpus_gather_main(ref: str, *, disable_bars: bool) -> None:
     await git_cmd("config", "--local", "user.email", "email")
     await git_cmd("config", "--local", "user.name", "name")
-    await cmd("rustup", "default", "stable", err=None, out=None)
-    await cmd("cmake", "-GNinja", "-B", "build", "-S", ".", err=None, out=None)
+    await cmd("rustup", "default", "stable")
+    await cmd("cmake", "-GNinja", "-B", "build", "-S", ".")
     await ninja("build")
     path = "unit_tests/fuzz/corpus"
     if ref == "refs/heads/stable":
@@ -107,9 +97,5 @@ async def main(ref: str, *, disable_bars: bool) -> None:
 
 
 if __name__ == "__main__":
-    try:
-        run(main(*argv[1:], disable_bars=False))
-    except ProcessError as error:
-        error.exit()
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt", file=stderr)
+    with main():
+        run(corpus_gather_main(*argv[1:], disable_bars=False))

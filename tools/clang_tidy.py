@@ -1,8 +1,8 @@
 from asyncio import run
-from sys import argv, stderr
+from sys import argv
 
 from asyncio_as_completed import as_completed
-from asyncio_cmd import ProcessError, chunks, ci_args, cmd_no_timeout
+from asyncio_cmd import chunks, ci_args, cmd_no_timeout, main
 from g_ls_tree import g_ls_tree
 
 
@@ -24,9 +24,5 @@ async def clang_tidy(build: str) -> None:
 
 
 if __name__ == "__main__":
-    try:
+    with main():
         run(clang_tidy(*argv[1:]))
-    except ProcessError as error:
-        error.exit()
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt", file=stderr)

@@ -21,20 +21,17 @@
 """ninja.py"""
 
 from asyncio import run
-from asyncio.subprocess import PIPE
-from sys import argv, stderr
+from sys import argv
 
-from asyncio_cmd import ProcessError, cmd, cmd_no_timeout, splitlines
+from asyncio_cmd import cmd, cmd_no_timeout, main, splitlines
 
 
 async def ninja_cmd(*args: object, timeout: int) -> None:
-    await cmd("ninja", "-C", *args, err=None, out=None, timeout=timeout)
+    await cmd("ninja", "-C", *args, timeout=timeout)
 
 
 async def ninja(build: object, *args: object) -> None:
-    targets = tuple(
-        splitlines(await cmd("ninja", "-C", build, "help", err=None, out=PIPE))
-    )
+    targets = tuple(splitlines(await cmd("ninja", "-C", build, "help")))
     await ninja_cmd(build, "-j1", "chimera-grammar", timeout=1200)
     await ninja_cmd(build, "-j3", "chimera", "chimera-core", "libchimera", timeout=720)
     await ninja_cmd(build, "Catch2WithMain", timeout=180)
@@ -46,9 +43,5 @@ async def ninja(build: object, *args: object) -> None:
 
 
 if __name__ == "__main__":
-    try:
+    with main():
         run(ninja(*argv[1:]))
-    except ProcessError as error:
-        error.exit()
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt", file=stderr)

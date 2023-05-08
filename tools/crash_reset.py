@@ -21,8 +21,9 @@
 """crash_reset.py"""
 
 from pathlib import Path
-from sys import argv, stderr
+from sys import argv
 
+from asyncio_cmd import main
 from corpus_utils import sha
 
 SOURCE = Path(__file__).parent.parent.resolve()
@@ -38,7 +39,5 @@ def crash_reset() -> None:
 
 
 if __name__ == "__main__":
-    try:
+    with main():
         crash_reset(*argv[1:])
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt", file=stderr)

@@ -1,12 +1,11 @@
 from asyncio import run
 from re import sub
-from sys import stderr
 
-from asyncio_cmd import ProcessError
+from asyncio_cmd import main
 from g_ls_tree import g_ls_tree
 
 
-async def main() -> None:
+async def re_black() -> None:
     sum(
         map(
             lambda path: path.write_text(
@@ -18,9 +17,5 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    try:
-        run(main())
-    except ProcessError as error:
-        error.exit()
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt", file=stderr)
+    with main():
+        run(re_black())

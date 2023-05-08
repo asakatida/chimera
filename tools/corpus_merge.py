@@ -23,10 +23,10 @@
 from asyncio import run
 from os import environ
 from pathlib import Path
-from sys import stderr
 
-from asyncio_cmd import ProcessError, cmd
+from asyncio_cmd import cmd, main
 from corpus_utils import corpus_merge
+from structlog import get_logger
 
 IN_CI = environ.get("CI", "") == "true"
 SOURCE = Path(__file__).parent.parent.resolve()
@@ -36,7 +36,7 @@ CORPUS_ORIGINAL = FUZZ / "corpus_original"
 
 
 async def git_cmd(*args: object) -> None:
-    await cmd("git", *args, err=None, out=None, timeout=600)
+    await cmd("git", *args, timeout=600)
 
 
 def rmdir(path: Path) -> None:
@@ -48,7 +48,7 @@ def rmdir(path: Path) -> None:
         path.unlink(missing_ok=True)
 
 
-async def main() -> None:
+async def corpus_merge_main() -> None:
     if IN_CI:
         rmdir(CORPUS_ORIGINAL)
     CORPUS.rename(CORPUS_ORIGINAL)
@@ -57,14 +57,11 @@ async def main() -> None:
     if errors:
         error = errors.pop()
         if errors:
-            print("Extra Errors:", *errors, file=stderr, sep="\n")
+            for error in errors:
+                get_logger().error(f"Extra Error: {error}")
         raise error
 
 
 if __name__ == "__main__":
-    try:
-        run(main())
-    except ProcessError as error:
-        error.exit()
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt", file=stderr)
+    with main():
+        run(corpus_merge_main())

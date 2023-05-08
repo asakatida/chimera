@@ -23,14 +23,13 @@
 from asyncio import run
 from os import chdir, environ
 from pathlib import Path
-from sys import stderr
 
-from asyncio_cmd import ProcessError, cmd, cmd_env
+from asyncio_cmd import cmd, cmd_env, main
 from corpus_utils import regression
 from ninja import ninja
 
 
-async def main() -> None:
+async def codecov() -> None:
     llvm_profile_file = Path(
         environ.get(
             "LLVM_PROFILE_FILE",
@@ -72,8 +71,6 @@ async def main() -> None:
             ),
             LDFLAGS="",
         ),
-        out=None,
-        err=None,
     )
     try:
         llvm_profile_dir.rmdir()
@@ -89,8 +86,6 @@ async def main() -> None:
         "-sparse",
         *llvm_profile_files,
         f"--output={instr_profile}",
-        err=None,
-        out=None,
         timeout=600,
     )
     await cmd(
@@ -100,15 +95,10 @@ async def main() -> None:
         "--ignore-filename-regex=.*/(catch2|external|unit_tests)/.*",
         f"-instr-profile={instr_profile}",
         "--format=lcov",
-        err=None,
         out=None,
     )
 
 
 if __name__ == "__main__":
-    try:
-        run(main())
-    except ProcessError as error:
-        error.exit()
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt", file=stderr)
+    with main():
+        run(codecov())

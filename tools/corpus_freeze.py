@@ -21,12 +21,11 @@
 """corpus_freeze.py"""
 
 from asyncio import run
-from asyncio.subprocess import PIPE
 from json import dumps, loads
 from pathlib import Path
-from sys import argv, stderr
+from sys import argv
 
-from asyncio_cmd import ProcessError, cmd
+from asyncio_cmd import cmd, main
 from corpus_ascii import corpus_ascii
 from corpus_utils import sha
 
@@ -39,16 +38,7 @@ async def corpus_freeze(output: str) -> None:
             sha(file): file.read_text()
             for file in sorted(corpus_ascii())
             if await cmd(
-                "git",
-                "log",
-                "--all",
-                "--oneline",
-                "^HEAD",
-                "--",
-                file,
-                err=PIPE,
-                log=False,
-                out=PIPE,
+                "git", "log", "--all", "--oneline", "^HEAD", "--", file, log=False
             )
         }
     )
@@ -56,9 +46,5 @@ async def corpus_freeze(output: str) -> None:
 
 
 if __name__ == "__main__":
-    try:
+    with main():
         run(corpus_freeze(*argv[1:]))
-    except ProcessError as error:
-        error.exit()
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt", file=stderr)

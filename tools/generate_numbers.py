@@ -27,8 +27,9 @@ from pathlib import Path
 from re import M, X
 from re import compile as rc
 from re import escape
-from sys import stderr
 from typing import Callable, Iterable, Match, Pattern
+
+from asyncio_cmd import main
 
 OPERATIONS = {
     "add": "operator+",
@@ -395,7 +396,7 @@ def process_unary_ops(ops: dict[str, str]) -> None:
         process_unary_source(op, source, op_unary_source)
 
 
-def main() -> None:
+def generate_numbers() -> None:
     """
     Entry point.
     """
@@ -406,7 +407,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt", file=stderr)
+    with main():
+        generate_numbers()
