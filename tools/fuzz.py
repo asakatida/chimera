@@ -1,10 +1,9 @@
 from asyncio import run
-from asyncio.subprocess import PIPE
 from itertools import chain, repeat
 from pathlib import Path
-from sys import argv, stderr
+from sys import argv
 
-from asyncio_cmd import ProcessError, cmd
+from asyncio_cmd import cmd, main
 
 
 async def fuzz(fuzzer: str, dictionary: str, *dirs: str) -> None:
@@ -21,17 +20,11 @@ async def fuzz(fuzzer: str, dictionary: str, *dirs: str) -> None:
             Path.is_dir,  # type: ignore
             chain.from_iterable(map(Path.rglob, map(Path, dirs), repeat("*"))),  # type: ignore
         ),
-        err=PIPE,
         log=False,
-        out=PIPE,
         timeout=300,
     )
 
 
 if __name__ == "__main__":
-    try:
+    with main():
         run(fuzz(*argv[1:]))
-    except ProcessError:
-        pass
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt", file=stderr)

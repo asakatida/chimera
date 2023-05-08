@@ -23,10 +23,11 @@
 from itertools import groupby
 from pathlib import Path
 from string import printable
-from sys import stderr
 from typing import Iterable
 
+from asyncio_cmd import main
 from corpus_utils import bucket, gather_paths
+from structlog import get_logger
 
 FUZZ = Path(__file__).parent.parent.resolve() / "unit_tests" / "fuzz"
 PRINTABLE = set(printable)
@@ -45,12 +46,10 @@ def corpus_ascii() -> Iterable[Path]:
 
 
 if __name__ == "__main__":
-    try:
+    with main():
         paths = sorted(corpus_ascii())
         for file in paths:
-            print(file)
+            get_logger().info(file)
         for name, contents in groupby(paths, lambda file: bucket(file).name):
             total = len(tuple(contents))
-            print(name, total, total * 100 // len(paths) / 100, file=stderr)
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt", file=stderr)
+            get_logger().info(f"{name}: {total} / {total * 100 // len(paths) / 100}")

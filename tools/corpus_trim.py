@@ -24,9 +24,9 @@ from hashlib import sha256
 from itertools import chain, repeat
 from pathlib import Path
 from re import MULTILINE, compile
-from sys import stderr
 from typing import Iterable
 
+from asyncio_cmd import main
 from corpus_utils import bucket, c_tqdm, gather_paths, sha
 
 LENGTH = 14
@@ -127,7 +127,5 @@ def corpus_trim(disable_bars: bool = False) -> None:
 
 
 if __name__ == "__main__":
-    try:
+    with main():
         corpus_trim()
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt", file=stderr)

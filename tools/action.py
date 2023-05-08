@@ -1,21 +1,19 @@
 from asyncio import run
-from asyncio.subprocess import PIPE
 from os import environ
 from pathlib import Path
-from sys import argv, stderr
+from sys import argv
 
-from asyncio_cmd import ProcessError, cmd_env, cmd_no_timeout
+from asyncio_cmd import cmd_env, cmd_no_timeout, main, splitlines
+from structlog import get_logger
 
 
 async def pip_install(file: object) -> None:
-    for line in (
-        await cmd_env("pip", "install", "-r", file, out=PIPE, err=None, timeout=120)
-    ).splitlines():
-        if not line.startswith(b"Requirement already satisfied: "):
-            print(line.decode(), file=stderr)
+    for line in splitlines(await cmd_env("pip", "install", "-r", file, timeout=120)):
+        if not line.startswith("Requirement already satisfied: "):
+            get_logger().info(line)
 
 
-async def main(cmd: str, *args: str) -> None:
+async def action(cmd: str, *args: str) -> None:
     environ["PATH"] = ":".join(
         ("/opt/virtualenv/bin", "/home/github/.cargo/bin", environ["PATH"])
     )
@@ -31,9 +29,5 @@ async def main(cmd: str, *args: str) -> None:
 
 
 if __name__ == "__main__":
-    try:
-        run(main(*argv[1:]))
-    except ProcessError as error:
-        error.exit()
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt", file=stderr)
+    with main():
+        run(action(*argv[1:]))

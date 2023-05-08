@@ -1,10 +1,13 @@
 from asyncio import CancelledError, create_subprocess_exec, wait_for
-from asyncio.subprocess import DEVNULL, Process
+from asyncio.subprocess import DEVNULL, PIPE, Process
+from contextlib import contextmanager
 from itertools import chain, islice, repeat, takewhile
 from os import environ
 from pathlib import Path
-from sys import exc_info, stderr
-from typing import Iterable, Sequence, TextIO, TypeVar
+from sys import exc_info
+from typing import Iterable, Iterator, Sequence, TextIO, TypeVar
+
+from structlog import get_logger
 
 IN_CI = environ.get("CI", "") == "true"
 T = TypeVar("T")
@@ -22,11 +25,13 @@ class ProcessError(Exception):
         self.returncode = returncode
 
     def exit(self) -> None:
-        print(*self.cmd, file=stderr)
+        get_logger().error(" ".join(map(str, self.cmd)))
         if self.stdout:
-            print(self.stdout)
+            for line in self.stdout.splitlines():
+                get_logger().info(line)
         if self.stderr:
-            print(self.stderr, file=stderr)
+            for line in self.stderr.splitlines():
+                get_logger().error(line)
         exit(self.returncode)
 
 
@@ -46,13 +51,13 @@ def splitlines(lines: bytes) -> Iterable[str]:
 
 async def cmd(
     *args: object,
-    err: ProcessInput,
+    err: ProcessInput = PIPE,
     log: bool = True,
-    out: ProcessInput,
+    out: ProcessInput = PIPE,
     timeout: int = 20,
 ) -> bytes:
     if log:
-        print("+", *args, file=stderr)
+        get_logger().info(f"+ {' '.join(map(str, args))}")
     proc = await create_subprocess_exec(*map(str, args), stderr=err, stdout=out)
     return await communicate(args, b"", proc, timeout)
 
@@ -73,11 +78,11 @@ async def cmd_check(*args: object, timeout: int = 20) -> Exception | None:
 async def cmd_env(
     *args: object,
     env: dict[str, object] = {},
-    err: ProcessInput,
-    out: ProcessInput,
+    err: ProcessInput = PIPE,
+    out: ProcessInput = PIPE,
     timeout: int = 20,
 ) -> bytes:
-    print("+", *args, file=stderr)
+    get_logger().info(f"+ {' '.join(map(str, args))}")
     proc = await create_subprocess_exec(
         *map(str, args),
         env=dict(
@@ -106,7 +111,7 @@ async def cmd_flog(*args: object, out: str | None = None, timeout: int = 20) -> 
 
 
 async def cmd_no_timeout(*args: object) -> None:
-    print("+", *args, file=stderr)
+    get_logger().info(f"+ {' '.join(map(str, args))}")
     proc = await create_subprocess_exec(*map(str, args))
     try:
         await proc.communicate()
@@ -125,6 +130,16 @@ async def communicate(
             args, (cmd_stdout or b""), err + (cmd_stderr or b""), proc, timeout
         )
     return cmd_stdout or b""
+
+
+@contextmanager
+def main() -> Iterator[None]:
+    try:
+        yield
+    except ProcessError as error:
+        error.exit()
+    except KeyboardInterrupt:
+        get_logger().info("KeyboardInterrupt")
 
 
 async def status(

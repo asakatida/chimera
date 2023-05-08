@@ -3,15 +3,13 @@
 # lists of files to be processed by other tools.
 
 from asyncio import run
-from asyncio.subprocess import PIPE
 from itertools import chain, filterfalse
 from os import environ
 from pathlib import Path
-from sys import stderr
 from typing import Pattern
 
 from asyncio_as_completed import as_completed
-from asyncio_cmd import ProcessError, chunks, cmd, splitlines
+from asyncio_cmd import chunks, cmd, main, splitlines
 
 CACHE: dict[str, list[Path]] = {}
 IN_CI = environ.get("CI", "") == "true"
@@ -19,7 +17,7 @@ SOURCE = Path(__file__).parent.parent.resolve()
 
 
 async def git_cmd(*args: object) -> bytes:
-    return await cmd("git", *args, err=PIPE, log=False, out=PIPE, timeout=60)
+    return await cmd("git", *args, log=False, timeout=60)
 
 
 async def g_ls_tree(*args: str, exclude: Pattern[str] | None = None) -> list[Path]:
@@ -87,7 +85,7 @@ async def g_ls_tree(*args: str, exclude: Pattern[str] | None = None) -> list[Pat
     return CACHE[cache_key]
 
 
-async def main() -> None:
+async def g_ls_tree_main() -> None:
     from argparse import ArgumentParser
     from re import compile
 
@@ -101,9 +99,5 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    try:
-        run(main())
-    except ProcessError as error:
-        error.exit()
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt", file=stderr)
+    with main():
+        run(g_ls_tree_main())
