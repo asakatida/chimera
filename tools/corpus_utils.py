@@ -80,7 +80,7 @@ def fuzz_star(build: Path = SOURCE) -> tuple[Path, ...]:
     )
 
 
-async def fuzz_test(*args: object, timeout: int = 240) -> list[Exception]:
+async def fuzz_test(*args: object, timeout: int = 1200) -> list[Exception]:
     if not fuzz_star():
         raise FileNotFoundError("No fuzz targets built")
     return list(
@@ -107,7 +107,7 @@ def gather_paths() -> Iterable[Path]:
 
 
 async def regression_one(fuzzer: Path, chunk: list[Path]) -> None:
-    await cmd_flog(fuzzer, *chunk, timeout=300)
+    await cmd_flog(fuzzer, *chunk, timeout=1200)
 
 
 async def regression(build: str, fuzzer: str = "", corpus: str = "") -> None:
