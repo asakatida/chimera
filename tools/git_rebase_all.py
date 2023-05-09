@@ -21,10 +21,11 @@
 """git_rebase_all.py."""
 
 from asyncio import run
-from itertools import combinations
+from itertools import combinations, repeat
 from sys import argv
 
 from asyncio_cmd import ProcessError, cmd, cmd_env, main, splitlines
+from corpus_utils import c_tqdm
 from structlog import get_logger
 
 
@@ -45,7 +46,40 @@ async def set_upstream(*remote_branches: str) -> None:
             await git_cmd("branch", local_name, remote_branch)
 
 
-async def git_rebase_all(*args: str) -> None:
+async def report_branch_graph(
+    remote_branches: list[str], local_branches: list[str], disable_bars: bool
+) -> None:
+    branch_graph: dict[str, list[str]] = dict()
+    for left, right in c_tqdm(
+        combinations(local_branches, 2), "Gather common branches", disable_bars
+    ):
+        if left in remote_branches and right in remote_branches:
+            continue
+        if not await git_cmd("diff", left, right):
+            if left in branch_graph and right not in branch_graph:
+                branch_graph.setdefault(left, [])
+                branch_graph[left].append(right)
+            elif right in remote_branches or right in branch_graph:
+                branch_graph.setdefault(right, [])
+                branch_graph[right].append(left)
+            else:
+                branch_graph.setdefault(left, [])
+                branch_graph[left].append(right)
+    for remote, local in c_tqdm(
+        sorted(branch_graph.items()), "Sort branches", disable_bars
+    ):
+        if remote not in remote_branches and any(
+            map(list.count, branch_graph.values(), repeat(remote))
+        ):
+            del branch_graph[remote]
+            next(filter(lambda value: remote in value, branch_graph.values())).extend(
+                local
+            )
+    for remote, local in branch_graph.items():
+        get_logger().info(f"{remote} -> {' '.join(sorted(set(local)))}")
+
+
+async def git_rebase_all(*args: str, disable_bars: bool) -> None:
     await git_cmd("fetch", "--all", "--prune")
     remote_branches = list(splitlines(await git_cmd("branch", "-r")))
     await set_upstream(*remote_branches)
@@ -74,16 +108,9 @@ async def git_rebase_all(*args: str) -> None:
             remote_branches,
         )
     )
-    for left, right in combinations(local_branches, 2):
-        if left in remote_branches and right in remote_branches:
-            continue
-        if not await git_cmd("diff", left, right):
-            if left not in remote_branches:
-                get_logger().info(left)
-            if right not in remote_branches:
-                get_logger().info(right)
+    await report_branch_graph(remote_branches, local_branches, disable_bars)
 
 
 if __name__ == "__main__":
     with main():
-        run(git_rebase_all(*argv[1:]))
+        run(git_rebase_all(*argv[1:], disable_bars=False))
