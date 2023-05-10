@@ -21,7 +21,10 @@ async def action(cmd: str, *args: str) -> None:
     await pip_install("requirements.txt")
     source = Path(__file__).parent.parent.resolve()
     environ["CCACHE_CONFIGPATH"] = str(source / ".github" / "ccache" / "ccache.conf")
-    environ["CCACHE_DIR"] = str(source / ".ccache")
+    environ["CCACHE_DIR"] = str(source / ".ccache" / "local")
+    environ["CCACHE_REMOTE_STORAGE"] = (
+        f"file:{source / '.ccache' / 'remote'}|update-mtime=true"
+    )
     environ["CXXFLAGS"] = environ.get("CXXFLAGS", "").translate(
         dict(zip(b"\n\r", "  "))
     )
