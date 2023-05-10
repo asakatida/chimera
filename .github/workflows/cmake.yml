@@ -61,6 +61,8 @@ jobs:
             git restore --source origin/HEAD --staged unit_tests/fuzz/corpus
             git restore --worktree unit_tests/fuzz/corpus
             python tools/corpus_trim.py
+            ccache --cleanup
+            ccache --trim-dir .ccache/remote --trim-max-size 600Mi
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
@@ -110,6 +112,8 @@ jobs:
             git restore --source origin/HEAD --staged unit_tests/fuzz/corpus
             git restore --worktree unit_tests/fuzz/corpus
             python tools/corpus_trim.py
+            ccache --cleanup
+            ccache --trim-dir .ccache/remote --trim-max-size 600Mi
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
@@ -145,6 +149,8 @@ jobs:
             rustup default stable
             cmake -GNinja -B build -S .
             python tools/ninja.py build check-rand regression
+            ccache --cleanup
+            ccache --trim-dir .ccache/remote --trim-max-size 600Mi
   gather:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
@@ -166,7 +172,10 @@ jobs:
       - name: Corpus gather
         uses: ./
         with:
-          run: python tools/corpus_gather.py ${{ github.ref }}
+          run: |
+            python tools/corpus_gather.py ${{ github.ref }}
+            ccache --cleanup
+            ccache --trim-dir .ccache/remote --trim-max-size 600Mi
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
@@ -204,6 +213,8 @@ jobs:
             rustup default stable
             cmake -GNinja -B build -S .
             ninja -C build -j2 check-rand
+            ccache --cleanup
+            ccache --trim-dir .ccache/remote --trim-max-size 600Mi
   release:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
@@ -231,6 +242,8 @@ jobs:
             rustup default stable
             cmake -GNinja -B build -S .
             python tools/ninja.py build check-rand regression
+            ccache --cleanup
+            ccache --trim-dir .ccache/remote --trim-max-size 600Mi
   scan-build:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
