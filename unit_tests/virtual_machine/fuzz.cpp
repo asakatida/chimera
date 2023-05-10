@@ -3,28 +3,33 @@
 #include <catch2/catch_test_macros.hpp>
 #include <json.hpp>
 
+#include <tuple>
+
 using namespace std::literals;
 
 namespace chimera::library {
   // NOLINTNEXTLINE(readability-function-cognitive-complexity)
   void FuzzerTestOneInput(const std::uint8_t *data, std::size_t size) {
-    (void)fuzz_parse<grammar::Ellipsis<0>>(data, size);
-    (void)fuzz_parse<grammar::Expr<0>, grammar::rules::Stack<asdl::ExprImpl>>(
-        data, size);
-    (void)fuzz_parse<grammar::False<0>>(data, size);
-    (void)fuzz_parse<grammar::SingleInput, asdl::Interactive>(data, size);
-    (void)fuzz_parse<grammar::Keywords>(data, size);
-    (void)fuzz_parse<grammar::FileInput, asdl::Module>(data, size);
-    (void)fuzz_parse<grammar::Name<0>>(data, size);
-    (void)fuzz_parse<grammar::None<0>>(data, size);
-    (void)fuzz_parse<grammar::NUMBER<0>>(data, size);
-    (void)fuzz_parse<grammar::Stmt<0>, grammar::rules::Stack<asdl::StmtImpl>>(
-        data, size);
-    (void)fuzz_parse<grammar::STRING<0>>(data, size);
-    (void)fuzz_parse<grammar::True<0>>(data, size);
-    (void)fuzz_expression_eval(data, size);
-    (void)fuzz_interactive_eval(data, size);
-    (void)fuzz_file_eval(data, size);
+    std::ignore = fuzz_parse<grammar::Ellipsis<0>>(data, size);
+    std::ignore =
+        fuzz_parse<grammar::Expr<0>, grammar::rules::Stack<asdl::ExprImpl>>(
+            data, size);
+    std::ignore = fuzz_parse<grammar::False<0>>(data, size);
+    std::ignore =
+        fuzz_parse<grammar::SingleInput, asdl::Interactive>(data, size);
+    std::ignore = fuzz_parse<grammar::Keywords>(data, size);
+    std::ignore = fuzz_parse<grammar::FileInput, asdl::Module>(data, size);
+    std::ignore = fuzz_parse<grammar::Name<0>>(data, size);
+    std::ignore = fuzz_parse<grammar::None<0>>(data, size);
+    std::ignore = fuzz_parse<grammar::NUMBER<0>>(data, size);
+    std::ignore =
+        fuzz_parse<grammar::Stmt<0>, grammar::rules::Stack<asdl::StmtImpl>>(
+            data, size);
+    std::ignore = fuzz_parse<grammar::STRING<0>>(data, size);
+    std::ignore = fuzz_parse<grammar::True<0>>(data, size);
+    std::ignore = fuzz_expression_eval(data, size);
+    std::ignore = fuzz_interactive_eval(data, size);
+    std::ignore = fuzz_file_eval(data, size);
   }
 } // namespace chimera::library
 
