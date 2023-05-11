@@ -33,11 +33,9 @@ async def git_cmd(*args: object) -> bytes:
     return await cmd("git", *args, log=False, timeout=60)
 
 
-async def set_upstream(*remote_branches: str) -> None:
+async def set_upstream(remote_branches: list[str]) -> None:
     for remote_branch in remote_branches:
-        if "origin/HEAD" in remote_branch or remote_branch.startswith(
-            "origin/dependabot/"
-        ):
+        if remote_branch.startswith("origin/dependabot/"):
             continue
         local_name = remote_branch.split("/", maxsplit=1)[1]
         try:
@@ -46,9 +44,9 @@ async def set_upstream(*remote_branches: str) -> None:
             await git_cmd("branch", local_name, remote_branch)
 
 
-async def report_branch_graph(
+async def gather_branch_graph(
     remote_branches: list[str], local_branches: list[str], disable_bars: bool
-) -> None:
+) -> dict[str, list[str]]:
     branch_graph: dict[str, list[str]] = dict()
     for left, right in c_tqdm(
         combinations(local_branches, 2), "Gather common branches", disable_bars
@@ -65,7 +63,16 @@ async def report_branch_graph(
             else:
                 branch_graph.setdefault(left, [])
                 branch_graph[left].append(right)
-    for remote, local in c_tqdm(
+    return branch_graph
+
+
+async def report_branch_graph(
+    remote_branches: list[str], local_branches: list[str], disable_bars: bool
+) -> None:
+    branch_graph = await gather_branch_graph(
+        remote_branches, local_branches, disable_bars
+    )
+    for remote, branches in c_tqdm(
         sorted(branch_graph.items()), "Sort branches", disable_bars
     ):
         if remote not in remote_branches and any(
@@ -73,16 +80,28 @@ async def report_branch_graph(
         ):
             del branch_graph[remote]
             next(filter(lambda value: remote in value, branch_graph.values())).extend(
-                local
+                branches
             )
-    for remote, local in branch_graph.items():
-        get_logger().info(f"{remote} -> {' '.join(sorted(set(local)))}")
+    for remote in sorted(set(branch_graph.keys()).union(remote_branches)):
+        for local in sorted(
+            set(branch_graph.get(remote, [])).difference(remote_branches)
+        ):
+            if local in branch_graph:
+                branch_graph[remote].extend(branch_graph[local])
+                del branch_graph[local]
+    for remote, branches in branch_graph.items():
+        get_logger().info(f"{remote} -> {' '.join(sorted(set(branches)))}")
 
 
 async def git_rebase_all(*args: str, disable_bars: bool) -> None:
     await git_cmd("fetch", "--all", "--prune")
-    remote_branches = list(splitlines(await git_cmd("branch", "-r")))
-    await set_upstream(*remote_branches)
+    remote_branches = list(
+        filter(
+            lambda branch: not branch.startswith("origin/HEAD -> "),
+            splitlines(await git_cmd("branch", "-r")),
+        )
+    )
+    await set_upstream(remote_branches)
     local_branches = list(
         map(
             lambda local_branch: (
