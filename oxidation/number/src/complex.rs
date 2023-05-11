@@ -2,11 +2,12 @@ use core::{cmp, fmt, ops};
 
 use crate::base::Base;
 use crate::imag::Imag;
+use crate::natural::{Maybe, Natural};
 use crate::negative::Negative;
 use crate::number::Number;
 use crate::rational::Rational;
 use crate::traits::NumberBase;
-use crate::utils::{condense_bigint, fmt_ptr, MaybeBigUint};
+use crate::utils::fmt_ptr;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[non_exhaustive]
@@ -73,23 +74,21 @@ impl From<&Base> for Complex {
         }
     }
 }
-impl From<num_bigint::BigUint> for Complex {
+impl From<Natural> for Complex {
     #[inline]
-    fn from(i: num_bigint::BigUint) -> Self {
+    fn from(i: Natural) -> Self {
         Complex {
-            real: condense_bigint(&i)
-                .map(|real| match real {
-                    MaybeBigUint::Base(v) => Imag::Base(v),
-                    MaybeBigUint::BigUint(v) => Imag::Natural(v),
-                })
-                .unwrap_or(Imag::Base(0.into())),
+            real: match i.reduce() {
+                Maybe::Base(v) => Imag::Base(v),
+                Maybe::Natural(v) => Imag::Natural(v),
+            },
             imag: Imag::Base(0.into()),
         }
     }
 }
-impl From<&num_bigint::BigUint> for Complex {
+impl From<&Natural> for Complex {
     #[inline]
-    fn from(i: &num_bigint::BigUint) -> Self {
+    fn from(i: &Natural) -> Self {
         i.clone().into()
     }
 }

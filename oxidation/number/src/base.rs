@@ -1,5 +1,6 @@
 use core::{cmp, fmt, ops};
 
+use crate::natural::Natural;
 use crate::negative::Negative;
 use crate::number::Number;
 use crate::rational::{Part, Rational};
@@ -32,13 +33,6 @@ impl From<u64> for Base {
     #[inline]
     fn from(i: u64) -> Self {
         Base { value: i }
-    }
-}
-
-impl From<Base> for num_bigint::BigUint {
-    #[inline]
-    fn from(val: Base) -> Self {
-        val.value.into()
     }
 }
 
@@ -128,7 +122,7 @@ impl ops::Add for Base {
     fn add(self, other: Self) -> Self::Output {
         match self.value.overflowing_add(other.value) {
             (i, false) => i.into(),
-            (_, true) => (num_bigint::BigUint::from(self.value) + other.value).into(),
+            (_, true) => Natural::from(self) + other.into(),
         }
     }
 }
@@ -191,7 +185,7 @@ impl ops::Mul for Base {
     fn mul(self, other: Self) -> Self::Output {
         match self.value.overflowing_mul(other.value) {
             (i, false) => Self::new(i).into(),
-            (_, true) => (num_bigint::BigUint::from(self.value) * other.value).into(),
+            (_, true) => Natural::from(self) * other.into(),
         }
     }
 }
@@ -219,16 +213,10 @@ impl num_traits::pow::Pow<Base> for Base {
         if let Ok(value) = other.value.try_into() {
             match self.value.overflowing_pow(value) {
                 (i, false) => Self::new(i).into(),
-                (_, true) => Number::NaN,
-                // (_, true) => num_bigint::BigUint::from(self.value)
-                //     .pow(other.value)
-                //     .into(),
+                (_, true) => Natural::from(self).pow(other.into()),
             }
         } else {
-            Number::NaN
-            // num_bigint::BigUint::from(self.value)
-            //     .pow(other.value)
-            //     .into()
+            Natural::from(self).pow(other.into())
         }
     }
 }

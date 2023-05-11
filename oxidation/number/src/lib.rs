@@ -12,6 +12,7 @@
 pub mod base;
 pub mod complex;
 pub mod imag;
+pub mod natural;
 pub mod negative;
 pub mod number;
 pub mod rational;
