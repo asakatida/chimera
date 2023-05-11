@@ -1,8 +1,7 @@
 use core::{cmp, fmt, ops};
 
-use num_integer::Integer;
-
 use crate::base::Base;
+use crate::natural::Natural;
 use crate::number::Number;
 use crate::rational::Rational;
 use crate::traits::NumberBase;
@@ -12,7 +11,7 @@ use crate::utils::fmt_ptr;
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Negative {
     Base(Base),
-    Natural(num_bigint::BigUint),
+    Natural(Natural),
     Rational(Rational),
 }
 
@@ -176,12 +175,12 @@ impl ops::Add for Negative {
         match (self, other) {
             (Self::Base(a), Self::Base(b)) => -(a + b),
             (Self::Base(a), Self::Natural(b)) | (Self::Natural(b), Self::Base(a)) => {
-                Self::Natural(b + Into::<num_bigint::BigUint>::into(a)).into()
+                -(b + a.into())
             }
             (Self::Base(a), Self::Rational(b)) | (Self::Rational(b), Self::Base(a)) => {
                 -(b + a.into())
             }
-            (Self::Natural(a), Self::Natural(b)) => Self::Natural(a + b).into(),
+            (Self::Natural(a), Self::Natural(b)) => a + b,
             (Self::Natural(a), Self::Rational(b)) | (Self::Rational(b), Self::Natural(a)) => {
                 -(b + a.into())
             }
@@ -197,12 +196,12 @@ impl ops::BitAnd for Negative {
         match (self, other) {
             (Self::Base(a), Self::Base(b)) => -(a & b),
             (Self::Base(a), Self::Natural(b)) | (Self::Natural(b), Self::Base(a)) => {
-                Self::Natural(b & Into::<num_bigint::BigUint>::into(a)).into()
+                -(b & a.into())
             }
             (Self::Base(a), Self::Rational(b)) | (Self::Rational(b), Self::Base(a)) => {
                 -(b & a.into())
             }
-            (Self::Natural(a), Self::Natural(b)) => Self::Natural(a & b).into(),
+            (Self::Natural(a), Self::Natural(b)) => a & b,
             (Self::Natural(a), Self::Rational(b)) | (Self::Rational(b), Self::Natural(a)) => {
                 -(b & a.into())
             }
@@ -218,12 +217,12 @@ impl ops::BitOr for Negative {
         match (self, other) {
             (Self::Base(a), Self::Base(b)) => -(a | b),
             (Self::Base(a), Self::Natural(b)) | (Self::Natural(b), Self::Base(a)) => {
-                Self::Natural(b & Into::<num_bigint::BigUint>::into(a)).into()
+                -(b | a.into())
             }
             (Self::Base(a), Self::Rational(b)) | (Self::Rational(b), Self::Base(a)) => {
                 -(b | a.into())
             }
-            (Self::Natural(a), Self::Natural(b)) => Self::Natural(a | b).into(),
+            (Self::Natural(a), Self::Natural(b)) => -(a | b),
             (Self::Natural(a), Self::Rational(b)) | (Self::Rational(b), Self::Natural(a)) => {
                 -(b | a.into())
             }
@@ -238,11 +237,9 @@ impl ops::BitXor for Negative {
     fn bitxor(self, other: Self) -> Self::Output {
         match (self, other) {
             (Self::Base(a), Self::Base(b)) => a ^ b,
-            (Self::Base(a), Self::Natural(b)) | (Self::Natural(b), Self::Base(a)) => {
-                Self::Natural(b ^ Into::<num_bigint::BigUint>::into(a)).into()
-            }
+            (Self::Base(a), Self::Natural(b)) | (Self::Natural(b), Self::Base(a)) => b ^ a.into(),
             (Self::Base(a), Self::Rational(b)) | (Self::Rational(b), Self::Base(a)) => b ^ a.into(),
-            (Self::Natural(a), Self::Natural(b)) => Self::Natural(a ^ b).into(),
+            (Self::Natural(a), Self::Natural(b)) => a ^ b,
             (Self::Natural(a), Self::Rational(b)) | (Self::Rational(b), Self::Natural(a)) => {
                 b ^ a.into()
             }
@@ -275,11 +272,9 @@ impl ops::Mul for Negative {
     fn mul(self, other: Self) -> Self::Output {
         match (self, other) {
             (Self::Base(a), Self::Base(b)) => a * b,
-            (Self::Base(a), Self::Natural(b)) | (Self::Natural(b), Self::Base(a)) => {
-                (b * Into::<num_bigint::BigUint>::into(a)).into()
-            }
+            (Self::Base(a), Self::Natural(b)) | (Self::Natural(b), Self::Base(a)) => b * a.into(),
             (Self::Base(a), Self::Rational(b)) | (Self::Rational(b), Self::Base(a)) => b * a.into(),
-            (Self::Natural(a), Self::Natural(b)) => (a * b).into(),
+            (Self::Natural(a), Self::Natural(b)) => a * b,
             (Self::Natural(a), Self::Rational(b)) | (Self::Rational(b), Self::Natural(a)) => {
                 b * a.into()
             }
@@ -326,10 +321,10 @@ impl ops::Rem for Negative {
     fn rem(self, other: Self) -> Self::Output {
         match (self, other) {
             (Self::Base(a), Self::Base(b)) => a % b,
-            (Self::Base(a), Self::Natural(b)) => (Into::<num_bigint::BigUint>::into(a) % b).into(),
+            (Self::Base(a), Self::Natural(b)) => Natural::from(a) % b,
             (Self::Base(a), Self::Rational(b)) => Rational::from(a) % b,
-            (Self::Natural(a), Self::Base(b)) => (a % Into::<num_bigint::BigUint>::into(b)).into(),
-            (Self::Natural(a), Self::Natural(b)) => (a % b).into(),
+            (Self::Natural(a), Self::Base(b)) => a % b.into(),
+            (Self::Natural(a), Self::Natural(b)) => a % b,
             (Self::Natural(a), Self::Rational(b)) => Rational::from(a) % b,
             (Self::Rational(a), Self::Base(b)) => a % b.into(),
             (Self::Rational(a), Self::Natural(b)) => a % b.into(),
@@ -342,14 +337,16 @@ impl ops::Shl for Negative {
     type Output = Number;
     #[inline]
     fn shl(self, other: Self) -> Self::Output {
-        match (self, other) {
-            (Self::Base(a), Self::Base(b)) => a << b,
-            (_, Self::Natural(_)) => Number::NaN,
-            (Self::Base(a), Self::Rational(b)) => Rational::from(a) << b,
-            (Self::Natural(a), Self::Base(b)) => (a << b.value).into(),
-            (Self::Natural(a), Self::Rational(b)) => Rational::from(a) << b,
-            (Self::Rational(a), Self::Base(b)) => a << b.into(),
-            (Self::Rational(a), Self::Rational(b)) => a << b,
+        -match (self, other) {
+            (Self::Base(a), Self::Base(b)) => a >> b,
+            (Self::Base(a), Self::Natural(b)) => Natural::from(a) >> b,
+            (Self::Base(a), Self::Rational(b)) => Rational::from(a) >> b,
+            (Self::Natural(a), Self::Base(b)) => a >> b.into(),
+            (Self::Natural(a), Self::Natural(b)) => a >> b,
+            (Self::Natural(a), Self::Rational(b)) => Rational::from(a) >> b,
+            (Self::Rational(a), Self::Base(b)) => a >> b.into(),
+            (Self::Rational(a), Self::Natural(b)) => a >> b.into(),
+            (Self::Rational(a), Self::Rational(b)) => a >> b,
         }
     }
 }
@@ -358,14 +355,16 @@ impl ops::Shr for Negative {
     type Output = Number;
     #[inline]
     fn shr(self, other: Self) -> Self::Output {
-        match (self, other) {
-            (Self::Base(a), Self::Base(b)) => a >> b,
-            (_, Self::Natural(_)) => Number::NaN,
-            (Self::Base(a), Self::Rational(b)) => Rational::from(a) >> b,
-            (Self::Natural(a), Self::Base(b)) => (a >> b.value).into(),
-            (Self::Natural(a), Self::Rational(b)) => Rational::from(a) >> b,
-            (Self::Rational(a), Self::Base(b)) => a >> b.into(),
-            (Self::Rational(a), Self::Rational(b)) => a >> b,
+        -match (self, other) {
+            (Self::Base(a), Self::Base(b)) => a << b,
+            (Self::Base(a), Self::Natural(b)) => Natural::from(a) << b,
+            (Self::Base(a), Self::Rational(b)) => Rational::from(a) << b,
+            (Self::Natural(a), Self::Base(b)) => a << b.into(),
+            (Self::Natural(a), Self::Natural(b)) => a << b,
+            (Self::Natural(a), Self::Rational(b)) => Rational::from(a) << b,
+            (Self::Rational(a), Self::Base(b)) => a << b.into(),
+            (Self::Rational(a), Self::Natural(b)) => a << b.into(),
+            (Self::Rational(a), Self::Rational(b)) => a << b,
         }
     }
 }
@@ -374,20 +373,16 @@ impl ops::Sub for Negative {
     type Output = Number;
     #[inline]
     fn sub(self, other: Self) -> Self::Output {
-        match (self, other) {
-            (Self::Base(a), Self::Base(b)) => -(b - a),
-            (Self::Base(a), Self::Natural(b)) => {
-                Self::Natural(b - Into::<num_bigint::BigUint>::into(a)).into()
-            }
-            (Self::Base(a), Self::Rational(b)) => -(b - a.into()),
-            (Self::Natural(a), Self::Base(b)) => {
-                Self::Natural(Into::<num_bigint::BigUint>::into(b) - a).into()
-            }
-            (Self::Natural(a), Self::Natural(b)) => Self::Natural(b - a).into(),
-            (Self::Natural(a), Self::Rational(b)) => -(b - a.into()),
-            (Self::Rational(a), Self::Base(b)) => -(Rational::from(b) - a),
-            (Self::Rational(a), Self::Natural(b)) => -(Rational::from(b) - a),
-            (Self::Rational(a), Self::Rational(b)) => -(b - a),
+        -match (self, other) {
+            (Self::Base(a), Self::Base(b)) => b - a,
+            (Self::Base(a), Self::Natural(b)) => b - a.into(),
+            (Self::Base(a), Self::Rational(b)) => b - a.into(),
+            (Self::Natural(a), Self::Base(b)) => Natural::from(b) - a,
+            (Self::Natural(a), Self::Natural(b)) => b - a,
+            (Self::Natural(a), Self::Rational(b)) => b - a.into(),
+            (Self::Rational(a), Self::Base(b)) => Rational::from(b) - a,
+            (Self::Rational(a), Self::Natural(b)) => Rational::from(b) - a,
+            (Self::Rational(a), Self::Rational(b)) => b - a,
         }
     }
 }
@@ -406,14 +401,10 @@ impl NumberBase for Negative {
     fn div_floor(self, other: Self) -> Number {
         match (self, other) {
             (Self::Base(a), Self::Base(b)) => a.div_floor(b),
-            (Self::Base(a), Self::Natural(b)) => {
-                Into::<num_bigint::BigUint>::into(a).div_floor(&b).into()
-            }
+            (Self::Base(a), Self::Natural(b)) => Natural::from(a).div_floor(b),
             (Self::Base(a), Self::Rational(b)) => Rational::from(a).div_floor(b),
-            (Self::Natural(a), Self::Base(b)) => {
-                a.div_floor(&Into::<num_bigint::BigUint>::into(b)).into()
-            }
-            (Self::Natural(a), Self::Natural(b)) => a.div_floor(&b).into(),
+            (Self::Natural(a), Self::Base(b)) => a.div_floor(b.into()),
+            (Self::Natural(a), Self::Natural(b)) => a.div_floor(b),
             (Self::Natural(a), Self::Rational(b)) => Rational::from(a).div_floor(b),
             (Self::Rational(a), Self::Base(b)) => a.div_floor(b.into()),
             (Self::Rational(a), Self::Natural(b)) => a.div_floor(b.into()),

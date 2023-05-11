@@ -1,8 +1,7 @@
 use core::{cmp, fmt, ops};
 
-use num_integer::Integer;
-
 use crate::base::Base;
+use crate::natural::Natural;
 use crate::negative::Negative;
 use crate::number::Number;
 use crate::rational::Rational;
@@ -13,7 +12,7 @@ use crate::utils::fmt_ptr;
 #[non_exhaustive]
 pub enum Imag {
     Base(Base),
-    Natural(num_bigint::BigUint),
+    Natural(Natural),
     Rational(Rational),
     Negative(Negative),
 }
@@ -47,15 +46,17 @@ impl Ord for Imag {
     fn cmp(&self, other: &Imag) -> cmp::Ordering {
         match (self.clone(), other.clone()) {
             (Self::Base(a), Self::Base(b)) => a.cmp(&b),
+            (Self::Base(a), Self::Natural(b)) => Natural::from(a).cmp(&b),
+            (Self::Base(a), Self::Rational(b)) => Rational::from(a).cmp(&b),
+            (Self::Natural(a), Self::Base(b)) => a.cmp(&b.into()),
             (Self::Natural(a), Self::Natural(b)) => a.cmp(&b),
-            (Self::Negative(a), Self::Negative(b)) => a.cmp(&b),
+            (Self::Natural(a), Self::Rational(b)) => Rational::from(a).cmp(&b),
+            (Self::Rational(a), Self::Base(b)) => a.cmp(&b.into()),
+            (Self::Rational(a), Self::Natural(b)) => a.cmp(&b.into()),
             (Self::Rational(a), Self::Rational(b)) => a.cmp(&b),
-            (_, Self::Rational(_)) => cmp::Ordering::Greater,
-            (Self::Rational(_), _) => cmp::Ordering::Less,
+            (Self::Negative(a), Self::Negative(b)) => a.cmp(&b),
             (_, Self::Negative(_)) => cmp::Ordering::Greater,
             (Self::Negative(_), _) => cmp::Ordering::Less,
-            (_, Self::Natural(_)) => cmp::Ordering::Greater,
-            (Self::Natural(_), _) => cmp::Ordering::Less,
         }
     }
 }
@@ -302,14 +303,10 @@ impl NumberBase for Imag {
     fn div_floor(self, other: Self) -> Number {
         match (self, other) {
             (Self::Base(a), Self::Base(b)) => a.div_floor(b),
-            (Self::Base(a), Self::Natural(b)) => {
-                Into::<num_bigint::BigUint>::into(a).div_floor(&b).into()
-            }
+            (Self::Base(a), Self::Natural(b)) => Natural::from(a).div_floor(b),
             (Self::Base(a), Self::Rational(b)) => Rational::from(a).div_floor(b),
-            (Self::Natural(a), Self::Base(b)) => {
-                a.div_floor(&Into::<num_bigint::BigUint>::into(b)).into()
-            }
-            (Self::Natural(a), Self::Natural(b)) => a.div_floor(&b).into(),
+            (Self::Natural(a), Self::Base(b)) => a.div_floor(b.into()),
+            (Self::Natural(a), Self::Natural(b)) => a.div_floor(b),
             (Self::Natural(a), Self::Rational(b)) => Rational::from(a).div_floor(b),
             (Self::Rational(a), Self::Base(b)) => a.div_floor(b.into()),
             (Self::Rational(a), Self::Natural(b)) => a.div_floor(b.into()),
@@ -318,14 +315,10 @@ impl NumberBase for Imag {
             (Self::Negative(i), n) => -match (i, n) {
                 (_, Imag::Negative(_)) => Number::NaN,
                 (Negative::Base(a), Self::Base(b)) => a.div_floor(b),
-                (Negative::Base(a), Self::Natural(b)) => {
-                    Into::<num_bigint::BigUint>::into(a).div_floor(&b).into()
-                }
+                (Negative::Base(a), Self::Natural(b)) => Natural::from(a).div_floor(b),
                 (Negative::Base(a), Self::Rational(b)) => Rational::from(a).div_floor(b),
-                (Negative::Natural(a), Self::Base(b)) => {
-                    a.div_floor(&Into::<num_bigint::BigUint>::into(b)).into()
-                }
-                (Negative::Natural(a), Self::Natural(b)) => a.div_floor(&b).into(),
+                (Negative::Natural(a), Self::Base(b)) => a.div_floor(b.into()),
+                (Negative::Natural(a), Self::Natural(b)) => a.div_floor(b),
                 (Negative::Natural(a), Self::Rational(b)) => Rational::from(a).div_floor(b),
                 (Negative::Rational(a), Self::Base(b)) => a.div_floor(b.into()),
                 (Negative::Rational(a), Self::Natural(b)) => a.div_floor(b.into()),
@@ -334,14 +327,10 @@ impl NumberBase for Imag {
             (n, Self::Negative(i)) => -match (i, n) {
                 (_, Imag::Negative(_)) => Number::NaN,
                 (Negative::Base(b), Self::Base(a)) => a.div_floor(b),
-                (Negative::Base(b), Self::Natural(a)) => {
-                    a.div_floor(&Into::<num_bigint::BigUint>::into(b)).into()
-                }
+                (Negative::Base(b), Self::Natural(a)) => a.div_floor(b.into()),
                 (Negative::Base(b), Self::Rational(a)) => a.div_floor(b.into()),
-                (Negative::Natural(b), Self::Base(a)) => {
-                    Into::<num_bigint::BigUint>::into(a).div_floor(&b).into()
-                }
-                (Negative::Natural(b), Self::Natural(a)) => a.div_floor(&b).into(),
+                (Negative::Natural(b), Self::Base(a)) => Natural::from(a).div_floor(b),
+                (Negative::Natural(b), Self::Natural(a)) => a.div_floor(b),
                 (Negative::Natural(b), Self::Rational(a)) => a.div_floor(b.into()),
                 (Negative::Rational(b), Self::Base(a)) => Rational::from(a).div_floor(b),
                 (Negative::Rational(b), Self::Natural(a)) => Rational::from(a).div_floor(b),
