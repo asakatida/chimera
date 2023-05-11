@@ -1,9 +1,11 @@
 ---
 jobs:
-  cleanup:
+  cleanup-actions:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: ${{ github.workflow }}-${{ github.ref }}
+      group: ${{ github.workflow }}-actions-${{ github.ref }}
+    permissions:
+      actions: write
     runs-on: ubuntu-22.04
     steps:
       - env:
@@ -42,6 +44,44 @@ jobs:
           ' |
           xargs --max-lines=1 --max-procs=2 --no-run-if-empty --verbose --
           gh api -X DELETE
+  cleanup-packages:
+    concurrency:
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      group: ${{ github.workflow }}-packages-${{ github.ref }}
+    permissions:
+      packages: write
+    runs-on: ubuntu-22.04
+    steps:
+      - env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        name: Cleanup
+        run: >
+          gh api /user/packages/container/chimera-testing/versions --paginate -q '
+            map(
+              select(
+                .metadata.container.tags == [] or
+                (.updated_at | fromdate) < (now - 60 * 60 * 24 * 7)
+              ) |
+              .url
+            )[]
+          ' |
+          xargs --max-lines=1 --max-procs=2 --no-run-if-empty --verbose --
+          gh api -X DELETE
+      - env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        name: Cleanup
+        run: >
+          gh api /user/packages/container/chimera/versions --paginate -q '
+            map(
+              select(
+                .metadata.container.tags == [] and
+                (.updated_at | fromdate) < (now - 60 * 60 * 24 * 30)
+              ) |
+              .url
+            )[]
+          ' |
+          xargs --max-lines=1 --max-procs=2 --no-run-if-empty --verbose --
+          gh api -X DELETE
 
 name: Meta Actions
 
@@ -53,6 +93,3 @@ on:
   schedule:
     - cron: 20 14 * * *
   workflow_dispatch: ~
-
-permissions:
-  actions: write
