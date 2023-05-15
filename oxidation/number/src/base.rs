@@ -260,16 +260,14 @@ impl ops::Sub for Base {
 
 #[allow(clippy::missing_trait_methods)]
 impl NumberBase for Base {
-    #[inline]
-    fn abs(self) -> Number {
-        self.value.into()
-    }
     #[allow(clippy::integer_division)]
     #[inline]
+    #[must_use]
     fn div_floor(self, other: Self) -> Number {
         (self.value / other.value).into()
     }
     #[inline]
+    #[must_use]
     fn gcd(self, other: Self) -> Number {
         let mut a_prime = self.value;
         let mut b_prime = other.value;

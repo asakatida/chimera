@@ -292,10 +292,6 @@ impl ops::Sub for Natural {
 #[allow(clippy::missing_trait_methods)]
 impl NumberBase for Natural {
     #[inline]
-    fn abs(self) -> Number {
-        Number::Natural(self)
-    }
-    #[inline]
     fn div_floor(self, other: Self) -> Number {
         Self::new(self.value.div_floor(&other.value)).into()
     }

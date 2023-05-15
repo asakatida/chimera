@@ -325,11 +325,13 @@ impl ops::Sub for Complex {
 #[allow(clippy::missing_trait_methods)]
 impl NumberBase for Complex {
     #[inline]
+    #[must_use]
     fn abs(self) -> Number {
-        self.real.abs() + self.imag.abs()
+        self.real.abs().imag() + self.imag.abs()
     }
     #[inline]
+    #[must_use]
     fn div_floor(self, other: Self) -> Number {
-        self.real.div_floor(other.real) + self.imag.div_floor(other.imag)
+        self.real.div_floor(other.real).imag() + self.imag.div_floor(other.imag)
     }
 }

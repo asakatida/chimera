@@ -31,13 +31,19 @@ pub trait NumberBase:
     + fmt::UpperExp
     + fmt::UpperHex
 {
-    fn abs(self) -> Number;
+    #[inline]
+    #[must_use]
+    fn abs(self) -> Number {
+        self.into()
+    }
     fn div_floor(self, other: Self) -> Number;
     #[inline]
+    #[must_use]
     fn gcd(self, other: Self) -> Number {
         gcd(self, other)
     }
     #[inline]
+    #[must_use]
     fn mod_pow(self, exp: Self, modu: Self) -> Number {
         self.pow(exp) % modu.into()
     }

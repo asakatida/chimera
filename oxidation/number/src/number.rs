@@ -1064,6 +1064,7 @@ impl ops::Sub for Number {
 #[allow(clippy::missing_trait_methods)]
 impl NumberBase for Number {
     #[inline]
+    #[must_use]
     fn abs(self) -> Self {
         match self {
             Self::Base(a) => a.abs(),
@@ -1076,6 +1077,7 @@ impl NumberBase for Number {
         }
     }
     #[inline]
+    #[must_use]
     fn div_floor(self, other: Self) -> Self {
         match (self, other) {
             (Self::NaN, _) | (_, Self::NaN) => Self::NaN,
@@ -1142,6 +1144,7 @@ impl NumberBase for Number {
         }
     }
     #[inline]
+    #[must_use]
     fn gcd(self, other: Self) -> Self {
         match (self, other) {
             (Self::NaN, _) | (_, Self::NaN) => Self::NaN,
