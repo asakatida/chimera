@@ -404,10 +404,7 @@ impl ops::Sub for Rational {
 #[allow(clippy::missing_trait_methods)]
 impl NumberBase for Rational {
     #[inline]
-    fn abs(self) -> Number {
-        self.into()
-    }
-    #[inline]
+    #[must_use]
     fn div_floor(self, other: Self) -> Number {
         (match (self.numerator, other.denominator) {
             (Part::Base(a), Part::Base(b)) => a.div_floor(b),

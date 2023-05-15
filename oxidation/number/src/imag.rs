@@ -290,6 +290,7 @@ impl ops::Sub for Imag {
 #[allow(clippy::missing_trait_methods)]
 impl NumberBase for Imag {
     #[inline]
+    #[must_use]
     fn abs(self) -> Number {
         match self {
             Self::Base(i) => Self::Base(i).into(),
@@ -300,6 +301,7 @@ impl NumberBase for Imag {
         .imag()
     }
     #[inline]
+    #[must_use]
     fn div_floor(self, other: Self) -> Number {
         match (self, other) {
             (Self::Base(a), Self::Base(b)) => a.div_floor(b),
