@@ -14,7 +14,7 @@ IGNORE = (
 )
 SEARCHES = (
     compile(
-        rb"$\s^$(?P<keep>\s{2,})(?=\S)(?!private:)", MULTILINE
+        rb"$\s^$(?P<keep>\s{2,})(?=\S)(?!(?:private|protected):)", MULTILINE
     ),  # no runs of blank lines
     compile(rb"((?=[^\n])\s)+(?P<keep>$)", MULTILINE),  # no line ending space
     compile(rb"(?P<keep>\s)\s+\Z"),  # no trailing space
