@@ -20,8 +20,8 @@ class ProcessError(Exception):
     ) -> None:
         super().__init__(f"{cmd} failed with {returncode}")
         self.cmd = cmd
-        self.stderr = stderr.decode().strip()
-        self.stdout = stdout.decode().strip()
+        self.stderr = stderr.decode(errors="backslashreplace").strip()
+        self.stdout = stdout.decode(errors="backslashreplace").strip()
         self.returncode = returncode
 
     def exit(self) -> None:
