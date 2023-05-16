@@ -16,7 +16,6 @@ use crate::traits::NumberBase;
 use crate::utils::fmt_ptr;
 
 #[derive(Clone, Copy, Debug, Default, Eq, Ord, PartialEq, PartialOrd)]
-#[non_exhaustive]
 pub struct Base {
     value: u64,
 }

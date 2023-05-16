@@ -2,6 +2,7 @@
 #![deny(clippy::restriction)]
 #![allow(clippy::arithmetic_side_effects)]
 #![allow(clippy::blanket_clippy_restriction_lints)]
+#![allow(clippy::exhaustive_enums)]
 #![allow(clippy::separated_literal_suffix)]
 #![allow(clippy::implicit_return)]
 #![allow(clippy::missing_docs_in_private_items)]
@@ -18,7 +19,6 @@ use crate::traits::NumberBase;
 use crate::utils::{fmt_ptr, gcd};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-#[non_exhaustive]
 pub enum Number {
     Base(Base),
     Natural(Natural),
