@@ -17,7 +17,6 @@ use crate::traits::NumberBase;
 use crate::utils::fmt_ptr;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-#[non_exhaustive]
 pub struct Complex {
     real: Imag,
     imag: Imag,

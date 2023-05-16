@@ -2,6 +2,7 @@
 #![deny(clippy::restriction)]
 #![allow(clippy::arithmetic_side_effects)]
 #![allow(clippy::blanket_clippy_restriction_lints)]
+#![allow(clippy::exhaustive_enums)]
 #![allow(clippy::float_arithmetic)]
 #![allow(clippy::implicit_return)]
 #![allow(clippy::integer_arithmetic)]
@@ -16,7 +17,6 @@ use crate::number::Number;
 use crate::traits::NumberBase;
 use crate::utils::{fmt_ptr, rem};
 
-#[non_exhaustive]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Part {
     Base(Base),
@@ -153,7 +153,6 @@ impl fmt::Display for Part {
     }
 }
 
-#[non_exhaustive]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Rational {
     numerator: Part,
@@ -233,7 +232,8 @@ impl Rational {
                         Part::try_from(Number::from(self.denominator).div_floor(gcd))
                             .map(|d| (n, d))
                     })
-                    .map_or_else(|_| Number::NaN, |x| Number::Rational(Self::from(x)))
+                    .map(Self::from)
+                    .map_or_else(|_| Number::NaN, Number::Rational)
             }
         }
     }

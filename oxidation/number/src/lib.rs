@@ -2,6 +2,7 @@
 #![deny(clippy::restriction)]
 #![allow(clippy::arithmetic_side_effects)]
 #![allow(clippy::blanket_clippy_restriction_lints)]
+#![allow(clippy::exhaustive_enums)]
 #![allow(clippy::float_arithmetic)]
 #![allow(clippy::implicit_return)]
 #![allow(clippy::integer_arithmetic)]
@@ -124,7 +125,6 @@ fn get(key: u64) -> Number {
     started.1.clone()
 }
 
-#[non_exhaustive]
 struct Writer {
     buffer: *mut u8,
     len: usize,
