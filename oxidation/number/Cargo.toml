@@ -3,14 +3,17 @@ name = "number"
 version = "0.1.0"
 edition = "2021"
 
+[build-dependencies]
+cbindgen = "~0.24.3"
+
 [dependencies]
 lazy_static = "~1.4.0"
 num-bigint = "~0.4.3"
 num-integer = "~0.1.45"
 num-traits = "~0.2.15"
 
-[build-dependencies]
-cbindgen = "~0.24.3"
-
 [lib]
 crate-type = ["staticlib"]
+
+[profile.release]
+panic = 'abort'
