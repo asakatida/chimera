@@ -39,17 +39,9 @@ CORPUS.mkdir(parents=True, exist_ok=True)
 
 
 def c_tqdm(
-    iterable: Iterable[T], desc: str, disable: bool, total: int = 0
+    iterable: Iterable[T], desc: str, disable: bool, total: float | None = None
 ) -> Iterable[T]:
-    return tqdm(
-        iterable,
-        desc=desc,
-        disable=disable,
-        maxinterval=60,
-        miniters=100,
-        total=total,
-        unit_scale=True,
-    )
+    return tqdm(iterable, desc=desc, disable=disable, total=total, unit_scale=True)
 
 
 async def corpus_merge(path: Path) -> list[Exception]:
