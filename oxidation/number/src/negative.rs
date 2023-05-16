@@ -1,3 +1,10 @@
+#![deny(clippy::pedantic)]
+#![deny(clippy::restriction)]
+#![allow(clippy::arithmetic_side_effects)]
+#![allow(clippy::blanket_clippy_restriction_lints)]
+#![allow(clippy::implicit_return)]
+#![allow(clippy::missing_docs_in_private_items)]
+
 use core::{cmp, fmt, ops};
 
 use crate::base::Base;
@@ -33,7 +40,7 @@ impl PartialOrd<u64> for Negative {
 #[allow(clippy::missing_trait_methods)]
 impl PartialOrd<Negative> for Negative {
     #[inline]
-    fn partial_cmp(&self, other: &Negative) -> Option<cmp::Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
         Some(self.cmp(other))
     }
 }
@@ -41,7 +48,7 @@ impl PartialOrd<Negative> for Negative {
 #[allow(clippy::missing_trait_methods)]
 impl Ord for Negative {
     #[inline]
-    fn cmp(&self, other: &Negative) -> cmp::Ordering {
+    fn cmp(&self, other: &Self) -> cmp::Ordering {
         match (self.clone(), other.clone()) {
             (Self::Base(a), Self::Base(b)) => b.cmp(&a),
             (Self::Base(a), Self::Natural(b)) => b.cmp(&a.into()),
@@ -172,19 +179,15 @@ impl ops::Add for Negative {
     type Output = Number;
     #[inline]
     fn add(self, other: Self) -> Self::Output {
-        match (self, other) {
-            (Self::Base(a), Self::Base(b)) => -(a + b),
-            (Self::Base(a), Self::Natural(b)) | (Self::Natural(b), Self::Base(a)) => {
-                -(b + a.into())
-            }
-            (Self::Base(a), Self::Rational(b)) | (Self::Rational(b), Self::Base(a)) => {
-                -(b + a.into())
-            }
+        -match (self, other) {
+            (Self::Base(a), Self::Base(b)) => a + b,
+            (Self::Base(a), Self::Natural(b)) | (Self::Natural(b), Self::Base(a)) => b + a.into(),
+            (Self::Base(a), Self::Rational(b)) | (Self::Rational(b), Self::Base(a)) => b + a.into(),
             (Self::Natural(a), Self::Natural(b)) => a + b,
             (Self::Natural(a), Self::Rational(b)) | (Self::Rational(b), Self::Natural(a)) => {
-                -(b + a.into())
+                b + a.into()
             }
-            (Self::Rational(a), Self::Rational(b)) => -(a + b),
+            (Self::Rational(a), Self::Rational(b)) => a + b,
         }
     }
 }
@@ -193,19 +196,15 @@ impl ops::BitAnd for Negative {
     type Output = Number;
     #[inline]
     fn bitand(self, other: Self) -> Self::Output {
-        match (self, other) {
-            (Self::Base(a), Self::Base(b)) => -(a & b),
-            (Self::Base(a), Self::Natural(b)) | (Self::Natural(b), Self::Base(a)) => {
-                -(b & a.into())
-            }
-            (Self::Base(a), Self::Rational(b)) | (Self::Rational(b), Self::Base(a)) => {
-                -(b & a.into())
-            }
+        -match (self, other) {
+            (Self::Base(a), Self::Base(b)) => a & b,
+            (Self::Base(a), Self::Natural(b)) | (Self::Natural(b), Self::Base(a)) => b & a.into(),
+            (Self::Base(a), Self::Rational(b)) | (Self::Rational(b), Self::Base(a)) => b & a.into(),
             (Self::Natural(a), Self::Natural(b)) => a & b,
             (Self::Natural(a), Self::Rational(b)) | (Self::Rational(b), Self::Natural(a)) => {
-                -(b & a.into())
+                b & a.into()
             }
-            (Self::Rational(a), Self::Rational(b)) => -(a & b),
+            (Self::Rational(a), Self::Rational(b)) => a & b,
         }
     }
 }
@@ -214,19 +213,15 @@ impl ops::BitOr for Negative {
     type Output = Number;
     #[inline]
     fn bitor(self, other: Self) -> Self::Output {
-        match (self, other) {
-            (Self::Base(a), Self::Base(b)) => -(a | b),
-            (Self::Base(a), Self::Natural(b)) | (Self::Natural(b), Self::Base(a)) => {
-                -(b | a.into())
-            }
-            (Self::Base(a), Self::Rational(b)) | (Self::Rational(b), Self::Base(a)) => {
-                -(b | a.into())
-            }
-            (Self::Natural(a), Self::Natural(b)) => -(a | b),
+        -match (self, other) {
+            (Self::Base(a), Self::Base(b)) => a | b,
+            (Self::Base(a), Self::Natural(b)) | (Self::Natural(b), Self::Base(a)) => b | a.into(),
+            (Self::Base(a), Self::Rational(b)) | (Self::Rational(b), Self::Base(a)) => b | a.into(),
+            (Self::Natural(a), Self::Natural(b)) => a | b,
             (Self::Natural(a), Self::Rational(b)) | (Self::Rational(b), Self::Natural(a)) => {
-                -(b | a.into())
+                b | a.into()
             }
-            (Self::Rational(a), Self::Rational(b)) => -(a | b),
+            (Self::Rational(a), Self::Rational(b)) => a | b,
         }
     }
 }

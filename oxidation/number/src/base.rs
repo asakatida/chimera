@@ -1,16 +1,24 @@
+#![deny(clippy::pedantic)]
+#![deny(clippy::restriction)]
+#![allow(clippy::arithmetic_side_effects)]
+#![allow(clippy::blanket_clippy_restriction_lints)]
+#![allow(clippy::implicit_return)]
+#![allow(clippy::integer_arithmetic)]
+#![allow(clippy::missing_docs_in_private_items)]
+
 use core::{cmp, fmt, ops};
 
 use crate::natural::Natural;
 use crate::negative::Negative;
 use crate::number::Number;
-use crate::rational::{Part, Rational};
+use crate::rational::Rational;
 use crate::traits::NumberBase;
 use crate::utils::fmt_ptr;
 
 #[derive(Clone, Copy, Debug, Default, Eq, Ord, PartialEq, PartialOrd)]
 #[non_exhaustive]
 pub struct Base {
-    pub value: u64,
+    value: u64,
 }
 
 #[allow(clippy::missing_trait_methods)]
@@ -29,18 +37,11 @@ impl PartialOrd<u64> for Base {
     }
 }
 
-impl From<u64> for Base {
-    #[inline]
-    fn from(i: u64) -> Self {
-        Base { value: i }
-    }
-}
-
 impl Base {
     #[inline]
     #[must_use]
     pub fn new(i: u64) -> Self {
-        i.into()
+        Self { value: i }
     }
 }
 
@@ -166,16 +167,7 @@ impl ops::Div for Base {
                 }
             })
         }
-        .map_or_else(
-            || {
-                Rational {
-                    numerator: Part::Base(self),
-                    denominator: Part::Base(other),
-                }
-                .into()
-            },
-            Into::into,
-        )
+        .map_or_else(|| Rational::from((self, other)).into(), Into::into)
     }
 }
 

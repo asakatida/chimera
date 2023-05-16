@@ -101,7 +101,7 @@ fn export_number(value: Number) -> u64 {
 
 #[inline]
 #[must_use]
-pub fn fmt_code(_err: fmt::Error) -> i32 {
+fn fmt_code(_err: fmt::Error) -> i32 {
     1_i32
 }
 
@@ -109,7 +109,7 @@ pub fn fmt_code(_err: fmt::Error) -> i32 {
 #[allow(clippy::unwrap_used)]
 #[inline]
 #[must_use]
-pub fn get(key: u64) -> Number {
+fn get(key: u64) -> Number {
     let wait = sync::Arc::new((
         sync::Condvar::new(),
         sync::Mutex::new((false, Number::new(0))),
@@ -125,10 +125,10 @@ pub fn get(key: u64) -> Number {
 }
 
 #[non_exhaustive]
-pub struct Writer {
-    pub buffer: *mut u8,
-    pub len: usize,
-    pub capacity: usize,
+struct Writer {
+    buffer: *mut u8,
+    len: usize,
+    capacity: usize,
 }
 
 #[allow(clippy::missing_trait_methods)]

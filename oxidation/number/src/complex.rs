@@ -1,3 +1,10 @@
+#![deny(clippy::pedantic)]
+#![deny(clippy::restriction)]
+#![allow(clippy::arithmetic_side_effects)]
+#![allow(clippy::blanket_clippy_restriction_lints)]
+#![allow(clippy::implicit_return)]
+#![allow(clippy::missing_docs_in_private_items)]
+
 use core::{cmp, fmt, ops};
 
 use crate::base::Base;
@@ -12,8 +19,8 @@ use crate::utils::fmt_ptr;
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[non_exhaustive]
 pub struct Complex {
-    pub real: Imag,
-    pub imag: Imag,
+    real: Imag,
+    imag: Imag,
 }
 
 #[allow(clippy::missing_trait_methods)]
@@ -34,7 +41,7 @@ impl PartialOrd<u64> for Complex {
 #[allow(clippy::missing_trait_methods)]
 impl PartialOrd<Complex> for Complex {
     #[inline]
-    fn partial_cmp(&self, other: &Complex) -> Option<cmp::Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
         Some(self.cmp(other))
     }
 }
@@ -42,7 +49,7 @@ impl PartialOrd<Complex> for Complex {
 #[allow(clippy::missing_trait_methods)]
 impl Ord for Complex {
     #[inline]
-    fn cmp(&self, _other: &Complex) -> cmp::Ordering {
+    fn cmp(&self, _other: &Self) -> cmp::Ordering {
         cmp::Ordering::Equal
     }
 }
@@ -50,91 +57,58 @@ impl Ord for Complex {
 impl From<u64> for Complex {
     #[inline]
     fn from(i: u64) -> Self {
-        Complex {
-            real: Imag::Base(i.into()),
-            imag: Imag::Base(0.into()),
+        Self {
+            real: Imag::Base(Base::new(i)),
+            imag: Imag::Base(Base::new(0)),
         }
     }
 }
 impl From<Base> for Complex {
     #[inline]
     fn from(i: Base) -> Self {
-        Complex {
+        Self {
             real: Imag::Base(i),
-            imag: Imag::Base(0.into()),
-        }
-    }
-}
-impl From<&Base> for Complex {
-    #[inline]
-    fn from(i: &Base) -> Self {
-        Complex {
-            real: Imag::Base(*i),
-            imag: Imag::Base(0.into()),
+            imag: Imag::Base(Base::new(0)),
         }
     }
 }
 impl From<Natural> for Complex {
     #[inline]
     fn from(i: Natural) -> Self {
-        Complex {
+        Self {
             real: match i.reduce() {
                 Maybe::Base(v) => Imag::Base(v),
                 Maybe::Natural(v) => Imag::Natural(v),
             },
-            imag: Imag::Base(0.into()),
+            imag: Imag::Base(Base::new(0)),
         }
-    }
-}
-impl From<&Natural> for Complex {
-    #[inline]
-    fn from(i: &Natural) -> Self {
-        i.clone().into()
     }
 }
 impl From<Rational> for Complex {
     #[inline]
     fn from(i: Rational) -> Self {
-        Complex {
+        Self {
             real: Imag::Rational(i),
-            imag: Imag::Base(0.into()),
+            imag: Imag::Base(Base::new(0)),
         }
-    }
-}
-impl From<&Rational> for Complex {
-    #[inline]
-    fn from(i: &Rational) -> Self {
-        i.clone().into()
     }
 }
 impl From<Negative> for Complex {
     #[inline]
     fn from(i: Negative) -> Self {
-        Complex {
+        Self {
             real: Imag::Negative(i),
-            imag: Imag::Base(0.into()),
+            imag: Imag::Base(Base::new(0)),
         }
-    }
-}
-impl From<&Negative> for Complex {
-    #[inline]
-    fn from(i: &Negative) -> Self {
-        i.clone().into()
     }
 }
 impl From<Imag> for Complex {
     #[inline]
     fn from(i: Imag) -> Self {
-        Complex {
-            real: Imag::Base(0.into()),
+        Self {
+            real: Imag::Base(Base::new(0)),
             imag: i,
         }
-    }
-}
-impl From<&Imag> for Complex {
-    #[inline]
-    fn from(i: &Imag) -> Self {
-        i.clone().into()
     }
 }
 
@@ -142,7 +116,31 @@ impl Complex {
     #[inline]
     #[must_use]
     pub fn new(a: Imag, b: Imag) -> Self {
-        Complex { real: a, imag: b }
+        Self { real: a, imag: b }
+    }
+    #[inline]
+    #[must_use]
+    pub fn imag(self) -> Self {
+        Self {
+            real: self.imag,
+            imag: self.real,
+        }
+    }
+    #[inline]
+    #[must_use]
+    pub fn reduce(self) -> Number {
+        if self.imag == 0 {
+            match self.real {
+                Imag::Base(a) => a.into(),
+                Imag::Natural(a) => a.into(),
+                Imag::Rational(a) => a.into(),
+                Imag::Negative(a) => a.into(),
+            }
+        } else if self.real == 0 {
+            self.imag.into()
+        } else {
+            Number::Complex(self)
+        }
     }
 }
 

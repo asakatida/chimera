@@ -1,3 +1,12 @@
+#![deny(clippy::pedantic)]
+#![deny(clippy::restriction)]
+#![allow(clippy::arithmetic_side_effects)]
+#![allow(clippy::blanket_clippy_restriction_lints)]
+#![allow(clippy::float_arithmetic)]
+#![allow(clippy::implicit_return)]
+#![allow(clippy::integer_arithmetic)]
+#![allow(clippy::missing_docs_in_private_items)]
+
 use core::{cmp, fmt, ops};
 
 use crate::base::Base;
@@ -14,12 +23,132 @@ pub enum Part {
     Natural(Natural),
 }
 
+#[allow(clippy::missing_trait_methods)]
+impl PartialEq<u64> for Part {
+    #[inline]
+    fn eq(&self, other: &u64) -> bool {
+        match self.clone() {
+            Self::Base(a) => a == *other,
+            Self::Natural(a) => a == *other,
+        }
+    }
+}
+
+impl From<u64> for Part {
+    #[inline]
+    fn from(i: u64) -> Self {
+        Self::Base(Base::new(i))
+    }
+}
+impl From<Base> for Part {
+    #[inline]
+    fn from(i: Base) -> Self {
+        Self::Base(i)
+    }
+}
+impl From<Natural> for Part {
+    #[inline]
+    fn from(i: Natural) -> Self {
+        match i.reduce() {
+            Maybe::Base(v) => Self::Base(v),
+            Maybe::Natural(v) => Self::Natural(v),
+        }
+    }
+}
+impl TryFrom<Number> for Part {
+    type Error = &'static str;
+    #[inline]
+    fn try_from(i: Number) -> Result<Self, Self::Error> {
+        match i {
+            Number::Base(v) => Ok(Self::Base(v)),
+            Number::Natural(v) => Ok(Self::Natural(v)),
+            Number::Rational(_)
+            | Number::Negative(_)
+            | Number::Imag(_)
+            | Number::Complex(_)
+            | Number::NaN => Err("invalid number type"),
+        }
+    }
+}
+
+impl From<Part> for Number {
+    #[inline]
+    fn from(part: Part) -> Self {
+        match part {
+            Part::Base(a) => Self::from(a),
+            Part::Natural(a) => Self::from(a),
+        }
+    }
+}
+
+#[allow(clippy::integer_division)]
+#[allow(clippy::missing_trait_methods)]
+impl num_traits::ToPrimitive for Part {
+    #[inline]
+    fn to_i64(&self) -> Option<i64> {
+        match self.clone() {
+            Self::Base(a) => a.to_i64(),
+            Self::Natural(a) => a.to_i64(),
+        }
+    }
+    #[inline]
+    fn to_u64(&self) -> Option<u64> {
+        match self.clone() {
+            Self::Base(a) => a.to_u64(),
+            Self::Natural(a) => a.to_u64(),
+        }
+    }
+    #[inline]
+    fn to_f64(&self) -> Option<f64> {
+        match self.clone() {
+            Self::Base(a) => a.to_f64(),
+            Self::Natural(a) => a.to_f64(),
+        }
+    }
+}
+
+impl ops::Mul for Part {
+    type Output = Number;
+    #[inline]
+    fn mul(self, other: Self) -> Self::Output {
+        match (self, other) {
+            (Self::Base(a), Self::Base(b)) => a * b,
+            (Self::Base(a), Self::Natural(b)) | (Self::Natural(b), Self::Base(a)) => b * a.into(),
+            (Self::Natural(a), Self::Natural(b)) => a * b,
+        }
+    }
+}
+
+impl Part {
+    #[inline]
+    #[must_use]
+    fn div_floor(self, other: Self) -> Number {
+        match (self, other) {
+            (Self::Base(a), Self::Base(b)) => a.div_floor(b),
+            (Self::Base(a), Self::Natural(b)) => Natural::from(a).div_floor(b),
+            (Self::Natural(a), Self::Base(b)) => a.div_floor(b.into()),
+            (Self::Natural(a), Self::Natural(b)) => a.div_floor(b),
+        }
+    }
+    #[inline]
+    #[must_use]
+    fn gcd(self, other: Self) -> Number {
+        match (self, other) {
+            (Self::Base(a), Self::Base(b)) => a.gcd(b),
+            (Self::Base(a), Self::Natural(b)) | (Self::Natural(b), Self::Base(a)) => {
+                b.gcd(a.into())
+            }
+            (Self::Natural(a), Self::Natural(b)) => a.gcd(b),
+        }
+    }
+}
+
 impl fmt::Display for Part {
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.clone() {
-            Part::Base(n) => write!(f, "{n}"),
-            Part::Natural(n) => write!(f, "{n}"),
+            Self::Base(n) => write!(f, "{n}"),
+            Self::Natural(n) => write!(f, "{n}"),
         }
     }
 }
@@ -27,8 +156,8 @@ impl fmt::Display for Part {
 #[non_exhaustive]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Rational {
-    pub numerator: Part,
-    pub denominator: Part,
+    numerator: Part,
+    denominator: Part,
 }
 
 #[allow(clippy::missing_trait_methods)]
@@ -44,21 +173,14 @@ impl PartialOrd<u64> for Rational {
     #[inline]
     fn partial_cmp(&self, other: &u64) -> Option<cmp::Ordering> {
         Some(
-            match self.numerator.clone() {
-                Part::Base(a) => Number::from(a),
-                Part::Natural(a) => Number::from(a),
-            }
-            .cmp(&match self.denominator.clone() {
-                Part::Base(a) => a * (*other).into(),
-                Part::Natural(a) => a * (*other).into(),
-            }),
+            Number::from(self.numerator.clone()).cmp(&(self.denominator.clone() * (*other).into())),
         )
     }
 }
 #[allow(clippy::missing_trait_methods)]
 impl PartialOrd<Rational> for Rational {
     #[inline]
-    fn partial_cmp(&self, other: &Rational) -> Option<cmp::Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
         Some(self.cmp(other))
     }
 }
@@ -66,73 +188,53 @@ impl PartialOrd<Rational> for Rational {
 #[allow(clippy::missing_trait_methods)]
 impl Ord for Rational {
     #[inline]
-    fn cmp(&self, other: &Rational) -> cmp::Ordering {
-        match (self.numerator.clone(), other.denominator.clone()) {
-            (Part::Base(a), Part::Base(b)) => a * b,
-            (Part::Natural(a), Part::Base(b)) | (Part::Base(b), Part::Natural(a)) => a * b.into(),
-            (Part::Natural(a), Part::Natural(b)) => a * b,
-        }
-        .cmp(&match (other.numerator.clone(), self.denominator.clone()) {
-            (Part::Base(a), Part::Base(b)) => a * b,
-            (Part::Natural(a), Part::Base(b)) | (Part::Base(b), Part::Natural(a)) => a * b.into(),
-            (Part::Natural(a), Part::Natural(b)) => a * b,
-        })
+    fn cmp(&self, other: &Self) -> cmp::Ordering {
+        (self.numerator.clone() * other.denominator.clone())
+            .cmp(&(other.numerator.clone() * self.denominator.clone()))
     }
 }
 
-impl From<u64> for Rational {
+impl<T: Into<Part>> From<T> for Rational {
     #[inline]
-    fn from(i: u64) -> Self {
-        Rational {
-            numerator: Part::Base(i.into()),
-            denominator: Part::Base(1.into()),
+    fn from(i: T) -> Self {
+        Self {
+            numerator: i.into(),
+            denominator: 1.into(),
         }
     }
 }
-impl From<Base> for Rational {
+impl<T: Into<Part>, U: Into<Part>> From<(T, U)> for Rational {
     #[inline]
-    fn from(i: Base) -> Self {
-        Rational {
-            numerator: Part::Base(i),
-            denominator: Part::Base(1.into()),
+    fn from(i: (T, U)) -> Self {
+        Self {
+            numerator: i.0.into(),
+            denominator: i.1.into(),
         }
-    }
-}
-impl From<&Base> for Rational {
-    #[inline]
-    fn from(i: &Base) -> Self {
-        Rational {
-            numerator: Part::Base(*i),
-            denominator: Part::Base(1.into()),
-        }
-    }
-}
-impl From<Natural> for Rational {
-    #[inline]
-    fn from(i: Natural) -> Self {
-        Rational {
-            numerator: match i.reduce() {
-                Maybe::Base(v) => Part::Base(v),
-                Maybe::Natural(v) => Part::Natural(v),
-            },
-            denominator: Part::Base(1.into()),
-        }
-    }
-}
-impl From<&Natural> for Rational {
-    #[inline]
-    fn from(i: &Natural) -> Self {
-        i.clone().into()
     }
 }
 
 impl Rational {
     #[inline]
     #[must_use]
-    pub fn new(a: Part, b: Part) -> Self {
-        Rational {
-            numerator: a,
-            denominator: b,
+    pub fn reduce(self) -> Number {
+        if self.denominator == 0 {
+            Number::Rational(self)
+        } else if self.denominator == 1 {
+            self.numerator.into()
+        } else {
+            let gcd = self.numerator.clone().gcd(self.denominator.clone());
+            if gcd == 1 {
+                Number::Rational(self)
+            } else if gcd == Number::from(self.denominator.clone()) {
+                self.numerator.into()
+            } else {
+                Part::try_from(Number::from(self.numerator).div_floor(gcd.clone()))
+                    .and_then(|n| {
+                        Part::try_from(Number::from(self.denominator).div_floor(gcd))
+                            .map(|d| (n, d))
+                    })
+                    .map_or_else(|_| Number::NaN, |x| Number::Rational(Self::from(x)))
+            }
         }
     }
 }
@@ -142,36 +244,21 @@ impl Rational {
 impl num_traits::ToPrimitive for Rational {
     #[inline]
     fn to_i64(&self) -> Option<i64> {
-        match (self.numerator.clone(), self.denominator.clone()) {
-            (Part::Base(a), Part::Base(b)) => a.to_i64().and_then(|x| b.to_i64().map(|y| x / y)),
-            (Part::Base(a), Part::Natural(b)) => a.to_i64().and_then(|x| b.to_i64().map(|y| x / y)),
-            (Part::Natural(a), Part::Base(b)) => a.to_i64().and_then(|x| b.to_i64().map(|y| x / y)),
-            (Part::Natural(a), Part::Natural(b)) => {
-                a.to_i64().and_then(|x| b.to_i64().map(|y| x / y))
-            }
-        }
+        self.numerator
+            .to_i64()
+            .and_then(|x| self.denominator.to_i64().map(|y| x / y))
     }
     #[inline]
     fn to_u64(&self) -> Option<u64> {
-        match (self.numerator.clone(), self.denominator.clone()) {
-            (Part::Base(a), Part::Base(b)) => a.to_u64().and_then(|x| b.to_u64().map(|y| x / y)),
-            (Part::Base(a), Part::Natural(b)) => a.to_u64().and_then(|x| b.to_u64().map(|y| x / y)),
-            (Part::Natural(a), Part::Base(b)) => a.to_u64().and_then(|x| b.to_u64().map(|y| x / y)),
-            (Part::Natural(a), Part::Natural(b)) => {
-                a.to_u64().and_then(|x| b.to_u64().map(|y| x / y))
-            }
-        }
+        self.numerator
+            .to_u64()
+            .and_then(|x| self.denominator.to_u64().map(|y| x / y))
     }
     #[inline]
     fn to_f64(&self) -> Option<f64> {
-        match (self.numerator.clone(), self.denominator.clone()) {
-            (Part::Base(a), Part::Base(b)) => a.to_f64().and_then(|x| b.to_f64().map(|y| x / y)),
-            (Part::Base(a), Part::Natural(b)) => a.to_f64().and_then(|x| b.to_f64().map(|y| x / y)),
-            (Part::Natural(a), Part::Base(b)) => a.to_f64().and_then(|x| b.to_f64().map(|y| x / y)),
-            (Part::Natural(a), Part::Natural(b)) => {
-                a.to_f64().and_then(|x| b.to_f64().map(|y| x / y))
-            }
-        }
+        self.numerator
+            .to_f64()
+            .and_then(|x| self.denominator.to_f64().map(|y| x / y))
     }
 }
 
@@ -235,19 +322,9 @@ impl ops::Add for Rational {
     type Output = Number;
     #[inline]
     fn add(self, other: Self) -> Self::Output {
-        (match (self.numerator, other.denominator.clone()) {
-            (Part::Base(a), Part::Base(b)) => a * b,
-            (Part::Base(a), Part::Natural(b)) | (Part::Natural(b), Part::Base(a)) => b * a.into(),
-            (Part::Natural(a), Part::Natural(b)) => a * b,
-        } + match (self.denominator.clone(), other.numerator) {
-            (Part::Base(a), Part::Base(b)) => a * b,
-            (Part::Base(a), Part::Natural(b)) | (Part::Natural(b), Part::Base(a)) => b * a.into(),
-            (Part::Natural(a), Part::Natural(b)) => a * b,
-        }) / match (self.denominator, other.denominator) {
-            (Part::Base(a), Part::Base(b)) => a * b,
-            (Part::Base(a), Part::Natural(b)) | (Part::Natural(b), Part::Base(a)) => b * a.into(),
-            (Part::Natural(a), Part::Natural(b)) => a * b,
-        }
+        ((self.numerator * other.denominator.clone())
+            + (self.denominator.clone() * other.numerator))
+            / (self.denominator * other.denominator)
     }
 }
 
@@ -279,41 +356,7 @@ impl ops::Div for Rational {
     type Output = Number;
     #[inline]
     fn div(self, other: Self) -> Self::Output {
-        let mut numerator = match (self.numerator, other.denominator) {
-            (Part::Base(a), Part::Base(b)) => a * b,
-            (Part::Base(a), Part::Natural(b)) | (Part::Natural(b), Part::Base(a)) => b * a.into(),
-            (Part::Natural(a), Part::Natural(b)) => a * b,
-        };
-        let mut denominator = match (self.denominator, other.numerator) {
-            (Part::Base(a), Part::Base(b)) => a * b,
-            (Part::Base(a), Part::Natural(b)) | (Part::Natural(b), Part::Base(a)) => b * a.into(),
-            (Part::Natural(a), Part::Natural(b)) => a * b,
-        };
-        let gcd = numerator.clone().gcd(denominator.clone());
-        if gcd != 1 {
-            numerator = numerator.div_floor(gcd.clone());
-            denominator = denominator.div_floor(gcd);
-        }
-        match (numerator, denominator) {
-            (Number::Base(a), Number::Base(b)) => Some(Rational {
-                numerator: Part::Base(a),
-                denominator: Part::Base(b),
-            }),
-            (Number::Base(a), Number::Natural(b)) => Some(Rational {
-                numerator: Part::Base(a),
-                denominator: Part::Natural(b),
-            }),
-            (Number::Natural(a), Number::Base(b)) => Some(Rational {
-                numerator: Part::Natural(a),
-                denominator: Part::Base(b),
-            }),
-            (Number::Natural(a), Number::Natural(b)) => Some(Rational {
-                numerator: Part::Natural(a),
-                denominator: Part::Natural(b),
-            }),
-            _ => None,
-        }
-        .map_or(Number::NaN, Into::into)
+        (self.numerator * other.denominator) / (self.denominator * other.numerator)
     }
 }
 
@@ -321,15 +364,7 @@ impl ops::Mul for Rational {
     type Output = Number;
     #[inline]
     fn mul(self, other: Self) -> Self::Output {
-        (match (self.numerator, other.numerator) {
-            (Part::Base(a), Part::Base(b)) => a * b,
-            (Part::Base(a), Part::Natural(b)) | (Part::Natural(b), Part::Base(a)) => b * a.into(),
-            (Part::Natural(a), Part::Natural(b)) => a * b,
-        }) / match (self.denominator, other.denominator) {
-            (Part::Base(a), Part::Base(b)) => a * b,
-            (Part::Base(a), Part::Natural(b)) | (Part::Natural(b), Part::Base(a)) => b * a.into(),
-            (Part::Natural(a), Part::Natural(b)) => a * b,
-        }
+        (self.numerator * other.numerator) / (self.denominator * other.denominator)
     }
 }
 
@@ -385,19 +420,9 @@ impl ops::Sub for Rational {
     type Output = Number;
     #[inline]
     fn sub(self, other: Self) -> Self::Output {
-        (match (self.numerator, other.denominator.clone()) {
-            (Part::Base(a), Part::Base(b)) => a * b,
-            (Part::Base(a), Part::Natural(b)) | (Part::Natural(b), Part::Base(a)) => b * a.into(),
-            (Part::Natural(a), Part::Natural(b)) => a * b,
-        } - match (self.denominator.clone(), other.numerator) {
-            (Part::Base(a), Part::Base(b)) => a * b,
-            (Part::Base(a), Part::Natural(b)) | (Part::Natural(b), Part::Base(a)) => b * a.into(),
-            (Part::Natural(a), Part::Natural(b)) => a * b,
-        }) / match (self.denominator, other.denominator) {
-            (Part::Base(a), Part::Base(b)) => a * b,
-            (Part::Base(a), Part::Natural(b)) | (Part::Natural(b), Part::Base(a)) => b * a.into(),
-            (Part::Natural(a), Part::Natural(b)) => a * b,
-        }
+        ((self.numerator * other.denominator.clone())
+            - (self.denominator.clone() * other.numerator))
+            / (self.denominator * other.denominator)
     }
 }
 
@@ -406,17 +431,8 @@ impl NumberBase for Rational {
     #[inline]
     #[must_use]
     fn div_floor(self, other: Self) -> Number {
-        (match (self.numerator, other.denominator) {
-            (Part::Base(a), Part::Base(b)) => a.div_floor(b),
-            (Part::Base(a), Part::Natural(b)) => Natural::from(a).div_floor(b),
-            (Part::Natural(a), Part::Base(b)) => a.div_floor(b.into()),
-            (Part::Natural(a), Part::Natural(b)) => a.div_floor(b),
-        })
-        .div_floor(match (self.denominator, other.numerator) {
-            (Part::Base(a), Part::Base(b)) => a.div_floor(b),
-            (Part::Base(a), Part::Natural(b)) => Natural::from(a).div_floor(b),
-            (Part::Natural(a), Part::Base(b)) => a.div_floor(b.into()),
-            (Part::Natural(a), Part::Natural(b)) => a.div_floor(b),
-        })
+        self.numerator
+            .div_floor(other.denominator)
+            .div_floor(self.denominator.div_floor(other.numerator))
     }
 }
