@@ -1,3 +1,10 @@
+#![deny(clippy::pedantic)]
+#![deny(clippy::restriction)]
+#![allow(clippy::arithmetic_side_effects)]
+#![allow(clippy::blanket_clippy_restriction_lints)]
+#![allow(clippy::implicit_return)]
+#![allow(clippy::missing_docs_in_private_items)]
+
 use core::{cmp, fmt, ops};
 
 use crate::base::Base;
@@ -35,7 +42,7 @@ impl PartialOrd<u64> for Imag {
 #[allow(clippy::missing_trait_methods)]
 impl PartialOrd<Imag> for Imag {
     #[inline]
-    fn partial_cmp(&self, other: &Imag) -> Option<cmp::Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
         Some(self.cmp(other))
     }
 }
@@ -43,7 +50,7 @@ impl PartialOrd<Imag> for Imag {
 #[allow(clippy::missing_trait_methods)]
 impl Ord for Imag {
     #[inline]
-    fn cmp(&self, other: &Imag) -> cmp::Ordering {
+    fn cmp(&self, other: &Self) -> cmp::Ordering {
         match (self.clone(), other.clone()) {
             (Self::Base(a), Self::Base(b)) => a.cmp(&b),
             (Self::Base(a), Self::Natural(b)) => Natural::from(a).cmp(&b),
@@ -57,6 +64,18 @@ impl Ord for Imag {
             (Self::Negative(a), Self::Negative(b)) => a.cmp(&b),
             (_, Self::Negative(_)) => cmp::Ordering::Greater,
             (Self::Negative(_), _) => cmp::Ordering::Less,
+        }
+    }
+}
+
+impl Imag {
+    #[inline]
+    #[must_use]
+    pub fn reduce(self) -> Number {
+        if self == 0 {
+            0.into()
+        } else {
+            Number::Imag(self)
         }
     }
 }
@@ -296,7 +315,7 @@ impl NumberBase for Imag {
             Self::Base(i) => Self::Base(i).into(),
             Self::Natural(i) => Self::Natural(i).into(),
             Self::Rational(i) => Self::Rational(i).into(),
-            Self::Negative(i) => i.abs().imag(),
+            Self::Negative(i) => i.abs(),
         }
         .imag()
     }
@@ -315,7 +334,7 @@ impl NumberBase for Imag {
             (Self::Rational(a), Self::Rational(b)) => a.div_floor(b),
             (Self::Negative(a), Self::Negative(b)) => a.div_floor(b),
             (Self::Negative(i), n) => -match (i, n) {
-                (_, Imag::Negative(_)) => Number::NaN,
+                (_, Self::Negative(_)) => Number::NaN,
                 (Negative::Base(a), Self::Base(b)) => a.div_floor(b),
                 (Negative::Base(a), Self::Natural(b)) => Natural::from(a).div_floor(b),
                 (Negative::Base(a), Self::Rational(b)) => Rational::from(a).div_floor(b),
@@ -327,7 +346,7 @@ impl NumberBase for Imag {
                 (Negative::Rational(a), Self::Rational(b)) => a.div_floor(b),
             },
             (n, Self::Negative(i)) => -match (i, n) {
-                (_, Imag::Negative(_)) => Number::NaN,
+                (_, Self::Negative(_)) => Number::NaN,
                 (Negative::Base(b), Self::Base(a)) => a.div_floor(b),
                 (Negative::Base(b), Self::Natural(a)) => a.div_floor(b.into()),
                 (Negative::Base(b), Self::Rational(a)) => a.div_floor(b.into()),

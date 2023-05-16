@@ -1,3 +1,10 @@
+#![deny(clippy::pedantic)]
+#![deny(clippy::restriction)]
+#![allow(clippy::arithmetic_side_effects)]
+#![allow(clippy::blanket_clippy_restriction_lints)]
+#![allow(clippy::implicit_return)]
+#![allow(clippy::missing_docs_in_private_items)]
+
 use core::fmt;
 
 use crate::number::Number;
@@ -27,7 +34,7 @@ pub fn gcd<T: Into<Number>>(left: T, right: T) -> Number {
 pub fn rem<T: Into<Number>>(left: T, right: T) -> Number {
     let mut remainder: Number = left.into();
     let divisor: Number = right.into();
-    while divisor.clone() < remainder {
+    while divisor < remainder {
         remainder = remainder - divisor.clone();
     }
     remainder

@@ -13,7 +13,7 @@ use num_traits::{CheckedSub, ToPrimitive, Zero};
 use crate::base::Base;
 use crate::negative::Negative;
 use crate::number::Number;
-use crate::rational::{Part, Rational};
+use crate::rational::Rational;
 use crate::traits::NumberBase;
 use crate::utils::fmt_ptr;
 
@@ -201,7 +201,7 @@ impl ops::Div for Natural {
             None
         }
         .map_or_else(
-            || Rational::new(Part::Natural(self), Part::Natural(other)).into(),
+            || Rational::from((self, other)).into(),
             |v| Self::new(v).into(),
         )
     }

@@ -1,4 +1,10 @@
+#![deny(clippy::pedantic)]
+#![deny(clippy::restriction)]
+#![allow(clippy::arithmetic_side_effects)]
+#![allow(clippy::blanket_clippy_restriction_lints)]
 #![allow(clippy::separated_literal_suffix)]
+#![allow(clippy::implicit_return)]
+#![allow(clippy::missing_docs_in_private_items)]
 
 use core::{cmp, fmt, ops};
 
@@ -7,7 +13,7 @@ use crate::complex::Complex;
 use crate::imag::Imag;
 use crate::natural::{Maybe, Natural};
 use crate::negative::Negative;
-use crate::rational::{Part, Rational};
+use crate::rational::Rational;
 use crate::traits::NumberBase;
 use crate::utils::{fmt_ptr, gcd};
 
@@ -64,7 +70,7 @@ impl PartialOrd<u64> for Number {
 #[allow(clippy::missing_trait_methods)]
 impl PartialOrd<Number> for Number {
     #[inline]
-    fn partial_cmp(&self, other: &Number) -> Option<cmp::Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
         match (self.clone(), other.clone()) {
             (Self::NaN, _) | (_, Self::NaN) => None,
             (Self::Base(a), Self::Base(b)) => Some(a.cmp(&b)),
@@ -105,7 +111,7 @@ impl PartialOrd<Number> for Number {
 #[allow(clippy::missing_trait_methods)]
 impl Ord for Number {
     #[inline]
-    fn cmp(&self, other: &Number) -> cmp::Ordering {
+    fn cmp(&self, other: &Self) -> cmp::Ordering {
         self.partial_cmp(other).unwrap_or(cmp::Ordering::Less)
     }
 }
@@ -122,12 +128,6 @@ impl From<Base> for Number {
         Self::Base(i)
     }
 }
-impl From<&Base> for Number {
-    #[inline]
-    fn from(i: &Base) -> Self {
-        Self::Base(*i)
-    }
-}
 impl From<Natural> for Number {
     #[inline]
     fn from(i: Natural) -> Self {
@@ -137,54 +137,10 @@ impl From<Natural> for Number {
         }
     }
 }
-impl From<&Natural> for Number {
-    #[inline]
-    fn from(i: &Natural) -> Self {
-        i.clone().into()
-    }
-}
 impl From<Rational> for Number {
     #[inline]
     fn from(i: Rational) -> Self {
-        if match i.denominator.clone() {
-            Part::Base(v) => v == 0,
-            Part::Natural(v) => v == 0,
-        } {
-            Self::Rational(i)
-        } else if match i.denominator.clone() {
-            Part::Base(v) => v == 1,
-            Part::Natural(v) => v == 1,
-        } {
-            match i.numerator.clone() {
-                Part::Base(a) => a.into(),
-                Part::Natural(a) => a.into(),
-            }
-        } else {
-            let gcd = match (i.numerator.clone(), i.denominator.clone()) {
-                (Part::Base(a), Part::Base(b)) => a.gcd(b),
-                (Part::Base(a), Part::Natural(b)) | (Part::Natural(b), Part::Base(a)) => {
-                    gcd(a.into(), b)
-                }
-                (Part::Natural(a), Part::Natural(b)) => gcd(a, b),
-            };
-            if gcd == 1 {
-                Self::Rational(i)
-            } else {
-                (match i.numerator {
-                    Part::Base(a) => Self::from(a).div_floor(gcd.clone()),
-                    Part::Natural(a) => Self::from(a).div_floor(gcd.clone()),
-                }) / (match i.denominator {
-                    Part::Base(b) => Self::from(b).div_floor(gcd),
-                    Part::Natural(b) => Self::from(b).div_floor(gcd),
-                })
-            }
-        }
-    }
-}
-impl From<&Rational> for Number {
-    #[inline]
-    fn from(i: &Rational) -> Self {
-        i.clone().into()
+        i.reduce()
     }
 }
 impl From<Negative> for Number {
@@ -197,49 +153,16 @@ impl From<Negative> for Number {
         }
     }
 }
-impl From<&Negative> for Number {
-    #[inline]
-    fn from(i: &Negative) -> Self {
-        i.clone().into()
-    }
-}
 impl From<Imag> for Number {
     #[inline]
     fn from(i: Imag) -> Self {
-        if i == 0 {
-            0.into()
-        } else {
-            Self::Imag(i)
-        }
-    }
-}
-impl From<&Imag> for Number {
-    #[inline]
-    fn from(i: &Imag) -> Self {
-        i.clone().into()
+        i.reduce()
     }
 }
 impl From<Complex> for Number {
     #[inline]
     fn from(i: Complex) -> Self {
-        if i.imag == 0 {
-            match i.real {
-                Imag::Base(a) => a.into(),
-                Imag::Natural(a) => a.into(),
-                Imag::Rational(a) => a.into(),
-                Imag::Negative(a) => a.into(),
-            }
-        } else if i.real == 0 {
-            i.imag.into()
-        } else {
-            Self::Complex(i)
-        }
-    }
-}
-impl From<&Complex> for Number {
-    #[inline]
-    fn from(i: &Complex) -> Self {
-        i.clone().into()
+        i.reduce()
     }
 }
 
@@ -251,19 +174,20 @@ impl Number {
     }
     #[inline]
     #[must_use]
-    pub fn imag(&self) -> Self {
-        match self.clone() {
+    pub fn imag(self) -> Self {
+        match self {
             Self::NaN => Self::NaN,
             Self::Base(a) => Imag::Base(a).into(),
             Self::Natural(a) => Imag::Natural(a).into(),
             Self::Rational(a) => Imag::Rational(a).into(),
             Self::Negative(a) => Imag::Negative(a).into(),
-            Self::Imag(a) => a.into(),
-            Self::Complex(i) => Complex {
-                real: i.imag,
-                imag: i.real,
-            }
-            .into(),
+            Self::Imag(a) => match a {
+                Imag::Base(v) => v.into(),
+                Imag::Natural(v) => v.into(),
+                Imag::Rational(v) => v.into(),
+                Imag::Negative(v) => v.into(),
+            },
+            Self::Complex(i) => i.imag().into(),
         }
     }
     #[inline]
@@ -604,13 +528,13 @@ impl ops::Div for Number {
     fn div(self, other: Self) -> Self::Output {
         match (self, other) {
             (Self::NaN, _) | (_, Self::NaN) => Self::NaN,
-            (Self::Base(a), Self::Base(b)) => Rational::from(a) / b.into(),
-            (Self::Base(a), Self::Natural(b)) => Rational::from(a) / b.into(),
+            (Self::Base(a), Self::Base(b)) => a / b,
+            (Self::Base(a), Self::Natural(b)) => Natural::from(a) / b,
             (Self::Base(a), Self::Rational(b)) => Rational::from(a) / b,
             (Self::Base(a), Self::Imag(b)) => Complex::from(a) / b.into(),
             (Self::Base(a), Self::Complex(b)) => Complex::from(a) / b,
-            (Self::Natural(a), Self::Base(b)) => Rational::from(a) / b.into(),
-            (Self::Natural(a), Self::Natural(b)) => Rational::from(a) / b.into(),
+            (Self::Natural(a), Self::Base(b)) => a / b.into(),
+            (Self::Natural(a), Self::Natural(b)) => a / b,
             (Self::Natural(a), Self::Rational(b)) => Rational::from(a) / b,
             (Self::Natural(a), Self::Imag(b)) => Complex::from(a) / b.into(),
             (Self::Natural(a), Self::Complex(b)) => Complex::from(a) / b,
@@ -998,43 +922,43 @@ impl ops::Sub for Number {
         match (self, other) {
             (Self::NaN, _) | (_, Self::NaN) => Self::NaN,
             (Self::Base(a), Self::Base(b)) => a - b,
-            (Self::Base(a), Self::Natural(b)) => -(b - a.into()),
+            (Self::Base(a), Self::Natural(b)) => Natural::from(a) - b,
+            (Self::Base(a), Self::Rational(b)) => Rational::from(a) - b,
             (Self::Natural(a), Self::Base(b)) => a - b.into(),
             (Self::Natural(a), Self::Natural(b)) => a - b,
-            (Self::Base(a), Self::Rational(b)) => -(b - a.into()),
-            (Self::Natural(a), Self::Rational(b)) => -(b - a.into()),
+            (Self::Natural(a), Self::Rational(b)) => Rational::from(a) - b,
             (Self::Rational(a), Self::Base(b)) => a - b.into(),
             (Self::Rational(a), Self::Natural(b)) => a - b.into(),
             (Self::Rational(a), Self::Rational(b)) => a - b,
             (Self::Base(a), Self::Negative(i)) => match i {
-                Negative::Base(b) => -(a - b),
-                Negative::Natural(b) => b - a.into(),
-                Negative::Rational(b) => b - a.into(),
+                Negative::Base(b) => a + b,
+                Negative::Natural(b) => Natural::from(a) + b,
+                Negative::Rational(b) => Rational::from(a) + b,
             },
             (Self::Natural(a), Self::Negative(i)) => match i {
-                Negative::Base(b) => -(a - b.into()),
-                Negative::Natural(b) => -(a - b),
-                Negative::Rational(b) => b - a.into(),
+                Negative::Base(b) => a + b.into(),
+                Negative::Natural(b) => a + b,
+                Negative::Rational(b) => Rational::from(a) + b,
             },
-            (Self::Rational(a), Self::Negative(i)) => -match i {
-                Negative::Base(b) => a - b.into(),
-                Negative::Natural(b) => a - b.into(),
-                Negative::Rational(b) => a - b,
+            (Self::Rational(a), Self::Negative(i)) => match i {
+                Negative::Base(b) => a + b.into(),
+                Negative::Natural(b) => a + b.into(),
+                Negative::Rational(b) => a + b,
             },
-            (Self::Negative(i), Self::Base(b)) => match i {
-                Negative::Base(a) => b - a,
-                Negative::Natural(a) => -(a - b.into()),
-                Negative::Rational(a) => -(a - b.into()),
+            (Self::Negative(i), Self::Base(b)) => -match i {
+                Negative::Base(a) => a + b,
+                Negative::Natural(a) => a + b.into(),
+                Negative::Rational(a) => a + b.into(),
             },
-            (Self::Negative(i), Self::Natural(b)) => match i {
-                Negative::Base(a) => b - a.into(),
-                Negative::Natural(a) => a - b,
-                Negative::Rational(a) => -(a - b.into()),
+            (Self::Negative(i), Self::Natural(b)) => -match i {
+                Negative::Base(a) => Natural::from(a) + b,
+                Negative::Natural(a) => a + b,
+                Negative::Rational(a) => a + b.into(),
             },
-            (Self::Negative(i), Self::Rational(b)) => match i {
-                Negative::Base(a) => b - a.into(),
-                Negative::Natural(a) => b - a.into(),
-                Negative::Rational(a) => b - a,
+            (Self::Negative(i), Self::Rational(b)) => -match i {
+                Negative::Base(a) => Rational::from(a) + b,
+                Negative::Natural(a) => Rational::from(a) + b,
+                Negative::Rational(a) => a + b,
             },
             (Self::Negative(a), Self::Negative(b)) => a - b,
             (Self::Base(a), Self::Imag(b)) => Complex::from(a) - b.into(),
@@ -1087,60 +1011,60 @@ impl NumberBase for Number {
             (Self::Natural(a), Self::Base(b)) => a.div_floor(b.into()),
             (Self::Natural(a), Self::Natural(b)) => a.div_floor(b),
             (Self::Natural(a), Self::Rational(b)) => Rational::from(a).div_floor(b),
-            (Self::Rational(a), Self::Base(b)) => a - b.into(),
-            (Self::Rational(a), Self::Natural(b)) => a - b.into(),
-            (Self::Rational(a), Self::Rational(b)) => a - b,
+            (Self::Rational(a), Self::Base(b)) => a.div_floor(b.into()),
+            (Self::Rational(a), Self::Natural(b)) => a.div_floor(b.into()),
+            (Self::Rational(a), Self::Rational(b)) => a.div_floor(b),
             (Self::Negative(a), Self::Negative(b)) => a.div_floor(b),
             (Self::Base(a), Self::Negative(i)) => match i {
-                Negative::Base(b) => -(a - b),
-                Negative::Natural(b) => b - a.into(),
-                Negative::Rational(b) => b - a.into(),
+                Negative::Base(b) => a.div_floor(b),
+                Negative::Natural(b) => Natural::from(a).div_floor(b),
+                Negative::Rational(b) => Rational::from(a).div_floor(b),
             },
             (Self::Natural(a), Self::Negative(i)) => match i {
-                Negative::Base(b) => -(a - b.into()),
-                Negative::Natural(b) => -(a - b),
-                Negative::Rational(b) => b - a.into(),
+                Negative::Base(b) => a.div_floor(b.into()),
+                Negative::Natural(b) => a.div_floor(b),
+                Negative::Rational(b) => Rational::from(a).div_floor(b),
             },
-            (Self::Rational(a), Self::Negative(i)) => -match i {
-                Negative::Base(b) => a - b.into(),
-                Negative::Natural(b) => a - b.into(),
+            (Self::Rational(a), Self::Negative(i)) => match i {
+                Negative::Base(b) => a.div_floor(b.into()),
+                Negative::Natural(b) => a.div_floor(b.into()),
                 Negative::Rational(b) => a - b,
             },
-            (Self::Negative(i), Self::Base(b)) => match i {
-                Negative::Base(a) => b - a,
-                Negative::Natural(a) => -(a - b.into()),
-                Negative::Rational(a) => -(a - b.into()),
+            (Self::Negative(i), Self::Base(b)) => -match i {
+                Negative::Base(a) => a.div_floor(b),
+                Negative::Natural(a) => a.div_floor(b.into()),
+                Negative::Rational(a) => a.div_floor(b.into()),
             },
-            (Self::Negative(i), Self::Natural(b)) => match i {
-                Negative::Base(a) => b - a.into(),
-                Negative::Natural(a) => b - a,
-                Negative::Rational(a) => -(a - b.into()),
+            (Self::Negative(i), Self::Natural(b)) => -match i {
+                Negative::Base(a) => Natural::from(a).div_floor(b),
+                Negative::Natural(a) => a.div_floor(b),
+                Negative::Rational(a) => a.div_floor(b.into()),
             },
-            (Self::Negative(i), Self::Rational(b)) => match i {
-                Negative::Base(a) => b - a.into(),
-                Negative::Natural(a) => b - a.into(),
-                Negative::Rational(a) => b - a,
+            (Self::Negative(i), Self::Rational(b)) => -match i {
+                Negative::Base(a) => Rational::from(a).div_floor(b),
+                Negative::Natural(a) => Rational::from(a).div_floor(b),
+                Negative::Rational(a) => a.div_floor(b),
             },
-            (Self::Base(a), Self::Imag(b)) => Complex::from(a) - b.into(),
-            (Self::Natural(a), Self::Imag(b)) => Complex::from(a) - b.into(),
-            (Self::Rational(a), Self::Imag(b)) => Complex::from(a) - b.into(),
-            (Self::Negative(a), Self::Imag(b)) => Complex::from(a) - b.into(),
-            (Self::Imag(a), Self::Base(b)) => Complex::from(a) - b.into(),
-            (Self::Imag(a), Self::Natural(b)) => Complex::from(a) - b.into(),
-            (Self::Imag(a), Self::Rational(b)) => Complex::from(a) - b.into(),
-            (Self::Imag(a), Self::Negative(b)) => Complex::from(a) - b.into(),
-            (Self::Imag(a), Self::Imag(b)) => a - b,
-            (Self::Base(a), Self::Complex(b)) => -(b - a.into()),
-            (Self::Natural(a), Self::Complex(b)) => -(b - a.into()),
-            (Self::Rational(a), Self::Complex(b)) => -(b - a.into()),
-            (Self::Negative(a), Self::Complex(b)) => -(b - a.into()),
-            (Self::Imag(a), Self::Complex(b)) => -(b - a.into()),
-            (Self::Complex(a), Self::Base(b)) => a - b.into(),
-            (Self::Complex(a), Self::Natural(b)) => a - b.into(),
-            (Self::Complex(a), Self::Rational(b)) => a - b.into(),
-            (Self::Complex(a), Self::Negative(b)) => a - b.into(),
-            (Self::Complex(a), Self::Imag(b)) => a - b.into(),
-            (Self::Complex(a), Self::Complex(b)) => a - b,
+            (Self::Base(a), Self::Imag(b)) => Complex::from(a).div_floor(b.into()),
+            (Self::Natural(a), Self::Imag(b)) => Complex::from(a).div_floor(b.into()),
+            (Self::Rational(a), Self::Imag(b)) => Complex::from(a).div_floor(b.into()),
+            (Self::Negative(a), Self::Imag(b)) => Complex::from(a).div_floor(b.into()),
+            (Self::Imag(a), Self::Base(b)) => Complex::from(a).div_floor(b.into()),
+            (Self::Imag(a), Self::Natural(b)) => Complex::from(a).div_floor(b.into()),
+            (Self::Imag(a), Self::Rational(b)) => Complex::from(a).div_floor(b.into()),
+            (Self::Imag(a), Self::Negative(b)) => Complex::from(a).div_floor(b.into()),
+            (Self::Imag(a), Self::Imag(b)) => a.div_floor(b),
+            (Self::Base(a), Self::Complex(b)) => Complex::from(a).div_floor(b),
+            (Self::Natural(a), Self::Complex(b)) => Complex::from(a).div_floor(b),
+            (Self::Rational(a), Self::Complex(b)) => Complex::from(a).div_floor(b),
+            (Self::Negative(a), Self::Complex(b)) => Complex::from(a).div_floor(b),
+            (Self::Imag(a), Self::Complex(b)) => Complex::from(a).div_floor(b),
+            (Self::Complex(a), Self::Base(b)) => a.div_floor(b.into()),
+            (Self::Complex(a), Self::Natural(b)) => a.div_floor(b.into()),
+            (Self::Complex(a), Self::Rational(b)) => a.div_floor(b.into()),
+            (Self::Complex(a), Self::Negative(b)) => a.div_floor(b.into()),
+            (Self::Complex(a), Self::Imag(b)) => a.div_floor(b.into()),
+            (Self::Complex(a), Self::Complex(b)) => a.div_floor(b),
         }
     }
     #[inline]
