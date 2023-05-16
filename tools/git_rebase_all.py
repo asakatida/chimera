@@ -83,10 +83,11 @@ def branch_graph_remove_local_branches(
 def condense_branch_graph(
     branch_graph: dict[str, list[str]], remote_branches: list[str], disable_bars: bool
 ) -> dict[str, list[str]]:
-    branch_graph = branch_graph_remove_local_branches(
-        branch_graph, remote_branches, disable_bars
-    )
-    for remote in sorted(set(branch_graph.keys()).union(remote_branches)):
+    for remote in c_tqdm(
+        sorted(set(branch_graph.keys()).intersection(remote_branches)),
+        "Remote only",
+        disable_bars,
+    ):
         for local in sorted(
             set(branch_graph.get(remote, [])).difference(remote_branches)
         ):
@@ -106,6 +107,9 @@ async def report_branch_graph(
 ) -> None:
     branch_graph = await gather_branch_graph(
         remote_branches, local_branches, disable_bars
+    )
+    branch_graph = branch_graph_remove_local_branches(
+        branch_graph, remote_branches, disable_bars
     )
     branch_graph = condense_branch_graph(branch_graph, remote_branches, disable_bars)
     for remote, branches in branch_graph.items():
