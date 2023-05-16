@@ -53,11 +53,14 @@ async def gather_branch_graph(
     ):
         if left in remote_branches and right in remote_branches:
             continue
-        if not await git_cmd("diff", left, right):
-            branch_graph.setdefault(left, [])
-            branch_graph.setdefault(right, [])
-            branch_graph[left].append(right)
-            branch_graph[right].append(left)
+        try:
+            await git_cmd("diff", "--exit-code", "--quiet", left, right)
+        except ProcessError:
+            continue
+        branch_graph.setdefault(left, [])
+        branch_graph.setdefault(right, [])
+        branch_graph[left].append(right)
+        branch_graph[right].append(left)
     return branch_graph
 
 
