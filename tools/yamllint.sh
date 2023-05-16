@@ -9,7 +9,7 @@ if [[ -d env/bin ]]; then
 elif [[ -d /opt/virtualenv/bin ]]; then
   export PATH="/opt/virtualenv/bin:${PATH}"
 else
-  tools/venv.sh python3
+  python3 tools/venv.py
   export PATH="${PWD}/env/bin:${PATH}"
 fi
 
