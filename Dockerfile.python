@@ -44,10 +44,9 @@ SHELL
 RUN git clone --depth 1 https://github.com/python/cpython.git /tmp/cpython
 WORKDIR /tmp/cpython
 RUN <<SHELL bash
-    export DEBIAN_FRONTEND=noninteractive
     set -ex
     ./configure
     make -j3
-    ./python -c 'from sys import version; assert "3.13" < version < "3.14"'
+    ./python -c 'import sys; assert "3.13" < sys.version < "3.14", sys.version'
     make install
 SHELL
