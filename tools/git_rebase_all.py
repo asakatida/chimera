@@ -54,15 +54,50 @@ async def gather_branch_graph(
         if left in remote_branches and right in remote_branches:
             continue
         if not await git_cmd("diff", left, right):
-            if left in branch_graph and right not in branch_graph:
-                branch_graph.setdefault(left, [])
-                branch_graph[left].append(right)
-            elif right in remote_branches or right in branch_graph:
-                branch_graph.setdefault(right, [])
-                branch_graph[right].append(left)
-            else:
-                branch_graph.setdefault(left, [])
-                branch_graph[left].append(right)
+            branch_graph.setdefault(left, [])
+            branch_graph.setdefault(right, [])
+            branch_graph[left].append(right)
+            branch_graph[right].append(left)
+    return branch_graph
+
+
+def branch_graph_remove_local_branches(
+    branch_graph: dict[str, list[str]], remote_branches: list[str], disable_bars: bool
+) -> dict[str, list[str]]:
+    for remote, branches in c_tqdm(
+        sorted(branch_graph.items()), "Sort branches", disable_bars
+    ):
+        if remote not in remote_branches and any(
+            map(list.count, branch_graph.values(), repeat(remote))
+        ):
+            del branch_graph[remote]
+            try:
+                next(
+                    filter(lambda value: remote in value, branch_graph.values())
+                ).extend(branches)
+            except StopIteration:
+                pass
+    return branch_graph
+
+
+def condense_branch_graph(
+    branch_graph: dict[str, list[str]], remote_branches: list[str], disable_bars: bool
+) -> dict[str, list[str]]:
+    branch_graph = branch_graph_remove_local_branches(
+        branch_graph, remote_branches, disable_bars
+    )
+    for remote in sorted(set(branch_graph.keys()).union(remote_branches)):
+        for local in sorted(
+            set(branch_graph.get(remote, [])).difference(remote_branches)
+        ):
+            if local in branch_graph:
+                branch_graph[remote].extend(branch_graph[local])
+                del branch_graph[local]
+            for branches in branch_graph.values():
+                if local in branches:
+                    branches.extend(branch_graph[remote])
+                while remote in branches:
+                    branches.remove(remote)
     return branch_graph
 
 
@@ -72,23 +107,7 @@ async def report_branch_graph(
     branch_graph = await gather_branch_graph(
         remote_branches, local_branches, disable_bars
     )
-    for remote, branches in c_tqdm(
-        sorted(branch_graph.items()), "Sort branches", disable_bars
-    ):
-        if remote not in remote_branches and any(
-            map(list.count, branch_graph.values(), repeat(remote))
-        ):
-            del branch_graph[remote]
-            next(filter(lambda value: remote in value, branch_graph.values())).extend(
-                branches
-            )
-    for remote in sorted(set(branch_graph.keys()).union(remote_branches)):
-        for local in sorted(
-            set(branch_graph.get(remote, [])).difference(remote_branches)
-        ):
-            if local in branch_graph:
-                branch_graph[remote].extend(branch_graph[local])
-                del branch_graph[local]
+    branch_graph = condense_branch_graph(branch_graph, remote_branches, disable_bars)
     for remote, branches in branch_graph.items():
         get_logger().info(f"{remote} -> {' '.join(sorted(set(branches)))}")
 
@@ -118,6 +137,7 @@ async def git_rebase_all(*args: str, disable_bars: bool) -> None:
             continue
         except ProcessError:
             pass
+        await git_cmd("submodule", "update", "--init", "--recursive")
         await cmd("bash", "-c", *args)
         await git_cmd("add", "--update")
         await cmd_env("git", "rebase", "--continue", env={"EDITOR": "true"})
