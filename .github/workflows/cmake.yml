@@ -27,9 +27,7 @@ jobs:
         with:
           key: corpus-new-${{ github.run_id }}
           path: .ccache
-          restore-keys: |
-            corpus-new-
-            build-
+          restore-keys: corpus-new-
       - name: Build project
         uses: ./
         with:
@@ -85,9 +83,7 @@ jobs:
         with:
           key: corpus-retest-${{ github.run_id }}
           path: .ccache
-          restore-keys: |
-            corpus-retest-
-            build-
+          restore-keys: corpus-retest-
       - name: Build project
         uses: ./
         with:
@@ -139,9 +135,7 @@ jobs:
         with:
           key: debug-${{ github.run_id }}
           path: .ccache
-          restore-keys: |
-            debug-
-            build-
+          restore-keys: debug-
       - name: Run regression
         uses: ./
         with:
@@ -166,9 +160,7 @@ jobs:
         with:
           key: gather-${{ github.run_id }}
           path: .ccache
-          restore-keys: |
-            gather-
-            build-
+          restore-keys: gather-
       - name: Corpus gather
         uses: ./
         with:
@@ -198,9 +190,7 @@ jobs:
         with:
           key: libcpp-${{ github.run_id }}
           path: .ccache
-          restore-keys: |
-            libcpp-
-            build-
+          restore-keys: libcpp-
       - env:
           CMAKE_BUILD_TYPE: RelWithDebInfo
           CPPFLAGS: -stdlib=libc++
@@ -232,9 +222,7 @@ jobs:
         with:
           key: release-${{ github.run_id }}
           path: .ccache
-          restore-keys: |
-            release-
-            build-
+          restore-keys: release-
       - name: Run regression
         uses: ./
         with:

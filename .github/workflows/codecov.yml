@@ -14,9 +14,7 @@ jobs:
         with:
           key: codecov-${{ github.run_id }}
           path: .ccache
-          restore-keys: |
-            codecov-
-            build-
+          restore-keys: codecov-
       - name: Run regression with coverage
         uses: ./
         with:
