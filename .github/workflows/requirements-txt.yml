@@ -22,7 +22,7 @@ jobs:
           env/bin/pip install -r requirements.txt
           env/bin/pip freeze | grep -v -e '^pkg_resources==' >requirements.txt
         working-directory: ${{ github.workspace }}
-      - if: ${{ github.ref == 'refs/heads/stable' }}
+      - if: github.ref == 'refs/heads/stable'
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
           branch: requirements-txt
