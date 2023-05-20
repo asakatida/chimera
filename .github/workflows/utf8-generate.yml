@@ -17,7 +17,7 @@ jobs:
             python tools/g_ls_tree.py hpp |
             xargs --no-run-if-empty --null --
             clang-format -style=file -i
-      - if: ${{ github.ref == 'refs/heads/stable' }}
+      - if: github.ref == 'refs/heads/stable'
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
           branch: utf8-generate-grammar

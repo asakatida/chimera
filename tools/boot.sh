@@ -21,7 +21,7 @@ esac
 python_bin="$(command -v python3)"
 "${python_bin}" tools/venv.py
 env/bin/ansible-playbook tools/boot.yml
-python_bin="$(command -v python3.12)"
+python_bin="$(command -v python3.13)"
 "${python_bin}" tools/venv.py
 export PATH="${PWD}/env/bin:${PATH}"
 
