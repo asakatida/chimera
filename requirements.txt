@@ -33,7 +33,7 @@ Pygments==2.15.1
 pylama==8.4.1
 pyrsistent==0.19.3
 PyYAML==6.0
-requests==2.30.0
+requests==2.31.0
 resolvelib==0.8.1
 rich==13.3.5
 ruamel.yaml==0.17.26
