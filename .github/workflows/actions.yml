@@ -56,26 +56,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         name: Cleanup
         run: >
-          gh api /user/packages/container/chimera-testing/versions --paginate -q '
-            map(
-              select(
-                .metadata.container.tags == [] or
-                (.updated_at | fromdate) < (now - 60 * 60 * 24 * 7)
-              ) |
-              .url
-            )[]
-          ' |
-          xargs --max-lines=1 --max-procs=2 --no-run-if-empty --verbose --
-          gh api -X DELETE
-      - env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        name: Cleanup
-        run: >
           gh api /user/packages/container/chimera/versions --paginate -q '
             map(
               select(
-                .metadata.container.tags == [] and
-                (.updated_at | fromdate) < (now - 60 * 60 * 24 * 30)
+                (.metadata.container.tags | map(test("^[A-Za-z0-9]+$") | all) and
+                (.updated_at | fromdate) < (now - 60 * 60 * 24 * 14)
               ) |
               .url
             )[]
