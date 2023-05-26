@@ -1,6 +1,6 @@
 FROM ghcr.io/asakatida/chimera:python3.13 AS builder
 
-FROM ubuntu:23.04
+FROM ubuntu:23.10
 
 COPY --from=builder /usr/local/bin/python3.13 /usr/local/bin/python3.13
 COPY --from=builder /usr/local/lib/python3.13 /usr/local/lib/python3.13
