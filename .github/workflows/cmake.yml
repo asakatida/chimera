@@ -168,8 +168,7 @@ jobs:
             python tools/corpus_gather.py ${{ github.ref }}
             ccache --cleanup
             ccache --trim-dir .ccache/remote --trim-max-size 600Mi
-      - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
-        uses: stefanzweifel/git-auto-commit-action@v4.16.0
+      - uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
           branch: gather-${{ github.run_id }}
           commit_message: Update fuzzing corpus.
