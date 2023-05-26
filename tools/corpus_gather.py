@@ -78,16 +78,12 @@ async def corpus_gather(*paths: str, disable_bars: bool) -> None:
     await cmd("git", "reset", "HEAD^", err=DEVNULL, out=DEVNULL, timeout=900)
 
 
-async def corpus_gather_main(ref: str, *, disable_bars: bool) -> None:
+async def corpus_gather_stable(disable_bars: bool) -> None:
+    path = "unit_tests/fuzz/corpus"
     await git_cmd("config", "--local", "user.email", "email")
     await git_cmd("config", "--local", "user.name", "name")
-    await cmd("rustup", "default", "stable")
-    await cmd("cmake", "-GNinja", "-B", "build", "-S", ".")
-    await ninja("build")
-    path = "unit_tests/fuzz/corpus"
-    if ref == "refs/heads/stable":
-        await git_cmd("remote", "set-head", "origin", "--auto")
-        await corpus_gather(path, disable_bars=disable_bars)
+    await git_cmd("remote", "set-head", "origin", "--auto")
+    await corpus_gather(path, disable_bars=disable_bars)
     await corpus_retest("build")
     await regression("build")
     for opt in ("--global", "--local", "--system", "--worktree"):
@@ -96,6 +92,19 @@ async def corpus_gather_main(ref: str, *, disable_bars: bool) -> None:
     corpus_trim(disable_bars=disable_bars)
 
 
+async def corpus_gather_main(ref: str, disable_bars: bool) -> None:
+    await cmd("rustup", "default", "stable")
+    await cmd("cmake", "-GNinja", "-B", "build", "-S", ".")
+    await ninja("build")
+    await regression("build")
+    if ref == "refs/heads/stable":
+        await corpus_gather_stable(disable_bars=disable_bars)
+
+
+def main_(ref: str) -> None:
+    run(corpus_gather_main(ref, disable_bars=False))
+
+
 if __name__ == "__main__":
     with main():
-        run(corpus_gather_main(*argv[1:], disable_bars=False))
+        main_(*argv[1:])
