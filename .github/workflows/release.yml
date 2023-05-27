@@ -41,6 +41,7 @@ jobs:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
       group: release-${{ github.workflow }}-${{ github.ref }}
     if: github.ref == 'refs/heads/stable'
+    needs: docker
     permissions:
       contents: write
       packages: write
@@ -54,11 +55,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ghcr.io
           username: ${{ github.actor }}
-      - uses: docker/build-push-action@v4.0.0
-        with:
-          file: Dockerfile.python
-          push: true
-          tags: ${{ env.IMAGE }}:python3.13
       - uses: docker/build-push-action@v4.0.0
         with:
           push: true

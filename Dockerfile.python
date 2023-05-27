@@ -1,49 +1,34 @@
-FROM ubuntu:23.04
+FROM alpine:3.18
 
 ENV TZ Etc/UTC
 
-RUN <<SHELL bash
-    export DEBIAN_FRONTEND=noninteractive
+RUN <<SHELL sh
     set -ex
-    sed 's/# deb-src /deb-src /' -i /etc/apt/sources.list
-    apt-get update
-    apt-get install --no-install-recommends --yes \
-        apt-transport-https=2.6.0 \
-        apt-utils=2.6.0 \
-        apt=2.6.0 \
-        aptitude=0.8.13-5ubuntu1 \
-        libapt-pkg6.0=2.6.0
-    apt-get install --no-install-recommends --yes \
-        ca-certificates=20230311 \
-        git=1:2.39.2-1ubuntu1
-    apt-get build-dep --no-install-recommends --yes \
-        python3-venv=3.11.2-1
-    apt-get install --no-install-recommends --yes \
-        build-essential=12.9ubuntu3 \
-        gdb=13.1-2ubuntu2 \
-        lcov=1.16-1 \
-        libbz2-dev=1.0.8-5build1 \
-        libffi-dev=3.4.4-1 \
-        libgdbm-compat-dev=1.23-3 \
-        libgdbm-dev=1.23-3 \
-        liblzma-dev=5.4.1-0.2 \
-        libncurses5-dev=6.4-2ubuntu0.1 \
-        libreadline-dev=8.2-1.3 \
-        libsqlite3-dev=3.40.1-1 \
-        libssl-dev=3.0.8-1ubuntu1.1 \
-        lzma-dev=9.22-2.2 \
-        lzma=9.22-2.2 \
-        pkg-config=1.8.1-1ubuntu2 \
-        tk-dev=8.6.13 \
-        uuid-dev=2.38.1-4ubuntu1 \
-        zlib1g-dev=1:1.2.13.dfsg-1ubuntu4
-    apt-get clean
-    rm -rf /var/lib/apt/lists
+    apk update
+    apk add --no-cache \
+        ca-certificates=20230506-r0 \
+        git=2.40.1-r0
+    apk add --no-cache \
+        python3-dev=3.11.3-r11
+    apk add --no-cache \
+        build-base=0.5-r3 \
+        gdb=13.1-r7 \
+        gdbm-dev=1.23-r1 \
+        libbz2=1.0.8-r5 \
+        libffi-dev=3.4.4-r2 \
+        libncursesw=6.4_p20230506-r0 \
+        openssl-dev=3.1.1-r1 \
+        readline-dev=8.2.1-r1 \
+        sqlite-dev=3.41.2-r2 \
+        xz-dev=5.4.3-r0 \
+        zlib-dev=1.2.13-r1
+    apk cache clean
+    rm -rf /var/cache/apk/*
 SHELL
 
 RUN git clone --depth 1 https://github.com/python/cpython.git /tmp/cpython
 WORKDIR /tmp/cpython
-RUN <<SHELL bash
+RUN <<SHELL sh
     set -ex
     ./configure
     make -j3
