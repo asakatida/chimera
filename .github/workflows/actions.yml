@@ -14,7 +14,8 @@ jobs:
           REPO: ${{ github.event.repository.name }}
         name: Cleanup
         run: >
-          gh api "repos/$OWNER/$REPO/actions/runs" --paginate -q '
+          set -o pipefail;
+          gh api "repos/${OWNER}/${REPO}/actions/runs" --paginate -q '
             .workflow_runs |
             map(
               select(
@@ -54,12 +55,14 @@ jobs:
     steps:
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
         name: Cleanup
         run: >
-          gh api /user/packages/container/chimera/versions --paginate -q '
+          set -o pipefail;
+          gh api "users/${OWNER}/packages/container/chimera/versions" --paginate -q '
             map(
               select(
-                (.metadata.container.tags | map(test("^[A-Za-z0-9]+$") | all) and
+                (.metadata.container.tags | map(test("^[A-Za-z0-9]+$")) | all) and
                 (.updated_at | fromdate) < (now - 60 * 60 * 24 * 14)
               ) |
               .url
