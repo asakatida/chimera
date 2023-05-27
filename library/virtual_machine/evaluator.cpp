@@ -219,7 +219,7 @@ namespace chimera::library::virtual_machine {
     if (functionDef.returns) {
     }
     std::ranges::for_each(functionDef.args.args | std::views::reverse,
-                          [this](const auto &arg) {
+                          [](const auto &arg) {
                             // arg.name;
                             if (arg.annotation) {
                             }
@@ -229,7 +229,7 @@ namespace chimera::library::virtual_machine {
     if (functionDef.args.vararg) {
     }
     std::ranges::for_each(functionDef.args.kwonlyargs | std::views::reverse,
-                          [this](const auto &kwarg) {
+                          [](const auto &kwarg) {
                             // kwarg.name;
                             if (kwarg.annotation) {
                             }
@@ -437,7 +437,7 @@ namespace chimera::library::virtual_machine {
     if (auto exception = do_try(asdlTry.body, {}); exception) {
       std::ranges::for_each(
           asdlTry.handlers | std::views::reverse,
-          [this](const auto &handler) { std::visit([](auto &&) {}, handler); });
+          [](const auto &handler) { std::visit([](auto &&) {}, handler); });
       if (auto exc = do_try(asdlTry.finalbody, exception); exc) {
         throw object::BaseException(*exc, *exception);
       }

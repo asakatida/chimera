@@ -69,7 +69,7 @@ async def g_ls_tree(*args: str, exclude: Pattern[str] | None = None) -> list[Pat
                                 lambda args: git_cmd(
                                     "diff",
                                     "--name-only",
-                                    f"{environ.get('BASE_COMMIT', 'HEAD')}^",
+                                    environ.get("BASE_COMMIT", "HEAD^"),
                                     "--",
                                     *args,
                                 ),

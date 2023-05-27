@@ -74,3 +74,9 @@ TEST_CASE("grammar VirtualMachine `raise`") {
   REQUIRE_THROWS_AS(chimera::library::virtual_machine::parse_file("raise"sv),
                     chimera::library::object::BaseException);
 }
+
+TEST_CASE("grammar VirtualMachine `[None,None][None,0]`") {
+  REQUIRE_THROWS_AS(
+      chimera::library::virtual_machine::parse_file("[None,None][None,0]"sv),
+      chimera::library::object::BaseException);
+}

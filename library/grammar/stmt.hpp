@@ -291,7 +291,7 @@ namespace chimera::library::grammar {
                                         Break<Option>, failure> {
     struct Transform {
       template <typename Outer>
-      void success(Outer &&outer) {
+      void finalize(Transform & /*unused*/, Outer &&outer) {
         outer.push(asdl::Break{});
       }
     };
@@ -301,7 +301,7 @@ namespace chimera::library::grammar {
                                            Continue<Option>, failure> {
     struct Transform {
       template <typename Outer>
-      void success(Outer &&outer) {
+      void finalize(Transform & /*unused*/, Outer &&outer) {
         outer.push(asdl::Continue{});
       }
     };
@@ -397,7 +397,7 @@ namespace chimera::library::grammar {
   struct ImportFromPeriod : seq<token::PeriodImpl<Option>> {
     struct Transform {
       template <typename Outer>
-      void success(Outer &&outer) {
+      void finalize(Transform & /*unused*/, Outer &&outer) {
         outer.template top<asdl::ImportFrom>().module.value.append(1, '.');
       }
     };

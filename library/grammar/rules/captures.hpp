@@ -60,6 +60,7 @@ namespace chimera::library::grammar::rules {
     using LocalStack = UniqueStack<Types...>;
     template <typename Outer>
     void success(Outer &&outer) {
+      Ensures(LocalStack::size() == sizeof...(Types));
       outer.push(LocalStack::template reshape<Type, Types...>());
     }
   };

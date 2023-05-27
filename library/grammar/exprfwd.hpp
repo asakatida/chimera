@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include "grammar/flags.hpp"
+
 namespace chimera::library::grammar {
   template <flags::Flag Option>
   struct ConditionalExpression;

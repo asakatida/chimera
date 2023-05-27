@@ -423,56 +423,64 @@ namespace chimera::library::asdl {
     std::vector<ExprImpl> decorator_list{};
     std::optional<ExprImpl> returns{};
   };
-  struct Module {
+  struct BaseASDL {
+    struct NullTransaction {
+      static void commit() noexcept {}
+    };
+    [[nodiscard]] static auto transaction() noexcept -> NullTransaction {
+      return {};
+    }
+  };
+  struct Module : BaseASDL {
     Module() = default;
     Module(const Optimize &optimize, std::istream &&input, const char *source);
     [[nodiscard]] auto doc() const -> const std::optional<DocString> &;
     [[nodiscard]] auto iter() const -> const std::vector<StmtImpl> &;
     template <typename Stack>
-    void success(Stack &&stack) {
+    void finalize(const Module & /*unused*/, Stack &&stack) {
       body.reserve(stack.size());
-      while (stack.template top_is<asdl::StmtImpl>()) {
-        body.emplace_back(stack.template pop<asdl::StmtImpl>());
+      while (stack.template top_is<StmtImpl>()) {
+        body.emplace_back(stack.template pop<StmtImpl>());
       }
       std::reverse(body.begin(), body.end());
       if (stack.has_value()) {
-        doc_string = stack.template pop<asdl::DocString>();
+        doc_string = stack.template pop<DocString>();
       }
+      Ensures(stack.size() == 0);
     }
 
   private:
     std::vector<StmtImpl> body{};
     std::optional<DocString> doc_string{};
   };
-  struct Interactive {
+  struct Interactive : BaseASDL {
     Interactive() = default;
     Interactive(const Optimize &optimize, std::istream &&input,
                 const char *source);
     [[nodiscard]] auto iter() const -> const std::vector<StmtImpl> &;
     template <typename Stack>
-    void success(Stack &&stack) {
+    void finalize(const Interactive & /*unused*/, Stack &&stack) {
       body.reserve(stack.size());
-      stack.template transform<asdl::StmtImpl>(std::back_inserter(body));
+      stack.template transform<StmtImpl>(std::back_inserter(body));
     }
 
   private:
     std::vector<StmtImpl> body{};
   };
-  struct Expression {
+  struct Expression : BaseASDL {
     Expression() = default;
     Expression(const Optimize &optimize, std::istream &&input,
                const char *source);
     [[nodiscard]] auto expr() const -> const ExprImpl &;
     template <typename Stack>
-    void success(Stack &&stack) {
+    void finalize(const Expression & /*unused*/, Stack &&stack) {
       if (auto size = stack.size(); size > 1) {
-        asdl::Tuple tuple;
+        Tuple tuple;
         tuple.elts.reserve(size);
-        stack.template transform<asdl::ExprImpl>(
-            std::back_inserter(tuple.elts));
+        stack.template transform<ExprImpl>(std::back_inserter(tuple.elts));
         body = std::move(tuple);
       } else {
-        body = stack.template pop<asdl::ExprImpl>();
+        body = stack.template pop<ExprImpl>();
       }
     }
 

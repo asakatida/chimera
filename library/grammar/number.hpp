@@ -33,6 +33,9 @@
 
 namespace chimera::library::grammar {
   namespace token {
+    struct NullTransaction {
+      static void commit() noexcept {}
+    };
     struct NumberHolder {
       template <std::uint8_t Base, typename Input, typename... Args>
       void apply(const Input &input, Args &&.../*args*/) {
@@ -122,7 +125,7 @@ namespace chimera::library::grammar {
     struct ExponentNegative : seq<one<'-'>, Digitpart> {
       struct Transform : NumberHolder {
         template <typename Top>
-        void success(Top &&top) {
+        void finalize(Transform & /*unused*/, Top &&top) {
           top.number = -number;
         }
       };
@@ -132,8 +135,11 @@ namespace chimera::library::grammar {
                   sor<seq<opt<one<'+'>>, Digitpart>, ExponentNegative>> {
       struct Transform : NumberHolder {
         template <typename Top>
-        void success(Top &&top) {
+        void finalize(Transform & /*unused*/, Top &&top) {
           top.number *= object::Number(10).pow(number);
+        }
+        [[nodiscard]] static auto transaction() noexcept -> NullTransaction {
+          return {};
         }
       };
     };
@@ -144,7 +150,7 @@ namespace chimera::library::grammar {
       struct Transform : NumberHolder {
         object::Number denominator = object::Number(1);
         template <typename Top>
-        void success(Top &&top) {
+        void finalize(Transform & /*unused*/, Top &&top) {
           top.number += number / object::Number(10).pow(denominator);
         }
         template <std::uint8_t Base, typename Input, typename... Args>
@@ -152,13 +158,19 @@ namespace chimera::library::grammar {
           denominator += object::Number(input.size());
           NumberHolder::apply<Base>(input);
         }
+        [[nodiscard]] static auto transaction() noexcept -> NullTransaction {
+          return {};
+        }
       };
     };
     struct Imagnumber : seq<sor<Floatnumber, Digitpart>, one<'j', 'J'>> {
       struct Transform : NumberHolder {
         template <typename Top>
-        void success(Top &&top) {
+        void finalize(Transform & /*unused*/, Top &&top) {
           top.number = number.imag();
+        }
+        [[nodiscard]] static auto transaction() noexcept -> NullTransaction {
+          return {};
         }
       };
     };

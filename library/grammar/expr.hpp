@@ -23,6 +23,7 @@
 #pragma once
 
 #include "asdl/asdl.hpp"
+#include "grammar/exprfwd.hpp"
 #include "grammar/flags.hpp"
 #include "grammar/identifier.hpp"
 #include "grammar/keys.hpp"
@@ -89,8 +90,15 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::SliceImpl> {
       template <typename Outer>
       void success(Outer &&outer) {
-        outer.push(asdl::Subscript{outer.template pop<asdl::ExprImpl>(),
-                                   pop<asdl::SliceImpl>()});
+        if (auto length = size(); length > 1) {
+          asdl::ExtSlice ext_slice;
+          transform<asdl::SliceImpl>(std::back_inserter(ext_slice.dims));
+          outer.push(asdl::Subscript{outer.template pop<asdl::ExprImpl>(),
+                                     asdl::SliceImpl{std::move(ext_slice)}});
+        } else {
+          outer.push(asdl::Subscript{outer.template pop<asdl::ExprImpl>(),
+                                     pop<asdl::SliceImpl>()});
+        }
       }
     };
   };
@@ -244,12 +252,13 @@ namespace chimera::library::grammar {
                           asdl::ExprImpl>());
               return compare;
             })) {
-          return outer.push(std::move(expr));
+          outer.push(std::move(expr));
+        } else {
+          outer.push(
+              asdl::Compare{std::move(expr),
+                            {reshape<asdl::CompareExpr, asdl::CompareExpr::Op,
+                                     asdl::ExprImpl>()}});
         }
-        return outer.push(
-            asdl::Compare{std::move(expr),
-                          {reshape<asdl::CompareExpr, asdl::CompareExpr::Op,
-                                   asdl::ExprImpl>()}});
       }
     };
   };
@@ -259,7 +268,7 @@ namespace chimera::library::grammar {
   struct DictMakerUnpack : Unpack<Option> {
     struct Transform {
       template <typename Outer>
-      void success(Outer &&outer) {
+      void finalize(Transform & /*unused*/, Outer &&outer) {
         outer.push(asdl::UnpackDict{});
       }
     };
@@ -308,8 +317,6 @@ namespace chimera::library::grammar {
       }
     };
   };
-  template <flags::Flag Option>
-  struct ConditionalExpression;
   template <flags::Flag Option>
   struct LambDef;
   template <flags::Flag Option>
@@ -386,7 +393,8 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::ExprImpl, asdl::Operator> {
       template <typename Outer>
       void success(Outer &&outer) {
-        if (auto length = size(); length == 3) {
+        auto length = size();
+        if (length == 3) {
           asdl::Bin bin;
           bin.values.reserve(2);
           {
@@ -398,6 +406,9 @@ namespace chimera::library::grammar {
           outer.push(std::move(bin));
         } else if (length == 1) {
           outer.push(pop<asdl::ExprImpl>());
+        } else {
+          outer.push(pop<asdl::ExprImpl>());
+          clear(); // TODO(asakatida): error
         }
       }
     };
@@ -562,7 +573,7 @@ namespace chimera::library::grammar {
   struct EmptyTuple : success {
     struct Transform {
       template <typename Outer>
-      void success(Outer &&outer) {
+      void finalize(Transform & /*unused*/, Outer &&outer) {
         outer.push(asdl::Tuple{});
       }
     };
@@ -607,7 +618,7 @@ namespace chimera::library::grammar {
   struct EmptyDict : success {
     struct Transform {
       template <typename Outer>
-      void success(Outer &&outer) {
+      void finalize(Transform & /*unused*/, Outer &&outer) {
         outer.push(asdl::Dict{});
       }
     };

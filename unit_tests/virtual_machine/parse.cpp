@@ -28,7 +28,7 @@ namespace chimera::library {
   }
   struct EmptyNode {
     template <typename Stack>
-    void success(Stack && /*stack*/) const {}
+    void finalize(const EmptyNode & /*unused*/, Stack && /*unused*/) const {}
   };
 } // namespace chimera::library
 

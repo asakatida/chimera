@@ -27,6 +27,7 @@
 #include <gsl/gsl>
 
 #include <algorithm>
+#include <numeric>
 #include <tuple>
 #include <variant>
 #include <vector>
@@ -36,24 +37,14 @@ namespace chimera::library::grammar::rules {
   struct Stack {
     using List = metal::list<Types...>;
     using ValueT = std::variant<Types...>;
-    template <typename Type>
-    void push(Type &&type) {
-      stack.emplace_back(ValueT{std::forward<Type>(type)});
+    void operator()(ValueT &&value) { return push(std::move(value)); }
+    void clear() noexcept { stack.clear(); }
+    template <typename Self, typename... Args>
+    void finalize(Self &&self, Args &&...args) {
+      self.success(std::forward<Args>(args)...);
+      Ensures(stack.empty());
     }
-    [[nodiscard]] auto top() const -> const ValueT & { return stack.back(); }
-    [[nodiscard]] auto top() -> ValueT & { return stack.back(); }
-    template <typename Type,
-              typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
-    [[nodiscard]] auto top() const -> const Type & {
-      Ensures(std::holds_alternative<Type>(top()));
-      return std::get<Type>(top());
-    }
-    template <typename Type,
-              typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
-    [[nodiscard]] auto top() -> Type & {
-      Ensures(std::holds_alternative<Type>(top()));
-      return std::get<Type>(top());
-    }
+    [[nodiscard]] auto has_value() const -> bool { return !stack.empty(); }
     [[nodiscard]] auto pop() -> ValueT {
       auto finally = gsl::finally([this] { this->stack.pop_back(); });
       return std::move(top());
@@ -64,6 +55,13 @@ namespace chimera::library::grammar::rules {
       auto finally = gsl::finally([this] { this->stack.pop_back(); });
       return std::move(top<Type>());
     }
+    void push(ValueT &&value) { stack.emplace_back(std::move(value)); }
+    template <typename Base, typename Visitor>
+    [[nodiscard]] auto reduce(Base &&base, Visitor &&visitor) -> Base {
+      auto finally = gsl::finally([this] { clear(); });
+      return std::reduce(stack.begin(), stack.end(), std::forward<Base>(base),
+                         std::forward<Visitor>(visitor));
+    };
     template <typename Type, typename... Args>
     struct Reshape {
       template <typename Iter, std::size_t... I>
@@ -76,44 +74,56 @@ namespace chimera::library::grammar::rules {
     template <typename Type, typename... Args>
     [[nodiscard]] auto reshape() -> Type {
       using LocalStack = Reshape<Type, Args...>;
-      auto finally = gsl::finally([this] { this->stack.clear(); });
-      if (sizeof...(Args) == size()) {
-        return LocalStack::reshape(stack.begin(),
-                                   std::index_sequence_for<Args...>{});
-      }
-      return Type{};
+      auto finally = gsl::finally([this] { clear(); });
+      Ensures(size() == sizeof...(Args));
+      return LocalStack::reshape(stack.begin(),
+                                 std::index_sequence_for<Args...>{});
     }
-    [[nodiscard]] auto vector() const -> const std::vector<ValueT> & {
-      return stack;
+    [[nodiscard]] auto size() const -> std::size_t { return stack.size(); }
+    [[nodiscard]] auto top() -> ValueT & { return stack.back(); }
+    template <typename Type,
+              typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
+    [[nodiscard]] auto top() -> Type & {
+      Ensures(std::holds_alternative<Type>(top()));
+      return std::get<Type>(top());
     }
-    [[nodiscard]] auto vector() -> std::vector<ValueT> & { return stack; }
-    template <typename OutputIt>
-    [[nodiscard]] auto transform(OutputIt &&outputIt) {
-      using IteratorTraits = std::iterator_traits<OutputIt>;
-      return transform<typename IteratorTraits::value_type>(
-          std::forward<OutputIt>(outputIt));
-    }
-    template <typename Type, typename OutputIt>
-    void transform(OutputIt &&outputIt) {
-      auto finally = gsl::finally([this] { this->stack.clear(); });
-      for (const auto &value : stack) {
-        Ensures(std::holds_alternative<Type>(value));
-        *(outputIt++) = std::move(std::get<Type>(value));
-      }
-    }
-    [[nodiscard]] auto has_value() const -> bool { return !stack.empty(); }
     template <typename Type,
               typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
     [[nodiscard]] auto top_is() const -> bool {
-      return has_value() && std::holds_alternative<Type>(top());
+      return has_value() && std::holds_alternative<Type>(stack.back());
     }
-    [[nodiscard]] auto size() const -> std::size_t { return stack.size(); }
-    template <typename Type>
-    void operator()(Type &&type) {
-      return push(std::forward<Type>(type));
+    struct Transaction {
+      Transaction(Stack *stack) : stack(stack), state(stack->stack) {}
+      ~Transaction() noexcept {
+        if (stack != nullptr) {
+          stack->stack = std::move(state);
+        }
+      }
+      void commit() noexcept { stack = nullptr; }
+
+    private:
+      Stack *stack;
+      std::vector<ValueT> state;
+    };
+    [[nodiscard]] auto transaction() -> Transaction { return {this}; }
+    template <typename OutputIt>
+    void transform(OutputIt &&outputIt) {
+      using IteratorTraits = std::iterator_traits<OutputIt>;
+      transform<typename IteratorTraits::value_type, OutputIt>(
+          std::forward<OutputIt>(outputIt));
+    }
+    template <typename Type, typename OutputIt,
+              typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
+    void transform(OutputIt &&outputIt) {
+      auto finally = gsl::finally([this] { clear(); });
+      for (auto &value : stack) {
+        Ensures(std::holds_alternative<Type>(value));
+        *(outputIt++) = std::get<Type>(std::move(value));
+      }
     }
 
   private:
+    friend Transaction;
     std::vector<ValueT> stack;
   };
 } // namespace chimera::library::grammar::rules

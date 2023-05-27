@@ -23,7 +23,7 @@
 from itertools import chain, count, groupby
 from pathlib import Path
 from re import MULTILINE, subn
-from typing import Iterable, Tuple
+from typing import Iterable
 
 from asyncio_cmd import chunks
 from tqdm import tqdm
@@ -42,7 +42,7 @@ def _ranges(total: int, it: Iterable[int]) -> str:
     return f"sor<ranges<{ranges}>>"
 
 
-def _a(t: tuple[int, Iterable[Tuple[int, int]]]) -> Tuple[int, int]:
+def _a(t: tuple[int, Iterable[tuple[int, int]]]) -> tuple[int, int]:
     groups = tuple(e[0] for e in t[1])
     return (min(groups), max(groups))
 

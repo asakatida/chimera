@@ -53,6 +53,7 @@
         "fstream": "cpp",
         "functional": "cpp",
         "future": "cpp",
+        "gsl": "cpp",
         "initializer_list": "cpp",
         "iomanip": "cpp",
         "ios": "cpp",
@@ -63,6 +64,7 @@
         "limits": "cpp",
         "list": "cpp",
         "locale": "cpp",
+        "log": "cpp",
         "map": "cpp",
         "memory": "cpp",
         "memory_resource": "cpp",
@@ -100,10 +102,9 @@
         "unordered_set": "cpp",
         "util": "cpp",
         "utility": "cpp",
+        "valarray": "cpp",
         "variant": "cpp",
-        "vector": "cpp",
-        "log": "cpp",
-        "gsl": "cpp"
+        "vector": "cpp"
     },
     "git.autofetch": false,
     "git.autorefresh": false,

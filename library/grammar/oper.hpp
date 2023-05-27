@@ -124,7 +124,7 @@ namespace chimera::library::grammar {
     struct Ellipsis : Op<Option, rep<3, one<'.'>>> {
       struct Transform {
         template <typename Outer>
-        void success(Outer &&outer) {
+        void finalize(Transform & /*unused*/, Outer &&outer) {
           outer.push(asdl::Ellipsis{});
         }
       };
