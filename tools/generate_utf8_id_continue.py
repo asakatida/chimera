@@ -23,7 +23,7 @@
 from itertools import chain, count, groupby
 from pathlib import Path
 from re import MULTILINE, subn
-from typing import Iterable, Set, Tuple
+from typing import Iterable, Set
 
 from asyncio_cmd import chunks
 from tqdm import tqdm
@@ -60,7 +60,7 @@ def _a(id_start: Set[int], end: int) -> Iterable[int]:
     )
 
 
-def _b(t: tuple[int, Iterable[Tuple[int, int]]]) -> Tuple[int, int]:
+def _b(t: tuple[int, Iterable[tuple[int, int]]]) -> tuple[int, int]:
     groups = tuple(e[0] for e in t[1])
     return (min(groups), max(groups))
 

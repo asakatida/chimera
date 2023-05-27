@@ -40,7 +40,7 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::StmtImpl> {
       template <typename Top>
       void success(Top &&top) {
-        top.success(*this);
+        top.finalize(top, *this);
       }
     };
   };
@@ -50,7 +50,7 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::DocString, asdl::StmtImpl> {
       template <typename Top>
       void success(Top &&top) {
-        top.success(*this);
+        top.finalize(top, *this);
       }
     };
   };
@@ -60,7 +60,7 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::ExprImpl> {
       template <typename Top>
       void success(Top &&top) {
-        top.success(*this);
+        top.finalize(top, *this);
       }
     };
   };

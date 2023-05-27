@@ -62,7 +62,7 @@ namespace chimera::library::grammar {
     struct False : Key<Option, String<'F', 'a', 'l', 's', 'e'>> {
       struct Transform {
         template <typename Outer>
-        void success(Outer &&outer) {
+        void finalize(Transform & /*unused*/, Outer &&outer) {
           outer.push(asdl::NameConstant{asdl::NameConstant::FALSE});
         }
       };
@@ -96,7 +96,7 @@ namespace chimera::library::grammar {
     struct None : Key<Option, String<'N', 'o', 'n', 'e'>> {
       struct Transform {
         template <typename Outer>
-        void success(Outer &&outer) {
+        void finalize(Transform & /*unused*/, Outer &&outer) {
           outer.push(asdl::NameConstant{asdl::NameConstant::NONE});
         }
       };
@@ -134,7 +134,7 @@ namespace chimera::library::grammar {
     struct True : Key<Option, String<'T', 'r', 'u', 'e'>> {
       struct Transform {
         template <typename Outer>
-        void success(Outer &&outer) {
+        void finalize(Transform & /*unused*/, Outer &&outer) {
           outer.push(asdl::NameConstant{asdl::NameConstant::TRUE});
         }
       };

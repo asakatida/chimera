@@ -15,7 +15,7 @@ using namespace std::literals;
 namespace chimera::library {
   struct EmptyNode {
     template <typename Stack>
-    void success(Stack && /*stack*/) const {}
+    void finalize(const EmptyNode & /*unused*/, Stack && /*unused*/) const {}
   };
   template <typename Data>
   void test_trace(Data &&data) {

@@ -340,7 +340,7 @@ namespace chimera::library::grammar {
       struct Transform {
         std::string string;
         template <typename Outer>
-        void success(Outer &&outer) {
+        void finalize(Transform & /*unused*/, Outer &&outer) {
           outer.push(std::move(string));
         }
         template <typename String, typename... Args>
@@ -371,14 +371,15 @@ namespace chimera::library::grammar {
     template <flags::Flag Option>
     struct Action<FormattedString<Option>> {
       template <typename Input, typename Top, typename... Args>
-      static void apply(const Input &input, Top &&top, Args &&.../*args*/) {
-        Ensures((tao::pegtl::parse_nested<
-                 must<FString<flags::list<flags::DISCARD, flags::IMPLICIT>>>,
-                 Action, typename MakeControl<>::Normal>(
+      [[nodiscard]] static auto apply(const Input &input, Top &&top,
+                                      Args &&.../*args*/) -> bool {
+        return tao::pegtl::parse_nested<
+            must<FString<flags::list<flags::DISCARD, flags::IMPLICIT>>>, Action,
+            typename MakeControl<>::Normal>(
             input,
             tao::pegtl::memory_input<>(top.string.c_str(), top.string.size(),
                                        "<f_string>"),
-            std::forward<Top>(top))));
+            std::forward<Top>(top));
       }
     };
     template <flags::Flag Option>
@@ -390,37 +391,38 @@ namespace chimera::library::grammar {
     struct Action<JoinedStrOne<Option>> {
       using State = std::variant<std::string, asdl::JoinedStr>;
       struct Visitor {
-        [[nodiscard]] auto operator()(std::string &&value,
-                                      std::string &&element) {
-          value.append(element);
-          return State{std::move(value)};
+        [[nodiscard]] auto operator()(const std::string &value,
+                                      const std::string &element) -> State {
+          return {value + element};
         }
-        [[nodiscard]] auto operator()(std::string &&value,
-                                      asdl::JoinedStr &&joinedStr) {
-          joinedStr.values.emplace(joinedStr.values.begin(),
-                                   object::Object(object::String(value), {}));
-          return State{std::move(joinedStr)};
+        [[nodiscard]] auto operator()(const std::string &value,
+                                      const asdl::JoinedStr &joinedStr)
+            -> State {
+          auto values = joinedStr.values;
+          values.emplace(values.begin(),
+                         object::Object(object::String(value), {}));
+          return {asdl::JoinedStr{std::move(values)}};
         }
-        [[nodiscard]] auto operator()(asdl::JoinedStr &&value,
-                                      std::string &&element) {
-          value.values.emplace_back(
-              object::Object(object::String(element), {}));
-          return State{std::move(value)};
+        [[nodiscard]] auto operator()(const asdl::JoinedStr &value,
+                                      const std::string &element) -> State {
+          auto values = value.values;
+          values.emplace_back(object::Object(object::String(element), {}));
+          return {asdl::JoinedStr{std::move(values)}};
         }
-        [[nodiscard]] auto operator()(asdl::JoinedStr &&value,
-                                      asdl::JoinedStr &&joinedStr) {
+        [[nodiscard]] auto operator()(const asdl::JoinedStr &value,
+                                      const asdl::JoinedStr &joinedStr)
+            -> State {
+          auto values = value.values;
           std::move(joinedStr.values.begin(), joinedStr.values.end(),
-                    std::back_inserter(value.values));
-          return State{std::move(value)};
+                    std::back_inserter(values));
+          return {asdl::JoinedStr{std::move(values)}};
         }
       };
       template <typename Top, typename... Args>
       static void apply0(Top &&top, Args &&.../*args*/) {
-        State value;
-        for (auto &&element : top.vector()) {
-          value = std::visit(Visitor{}, std::move(value), std::move(element));
-        }
-        std::visit(top, std::move(value));
+        std::visit(top, top.reduce(State{}, [](const State &a, const State &b) {
+          return std::visit(Visitor{}, a, b);
+        }));
       }
     };
     template <flags::Flag Option>
@@ -432,11 +434,11 @@ namespace chimera::library::grammar {
           [[nodiscard]] auto operator()(std::string && /*value*/) -> State {
             Expects(false);
           }
-          [[nodiscard]] auto operator()(asdl::JoinedStr &&value) {
-            return State{std::move(value)};
+          [[nodiscard]] auto operator()(asdl::JoinedStr &&value) -> State {
+            return {std::move(value)};
           }
-          [[nodiscard]] auto operator()(object::Object &&value) {
-            return State{std::move(value)};
+          [[nodiscard]] auto operator()(object::Object &&value) -> State {
+            return {std::move(value)};
           }
         };
         template <typename Outer>

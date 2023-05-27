@@ -93,7 +93,6 @@ async def corpus_gather_stable(disable_bars: bool) -> None:
 
 
 async def corpus_gather_main(ref: str, disable_bars: bool) -> None:
-    await cmd("rustup", "default", "stable")
     await cmd("cmake", "-GNinja", "-B", "build", "-S", ".")
     await ninja("build")
     await regression("build")
