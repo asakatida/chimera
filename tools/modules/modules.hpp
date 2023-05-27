@@ -21,23 +21,27 @@
 //! evaluates importlib to construct the importlib module.
 //! Then prints the module construction.
 
-#include "asdl/asdl.hpp"
-#include "object/object.hpp"
-#include "options.hpp"
-#include "virtual_machine/global_context.hpp"
+#include "object/object.hpp" // for SysCall, Object, Id, Obj...
 
-#include <gsl/gsl>
+#include <gsl/assert> // for Expects
 
-#include <algorithm>
-#include <iomanip>
-#include <map>
-#include <optional>
-#include <queue>
-#include <string>
-#include <vector>
+#include <algorithm> // for sort
+#include <iomanip>   // for quoted
+#include <map>       // for map
+#include <optional>  // for optional
+#include <ostream>   // for endl
+#include <queue>     // for priority_queue
+#include <string>    // for basic_string, to_string
+#include <vector>    // for vector
 
 namespace chimera::library {
+  namespace object::number {
+    class Number;
+  } // namespace object::number
   struct PrintState;
+} // namespace chimera::library
+
+namespace chimera::library {
   struct SetAttribute {
     std::string base_name{};
     std::string name{};

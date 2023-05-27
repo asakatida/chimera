@@ -20,14 +20,9 @@
 
 #include <chimera.h>
 
-#include <gsl/gsl>
+#include <gsl/narrow> // for narrow
 
-#include <cassert>
-#include <cerrno>
-#include <climits>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include <cstdlib> // for calloc, free
 
 #undef Py_TYPE
 
