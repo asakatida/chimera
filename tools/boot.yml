@@ -3,75 +3,97 @@
 - hosts: localhost
   name: Boot localhost for building
   vars:
+    install_recommends: "{{ false if ansible_facts.os_family == 'Ubuntu' else omit }}"
+    llvm_version: 16
+    py_version: 3.13
     pythons:
       - python: python3
         venv: /opt/virtualenv
       - python: python{{ py_version }}
         venv: /opt/edge-virtualenv
   tasks:
-    - name: Set Python version
-      ansible.builtin.set_fact:
-        llvm_version: 16
-        py_version: 3.13
     - name: Unix block
       become: true
       when: ansible_facts.os_family != 'Darwin'
       block:
-        - name: Install apt packages
-          ansible.builtin.apt:
-            install_recommends: false
-            name:
-              - apt
-              - apt-transport-https
-              - apt-utils
-              - aptitude
-              - libapt-pkg6.0
-            update_cache: true
-        - name: Install apt packages
-          ansible.builtin.apt:
-            install_recommends: false
+        - name: Ubuntu block
+          when: ansible_facts.os_family == 'Ubuntu'
+          block:
+            - name: Install packages
+              ansible.builtin.package:
+                install_recommends: "{{ install_recommends }}"
+                name:
+                  - apt
+                  - apt-transport-https
+                  - apt-utils
+                  - aptitude
+                  - libapt-pkg6.0
+                update_cache: true
+            - name: Install packages
+              ansible.builtin.package:
+                install_recommends: "{{ install_recommends }}"
+                name:
+                  - software-properties-common
+                update_cache: true
+        - name: Install packages
+          ansible.builtin.package:
+            install_recommends: "{{ install_recommends }}"
             name:
               - gnupg
               - lsb-release
-              - software-properties-common
               - wget
             update_cache: true
-        - name: Download LLVM install
-          ansible.builtin.get_url:
-            dest: /tmp/llvm.sh
-            mode: "0644"
-            url: https://apt.llvm.org/llvm.sh
         - name: Install LLVM
-          ansible.builtin.script:
-            chdir: /tmp
-            cmd: /tmp/llvm.sh {{ llvm_version }} all
-        - name: Clean LLVM script
-          ansible.builtin.file:
-            path: /tmp/llvm.sh
-            state: absent
-        - name: Gather LLVM binaries  # noqa: command-instead-of-shell
-          ansible.builtin.shell: command -v {{ item }}-{{ llvm_version }}
-          register: links
-          with_items:
-            - clang
-            - clang-format
-            - clang-tidy
-            - clang++
-            - llvm-cov
-            - llvm-profdata
-            - scan-build
-        - name: Create LLVM links
-          ansible.builtin.file:
-            dest: /usr/local/bin/{{ item.item }}
-            src: "{{ item.stdout }}"
-            state: link
-          loop: "{{ links.results }}"
-        - name: Install apt packages
-          ansible.builtin.apt:
-            install_recommends: false
+          ansible.builtin.package:
+            install_recommends: "{{ install_recommends }}"
             name:
-              - adduser
+              - llvm{{ llvm_version }}
+            update_cache: true
+        - name: Ubuntu block
+          when: ansible_facts.os_family == 'Ubuntu'
+          block:
+            - name: Download LLVM install
+              ansible.builtin.get_url:
+                dest: /tmp/llvm.sh
+                mode: "0640"
+                url: https://apt.llvm.org/llvm.sh
+            - name: Install LLVM
+              ansible.builtin.script:
+                chdir: /tmp
+                cmd: /tmp/llvm.sh {{ llvm_version }} all
+            - name: Clean LLVM script
+              ansible.builtin.file:
+                path: /tmp/llvm.sh
+                state: absent
+            - name: Gather LLVM binaries  # noqa: command-instead-of-shell
+              ansible.builtin.shell: command -v {{ item }}-{{ llvm_version }}
+              register: links
+              with_items:
+                - clang
+                - clang-format
+                - clang-tidy
+                - clang++
+                - llvm-cov
+                - llvm-profdata
+                - scan-build
+            - name: Create LLVM links
+              ansible.builtin.file:
+                dest: /usr/local/bin/{{ item.item }}
+                src: "{{ item.stdout }}"
+                state: link
+              loop: "{{ links.results }}"
+            - name: Install packages
+              ansible.builtin.package:
+                install_recommends: "{{ install_recommends }}"
+                name:
+                  - adduser
+                  - sudo
+        - name: Install packages
+          ansible.builtin.package:
+            install_recommends: "{{ install_recommends }}"
+            name:
               - sudo
+              - shadow
             update_cache: true
         - name: Create github group
           ansible.builtin.group:
@@ -81,12 +103,12 @@
         - name: Create github user
           ansible.builtin.user:
             createhome: true
-            group: 122
+            group: github
             name: github
             uid: 1001
         - name: Create sudoers.d directory
           ansible.builtin.file:
-            mode: "0770"
+            mode: "0750"
             path: /etc/sudoers.d
             state: directory
         - name: Add github to sudoers
@@ -95,191 +117,235 @@
             dest: /etc/sudoers.d/github
             line: github ALL=(ALL) NOPASSWD:ALL
             mode: "0440"
-        - name: Install build tools
-          ansible.builtin.apt:
-            install_recommends: false
-            name:
+        - name: Ubuntu block
+          when: ansible_facts.os_family == 'Ubuntu'
+          block:
+            - name: Set build tools list
+              ansible.builtin.set_fact:
+                build_tools:
+                  - autoconf
+                  - automake
+                  - base-files
+                  - base-passwd
+                  - bash
+                  - brz
+                  - bsdutils
+                  - build-essential
+                  - bzip2
+                  - bzr
+                  - ca-certificates
+                  - ccache
+                  - cmake
+                  - coreutils
+                  - curl
+                  - dash
+                  - debconf
+                  - debianutils
+                  - default-libmysqlclient-dev
+                  - diffutils
+                  - dirmngr
+                  - docker
+                  - dpkg
+                  - dpkg-dev
+                  - e2fsprogs
+                  - fdisk
+                  - file
+                  - findutils
+                  - fish
+                  - gcc-12-base
+                  - gettext
+                  - git
+                  - git-lfs
+                  - gnupg
+                  - gnupg-agent
+                  - gpgv
+                  - grep
+                  - gzip
+                  - hostname
+                  - htop
+                  - imagemagick
+                  - imagemagick-6.q16
+                  - init-system-helpers
+                  - jq
+                  - less
+                  - libacl1
+                  - libattr1
+                  - libaudit-common
+                  - libaudit1
+                  - libblkid1
+                  - libbz2-1.0
+                  - libbz2-dev
+                  - libc-bin
+                  - libc6
+                  - libcap-ng0
+                  - libcap2
+                  - libcom-err2
+                  - libcrypt1
+                  - libcurl4-openssl-dev
+                  - libdb-dev
+                  - libdb5.3
+                  - libdebconfclient0
+                  - libdpkg-perl
+                  - libevent-dev
+                  - libext2fs2
+                  - libfdisk1
+                  - libffi-dev
+                  - libffi8
+                  - libgcc-s1
+                  - libgcrypt20
+                  - libgdbm-dev
+                  - libglib2.0-0
+                  - libglib2.0-dev
+                  - libgmp-dev
+                  - libgmp10
+                  - libgnutls30
+                  - libgpg-error0
+                  - libgssapi-krb5-2
+                  - libhogweed6
+                  - libidn2-0
+                  - libjpeg-dev
+                  - libk5crypto3
+                  - libkeyutils1
+                  - libkrb5-3
+                  - libkrb5-dev
+                  - libkrb5support0
+                  - liblz4-1
+                  - liblzma-dev
+                  - liblzma5
+                  - libmagickcore-6.q16-6
+                  - libmagickcore-dev
+                  - libmagickwand-dev
+                  - libmaxminddb-dev
+                  - libmount1
+                  - libncurses5-dev
+                  - libncurses6
+                  - libncursesw5-dev
+                  - libncursesw6
+                  - libnettle8
+                  - libnsl2
+                  - libp11-kit0
+                  - libpam-modules
+                  - libpam-modules-bin
+                  - libpam-runtime
+                  - libpam0g
+                  - libpcre2-8-0
+                  - libpcre3
+                  - libpng-dev
+                  - libpq-dev
+                  - libreadline-dev
+                  - libsasl2-2
+                  - libseccomp2
+                  - libselinux1
+                  - libsemanage-common
+                  - libsemanage2
+                  - libsepol2
+                  - libsmartcols1
+                  - libsqlite3-dev
+                  - libss2
+                  - libssl-dev
+                  - libssl3
+                  - libstdc++6
+                  - libsystemd0
+                  - libtasn1-6
+                  - libtinfo6
+                  - libtirpc-common
+                  - libtirpc3
+                  - libtool
+                  - libudev1
+                  - libunistring2
+                  - libuuid1
+                  - libwebp-dev
+                  - libwmf0.2-7
+                  - libxml2-dev
+                  - libxslt1-dev
+                  - libxxhash0
+                  - libyaml-dev
+                  - libzstd1
+                  - locales
+                  - login
+                  - logsave
+                  - lsb-base
+                  - lsb-release
+                  - lsof
+                  - make
+                  - man-db
+                  - mawk
+                  - moreutils
+                  - mount
+                  - multitail
+                  - ncurses-base
+                  - ncurses-bin
+                  - netbase
+                  - ninja-build
+                  - openssh-client
+                  - passwd
+                  - patch
+                  - perl-base
+                  - procps
+                  - ripgrep
+                  - sed
+                  - sensible-utils
+                  - software-properties-common
+                  - ssl-cert
+                  - stow
+                  - sysvinit-utils
+                  - tar
+                  - time
+                  - ubuntu-keyring
+                  - unzip
+                  - usrmerge
+                  - util-linux
+                  - wget
+                  - xz-utils
+                  - zip
+                  - zlib1g
+                  - zlib1g-dev
+        - name: Set build tools list
+          ansible.builtin.set_fact:
+            build_tools:
               - autoconf
               - automake
-              - base-files
-              - base-passwd
-              - bash
-              - brz
-              - bsdutils
-              - build-essential
               - bzip2
-              - bzr
               - ca-certificates
               - ccache
               - cmake
               - coreutils
               - curl
-              - dash
-              - debconf
-              - debianutils
-              - default-libmysqlclient-dev
               - diffutils
-              - dirmngr
               - docker
-              - dpkg
-              - dpkg-dev
-              - e2fsprogs
-              - fdisk
               - file
               - findutils
               - fish
-              - gcc-12-base
+              - gcc
               - gettext
               - git
               - git-lfs
-              - gnupg
-              - gnupg-agent
-              - gpgv
               - grep
               - gzip
-              - hostname
               - htop
-              - imagemagick
-              - imagemagick-6.q16
-              - init-system-helpers
               - jq
               - less
-              - libacl1
-              - libattr1
-              - libaudit-common
-              - libaudit1
-              - libblkid1
-              - libbz2-1.0
-              - libbz2-dev
-              - libc-bin
-              - libc6
-              - libcap-ng0
-              - libcap2
-              - libcom-err2
-              - libcrypt1
-              - libcurl4-openssl-dev
-              - libdb-dev
-              - libdb5.3
-              - libdebconfclient0
-              - libdpkg-perl
-              - libevent-dev
-              - libext2fs2
-              - libfdisk1
-              - libffi-dev
-              - libffi8
-              - libgcc-s1
-              - libgcrypt20
-              - libgdbm-dev
-              - libglib2.0-0
-              - libglib2.0-dev
-              - libgmp-dev
-              - libgmp10
-              - libgnutls30
-              - libgpg-error0
-              - libgssapi-krb5-2
-              - libhogweed6
-              - libidn2-0
-              - libjpeg-dev
-              - libk5crypto3
-              - libkeyutils1
-              - libkrb5-3
-              - libkrb5-dev
-              - libkrb5support0
-              - liblz4-1
-              - liblzma-dev
-              - liblzma5
-              - libmagickcore-6.q16-6
-              - libmagickcore-dev
-              - libmagickwand-dev
-              - libmaxminddb-dev
-              - libmount1
-              - libncurses5-dev
-              - libncurses6
-              - libncursesw5-dev
-              - libncursesw6
-              - libnettle8
-              - libnsl2
-              - libp11-kit0
-              - libpam-modules
-              - libpam-modules-bin
-              - libpam-runtime
-              - libpam0g
-              - libpcre2-8-0
-              - libpcre3
-              - libpng-dev
-              - libpq-dev
-              - libreadline-dev
-              - libsasl2-2
-              - libseccomp2
-              - libselinux1
-              - libsemanage-common
-              - libsemanage2
-              - libsepol2
-              - libsmartcols1
-              - libsqlite3-dev
-              - libss2
-              - libssl-dev
-              - libssl3
-              - libstdc++6
-              - libsystemd0
-              - libtasn1-6
-              - libtinfo6
-              - libtirpc-common
-              - libtirpc3
-              - libtool
-              - libudev1
-              - libunistring2
-              - libuuid1
-              - libwebp-dev
-              - libwmf0.2-7
-              - libxml2-dev
-              - libxslt1-dev
-              - libxxhash0
-              - libyaml-dev
-              - libzstd1
-              - locales
-              - login
-              - logsave
-              - lsb-base
-              - lsb-release
-              - lsof
+              - libstdc++-dev
               - make
-              - man-db
               - mawk
               - moreutils
-              - mount
-              - multitail
-              - ncurses-base
-              - ncurses-bin
-              - netbase
               - ninja-build
-              - openssh-client
-              - passwd
               - patch
-              - perl-base
-              - procps
               - ripgrep
               - sed
-              - sensible-utils
-              - software-properties-common
-              - ssl-cert
-              - stow
-              - sysvinit-utils
               - tar
-              - time
-              - ubuntu-keyring
               - unzip
-              - usrmerge
-              - util-linux
               - wget
-              - xz-utils
+              - xz
               - zip
-              - zlib1g
-              - zlib1g-dev
+        - name: Install build tools
+          ansible.builtin.package:
+            install_recommends: "{{ install_recommends }}"
+            name: "{{ build_tools }}"
         - name: Create directory for virtualenv
           ansible.builtin.file:
             group: github
-            mode: "0755"
+            mode: "0750"
             owner: github
             path: "{{ item.venv }}"
             state: directory
@@ -290,26 +356,26 @@
             - name: Download rustup install script
               ansible.builtin.get_url:
                 dest: /tmp/sh.rustup.rs
-                mode: "0755"
+                mode: "0750"
                 url: https://sh.rustup.rs
             - name: Setup install template
               ansible.builtin.copy:
                 content: |
-                  #!/bin/bash
-                  set -ex -o pipefail
+                  #!/bin/sh
+                  set -e
                   /tmp/sh.rustup.rs -y --no-modify-path
                   export PATH="/home/github/.cargo/bin:{{ lookup('env', 'PATH') }}"
                   rustup default stable
                   cargo --version
                 dest: /tmp/rustup.sh.j2
                 group: github
-                mode: "0644"
+                mode: "0640"
                 owner: github
             - name: Setup install script
               ansible.builtin.template:
                 dest: /tmp/rustup.sh
                 group: github
-                mode: "0644"
+                mode: "0750"
                 owner: github
                 src: /tmp/rustup.sh.j2
             - name: Install rustup
@@ -347,10 +413,11 @@
                 git config --global status.submoduleSummary true
                 git config --global submodule.recurse true
             - name: Setup Python virtualenv
-              ansible.builtin.shell: |
-                set -e
-                {{ item.python }} -m venv {{ item.venv }}
-                {{ item.venv }}/bin/pip install -r /tmp/requirements.core.txt
+              ansible.builtin.pip:
+                chdir: /tmp
+                requirements: requirements.core.txt
+                virtualenv_command: "{{ item.python }} -m venv"
+                virtualenv: "{{ item.venv }}"
               with_items: "{{ pythons }}"
             - name: Bootstrap Python virtualenv
               ansible.builtin.pip:
@@ -382,22 +449,29 @@
         - name: Download tailscale install script
           ansible.builtin.get_url:
             dest: /tmp/install.sh
-            mode: "0644"
+            mode: "0640"
             url: https://tailscale.com/install.sh
           tags:
             - debug
             - never
-        - name: Clean apt
-          ansible.builtin.apt:
-            autoclean: true
-            autoremove: true
-            clean: true
-        - name: Clean apt
-          ansible.builtin.apt:
-            clean: true
+        - name: Ubuntu block
+          when: ansible_facts.os_family == 'Ubuntu'
+          block:
+            - name: Clean apt
+              ansible.builtin.apt:
+                autoclean: true
+                autoremove: true
+                clean: true
+            - name: Clean apt
+              ansible.builtin.apt:
+                clean: true
         - name: Remove apt lists
           ansible.builtin.file:
             path: /var/lib/apt/lists
+            state: absent
+        - name: Remove apk lists
+          ansible.builtin.file:
+            path: /var/cache/apk
             state: absent
     - name: OSX block
       when: ansible_facts.os_family == 'Darwin'
