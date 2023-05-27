@@ -6,13 +6,16 @@
 extern "C" {
 #endif
 
-#include <assert.h>
-#include <errno.h>
-#include <limits.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdint.h> // for int64_t, uint16_t, uint32_t, uint8_t
+#include <stdio.h>  // for FILE, size_t, NULL, va_list
+struct PyCompilerFlags;
+struct PyDateTime_Date;
+struct PyDateTime_DateTime;
+struct PyDateTime_Delta;
+struct PyDateTime_Time;
+struct PyFrameObject;
+struct PyStructSequence_Desc;
+struct Py_buffer;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wreserved-id-macro"

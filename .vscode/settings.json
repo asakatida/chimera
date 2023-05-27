@@ -102,7 +102,8 @@
         "utility": "cpp",
         "variant": "cpp",
         "vector": "cpp",
-        "log": "cpp"
+        "log": "cpp",
+        "gsl": "cpp"
     },
     "git.autofetch": false,
     "git.autorefresh": false,

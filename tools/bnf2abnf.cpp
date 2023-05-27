@@ -20,13 +20,18 @@
 
 //! helper to generate abnf from bnf
 
-#include "grammar/utf8_space.hpp"
+#include "grammar/utf8_space.hpp" // for Utf8NonLineBreak
 
-#include <tao/pegtl.hpp>
+#include <tao/pegtl/ascii.hpp>         // for one, identifier
+#include <tao/pegtl/istream_input.hpp> // for istream_input
+#include <tao/pegtl/nothing.hpp>       // for nothing
+#include <tao/pegtl/parse.hpp>         // for parse
+#include <tao/pegtl/rules.hpp>         // for seq, discard (ptr only), plus
 
-#include <algorithm>
-#include <iostream>
-#include <string_view>
+#include <algorithm> // for replace
+#include <iostream>  // for operator<<, cout, cin
+
+struct expression;
 
 template <typename Rule>
 struct BnfAction : tao::pegtl::nothing<Rule> {};
@@ -98,8 +103,6 @@ struct BnfAction<Literal> {
               << '"';
   }
 };
-
-struct expression;
 
 struct GroupStart : tao::pegtl::one<'('> {};
 
