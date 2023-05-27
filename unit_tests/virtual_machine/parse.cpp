@@ -1,6 +1,7 @@
 #include "grammar/grammar.hpp"
 #include "grammar/rules.hpp"
 #include "grammar/rules/control.hpp"
+#include "grammar/test_parse.hpp"
 #include "object/object.hpp"
 #include "options.hpp"
 #include "virtual_machine/global_context.hpp"
@@ -13,23 +14,6 @@
 #include <sstream>
 
 using namespace std::literals;
-
-namespace chimera::library {
-  void test_parse(std::string_view &&data, std::size_t size) {
-    const Options options{.chimera = "chimera",
-                          .exec = options::Script{"unit_test.py"}};
-    virtual_machine::GlobalContext globalContext(options);
-    const virtual_machine::ProcessContext processContext{globalContext};
-    std::istringstream istream{std::string{data}};
-    auto module = processContext.parse_file(
-        std::move(istream), "<unit_tests/virtual_machine/parse.cpp>");
-    REQUIRE(module.iter().size() == size);
-  }
-  struct EmptyNode {
-    template <typename Stack>
-    void finalize(const EmptyNode & /*unused*/, Stack && /*unused*/) const {}
-  };
-} // namespace chimera::library
 
 TEST_CASE("virtual machine parse ``") {
   REQUIRE_NOTHROW(chimera::library::test_parse(""sv, 0));
@@ -81,4 +65,12 @@ TEST_CASE("virtual machine parse `if True:\\n  False\\nTrue\\nFalse`") {
 
 TEST_CASE("virtual machine parse `raise`") {
   REQUIRE_NOTHROW(chimera::library::test_parse("raise"sv, 1));
+}
+
+TEST_CASE("virtual machine parse "
+          "`\xe1\xb3\xb5\xdb\xb5\xdb\xb5\xdb\xb5\xe1\xb3\xb5\xdb\xb5\xdb\xb5"
+          "\xdb\xe1`") {
+  REQUIRE_NOTHROW(chimera::library::test_parse(
+      "\xe1\xb3\xb5\xdb\xb5\xdb\xb5\xdb\xb5\xe1\xb3\xb5\xdb\xb5\xdb\xb5\xdb\xe1"sv,
+      1));
 }
