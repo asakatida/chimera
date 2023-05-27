@@ -16,16 +16,10 @@
     - name: Gather chimera path
       ansible.builtin.command: python3 {{ playbook_dir }}/chimera_path.py
       register: chimera_path
-    - name: Clean newlines in CXXFLAGS
-      ansible.builtin.set_fact:
-        cxxflags: >
-          {{ lookup('env', 'CXXFLAGS') | default('') | regex_replace('[\\n\\r]+', ' ') }}
     - name: Set CC, CXX, and CXXFLAGS
       ansible.builtin.set_fact:
-        cc: "{{ lookup('env', 'CC') | default('clang') }}"
-        cxx: "{{ lookup('env', 'CXX') | default('clang++') }}"
         cxxflags: >
-          {{ cxxflags }}
+          {{ lookup('env', 'CXXFLAGS') | default('') }}
           -DCHIMERA_PATH={{ playbook_dir }}/../stdlib:{{ chimera_path.stdout }}
     - name: Create debug build directory
       ansible.builtin.command: >
@@ -33,9 +27,6 @@
       args:
         creates: "{{ playbook_dir }}/../build/debug"
       environment:
-        CC: "{{ cc }}"
-        CMAKE_BUILD_TYPE: Debug
-        CXX: "{{ cxx }}"
         CXXFLAGS: "{{ cxxflags }}"
     - name: Create release build directory
       ansible.builtin.command: >
@@ -43,11 +34,8 @@
       args:
         creates: "{{ playbook_dir }}/../build/release"
       environment:
-        CC: "{{ cc }}"
-        CMAKE_BUILD_TYPE: >
-          {{ lookup('env', 'CMAKE_BUILD_TYPE') | default('MinSizeRel') }}
-        CXX: "{{ cxx }}"
-        CXXFLAGS: "{{ cxxflags }} -DNDEBUG"
+        CMAKE_BUILD_TYPE: MinSizeRel
+        CXXFLAGS: "{{ cxxflags }}"
     - name: Build project
       ansible.builtin.command: ninja -C {{ playbook_dir }}/../{{ item }} -j1 -k0
       failed_when: false

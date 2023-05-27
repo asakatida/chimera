@@ -30,9 +30,6 @@ async def action(cmd: str, *args: str) -> None:
     environ["CCACHE_REMOTE_STORAGE"] = (
         f"file:{source / '.ccache' / 'remote'}|update-mtime=true"
     )
-    environ["CXXFLAGS"] = environ.get("CXXFLAGS", "").translate(
-        dict(zip(b"\n\r", "  "))
-    )
     await cmd_no_timeout("/bin/sh", "-e", "-c", cmd, *args)
 
 

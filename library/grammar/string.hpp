@@ -296,14 +296,13 @@ namespace chimera::library::grammar {
                                                  range<0, 0b1111111>>>> {
       struct Transform : rules::VariantCapture<object::Object> {
         object::Bytes bytes;
-        template <typename String, typename... Args>
-        void apply(String &&input, Args &&.../*args*/) {
+        template <typename Input, typename... Args>
+        void apply(Input &&input, Args &&.../*args*/) {
           for (const auto &byte : input) {
-            if (byte > gsl::narrow<std::uint32_t>(
-                           std::numeric_limits<std::uint8_t>::max())) {
+            if (byte > 0xFF) {
               throw rules::BytesASCIIOnlyError();
             }
-            bytes.emplace_back(gsl::narrow<std::uint8_t>(byte));
+            bytes.emplace_back(gsl::narrow<std::uint8_t>(byte && 0xFF));
           }
         }
       };

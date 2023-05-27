@@ -1,16 +1,6 @@
 ---
 env:
-  CMAKE_BUILD_TYPE: Debug
   CPPFLAGS: -DCHIMERA_PATH="/github/workspace/stdlib"
-  CXXFLAGS: >
-    -fsanitize-coverage=no-prune
-    -fsanitize-coverage=trace-cmp
-    -fsanitize-coverage=trace-div
-    -fsanitize-coverage=trace-gep
-    -fsanitize-coverage=trace-loads
-    -fsanitize-coverage=trace-stores
-  LDFLAGS: -lgcc_s -lgcc
-
 jobs:
   corpus-new:
     concurrency:
@@ -123,8 +113,7 @@ jobs:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
       group: debug-${{ github.workflow }}-${{ github.ref }}
     env:
-      CMAKE_BUILD_TYPE: Debug
-      CXXFLAGS: ""
+      CXXFLAGS: -O0 -g -pedantic -DDEBUG -Wall -Wdeprecated -Werror -Wextra -Wpedantic
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.5.3
@@ -193,9 +182,7 @@ jobs:
           restore-keys: libcpp-
       - env:
           CMAKE_BUILD_TYPE: RelWithDebInfo
-          CPPFLAGS: -stdlib=libc++
           CXXFLAGS: -stdlib=libc++
-          LDFLAGS: -stdlib=libc++
         name: Basic unit tests
         uses: ./
         with:
@@ -211,7 +198,6 @@ jobs:
       group: release-${{ github.workflow }}-${{ github.ref }}
     env:
       CMAKE_BUILD_TYPE: Release
-      CXXFLAGS: ""
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.5.3
