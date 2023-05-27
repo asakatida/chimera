@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22.0)
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 project(
   chimera
   VERSION 1.0.0
@@ -13,11 +13,6 @@ set(
   -runtime-counter-relocation
   CACHE STRING
   "Flags used by the C++ compiler during coverage builds.")
-set(
-  CMAKE_CXX_FLAGS_DEBUG
-  -O0 -g -Wall -Wextra -Wpedantic -Werror
-  CACHE STRING
-  "Flags used by the C++ compiler during debug builds.")
 
 if(MSVC)
   add_compile_options(/W4 /WX)

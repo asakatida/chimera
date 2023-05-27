@@ -52,11 +52,11 @@ async def codecov() -> None:
         env=dict(
             environ,
             CMAKE_BUILD_TYPE="Coverage",
-            CPPFLAGS=f"-DCHIMERA_PATH={Path().resolve()}/stdlib",
+            CPPFLAGS=f"-DCHIMERA_PATH={Path().resolve()/'stdlib'}",
             CXXFLAGS=" ".join(
                 (
-                    "-O1",
-                    "-DNDEBUG",
+                    "-O0",
+                    "-DDEBUG",
                     "-fcoverage-mapping",
                     "-fprofile-instr-generate",
                     "-fsanitize-coverage=no-prune",
@@ -69,7 +69,6 @@ async def codecov() -> None:
                     "-runtime-counter-relocation",
                 )
             ),
-            LDFLAGS="-lgcc_s -lgcc",
         ),
     )
     try:
