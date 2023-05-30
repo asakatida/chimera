@@ -28,7 +28,7 @@ async def action(cmd: str, *args: str) -> None:
     environ["CXXFLAGS"] = environ.get("CXXFLAGS", "").translate(
         dict(zip(b"\n\r", "  "))
     )
-    await cmd_no_timeout("/bin/bash", "-eo", "pipefail", "-c", cmd, *args)
+    await cmd_no_timeout("/bin/sh", "-e", "-c", cmd, *args)
 
 
 if __name__ == "__main__":

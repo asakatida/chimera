@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 
-set -ex -o pipefail
+set -ex
 
 version="$(git rev-parse --show-toplevel)/library/version.hpp"
 current_branch="$(git rev-parse --abbrev-ref HEAD)"

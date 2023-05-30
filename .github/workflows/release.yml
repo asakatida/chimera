@@ -64,7 +64,6 @@ jobs:
       - name: Update tags
         # yamllint disable rule:line-length
         run: >
-          set -o pipefail;
           grep --files-with-matches --null --recursive --regexp "${IMAGE}" . |
           xargs --no-run-if-empty --null --verbose --
           sed -E -i
