@@ -47,7 +47,9 @@
           ansible.builtin.package:
             install_recommends: "{{ install_recommends }}"
             name:
-              - llvm{{ llvm_version }}
+              - clang{{ llvm_version }}
+              - clang{{ llvm_version }}-analyzer
+              - clang{{ llvm_version }}-extra-tools
             update_cache: true
         - name: Ubuntu block
           when: ansible_facts.os_family == 'Ubuntu'
