@@ -35,4 +35,4 @@ ENV CC=clang \
     CPPFLAGS="-std=c++20" \
     CXX=clang++
 ENV CXXFLAGS="${CPPFLAGS}"
-ENV LDFLAGS="${CXXFLAGS} -rtlib=compiler-rt"
+ENV LDFLAGS="${CXXFLAGS} -lgcc_s -lgcc -rtlib=compiler-rt"
