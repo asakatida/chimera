@@ -20,7 +20,7 @@ RUN <<SHELL sh
     /tmp/env/bin/pip install -r /tmp/requirements.core.txt
     /tmp/env/bin/pip install -r /tmp/requirements.txt
     /tmp/env/bin/ansible-playbook /tmp/tools/boot.yml
-    rm -rf /tmp/* /root/.ansible /root/.cache
+    rm -rf /root/.ansible /root/.cache /tmp/* /var/tmp/*
     apk cache clean
     rm -rf /var/cache/apk/*
 SHELL
