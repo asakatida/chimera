@@ -1,12 +1,12 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-set -ex -o pipefail
+set -ex
 
 cd "$(git rev-parse --show-toplevel || true)"
 
-if [[ -d env/bin ]]; then
+if [ -d env/bin ]; then
   export PATH="${PWD}/env/bin:${PATH}"
-elif [[ -d /opt/virtualenv/bin ]]; then
+elif [ -d /opt/virtualenv/bin ]; then
   export PATH="/opt/virtualenv/bin:${PATH}"
 else
   python3 tools/venv.py

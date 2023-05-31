@@ -9,7 +9,7 @@ env:
     -fsanitize-coverage=trace-gep
     -fsanitize-coverage=trace-loads
     -fsanitize-coverage=trace-stores
-  LDFLAGS: ""
+  LDFLAGS: -lgcc_s -lgcc
 
 jobs:
   corpus-new:
@@ -247,8 +247,8 @@ jobs:
             scan-build
             --use-cc "${CC}"
             --use-c++ "${CXX}"
-            bash -c '
-              set -e -o pipefail
+            /bin/sh -c '
+              set -e
               rustup default stable
               cmake -GNinja -B build -S .
               python tools/ninja.py build

@@ -69,7 +69,7 @@ async def codecov() -> None:
                     "-runtime-counter-relocation",
                 )
             ),
-            LDFLAGS="",
+            LDFLAGS="-lgcc_s -lgcc",
         ),
     )
     try:
