@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 
-set -ex -o pipefail
+set -ex
 
 build="$1"
 shift
