@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-set -ex -o pipefail
+set -ex
 
 cd "$(git rev-parse --show-toplevel || true)"
 

@@ -15,7 +15,12 @@ async def pip_install(file: object) -> None:
 
 async def action(cmd: str, *args: str) -> None:
     environ["PATH"] = ":".join(
-        ("/opt/virtualenv/bin", "/home/github/.cargo/bin", environ["PATH"])
+        (
+            "/opt/virtualenv/bin",
+            "/home/github/.cargo/bin",
+            "/usr/lib/ninja-build/bin",
+            environ["PATH"],
+        )
     )
     await pip_install("requirements.core.txt")
     await pip_install("requirements.txt")
@@ -28,7 +33,7 @@ async def action(cmd: str, *args: str) -> None:
     environ["CXXFLAGS"] = environ.get("CXXFLAGS", "").translate(
         dict(zip(b"\n\r", "  "))
     )
-    await cmd_no_timeout("/bin/bash", "-eo", "pipefail", "-c", cmd, *args)
+    await cmd_no_timeout("/bin/sh", "-e", "-c", cmd, *args)
 
 
 if __name__ == "__main__":

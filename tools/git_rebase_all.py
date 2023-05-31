@@ -145,7 +145,7 @@ async def git_rebase_all(*args: str, disable_bars: bool) -> None:
         except ProcessError:
             pass
         await git_cmd("submodule", "update", "--init", "--recursive")
-        await cmd("bash", "-c", *args)
+        await cmd("sh", "-c", *args)
         await git_cmd("add", "--update")
         await cmd_env("git", "rebase", "--continue", env={"EDITOR": "true"})
     remote_branches = list(
