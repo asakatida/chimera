@@ -52,6 +52,7 @@
               - clang{{ llvm_version }}-extra-tools
               - compiler-rt
               - libc++-dev
+              - llvm{{ llvm_version }}
             update_cache: true
         - name: Ubuntu block
           when: ansible_facts.os_family == 'Ubuntu'
@@ -131,7 +132,6 @@
                   - automake
                   - base-files
                   - base-passwd
-                  - bash
                   - brz
                   - bsdutils
                   - build-essential
@@ -446,6 +446,7 @@
                   /home/github/.cargo/bin
                   /opt/virtualenv/bin
                   /usr/local/bin
+                  /usr/lib/ninja-build/bin
                 executable: "{{ fish_shell.stdout }}"
         - name: Set fish shell
           ansible.builtin.user:
