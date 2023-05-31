@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-set -e -o pipefail
+set -e
 
 case "$(uname)" in
   Darwin )
