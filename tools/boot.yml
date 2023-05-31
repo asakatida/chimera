@@ -443,6 +443,7 @@
                   /home/github/.cargo/bin
                   /opt/virtualenv/bin
                   /usr/local/bin
+                  /usr/lib/ninja-build/bin
                 executable: "{{ fish_shell.stdout }}"
         - name: Set fish shell
           ansible.builtin.user:
