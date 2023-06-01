@@ -36,7 +36,7 @@ PyYAML==6.0
 requests==2.31.0
 resolvelib==1.0.1
 rich==13.4.1
-ruamel.yaml==0.17.30
+ruamel.yaml==0.17.31
 ruamel.yaml.clib==0.2.7
 snowballstemmer==2.2.0
 structlog==23.1.0
