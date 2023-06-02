@@ -61,7 +61,7 @@ jobs:
             python tools/corpus_trim.py
             ccache --cleanup
             ccache --trim-dir .ccache/remote --trim-max-size 600Mi
-      - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
+      - if: github.ref == 'refs/heads/stable'
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
           branch: corpus-new-${{ github.run_id }}
@@ -110,7 +110,7 @@ jobs:
             python tools/corpus_trim.py
             ccache --cleanup
             ccache --trim-dir .ccache/remote --trim-max-size 600Mi
-      - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
+      - if: github.ref == 'refs/heads/stable'
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
           branch: corpus-retest-${{ github.run_id }}
