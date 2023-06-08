@@ -39,11 +39,10 @@ jobs:
                     (.head_branch | startswith("pin-0."))
                   )
                 )
-              ) |
-              .url
+              )
             )[]
-          ' |
-          xargs --max-lines=1 --max-procs=2 --no-run-if-empty --verbose --
+          ' | jq -js 'map(.url) | join("\u0000")' |
+          xargs --max-args=1 --max-procs=2 --no-run-if-empty --null --verbose --
           gh api -X DELETE
   cleanup-packages:
     concurrency:
@@ -63,12 +62,12 @@ jobs:
             map(
               select(
                 (.metadata.container.tags | map(test("^[A-Za-z0-9]+$")) | all) and
-                (.updated_at | fromdate) < (now - 60 * 60 * 24 * 14)
-              ) |
-              .url
+                (.metadata.container.tags | length > 0) and
+                (.updated_at | fromdate) < (now - 60 * 60 * 24 * 5)
+              )
             )[]
-          ' |
-          xargs --max-lines=1 --max-procs=2 --no-run-if-empty --verbose --
+          ' | jq -js 'map(.url) | join("\u0000")' |
+          xargs --max-args=1 --max-procs=2 --no-run-if-empty --null --verbose --
           gh api -X DELETE
 
 name: Meta Actions
