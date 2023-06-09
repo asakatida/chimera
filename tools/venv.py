@@ -13,11 +13,7 @@ def rmdir(path: Path) -> None:
 
 
 def pip(*args: str, env: dict[str, str]) -> None:
-    run(
-        ["env/bin/pip", *args],
-        env=env,
-        timeout=120,
-    )
+    run(["env/bin/pip", *args], env=env, timeout=5 * 60)
 
 
 def main() -> None:

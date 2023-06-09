@@ -114,15 +114,6 @@ async def cmd_flog(
         return await communicate(args, f"logs in {out}\n".encode(), proc, timeout)
 
 
-async def cmd_no_timeout(*args: object) -> None:
-    get_logger().info(f"+ {' '.join(map(str, args))}")
-    proc = await create_subprocess_exec(*map(str, args))
-    try:
-        await proc.communicate()
-    finally:
-        await status(args, b"", b"", proc, None)
-
-
 async def communicate(
     args: Sequence[object], err: bytes, proc: Process, timeout: int | None
 ) -> bytes:
@@ -130,9 +121,22 @@ async def communicate(
     try:
         cmd_stdout, cmd_stderr = await wait_for(proc.communicate(), timeout=timeout)
     finally:
-        await status(
-            args, (cmd_stdout or b""), err + (cmd_stderr or b""), proc, timeout
-        )
+        cmd_stdout = cmd_stdout or b""
+        cmd_stderr = cmd_stderr or b""
+        returncode = proc.returncode
+        if returncode is None:
+            proc.terminate()
+            returncode = await proc.wait()
+            if proc.stderr is not None:
+                cmd_stderr += await proc.stderr.read()
+            if proc.stdout is not None:
+                cmd_stdout += await proc.stdout.read()
+            cmd_stderr += (
+                f"\nThe process was terminated by timeout {timeout} seconds".encode()
+            )
+        if returncode != 0:
+            if not isinstance(exc_info()[1], CancelledError):
+                raise ProcessError(args, cmd_stdout, err + cmd_stderr, returncode or 1)
     return cmd_stdout or b""
 
 
@@ -144,26 +148,3 @@ def main() -> Iterator[None]:
         error.exit()
     except KeyboardInterrupt:
         get_logger().info("KeyboardInterrupt")
-
-
-async def status(
-    args: Sequence[object], out: bytes, err: bytes, proc: Process, timeout: int | None
-) -> None:
-    returncode = proc.returncode
-    cmd_stderr = b""
-    cmd_stdout = b""
-    if returncode is None:
-        proc.terminate()
-        returncode = await proc.wait()
-        if proc.stderr is not None:
-            cmd_stderr = await proc.stderr.read()
-        if proc.stdout is not None:
-            cmd_stdout = await proc.stdout.read()
-        cmd_stderr += (
-            f"\nThe process was terminated by timeout {timeout} seconds".encode()
-        )
-    if returncode != 0:
-        if not isinstance(exc_info()[1], CancelledError):
-            raise ProcessError(
-                args, out + cmd_stdout, err + cmd_stderr, returncode or 1
-            )

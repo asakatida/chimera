@@ -23,23 +23,23 @@
 from asyncio import run
 from sys import argv
 
-from asyncio_cmd import cmd, cmd_no_timeout, main, splitlines
+from asyncio_cmd import cmd, main
 
 
-async def ninja_cmd(*args: object, timeout: int) -> None:
-    await cmd("ninja", "-C", *args, timeout=timeout)
+async def ninja_cmd(
+    build: object, *args: object, timeout: int | None = 20 * 60
+) -> None:
+    await cmd("ninja", "-C", build, *args, timeout=timeout)
 
 
 async def ninja(build: object, *args: object) -> None:
-    targets = tuple(splitlines(await cmd("ninja", "-C", build, "help")))
-    await ninja_cmd(build, "-j1", "chimera-grammar", timeout=1200)
-    await ninja_cmd(build, "-j3", "chimera", "chimera-core", "libchimera", timeout=720)
-    await ninja_cmd(build, "Catch2WithMain", timeout=180)
-    await ninja_cmd(build, "-j2", "unit-test", timeout=720)
-    if "fuzzers: phony" in targets:
-        await ninja_cmd(build, "-j1", "fuzzers", timeout=1200)
-    await ninja_cmd(build, timeout=720)
-    await cmd_no_timeout("ninja", "-C", build, "-j3", *args)
+    await ninja_cmd(build, "-j1", "chimera-grammar")
+    await ninja_cmd(build, "-j3", "chimera", "chimera-core", "libchimera")
+    await ninja_cmd(build, "Catch2WithMain")
+    await ninja_cmd(build, "-j2", "unit-test", timeout=40 * 60)
+    await ninja_cmd(build, "-j1", "fuzzers")
+    await ninja_cmd(build)
+    await ninja_cmd(build, *args, timeout=None)
 
 
 if __name__ == "__main__":

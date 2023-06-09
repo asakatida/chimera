@@ -34,7 +34,7 @@ PRINTABLE = set(printable)
 
 def is_ascii(data: bytes) -> bool:
     try:
-        return all(c in PRINTABLE or ord(c) > 0xFF for c in data.decode())
+        return all(c in PRINTABLE for c in data.decode())
     except UnicodeDecodeError:
         return False
 

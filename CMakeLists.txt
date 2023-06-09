@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
 project(
   chimera
   VERSION 1.0.0
@@ -13,6 +13,8 @@ set(
   -runtime-counter-relocation
   CACHE STRING
   "Flags used by the C++ compiler during coverage builds.")
+
+set(CMAKE_CXX_STANDARD 20)
 
 if(MSVC)
   add_compile_options(/W4 /WX)
@@ -38,8 +40,6 @@ add_library(
   library/asdl/parse_expression_istream.cpp
   library/asdl/parse_interactive_istream.cpp
   library/asdl/parse_module_istream.cpp)
-
-target_compile_features(chimera-grammar PUBLIC c_std_23 cxx_std_20)
 
 target_compile_options(chimera-grammar PRIVATE -Oz)
 
@@ -104,8 +104,6 @@ add_library(
   stdlib/marshal/marshal.cpp
   stdlib/sys/sys.cpp)
 
-target_compile_features(chimera-core PUBLIC c_std_23 cxx_std_20)
-
 target_include_directories(chimera-core PUBLIC library stdlib)
 
 target_include_directories(
@@ -123,8 +121,6 @@ add_library(
   include/chimera.h
   library/c-api/chimera.cpp)
 
-target_compile_features(libchimera PUBLIC c_std_23 cxx_std_20)
-
 target_include_directories(
   libchimera
   SYSTEM PUBLIC
@@ -134,7 +130,7 @@ target_include_directories(
 set_target_properties(libchimera PROPERTIES OUTPUT_NAME "chimera")
 
 add_executable(chimera source/main.cpp)
-target_compile_features(chimera PUBLIC c_std_23 cxx_std_20)
+
 target_link_libraries(
   chimera
   chimera-core
@@ -144,89 +140,57 @@ target_link_libraries(
 add_subdirectory(external/Catch EXCLUDE_FROM_ALL)
 include(CatchShardTests)
 
-add_custom_command(
-  OUTPUT
-  ${CMAKE_SOURCE_DIR}/unit_tests/virtual_machine/fuzz-base64.hpp
-  COMMAND
-  xxd -i
-  external/big-list-of-naughty-strings/blns.base64.json
-  >unit_tests/virtual_machine/fuzz-base64.hpp
-  WORKING_DIRECTORY
-  ${CMAKE_SOURCE_DIR}
-  DEPENDS
-  external/big-list-of-naughty-strings/blns.base64.json)
+set(
+  BLNS_BASE64_JSON_FILE
+  ${CMAKE_SOURCE_DIR}/external/big-list-of-naughty-strings/blns.base64.json)
+set(
+  BLNS_JSON_FILE
+  ${CMAKE_SOURCE_DIR}/external/big-list-of-naughty-strings/blns.json)
+set(CASES_JSON_FILE ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/cases.json)
+
+file(READ ${BLNS_BASE64_JSON_FILE} BLNS_BASE64_JSON)
+file(READ ${BLNS_JSON_FILE} BLNS_JSON)
+
+string(JSON BLNS_BASE64_LEN LENGTH ${BLNS_BASE64_JSON})
+string(APPEND BLNS_BASE64_LEN - 1)
+math(EXPR BLNS_BASE64_LEN ${BLNS_BASE64_LEN})
+string(JSON BLNS_LEN LENGTH ${BLNS_JSON})
+string(APPEND BLNS_LEN - 1)
+math(EXPR BLNS_LEN ${BLNS_LEN})
+
+foreach(IDX RANGE ${BLNS_BASE64_LEN})
+  string(JSON TEST_CPP_DATA GET ${BLNS_BASE64_JSON} ${IDX})
+  string(SHA256 TEST_CPP_HASH "${TEST_CPP_DATA}")
+  set(TEST_CPP ${CMAKE_BINARY_DIR}/generated/fuzz-base64-${TEST_CPP_HASH}.cpp)
+  list(APPEND TESTS_LIST ${TEST_CPP})
+endforeach()
+
+foreach(IDX RANGE ${BLNS_LEN})
+  string(JSON TEST_CPP_DATA GET ${BLNS_JSON} ${IDX})
+  string(SHA256 TEST_CPP_HASH "${TEST_CPP_DATA}")
+  set(TEST_CPP ${CMAKE_BINARY_DIR}/generated/fuzz-blns-${TEST_CPP_HASH}.cpp)
+  list(APPEND TESTS_LIST ${TEST_CPP})
+endforeach()
+
+list(APPEND TESTS_LIST ${CMAKE_BINARY_DIR}/generated/fuzz-cases.cpp)
+
+list(REMOVE_DUPLICATES TESTS_LIST)
 
 add_custom_command(
   OUTPUT
-  ${CMAKE_SOURCE_DIR}/unit_tests/virtual_machine/fuzz-blns.hpp
+  ${TESTS_LIST}
   COMMAND
-  xxd -i
-  external/big-list-of-naughty-strings/blns.json
-  >unit_tests/virtual_machine/fuzz-blns.hpp
+  python tools/generate_fuzz.py ${CMAKE_BINARY_DIR}/generated
   WORKING_DIRECTORY
   ${CMAKE_SOURCE_DIR}
   DEPENDS
-  external/big-list-of-naughty-strings/blns.json)
-
-add_custom_command(
-  OUTPUT
-  ${CMAKE_SOURCE_DIR}/unit_tests/virtual_machine/fuzz-cases.hpp
-  COMMAND
-  xxd -i
-  unit_tests/fuzz/cases.json
-  >unit_tests/virtual_machine/fuzz-cases.hpp
-  WORKING_DIRECTORY
-  ${CMAKE_SOURCE_DIR}
-  DEPENDS
-  unit_tests/fuzz/cases.json)
-
-add_custom_target(
-  unit-test-fuzz-text
-  DEPENDS
-  ${CMAKE_SOURCE_DIR}/unit_tests/virtual_machine/fuzz-base64.hpp
-  ${CMAKE_SOURCE_DIR}/unit_tests/virtual_machine/fuzz-blns.hpp
-  ${CMAKE_SOURCE_DIR}/unit_tests/virtual_machine/fuzz-cases.hpp)
-
-add_library(
-  unit-test-fuzz
-  OBJECT
-  unit_tests/fuzz/cases.cpp
-  unit_tests/virtual_machine/fuzz-json.cpp
-  unit_tests/virtual_machine/fuzz.cpp)
-
-target_compile_features(unit-test-fuzz PUBLIC c_std_23 cxx_std_20)
-
-add_dependencies(unit-test-fuzz unit-test-fuzz-text)
-
-target_compile_options(unit-test-fuzz PRIVATE -Oz)
-
-target_include_directories(
-  unit-test-fuzz
-  PUBLIC
-  library
-  stdlib
-  unit_tests)
-
-target_include_directories(
-  unit-test-fuzz
-  SYSTEM PUBLIC
-  external/Catch/src
-  external/GSL/include
-  external/metal/include
-  external/operators/include
-  external/json/include/tao
-  external/PEGTL/include)
-
-target_link_libraries(
-  unit-test-fuzz
-  Catch2WithMain
-  chimera-core
-  chimera-grammar
-  number
-  pthread)
+  ${BLNS_BASE64_JSON_FILE}
+  ${BLNS_JSON_FILE}
+  ${CASES_JSON_FILE})
 
 add_executable(
   unit-test
+  unit_tests/fuzz/cases.cpp
   unit_tests/grammar/expression.cpp
   unit_tests/grammar/grammar.cpp
   unit_tests/grammar/identifier.cpp
@@ -236,9 +200,8 @@ add_executable(
   unit_tests/number/number.cpp
   unit_tests/virtual_machine/parse.cpp
   unit_tests/virtual_machine/trace.cpp
-  unit_tests/virtual_machine/virtual_machine.cpp)
-
-target_compile_features(unit-test PUBLIC c_std_23 cxx_std_20)
+  unit_tests/virtual_machine/virtual_machine.cpp
+  ${TESTS_LIST})
 
 target_include_directories(
   unit-test
@@ -260,16 +223,19 @@ target_link_libraries(
   chimera-core
   chimera-grammar
   number
-  pthread
-  unit-test-fuzz)
+  pthread)
 
-catch_add_sharded_tests(unit-test SHARD_COUNT 6)
+catch_add_sharded_tests(unit-test SHARD_COUNT 13)
 
 add_custom_target(
   check-stat
   perf stat ./unit-test
   DEPENDS unit-test
   VERBATIM)
+
+add_custom_target(corpus)
+add_custom_target(fuzzers)
+add_custom_target(regression)
 
 if(
   CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND
@@ -288,7 +254,6 @@ if(
     chimera-fuzz
     PUBLIC
     ${FUZZ_CXXFLAGS})
-  target_compile_features(chimera-fuzz PUBLIC c_std_23 cxx_std_20)
   target_include_directories(
     chimera-fuzz
     PUBLIC
@@ -303,9 +268,6 @@ if(
     external/operators/include
     external/PEGTL/include
     oxidation)
-  add_custom_target(corpus)
-  add_custom_target(fuzzers)
-  add_custom_target(regression)
   set(
     FUZZERS
     ellipsis
@@ -325,7 +287,6 @@ if(
     vm-interact)
   foreach(fuzzer IN LISTS FUZZERS)
     add_executable(fuzz-${fuzzer} unit_tests/fuzz/target-${fuzzer}.cpp)
-    target_compile_features(fuzz-${fuzzer} PUBLIC c_std_23 cxx_std_20)
     target_compile_options(
       fuzz-${fuzzer}
       PUBLIC
@@ -368,8 +329,6 @@ endif()
 
 add_executable(bnf2abnf tools/bnf2abnf.cpp)
 
-target_compile_features(bnf2abnf PUBLIC c_std_23 cxx_std_20)
-
 target_include_directories(bnf2abnf PUBLIC library)
 
 target_include_directories(
@@ -381,9 +340,7 @@ target_include_directories(
 
 add_library(modules-tools OBJECT tools/modules/modules.cpp)
 
-target_compile_features(modules-tools PUBLIC c_std_23 cxx_std_20)
-
-target_include_directories(modules-tools PUBLIC library)
+target_include_directories(modules-tools PUBLIC library tools)
 
 target_include_directories(
   modules-tools
@@ -391,8 +348,6 @@ target_include_directories(
   external/GSL/include
   external/metal/include
   external/operators/include)
-
-target_include_directories(modules-tools PUBLIC tools)
 
 add_custom_target(modules)
 
@@ -402,7 +357,6 @@ set(
   importlib)
 foreach(regen_module IN LISTS REGEN_MODULES)
   add_executable(${regen_module} tools/modules/${regen_module}.cpp)
-  target_compile_features(${regen_module} PUBLIC c_std_23 cxx_std_20)
   target_link_libraries(
     ${regen_module}
     modules-tools

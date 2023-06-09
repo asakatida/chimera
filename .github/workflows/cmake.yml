@@ -26,14 +26,12 @@ jobs:
             python tools/ninja.py build
             ccache --cleanup
             ccache --trim-dir .ccache/remote --trim-max-size 600Mi
-      - name: Gather crashes for recheck
-        uses: ./
-        with:
-          run: python tools/crash_reset.py
       - name: Corpus recheck
         uses: ./
         with:
           run: |
+            python tools/corpus_freeze.py unit_tests/fuzz/cases.json
+            python tools/crash_reset.py
             python tools/corpus_gather.py ${{ github.ref }}
             python tools/corpus_retest.py build
       - if: github.ref == 'refs/heads/stable'
@@ -41,7 +39,7 @@ jobs:
         uses: ./
         with:
           run: |
-            python tools/ninja.py build corpus
+            python tools/ninja.py build -j3 corpus
             python tools/corpus_retest.py build
       - name: Corpus merge
         uses: ./
@@ -78,8 +76,7 @@ jobs:
           run: |
             rustup default stable
             cmake -GNinja -B build -S .
-            python tools/ninja.py build
-            ctest --build-and-test . build --build-generator Ninja --build-noclean
+            python tools/ninja.py build test
             ccache --cleanup
             ccache --trim-dir .ccache/remote --trim-max-size 600Mi
   libcpp:
@@ -106,8 +103,7 @@ jobs:
           run: |
             rustup default stable
             cmake -GNinja -B build -S .
-            ninja -C build -j2
-            ctest --build-and-test . build --build-generator Ninja --build-noclean
+            python tools/ninja.py build test
             ccache --cleanup
             ccache --trim-dir .ccache/remote --trim-max-size 600Mi
   release:
@@ -133,8 +129,7 @@ jobs:
           run: |
             rustup default stable
             cmake -GNinja -B build -S .
-            python tools/ninja.py build
-            ctest --build-and-test . build --build-generator Ninja --build-noclean
+            python tools/ninja.py build test
             ccache --cleanup
             ccache --trim-dir .ccache/remote --trim-max-size 600Mi
   scan-build:

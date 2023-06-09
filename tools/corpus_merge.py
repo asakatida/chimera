@@ -36,7 +36,7 @@ CORPUS_ORIGINAL = FUZZ / "corpus_original"
 
 
 async def git_cmd(*args: object) -> None:
-    await cmd("git", *args, timeout=600)
+    await cmd("git", *args, timeout=10 * 60)
 
 
 def rmdir(path: Path) -> None:

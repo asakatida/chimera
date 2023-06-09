@@ -52,12 +52,8 @@ async def codecov(llvm_profile_lcov: str) -> None:
         ".",
         env=dict(
             environ,
-            CMAKE_BUILD_TYPE="Coverage",
-            CPPFLAGS=f"-DCHIMERA_PATH={Path().resolve()/'stdlib'}",
             CXXFLAGS=" ".join(
                 (
-                    "-O0",
-                    "-DDEBUG",
                     "-fcoverage-mapping",
                     "-fprofile-instr-generate",
                     "-fsanitize-coverage=no-prune",
@@ -71,6 +67,7 @@ async def codecov(llvm_profile_lcov: str) -> None:
                 )
             ),
         ),
+        timeout=10 * 60,
     )
     try:
         llvm_profile_dir.rmdir()
@@ -78,18 +75,7 @@ async def codecov(llvm_profile_lcov: str) -> None:
         pass
     llvm_profile_dir.mkdir()
     await ninja("build")
-    await gather(
-        cmd(
-            "ctest",
-            "--build-and-test",
-            ".",
-            "build",
-            "--build-generator",
-            "Ninja",
-            "--build-noclean",
-        ),
-        regression("build"),
-    )
+    await gather(ninja("build", "test"), regression("build"))
     llvm_profile_files = filter(Path.is_file, llvm_profile_dir.iterdir())
     await cmd(
         "llvm-profdata",
@@ -97,7 +83,7 @@ async def codecov(llvm_profile_lcov: str) -> None:
         "-sparse",
         *llvm_profile_files,
         f"--output={instr_profile}",
-        timeout=600,
+        timeout=10 * 60,
     )
     await cmd_flog(
         "llvm-cov",

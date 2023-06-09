@@ -3,17 +3,17 @@ from os import environ
 from pathlib import Path
 from sys import argv
 
-from asyncio_cmd import cmd_env, cmd_no_timeout, main, splitlines
+from asyncio_cmd import cmd, cmd_env, main, splitlines
 from structlog import get_logger
 
 
 async def pip_install(file: object) -> None:
-    for line in splitlines(await cmd_env("pip", "install", "-r", file, timeout=120)):
+    for line in splitlines(await cmd_env("pip", "install", "-r", file, timeout=5 * 60)):
         if not line.startswith("Requirement already satisfied: "):
             get_logger().info(line)
 
 
-async def action(cmd: str, *args: str) -> None:
+async def action(script: str, *args: str) -> None:
     environ["PATH"] = ":".join(
         (
             "/opt/virtualenv/bin",
@@ -30,7 +30,7 @@ async def action(cmd: str, *args: str) -> None:
     environ["CCACHE_REMOTE_STORAGE"] = (
         f"file:{source / '.ccache' / 'remote'}|update-mtime=true"
     )
-    await cmd_no_timeout("/bin/sh", "-e", "-c", cmd, *args)
+    await cmd("/bin/sh", "-e", "-c", script, *args, out=None, timeout=None)
 
 
 if __name__ == "__main__":
