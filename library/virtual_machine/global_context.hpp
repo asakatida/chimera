@@ -36,10 +36,10 @@ namespace chimera::library::virtual_machine {
     [[nodiscard]] auto execute_script_string() -> int;
     [[nodiscard]] auto execute_script_input() -> int;
     [[nodiscard]] auto execute_module() -> int;
-    [[nodiscard]] auto optimize() const -> const Optimize &;
+    [[nodiscard]] auto optimize() const -> const options::Optimize &;
     void process_interrupts() const;
     void sys_argv(const object::Object &module) const;
-    [[nodiscard]] auto verbose_init() const -> const VerboseInit &;
+    [[nodiscard]] auto verbose_init() const -> const options::VerboseInit &;
 
   private:
     [[nodiscard]] auto execute(std::istream &&istream, const char *source)

@@ -34,12 +34,14 @@
 #include <vector>   // for vector
 
 namespace chimera::library {
-  enum class Optimize;
+  namespace options {
+    enum class Optimize;
+  } // namespace options
 } // namespace chimera::library
 
 namespace chimera::library::asdl {
-  Expression::Expression(const Optimize &optimize, std::istream &&input,
-                         const char *source) {
+  Expression::Expression(const options::Optimize &optimize,
+                         std::istream &&input, const char *source) {
     grammar::parse<grammar::EvalInput>(
         optimize,
         grammar::Input<tao::pegtl::istream_input<>>(input, bufferSize, source),

@@ -77,22 +77,27 @@ namespace chimera::library::virtual_machine {
     return 0;
   }
   [[nodiscard]] auto GlobalContext::execute_script() -> int {
-    return execute(std::ifstream(options.script), options.script);
+    return execute(std::ifstream(std::get<options::Script>(options.exec).name),
+                   std::get<options::Script>(options.exec).name);
   }
   [[nodiscard]] auto GlobalContext::execute_script_string() -> int {
-    return execute(std::istringstream(options.command), "<string>");
+    return execute(
+        std::istringstream(std::get<options::Command>(options.exec).script),
+        "<string>");
   }
   [[nodiscard]] auto GlobalContext::execute_script_input() -> int {
     return execute(std::move(std::cin), "<input>");
   }
   [[nodiscard]] auto GlobalContext::execute_module() -> int {
     ProcessContext processContext{*this};
-    auto module = processContext.import_module(options.module_name);
+    auto module = processContext.import_module(
+        std::get<options::Module>(options.exec).name);
     auto main = processContext.make_module("__main__");
     ThreadContext(processContext, main).evaluate(module);
     return 0;
   }
-  [[nodiscard]] auto GlobalContext::optimize() const -> const Optimize & {
+  [[nodiscard]] auto GlobalContext::optimize() const
+      -> const options::Optimize & {
     return options.optimize;
   }
   void GlobalContext::process_interrupts() const {
@@ -114,7 +119,7 @@ namespace chimera::library::virtual_machine {
         object::Object(argv, {{"__class__", sys.get_attribute("tuple")}}));
   }
   [[nodiscard]] auto GlobalContext::verbose_init() const
-      -> const VerboseInit & {
+      -> const options::VerboseInit & {
     return options.verbose_init;
   }
 } // namespace chimera::library::virtual_machine

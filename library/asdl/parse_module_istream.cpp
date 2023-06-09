@@ -34,11 +34,13 @@
 #include <vector>   // for vector
 
 namespace chimera::library {
-  enum class Optimize;
+  namespace options {
+    enum class Optimize;
+  } // namespace options
 } // namespace chimera::library
 
 namespace chimera::library::asdl {
-  Module::Module(const Optimize &optimize, std::istream &&input,
+  Module::Module(const options::Optimize &optimize, std::istream &&input,
                  const char *source) {
     grammar::parse<grammar::FileInput>(
         optimize,

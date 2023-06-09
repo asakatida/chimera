@@ -31,13 +31,13 @@
 
 namespace chimera::library::grammar {
   template <typename Grammar, typename... Args>
-  void parse(const Optimize &optimize, Args &&...args) {
+  void parse(const options::Optimize &optimize, Args &&...args) {
     Ensures((tao::pegtl::parse<must<Grammar>, token::Action,
                                typename MakeControl<>::Normal>(args...)));
     switch (optimize) {
-      case Optimize::NONE:
-      case Optimize::BASIC:
-      case Optimize::DISCARD_DOCS:
+      case options::Optimize::NONE:
+      case options::Optimize::BASIC:
+      case options::Optimize::DISCARD_DOCS:
         break;
     }
   }

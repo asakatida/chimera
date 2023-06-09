@@ -24,18 +24,28 @@
 
 #include <gsl/gsl>
 
+#include <variant>
 #include <vector>
 
 namespace chimera::library {
-  void options();
-  enum class BytesCompare { NONE, WARN, ERROR };
-  enum class Optimize { NONE, BASIC, DISCARD_DOCS };
-  enum class VerboseInit { NONE, LOAD, SEARCH };
+  namespace options {
+    enum class BytesCompare { NONE, WARN, ERROR };
+    enum class Optimize { NONE, BASIC, DISCARD_DOCS };
+    enum class VerboseInit { NONE, LOAD, SEARCH };
+    struct Command {
+      const char *script = nullptr;
+    };
+    struct Module {
+      const char *name = nullptr;
+    };
+    struct Script {
+      const char *name = nullptr;
+    };
+  } // namespace options
   struct Options {
     gsl::span<const char *> argv{};
-    BytesCompare bytes_compare = BytesCompare::NONE;
+    options::BytesCompare bytes_compare = options::BytesCompare::NONE;
     const char *chimera = nullptr;
-    const char *command = nullptr;
     bool debug = false;
     bool disable_site = false;
     bool dont_add_site = false;
@@ -45,12 +55,11 @@ namespace chimera::library {
     bool ignore_environment = false;
     bool interactive = false;
     bool isolated_mode = false;
-    const char *module_name = nullptr;
-    Optimize optimize = Optimize::NONE;
-    const char *script = nullptr;
+    options::Optimize optimize = options::Optimize::NONE;
     bool skip_first_line = false;
     bool unbuffered_output = false;
-    VerboseInit verbose_init = VerboseInit::NONE;
+    options::VerboseInit verbose_init = options::VerboseInit::NONE;
     std::vector<const char *> warnings{};
+    std::variant<options::Command, options::Module, options::Script> exec{};
   };
 } // namespace chimera::library
