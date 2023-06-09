@@ -165,6 +165,7 @@ jobs:
         uses: ./
         with:
           run: |
+            rustup default stable
             python tools/corpus_gather.py ${{ github.ref }}
             ccache --cleanup
             ccache --trim-dir .ccache/remote --trim-max-size 600Mi
