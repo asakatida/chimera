@@ -33,9 +33,9 @@ namespace chimera::library::virtual_machine {
     ThreadContext(ProcessContext &process_context, object::Object main);
     [[nodiscard]] auto body() const -> object::Object;
     [[nodiscard]] auto builtins() const -> const object::Object &;
-    void evaluate(const asdl::Module &module);
-    void evaluate(const asdl::Interactive &interactive);
     void evaluate(const asdl::Expression &expression);
+    void evaluate(const asdl::Interactive &interactive);
+    void evaluate(const asdl::Module &module);
     template <typename... Args>
     [[nodiscard]] auto import_object(Args &&...args) -> const object::Object & {
       return process_context->import_object(std::forward<Args>(args)...);
