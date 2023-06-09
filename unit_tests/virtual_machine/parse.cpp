@@ -16,9 +16,8 @@ using namespace std::literals;
 
 namespace chimera::library {
   void test_parse(std::string_view &&data, std::size_t size) {
-    Options options;
-    options.chimera = "chimera";
-    options.script = "unit_test.py";
+    const Options options{.chimera = "chimera",
+                          .exec = options::Script{"unit_test.py"}};
     virtual_machine::GlobalContext globalContext(options);
     const virtual_machine::ProcessContext processContext{globalContext};
     std::istringstream istream{std::string{data}};

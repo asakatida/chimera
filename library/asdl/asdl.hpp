@@ -45,7 +45,9 @@ namespace metal {
 } // namespace metal
 
 namespace chimera::library {
-  enum class Optimize;
+  namespace options {
+    enum class Optimize;
+  } // namespace options
   namespace asdl {
     struct ExtSlice;
   } // namespace asdl
@@ -433,7 +435,8 @@ namespace chimera::library::asdl {
   };
   struct Module : BaseASDL {
     Module() = default;
-    Module(const Optimize &optimize, std::istream &&input, const char *source);
+    Module(const options::Optimize &optimize, std::istream &&input,
+           const char *source);
     [[nodiscard]] auto doc() const -> const std::optional<DocString> &;
     [[nodiscard]] auto iter() const -> const std::vector<StmtImpl> &;
     template <typename Stack>
@@ -455,7 +458,7 @@ namespace chimera::library::asdl {
   };
   struct Interactive : BaseASDL {
     Interactive() = default;
-    Interactive(const Optimize &optimize, std::istream &&input,
+    Interactive(const options::Optimize &optimize, std::istream &&input,
                 const char *source);
     [[nodiscard]] auto iter() const -> const std::vector<StmtImpl> &;
     template <typename Stack>
@@ -469,7 +472,7 @@ namespace chimera::library::asdl {
   };
   struct Expression : BaseASDL {
     Expression() = default;
-    Expression(const Optimize &optimize, std::istream &&input,
+    Expression(const options::Optimize &optimize, std::istream &&input,
                const char *source);
     [[nodiscard]] auto expr() const -> const ExprImpl &;
     template <typename Stack>

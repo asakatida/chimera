@@ -81,7 +81,7 @@ namespace chimera::library {
           const Argv argCStr{*arg, gsl::narrow<Argv::size_type>(argLen)};
           auto argChar = argCStr.begin();
           if (*argChar != '-') {
-            options.script = *arg;
+            options.exec = options::Script{*arg};
             options.argv = forward_args(std::next(arg), args.end());
             return virtual_machine::GlobalContext(options).execute_script();
           }
@@ -110,9 +110,9 @@ namespace chimera::library {
                 return print_help(args);
               case 'b':
                 options.bytes_compare =
-                    options.bytes_compare == BytesCompare::NONE
-                        ? BytesCompare::WARN
-                        : BytesCompare::ERROR;
+                    options.bytes_compare == options::BytesCompare::NONE
+                        ? options::BytesCompare::WARN
+                        : options::BytesCompare::ERROR;
                 break;
               case 'B':
                 options.dont_write_byte_code = true;
@@ -120,13 +120,13 @@ namespace chimera::library {
               case 'c':
                 ++argChar;
                 if (argChar != argCStr.end()) {
-                  options.command = &*argChar;
+                  options.exec = options::Command{&*argChar};
                 } else {
                   ++arg;
                   if (arg == args.end()) {
                     throw std::runtime_error("missing command argument");
                   }
-                  options.command = *arg;
+                  options.exec = options::Command{*arg};
                 }
                 options.argv = forward_args(std::next(arg), args.end());
                 return virtual_machine::GlobalContext(options)
@@ -138,28 +138,27 @@ namespace chimera::library {
                 options.ignore_environment = true;
                 break;
               case 'i':
-                options.interactive = true;
-                break;
+                return virtual_machine::GlobalContext(options).interactive();
               case 'I':
                 options.isolated_mode = true;
                 break;
               case 'm':
                 ++argChar;
                 if (argChar != argCStr.end()) {
-                  options.module_name = &*argChar;
+                  options.exec = options::Module{&*argChar};
                 } else {
                   ++arg;
                   if (arg == args.end()) {
                     throw std::runtime_error("missing module name argument");
                   }
-                  options.module_name = *arg;
+                  options.exec = options::Module{*arg};
                 }
                 options.argv = forward_args(std::next(arg), args.end());
                 return virtual_machine::GlobalContext(options).execute_module();
               case 'O':
-                options.optimize = options.optimize == Optimize::NONE
-                                       ? Optimize::BASIC
-                                       : Optimize::DISCARD_DOCS;
+                options.optimize = options.optimize == options::Optimize::NONE
+                                       ? options::Optimize::BASIC
+                                       : options::Optimize::DISCARD_DOCS;
                 break;
               case 'q':
                 options.dont_display_copyright = true;
@@ -176,9 +175,10 @@ namespace chimera::library {
                 options.unbuffered_output = true;
                 break;
               case 'v':
-                options.verbose_init = options.verbose_init == VerboseInit::NONE
-                                           ? VerboseInit::LOAD
-                                           : VerboseInit::SEARCH;
+                options.verbose_init =
+                    options.verbose_init == options::VerboseInit::NONE
+                        ? options::VerboseInit::LOAD
+                        : options::VerboseInit::SEARCH;
                 break;
               case 'V':
                 return print_version(args);
@@ -218,7 +218,6 @@ namespace chimera::library {
             }
           }
         }
-        return virtual_machine::GlobalContext(options).interactive();
       } catch (const object::BaseException &error) {
         std::cerr << error << std::endl;
         return 1;
@@ -229,6 +228,7 @@ namespace chimera::library {
     } catch (...) {
       return 254;
     }
+    return 1;
   }
 } // namespace chimera::library
 

@@ -9,7 +9,8 @@ using namespace std::literals;
 
 namespace chimera::library::virtual_machine {
   void parse_file(std::string_view &&data) {
-    const Options options{.chimera = "chimera", .script = "test.py"};
+    const Options options{.chimera = "chimera",
+                          .exec = options::Script{"test.py"}};
     GlobalContext globalContext(options);
     ProcessContext processContext{globalContext};
     std::istringstream istream{std::string{data}};

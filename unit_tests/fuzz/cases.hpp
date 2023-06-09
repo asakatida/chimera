@@ -16,7 +16,7 @@ namespace chimera::library {
   [[nodiscard]] auto fuzz_options() -> Options;
   template <typename Grammar, typename... Args>
   [[nodiscard]] auto fuzz_parse(Input &&input, Args &&...args) -> int {
-    auto options = fuzz_options();
+    const auto options = fuzz_options();
     return fuzz_parse<Grammar>(options, std::move(input),
                                std::forward<Args>(args)...);
   }
@@ -55,7 +55,8 @@ namespace chimera::library {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         reinterpret_cast<const char *>(data), size, "<fuzz>");
     try {
-      grammar::parse<Grammar>(Optimize::NONE, std::move(input), ASDL{});
+      grammar::parse<Grammar>(options::Optimize::NONE, std::move(input),
+                              ASDL{});
     } catch (const tao::pegtl::parse_error &) {
       return -1;
     } catch (const chimera::library::grammar::SyntaxError &) {

@@ -180,13 +180,13 @@ namespace chimera::library::virtual_machine {
   [[nodiscard]] auto ProcessContext::import_module(const std::string_view &path,
                                                    const std::string &module)
       -> asdl::Module {
-    if (global_context->verbose_init() == VerboseInit::SEARCH) {
+    if (global_context->verbose_init() == options::VerboseInit::SEARCH) {
       std::cout << path << module << '\n';
     }
     auto source = std::string(path).append(module);
     std::ifstream ifstream(source, std::iostream::in | std::iostream::binary);
     Ensures(ifstream.is_open() && ifstream.good());
-    if (global_context->verbose_init() == VerboseInit::LOAD) {
+    if (global_context->verbose_init() == options::VerboseInit::LOAD) {
       std::cout << path << module << '\n';
     }
     std::cerr << path << module << '\n';

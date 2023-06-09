@@ -9,9 +9,8 @@
 namespace chimera::library {
   template <typename... Data>
   void test_parse(Data &&...data) {
-    Options options;
-    options.chimera = "chimera";
-    options.script = "unit_test.py";
+    const Options options{.chimera = "chimera",
+                          .exec = options::Script{"unit_test.py"}};
     virtual_machine::GlobalContext globalContext(options);
     virtual_machine::ProcessContext processContext{globalContext};
     std::istringstream input(std::forward<Data>(data)...);
