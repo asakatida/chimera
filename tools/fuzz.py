@@ -3,7 +3,7 @@ from itertools import chain, repeat
 from pathlib import Path
 from sys import argv
 
-from asyncio_cmd import cmd, main
+from asyncio_cmd import ProcessError, cmd, main
 
 
 async def fuzz(fuzzer: str, dictionary: str, *dirs: str) -> None:
@@ -27,4 +27,7 @@ async def fuzz(fuzzer: str, dictionary: str, *dirs: str) -> None:
 
 if __name__ == "__main__":
     with main():
-        run(fuzz(*argv[1:]))
+        try:
+            run(fuzz(*argv[1:]))
+        except ProcessError:
+            pass
