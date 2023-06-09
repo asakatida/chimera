@@ -108,7 +108,7 @@ async def corpus_creations(*paths: str) -> dict[bytes, list[str]]:
                                 "^HEAD",
                                 "--",
                                 *paths,
-                                timeout=3600,
+                                timeout=60 * 60,
                             )
                         ),
                     ),

@@ -39,7 +39,7 @@ async def git_cmd(*args: object) -> None:
 
 
 async def git_cmd_remote(*args: object) -> None:
-    await cmd("git", *args, timeout=600)
+    await cmd("git", *args, timeout=10 * 60)
 
 
 def last(iterable: Iterable[T]) -> T:
@@ -67,13 +67,7 @@ async def git_restore(sha: str, *paths: object) -> None:
     )
     if deleted:
         await as_completed(
-            map(
-                lambda files: git_cmd(
-                    "restore",
-                    *files,
-                ),
-                chunks(deleted, 4096),
-            ),
+            map(lambda files: git_cmd("restore", *files), chunks(deleted, 4096)),
             cancel=True,
             limit=4,
         )

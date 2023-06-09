@@ -23,7 +23,7 @@
 from asyncio import run
 from hashlib import sha256
 from itertools import chain
-from json import dumps, loads
+from json import dump, load
 from pathlib import Path
 from sys import argv
 
@@ -91,7 +91,8 @@ async def crash_objects(disable_bars: bool) -> list[list[bytes]]:
 
 async def corpus_freeze(output: str, disable_bars: bool) -> None:
     file = Path(output)
-    cases = loads(file.read_text())
+    with file.open() as istream:
+        cases = dict(load(istream))
     cases.update(
         map(
             lambda case: (sha256(case.encode()).hexdigest(), case),
@@ -104,7 +105,15 @@ async def corpus_freeze(output: str, disable_bars: bool) -> None:
             filter(is_ascii, await crash_contents(disable_bars)),
         )
     )
-    file.write_text(dumps(cases, indent=4, sort_keys=True))
+    for key in set(
+        map(
+            lambda item: item[0],  # type: ignore
+            filter(lambda item: not is_ascii(item[1].encode()), cases.items()),
+        )
+    ):
+        del cases[key]
+    with file.open("w") as ostream:
+        dump(cases, ostream, indent=4, sort_keys=True)
 
 
 def corpus_freeze_main(output: str) -> None:
