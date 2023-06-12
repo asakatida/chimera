@@ -23,7 +23,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ghcr.io
           username: ${{ github.actor }}
-      - uses: docker/build-push-action@v4.0.0
+      - uses: docker/build-push-action@v4.1.0
         with:
           push: true
           tags: ${{ env.IMAGE }}:${{ github.sha }}
@@ -46,7 +46,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ghcr.io
           username: ${{ github.actor }}
-      - uses: docker/build-push-action@v4.0.0
+      - uses: docker/build-push-action@v4.1.0
         with:
           push: true
           tags: |
