@@ -18,7 +18,7 @@ jobs:
       group: corpus-new-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3.5.2
+      - uses: actions/checkout@v3.5.3
         with:
           fetch-depth: 0
           submodules: true
@@ -75,7 +75,7 @@ jobs:
       group: corpus-retest-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3.5.2
+      - uses: actions/checkout@v3.5.3
         with:
           submodules: true
       - name: CCache
@@ -127,7 +127,7 @@ jobs:
       CXXFLAGS: ""
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3.5.2
+      - uses: actions/checkout@v3.5.3
         with:
           submodules: true
       - name: CCache
@@ -151,7 +151,7 @@ jobs:
       group: gather-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3.5.2
+      - uses: actions/checkout@v3.5.3
         with:
           fetch-depth: 0
           submodules: true
@@ -182,7 +182,7 @@ jobs:
       group: libcpp-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3.5.2
+      - uses: actions/checkout@v3.5.3
         with:
           submodules: true
       - name: CCache
@@ -214,7 +214,7 @@ jobs:
       CXXFLAGS: ""
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3.5.2
+      - uses: actions/checkout@v3.5.3
         with:
           submodules: true
       - name: CCache
@@ -238,7 +238,7 @@ jobs:
       group: scan-build-${{ github.workflow }}-${{ github.ref }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3.5.2
+      - uses: actions/checkout@v3.5.3
         with:
           submodules: true
       - name: Scan Build
