@@ -51,5 +51,5 @@ types-urllib3==1.26.25.13
 typing_extensions==4.6.3
 urllib3==2.0.3
 wcmatch==8.4.1
-websocket-client==1.5.2
+websocket-client==1.5.3
 yamllint==1.32.0
