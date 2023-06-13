@@ -30,7 +30,7 @@ jobs:
             ${{
               format(
                 github.ref == 'refs/heads/stable' &&
-                '{0}:0.{1}.0\n{0}:latest' || '{0}:{2}',
+                '{0}:0.{1}.0' || '{0}:{2}',
                 env.IMAGE, github.run_number, github.sha
               )
             }}
