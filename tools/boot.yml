@@ -335,6 +335,7 @@
               - mawk
               - moreutils
               - ninja-build
+              - openssh-server
               - patch
               - ripgrep
               - sed
