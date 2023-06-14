@@ -54,7 +54,7 @@ async def cmd(
     err: ProcessInput = PIPE,
     log: bool = True,
     out: ProcessInput = PIPE,
-    timeout: int = 20,
+    timeout: int | None = 20,
 ) -> bytes:
     if log:
         get_logger().info(f"+ {' '.join(map(str, args))}")
@@ -62,7 +62,7 @@ async def cmd(
     return await communicate(args, b"", proc, timeout)
 
 
-async def cmd_check(*args: object, timeout: int = 20) -> Exception | None:
+async def cmd_check(*args: object, timeout: int | None = 20) -> Exception | None:
     try:
         proc = await create_subprocess_exec(
             *map(str, args), stderr=DEVNULL, stdout=DEVNULL
@@ -80,7 +80,7 @@ async def cmd_env(
     env: dict[str, object] = {},
     err: ProcessInput = PIPE,
     out: ProcessInput = PIPE,
-    timeout: int = 20,
+    timeout: int | None = 20,
 ) -> bytes:
     get_logger().info(f"+ {' '.join(map(str, args))}")
     proc = await create_subprocess_exec(
@@ -97,7 +97,9 @@ async def cmd_env(
     return await communicate(args, b"", proc, timeout)
 
 
-async def cmd_flog(*args: object, out: str | None = None, timeout: int = 20) -> bytes:
+async def cmd_flog(
+    *args: object, out: str | None = None, timeout: int | None = 20
+) -> bytes:
     if out is None:
         proc = await create_subprocess_exec(
             *map(str, args), stderr=DEVNULL, stdout=DEVNULL
@@ -116,11 +118,11 @@ async def cmd_no_timeout(*args: object) -> None:
     try:
         await proc.communicate()
     finally:
-        await status(args, b"", b"", proc, -1)
+        await status(args, b"", b"", proc, None)
 
 
 async def communicate(
-    args: Sequence[object], err: bytes, proc: Process, timeout: int
+    args: Sequence[object], err: bytes, proc: Process, timeout: int | None
 ) -> bytes:
     cmd_stderr = cmd_stdout = None
     try:
@@ -143,7 +145,7 @@ def main() -> Iterator[None]:
 
 
 async def status(
-    args: Sequence[object], out: bytes, err: bytes, proc: Process, timeout: int
+    args: Sequence[object], out: bytes, err: bytes, proc: Process, timeout: int | None
 ) -> None:
     returncode = proc.returncode
     cmd_stderr = b""

@@ -54,7 +54,7 @@ async def corpus_merge(path: Path) -> list[Exception]:
             Path.is_dir,
             chain.from_iterable(map(lambda path: path.rglob("*"), (CORPUS, path))),
         ),
-        timeout=3600,
+        timeout=None,
     )
 
 
@@ -72,7 +72,7 @@ def fuzz_star(build: Path = SOURCE) -> tuple[Path, ...]:
     )
 
 
-async def fuzz_test(*args: object, timeout: int = 1200) -> list[Exception]:
+async def fuzz_test(*args: object, timeout: int | None) -> list[Exception]:
     if not fuzz_star():
         raise FileNotFoundError("No fuzz targets built")
     return list(
@@ -99,7 +99,7 @@ def gather_paths() -> Iterable[Path]:
 
 
 async def regression_one(fuzzer: Path, chunk: list[Path]) -> None:
-    await cmd_flog(fuzzer, *chunk, timeout=1200)
+    await cmd_flog(fuzzer, *chunk, timeout=None)
 
 
 async def regression(build: str, fuzzer: str = "", corpus: str = "") -> None:
