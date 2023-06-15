@@ -54,15 +54,10 @@ def conflicts_one(file: Path) -> None:
     file.unlink()
 
 
-def conflicts(fuzz: Iterable[Path], disable_bars: bool) -> None:
+def conflicts(fuzz: Iterable[Path]) -> None:
     set(
-        c_tqdm(
-            map(
-                conflicts_one,
-                filter(lambda file: CONFLICT.search(file.read_bytes()), fuzz),
-            ),
-            "Conflicts",
-            disable_bars,
+        map(
+            conflicts_one, filter(lambda file: CONFLICT.search(file.read_bytes()), fuzz)
         )
     )
 
@@ -97,10 +92,7 @@ def corpus_trim_one(fuzz: Iterable[Path], disable_bars: bool) -> None:
             CRASHES.joinpath,
             map(
                 lambda path: path.relative_to(bucket(path)),
-                filter(
-                    Path.is_file,
-                    c_tqdm(CORPUS.rglob("*"), "Regression trim", disable_bars),
-                ),
+                filter(Path.is_file, CORPUS.rglob("*")),
             ),
         ),
     ):
@@ -108,12 +100,10 @@ def corpus_trim_one(fuzz: Iterable[Path], disable_bars: bool) -> None:
 
 
 def corpus_trim(disable_bars: bool = False) -> None:
-    conflicts(gather_paths(), disable_bars)
+    conflicts(gather_paths())
     CRASHES.mkdir(parents=True, exist_ok=True)
-    for file in c_tqdm(
-        chain.from_iterable(map(SOURCE.rglob, ("crash-*", "leak-*", "timeout-*"))),
-        "Crashes gather",
-        disable_bars,
+    for file in chain.from_iterable(
+        map(SOURCE.rglob, ("crash-*", "leak-*", "timeout-*"))
     ):
         file.rename(CRASHES / sha(file))
     while True:

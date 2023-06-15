@@ -71,7 +71,7 @@ def _d(i: int) -> bool:
 
 ranges = iter(
     (
-        _ranges(2, _a(set(filter(_d, range(127))), 127)),
+        _ranges(2, _a(set(filter(_d, range(127))), 0xFF)),
         _ranges(748, _a(set(filter(_d, range(0x10FFFF))), 0x10FFFF)),
     )
 )

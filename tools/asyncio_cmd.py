@@ -79,10 +79,12 @@ async def cmd_env(
     *args: object,
     env: dict[str, object] = {},
     err: ProcessInput = PIPE,
+    log: bool = True,
     out: ProcessInput = PIPE,
     timeout: int | None = 20,
 ) -> bytes:
-    get_logger().info(f"+ {' '.join(map(str, args))}")
+    if log:
+        get_logger().info(f"+ {' '.join(map(str, args))}")
     proc = await create_subprocess_exec(
         *map(str, args),
         env=dict(
