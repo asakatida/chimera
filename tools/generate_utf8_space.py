@@ -56,7 +56,8 @@ ranges = iter(
                     _a,
                     groupby(
                         zip(
-                            map(ord, filter(str.isspace, map(chr, range(127)))), count()
+                            map(ord, filter(str.isspace, map(chr, range(0xFF)))),
+                            count(),
                         ),
                         lambda t: t[0] - t[1],
                     ),
