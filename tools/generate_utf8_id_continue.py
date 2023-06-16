@@ -38,8 +38,8 @@ def _slices(total: int, it: Iterable[int]) -> Iterable[Iterable[str]]:
 
 
 def _ranges(total: int, it: Iterable[int]) -> str:
-    ranges = ">, ranges<".join(map(",".join, _slices(total, it)))
-    return f"sor<ranges<{ranges}>>"
+    ranges = ">, tao::pegtl::utf8::ranges<".join(map(",".join, _slices(total, it)))
+    return f"sor<tao::pegtl::utf8::ranges<{ranges}>>"
 
 
 def _a(id_start: Set[int], end: int) -> Iterable[int]:
@@ -71,7 +71,7 @@ def _d(i: int) -> bool:
 
 ranges = iter(
     (
-        _ranges(2, _a(set(filter(_d, range(127))), 0xFF)),
+        _ranges(2, _a(set(filter(_d, range(127))), 0x100)),
         _ranges(748, _a(set(filter(_d, range(0x10FFFF))), 0x10FFFF)),
     )
 )
