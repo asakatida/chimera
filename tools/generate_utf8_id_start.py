@@ -38,8 +38,8 @@ def _slices(total: int, it: Iterable[int]) -> Iterable[Iterable[str]]:
 
 
 def _ranges(total: int, it: Iterable[int]) -> str:
-    ranges = ">, ranges<".join(map(",".join, _slices(total, it)))
-    return f"sor<ranges<{ranges}>>"
+    ranges = ">, tao::pegtl::utf8::ranges<".join(map(",".join, _slices(total, it)))
+    return f"sor<tao::pegtl::utf8::ranges<{ranges}>>"
 
 
 def _a(t: tuple[int, Iterable[tuple[int, int]]]) -> tuple[int, ...]:
@@ -56,7 +56,7 @@ ranges = iter(
                     _a,
                     groupby(
                         zip(
-                            map(ord, filter(str.isidentifier, map(chr, range(0xFF)))),
+                            map(ord, filter(str.isidentifier, map(chr, range(0x100)))),
                             count(),
                         ),
                         lambda t: t[0] - t[1],
