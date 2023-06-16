@@ -21,7 +21,7 @@
 """git_rebase_all.py."""
 
 from asyncio import run
-from itertools import combinations, repeat
+from itertools import combinations
 from sys import argv
 
 from asyncio_cmd import ProcessError, cmd, cmd_env, main, splitlines
@@ -56,24 +56,15 @@ async def report_branch_graph(
     remote_branches: list[str], local_branches: list[str], disable_bars: bool
 ) -> None:
     branch_graph: dict[str, set[str]] = dict()
-    for left, right in (
-        args
-        for args in c_tqdm(
-            combinations(local_branches, 2), "Gather common branches", disable_bars
-        )
-        if await git_diff(*args)
+    for left, right in c_tqdm(
+        combinations(local_branches, 2), "Gather common branches", disable_bars
     ):
+        if not await git_diff(left, right):
+            continue
         branch_graph.setdefault(left, set())
         branch_graph.setdefault(right, set())
         branch_graph[left].add(right)
         branch_graph[right].add(left)
-    for local in filter(
-        lambda local: any(map(set.__contains__, branch_graph.values(), repeat(local))),
-        sorted(set(branch_graph.keys()).difference(remote_branches)),
-    ):
-        key = next(filter(lambda value: local in value[1], branch_graph.items()))
-        branch_graph[key[0]] |= branch_graph[local]
-        del branch_graph[local]
     for remote in sorted(set(branch_graph.keys()).intersection(remote_branches)):
         for local in sorted(
             set(branch_graph.get(remote, [])).difference(remote_branches)
