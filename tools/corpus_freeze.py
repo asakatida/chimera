@@ -21,26 +21,29 @@
 """corpus_freeze.py"""
 
 from asyncio import run
+from hashlib import sha256
 from json import dumps, loads
 from pathlib import Path
 from sys import argv
 
 from asyncio_cmd import cmd, main
 from corpus_ascii import corpus_ascii
-from corpus_utils import sha
 
 
 async def corpus_freeze(output: str) -> None:
     file = Path(output)
     cases = loads(file.read_text())
     cases.update(
-        {
-            sha(file): file.read_text()
-            for file in sorted(corpus_ascii())
-            if await cmd(
-                "git", "log", "--all", "--oneline", "^HEAD", "--", file, log=False
-            )
-        }
+        map(
+            lambda case: (sha256(case.encode()).hexdigest(), case),
+            [
+                file.read_text()
+                for file in corpus_ascii()
+                if await cmd(
+                    "git", "log", "--all", "--oneline", "^HEAD", "--", file, log=False
+                )
+            ],
+        )
     )
     file.write_text(dumps(cases, indent=4, sort_keys=True))
 

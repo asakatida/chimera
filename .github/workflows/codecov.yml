@@ -20,7 +20,7 @@ jobs:
         with:
           run: |
             rustup default stable
-            python tools/codecov.py >llvm-profile.lcov
+            python tools/codecov.py llvm-profile.lcov
             ccache --cleanup
             ccache --trim-dir .ccache/remote --trim-max-size 600Mi
       - uses: codecov/codecov-action@v3.1.4
