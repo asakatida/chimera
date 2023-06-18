@@ -30,8 +30,7 @@ from uuid import uuid4
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError, chunks, cmd_flog, main
-from corpus_trim import corpus_trim
-from corpus_utils import corpus_merge, fuzz_star, regression
+from corpus_utils import corpus_merge, corpus_trim, fuzz_star, regression
 from ninja import ninja
 from structlog import get_logger
 
@@ -121,7 +120,6 @@ async def corpus_retest(build: str) -> None:
 async def corpus_retest_main(*args: str, disable_bars: bool) -> None:
     corpus_trim(disable_bars=disable_bars)
     await corpus_retest(*args)
-    corpus_trim(disable_bars=disable_bars)
     await regression(*args)
 
 

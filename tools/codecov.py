@@ -23,13 +23,14 @@
 from asyncio import run
 from os import chdir, environ
 from pathlib import Path
+from sys import argv
 
-from asyncio_cmd import cmd, cmd_env, main
+from asyncio_cmd import cmd, cmd_env, cmd_flog, main
 from corpus_utils import regression
 from ninja import ninja
 
 
-async def codecov() -> None:
+async def codecov(llvm_profile_lcov: str) -> None:
     llvm_profile_file = Path(
         environ.get(
             "LLVM_PROFILE_FILE",
@@ -87,17 +88,17 @@ async def codecov() -> None:
         f"--output={instr_profile}",
         timeout=600,
     )
-    await cmd(
+    await cmd_flog(
         "llvm-cov",
         "export",
         "build/unit-test",
         "--ignore-filename-regex=.*/(catch2|external|unit_tests)/.*",
         f"-instr-profile={instr_profile}",
         "--format=lcov",
-        out=None,
+        out=llvm_profile_lcov,
     )
 
 
 if __name__ == "__main__":
     with main():
-        run(codecov())
+        run(codecov(*argv[1:]))

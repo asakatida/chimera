@@ -24,18 +24,27 @@ from functools import cache
 from hashlib import sha256
 from itertools import chain, product, repeat
 from pathlib import Path
+from re import MULTILINE, compile
 from typing import Iterable, TypeVar
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import chunks, cmd_check, cmd_flog
 from tqdm import tqdm
 
+CONFLICT = compile(rb"^(?:(?:<{7,8}|>{7,8})(?:\s.+)?|={7,8})$\s?", MULTILINE)
 DIRECTORIES = ("corpus", "crashes")
 SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
-T = TypeVar("T")
+CRASHES = FUZZ / "crashes"
 CORPUS.mkdir(parents=True, exist_ok=True)
+LENGTH = 14
+
+T = TypeVar("T")
+
+
+def bucket(path: Path) -> Path:
+    return FUZZ / path.relative_to(FUZZ).parts[0]
 
 
 def c_tqdm(
@@ -44,8 +53,28 @@ def c_tqdm(
     return tqdm(iterable, desc=desc, disable=disable, total=total, unit_scale=True)
 
 
+def conflicts_one(file: Path) -> None:
+    set(
+        map(
+            lambda section: (file.parent / sha256(section).hexdigest()).write_bytes(
+                section
+            ),
+            filter(None, CONFLICT.split(file.read_bytes())),
+        )
+    )
+    file.unlink()
+
+
+def conflicts(fuzz: Iterable[Path]) -> None:
+    set(
+        map(
+            conflicts_one, filter(lambda file: CONFLICT.search(file.read_bytes()), fuzz)
+        )
+    )
+
+
 async def corpus_merge(path: Path) -> list[Exception]:
-    return await fuzz_test(
+    if errors := await fuzz_test(
         "-merge=1",
         "-reduce_inputs=1",
         "-shrink=1",
@@ -55,11 +84,64 @@ async def corpus_merge(path: Path) -> list[Exception]:
             chain.from_iterable(map(lambda path: path.rglob("*"), (CORPUS, path))),
         ),
         timeout=None,
-    )
+    ):
+        return errors
+    corpus_trim(disable_bars=True)
+    return []
 
 
-def bucket(path: Path) -> Path:
-    return FUZZ / path.relative_to(FUZZ).parts[0]
+def corpus_trim_one(fuzz: Iterable[Path], disable_bars: bool) -> None:
+    global LENGTH
+    for file in c_tqdm(fuzz, "Corpus rehash", disable_bars):
+        src_sha = sha(file)
+        name = src_sha[:LENGTH]
+        if name == (file.parent.name + file.name):
+            continue
+        sha_bucket, name = name[:2], name[2:]
+        if set(
+            map(
+                sha,
+                filter(
+                    Path.exists,
+                    map(FUZZ.joinpath, DIRECTORIES, repeat(sha_bucket), repeat(name)),
+                ),
+            )
+        ).difference({src_sha}):
+            LENGTH += 1
+            raise Increment(
+                f"Collision found, update corpus_trim.py `LENGTH`: {LENGTH}"
+            )
+        new_file = bucket(file) / sha_bucket / name
+        new_file.parent.mkdir(parents=True, exist_ok=True)
+        file.rename(new_file)
+    for file in filter(
+        Path.exists,
+        map(
+            CRASHES.joinpath,
+            map(
+                lambda path: path.relative_to(bucket(path)),
+                filter(Path.is_file, CORPUS.rglob("*")),
+            ),
+        ),
+    ):
+        file.unlink()
+
+
+def corpus_trim(disable_bars: bool) -> None:
+    conflicts(gather_paths())
+    CRASHES.mkdir(parents=True, exist_ok=True)
+    for file in chain.from_iterable(
+        map(SOURCE.rglob, ("crash-*", "leak-*", "timeout-*"))
+    ):
+        file.rename(CRASHES / sha(file))
+    while True:
+        try:
+            corpus_trim_one(gather_paths(), disable_bars)
+        except Increment:
+            if LENGTH > 32:
+                raise
+            continue
+        break
 
 
 @cache
@@ -96,6 +178,10 @@ def gather_paths() -> Iterable[Path]:
             map(Path.rglob, map(FUZZ.joinpath, DIRECTORIES), repeat("*"))  # type: ignore
         ),
     )
+
+
+class Increment(Exception):
+    pass
 
 
 async def regression_one(fuzzer: Path, chunk: list[Path]) -> None:

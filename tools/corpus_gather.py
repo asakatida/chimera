@@ -26,8 +26,7 @@ from sys import argv
 
 from asyncio_cmd import ProcessError, cmd, cmd_check, main, splitlines
 from corpus_retest import corpus_retest
-from corpus_trim import corpus_trim
-from corpus_utils import regression
+from corpus_utils import corpus_trim, regression
 from ninja import ninja
 from tqdm import tqdm
 
