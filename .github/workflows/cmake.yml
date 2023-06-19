@@ -25,6 +25,8 @@ jobs:
             rustup default stable
             cmake -GNinja -B build -S .
             python tools/ninja.py build
+            ccache --cleanup
+            ccache --trim-dir .ccache/remote --trim-max-size 600Mi
       - if: github.ref == 'refs/heads/stable'
         name: Run corpus
         uses: ./
@@ -40,17 +42,7 @@ jobs:
           run: |
             git remote set-head origin --auto
             python tools/corpus_merge.py
-      - name: Corpus baseline
-        uses: ./
-        with:
-          run: |
-            git fetch
-            git remote set-head origin --auto
-            git restore --source origin/HEAD --staged unit_tests/fuzz/corpus
-            git restore --worktree unit_tests/fuzz/corpus
             python tools/corpus_trim.py
-            ccache --cleanup
-            ccache --trim-dir .ccache/remote --trim-max-size 600Mi
       - if: github.ref == 'refs/heads/stable'
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
@@ -81,6 +73,8 @@ jobs:
             rustup default stable
             cmake -GNinja -B build -S .
             python tools/ninja.py build
+            ccache --cleanup
+            ccache --trim-dir .ccache/remote --trim-max-size 600Mi
       - name: Gather crashes for recheck
         uses: ./
         with:
@@ -88,18 +82,9 @@ jobs:
       - name: Corpus recheck
         uses: ./
         with:
-          run: python tools/corpus_retest.py build
-      - name: Corpus baseline
-        uses: ./
-        with:
           run: |
-            git fetch
-            git remote set-head origin --auto
-            git restore --source origin/HEAD --staged unit_tests/fuzz/corpus
-            git restore --worktree unit_tests/fuzz/corpus
+            python tools/corpus_retest.py build
             python tools/corpus_trim.py
-            ccache --cleanup
-            ccache --trim-dir .ccache/remote --trim-max-size 600Mi
       - if: github.ref == 'refs/heads/stable'
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
