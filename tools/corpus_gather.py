@@ -22,13 +22,16 @@
 
 from asyncio import run
 from asyncio.subprocess import DEVNULL
+from collections import deque
 from sys import argv
+from typing import Iterable, TypeVar
 
-from asyncio_cmd import ProcessError, cmd, cmd_check, main, splitlines
-from corpus_retest import corpus_retest
-from corpus_utils import corpus_trim, regression
-from ninja import ninja
+from asyncio_as_completed import as_completed
+from asyncio_cmd import ProcessError, chunks, cmd, cmd_check, main, splitlines
+from corpus_utils import corpus_creations, corpus_trim
 from tqdm import tqdm
+
+T = TypeVar("T")
 
 
 async def git_cmd(*args: object) -> None:
@@ -39,70 +42,66 @@ async def git_cmd_remote(*args: object) -> None:
     await cmd("git", *args, timeout=600)
 
 
-async def git_restore(sha: str, *paths: object, disable_bars: bool) -> None:
+def last(iterable: Iterable[T]) -> T:
+    return deque(iterable, maxlen=1)[0]
+
+
+async def git_restore(sha: str, *paths: object) -> None:
     try:
-        await git_cmd("restore", "--source", sha, *paths)
+        for files in chunks(paths, 4096):
+            await git_cmd("restore", "--source", sha, *files)
     except ProcessError:
         return
+    corpus_trim(disable_bars=True)
     deleted = tuple(
-        filter(
-            lambda line: line.startswith(" D "),
-            splitlines(await cmd("git", "status", "--porcelain", log=False)),
+        map(
+            lambda line: line[-1],
+            map(
+                str.split,
+                filter(
+                    lambda line: line.startswith(" D "),
+                    splitlines(await cmd("git", "status", "--porcelain", log=False)),
+                ),
+            ),
         )
     )
     if deleted:
-        await git_cmd("restore", *map(lambda line: line[-1], map(str.split, deleted)))
-    corpus_trim(disable_bars=disable_bars)
-    await git_cmd("add", *paths)
-    await git_cmd("commit", "--allow-empty", "--amend", "--no-edit")
+        await as_completed(
+            map(
+                lambda files: git_cmd(
+                    "restore",
+                    *files,
+                ),
+                chunks(deleted, 4096),
+            ),
+            cancel=True,
+            limit=4,
+        )
 
 
 async def corpus_gather(*paths: str, disable_bars: bool) -> None:
-    await git_cmd_remote("add", *paths)
-    await git_cmd_remote("commit", "--allow-empty", "-m", "WIP")
-    for sha in tqdm(
-        list(
-            splitlines(
-                await cmd(
-                    "git", "log", "--all", "--format=%h", "^origin/HEAD", "--", *paths
-                )
-            )
-        ),
-        desc="Refs",
-        disable=disable_bars,
-        unit_scale=True,
+    for sha, files in tqdm(
+        (await corpus_creations(*paths)).items(), desc="Commits", disable=disable_bars
     ):
-        await git_restore(sha, *paths, disable_bars=True)
-    await git_restore("origin/HEAD", *paths, disable_bars=disable_bars)
-    await cmd("git", "reset", "HEAD^", err=DEVNULL, out=DEVNULL, timeout=900)
+        await git_restore(sha.decode(), *files)
 
 
 async def corpus_gather_stable(disable_bars: bool) -> None:
     path = "unit_tests/fuzz/corpus"
     await git_cmd("config", "--local", "user.email", "email")
     await git_cmd("config", "--local", "user.name", "name")
-    await git_cmd("remote", "set-head", "origin", "--auto")
     await corpus_gather(path, disable_bars=disable_bars)
-    await corpus_retest("build")
-    await regression("build")
     for opt in ("--global", "--local", "--system", "--worktree"):
         await cmd_check("git", "config", opt, "--unset-all", "user.email")
         await cmd_check("git", "config", opt, "--unset-all", "user.name")
     corpus_trim(disable_bars=disable_bars)
 
 
-async def corpus_gather_main(ref: str, disable_bars: bool) -> None:
-    await cmd("cmake", "-GNinja", "-B", "build", "-S", ".")
-    await ninja("build")
-    await regression("build")
+def corpus_gather_main(ref: str) -> None:
     if ref == "refs/heads/stable":
-        await corpus_gather_stable(disable_bars=disable_bars)
-
-
-def main_(ref: str) -> None:
-    run(corpus_gather_main(ref, disable_bars=False))
+        run(corpus_gather_stable(disable_bars=False))
 
 
 if __name__ == "__main__":
     with main():
-        main_(*argv[1:])
+        corpus_gather_main(*argv[1:])

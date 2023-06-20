@@ -102,7 +102,7 @@ async def git_rebase_all(*args: str, disable_bars: bool) -> None:
     )
     for local_branch in c_tqdm(local_branches, "Rebase branches", disable_bars):
         try:
-            await cmd("git", "rebase", "origin/HEAD", local_branch, log=False)
+            await cmd("git", "rebase", "origin/stable", local_branch, log=False)
             continue
         except ProcessError:
             pass

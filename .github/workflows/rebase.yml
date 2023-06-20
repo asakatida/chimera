@@ -18,7 +18,6 @@ jobs:
             "41898282+github-actions[bot]@users.noreply.github.com";
             git config --global user.name
             "github-actions[bot]";
-            git remote set-head origin -a;
             python tools/git_rebase_all.py 'python tools/corpus_trim.py';
             git push --force origin ':' || true
 

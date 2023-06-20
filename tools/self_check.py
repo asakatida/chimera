@@ -11,7 +11,7 @@ from structlog import get_logger
 
 
 async def lint(*args: object) -> bytes:
-    return await cmd(*args, log=False, timeout=300)
+    return await cmd(*args, log=False, timeout=1200)
 
 
 async def black(files: Sequence[object]) -> bytes:

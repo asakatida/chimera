@@ -22,32 +22,95 @@
 
 from asyncio import run
 from hashlib import sha256
+from itertools import chain
 from json import dumps, loads
 from pathlib import Path
 from sys import argv
 
-from asyncio_cmd import cmd, main
-from corpus_ascii import corpus_ascii
+from asyncio_as_completed import as_completed
+from asyncio_cmd import chunks, cmd, main, splitlines
+from corpus_ascii import corpus_ascii, is_ascii
+from corpus_utils import c_tqdm, corpus_creations
 
 
-async def corpus_freeze(output: str) -> None:
+async def corpus_changes(cases: dict[str, str], disable_bars: bool) -> list[str]:
+    return [
+        file.read_text()
+        for file in filter(
+            lambda file: sha256(file.read_bytes()).hexdigest() not in cases,
+            c_tqdm(corpus_ascii(), "ascii", disable_bars),
+        )
+        if await cmd("git", "log", "--all", "--oneline", "^HEAD", "--", file, log=False)
+    ]
+
+
+async def crash_contents(disable_bars: bool) -> list[bytes]:
+    return await as_completed(
+        map(
+            lambda sha: cmd("git", "cat-file", "-p", sha, log=False),
+            c_tqdm(
+                chain.from_iterable(
+                    map(
+                        splitlines,
+                        chain.from_iterable(await crash_objects(disable_bars)),
+                    )
+                ),
+                "Files",
+                disable_bars,
+            ),
+        )
+    )
+
+
+async def crash_objects(disable_bars: bool) -> list[list[bytes]]:
+    return await as_completed(
+        map(
+            lambda item: as_completed(
+                map(
+                    lambda chunk: cmd(
+                        "git",
+                        "ls-tree",
+                        "--full-tree",
+                        "--object-only",
+                        "-r",
+                        item[0].decode(),
+                        *chunk,
+                        log=False,
+                    ),
+                    chunks(item[1], 4096),
+                )
+            ),
+            c_tqdm(
+                (await corpus_creations("unit_tests/fuzz/crashes")).items(),
+                "Commits",
+                disable_bars,
+            ),
+        )
+    )
+
+
+async def corpus_freeze(output: str, disable_bars: bool) -> None:
     file = Path(output)
     cases = loads(file.read_text())
     cases.update(
         map(
             lambda case: (sha256(case.encode()).hexdigest(), case),
-            [
-                file.read_text()
-                for file in corpus_ascii()
-                if await cmd(
-                    "git", "log", "--all", "--oneline", "^HEAD", "--", file, log=False
-                )
-            ],
+            await corpus_changes(cases, disable_bars),
+        )
+    )
+    cases.update(
+        map(
+            lambda case: (sha256(case).hexdigest(), case.decode()),
+            filter(is_ascii, await crash_contents(disable_bars)),
         )
     )
     file.write_text(dumps(cases, indent=4, sort_keys=True))
 
 
+def corpus_freeze_main(output: str) -> None:
+    run(corpus_freeze(output, disable_bars=False))
+
+
 if __name__ == "__main__":
     with main():
-        run(corpus_freeze(*argv[1:]))
+        corpus_freeze_main(*argv[1:])

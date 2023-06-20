@@ -28,6 +28,10 @@ else()
     -Wno-padded)
 endif()
 
+enable_testing()
+
+include(CTest)
+
 add_library(
   chimera-grammar
   OBJECT
@@ -138,10 +142,91 @@ target_link_libraries(
   number)
 
 add_subdirectory(external/Catch EXCLUDE_FROM_ALL)
+include(CatchShardTests)
+
+add_custom_command(
+  OUTPUT
+  ${CMAKE_SOURCE_DIR}/unit_tests/virtual_machine/fuzz-base64.hpp
+  COMMAND
+  xxd -i
+  external/big-list-of-naughty-strings/blns.base64.json
+  >unit_tests/virtual_machine/fuzz-base64.hpp
+  WORKING_DIRECTORY
+  ${CMAKE_SOURCE_DIR}
+  DEPENDS
+  external/big-list-of-naughty-strings/blns.base64.json)
+
+add_custom_command(
+  OUTPUT
+  ${CMAKE_SOURCE_DIR}/unit_tests/virtual_machine/fuzz-blns.hpp
+  COMMAND
+  xxd -i
+  external/big-list-of-naughty-strings/blns.json
+  >unit_tests/virtual_machine/fuzz-blns.hpp
+  WORKING_DIRECTORY
+  ${CMAKE_SOURCE_DIR}
+  DEPENDS
+  external/big-list-of-naughty-strings/blns.json)
+
+add_custom_command(
+  OUTPUT
+  ${CMAKE_SOURCE_DIR}/unit_tests/virtual_machine/fuzz-cases.hpp
+  COMMAND
+  xxd -i
+  unit_tests/fuzz/cases.json
+  >unit_tests/virtual_machine/fuzz-cases.hpp
+  WORKING_DIRECTORY
+  ${CMAKE_SOURCE_DIR}
+  DEPENDS
+  unit_tests/fuzz/cases.json)
+
+add_custom_target(
+  unit-test-fuzz-text
+  DEPENDS
+  ${CMAKE_SOURCE_DIR}/unit_tests/virtual_machine/fuzz-base64.hpp
+  ${CMAKE_SOURCE_DIR}/unit_tests/virtual_machine/fuzz-blns.hpp
+  ${CMAKE_SOURCE_DIR}/unit_tests/virtual_machine/fuzz-cases.hpp)
+
+add_library(
+  unit-test-fuzz
+  OBJECT
+  unit_tests/fuzz/cases.cpp
+  unit_tests/virtual_machine/fuzz-json.cpp
+  unit_tests/virtual_machine/fuzz.cpp)
+
+target_compile_features(unit-test-fuzz PUBLIC c_std_23 cxx_std_20)
+
+add_dependencies(unit-test-fuzz unit-test-fuzz-text)
+
+target_compile_options(unit-test-fuzz PRIVATE -Oz)
+
+target_include_directories(
+  unit-test-fuzz
+  PUBLIC
+  library
+  stdlib
+  unit_tests)
+
+target_include_directories(
+  unit-test-fuzz
+  SYSTEM PUBLIC
+  external/Catch/src
+  external/GSL/include
+  external/metal/include
+  external/operators/include
+  external/json/include/tao
+  external/PEGTL/include)
+
+target_link_libraries(
+  unit-test-fuzz
+  Catch2WithMain
+  chimera-core
+  chimera-grammar
+  number
+  pthread)
 
 add_executable(
   unit-test
-  unit_tests/fuzz/cases.cpp
   unit_tests/grammar/expression.cpp
   unit_tests/grammar/grammar.cpp
   unit_tests/grammar/identifier.cpp
@@ -149,7 +234,6 @@ add_executable(
   unit_tests/grammar/number.cpp
   unit_tests/grammar/statement.cpp
   unit_tests/number/number.cpp
-  unit_tests/virtual_machine/fuzz.cpp
   unit_tests/virtual_machine/parse.cpp
   unit_tests/virtual_machine/trace.cpp
   unit_tests/virtual_machine/virtual_machine.cpp)
@@ -167,7 +251,6 @@ target_include_directories(
   unit-test
   SYSTEM PUBLIC
   external/Catch/src
-  external/json/include/tao
   external/PEGTL/include
   oxidation)
 
@@ -177,25 +260,15 @@ target_link_libraries(
   chimera-core
   chimera-grammar
   number
-  pthread)
+  pthread
+  unit-test-fuzz)
+
+catch_add_sharded_tests(unit-test SHARD_COUNT 6)
 
 add_custom_target(
-  check
-  ${CMAKE_BINARY_DIR}/unit-test
-  DEPENDS unit-test
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-  VERBATIM)
-add_custom_target(
   check-stat
-  perf stat ${CMAKE_BINARY_DIR}/unit-test
+  perf stat ./unit-test
   DEPENDS unit-test
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-  VERBATIM)
-add_custom_target(
-  check-rand
-  ${CMAKE_BINARY_DIR}/unit-test --order rand
-  DEPENDS unit-test
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   VERBATIM)
 
 if(

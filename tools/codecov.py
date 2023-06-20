@@ -20,7 +20,7 @@
 
 """codecov.py"""
 
-from asyncio import run
+from asyncio import gather, run
 from os import chdir, environ
 from pathlib import Path
 from sys import argv
@@ -77,8 +77,19 @@ async def codecov(llvm_profile_lcov: str) -> None:
     except FileNotFoundError:
         pass
     llvm_profile_dir.mkdir()
-    await ninja("build", "check")
-    await regression("build")
+    await ninja("build")
+    await gather(
+        cmd(
+            "ctest",
+            "--build-and-test",
+            ".",
+            "build",
+            "--build-generator",
+            "Ninja",
+            "--build-noclean",
+        ),
+        regression("build"),
+    )
     llvm_profile_files = filter(Path.is_file, llvm_profile_dir.iterdir())
     await cmd(
         "llvm-profdata",

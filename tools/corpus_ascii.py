@@ -29,20 +29,22 @@ from asyncio_cmd import main
 from corpus_utils import bucket, gather_paths
 from structlog import get_logger
 
-FUZZ = Path(__file__).parent.parent.resolve() / "unit_tests" / "fuzz"
 PRINTABLE = set(printable)
 
 
-def is_ascii(path: Path) -> bool:
+def is_ascii(data: bytes) -> bool:
     try:
-        data = path.read_bytes()
         return all(c in PRINTABLE or ord(c) > 0xFF for c in data.decode())
     except UnicodeDecodeError:
         return False
 
 
+def _is_ascii(path: Path) -> bool:
+    return is_ascii(path.read_bytes())
+
+
 def corpus_ascii() -> Iterable[Path]:
-    return filter(is_ascii, gather_paths())
+    return filter(_is_ascii, gather_paths())
 
 
 if __name__ == "__main__":
