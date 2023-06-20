@@ -1,7 +1,10 @@
+#include "virtual_machine/fuzz.hpp"
+
 #include "fuzz/cases.hpp"
 
+#include <json/contrib/map_traits.hpp>
+
 #include <catch2/catch_test_macros.hpp>
-#include <json.hpp>
 
 #include <tuple>
 
@@ -33,33 +36,31 @@ namespace chimera::library {
   }
 } // namespace chimera::library
 
-void TestOne(std::string_view &&data) {
-  REQUIRE_NOTHROW(chimera::library::FuzzerTestOneInput(
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-      reinterpret_cast<const std::uint8_t *>(data.data()), data.size()));
+void TestOne(const std::string &name, std::string_view data) {
+  SECTION(name) {
+    CHECK_NOTHROW(chimera::library::FuzzerTestOneInput(
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+        reinterpret_cast<const std::uint8_t *>(data.data()), data.size()));
+  }
 }
 
 TEST_CASE(R"(fuzz big list of nasty strings base64)") {
-  auto cases = tao::json::from_file(
-      "external/big-list-of-naughty-strings/blns.base64.json");
+  const auto cases = strings_blns_base64();
   for (auto &case_ : cases.get_array()) {
-    SECTION("loop base64 "s + case_.get_string()) {
-      TestOne(case_.get_string());
-    }
+    TestOne("loop base64 "s + case_.get_string(), case_.get_string());
   }
 }
 
 TEST_CASE(R"(fuzz big list of nasty strings)") {
-  auto cases =
-      tao::json::from_file("external/big-list-of-naughty-strings/blns.json");
+  const auto cases = strings_blns();
   for (auto &case_ : cases.get_array()) {
-    SECTION("loop blns "s + case_.get_string()) { TestOne(case_.get_string()); }
+    TestOne("loop blns "s + case_.get_string(), case_.get_string());
   }
 }
 
 TEST_CASE(R"(fuzz discovered cases)") {
-  auto cases = tao::json::from_file("unit_tests/fuzz/cases.json");
+  const auto cases = fuzz_cases();
   for (auto &case_ : cases.get_object()) {
-    SECTION("loop sha "s + case_.first) { TestOne(case_.second.get_string()); }
+    TestOne("loop sha "s + case_.first, case_.second.get_string());
   }
 }

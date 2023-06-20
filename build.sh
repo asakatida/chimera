@@ -17,7 +17,7 @@ export LLVM_PROFILE_FILE="${PWD}/build/coverage/llvm-profile.%c%p.profraw"
 python tools/ninja.py "${debug_root}"
 python tools/ninja.py "${debug_root}"
 python tools/ninja.py "${release_root}"
-python tools/ninja.py "${debug_root}" check-rand
+ctest --build-and-test . "${debug_root}" --build-generator Ninja --build-noclean
 python tools/ninja.py "${debug_root}" regression
 python tools/ninja.py "${debug_root}" corpus
 python tools/ninja.py "${debug_root}" spec

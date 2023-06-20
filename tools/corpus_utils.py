@@ -28,7 +28,7 @@ from re import MULTILINE, compile
 from typing import Iterable, TypeVar
 
 from asyncio_as_completed import as_completed
-from asyncio_cmd import chunks, cmd_check, cmd_flog
+from asyncio_cmd import chunks, cmd, cmd_check, cmd_flog, splitlines
 from tqdm import tqdm
 
 CONFLICT = compile(rb"^(?:(?:<{7,8}|>{7,8})(?:\s.+)?|={7,8})$\s?", MULTILINE)
@@ -69,6 +69,51 @@ def conflicts(fuzz: Iterable[Path]) -> None:
     set(
         map(
             conflicts_one, filter(lambda file: CONFLICT.search(file.read_bytes()), fuzz)
+        )
+    )
+
+
+async def corpus_creations(*paths: str) -> dict[bytes, list[str]]:
+    return dict(
+        map(
+            lambda pair: pair[1:],
+            sorted(
+                filter(
+                    lambda pair: pair[2],
+                    map(
+                        lambda match: (
+                            match["date"],
+                            match["sha"],
+                            list(
+                                filter(
+                                    lambda line: any(
+                                        map(lambda path: path in line, paths)  # type: ignore
+                                    )
+                                    and not Path(line).exists(),  # type: ignore
+                                    splitlines(match["paths"]),
+                                )
+                            ),
+                        ),
+                        compile(
+                            rb"commit:(?P<date>.+):(?P<sha>.+)(?P<paths>(?:\s+(?!commit:).+)+)"
+                        ).finditer(
+                            await cmd(
+                                "git",
+                                "log",
+                                "--all",
+                                "--date=iso",
+                                "--diff-filter=A",
+                                "--name-only",
+                                "--pretty=format:commit:%cd:%h",
+                                "^HEAD",
+                                "--",
+                                *paths,
+                                timeout=3600,
+                            )
+                        ),
+                    ),
+                )
+            ),
         )
     )
 
@@ -127,7 +172,7 @@ def corpus_trim_one(fuzz: Iterable[Path], disable_bars: bool) -> None:
         file.unlink()
 
 
-def corpus_trim(disable_bars: bool) -> None:
+def corpus_trim(disable_bars: bool = False) -> None:
     conflicts(gather_paths())
     CRASHES.mkdir(parents=True, exist_ok=True)
     for file in chain.from_iterable(

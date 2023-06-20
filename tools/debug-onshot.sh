@@ -9,5 +9,5 @@ rm -rf "${build_root}"
 
 tools/boot.sh
 
-python tools/ninja.py "${build_root}" check
-python tools/ninja.py "${build_root}" check-rand
+python tools/ninja.py "${build_root}"
+ctest --build-and-test . "${build_root}" --build-generator Ninja --build-noclean

@@ -31,7 +31,6 @@ from uuid import uuid4
 from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError, chunks, cmd_flog, main
 from corpus_utils import corpus_merge, corpus_trim, fuzz_star, regression
-from ninja import ninja
 from structlog import get_logger
 
 IN_CI = environ.get("CI", "") == "true"
@@ -97,8 +96,7 @@ def rmdir(path: Path) -> None:
         path.unlink(missing_ok=True)
 
 
-async def corpus_retest(build: str) -> None:
-    await ninja(build)
+async def corpus_retest() -> None:
     while await regression_log():
         get_logger().info(
             "Regression failed, retrying with"
@@ -117,12 +115,13 @@ async def corpus_retest(build: str) -> None:
         raise error
 
 
-async def corpus_retest_main(*args: str, disable_bars: bool) -> None:
-    corpus_trim(disable_bars=disable_bars)
-    await corpus_retest(*args)
-    await regression(*args)
+async def corpus_retest_main(build: str) -> None:
+    corpus_trim(disable_bars=False)
+    await corpus_retest()
+    corpus_trim(disable_bars=False)
+    await regression(build)
 
 
 if __name__ == "__main__":
     with main():
-        run(corpus_retest_main(*argv[1:], disable_bars=False))
+        run(corpus_retest_main(*argv[1:]))

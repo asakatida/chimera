@@ -25,7 +25,7 @@ from os import environ
 from pathlib import Path
 
 from asyncio_cmd import cmd, main
-from corpus_utils import corpus_merge
+from corpus_utils import corpus_merge, corpus_trim
 from structlog import get_logger
 
 IN_CI = environ.get("CI", "") == "true"
@@ -52,7 +52,7 @@ async def corpus_merge_main() -> None:
     if IN_CI:
         rmdir(CORPUS_ORIGINAL)
     CORPUS.rename(CORPUS_ORIGINAL)
-    await git_cmd("restore", "--source", "origin/HEAD", CORPUS)
+    CORPUS.mkdir()
     errors = await corpus_merge(CORPUS_ORIGINAL)
     if errors:
         error = errors.pop()
@@ -60,6 +60,7 @@ async def corpus_merge_main() -> None:
             for error in errors:
                 get_logger().error(f"Extra Error: {error}")
         raise error
+    corpus_trim(disable_bars=False)
 
 
 if __name__ == "__main__":

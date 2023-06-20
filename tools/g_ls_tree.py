@@ -40,10 +40,8 @@ async def g_ls_tree(*args: str, exclude: Pattern[str] | None = None) -> list[Pat
                         await as_completed(
                             map(
                                 lambda args: git_cmd(
-                                    "ls-tree",
-                                    "--full-tree",
-                                    "--name-only",
-                                    "HEAD",
+                                    "ls-files",
+                                    "--",
                                     *args,
                                 ),
                                 chunks(rglob, 4096),
