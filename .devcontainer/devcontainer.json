@@ -30,11 +30,6 @@
             }
         }
     },
-    "hostRequirements": {
-        "cpus": 1,
-        "memory": "12gb",
-        "storage": "32gb"
-    },
     "image": "ghcr.io/asakatida/chimera:0.323.0",
     "name": "chimera",
     "postAttachCommand": [
