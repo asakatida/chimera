@@ -19,11 +19,6 @@
 #include <string>
 
 namespace chimera::library {
-  using NumericLimits = std::numeric_limits<std::uint16_t>;
-  constexpr static auto bufferSize = NumericLimits::max();
-  [[nodiscard]] auto fuzz_input(std::istream &input) -> Input {
-    return {input, bufferSize, "fuzz"};
-  }
   [[nodiscard]] auto fuzz_istream(const std::uint8_t *data, std::size_t size)
       -> std::istringstream {
     std::istringstream input(

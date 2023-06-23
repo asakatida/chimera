@@ -23,90 +23,26 @@
 
 #pragma once
 
-#include <tao/pegtl.hpp>
+#include <tao/pegtl/istream_input.hpp> // for istream_input
 
 #include <cstdint>
-#include <iterator>
+#include <iostream>
 #include <stack>
+#include <string_view>
 
 namespace chimera::library::grammar {
-  template <typename Base>
-  struct Input : Base {
-    using Base::Base;
-    using Base::column;
-    using Base::current;
-    using Base::empty;
-    [[nodiscard]] auto indent() -> bool {
-      const auto col = column();
-      if ((indentStack.empty() || indentStack.top() < col) && validate()) {
-        indentStack.push(col);
-        return true;
-      }
-      return false;
-    }
-    [[nodiscard]] auto is_dedent() -> bool {
-      if (indentStack.empty()) {
-        return false;
-      }
-      return empty() || column() < indentStack.top();
-    }
-    [[nodiscard]] auto dedent() -> bool {
-      using namespace std::literals;
-      if (indentStack.empty()) {
-        return false;
-      }
-      indentStack.pop();
-      if (indentStack.empty()) {
-        indentType = '\0';
-      }
-      if (empty()) {
-        return true;
-      }
-      if ((indentStack.empty() && column() > 1) ||
-          (!indentStack.empty() && column() > indentStack.top())) {
-        throw tao::pegtl::parse_error("bad dedent"s, *this);
-      }
-      return true;
-    }
-    [[nodiscard]] auto is_newline() const -> bool {
-      const auto col = column();
-      if (indentStack.empty()) {
-        return 1 == col;
-      }
-      return indentStack.top() == col;
-    }
-    [[nodiscard]] auto validate() -> bool {
-      auto begin = current();
-      auto col = column();
-      if (col == 0) {
-        return false;
-      }
-      std::advance(begin, -col);
-      while (*begin == '\n' || *begin == '\r') {
-        col -= 1;
-        if (col == 0) {
-          return false;
-        }
-        std::advance(begin, 1);
-      }
-      const std::string_view line(begin, col);
-      if (indentType == '\0') {
-        if (validateBasic(line, *begin)) {
-          indentType = *begin;
-          return true;
-        }
-        return false;
-      }
-      return validateBasic(line, indentType);
-    }
-    template <typename Line>
-    [[nodiscard]] auto validateBasic(Line &&line, char type) -> bool {
-      return std::all_of(line.begin(), line.end(), [type](auto &&whitespace) {
-        return whitespace == type;
-      });
-    }
+  struct Input : tao::pegtl::istream_input<> {
+    Input(std::istream &&input, const char *source);
+    Input(std::string_view &&input, const char *source);
+    [[nodiscard]] auto dedent() -> bool;
+    [[nodiscard]] auto indent() -> bool;
+    [[nodiscard]] auto is_newline() const -> bool;
 
   private:
+    [[nodiscard]] auto is_dedent() -> bool;
+    [[nodiscard]] auto validate() -> bool;
+    [[nodiscard]] auto validateBasic(const std::string_view &line,
+                                     char type) const -> bool;
     char indentType = '\0';
     std::stack<std::uintmax_t> indentStack{};
   };

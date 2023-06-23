@@ -46,30 +46,20 @@ namespace chimera::library::grammar {
                              minus<Utf8Space, one<'\r', '\n'>>>>,
       std::conditional_t<flags::get<Option, flags::DISCARD>, discard, success>>;
   using BlankLines = seq<plus<Space<0>, Eol>, star<Utf8NonLineBreak>>;
-  ;
-  struct IndentCheck : not_at<Utf8NonLineBreak> {
+  struct Indent : not_at<Utf8NonLineBreak> {
     template <typename Input, typename... Args>
     static auto match(Input &&input, Args &&.../*args*/) -> bool {
       return input.indent();
     }
   };
-  struct INDENT : seq<BlankLines, IndentCheck, discard> {};
-  struct DedentCheck : not_at<Utf8NonLineBreak> {
-    template <typename Input, typename... Args>
-    static auto match(Input &&input, Args &&.../*args*/) -> bool {
-      return input.is_dedent();
-    }
-  };
-  struct DedentConsume : not_at<Utf8NonLineBreak> {
+  struct INDENT : seq<BlankLines, Indent, discard> {};
+  struct Dedent : not_at<Utf8NonLineBreak> {
     template <typename Input, typename... Args>
     static auto match(Input &&input, Args &&.../*args*/) -> bool {
       return input.dedent();
     }
   };
-  struct DEDENT
-      : sor<seq<eof, DedentConsume>, seq<at<BlankLines, DedentCheck>,
-                                         BlankLines, DedentConsume, discard>> {
-  };
+  struct DEDENT : seq<sor<eof, BlankLines>, Dedent, discard> {};
   struct NextIndentCheck : not_at<Utf8NonLineBreak> {
     template <typename Input, typename... Args>
     static auto match(Input &&input, Args &&.../*args*/) -> bool {

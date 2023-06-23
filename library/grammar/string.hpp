@@ -45,9 +45,9 @@ namespace chimera::library::grammar {
     using namespace std::literals;
     struct StringHolder : rules::VariantCapture<object::Object> {
       std::string string;
-      template <typename String, typename... Args>
-      void apply(String &&input, Args &&.../*args*/) {
-        string.append(std::forward<String>(input));
+      template <typename Input, typename... Args>
+      void apply(const Input &input, Args &&.../*args*/) {
+        string.append(input);
       }
     };
     struct LiteralChar : plus<not_one<'\0', '{', '}'>> {};
@@ -297,7 +297,7 @@ namespace chimera::library::grammar {
       struct Transform : rules::VariantCapture<object::Object> {
         object::Bytes bytes;
         template <typename Input, typename... Args>
-        void apply(Input &&input, Args &&.../*args*/) {
+        void apply(const Input &input, Args &&.../*args*/) {
           for (const auto &byte : input) {
             if (byte > 0xFF) {
               throw rules::BytesASCIIOnlyError();
@@ -342,9 +342,9 @@ namespace chimera::library::grammar {
         void finalize(Transform & /*unused*/, Outer &&outer) {
           outer.push(std::move(string));
         }
-        template <typename String, typename... Args>
-        void apply(String &&input, Args &&.../*args*/) {
-          string.append(std::forward<String>(input));
+        template <typename Input, typename... Args>
+        void apply(const Input &input, Args &&.../*args*/) {
+          string.append(input);
         }
       };
     };
@@ -361,9 +361,9 @@ namespace chimera::library::grammar {
           transform<asdl::ExprImpl>(std::back_inserter(joinedStr.values));
           outer.push(std::move(joinedStr));
         }
-        template <typename String, typename... Args>
-        void apply(String &&input, Args &&.../*args*/) {
-          string.append(std::forward<String>(input));
+        template <typename Input, typename... Args>
+        void apply(const Input &input, Args &&.../*args*/) {
+          string.append(input);
         }
       };
     };
@@ -373,7 +373,7 @@ namespace chimera::library::grammar {
       [[nodiscard]] static auto apply(const Input &input, Top &&top,
                                       Args &&.../*args*/) -> bool {
         return tao::pegtl::parse_nested<
-            must<FString<flags::list<flags::DISCARD, flags::IMPLICIT>>>, Action,
+            FString<flags::list<flags::DISCARD, flags::IMPLICIT>>, Action,
             typename MakeControl<>::Normal>(
             input,
             tao::pegtl::memory_input<>(top.string.c_str(), top.string.size(),

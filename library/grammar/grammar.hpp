@@ -25,7 +25,6 @@
 #include "asdl/asdl.hpp"
 #include "grammar/expr.hpp"
 #include "grammar/flags.hpp"
-#include "grammar/input.hpp"
 #include "grammar/parse.hpp"
 #include "grammar/rules.hpp"
 #include "grammar/stmt.hpp"

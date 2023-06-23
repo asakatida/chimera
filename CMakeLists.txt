@@ -39,7 +39,8 @@ add_library(
   OBJECT
   library/asdl/parse_expression_istream.cpp
   library/asdl/parse_interactive_istream.cpp
-  library/asdl/parse_module_istream.cpp)
+  library/asdl/parse_module_istream.cpp
+  library/grammar/input.cpp)
 
 target_compile_options(chimera-grammar PRIVATE -Oz)
 
