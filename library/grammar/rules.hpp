@@ -37,7 +37,6 @@ namespace chimera::library::grammar {
   using tao::pegtl::list_must;
   using tao::pegtl::list_tail;
   using tao::pegtl::minus;
-  using tao::pegtl::must;
   using tao::pegtl::not_at;
   using tao::pegtl::opt;
   using tao::pegtl::opt_must;

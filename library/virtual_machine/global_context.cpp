@@ -68,7 +68,7 @@ namespace chimera::library::virtual_machine {
     }
     return 0;
   }
-  [[nodiscard]] auto GlobalContext::execute(std::istream &&istream,
+  [[nodiscard]] auto GlobalContext::execute(std::ifstream &&istream,
                                             const char *source) -> int {
     ProcessContext processContext{*this};
     auto module = processContext.parse_file(std::move(istream), source);

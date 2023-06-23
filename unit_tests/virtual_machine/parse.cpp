@@ -25,10 +25,6 @@ namespace chimera::library {
         std::move(istream), "<unit_tests/virtual_machine/parse.cpp>");
     REQUIRE(module.iter().size() == size);
   }
-  struct EmptyNode {
-    template <typename Stack>
-    void finalize(const EmptyNode & /*unused*/, Stack && /*unused*/) const {}
-  };
 } // namespace chimera::library
 
 TEST_CASE("virtual machine parse ``") {

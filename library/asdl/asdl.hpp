@@ -29,7 +29,7 @@
 #include <metal/list/list.hpp>     // for list
 
 #include <algorithm>   // for reverse
-#include <iosfwd>      // for istream, string
+#include <iosfwd>      // for ifstream, string
 #include <iterator>    // for back_inserter
 #include <memory>      // for make_shared, shared_ptr
 #include <optional>    // for optional
@@ -435,7 +435,7 @@ namespace chimera::library::asdl {
   };
   struct Module : BaseASDL {
     Module() = default;
-    Module(const options::Optimize &optimize, std::istream &&input,
+    Module(const options::Optimize &optimize, std::ifstream &&input,
            const char *source);
     [[nodiscard]] auto doc() const -> const std::optional<DocString> &;
     [[nodiscard]] auto iter() const -> const std::vector<StmtImpl> &;
@@ -458,7 +458,7 @@ namespace chimera::library::asdl {
   };
   struct Interactive : BaseASDL {
     Interactive() = default;
-    Interactive(const options::Optimize &optimize, std::istream &&input,
+    Interactive(const options::Optimize &optimize, std::ifstream &&input,
                 const char *source);
     [[nodiscard]] auto iter() const -> const std::vector<StmtImpl> &;
     template <typename Stack>
@@ -472,7 +472,7 @@ namespace chimera::library::asdl {
   };
   struct Expression : BaseASDL {
     Expression() = default;
-    Expression(const options::Optimize &optimize, std::istream &&input,
+    Expression(const options::Optimize &optimize, std::ifstream &&input,
                const char *source);
     [[nodiscard]] auto expr() const -> const ExprImpl &;
     template <typename Stack>

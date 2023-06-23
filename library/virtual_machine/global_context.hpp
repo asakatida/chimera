@@ -42,7 +42,7 @@ namespace chimera::library::virtual_machine {
     [[nodiscard]] auto verbose_init() const -> const options::VerboseInit &;
 
   private:
-    [[nodiscard]] auto execute(std::istream &&istream, const char *source)
+    [[nodiscard]] auto execute(std::ifstream &&istream, const char *source)
         -> int;
     Options options;
     std::atomic_flag *sig_int;

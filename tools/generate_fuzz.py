@@ -32,7 +32,7 @@ def make_tests(test_cpp: Path, tests: dict[str, dict[bytes, bytes]]) -> None:
                 lambda prefix, cases: map(
                     lambda test_name, test_data: (
                         f'TEST_CASE("fuzz {prefix} `{test_name}`") {{'
-                        f' CHECK_NOTHROW(TestOne("{test_data}")); }}'
+                        f' CHECK_NOTHROW(TestOne("{test_data}"sv)); }}'
                     ),
                     map(
                         lambda name: name.replace("\\", r"\\"),
@@ -47,6 +47,7 @@ def make_tests(test_cpp: Path, tests: dict[str, dict[bytes, bytes]]) -> None:
     )
     if test_cpp.exists() and test_cpp.read_text() == content:
         return
+    test_cpp.parent.mkdir(parents=True, exist_ok=True)
     test_cpp.write_text(content)
 
 

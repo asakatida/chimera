@@ -1,4 +1,5 @@
 #include "grammar/grammar.hpp"
+#include "grammar/input.hpp"
 #include "grammar/rules.hpp"
 #include "grammar/rules/control.hpp"
 #include "object/object.hpp"
@@ -10,10 +11,12 @@
 #include <tao/pegtl.hpp>
 #include <tao/pegtl/contrib/trace.hpp>
 
+#include <sstream>
+
 using namespace std::literals;
 
 namespace chimera::library {
-  struct EmptyNode {
+  struct EmptyNode : asdl::BaseASDL {
     template <typename Stack>
     void finalize(const EmptyNode & /*unused*/, Stack && /*unused*/) const {}
   };
@@ -24,8 +27,8 @@ namespace chimera::library {
         tao::pegtl::must<chimera::library::grammar::FileInput>,
         chimera::library::grammar::token::Action,
         typename chimera::library::grammar::MakeControl<>::Normal>(
-        chimera::library::grammar::Input<tao::pegtl::memory_input<>>(
-            data.data(), data.size(), "<unit_tests/virtual_machine/parse.cpp>"),
+        chimera::library::grammar::Input(
+            std::forward<Data>(data), "<unit_tests/virtual_machine/parse.cpp>"),
         emptyNode);
   }
 } // namespace chimera::library
