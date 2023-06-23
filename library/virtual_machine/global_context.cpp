@@ -62,31 +62,29 @@ namespace chimera::library::virtual_machine {
     auto main = processContext.make_module("__main__");
     while (!std::cin.eof()) {
       std::cout << ">>> ";
-      auto interactive =
-          processContext.parse_input(std::move(std::cin), "<string>");
+      auto interactive = processContext.parse_input(std::cin, "<string>");
       ThreadContext(processContext, main).evaluate(interactive);
     }
     return 0;
   }
-  [[nodiscard]] auto GlobalContext::execute(std::istream &&istream,
+  [[nodiscard]] auto GlobalContext::execute(std::istream &istream,
                                             const char *source) -> int {
     ProcessContext processContext{*this};
-    auto module = processContext.parse_file(std::move(istream), source);
+    auto module = processContext.parse_file(istream, source);
     auto main = processContext.make_module("__main__");
     ThreadContext(processContext, main).evaluate(module);
     return 0;
   }
   [[nodiscard]] auto GlobalContext::execute_script() -> int {
-    return execute(std::ifstream(std::get<options::Script>(options.exec).name),
-                   std::get<options::Script>(options.exec).name);
+    std::ifstream istream(std::get<options::Script>(options.exec).name);
+    return execute(istream, std::get<options::Script>(options.exec).name);
   }
   [[nodiscard]] auto GlobalContext::execute_script_string() -> int {
-    return execute(
-        std::istringstream(std::get<options::Command>(options.exec).script),
-        "<string>");
+    std::istringstream istream(std::get<options::Command>(options.exec).script);
+    return execute(istream, "<string>");
   }
   [[nodiscard]] auto GlobalContext::execute_script_input() -> int {
-    return execute(std::move(std::cin), "<input>");
+    return execute(std::cin, "<input>");
   }
   [[nodiscard]] auto GlobalContext::execute_module() -> int {
     ProcessContext processContext{*this};

@@ -45,7 +45,7 @@ namespace chimera::library {
   static void execute() {
     virtual_machine::GlobalContext globalContext({});
     virtual_machine::ProcessContext processContext{globalContext};
-    auto module = processContext.parse_file(std::move(std::cin), "<input>");
+    auto module = processContext.parse_file(std::cin, "<input>");
     auto main = processContext.make_module("importlib");
     virtual_machine::ThreadContext threadContext{processContext, main};
     threadContext.evaluate(module);

@@ -184,28 +184,28 @@ namespace chimera::library::virtual_machine {
       std::cout << path << module << '\n';
     }
     auto source = std::string(path).append(module);
-    std::ifstream ifstream(source, std::iostream::in | std::iostream::binary);
-    Ensures(ifstream.is_open() && ifstream.good());
+    std::ifstream istream(source, std::iostream::in | std::iostream::binary);
+    Ensures(istream.is_open() && istream.good());
     if (global_context->verbose_init() == options::VerboseInit::LOAD) {
       std::cout << path << module << '\n';
     }
     std::cerr << path << module << '\n';
-    return parse_file(std::move(ifstream), source.c_str());
+    return parse_file(istream, source.c_str());
   }
-  [[nodiscard]] auto ProcessContext::parse_expression(std::istream &&input,
+  [[nodiscard]] auto ProcessContext::parse_expression(std::istream &input,
                                                       const char *source) const
       -> asdl::Expression {
-    return {global_context->optimize(), std::move(input), source};
+    return {global_context->optimize(), input, source};
   }
-  [[nodiscard]] auto ProcessContext::parse_file(std::istream &&input,
+  [[nodiscard]] auto ProcessContext::parse_file(std::istream &input,
                                                 const char *source) const
       -> asdl::Module {
-    return {global_context->optimize(), std::move(input), source};
+    return {global_context->optimize(), input, source};
   }
-  [[nodiscard]] auto ProcessContext::parse_input(std::istream &&input,
+  [[nodiscard]] auto ProcessContext::parse_input(std::istream &input,
                                                  const char *source) const
       -> asdl::Interactive {
-    return {global_context->optimize(), std::move(input), source};
+    return {global_context->optimize(), input, source};
   }
   void ProcessContext::process_interrupts() const {
     global_context->process_interrupts();
