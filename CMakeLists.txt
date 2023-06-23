@@ -39,7 +39,8 @@ add_library(
   OBJECT
   library/asdl/parse_expression_istream.cpp
   library/asdl/parse_interactive_istream.cpp
-  library/asdl/parse_module_istream.cpp)
+  library/asdl/parse_module_istream.cpp
+  library/grammar/input.cpp)
 
 target_compile_options(chimera-grammar PRIVATE -Oz)
 
@@ -144,13 +145,15 @@ set(
   ${CMAKE_SOURCE_DIR}/external/big-list-of-naughty-strings/blns.base64.json)
 set(CASES_JSON_FILE ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/cases.json)
 
-list(APPEND FUZZ_TESTS ${CMAKE_BINARY_DIR}/generated/fuzz-0.cpp)
-list(APPEND FUZZ_TESTS ${CMAKE_BINARY_DIR}/generated/fuzz-1.cpp)
-list(APPEND FUZZ_TESTS ${CMAKE_BINARY_DIR}/generated/fuzz-2.cpp)
-list(APPEND FUZZ_TESTS ${CMAKE_BINARY_DIR}/generated/fuzz-3.cpp)
-list(APPEND FUZZ_TESTS ${CMAKE_BINARY_DIR}/generated/fuzz-4.cpp)
-list(APPEND FUZZ_TESTS ${CMAKE_BINARY_DIR}/generated/fuzz-5.cpp)
-list(APPEND FUZZ_TESTS ${CMAKE_BINARY_DIR}/generated/fuzz-6.cpp)
+set(
+  FUZZ_TESTS
+  ${CMAKE_BINARY_DIR}/generated/fuzz-0.cpp
+  ${CMAKE_BINARY_DIR}/generated/fuzz-1.cpp
+  ${CMAKE_BINARY_DIR}/generated/fuzz-2.cpp
+  ${CMAKE_BINARY_DIR}/generated/fuzz-3.cpp
+  ${CMAKE_BINARY_DIR}/generated/fuzz-4.cpp
+  ${CMAKE_BINARY_DIR}/generated/fuzz-5.cpp
+  ${CMAKE_BINARY_DIR}/generated/fuzz-6.cpp)
 
 add_custom_command(
   OUTPUT
@@ -203,7 +206,7 @@ target_link_libraries(
   number
   pthread)
 
-catch_add_sharded_tests(unit-test SHARD_COUNT 13)
+catch_add_sharded_tests(unit-test SHARD_COUNT 61)
 
 add_custom_target(
   check-stat

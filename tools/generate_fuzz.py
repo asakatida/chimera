@@ -50,6 +50,7 @@ def make_tests(test_cpps: list[Path], tests: dict[str, dict[bytes, str]]) -> Non
         content = PREFIX + "\n".join(map(itemgetter(1), test_cases))
         if test_cpp.exists() and test_cpp.read_text() == content:
             continue
+        test_cpp.parent.mkdir(parents=True, exist_ok=True)
         test_cpp.write_text(content)
 
 
