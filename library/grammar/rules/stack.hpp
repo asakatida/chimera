@@ -93,19 +93,23 @@ namespace chimera::library::grammar::rules {
       return has_value() && std::holds_alternative<Type>(stack.back());
     }
     struct Transaction {
-      Transaction(Stack *stack) : stack(stack), state(stack->stack) {}
+      explicit Transaction(Stack *stack) : stack(stack), state(stack->stack) {}
+      Transaction(const Transaction &) = delete;
+      Transaction(Transaction &&) = delete;
       ~Transaction() noexcept {
         if (stack != nullptr) {
           stack->stack = std::move(state);
         }
       }
+      auto operator=(const Transaction &) -> Transaction & = delete;
+      auto operator=(Transaction &&) noexcept -> Transaction & = delete;
       void commit() noexcept { stack = nullptr; }
 
     private:
       Stack *stack;
       std::vector<ValueT> state;
     };
-    [[nodiscard]] auto transaction() -> Transaction { return {this}; }
+    [[nodiscard]] auto transaction() { return Transaction{this}; }
     template <typename OutputIt>
     void transform(OutputIt &&outputIt) {
       using IteratorTraits = std::iterator_traits<OutputIt>;
