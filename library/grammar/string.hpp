@@ -419,9 +419,10 @@ namespace chimera::library::grammar {
       };
       template <typename Top, typename... Args>
       static void apply0(Top &&top, Args &&.../*args*/) {
-        std::visit(top, top.reduce(State{}, [](const State &a, const State &b) {
-          return std::visit(Visitor{}, a, b);
-        }));
+        std::visit(
+            top, top.reduce(State{}, [](const State &left, const State &right) {
+              return std::visit(Visitor{}, left, right);
+            }));
       }
     };
     template <flags::Flag Option>

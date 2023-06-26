@@ -17,7 +17,7 @@ async def clang_tidy(build: str) -> None:
                 *files,
                 out=None,
             ),
-            chunks(await g_ls_tree("cpp"), 6),
+            chunks(await g_ls_tree("cpp"), 3),
         ),
         cancel=True,
         limit=4,

@@ -43,12 +43,12 @@ namespace chimera::library::grammar {
                 typename Outer, typename... Args>
       static auto match(Input &&input, Outer &&outer, Args &&...args) -> bool {
         if constexpr (A == tao::pegtl::apply_mode::action) {
-          auto t = outer.transaction();
+          auto transaction = outer.transaction();
           typename Rule::Transform state;
           if (LocalControl::template match<A, M, Action, Control>(
                   input, state, std::forward<Args>(args)...)) {
             state.finalize(state, std::forward<Outer>(outer));
-            t.commit();
+            transaction.commit();
             return true;
           }
           return false;
