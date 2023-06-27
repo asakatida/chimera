@@ -12,7 +12,7 @@ RUN <<SHELL sh
         python3-dev=3.11.4-r0
     apk add --no-cache \
         build-base=0.5-r3 \
-        gdb=13.1-r8 \
+        gdb=13.1-r9 \
         gdbm-dev=1.23-r1 \
         libbz2=1.0.8-r5 \
         libffi-dev=3.4.4-r2 \
