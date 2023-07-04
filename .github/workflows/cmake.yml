@@ -73,6 +73,7 @@ jobs:
             rustup default stable
             cmake -GNinja -B build -S .
             python tools/ninja.py build test
+            python tools/ninja.py build spec
             ccache --cleanup
             ccache --trim-dir .ccache/remote --trim-max-size 600Mi
   libcpp:
@@ -126,6 +127,7 @@ jobs:
             rustup default stable
             cmake -GNinja -B build -S .
             python tools/ninja.py build test
+            python tools/ninja.py build spec
             ccache --cleanup
             ccache --trim-dir .ccache/remote --trim-max-size 600Mi
   scan-build:

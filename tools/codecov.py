@@ -74,7 +74,11 @@ async def codecov(llvm_profile_lcov: str) -> None:
         pass
     llvm_profile_dir.mkdir()
     await ninja("build")
-    await gather(ninja("build", "test"), regression("build"))
+    await gather(
+        ninja("build", "test"),
+        regression("build"),
+        ninja("build", "spec"),
+    )
     llvm_profile_files = filter(Path.is_file, llvm_profile_dir.iterdir())
     await cmd(
         "llvm-profdata",
