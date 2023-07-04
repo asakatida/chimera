@@ -37,7 +37,7 @@ async def ninja(build: object, *args: object) -> None:
     await ninja_cmd(build, "-j3", "chimera", "chimera-core", "libchimera")
     await ninja_cmd(build, "Catch2WithMain")
     await ninja_cmd(build, "-j2", "unit-test", timeout=40 * 60)
-    await ninja_cmd(build, "-j1", "fuzzers")
+    await ninja_cmd(build, "-j1", "fuzzers", timeout=40 * 60)
     await ninja_cmd(build)
     await ninja_cmd(build, *args, timeout=None)
 
