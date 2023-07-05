@@ -30,7 +30,7 @@ async def action(script: str, *args: str) -> None:
     environ["CCACHE_REMOTE_STORAGE"] = (
         f"file:{source / '.ccache' / 'remote'}|update-mtime=true"
     )
-    await cmd("/bin/sh", "-e", "-c", script, *args, out=None, timeout=None)
+    await cmd("/bin/sh", "-e", "-c", script, *args, err=None, out=None, timeout=None)
 
 
 if __name__ == "__main__":
