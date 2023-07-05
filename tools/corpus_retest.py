@@ -38,6 +38,7 @@ SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
 CORPUS_ORIGINAL = FUZZ / "corpus_original"
+CRASHES = FUZZ / "crashes"
 
 
 def fuzz_output_paths(prefix: bytes, output: bytes) -> set[bytes]:
@@ -65,7 +66,7 @@ async def regression_log_one(fuzzer: Path, chunk: list[Path]) -> Exception | Non
                 - fuzz_output_paths(b"Executed", log_output),
             ),
         ):
-            file.unlink(missing_ok=True)
+            file.rename(CRASHES / file.name)
         Path(log_file).unlink(missing_ok=True)
     return None
 
@@ -97,6 +98,7 @@ def rmdir(path: Path) -> None:
 
 
 async def corpus_retest() -> None:
+    CRASHES.mkdir(parents=True, exist_ok=True)
     while await regression_log():
         get_logger().info(
             "Regression failed, retrying with"
