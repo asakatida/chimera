@@ -79,8 +79,7 @@ async def regression_log() -> list[Exception]:
                 map(
                     lambda args: regression_log_one(*args),
                     product(
-                        fuzz_star(),
-                        chunks(filter(Path.is_file, CORPUS.rglob("*")), 4096),
+                        fuzz_star(), chunks(filter(Path.is_file, CORPUS.rglob("*")), 64)
                     ),
                 )
             ),
