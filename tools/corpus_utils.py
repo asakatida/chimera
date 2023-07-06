@@ -244,7 +244,7 @@ async def regression(build: str, fuzzer: str = "", corpus: str = "") -> None:
                     filter(
                         Path.is_file, (Path(corpus) if corpus else CORPUS).rglob("*")
                     ),
-                    1000,
+                    64,
                 ),
             ),
         ),
