@@ -32,10 +32,8 @@ jobs:
                   (
                     (.head_branch == "requirements-txt") or
                     (.head_branch == "utf8-generate-grammar") or
-                    (.head_branch | startswith("corpus-new-")) or
-                    (.head_branch | startswith("corpus-retest-")) or
+                    (.head_branch | startswith("corpus-")) or
                     (.head_branch | startswith("dependabot/")) or
-                    (.head_branch | startswith("gather-")) or
                     (.head_branch | startswith("pin-0."))
                   )
                 )
