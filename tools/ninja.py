@@ -23,17 +23,22 @@
 from asyncio import run
 from sys import argv
 
-from asyncio_cmd import cmd, main
+from asyncio_cmd import ProcessError, cmd, main
+
+
+async def ninja_cmd(build: object, *args: object) -> None:
+    try:
+        await cmd("ninja", "-C", build, "-k0", *args, err=None)
+    except ProcessError:
+        pass
 
 
 async def ninja(build: object, *args: object) -> None:
-    await cmd("ninja", "-C", build, "-j1", "chimera-grammar")
-    await cmd("ninja", "-C", build, "-j3", "chimera", "chimera-core", "libchimera")
-    await cmd("ninja", "-C", build, "Catch2WithMain")
-    await cmd("ninja", "-C", build, "-j2", "unit-test")
-    await cmd("ninja", "-C", build, "-j1", "fuzzers")
-    await cmd("ninja", "-C", build)
-    await cmd("ninja", "-C", build, *args)
+    await ninja_cmd(build, "-j1", "chimera-grammar")
+    await ninja_cmd(build, "chimera-core")
+    await ninja_cmd(build, "-j1", "fuzzers")
+    await ninja_cmd(build)
+    await cmd("ninja", "-C", build, *args, err=None)
 
 
 if __name__ == "__main__":

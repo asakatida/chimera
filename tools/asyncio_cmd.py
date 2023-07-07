@@ -64,9 +64,7 @@ async def cmd_check(*args: object) -> Exception | None:
             *map(str, args), stderr=DEVNULL, stdout=DEVNULL
         )
         await communicate(args, b"", proc)
-    except CancelledError:
-        raise
-    except Exception as error:
+    except ProcessError as error:
         return error
     return None
 

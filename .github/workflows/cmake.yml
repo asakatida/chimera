@@ -39,7 +39,7 @@ jobs:
         uses: ./
         with:
           run: |
-            python tools/ninja.py build -j3 corpus
+            python tools/ninja.py build corpus
             python tools/corpus_retest.py build
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0

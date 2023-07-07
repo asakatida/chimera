@@ -37,7 +37,7 @@
         CMAKE_BUILD_TYPE: MinSizeRel
         CXXFLAGS: "{{ cxxflags }}"
     - name: Build project
-      ansible.builtin.command: ninja -C {{ playbook_dir }}/../{{ item }} -j1 -k0
+      ansible.builtin.command: python3 tools/ninja.py {{ playbook_dir }}/../{{ item }}
       failed_when: false
       loop:
         - build/debug
