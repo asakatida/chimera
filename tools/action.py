@@ -8,7 +8,7 @@ from structlog import get_logger
 
 
 async def pip_install(file: object) -> None:
-    for line in splitlines(await cmd_env("pip", "install", "-r", file, timeout=5 * 60)):
+    for line in splitlines(await cmd_env("pip", "install", "-r", file)):
         if not line.startswith("Requirement already satisfied: "):
             get_logger().info(line)
 
@@ -30,7 +30,7 @@ async def action(script: str, *args: str) -> None:
     environ["CCACHE_REMOTE_STORAGE"] = (
         f"file:{source / '.ccache' / 'remote'}|update-mtime=true"
     )
-    await cmd("/bin/sh", "-e", "-c", script, *args, err=None, out=None, timeout=None)
+    await cmd("/bin/sh", "-e", "-c", script, *args, err=None, out=None)
 
 
 if __name__ == "__main__":

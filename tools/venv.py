@@ -13,13 +13,13 @@ def rmdir(path: Path) -> None:
 
 
 def pip(*args: str, env: dict[str, str]) -> None:
-    run(["env/bin/pip", *args], env=env, timeout=5 * 60)
+    run(["env/bin/pip", *args], env=env)
 
 
 def main() -> None:
     rmdir(Path("env"))
     env: dict[str, str] = {}
-    run([executable, "-m", "venv", "env"], env=env, timeout=10)
+    run([executable, "-m", "venv", "env"], env=env)
     pip("install", "-r", "requirements.core.txt", env=env)
     pip("install", "-r", "requirements.txt", env=env)
 

@@ -1,4 +1,4 @@
-from asyncio import CancelledError, create_subprocess_exec, wait_for
+from asyncio import CancelledError, create_subprocess_exec
 from asyncio.subprocess import DEVNULL, PIPE, Process
 from contextlib import contextmanager
 from itertools import chain, islice, repeat, takewhile
@@ -50,24 +50,20 @@ def splitlines(lines: bytes) -> Iterable[str]:
 
 
 async def cmd(
-    *args: object,
-    err: ProcessInput = PIPE,
-    log: bool = True,
-    out: ProcessInput = PIPE,
-    timeout: int | None = 20,
+    *args: object, err: ProcessInput = PIPE, log: bool = True, out: ProcessInput = PIPE
 ) -> bytes:
     if log:
         get_logger().info(f"+ {' '.join(map(str, args))}")
     proc = await create_subprocess_exec(*map(str, args), stderr=err, stdout=out)
-    return await communicate(args, b"", proc, timeout)
+    return await communicate(args, b"", proc)
 
 
-async def cmd_check(*args: object, timeout: int | None = 20) -> Exception | None:
+async def cmd_check(*args: object) -> Exception | None:
     try:
         proc = await create_subprocess_exec(
             *map(str, args), stderr=DEVNULL, stdout=DEVNULL
         )
-        await communicate(args, b"", proc, timeout)
+        await communicate(args, b"", proc)
     except CancelledError:
         raise
     except Exception as error:
@@ -81,7 +77,6 @@ async def cmd_env(
     err: ProcessInput = PIPE,
     log: bool = True,
     out: ProcessInput = PIPE,
-    timeout: int | None = 20,
 ) -> bytes:
     if log:
         get_logger().info(f"+ {' '.join(map(str, args))}")
@@ -96,30 +91,26 @@ async def cmd_env(
         stderr=err,
         stdout=out,
     )
-    return await communicate(args, b"", proc, timeout)
+    return await communicate(args, b"", proc)
 
 
-async def cmd_flog(
-    *args: object, out: str | None = None, timeout: int | None = 20
-) -> bytes:
+async def cmd_flog(*args: object, out: str | None = None) -> bytes:
     if out is None:
         proc = await create_subprocess_exec(
             *map(str, args), stderr=DEVNULL, stdout=DEVNULL
         )
-        return await communicate(args, b"logs in /dev/null\n", proc, timeout)
+        return await communicate(args, b"logs in /dev/null\n", proc)
     with Path(out).open("ab") as ostream:
         proc = await create_subprocess_exec(
             *map(str, args), stderr=ostream, stdout=ostream
         )
-        return await communicate(args, f"logs in {out}\n".encode(), proc, timeout)
+        return await communicate(args, f"logs in {out}\n".encode(), proc)
 
 
-async def communicate(
-    args: Sequence[object], err: bytes, proc: Process, timeout: int | None
-) -> bytes:
+async def communicate(args: Sequence[object], err: bytes, proc: Process) -> bytes:
     cmd_stderr = cmd_stdout = None
     try:
-        cmd_stdout, cmd_stderr = await wait_for(proc.communicate(), timeout=timeout)
+        cmd_stdout, cmd_stderr = await proc.communicate()
     finally:
         cmd_stdout = cmd_stdout or b""
         cmd_stderr = cmd_stderr or b""
@@ -131,9 +122,6 @@ async def communicate(
                 cmd_stderr += await proc.stderr.read()
             if proc.stdout is not None:
                 cmd_stdout += await proc.stdout.read()
-            cmd_stderr += (
-                f"\nThe process was terminated by timeout {timeout} seconds".encode()
-            )
         if returncode != 0:
             if not isinstance(exc_info()[1], CancelledError):
                 raise ProcessError(args, cmd_stdout, err + cmd_stderr, returncode or 1)

@@ -16,7 +16,6 @@ async def clang_tidy(build: str) -> None:
                 "-quiet",
                 *files,
                 out=None,
-                timeout=None,
             ),
             chunks(await g_ls_tree("cpp"), 6),
         ),

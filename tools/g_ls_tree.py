@@ -17,7 +17,7 @@ SOURCE = Path(__file__).parent.parent.resolve()
 
 
 async def git_cmd(*args: object) -> bytes:
-    return await cmd("git", *args, log=False, timeout=60)
+    return await cmd("git", *args, log=False)
 
 
 async def g_ls_tree(*args: str, exclude: Pattern[str] | None = None) -> list[Path]:
@@ -39,11 +39,7 @@ async def g_ls_tree(*args: str, exclude: Pattern[str] | None = None) -> list[Pat
                         splitlines,
                         await as_completed(
                             map(
-                                lambda args: git_cmd(
-                                    "ls-files",
-                                    "--",
-                                    *args,
-                                ),
+                                lambda args: git_cmd("ls-files", "--", *args),
                                 chunks(rglob, 4096),
                             ),
                             cancel=True,

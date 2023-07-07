@@ -38,10 +38,6 @@ async def git_cmd(*args: object) -> None:
     await cmd("git", *args, log=False, out=DEVNULL)
 
 
-async def git_cmd_remote(*args: object) -> None:
-    await cmd("git", *args, timeout=10 * 60)
-
-
 def last(iterable: Iterable[T]) -> T:
     return deque(iterable, maxlen=1)[0]
 

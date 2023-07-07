@@ -30,7 +30,7 @@ from structlog import get_logger
 
 
 async def git_cmd(*args: object) -> bytes:
-    return await cmd("git", *args, log=False, timeout=60)
+    return await cmd("git", *args, log=False)
 
 
 async def set_upstream(remote_branches: list[str]) -> None:
