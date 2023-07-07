@@ -21,8 +21,10 @@ on:
   pull_request:
     paths:
       - .github/workflows/rust-format.yml
+      - "**/*.rs"
+      - "**/Cargo.lock"
+      - "**/Cargo.toml"
       - action.yml
-      - oxidation/**
       - requirements.core.txt
       - requirements.txt
       - tools/action.py
@@ -34,8 +36,10 @@ on:
       - stable
     paths:
       - .github/workflows/rust-format.yml
+      - "**/*.rs"
+      - "**/Cargo.lock"
+      - "**/Cargo.toml"
       - action.yml
-      - oxidation/**
       - requirements.core.txt
       - requirements.txt
       - tools/action.py
