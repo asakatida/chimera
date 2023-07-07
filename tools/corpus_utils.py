@@ -108,7 +108,6 @@ async def corpus_creations(*paths: str) -> dict[bytes, list[str]]:
                                 "^HEAD",
                                 "--",
                                 *paths,
-                                timeout=60 * 60,
                             )
                         ),
                     ),
@@ -128,7 +127,6 @@ async def corpus_merge(path: Path) -> list[Exception]:
             Path.is_dir,
             chain.from_iterable(map(lambda path: path.rglob("*"), (CORPUS, path))),
         ),
-        timeout=None,
     ):
         return errors
     corpus_trim(disable_bars=True)
@@ -199,18 +197,14 @@ def fuzz_star(build: Path = SOURCE) -> tuple[Path, ...]:
     )
 
 
-async def fuzz_test(*args: object, timeout: int | None) -> list[Exception]:
+async def fuzz_test(*args: object) -> list[Exception]:
     if not fuzz_star():
         raise FileNotFoundError("No fuzz targets built")
     return list(
         filter(
             None,
             await as_completed(
-                map(
-                    lambda cmd, args: cmd_check(cmd, *args, timeout=timeout),
-                    fuzz_star(),
-                    repeat(args),
-                )
+                map(lambda cmd, args: cmd_check(cmd, *args), fuzz_star(), repeat(args))
             ),
         )
     )
@@ -230,7 +224,7 @@ class Increment(Exception):
 
 
 async def regression_one(fuzzer: Path, chunk: list[Path]) -> None:
-    await cmd_flog(fuzzer, *chunk, timeout=None)
+    await cmd_flog(fuzzer, *chunk)
 
 
 async def regression(build: str, fuzzer: str = "", corpus: str = "") -> None:

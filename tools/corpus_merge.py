@@ -24,7 +24,7 @@ from asyncio import run
 from os import environ
 from pathlib import Path
 
-from asyncio_cmd import cmd, main
+from asyncio_cmd import main
 from corpus_utils import corpus_merge, corpus_trim
 from structlog import get_logger
 
@@ -33,10 +33,6 @@ SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
 CORPUS_ORIGINAL = FUZZ / "corpus_original"
-
-
-async def git_cmd(*args: object) -> None:
-    await cmd("git", *args, timeout=10 * 60)
 
 
 def rmdir(path: Path) -> None:

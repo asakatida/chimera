@@ -53,7 +53,7 @@ async def regression_log_one(fuzzer: Path, chunk: list[Path]) -> Exception | Non
     log_file = f"/tmp/{fuzzer.name}-{uuid4().hex}.log"
     Path(log_file).write_bytes(b"")
     try:
-        await cmd_flog(fuzzer, *chunk, out=log_file, timeout=None)
+        await cmd_flog(fuzzer, *chunk, out=log_file)
     except ProcessError as err:
         return err
     finally:

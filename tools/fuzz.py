@@ -21,7 +21,6 @@ async def fuzz(fuzzer: str, dictionary: str, *dirs: str) -> None:
             chain.from_iterable(map(Path.rglob, map(Path, dirs), repeat("*"))),  # type: ignore
         ),
         log=False,
-        timeout=None,
     )
 
 
