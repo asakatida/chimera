@@ -5,13 +5,13 @@ from itertools import chain, islice, repeat, takewhile
 from os import environ
 from pathlib import Path
 from sys import exc_info
-from typing import Iterable, Iterator, Sequence, TextIO, TypeVar
+from typing import Iterable, Iterator, Sequence, TypeVar
 
 from structlog import get_logger
 
 IN_CI = environ.get("CI", "") == "true"
 T = TypeVar("T")
-ProcessInput = int | TextIO | None
+ProcessInput = int | None
 
 
 class ProcessError(Exception):
@@ -50,7 +50,7 @@ def splitlines(lines: bytes) -> Iterable[str]:
 
 
 async def cmd(
-    *args: object, err: ProcessInput = PIPE, log: bool = True, out: ProcessInput = PIPE
+    *args: object, err: ProcessInput = PIPE, log: bool = True, out: ProcessInput = None
 ) -> bytes:
     if log:
         get_logger().info(f"+ {' '.join(map(str, args))}")
@@ -76,7 +76,7 @@ async def cmd_env(
     env: dict[str, object] = {},
     err: ProcessInput = PIPE,
     log: bool = True,
-    out: ProcessInput = PIPE,
+    out: ProcessInput = None,
 ) -> bytes:
     if log:
         get_logger().info(f"+ {' '.join(map(str, args))}")
