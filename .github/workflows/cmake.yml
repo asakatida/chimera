@@ -41,7 +41,7 @@ jobs:
           run: |
             python tools/ninja.py build -j3 corpus
             python tools/corpus_retest.py build
-      - continue-on-error: github.ref != 'refs/heads/stable'
+      - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
           branch: corpus-${{ github.run_id }}
