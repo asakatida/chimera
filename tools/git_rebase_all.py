@@ -21,6 +21,7 @@
 """git_rebase_all.py."""
 
 from asyncio import run
+from asyncio.subprocess import PIPE
 from itertools import combinations
 from sys import argv
 
@@ -29,8 +30,8 @@ from corpus_utils import c_tqdm
 from structlog import get_logger
 
 
-async def git_cmd(*args: object) -> bytes:
-    return await cmd("git", *args, log=False)
+async def git_cmd(*args: object, out: int | None = None) -> bytes:
+    return await cmd("git", *args, out=out, log=False)
 
 
 async def set_upstream(remote_branches: list[str]) -> None:
@@ -86,7 +87,7 @@ async def git_rebase_all(*args: str, disable_bars: bool) -> None:
     remote_branches = list(
         filter(
             lambda branch: not branch.startswith("origin/HEAD -> "),
-            splitlines(await git_cmd("branch", "-r")),
+            splitlines(await git_cmd("branch", "-r", out=PIPE)),
         )
     )
     await set_upstream(remote_branches)
@@ -97,7 +98,7 @@ async def git_rebase_all(*args: str, disable_bars: bool) -> None:
                 if local_branch.startswith("* ")
                 else local_branch
             ),
-            splitlines(await git_cmd("branch")),
+            splitlines(await git_cmd("branch", out=PIPE)),
         )
     )
     for local_branch in c_tqdm(local_branches, "Rebase branches", disable_bars):

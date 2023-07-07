@@ -1,4 +1,5 @@
 from asyncio import run
+from asyncio.subprocess import PIPE
 from itertools import chain
 from re import compile
 from sys import version_info
@@ -11,7 +12,7 @@ from structlog import get_logger
 
 
 async def lint(*args: object) -> bytes:
-    return await cmd(*args, log=False)
+    return await cmd(*args, out=PIPE, log=False)
 
 
 async def black(files: Sequence[object]) -> bytes:

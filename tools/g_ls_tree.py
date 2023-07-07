@@ -3,6 +3,7 @@
 # lists of files to be processed by other tools.
 
 from asyncio import run
+from asyncio.subprocess import PIPE
 from itertools import chain, filterfalse
 from os import environ
 from pathlib import Path
@@ -16,8 +17,8 @@ IN_CI = environ.get("CI", "") == "true"
 SOURCE = Path(__file__).parent.parent.resolve()
 
 
-async def git_cmd(*args: object) -> bytes:
-    return await cmd("git", *args, log=False)
+async def git_cmd(*args: object, out: int | None = None) -> bytes:
+    return await cmd("git", *args, out=out, log=False)
 
 
 async def g_ls_tree(*args: str, exclude: Pattern[str] | None = None) -> list[Path]:
@@ -39,7 +40,7 @@ async def g_ls_tree(*args: str, exclude: Pattern[str] | None = None) -> list[Pat
                         splitlines,
                         await as_completed(
                             map(
-                                lambda args: git_cmd("ls-files", "--", *args),
+                                lambda args: git_cmd("ls-files", "--", *args, out=PIPE),
                                 chunks(rglob, 4096),
                             ),
                             cancel=True,
@@ -66,6 +67,7 @@ async def g_ls_tree(*args: str, exclude: Pattern[str] | None = None) -> list[Pat
                                     environ.get("BASE_COMMIT", "HEAD^"),
                                     "--",
                                     *args,
+                                    out=PIPE,
                                 ),
                                 chunks(CACHE[cache_key], 4096),
                             ),

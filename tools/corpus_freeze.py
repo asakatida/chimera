@@ -107,7 +107,7 @@ async def corpus_freeze(output: str, disable_bars: bool) -> None:
     )
     for key in set(
         map(
-            lambda item: item[0],  # type: ignore
+            lambda item: item[0],
             filter(lambda item: not is_ascii(item[1].encode()), cases.items()),
         )
     ):
