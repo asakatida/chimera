@@ -45,8 +45,8 @@ env \
 
 tools/lint.sh
 
-ninja -C build/debug -j1 -k0 || true
-ninja -C build/release -j1 -k0 || true
+python3 tools/ninja.py build/debug || true
+python3 tools/ninja.py build/release || true
 
 python3 tools/supported_distros.py
 
