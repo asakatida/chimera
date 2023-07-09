@@ -147,33 +147,9 @@ set(
   ${CMAKE_SOURCE_DIR}/external/big-list-of-naughty-strings/blns.json)
 set(CASES_JSON_FILE ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/cases.json)
 
-file(READ ${BLNS_BASE64_JSON_FILE} BLNS_BASE64_JSON)
-file(READ ${BLNS_JSON_FILE} BLNS_JSON)
-
-string(JSON BLNS_BASE64_LEN LENGTH ${BLNS_BASE64_JSON})
-string(APPEND BLNS_BASE64_LEN - 1)
-math(EXPR BLNS_BASE64_LEN ${BLNS_BASE64_LEN})
-string(JSON BLNS_LEN LENGTH ${BLNS_JSON})
-string(APPEND BLNS_LEN - 1)
-math(EXPR BLNS_LEN ${BLNS_LEN})
-
-foreach(IDX RANGE ${BLNS_BASE64_LEN})
-  string(JSON TEST_CPP_DATA GET ${BLNS_BASE64_JSON} ${IDX})
-  string(SHA256 TEST_CPP_HASH "${TEST_CPP_DATA}")
-  set(TEST_CPP ${CMAKE_BINARY_DIR}/generated/fuzz-base64-${TEST_CPP_HASH}.cpp)
-  list(APPEND TESTS_LIST ${TEST_CPP})
-endforeach()
-
-foreach(IDX RANGE ${BLNS_LEN})
-  string(JSON TEST_CPP_DATA GET ${BLNS_JSON} ${IDX})
-  string(SHA256 TEST_CPP_HASH "${TEST_CPP_DATA}")
-  set(TEST_CPP ${CMAKE_BINARY_DIR}/generated/fuzz-blns-${TEST_CPP_HASH}.cpp)
-  list(APPEND TESTS_LIST ${TEST_CPP})
-endforeach()
-
+list(APPEND TESTS_LIST ${CMAKE_BINARY_DIR}/generated/fuzz-base64.cpp)
+list(APPEND TESTS_LIST ${CMAKE_BINARY_DIR}/generated/fuzz-blns.cpp)
 list(APPEND TESTS_LIST ${CMAKE_BINARY_DIR}/generated/fuzz-cases.cpp)
-
-list(REMOVE_DUPLICATES TESTS_LIST)
 
 add_custom_command(
   OUTPUT
