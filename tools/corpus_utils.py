@@ -20,6 +20,7 @@
 
 """corpus_utils.py"""
 
+from asyncio.subprocess import PIPE
 from functools import cache
 from hashlib import sha256
 from itertools import chain, product, repeat
@@ -108,6 +109,7 @@ async def corpus_creations(*paths: str) -> dict[bytes, list[str]]:
                                 "^HEAD",
                                 "--",
                                 *paths,
+                                out=PIPE,
                             )
                         ),
                     ),
