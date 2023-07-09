@@ -21,6 +21,7 @@
 """corpus_freeze.py"""
 
 from asyncio import run
+from asyncio.subprocess import PIPE
 from hashlib import sha256
 from itertools import chain
 from json import dump, load
@@ -40,14 +41,16 @@ async def corpus_changes(cases: dict[str, str], disable_bars: bool) -> list[str]
             lambda file: sha256(file.read_bytes()).hexdigest() not in cases,
             c_tqdm(corpus_ascii(), "ascii", disable_bars),
         )
-        if await cmd("git", "log", "--all", "--oneline", "^HEAD", "--", file, log=False)
+        if await cmd(
+            "git", "log", "--all", "--oneline", "^HEAD", "--", file, log=False, out=PIPE
+        )
     ]
 
 
 async def crash_contents(disable_bars: bool) -> list[bytes]:
     return await as_completed(
         map(
-            lambda sha: cmd("git", "cat-file", "-p", sha, log=False),
+            lambda sha: cmd("git", "cat-file", "-p", sha, log=False, out=PIPE),
             c_tqdm(
                 chain.from_iterable(
                     map(
@@ -76,6 +79,7 @@ async def crash_objects(disable_bars: bool) -> list[list[bytes]]:
                         item[0].decode(),
                         *chunk,
                         log=False,
+                        out=PIPE,
                     ),
                     chunks(item[1], 4096),
                 )
