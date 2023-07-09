@@ -35,7 +35,7 @@ async def codecov(llvm_profile_lcov: str) -> None:
         environ.get(
             "LLVM_PROFILE_FILE",
             Path(environ.get("LLVM_PROFILE_DIR", "/tmp/coverage"))
-            / "llvm-profile.%c%p.profraw",
+            / "llvm-profile.%m.profraw",
         )
     ).resolve()
     environ["LLVM_PROFILE_FILE"] = str(llvm_profile_file)
@@ -66,6 +66,9 @@ async def codecov(llvm_profile_lcov: str) -> None:
                     "-runtime-counter-relocation",
                 )
             ),
+            LDFLAGS=" ".join(
+                ("-Wno-unused-command-line-argument", environ.get("LDFLAGS", ""))
+            ),
         ),
     )
     try:
@@ -75,12 +78,11 @@ async def codecov(llvm_profile_lcov: str) -> None:
     llvm_profile_dir.mkdir()
     await ninja("build")
     await gather(ninja("build", "test"), regression("build"))
-    llvm_profile_files = filter(Path.is_file, llvm_profile_dir.iterdir())
     await cmd(
         "llvm-profdata",
         "merge",
-        "-sparse",
-        *llvm_profile_files,
+        "-sparse=true",
+        *filter(Path.is_file, llvm_profile_dir.iterdir()),
         f"--output={instr_profile}",
     )
     await cmd_flog(
