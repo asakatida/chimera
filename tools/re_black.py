@@ -6,11 +6,9 @@ from g_ls_tree import g_ls_tree
 
 
 async def re_black() -> None:
-    sum(
+    set(
         map(
-            lambda path: path.write_text(
-                sub(r",\s+([\]})])", r"\g<1>", path.read_text())
-            ),
+            lambda path: path.write_text(sub(r",\s+(?=[\]})])", "", path.read_text())),
             await g_ls_tree("py"),
         )
     )
