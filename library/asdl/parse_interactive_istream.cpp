@@ -33,11 +33,9 @@
 #include <string>   // for basic_string
 #include <vector>   // for vector
 
-namespace chimera::library {
-  namespace options {
-    enum class Optimize;
-  } // namespace options
-} // namespace chimera::library
+namespace chimera::library::options {
+  enum class Optimize;
+} // namespace chimera::library::options
 
 namespace chimera::library::asdl {
   Interactive::Interactive(const options::Optimize &optimize,
