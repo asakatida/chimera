@@ -31,10 +31,7 @@ def make_tests(test_cpp: Path, cases: dict[bytes, bytes], prefix: str) -> None:
                 f'TEST_CASE("{prefix} `{test_name}`") {{'
                 f' CHECK_NOTHROW(TestOne("{test_data}")); }}'
             ),
-            map(
-                lambda name: name.replace("\\", r"\\"),
-                map(sanitize, cases.keys()),
-            ),
+            map(lambda name: name.replace("\\", r"\\"), map(sanitize, cases.keys())),
             map(sanitize, cases.values()),
         )
     )
