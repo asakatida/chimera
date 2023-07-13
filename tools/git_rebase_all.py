@@ -23,6 +23,7 @@
 from asyncio import run
 from asyncio.subprocess import PIPE
 from itertools import combinations
+from math import factorial
 from sys import argv
 
 from asyncio_cmd import ProcessError, cmd, cmd_env, main, splitlines
@@ -58,7 +59,10 @@ async def report_branch_graph(
 ) -> None:
     branch_graph: dict[str, set[str]] = dict()
     for left, right in c_tqdm(
-        combinations(local_branches, 2), "Gather common branches", disable_bars
+        combinations(local_branches, 2),
+        "Gather common branches",
+        disable_bars,
+        factorial(len(local_branches)) // 2 // factorial(len(local_branches) - 2),
     ):
         if not await git_diff(left, right):
             continue
