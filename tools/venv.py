@@ -2,14 +2,7 @@ from pathlib import Path
 from subprocess import run
 from sys import executable
 
-
-def rmdir(path: Path) -> None:
-    if path.is_dir():
-        for child in path.iterdir():
-            rmdir(child)
-        path.rmdir()
-    else:
-        path.unlink(missing_ok=True)
+from chimera_utils import rmdir
 
 
 def pip(*args: str, env: dict[str, str]) -> None:

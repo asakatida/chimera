@@ -25,6 +25,7 @@ from os import environ
 from pathlib import Path
 
 from asyncio_cmd import main
+from chimera_utils import rmdir
 from corpus_utils import corpus_merge, corpus_trim
 from structlog import get_logger
 
@@ -33,15 +34,6 @@ SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
 CORPUS_ORIGINAL = FUZZ / "corpus_original"
-
-
-def rmdir(path: Path) -> None:
-    if path.is_dir():
-        for child in path.iterdir():
-            rmdir(child)
-        path.rmdir()
-    else:
-        path.unlink(missing_ok=True)
 
 
 async def corpus_merge_main() -> None:
