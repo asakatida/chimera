@@ -30,6 +30,7 @@ from uuid import uuid4
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError, chunks, cmd_flog, main
+from chimera_utils import rmdir
 from corpus_utils import corpus_merge, corpus_trim, fuzz_star, regression
 from structlog import get_logger
 
@@ -66,7 +67,10 @@ async def regression_log_one(fuzzer: Path, chunk: list[Path]) -> Exception | Non
                 - fuzz_output_paths(b"Executed", log_output),
             ),
         ):
-            file.rename(CRASHES / file.name)
+            try:
+                file.rename(CRASHES / file.name)
+            except FileNotFoundError:
+                pass
         Path(log_file).unlink(missing_ok=True)
     return None
 
@@ -85,15 +89,6 @@ async def regression_log() -> list[Exception]:
             ),
         )
     )
-
-
-def rmdir(path: Path) -> None:
-    if path.is_dir():
-        for child in path.iterdir():
-            rmdir(child)
-        path.rmdir()
-    else:
-        path.unlink(missing_ok=True)
 
 
 async def corpus_retest() -> None:
