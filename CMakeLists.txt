@@ -142,25 +142,19 @@ include(CatchShardTests)
 set(
   BLNS_BASE64_JSON_FILE
   ${CMAKE_SOURCE_DIR}/external/big-list-of-naughty-strings/blns.base64.json)
-set(
-  BLNS_JSON_FILE
-  ${CMAKE_SOURCE_DIR}/external/big-list-of-naughty-strings/blns.json)
 set(CASES_JSON_FILE ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/cases.json)
 
-list(APPEND TESTS_LIST ${CMAKE_BINARY_DIR}/generated/fuzz-base64.cpp)
-list(APPEND TESTS_LIST ${CMAKE_BINARY_DIR}/generated/fuzz-blns.cpp)
-list(APPEND TESTS_LIST ${CMAKE_BINARY_DIR}/generated/fuzz-cases.cpp)
+set(FUZZ_TEST ${CMAKE_BINARY_DIR}/generated/fuzz.cpp)
 
 add_custom_command(
   OUTPUT
-  ${TESTS_LIST}
+  ${FUZZ_TEST}
   COMMAND
-  python tools/generate_fuzz.py ${CMAKE_BINARY_DIR}/generated
+  python tools/generate_fuzz.py ${FUZZ_TEST}
   WORKING_DIRECTORY
   ${CMAKE_SOURCE_DIR}
   DEPENDS
   ${BLNS_BASE64_JSON_FILE}
-  ${BLNS_JSON_FILE}
   ${CASES_JSON_FILE})
 
 add_executable(
@@ -176,7 +170,7 @@ add_executable(
   unit_tests/virtual_machine/parse.cpp
   unit_tests/virtual_machine/trace.cpp
   unit_tests/virtual_machine/virtual_machine.cpp
-  ${TESTS_LIST})
+  ${FUZZ_TEST})
 
 target_include_directories(
   unit-test
