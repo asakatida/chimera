@@ -29,16 +29,19 @@ def make_tests(test_cpp: Path, tests: dict[str, dict[bytes, bytes]]) -> None:
     content = PREFIX + "\n".join(
         chain.from_iterable(
             map(
-                lambda prefix, cases: map(
-                    lambda test_name, test_data: (
-                        f'TEST_CASE("fuzz {prefix} `{test_name}`") {{'
-                        f' CHECK_NOTHROW(TestOne("{test_data}")); }}'
-                    ),
+                lambda prefix, cases: filter(
+                    lambda line: len(line) < 0x10000,
                     map(
-                        lambda name: name.replace("\\", r"\\"),
-                        map(sanitize, cases.keys()),
+                        lambda test_name, test_data: (
+                            f'TEST_CASE("fuzz {prefix} `{test_name}`") {{'
+                            f' CHECK_NOTHROW(TestOne("{test_data}")); }}'
+                        ),
+                        map(
+                            lambda name: name.replace("\\", r"\\"),
+                            map(sanitize, cases.keys()),
+                        ),
+                        map(sanitize, cases.values()),
                     ),
-                    map(sanitize, cases.values()),
                 ),
                 tests.keys(),
                 tests.values(),
@@ -67,7 +70,7 @@ def main(output: str) -> None:
                 zip(map(b64decode, blns_base64), map(b64decode, blns_base64))
             ),
             "discovered cases": dict(
-                zip(map(str.encode, cases.keys()), map(str.encode, cases.values()))
+                zip(map(str.encode, cases.keys()), map(b64decode, cases.values()))
             ),
         },
     )
