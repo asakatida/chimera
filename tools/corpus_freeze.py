@@ -22,6 +22,7 @@
 
 from asyncio import run
 from asyncio.subprocess import PIPE
+from base64 import b64decode, b64encode
 from hashlib import sha256
 from itertools import chain
 from json import dump, load
@@ -30,13 +31,13 @@ from sys import argv
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import chunks, cmd, main, splitlines
-from corpus_ascii import corpus_ascii, is_ascii
-from corpus_utils import c_tqdm, corpus_creations
+from corpus_ascii import corpus_ascii
+from corpus_utils import c_tqdm, corpus_creations, sha
 
 
-async def corpus_changes(cases: dict[str, str], disable_bars: bool) -> list[str]:
+async def corpus_changes(cases: dict[str, str], disable_bars: bool) -> list[bytes]:
     return [
-        file.read_text()
+        file.read_bytes()
         for file in filter(
             lambda file: sha256(file.read_bytes()).hexdigest() not in cases,
             c_tqdm(corpus_ascii(), "ascii", disable_bars),
@@ -96,28 +97,32 @@ async def crash_objects(disable_bars: bool) -> list[list[bytes]]:
 async def corpus_freeze(output: str, disable_bars: bool) -> None:
     file = Path(output)
     with file.open() as istream:
-        cases = dict(load(istream))
+        cases_orig = dict(load(istream))
+    cases = dict(zip(cases_orig.keys(), map(b64decode, cases_orig.values())))
     cases.update(
         map(
-            lambda case: (sha256(case.encode()).hexdigest(), case),
+            lambda case: (sha256(case).hexdigest(), case),
             await corpus_changes(cases, disable_bars),
         )
     )
     cases.update(
         map(
-            lambda case: (sha256(case).hexdigest(), case.decode()),
-            filter(is_ascii, await crash_contents(disable_bars)),
+            lambda case: (sha256(case).hexdigest(), case),
+            await crash_contents(disable_bars),
         )
     )
     for key in set(
-        map(
-            lambda item: item[0],
-            filter(lambda item: not is_ascii(item[1].encode()), cases.items()),
-        )
+        map(sha, filter(Path.is_file, Path("unit_tests/fuzz/crashes").rglob("*")))
     ):
-        del cases[key]
+        try:
+            del cases[key]
+        except KeyError:
+            pass
+    cases_orig = dict(
+        zip(cases.keys(), map(bytes.decode, map(b64encode, cases.values())))
+    )
     with file.open("w") as ostream:
-        dump(cases, ostream, indent=4, sort_keys=True)
+        dump(cases_orig, ostream, indent=4, sort_keys=True)
 
 
 def corpus_freeze_main(output: str) -> None:
