@@ -24,6 +24,7 @@ from asyncio.subprocess import PIPE
 from functools import cache
 from hashlib import sha256
 from itertools import chain, product, repeat
+from os import environ
 from pathlib import Path
 from re import MULTILINE, compile
 from typing import Iterable, TypeVar
@@ -106,7 +107,7 @@ async def corpus_creations(*paths: str) -> dict[bytes, list[str]]:
                                 "--diff-filter=A",
                                 "--name-only",
                                 "--pretty=format:commit:%cd:%h",
-                                "^HEAD",
+                                environ.get("BASE_COMMIT", "^origin/stable"),
                                 "--",
                                 *paths,
                                 out=PIPE,
