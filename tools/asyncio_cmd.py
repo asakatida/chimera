@@ -98,6 +98,7 @@ async def cmd_flog(*args: object, out: str | None = None) -> bytes:
             *map(str, args), stderr=DEVNULL, stdout=DEVNULL
         )
         return await communicate(args, b"logs in /dev/null\n", proc)
+    Path(out).parent.mkdir(parents=True, exist_ok=True)
     with Path(out).open("ab") as ostream:
         proc = await create_subprocess_exec(
             *map(str, args), stderr=ostream, stdout=ostream
