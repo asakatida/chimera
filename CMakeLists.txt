@@ -144,16 +144,23 @@ set(
   ${CMAKE_SOURCE_DIR}/external/big-list-of-naughty-strings/blns.base64.json)
 set(CASES_JSON_FILE ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/cases.json)
 
-set(FUZZ_TEST ${CMAKE_BINARY_DIR}/generated/fuzz.cpp)
+list(APPEND FUZZ_TESTS ${CMAKE_BINARY_DIR}/generated/fuzz-0.cpp)
+list(APPEND FUZZ_TESTS ${CMAKE_BINARY_DIR}/generated/fuzz-1.cpp)
+list(APPEND FUZZ_TESTS ${CMAKE_BINARY_DIR}/generated/fuzz-2.cpp)
+list(APPEND FUZZ_TESTS ${CMAKE_BINARY_DIR}/generated/fuzz-3.cpp)
+list(APPEND FUZZ_TESTS ${CMAKE_BINARY_DIR}/generated/fuzz-4.cpp)
+list(APPEND FUZZ_TESTS ${CMAKE_BINARY_DIR}/generated/fuzz-5.cpp)
+list(APPEND FUZZ_TESTS ${CMAKE_BINARY_DIR}/generated/fuzz-6.cpp)
 
 add_custom_command(
   OUTPUT
-  ${FUZZ_TEST}
+  ${FUZZ_TESTS}
   COMMAND
-  python tools/generate_fuzz.py ${FUZZ_TEST}
+  python tools/generate_fuzz.py ${FUZZ_TESTS}
   WORKING_DIRECTORY
   ${CMAKE_SOURCE_DIR}
   DEPENDS
+  tools/generate_fuzz.py
   ${BLNS_BASE64_JSON_FILE}
   ${CASES_JSON_FILE})
 
@@ -167,10 +174,11 @@ add_executable(
   unit_tests/grammar/number.cpp
   unit_tests/grammar/statement.cpp
   unit_tests/number/number.cpp
+  unit_tests/virtual_machine/fuzz.cpp
   unit_tests/virtual_machine/parse.cpp
   unit_tests/virtual_machine/trace.cpp
   unit_tests/virtual_machine/virtual_machine.cpp
-  ${FUZZ_TEST})
+  ${FUZZ_TESTS})
 
 target_include_directories(
   unit-test
@@ -183,6 +191,7 @@ target_include_directories(
   unit-test
   SYSTEM PUBLIC
   external/Catch/src
+  external/json/include
   external/PEGTL/include
   oxidation)
 

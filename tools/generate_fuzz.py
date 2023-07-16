@@ -1,6 +1,6 @@
-from base64 import b64decode
-from itertools import chain
+from itertools import chain, count, cycle, groupby
 from json import load
+from operator import itemgetter
 from pathlib import Path
 from string import printable, whitespace
 from sys import argv
@@ -9,11 +9,7 @@ PRINTABLE = set(map(ord, set(printable) - set(whitespace) - set('?"\\') | set(" 
 
 PREFIX = """
 #include <catch2/catch_test_macros.hpp>
-
-using namespace std::literals;
-
-void TestOne(std::string_view data);
-
+#include "virtual_machine/fuzz.hpp"
 """
 
 
@@ -25,52 +21,76 @@ def sanitize(data: bytes) -> str:
     )
 
 
-def make_tests(test_cpp: Path, tests: dict[str, dict[bytes, bytes]]) -> None:
-    content = PREFIX + "\n".join(
-        chain.from_iterable(
-            map(
-                lambda prefix, cases: filter(
-                    lambda line: len(line) < 0x10000,
+def make_tests(test_cpps: list[Path], tests: dict[str, dict[bytes, str]]) -> None:
+    for test_cpp, test_cases in groupby(
+        sorted(
+            zip(
+                cycle(test_cpps),
+                chain.from_iterable(
                     map(
-                        lambda test_name, test_data: (
-                            f'TEST_CASE("fuzz {prefix} `{test_name}`") {{'
-                            f' CHECK_NOTHROW(TestOne("{test_data}")); }}'
+                        lambda prefix, cases: map(
+                            lambda test_name, test_data: (
+                                f'TEST_CASE("fuzz {prefix} `{test_name}`") {{'
+                                f" CHECK_NOTHROW(TestOne({test_data})); }}"
+                            ),
+                            map(
+                                lambda name: name.replace("\\", r"\\"),
+                                map(sanitize, cases.keys()),
+                            ),
+                            cases.values(),
                         ),
-                        map(
-                            lambda name: name.replace("\\", r"\\"),
-                            map(sanitize, cases.keys()),
-                        ),
-                        map(sanitize, cases.values()),
-                    ),
+                        tests.keys(),
+                        tests.values(),
+                    )
                 ),
-                tests.keys(),
-                tests.values(),
             )
-        )
-    )
-    if test_cpp.exists() and test_cpp.read_text() == content:
-        return
-    test_cpp.write_text(content)
+        ),
+        itemgetter(0),
+    ):
+        content = PREFIX + "\n".join(map(itemgetter(1), test_cases))
+        if test_cpp.exists() and test_cpp.read_text() == content:
+            continue
+        test_cpp.write_text(content)
 
 
-def main(output: str) -> None:
-    with Path(
+def main(*outputs: str) -> None:
+    blns_base64_file = Path(
         "external/big-list-of-naughty-strings/blns.base64.json"
-    ).open() as istream:
+    ).resolve()
+    cases_file = Path("unit_tests/fuzz/cases.json").resolve()
+    with blns_base64_file.open() as istream:
         blns_base64 = load(istream)
-    with Path("unit_tests/fuzz/cases.json").open() as istream:
+    with cases_file.open() as istream:
         cases = load(istream)
     make_tests(
-        Path(output),
+        list(map(Path, outputs)),
         {
             "big list of nasty strings base64": dict(
-                zip(map(str.encode, blns_base64), map(str.encode, blns_base64))
+                zip(
+                    map(str.encode, blns_base64),
+                    map(
+                        lambda idx: f'json_from_file("{blns_base64_file}")[{idx}].as<std::string>()',
+                        count(),
+                    ),
+                )
             ),
             "big list of nasty strings": dict(
-                zip(map(b64decode, blns_base64), map(b64decode, blns_base64))
+                zip(
+                    map(str.encode, blns_base64),
+                    map(
+                        lambda idx: f'base64_decode(json_from_file("{blns_base64_file}")[{idx}].as<std::string>())',
+                        count(),
+                    ),
+                )
             ),
             "discovered cases": dict(
-                zip(map(str.encode, cases.keys()), map(b64decode, cases.values()))
+                zip(
+                    map(str.encode, cases.keys()),
+                    map(
+                        lambda key: f'base64_decode(json_from_file("{cases_file}")["{key}"].as<std::string>())',
+                        cases.keys(),
+                    ),
+                )
             ),
         },
     )

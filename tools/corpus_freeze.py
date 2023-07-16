@@ -104,6 +104,7 @@ async def crash_objects(disable_bars: bool) -> list[list[bytes]]:
 
 
 async def corpus_freeze(output: str, disable_bars: bool) -> None:
+    await cmd("git", "fetch")
     file = Path(output)
     with file.open() as istream:
         cases_orig = dict(load(istream))
