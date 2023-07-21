@@ -1,5 +1,5 @@
 ansible==8.2.0
-ansible-compat==4.1.2
+ansible-compat==4.1.5
 ansible-core==2.15.2
 ansible-lint==6.17.2
 attrs==23.1.0
@@ -46,12 +46,12 @@ structlog==23.1.0
 subprocess-tee==0.4.1
 tomli==2.0.1
 tqdm==4.65.0
-types-PyYAML==6.0.12.10
-types-requests==2.31.0.1
-types-tqdm==4.65.0.1
-types-urllib3==1.26.25.13
+types-PyYAML==6.0.12.11
+types-requests==2.31.0.2
+types-tqdm==4.65.0.2
+types-urllib3==1.26.25.14
 typing_extensions==4.7.1
-urllib3==2.0.3
+urllib3==2.0.4
 wcmatch==8.4.1
 websocket-client==1.6.1
 yamllint==1.32.0
