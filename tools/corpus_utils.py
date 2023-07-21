@@ -160,17 +160,14 @@ def corpus_trim_one(fuzz: Iterable[Path], disable_bars: bool) -> None:
         new_file = bucket(file) / sha_bucket / name
         new_file.parent.mkdir(parents=True, exist_ok=True)
         file.rename(new_file)
-    for file in filter(
-        Path.exists,
+    for file in map(
+        CORPUS.joinpath,
         map(
-            CRASHES.joinpath,
-            map(
-                lambda path: path.relative_to(bucket(path)),
-                filter(Path.is_file, CORPUS.rglob("*")),
-            ),
+            lambda path: path.relative_to(bucket(path)),
+            filter(Path.is_file, CRASHES.rglob("*")),
         ),
     ):
-        file.unlink()
+        file.unlink(missing_ok=True)
 
 
 def corpus_trim(disable_bars: bool = False) -> None:
