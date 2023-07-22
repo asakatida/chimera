@@ -106,6 +106,17 @@ async def git_rebase_all(*args: str, disable_bars: bool) -> None:
         )
     )
     for local_branch in c_tqdm(local_branches, "Rebase branches", disable_bars):
+        if (
+            await git_cmd(
+                "rev-list",
+                "--cherry-pick",
+                "--count",
+                "--right-only",
+                f"{local_branch}...origin/stable",
+                out=PIPE,
+            )
+        ).strip() == "0":
+            continue
         try:
             await cmd("git", "rebase", "origin/stable", local_branch, log=False)
             continue
