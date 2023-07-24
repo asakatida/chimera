@@ -21,13 +21,13 @@
 """corpus_gather.py"""
 
 from asyncio import run
-from asyncio.subprocess import DEVNULL
+from asyncio.subprocess import DEVNULL, PIPE
 from collections import deque
 from sys import argv
 from typing import Iterable, TypeVar
 
 from asyncio_as_completed import as_completed
-from asyncio_cmd import ProcessError, chunks, cmd, cmd_check, main, splitlines
+from asyncio_cmd import ProcessError, chunks, cmd, main, splitlines
 from corpus_utils import corpus_creations, corpus_trim
 from tqdm import tqdm
 
@@ -51,12 +51,11 @@ async def git_restore(sha: str, *paths: object) -> None:
     corpus_trim(disable_bars=True)
     deleted = tuple(
         map(
-            lambda line: line[-1],
-            map(
-                str.split,
-                filter(
-                    lambda line: line.startswith(" D "),
-                    splitlines(await cmd("git", "status", "--porcelain", log=False)),
+            lambda line: line.split(maxsplit=1)[-1].strip(),
+            filter(
+                lambda line: line.startswith(" D "),
+                splitlines(
+                    await cmd("git", "status", "--porcelain", out=PIPE, log=False)
                 ),
             ),
         )
@@ -74,16 +73,12 @@ async def corpus_gather(*paths: str, disable_bars: bool) -> None:
         (await corpus_creations(*paths)).items(), desc="Commits", disable=disable_bars
     ):
         await git_restore(sha.decode(), *files)
+        corpus_trim(disable_bars=True)
 
 
 async def corpus_gather_stable(disable_bars: bool) -> None:
     path = "unit_tests/fuzz/corpus"
-    await git_cmd("config", "--local", "user.email", "email")
-    await git_cmd("config", "--local", "user.name", "name")
     await corpus_gather(path, disable_bars=disable_bars)
-    for opt in ("--global", "--local", "--system", "--worktree"):
-        await cmd_check("git", "config", opt, "--unset-all", "user.email")
-        await cmd_check("git", "config", opt, "--unset-all", "user.name")
     corpus_trim(disable_bars=disable_bars)
 
 
