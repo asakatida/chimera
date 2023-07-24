@@ -26,11 +26,18 @@ jobs:
             python tools/ninja.py build
             ccache --cleanup
             ccache --trim-dir .ccache/remote --trim-max-size 600Mi
+      - env:
+          BASE_COMMIT: HEAD
+        name: Corpus freeze
+        uses: ./
+        with:
+          run: |
+            git fetch
+            python tools/corpus_freeze.py unit_tests/fuzz/cases.json
       - name: Corpus recheck
         uses: ./
         with:
           run: |
-            python tools/corpus_freeze.py unit_tests/fuzz/cases.json
             python tools/crash_reset.py
             python tools/corpus_gather.py ${{ github.ref }}
             python tools/corpus_retest.py build

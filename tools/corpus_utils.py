@@ -76,6 +76,7 @@ def conflicts(fuzz: Iterable[Path]) -> None:
 
 
 async def corpus_creations(*paths: str) -> dict[bytes, list[str]]:
+    base_commit = environ.get("BASE_COMMIT", "^origin/stable")
     return dict(
         map(
             lambda pair: pair[1:],
@@ -102,12 +103,12 @@ async def corpus_creations(*paths: str) -> dict[bytes, list[str]]:
                             await cmd(
                                 "git",
                                 "log",
-                                "--all",
+                                *("--all",) if base_commit.startswith("^") else (),
                                 "--date=iso",
                                 "--diff-filter=A",
                                 "--name-only",
                                 "--pretty=format:commit:%cd:%h",
-                                environ.get("BASE_COMMIT", "^origin/stable"),
+                                base_commit,
                                 "--",
                                 *paths,
                                 out=PIPE,
