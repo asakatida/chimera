@@ -26,7 +26,6 @@ from base64 import b64decode, b64encode
 from hashlib import sha256
 from itertools import chain
 from json import dump, load
-from os import environ
 from pathlib import Path
 from sys import argv
 

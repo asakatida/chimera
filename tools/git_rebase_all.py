@@ -115,7 +115,7 @@ async def git_rebase_all(*args: str, disable_bars: bool) -> None:
                 f"{local_branch}...origin/stable",
                 out=PIPE,
             )
-        ).strip() == "0":
+        ).strip() == b"0":
             continue
         try:
             await cmd("git", "rebase", "origin/stable", local_branch, log=False)
