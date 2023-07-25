@@ -30,7 +30,7 @@
             }
         }
     },
-    "image": "ghcr.io/asakatida/chimera:0.358.0",
+    "image": "ghcr.io/asakatida/chimera:0.359.0",
     "name": "chimera",
     "postAttachCommand": [
         "/opt/virtualenv/bin/ansible-playbook",
