@@ -145,15 +145,12 @@ set(
   ${CMAKE_SOURCE_DIR}/external/big-list-of-naughty-strings/blns.base64.json)
 set(CASES_JSON_FILE ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/cases.json)
 
-set(
-  FUZZ_TESTS
-  ${CMAKE_BINARY_DIR}/generated/fuzz-0.cpp
-  ${CMAKE_BINARY_DIR}/generated/fuzz-1.cpp
-  ${CMAKE_BINARY_DIR}/generated/fuzz-2.cpp
-  ${CMAKE_BINARY_DIR}/generated/fuzz-3.cpp
-  ${CMAKE_BINARY_DIR}/generated/fuzz-4.cpp
-  ${CMAKE_BINARY_DIR}/generated/fuzz-5.cpp
-  ${CMAKE_BINARY_DIR}/generated/fuzz-6.cpp)
+foreach(FUZZ_TESTS_IDX RANGE 60)
+  list(
+    APPEND
+    FUZZ_TESTS
+    ${CMAKE_BINARY_DIR}/generated/fuzz-${FUZZ_TESTS_IDX}.cpp)
+endforeach()
 
 add_custom_command(
   OUTPUT
