@@ -48,6 +48,12 @@ jobs:
           run: |
             python tools/ninja.py build corpus
             python tools/corpus_retest.py build
+      - name: Corpus baseline
+        uses: ./
+        with:
+          run: |
+            git restore --source origin/stable --staged unit_tests/fuzz/corpus
+            git restore --worktree unit_tests/fuzz/corpus
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
