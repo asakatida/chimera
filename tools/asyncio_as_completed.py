@@ -1,6 +1,7 @@
-from asyncio import FIRST_COMPLETED, Task, create_task, wait
+from asyncio import FIRST_COMPLETED, CancelledError, Task, create_task, wait
 from itertools import repeat
 from os import cpu_count
+from sys import exc_info
 from typing import Coroutine, Iterable, Iterator, TypeVar
 
 T = TypeVar("T")
@@ -9,6 +10,7 @@ DEFAULT_LIMIT = max(cpu_count() or 0, 1) * 3
 
 
 async def _list(iter: Iterator[Task[T]], cancel: bool) -> list[T]:
+    canceled: CancelledError | None = None
     try:
         return [await task for task in iter]
     finally:
@@ -23,6 +25,10 @@ async def _list(iter: Iterator[Task[T]], cancel: bool) -> list[T]:
                 await task
             except Exception:
                 pass
+            except CancelledError as error:
+                canceled = error
+        if exc_info()[1] is None and canceled:
+            raise canceled
 
 
 async def _next(background_tasks: set[Task[T]], coroutine: Task[T]) -> T:
