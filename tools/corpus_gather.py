@@ -28,8 +28,7 @@ from typing import Iterable, TypeVar
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError, chunks, cmd, main, splitlines
-from corpus_utils import corpus_creations, corpus_trim
-from tqdm import tqdm
+from corpus_utils import c_tqdm, corpus_creations, corpus_trim
 
 T = TypeVar("T")
 
@@ -69,9 +68,7 @@ async def git_restore(sha: str, *paths: object) -> None:
 
 
 async def corpus_gather(*paths: str, disable_bars: bool) -> None:
-    for sha, files in tqdm(
-        (await corpus_creations(*paths)).items(), desc="Commits", disable=disable_bars
-    ):
+    for sha, files in c_tqdm(await corpus_creations(*paths), "Commits", disable_bars):
         await git_restore(sha.decode(), *files)
         corpus_trim(disable_bars=True)
 

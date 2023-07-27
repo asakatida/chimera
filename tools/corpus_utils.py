@@ -75,49 +75,39 @@ def conflicts(fuzz: Iterable[Path]) -> None:
     )
 
 
-async def corpus_creations(*paths: str) -> dict[bytes, list[str]]:
+async def corpus_creations(*paths: str) -> Iterable[tuple[bytes, list[str]]]:
     base_commit = environ.get("BASE_COMMIT", "^origin/stable")
-    return dict(
+    return filter(
+        lambda pair: pair[1],
         map(
-            lambda pair: pair[1:],
-            sorted(
-                filter(
-                    lambda pair: pair[2],
-                    map(
-                        lambda match: (
-                            match["date"],
-                            match["sha"],
-                            list(
-                                filter(
-                                    lambda line: any(
-                                        map(lambda path: path in line, paths)  # type: ignore
-                                    )
-                                    and not Path(line).exists(),  # type: ignore
-                                    splitlines(match["paths"]),
-                                )
-                            ),
-                        ),
-                        compile(
-                            rb"commit:(?P<date>.+):(?P<sha>.+)(?P<paths>(?:\s+(?!commit:).+)+)"
-                        ).finditer(
-                            await cmd(
-                                "git",
-                                "log",
-                                *("--all",) if base_commit.startswith("^") else (),
-                                "--date=iso",
-                                "--diff-filter=A",
-                                "--name-only",
-                                "--pretty=format:commit:%cd:%h",
-                                base_commit,
-                                "--",
-                                *paths,
-                                out=PIPE,
-                            )
-                        ),
-                    ),
+            lambda match: (
+                match["sha"],
+                list(
+                    filter(
+                        lambda line: any(
+                            map(lambda path: path in line, paths)  # type: ignore
+                        )
+                        and not Path(line).exists(),  # type: ignore
+                        splitlines(match["paths"]),
+                    )
+                ),
+            ),
+            compile(rb"commit:.+:(?P<sha>.+)(?P<paths>(?:\s+(?!commit:).+)+)").finditer(
+                await cmd(
+                    "git",
+                    "log",
+                    *("--all",) if base_commit.startswith("^") else (),
+                    "--date=iso",
+                    "--diff-filter=A",
+                    "--name-only",
+                    "--pretty=format:commit:%cd:%h",
+                    base_commit,
+                    "--",
+                    *paths,
+                    out=PIPE,
                 )
             ),
-        )
+        ),
     )
 
 

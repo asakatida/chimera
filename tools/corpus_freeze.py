@@ -43,15 +43,7 @@ async def corpus_changes(cases: dict[str, str], disable_bars: bool) -> list[byte
             c_tqdm(corpus_ascii(), "ascii", disable_bars),
         )
         if await cmd(
-            "git",
-            "log",
-            "--all",
-            "--oneline",
-            "^HEAD",
-            "--",
-            file,
-            log=False,
-            out=PIPE,
+            "git", "log", "--all", "--oneline", "^HEAD", "--", file, log=False, out=PIPE
         )
     ]
 
@@ -94,7 +86,7 @@ async def crash_objects(disable_bars: bool) -> list[list[bytes]]:
                 )
             ),
             c_tqdm(
-                (await corpus_creations("unit_tests/fuzz/crashes")).items(),
+                await corpus_creations("unit_tests/fuzz/crashes"),
                 "Commits",
                 disable_bars,
             ),
