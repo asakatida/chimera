@@ -55,7 +55,7 @@ async def git_diff(*args: str) -> bool:
 
 
 async def report_branch_graph(
-    remote_branches: list[str], local_branches: list[str], disable_bars: bool
+    remote_branches: list[str], local_branches: list[str], disable_bars: bool | None
 ) -> None:
     branch_graph: dict[str, set[str]] = dict()
     for left, right in c_tqdm(
@@ -86,7 +86,7 @@ async def report_branch_graph(
         get_logger().info(f"{remote} -> {' '.join(sorted(branches))}")
 
 
-async def git_rebase_all(*args: str, disable_bars: bool) -> None:
+async def git_rebase_all(*args: str, disable_bars: bool | None) -> None:
     await git_cmd("fetch", "--all", "--prune")
     remote_branches = list(
         filter(
@@ -140,4 +140,4 @@ async def git_rebase_all(*args: str, disable_bars: bool) -> None:
 
 if __name__ == "__main__":
     with main():
-        run(git_rebase_all(*argv[1:], disable_bars=False))
+        run(git_rebase_all(*argv[1:], disable_bars=None))

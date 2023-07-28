@@ -67,21 +67,21 @@ async def git_restore(sha: str, *paths: object) -> None:
         )
 
 
-async def corpus_gather(*paths: str, disable_bars: bool) -> None:
+async def corpus_gather(*paths: str, disable_bars: bool | None) -> None:
     for sha, files in c_tqdm(await corpus_creations(*paths), "Commits", disable_bars):
         await git_restore(sha.decode(), *files)
         corpus_trim(disable_bars=True)
 
 
-async def corpus_gather_stable(disable_bars: bool) -> None:
+async def corpus_gather_stable(disable_bars: bool | None) -> None:
     path = "unit_tests/fuzz/corpus"
-    await corpus_gather(path, disable_bars=disable_bars)
+    await corpus_gather(path, disable_bars=False)
     corpus_trim(disable_bars=disable_bars)
 
 
 def corpus_gather_main(ref: str) -> None:
     if ref == "refs/heads/stable":
-        run(corpus_gather_stable(disable_bars=False))
+        run(corpus_gather_stable(disable_bars=None))
 
 
 if __name__ == "__main__":

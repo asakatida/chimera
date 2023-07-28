@@ -21,15 +21,13 @@
 """corpus_merge.py"""
 
 from asyncio import run
-from os import environ
 from pathlib import Path
 
 from asyncio_cmd import main
-from chimera_utils import rmdir
+from chimera_utils import IN_CI, rmdir
 from corpus_utils import corpus_merge, corpus_trim
 from structlog import get_logger
 
-IN_CI = environ.get("CI", "") == "true"
 SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
@@ -48,7 +46,7 @@ async def corpus_merge_main() -> None:
             for error in errors:
                 get_logger().error(f"Extra Error: {error}")
         raise error
-    corpus_trim(disable_bars=False)
+    corpus_trim(disable_bars=None)
 
 
 if __name__ == "__main__":

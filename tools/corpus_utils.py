@@ -31,6 +31,7 @@ from typing import Iterable, TypeVar
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import chunks, cmd, cmd_check, cmd_flog, splitlines
+from chimera_utils import IN_CI
 from tqdm import tqdm
 
 CONFLICT = compile(rb"^(?:(?:<{7,8}|>{7,8})(?:\s.+)?|={7,8})$\s?", MULTILINE)
@@ -50,8 +51,10 @@ def bucket(path: Path) -> Path:
 
 
 def c_tqdm(
-    iterable: Iterable[T], desc: str, disable: bool, total: float | None = None
+    iterable: Iterable[T], desc: str, disable: bool | None, total: float | None = None
 ) -> Iterable[T]:
+    if IN_CI and disable is not False:
+        return iterable
     return tqdm(iterable, desc=desc, disable=disable, total=total, unit_scale=True)
 
 
@@ -127,7 +130,7 @@ async def corpus_merge(path: Path) -> list[Exception]:
     return []
 
 
-def corpus_trim_one(fuzz: Iterable[Path], disable_bars: bool) -> None:
+def corpus_trim_one(fuzz: Iterable[Path], disable_bars: bool | None) -> None:
     global LENGTH
     for file in c_tqdm(fuzz, "Corpus rehash", disable_bars):
         src_sha = sha(file)
@@ -161,7 +164,7 @@ def corpus_trim_one(fuzz: Iterable[Path], disable_bars: bool) -> None:
         file.unlink(missing_ok=True)
 
 
-def corpus_trim(disable_bars: bool = False) -> None:
+def corpus_trim(disable_bars: bool | None) -> None:
     conflicts(gather_paths())
     CRASHES.mkdir(parents=True, exist_ok=True)
     for file in chain.from_iterable(
