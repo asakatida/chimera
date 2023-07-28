@@ -7,9 +7,9 @@ from pathlib import Path
 from sys import exc_info
 from typing import Iterable, Iterator, Sequence, TypeVar
 
+from chimera_utils import IN_CI
 from structlog import get_logger
 
-IN_CI = environ.get("CI", "") == "true"
 T = TypeVar("T")
 ProcessInput = int | None
 

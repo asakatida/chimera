@@ -22,7 +22,6 @@
 
 from asyncio import run
 from itertools import product
-from os import environ
 from pathlib import Path
 from re import escape, finditer
 from sys import argv
@@ -30,11 +29,10 @@ from uuid import uuid4
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError, chunks, cmd_flog, main
-from chimera_utils import rmdir
+from chimera_utils import IN_CI, rmdir
 from corpus_utils import corpus_merge, corpus_trim, fuzz_star, regression
 from structlog import get_logger
 
-IN_CI = environ.get("CI", "") == "true"
 SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
@@ -112,9 +110,9 @@ async def corpus_retest() -> None:
 
 
 async def corpus_retest_main(build: str) -> None:
-    corpus_trim(disable_bars=False)
+    corpus_trim(disable_bars=None)
     await corpus_retest()
-    corpus_trim(disable_bars=False)
+    corpus_trim(disable_bars=None)
     await regression(build)
 
 

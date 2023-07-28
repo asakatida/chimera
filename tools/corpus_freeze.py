@@ -36,7 +36,7 @@ from corpus_ascii import corpus_ascii
 from corpus_utils import c_tqdm, corpus_creations, sha
 
 
-async def corpus_changes(disable_bars: bool) -> Iterable[bytes]:
+async def corpus_changes(disable_bars: bool | None) -> Iterable[bytes]:
     return map(
         Path.read_bytes,
         [
@@ -57,7 +57,7 @@ async def corpus_changes(disable_bars: bool) -> Iterable[bytes]:
     )
 
 
-async def crash_contents(disable_bars: bool) -> list[bytes]:
+async def crash_contents(disable_bars: bool | None) -> list[bytes]:
     return await as_completed(
         map(
             lambda sha: cmd("git", "cat-file", "-p", sha, log=False, out=PIPE),
@@ -75,7 +75,7 @@ async def crash_contents(disable_bars: bool) -> list[bytes]:
     )
 
 
-async def crash_objects(disable_bars: bool) -> list[list[bytes]]:
+async def crash_objects(disable_bars: bool | None) -> list[list[bytes]]:
     return await as_completed(
         map(
             lambda item: as_completed(
@@ -103,7 +103,7 @@ async def crash_objects(disable_bars: bool) -> list[list[bytes]]:
     )
 
 
-async def corpus_freeze(output: str, disable_bars: bool) -> None:
+async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
     file = Path(output)
     with file.open() as istream:
         cases_orig = dict(load(istream))
@@ -135,7 +135,7 @@ async def corpus_freeze(output: str, disable_bars: bool) -> None:
 
 
 def corpus_freeze_main(output: str) -> None:
-    run(corpus_freeze(output, disable_bars=False))
+    run(corpus_freeze(output, disable_bars=None))
 
 
 if __name__ == "__main__":

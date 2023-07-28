@@ -26,4 +26,4 @@ from corpus_utils import corpus_trim
 
 if __name__ == "__main__":
     with main():
-        corpus_trim(disable_bars=False)
+        corpus_trim(disable_bars=None)

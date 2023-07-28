@@ -11,9 +11,9 @@ from typing import Pattern
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import chunks, cmd, main, splitlines
+from chimera_utils import IN_CI
 
 CACHE: dict[str, list[Path]] = {}
-IN_CI = environ.get("CI", "") == "true"
 SOURCE = Path(__file__).parent.parent.resolve()
 
 
