@@ -76,7 +76,7 @@ on:
       - .dockerignore
       - .github/workflows/release.yml
       - Dockerfile*
-      - requirements.core.txt
+      - tools/requirements.txt
       - requirements.txt
       - tools/boot.yml
   push:
@@ -86,7 +86,7 @@ on:
       - .dockerignore
       - .github/workflows/release.yml
       - Dockerfile*
-      - requirements.core.txt
+      - tools/requirements.txt
       - requirements.txt
       - tools/boot.yml
   schedule:

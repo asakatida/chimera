@@ -10,7 +10,7 @@ jobs:
       - name: Freeze dependencies
         run: |
           python3 -m venv env
-          env/bin/pip install -r requirements.core.txt
+          env/bin/pip install -r tools/requirements.txt
           env/bin/pip install -r requirements.txt
           env/bin/pip list --format freeze --not-required | \
             grep -v -e '^pkg_resources==' | \
@@ -18,7 +18,7 @@ jobs:
           rm -rf env
           python3 -m venv env
           env/bin/pip install --upgrade pip setuptools wheel
-          env/bin/pip list --format freeze >requirements.core.txt
+          env/bin/pip list --format freeze >tools/requirements.txt
           env/bin/pip install -r requirements.txt
           env/bin/pip freeze | grep -v -e '^pkg_resources==' >requirements.txt
         working-directory: ${{ github.workspace }}
@@ -39,7 +39,7 @@ on:
     paths:
       - .github/workflows/requirements-txt.yml
       - action.yml
-      - requirements.core.txt
+      - tools/requirements.txt
       - requirements.txt
       - tools/action.py
       - tools/asyncio_cmd.py
@@ -49,7 +49,7 @@ on:
     paths:
       - .github/workflows/requirements-txt.yml
       - action.yml
-      - requirements.core.txt
+      - tools/requirements.txt
       - requirements.txt
       - tools/action.py
       - tools/asyncio_cmd.py

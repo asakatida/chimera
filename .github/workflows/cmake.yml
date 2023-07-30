@@ -182,7 +182,7 @@ on:
       - CMakeLists.txt
       - external/**
       - oxidation/**
-      - requirements.core.txt
+      - tools/requirements.txt
       - requirements.txt
       - unit_tests/fuzz/cases.json
   push:
@@ -200,7 +200,7 @@ on:
       - CMakeLists.txt
       - external/**
       - oxidation/**
-      - requirements.core.txt
+      - tools/requirements.txt
       - requirements.txt
       - unit_tests/fuzz/cases.json
   workflow_dispatch: ~

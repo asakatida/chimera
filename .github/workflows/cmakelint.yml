@@ -23,7 +23,7 @@ on:
       - action.yml
       - cmake/**
       - CMakeLists.txt
-      - requirements.core.txt
+      - tools/requirements.txt
       - requirements.txt
       - tools/action.py
       - tools/asyncio_cmd.py
@@ -36,7 +36,7 @@ on:
       - action.yml
       - cmake/**
       - CMakeLists.txt
-      - requirements.core.txt
+      - tools/requirements.txt
       - requirements.txt
       - tools/action.py
       - tools/asyncio_cmd.py

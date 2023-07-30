@@ -421,7 +421,7 @@
             - name: Setup Python virtualenv
               ansible.builtin.pip:
                 chdir: /tmp
-                requirements: requirements.core.txt
+                requirements: tools/requirements.txt
                 virtualenv_command: "{{ item.python }} -m venv"
                 virtualenv: "{{ item.venv }}"
               with_items: "{{ pythons }}"

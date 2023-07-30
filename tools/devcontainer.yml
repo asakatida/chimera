@@ -5,7 +5,7 @@
   tasks:
     - name: Install core packages
       ansible.builtin.pip:
-        requirements: "{{ playbook_dir }}/../requirements.core.txt"
+        requirements: "{{ playbook_dir }}/../tools/requirements.txt"
         state: present
     - name: Install packages
       ansible.builtin.pip:

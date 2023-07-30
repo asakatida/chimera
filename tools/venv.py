@@ -13,7 +13,7 @@ def main(venv: str = "env") -> None:
     rmdir(Path(venv))
     env: dict[str, str] = {}
     run([executable, "-m", "venv", venv], env=env)
-    pip(venv, "install", "-r", "requirements.core.txt", env=env)
+    pip(venv, "install", "-r", "tools/requirements.txt", env=env)
     pip(venv, "install", "-r", "requirements.txt", env=env)
 
 
