@@ -22,7 +22,7 @@ async def action(script: str, *args: str) -> None:
             environ["PATH"],
         )
     )
-    await pip_install("requirements.core.txt")
+    await pip_install("tools/requirements.txt")
     await pip_install("requirements.txt")
     source = Path(__file__).parent.parent.resolve()
     environ["CCACHE_CONFIGPATH"] = str(source / ".github" / "ccache" / "ccache.conf")

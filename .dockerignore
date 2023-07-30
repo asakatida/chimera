@@ -1,4 +1,4 @@
 *
 !requirements.txt
-!requirements.core.txt
+!tools/requirements.txt
 !tools/boot.yml

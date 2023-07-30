@@ -34,7 +34,7 @@ on:
     paths:
       - .github/workflows/utf8-generate.yml
       - action.yml
-      - requirements.core.txt
+      - tools/requirements.txt
       - requirements.txt
       - tools/action.py
       - tools/asyncio_as_completed.py
@@ -47,7 +47,7 @@ on:
     paths:
       - .github/workflows/utf8-generate.yml
       - action.yml
-      - requirements.core.txt
+      - tools/requirements.txt
       - requirements.txt
       - tools/action.py
       - tools/asyncio_as_completed.py

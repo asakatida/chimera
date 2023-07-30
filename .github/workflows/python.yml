@@ -27,7 +27,7 @@ on:
       - .github/workflows/python.yml
       - "**.py"
       - action.yml
-      - requirements.core.txt
+      - tools/requirements.txt
       - requirements.txt
       - setup.cfg
   push:
@@ -37,7 +37,7 @@ on:
       - .github/workflows/python.yml
       - "**.py"
       - action.yml
-      - requirements.core.txt
+      - tools/requirements.txt
       - requirements.txt
       - setup.cfg
   workflow_dispatch: ~
