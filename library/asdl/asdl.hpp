@@ -62,13 +62,12 @@ namespace chimera::library::asdl {
       Impl() = default;
       template <typename Type,
                 typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
-      // NOLINTNEXTLINE(hicpp-explicit-conversions)
       Impl(Type &&type)
-          : value(std::make_shared<ValueT>(ValueT(std::forward<Type>(type)))) {}
+          : value(std::make_shared<ValueT>(std::forward<Type>(type))) {}
       template <typename Type,
                 typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
       auto operator=(Type &&type) -> Impl & {
-        value = std::make_shared<ValueT>(std::forward<Type>(type));
+        value = std::make_shared<ValueT>(ValueT{std::forward<Type>(type)});
         return *this;
       }
       template <typename Type,
