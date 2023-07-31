@@ -107,8 +107,8 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::Name> {
       template <typename Outer>
       void success(Outer &&outer) {
-        outer.push(asdl::Attribute{outer.template pop<asdl::ExprImpl>(),
-                                   pop<asdl::Name>()});
+        outer.push(asdl::ExprImpl{asdl::Attribute{
+            outer.template pop<asdl::ExprImpl>(), pop<asdl::Name>()}});
       }
     };
   };
@@ -151,7 +151,7 @@ namespace chimera::library::grammar {
         bin.values = {outer.template pop<asdl::ExprImpl>(),
                       pop<asdl::ExprImpl>()};
         bin.op = pop<asdl::Operator>();
-        outer.push(std::move(bin));
+        outer.push(asdl::ExprImpl{std::move(bin)});
       }
     };
   };
@@ -229,7 +229,7 @@ namespace chimera::library::grammar {
           asdl::Bin bin{asdl::Operator::BIT_OR, {}};
           bin.values.reserve(length);
           transform<asdl::ExprImpl>(std::back_inserter(bin.values));
-          outer.push(std::move(bin));
+          outer.push(asdl::ExprImpl{std::move(bin)});
         } else if (length == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
@@ -254,10 +254,10 @@ namespace chimera::library::grammar {
             })) {
           outer.push(std::move(expr));
         } else {
-          outer.push(
+          outer.push(asdl::ExprImpl{
               asdl::Compare{std::move(expr),
                             {reshape<asdl::CompareExpr, asdl::CompareExpr::Op,
-                                     asdl::ExprImpl>()}});
+                                     asdl::ExprImpl>()}}});
         }
       }
     };
@@ -279,7 +279,8 @@ namespace chimera::library::grammar {
     struct Transform : rules::Stack<asdl::ExprImpl> {
       template <typename Outer>
       void success(Outer &&outer) {
-        outer.push(asdl::Unary{asdl::Unary::NOT, pop<asdl::ExprImpl>()});
+        outer.push(asdl::ExprImpl{
+            asdl::Unary{asdl::Unary::NOT, pop<asdl::ExprImpl>()}});
       }
     };
   };
@@ -310,7 +311,7 @@ namespace chimera::library::grammar {
           asdl::Bool asdlBool{asdl::Bool::OR, {}};
           asdlBool.values.reserve(length);
           transform<asdl::ExprImpl>(std::back_inserter(asdlBool.values));
-          outer.push(std::move(asdlBool));
+          outer.push(asdl::ExprImpl{std::move(asdlBool)});
         } else if (length == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
@@ -329,8 +330,8 @@ namespace chimera::library::grammar {
       template <typename Outer>
       void success(Outer &&outer) {
         if (auto length = size(); length > 1) {
-          outer.push(reshape<asdl::IfExp, asdl::ExprImpl, asdl::ExprImpl,
-                             asdl::ExprImpl>());
+          outer.push(asdl::ExprImpl{reshape<asdl::IfExp, asdl::ExprImpl,
+                                            asdl::ExprImpl, asdl::ExprImpl>()});
         } else if (length == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
@@ -351,7 +352,7 @@ namespace chimera::library::grammar {
         if (has_value()) {
           lambda.args = pop<asdl::Arguments>();
         }
-        outer.push(std::move(lambda));
+        outer.push(asdl::ExprImpl{std::move(lambda)});
       }
     };
   };
@@ -381,7 +382,7 @@ namespace chimera::library::grammar {
           asdl::Tuple tuple;
           tuple.elts.reserve(length);
           transform<asdl::ExprImpl>(std::back_inserter(tuple.elts));
-          outer.push(std::move(tuple));
+          outer.push(asdl::ExprImpl{std::move(tuple)});
         } else if (length == 1) {
           outer.push(pop<asdl::ExprImpl>());
         }
@@ -403,7 +404,7 @@ namespace chimera::library::grammar {
             bin.values.emplace_back(pop<asdl::ExprImpl>());
             bin.values.emplace_back(std::move(expr));
           }
-          outer.push(std::move(bin));
+          outer.push(asdl::ExprImpl{std::move(bin)});
         } else if (length == 1) {
           outer.push(pop<asdl::ExprImpl>());
         } else {

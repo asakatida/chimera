@@ -63,7 +63,8 @@ namespace chimera::library::grammar {
       struct Transform {
         template <typename Outer>
         void finalize(Transform & /*unused*/, Outer &&outer) {
-          outer.push(asdl::NameConstant{asdl::NameConstant::FALSE});
+          outer.push(
+              asdl::ExprImpl{asdl::NameConstant{asdl::NameConstant::FALSE}});
         }
       };
     };
@@ -97,7 +98,8 @@ namespace chimera::library::grammar {
       struct Transform {
         template <typename Outer>
         void finalize(Transform & /*unused*/, Outer &&outer) {
-          outer.push(asdl::NameConstant{asdl::NameConstant::NONE});
+          outer.push(
+              asdl::ExprImpl{asdl::NameConstant{asdl::NameConstant::NONE}});
         }
       };
     };
@@ -135,7 +137,8 @@ namespace chimera::library::grammar {
       struct Transform {
         template <typename Outer>
         void finalize(Transform & /*unused*/, Outer &&outer) {
-          outer.push(asdl::NameConstant{asdl::NameConstant::TRUE});
+          outer.push(
+              asdl::ExprImpl{asdl::NameConstant{asdl::NameConstant::TRUE}});
         }
       };
     };
