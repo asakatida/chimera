@@ -111,6 +111,12 @@ async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
     cases.update(
         map(
             lambda case: (sha256(case).hexdigest(), case),
+            cases.values(),
+        )
+    )
+    cases.update(
+        map(
+            lambda case: (sha256(case).hexdigest(), case),
             await corpus_changes(disable_bars),
         )
     )
