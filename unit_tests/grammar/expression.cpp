@@ -9,7 +9,7 @@ using namespace std::literals;
 using Input = chimera::library::grammar::Input;
 
 TEST_CASE("grammar expression ``") {
-  std::stringstream input(""s);
+  std::istringstream input(""s);
   REQUIRE_THROWS_AS(
       tao::pegtl::parse<tao::pegtl::must<chimera::library::grammar::Expr<0>>>(
           Input(input, "<unit>")),
@@ -17,21 +17,21 @@ TEST_CASE("grammar expression ``") {
 }
 
 TEST_CASE("grammar expression `a`") {
-  std::stringstream input("a"s);
+  std::istringstream input("a"s);
   REQUIRE(tao::pegtl::parse<
           tao::pegtl::seq<chimera::library::grammar::Expr<0>, tao::pegtl::eof>>(
       Input(input, "<unit>")));
 }
 
 TEST_CASE("grammar expression `hello_world`") {
-  std::stringstream input("hello_world"s);
+  std::istringstream input("hello_world"s);
   REQUIRE(tao::pegtl::parse<
           tao::pegtl::seq<chimera::library::grammar::Expr<0>, tao::pegtl::eof>>(
       Input(input, "<unit>")));
 }
 
 TEST_CASE("grammar expression `\\0hello_world`") {
-  std::stringstream input("\0hello_world"s);
+  std::istringstream input("\0hello_world"s);
   REQUIRE_THROWS_AS(
       tao::pegtl::parse<tao::pegtl::must<chimera::library::grammar::Expr<0>>>(
           Input(input, "<unit>")),

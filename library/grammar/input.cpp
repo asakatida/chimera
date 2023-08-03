@@ -35,6 +35,12 @@
 using namespace std::literals;
 
 namespace chimera::library::grammar {
+  [[nodiscard]] auto validateBasic(const std::string_view &line, char type)
+      -> bool {
+    return std::all_of(line.begin(), line.end(), [type](auto &&whitespace) {
+      return whitespace == type;
+    });
+  }
   using NumbericLimits = std::numeric_limits<std::uint16_t>;
   constexpr static auto bufferSize = NumbericLimits::max();
   Input::Input(std::istream &input, const char *source)
@@ -79,7 +85,7 @@ namespace chimera::library::grammar {
     return indentStack.top() == col;
   }
   [[nodiscard]] auto Input::validate() -> bool {
-    auto begin = current();
+    const auto *begin = current();
     auto col = column();
     if (col == 0) {
       return false;
@@ -101,11 +107,5 @@ namespace chimera::library::grammar {
       return false;
     }
     return validateBasic(line, indentType);
-  }
-  [[nodiscard]] auto Input::validateBasic(const std::string_view &line,
-                                          char type) const -> bool {
-    return std::all_of(line.begin(), line.end(), [type](auto &&whitespace) {
-      return whitespace == type;
-    });
   }
 } // namespace chimera::library::grammar
