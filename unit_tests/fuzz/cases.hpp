@@ -51,9 +51,7 @@ namespace chimera::library {
   template <typename Grammar, typename ASDL>
   [[nodiscard]] auto fuzz_parse(const std::uint8_t *data, std::size_t size)
       -> int {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    std::stringstream istream(
-        std::string(reinterpret_cast<const char *>(data), size));
+    auto istream = fuzz_istream(data, size);
     grammar::Input input(istream, "<fuzz>");
     try {
       grammar::parse<Grammar>(options::Optimize::NONE, std::move(input),

@@ -41,8 +41,6 @@ namespace chimera::library::grammar {
   private:
     [[nodiscard]] auto is_dedent() -> bool;
     [[nodiscard]] auto validate() -> bool;
-    [[nodiscard]] auto validateBasic(const std::string_view &line,
-                                     char type) const -> bool;
     char indentType = '\0';
     std::stack<std::uintmax_t> indentStack{};
   };

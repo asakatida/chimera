@@ -13,7 +13,7 @@ namespace chimera::library::virtual_machine {
                           .exec = options::Script{"test.py"}};
     GlobalContext globalContext(options);
     ProcessContext processContext{globalContext};
-    std::stringstream input{std::string{data}};
+    std::istringstream input{std::string{data}};
     auto module = processContext.parse_file(input, "<test>");
     ThreadContext threadContext{processContext,
                                 processContext.make_module("__main__")};
