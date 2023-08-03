@@ -23,11 +23,13 @@
 from asyncio import run
 from asyncio.subprocess import DEVNULL, PIPE
 from collections import deque
+from itertools import islice
 from sys import argv
 from typing import Iterable, TypeVar
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError, chunks, cmd, main, splitlines
+from chimera_utils import IN_CI
 from corpus_utils import c_tqdm, corpus_creations, corpus_trim
 
 T = TypeVar("T")
@@ -68,7 +70,10 @@ async def git_restore(sha: str, *paths: object) -> None:
 
 
 async def corpus_gather(*paths: str, disable_bars: bool | None) -> None:
-    for sha, files in c_tqdm(await corpus_creations(*paths), "Commits", disable_bars):
+    commits = await corpus_creations(*paths)
+    if IN_CI:
+        commits = islice(commits, 10)
+    for sha, files in c_tqdm(commits, "Commits", disable_bars):
         await git_restore(sha.decode(), *files)
         corpus_trim(disable_bars=True)
 
