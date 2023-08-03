@@ -87,7 +87,6 @@ async def report_branch_graph(
 
 
 async def git_rebase_all(*args: str, disable_bars: bool | None) -> None:
-    await git_cmd("fetch", "--all", "--prune")
     remote_branches = list(
         filter(
             lambda branch: not branch.startswith("origin/HEAD -> "),

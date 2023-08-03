@@ -32,7 +32,6 @@ jobs:
         uses: ./
         with:
           run: |
-            git fetch
             python tools/corpus_freeze.py unit_tests/fuzz/cases.json
       - name: Corpus recheck
         uses: ./
@@ -52,7 +51,7 @@ jobs:
         uses: ./
         with:
           run: |
-            git restore --source origin/stable --staged unit_tests/fuzz/corpus
+            git restore --staged unit_tests/fuzz/corpus
             git restore --worktree unit_tests/fuzz/corpus
       - continue-on-error: ${{ github.ref != 'refs/heads/stable' }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
