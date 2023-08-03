@@ -5,7 +5,6 @@
 #![allow(clippy::exhaustive_enums)]
 #![allow(clippy::float_arithmetic)]
 #![allow(clippy::implicit_return)]
-#![allow(clippy::integer_arithmetic)]
 #![allow(clippy::missing_docs_in_private_items)]
 
 use core::{cmp, fmt, ops};

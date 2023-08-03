@@ -5,7 +5,6 @@
 #![allow(clippy::exhaustive_enums)]
 #![allow(clippy::float_arithmetic)]
 #![allow(clippy::implicit_return)]
-#![allow(clippy::integer_arithmetic)]
 #![allow(clippy::missing_docs_in_private_items)]
 #![allow(clippy::mutex_atomic)]
 #![allow(clippy::separated_literal_suffix)]
@@ -56,7 +55,7 @@ fn gc_loop(receiver: &sync::mpsc::Receiver<Event>) {
             }
             Event::New(value, wait) => {
                 if let Ok(mut started) = wait.1.lock() {
-                    let key = heap.keys().rev().next().copied().unwrap_or_default() + 1;
+                    let key = heap.keys().next_back().copied().unwrap_or_default() + 1;
                     heap.insert(key, value);
                     *started = (true, key);
                     wait.0.notify_one();
