@@ -32,6 +32,7 @@ from typing import Iterable
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import chunks, cmd, main, splitlines
+from chimera_utils import IN_CI
 from corpus_ascii import corpus_ascii
 from corpus_utils import c_tqdm, corpus_creations, sha
 
@@ -114,12 +115,13 @@ async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
             cases.values(),
         )
     )
-    cases.update(
-        map(
-            lambda case: (sha256(case).hexdigest(), case),
-            await corpus_changes(disable_bars),
+    if not IN_CI:
+        cases.update(
+            map(
+                lambda case: (sha256(case).hexdigest(), case),
+                await corpus_changes(disable_bars),
+            )
         )
-    )
     cases.update(
         map(
             lambda case: (sha256(case).hexdigest(), case),
@@ -128,11 +130,8 @@ async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
     )
     for key in set(
         map(sha, filter(Path.is_file, Path("unit_tests/fuzz/crashes").rglob("*")))
-    ):
-        try:
-            del cases[key]
-        except KeyError:
-            pass
+    ).intersection(cases.keys()):
+        del cases[key]
     cases_orig = dict(
         zip(cases.keys(), map(bytes.decode, map(b64encode, cases.values())))
     )
