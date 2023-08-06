@@ -145,7 +145,7 @@ set(
   ${CMAKE_SOURCE_DIR}/external/big-list-of-naughty-strings/blns.base64.json)
 set(CASES_JSON_FILE ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/cases.json)
 
-foreach(FUZZ_TESTS_IDX RANGE 60)
+foreach(FUZZ_TESTS_IDX RANGE 1020)
   list(
     APPEND
     FUZZ_TESTS
@@ -203,7 +203,7 @@ target_link_libraries(
   number
   pthread)
 
-catch_add_sharded_tests(unit-test SHARD_COUNT 61)
+catch_add_sharded_tests(unit-test SHARD_COUNT 1021)
 
 add_custom_target(
   check-stat
