@@ -33,32 +33,21 @@ from typing import Iterable
 from asyncio_as_completed import as_completed
 from asyncio_cmd import chunks, cmd, main, splitlines
 from chimera_utils import IN_CI
-from corpus_ascii import corpus_ascii
-from corpus_utils import c_tqdm, corpus_creations, sha
+from corpus_ascii import is_ascii
+from corpus_utils import c_tqdm, corpus_creations, gather_paths, sha
 
 
 async def corpus_changes(disable_bars: bool | None) -> Iterable[bytes]:
-    return map(
-        Path.read_bytes,
-        [
-            file
-            for file in c_tqdm(corpus_ascii(), "ascii", disable_bars)
-            if await cmd(
-                "git",
-                "log",
-                "--all",
-                "--oneline",
-                "^HEAD",
-                "--",
-                file,
-                log=False,
-                out=PIPE,
-            )
-        ],
+    return filter(
+        is_ascii, await corpus_objects("unit_tests/fuzz/corpus", disable_bars)
     )
 
 
 async def crash_contents(disable_bars: bool | None) -> list[bytes]:
+    return await corpus_objects("unit_tests/fuzz/crashes", disable_bars)
+
+
+async def corpus_objects(path: str, disable_bars: bool | None) -> list[bytes]:
     return await as_completed(
         map(
             lambda sha: cmd("git", "cat-file", "-p", sha, log=False, out=PIPE),
@@ -66,38 +55,36 @@ async def crash_contents(disable_bars: bool | None) -> list[bytes]:
                 chain.from_iterable(
                     map(
                         splitlines,
-                        chain.from_iterable(await crash_objects(disable_bars)),
+                        chain.from_iterable(
+                            await as_completed(
+                                map(
+                                    lambda item: as_completed(
+                                        map(
+                                            lambda chunk: cmd(
+                                                "git",
+                                                "ls-tree",
+                                                "--full-tree",
+                                                "--object-only",
+                                                "-r",
+                                                item[0].decode(),
+                                                *chunk,
+                                                log=False,
+                                                out=PIPE,
+                                            ),
+                                            chunks(item[1], 4096),
+                                        )
+                                    ),
+                                    c_tqdm(
+                                        await corpus_creations(path),
+                                        "Commits",
+                                        disable_bars,
+                                    ),
+                                )
+                            )
+                        ),
                     )
                 ),
                 "Files",
-                disable_bars,
-            ),
-        )
-    )
-
-
-async def crash_objects(disable_bars: bool | None) -> list[list[bytes]]:
-    return await as_completed(
-        map(
-            lambda item: as_completed(
-                map(
-                    lambda chunk: cmd(
-                        "git",
-                        "ls-tree",
-                        "--full-tree",
-                        "--object-only",
-                        "-r",
-                        item[0].decode(),
-                        *chunk,
-                        log=False,
-                        out=PIPE,
-                    ),
-                    chunks(item[1], 4096),
-                )
-            ),
-            c_tqdm(
-                await corpus_creations("unit_tests/fuzz/crashes"),
-                "Commits",
                 disable_bars,
             ),
         )
@@ -122,15 +109,13 @@ async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
                 await corpus_changes(disable_bars),
             )
         )
-    cases.update(
-        map(
-            lambda case: (sha256(case).hexdigest(), case),
-            await crash_contents(disable_bars),
+        cases.update(
+            map(
+                lambda case: (sha256(case).hexdigest(), case),
+                await crash_contents(disable_bars),
+            )
         )
-    )
-    for key in set(
-        map(sha, filter(Path.is_file, Path("unit_tests/fuzz/crashes").rglob("*")))
-    ).intersection(cases.keys()):
+    for key in set(map(sha, gather_paths())).intersection(cases.keys()):
         del cases[key]
     cases_orig = dict(
         zip(cases.keys(), map(bytes.decode, map(b64encode, cases.values())))
