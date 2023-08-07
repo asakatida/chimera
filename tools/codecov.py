@@ -26,6 +26,7 @@ from pathlib import Path
 from sys import argv
 
 from asyncio_cmd import cmd, cmd_env, cmd_flog, main
+from chimera_utils import rmdir
 from corpus_utils import regression
 from ninja import ninja
 
@@ -71,12 +72,9 @@ async def codecov(llvm_profile_lcov: str) -> None:
             ),
         ),
     )
-    try:
-        llvm_profile_dir.rmdir()
-    except FileNotFoundError:
-        pass
+    rmdir(llvm_profile_dir)
     llvm_profile_dir.mkdir()
-    await ninja("build")
+    await ninja("build", "fuzzers", "unit-test")
     await gather(ninja("build", "test"), regression("build"))
     await cmd(
         "llvm-profdata",
