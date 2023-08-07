@@ -21,7 +21,11 @@ async def git_cmd(*args: object, out: int | None = None) -> bytes:
     return await cmd("git", *args, out=out, log=False)
 
 
-async def g_ls_tree(*args: str, exclude: Pattern[str] | None = None) -> list[Path]:
+async def g_ls_tree(
+    *args: str,
+    base_commit: str = environ.get("BASE_COMMIT", "HEAD^"),
+    exclude: Pattern[str] | None = None,
+) -> list[Path]:
     cache_key = f"{args}, {exclude}"
     if cache_key in CACHE:
         return CACHE[cache_key]
@@ -64,7 +68,7 @@ async def g_ls_tree(*args: str, exclude: Pattern[str] | None = None) -> list[Pat
                                 lambda args: git_cmd(
                                     "diff",
                                     "--name-only",
-                                    environ.get("BASE_COMMIT", "HEAD^"),
+                                    base_commit,
                                     "--",
                                     *args,
                                     out=PIPE,
