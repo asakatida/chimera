@@ -9,4 +9,5 @@ rm -rf "${build_root}"
 
 tools/boot.sh
 
+python tools/ninja.py "${build_root}" unit-test
 python tools/ninja.py "${build_root}" test

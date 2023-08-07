@@ -20,7 +20,7 @@ jobs:
           run: |
             rustup default stable
             cmake -GNinja -B build -S .
-            python tools/ninja.py build
+            python tools/ninja.py build fuzzers
             ccache --cleanup
             ccache --trim-dir .ccache/remote --trim-max-size 600Mi
       - name: Corpus merge

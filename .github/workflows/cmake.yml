@@ -23,7 +23,7 @@ jobs:
           run: |
             rustup default stable
             cmake -GNinja -B build -S .
-            python tools/ninja.py build
+            python tools/ninja.py build fuzzers
             ccache --cleanup
             ccache --trim-dir .ccache/remote --trim-max-size 600Mi
       - env:
@@ -84,6 +84,7 @@ jobs:
           run: |
             rustup default stable
             cmake -GNinja -B build -S .
+            python tools/ninja.py build unit-test
             python tools/ninja.py build test
             ccache --cleanup
             ccache --trim-dir .ccache/remote --trim-max-size 600Mi
@@ -111,6 +112,7 @@ jobs:
           run: |
             rustup default stable
             cmake -GNinja -B build -S .
+            python tools/ninja.py build unit-test
             python tools/ninja.py build test
             ccache --cleanup
             ccache --trim-dir .ccache/remote --trim-max-size 600Mi
@@ -137,6 +139,7 @@ jobs:
           run: |
             rustup default stable
             cmake -GNinja -B build -S .
+            python tools/ninja.py build unit-test
             python tools/ninja.py build test
             ccache --cleanup
             ccache --trim-dir .ccache/remote --trim-max-size 600Mi

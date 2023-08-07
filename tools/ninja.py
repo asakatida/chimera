@@ -37,7 +37,6 @@ async def ninja(build: str, *args: object) -> None:
     await ninja_cmd(build, "-j1", "chimera-grammar")
     await ninja_cmd(build, "chimera-core")
     await ninja_cmd(build, "-j1", "fuzzers")
-    await ninja_cmd(build)
     await cmd("ninja", "-C", build, *args, err=None)
 
 
