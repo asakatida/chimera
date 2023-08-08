@@ -1,0 +1,24 @@
+---
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.5.3
+      - env:
+          BRANCH: refs/pull/${{ github.event.pull_request.number }}/merge
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        name: Cleanup
+        run: >
+          gh extension install actions/gh-actions-cache;
+          gh actions-cache list -R "${REPO}" -B "${BRANCH}" | cut -f 1 |
+          xargs --max-args=1 --max-procs=2 --no-run-if-empty --verbose --
+          gh actions-cache delete -R "${REPO}" -B "${BRANCH}" --confirm
+
+name: cleanup caches by a branch
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    types:
+      - closed

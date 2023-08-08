@@ -23,7 +23,9 @@ jobs:
             python tools/ninja.py build fuzzers
             ccache --cleanup
             ccache --trim-dir .ccache/remote --trim-max-size 600Mi
-      - name: Corpus merge
+      - env:
+          BASE_REF: ${{ github.ref_name }}
+        name: Corpus merge
         uses: ./
         with:
           run: |
