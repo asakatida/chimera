@@ -57,12 +57,6 @@ async def codecov(llvm_profile_lcov: str) -> None:
                 (
                     "-fcoverage-mapping",
                     "-fprofile-instr-generate",
-                    "-fsanitize-coverage=no-prune",
-                    "-fsanitize-coverage=trace-cmp",
-                    "-fsanitize-coverage=trace-div",
-                    "-fsanitize-coverage=trace-gep",
-                    "-fsanitize-coverage=trace-loads",
-                    "-fsanitize-coverage=trace-stores",
                     "-mllvm",
                     "-runtime-counter-relocation",
                 )

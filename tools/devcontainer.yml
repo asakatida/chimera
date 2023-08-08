@@ -16,7 +16,7 @@
     - name: Gather chimera path
       ansible.builtin.command: python3 {{ playbook_dir }}/chimera_path.py
       register: chimera_path
-    - name: Set CC, CXX, and CXXFLAGS
+    - name: Set CXXFLAGS with chimera path
       ansible.builtin.set_fact:
         cxxflags: >
           {{ lookup('env', 'CXXFLAGS') | default('') }}
@@ -35,7 +35,7 @@
         creates: "{{ playbook_dir }}/../build/release"
       environment:
         CMAKE_BUILD_TYPE: MinSizeRel
-        CXXFLAGS: "{{ cxxflags }}"
+        CXXFLAGS: "{{ cxxflags }} -DNDEBUG"
     - name: Build project
       ansible.builtin.command: python3 tools/ninja.py {{ playbook_dir }}/../{{ item }}
       failed_when: false
