@@ -79,7 +79,7 @@ def conflicts(fuzz: Iterable[Path]) -> None:
 
 
 async def corpus_creations(
-    *paths: str, base_commit: str = environ.get("BASE_COMMIT", "^origin/stable")
+    *paths: str, base_commit: str = environ.get("BASE_REF", "^origin/stable")
 ) -> Iterable[tuple[bytes, list[str]]]:
     return filter(
         lambda pair: pair[1],
