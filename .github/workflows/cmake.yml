@@ -26,13 +26,15 @@ jobs:
             python tools/ninja.py build fuzzers
             ccache --cleanup
             ccache --trim-dir .ccache/remote --trim-max-size 600Mi
-      - name: Corpus recheck
+      - env:
+          GITHUB_REF: ${{ github.ref }}
+        name: Corpus recheck
         uses: ./
         with:
           run: |
             python tools/corpus_freeze.py unit_tests/fuzz/cases.json
             python tools/crash_reset.py
-            python tools/corpus_gather.py ${{ github.ref }}
+            python tools/corpus_gather.py "${GITHUB_REF}"
             python tools/corpus_retest.py build
       - if: github.ref == 'refs/heads/stable'
         name: Run corpus
