@@ -14,8 +14,34 @@ jobs:
           gh actions-cache list -R "${REPO}" -B "${BRANCH}" | cut -f 1 |
           xargs --max-args=1 --max-procs=2 --no-run-if-empty --verbose --
           gh actions-cache delete -R "${REPO}" -B "${BRANCH}" --confirm
+  cleanup-actions:
+    permissions:
+      actions: write
+    runs-on: ubuntu-22.04
+    steps:
+      - env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_BRANCH: ${{ github.ref_name }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        name: Cleanup
+        run: >
+          set -o pipefail;
+          gh api "repos/${OWNER}/${REPO}/actions/runs" --paginate -q '
+            .workflow_runs |
+            map(
+              select(
+                .conclusion != null and
+                .status != "in_progress" and
+                .head_branch != "stable"
+              )
+            )[]
+          ' | jq -js --arg head_branch "${HEAD_BRANCH}"
+          'map(select(.head_branch == $head_branch) | .url) | join("\u0000")' |
+          xargs --max-args=1 --max-procs=2 --no-run-if-empty --null --verbose --
+          gh api -X DELETE
 
-name: cleanup caches by a branch
+name: cleanup by branch on close
 
 # yamllint disable-line rule:truthy
 on:
