@@ -1,12 +1,26 @@
 ---
 jobs:
-  cleanup-actions:
+  cleanup-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.5.3
+      - env:
+          BRANCH: ${{ github.ref_name }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        name: Cleanup
+        run: >
+          gh extension install actions/gh-actions-cache;
+          gh actions-cache list -R "${REPO}" -B "${BRANCH}" | cut -f 1 |
+          xargs --max-args=1 --max-procs=2 --no-run-if-empty --verbose --
+          gh actions-cache delete -R "${REPO}" -B "${BRANCH}" --confirm
+  cleanup-packages:
     permissions:
       actions: write
     runs-on: ubuntu-22.04
     steps:
       - env:
-          BRANCH: refs/pull/${{ github.event.pull_request.number }}/merge
+          BRANCH: ${{ github.ref_name }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         name: Cleanup
@@ -25,25 +39,11 @@ jobs:
           'map(select(.head_branch == $head_branch) | .url) | join("\u0000")' |
           xargs --max-args=1 --max-procs=2 --no-run-if-empty --null --verbose --
           gh api -X DELETE
-  cleanup-cache:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3.5.3
-      - env:
-          BRANCH: refs/pull/${{ github.event.pull_request.number }}/merge
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-        name: Cleanup
-        run: >
-          gh extension install actions/gh-actions-cache;
-          gh actions-cache list -R "${REPO}" -B "${BRANCH}" | cut -f 1 |
-          xargs --max-args=1 --max-procs=2 --no-run-if-empty --verbose --
-          gh actions-cache delete -R "${REPO}" -B "${BRANCH}" --confirm
 
-name: cleanup by pr on close
+name: cleanup by branch on delete
 
 # yamllint disable-line rule:truthy
 on:
-  pull_request:
+  branch:
     types:
-      - closed
+      - deleted
