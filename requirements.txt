@@ -22,7 +22,7 @@ markdown-it-py==3.0.0
 MarkupSafe==2.1.3
 mccabe==0.7.0
 mdurl==0.1.2
-mypy==1.4.1
+mypy==1.5.0
 mypy-extensions==1.0.0
 packaging==23.1
 pathspec==0.11.2
@@ -45,7 +45,7 @@ snowballstemmer==2.2.0
 structlog==23.1.0
 subprocess-tee==0.4.1
 tomli==2.0.1
-tqdm==4.66.0
+tqdm==4.66.1
 types-PyYAML==6.0.12.11
 types-requests==2.31.0.2
 types-tqdm==4.66.0.0
