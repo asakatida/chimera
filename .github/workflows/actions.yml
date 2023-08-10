@@ -10,12 +10,11 @@ jobs:
     steps:
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OWNER: ${{ github.repository_owner }}
-          REPO: ${{ github.event.repository.name }}
+          REPO: ${{ github.repository }}
         name: Cleanup
         run: >
           set -o pipefail;
-          gh api "repos/${OWNER}/${REPO}/actions/runs" --paginate -q '
+          gh api "repos/${REPO}/actions/runs" --paginate -q '
             .workflow_runs |
             map(
               select(
