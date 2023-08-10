@@ -48,7 +48,7 @@ tomli==2.0.1
 tqdm==4.66.0
 types-PyYAML==6.0.12.11
 types-requests==2.31.0.2
-types-tqdm==4.65.0.2
+types-tqdm==4.66.0.0
 types-urllib3==1.26.25.14
 typing_extensions==4.7.1
 urllib3==2.0.4
