@@ -32,5 +32,7 @@ name: CodeCov
 
 # yamllint disable-line rule:truthy
 on:
-  push: ~
+  push:
+    branches:
+      - stable
   workflow_dispatch: ~
