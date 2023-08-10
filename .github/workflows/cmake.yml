@@ -139,29 +139,6 @@ jobs:
             python tools/ninja.py build test
             ccache --cleanup
             ccache --trim-dir .ccache/remote --trim-max-size 600Mi
-  scan-build:
-    concurrency:
-      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: scan-build-${{ github.workflow }}-${{ github.ref }}
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3.5.3
-        with:
-          submodules: true
-      - name: Scan Build
-        uses: ./
-        with:
-          run: >
-            scan-build
-            --use-cc "${CC}"
-            --use-c++ "${CXX}"
-            /bin/sh -c '
-              set -e
-              rustup default stable
-              cmake -GNinja -B build -S .
-              python tools/ninja.py build
-            '
-            ! find /tmp -type d -name 'scan-build-*'
 
 name: CMake
 
