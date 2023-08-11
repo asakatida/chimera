@@ -44,6 +44,4 @@ name: cleanup by branch on delete
 
 # yamllint disable-line rule:truthy
 on:
-  branch:
-    types:
-      - deleted
+  delete: ~
