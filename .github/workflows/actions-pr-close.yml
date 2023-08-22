@@ -21,8 +21,10 @@ jobs:
                 .head_branch != "stable"
               )
             )[]
-          ' | jq -js --arg head_branch "${BRANCH}"
-          'map(select(.head_branch == $head_branch) | .url) | join("\u0000")' |
+          ' |
+          jq --arg head_branch "${BRANCH}"
+          'select(.head_branch == $head_branch) | .url' |
+          jq --join-output --slurp 'join("\u0000")' |
           xargs --max-args=1 --max-procs=2 --no-run-if-empty --null --verbose --
           gh api -X DELETE
   cleanup-cache:

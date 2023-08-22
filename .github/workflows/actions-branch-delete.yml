@@ -5,7 +5,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3.5.3
       - env:
-          BRANCH: ${{ github.ref_name }}
+          BRANCH: ${{ github.event.ref }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         name: Cleanup
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - env:
-          BRANCH: ${{ github.ref_name }}
+          BRANCH: ${{ github.event.ref }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         name: Cleanup
@@ -35,8 +35,10 @@ jobs:
                 .head_branch != "stable"
               )
             )[]
-          ' | jq -js --arg head_branch "${BRANCH}"
-          'map(select(.head_branch == $head_branch) | .url) | join("\u0000")' |
+          ' |
+          jq --arg head_branch "${BRANCH}"
+          'select(.head_branch == $head_branch) | .url' |
+          jq --join-output --slurp 'join("\u0000")' |
           xargs --max-args=1 --max-procs=2 --no-run-if-empty --null --verbose --
           gh api -X DELETE
 
