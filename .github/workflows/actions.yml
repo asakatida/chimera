@@ -27,6 +27,9 @@ jobs:
                   (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 7) and
                   .head_branch != "stable"
                 ) or (
+                  (.path | startswith(".github/workflows/actions")) and
+                  (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 2)
+                ) or (
                   (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 3) and
                   (
                     (.head_branch == "requirements-txt") or
