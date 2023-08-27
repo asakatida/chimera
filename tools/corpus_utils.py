@@ -79,7 +79,9 @@ def conflicts(fuzz: Iterable[Path]) -> None:
 
 
 async def corpus_creations(
-    *paths: str, base_commit: str = environ.get("BASE_REF", "^origin/stable")
+    *paths: str,
+    base_commit: str = environ.get("BASE_REF", "^origin/stable"),
+    disable_bars: bool | None,
 ) -> Iterable[tuple[bytes, list[str]]]:
     return filter(
         lambda pair: pair[1],
@@ -96,20 +98,26 @@ async def corpus_creations(
                     )
                 ),
             ),
-            compile(rb"commit:.+:(?P<sha>.+)(?P<paths>(?:\s+(?!commit:).+)+)").finditer(
-                await cmd(
-                    "git",
-                    "log",
-                    *("--all",) if base_commit.startswith("^") else (),
-                    "--date=iso",
-                    "--diff-filter=A",
-                    "--name-only",
-                    "--pretty=format:commit:%cd:%h",
-                    base_commit,
-                    "--",
-                    *paths,
-                    out=PIPE,
-                )
+            c_tqdm(
+                compile(
+                    rb"commit:.+:(?P<sha>.+)(?P<paths>(?:\s+(?!commit:).+)+)"
+                ).finditer(
+                    await cmd(
+                        "git",
+                        "log",
+                        *("--all",) if base_commit.startswith("^") else (),
+                        "--date=iso",
+                        "--diff-filter=A",
+                        "--name-only",
+                        "--pretty=format:commit:%cd:%h",
+                        base_commit,
+                        "--",
+                        *paths,
+                        out=PIPE,
+                    )
+                ),
+                "Commits",
+                disable_bars,
             ),
         ),
     )

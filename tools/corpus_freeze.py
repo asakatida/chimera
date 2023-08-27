@@ -74,10 +74,8 @@ async def corpus_objects(path: str, disable_bars: bool | None) -> list[bytes]:
                                             chunks(item[1], 4096),
                                         )
                                     ),
-                                    c_tqdm(
-                                        await corpus_creations(path),
-                                        "Commits",
-                                        disable_bars,
+                                    await corpus_creations(
+                                        path, disable_bars=disable_bars
                                     ),
                                 )
                             )
