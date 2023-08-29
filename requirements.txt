@@ -1,5 +1,5 @@
 ansible==8.3.0
-ansible-compat==4.1.7
+ansible-compat==4.1.8
 ansible-core==2.15.3
 ansible-lint==6.18.0
 attrs==23.1.0
@@ -12,7 +12,7 @@ click==8.1.7
 cmakelint==1.4.2
 cryptography==41.0.3
 docker==6.1.3
-filelock==3.12.2
+filelock==3.12.3
 idna==3.4
 isort==5.12.0
 Jinja2==3.1.2
