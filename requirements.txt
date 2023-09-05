@@ -1,5 +1,5 @@
 ansible==8.3.0
-ansible-compat==4.1.8
+ansible-compat==4.1.9
 ansible-core==2.15.3
 ansible-lint==6.18.0
 attrs==23.1.0
@@ -38,7 +38,7 @@ referencing==0.30.2
 requests==2.31.0
 resolvelib==1.0.1
 rich==13.5.2
-rpds-py==0.10.0
+rpds-py==0.10.2
 ruamel.yaml==0.17.32
 ruamel.yaml.clib==0.2.7
 snowballstemmer==2.2.0
