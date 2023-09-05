@@ -30,7 +30,7 @@ jobs:
   cleanup-cache:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.6.0
+      - uses: actions/checkout@v4.0.0
       - env:
           BRANCH: refs/pull/${{ github.event.pull_request.number }}/merge
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
