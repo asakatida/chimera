@@ -30,7 +30,7 @@ jobs:
         with:
           run: |
             python tools/corpus_merge.py
-            CI= python tools/corpus_freeze.py unit_tests/fuzz/cases.json
+            python tools/corpus_freeze.py unit_tests/fuzz/cases.json
       - uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
           branch: corpus-${{ github.run_id }}

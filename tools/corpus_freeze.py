@@ -52,34 +52,36 @@ async def corpus_objects(path: str, disable_bars: bool | None) -> list[bytes]:
         map(
             lambda sha: cmd("git", "cat-file", "-p", sha, log=False, out=PIPE),
             c_tqdm(
-                chain.from_iterable(
-                    map(
-                        splitlines,
-                        chain.from_iterable(
-                            await as_completed(
-                                map(
-                                    lambda item: as_completed(
-                                        map(
-                                            lambda chunk: cmd(
-                                                "git",
-                                                "ls-tree",
-                                                "--full-tree",
-                                                "--object-only",
-                                                "-r",
-                                                item[0].decode(),
-                                                *chunk,
-                                                log=False,
-                                                out=PIPE,
-                                            ),
-                                            chunks(item[1], 4096),
-                                        )
-                                    ),
-                                    await corpus_creations(
-                                        path, disable_bars=disable_bars
-                                    ),
+                set(
+                    chain.from_iterable(
+                        map(
+                            splitlines,
+                            chain.from_iterable(
+                                await as_completed(
+                                    map(
+                                        lambda item: as_completed(
+                                            map(
+                                                lambda chunk: cmd(
+                                                    "git",
+                                                    "ls-tree",
+                                                    "--full-tree",
+                                                    "--object-only",
+                                                    "-r",
+                                                    item[0].decode(),
+                                                    *chunk,
+                                                    log=False,
+                                                    out=PIPE,
+                                                ),
+                                                chunks(item[1], 4096),
+                                            )
+                                        ),
+                                        await corpus_creations(
+                                            path, disable_bars=disable_bars
+                                        ),
+                                    )
                                 )
-                            )
-                        ),
+                            ),
+                        )
                     )
                 ),
                 "Files",
