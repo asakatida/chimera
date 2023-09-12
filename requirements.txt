@@ -1,9 +1,9 @@
-ansible==8.3.0
+ansible==8.4.0
 ansible-compat==4.1.10
-ansible-core==2.15.3
+ansible-core==2.15.4
 ansible-lint==6.19.0
 attrs==23.1.0
-black==23.7.0
+black==23.9.1
 bracex==2.4
 certifi==2023.7.22
 cffi==1.15.1
@@ -53,5 +53,5 @@ types-urllib3==1.26.25.14
 typing_extensions==4.7.1
 urllib3==2.0.4
 wcmatch==8.5
-websocket-client==1.6.2
+websocket-client==1.6.3
 yamllint==1.32.0
