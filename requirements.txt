@@ -1,7 +1,7 @@
 ansible==8.4.0
 ansible-compat==4.1.10
 ansible-core==2.15.4
-ansible-lint==6.19.0
+ansible-lint==6.20.0
 attrs==23.1.0
 black==23.9.1
 bracex==2.4
@@ -10,7 +10,7 @@ cffi==1.15.1
 charset-normalizer==3.2.0
 click==8.1.7
 cmakelint==1.4.2
-cryptography==41.0.3
+cryptography==41.0.4
 docker==6.1.3
 filelock==3.12.4
 idna==3.4
@@ -47,11 +47,11 @@ subprocess-tee==0.4.1
 tomli==2.0.1
 tqdm==4.66.1
 types-PyYAML==6.0.12.11
-types-requests==2.31.0.2
+types-requests==2.31.0.3
 types-tqdm==4.66.0.2
 types-urllib3==1.26.25.14
 typing_extensions==4.8.0
-urllib3==2.0.4
+urllib3==2.0.5
 wcmatch==8.5
 websocket-client==1.6.3
 yamllint==1.32.0
