@@ -358,6 +358,7 @@
           with_items: "{{ pythons }}"
         - name: Run user scoped tasks
           become_user: github
+          become: true
           block:
             - name: Download rustup install script
               ansible.builtin.get_url:
