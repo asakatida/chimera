@@ -11,7 +11,7 @@ jobs:
       packages: write
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4.0.0
+      - uses: actions/checkout@v4.1.0
       - uses: docker://hadolint/hadolint:2.12.0
         with:
           args: --verbose Dockerfile
@@ -45,7 +45,7 @@ jobs:
       packages: write
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4.0.0
+      - uses: actions/checkout@v4.1.0
       - name: Update tags
         # yamllint disable rule:line-length
         run: >
