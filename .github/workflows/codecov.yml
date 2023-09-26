@@ -8,6 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4.1.0
         with:
+          filter: tree:0
           submodules: true
       - name: CCache
         uses: actions/cache@v3.3.2

@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4.1.0
+        with:
+          filter: tree:0
       - uses: docker://hadolint/hadolint:2.12.0
         with:
           args: --verbose Dockerfile
@@ -46,6 +48,8 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4.1.0
+        with:
+          filter: tree:0
       - name: Update tags
         # yamllint disable rule:line-length
         run: >
