@@ -65,8 +65,6 @@ USER github:github
 
 ENV CC=clang \
     CMAKE_BUILD_TYPE=Debug \
-    CMAKE_C_COMPILER_LAUNCHER=ccache \
-    CMAKE_CXX_COMPILER_LAUNCHER=ccache \
     CMAKE_EXPORT_COMPILE_COMMANDS=YES \
     CTEST_PARALLEL_LEVEL=3 \
     CXX=clang++ \

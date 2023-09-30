@@ -1,6 +1,5 @@
 from asyncio import run
 from os import environ
-from pathlib import Path
 from sys import argv
 
 from asyncio_cmd import cmd, cmd_env, main, splitlines
@@ -24,12 +23,6 @@ async def action(script: str, *args: str) -> None:
     )
     await pip_install("tools/requirements.txt")
     await pip_install("requirements.txt")
-    source = Path(__file__).parent.parent.resolve()
-    environ["CCACHE_CONFIGPATH"] = str(source / ".github" / "ccache" / "ccache.conf")
-    environ["CCACHE_DIR"] = str(source / ".ccache" / "local")
-    environ["CCACHE_REMOTE_STORAGE"] = (
-        f"file:{source / '.ccache' / 'remote'}|update-mtime=true"
-    )
     await cmd("/bin/sh", "-e", "-c", script, *args, err=None, out=None)
 
 
