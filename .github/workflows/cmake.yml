@@ -12,12 +12,6 @@ jobs:
         with:
           filter: tree:0
           submodules: true
-      - name: CCache
-        uses: actions/cache@v3.3.2
-        with:
-          key: corpus-${{ github.run_id }}
-          path: .ccache
-          restore-keys: corpus-
       - name: Build project
         uses: ./
         with:
@@ -25,8 +19,6 @@ jobs:
             rustup default stable
             cmake -GNinja -B build -S .
             python tools/ninja.py build fuzzers
-            ccache --cleanup
-            ccache --trim-dir .ccache/remote --trim-max-size 600Mi
       - env:
           GITHUB_REF: ${{ github.ref }}
         name: Corpus recheck
@@ -70,12 +62,6 @@ jobs:
         with:
           filter: tree:0
           submodules: true
-      - name: CCache
-        uses: actions/cache@v3.3.2
-        with:
-          key: debug-${{ github.run_id }}
-          path: .ccache
-          restore-keys: debug-
       - name: Run tests
         uses: ./
         with:
@@ -84,8 +70,6 @@ jobs:
             cmake -GNinja -B build -S .
             python tools/ninja.py build unit-test
             python tools/ninja.py build test
-            ccache --cleanup
-            ccache --trim-dir .ccache/remote --trim-max-size 600Mi
   libcpp:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
@@ -96,12 +80,6 @@ jobs:
         with:
           filter: tree:0
           submodules: true
-      - name: CCache
-        uses: actions/cache@v3.3.2
-        with:
-          key: libcpp-${{ github.run_id }}
-          path: .ccache
-          restore-keys: libcpp-
       - env:
           CMAKE_BUILD_TYPE: RelWithDebInfo
           CXXFLAGS: -stdlib=libc++
@@ -113,8 +91,6 @@ jobs:
             cmake -GNinja -B build -S .
             python tools/ninja.py build unit-test
             python tools/ninja.py build test
-            ccache --cleanup
-            ccache --trim-dir .ccache/remote --trim-max-size 600Mi
   release:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
@@ -127,12 +103,6 @@ jobs:
         with:
           filter: tree:0
           submodules: true
-      - name: CCache
-        uses: actions/cache@v3.3.2
-        with:
-          key: release-${{ github.run_id }}
-          path: .ccache
-          restore-keys: release-
       - name: Run tests
         uses: ./
         with:
@@ -141,8 +111,6 @@ jobs:
             cmake -GNinja -B build -S .
             python tools/ninja.py build unit-test
             python tools/ninja.py build test
-            ccache --cleanup
-            ccache --trim-dir .ccache/remote --trim-max-size 600Mi
 
 name: CMake
 
@@ -150,7 +118,6 @@ name: CMake
 on:
   pull_request:
     paths:
-      - .github/ccache/**
       - .github/workflows/cmake.yml
       - "**.cpp"
       - "**.h"
@@ -168,7 +135,6 @@ on:
     branches:
       - stable
     paths:
-      - .github/ccache/**
       - .github/workflows/cmake.yml
       - "**.cpp"
       - "**.h"

@@ -9,12 +9,6 @@ jobs:
         with:
           filter: tree:0
           submodules: true
-      - name: CCache
-        uses: actions/cache@v3.3.2
-        with:
-          key: merge-${{ github.run_id }}
-          path: .ccache
-          restore-keys: corpus-
       - name: Build project
         uses: ./
         with:
@@ -22,8 +16,6 @@ jobs:
             rustup default stable
             cmake -GNinja -B build -S .
             python tools/ninja.py build fuzzers
-            ccache --cleanup
-            ccache --trim-dir .ccache/remote --trim-max-size 600Mi
       - name: Corpus merge
         uses: ./
         with:

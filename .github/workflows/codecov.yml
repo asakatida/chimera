@@ -10,20 +10,12 @@ jobs:
         with:
           filter: tree:0
           submodules: true
-      - name: CCache
-        uses: actions/cache@v3.3.2
-        with:
-          key: codecov-${{ github.run_id }}
-          path: .ccache
-          restore-keys: codecov-
       - name: Run regression with coverage
         uses: ./
         with:
           run: |
             rustup default stable
             python tools/codecov.py llvm-profile.lcov
-            ccache --cleanup
-            ccache --trim-dir .ccache/remote --trim-max-size 600Mi
       - uses: codecov/codecov-action@v3.1.4
         with:
           directory: ${{ github.workspace }}
@@ -35,7 +27,6 @@ name: CodeCov
 on:
   pull_request:
     paths:
-      - .github/ccache/**
       - .github/workflows/codecov.yml
       - "**.cpp"
       - "**.h"

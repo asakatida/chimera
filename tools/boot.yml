@@ -138,7 +138,6 @@
                   - bzip2
                   - bzr
                   - ca-certificates
-                  - ccache
                   - cmake
                   - coreutils
                   - curl
@@ -311,7 +310,6 @@
               - automake
               - bzip2
               - ca-certificates
-              - ccache
               - cmake
               - coreutils
               - curl
