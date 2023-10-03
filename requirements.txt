@@ -1,7 +1,7 @@
 ansible==8.4.0
 ansible-compat==4.1.10
 ansible-core==2.15.4
-ansible-lint==6.20.2
+ansible-lint==6.20.3
 attrs==23.1.0
 black==23.9.1
 bracex==2.4
@@ -40,7 +40,7 @@ resolvelib==1.0.1
 rich==13.6.0
 rpds-py==0.10.3
 ruamel.yaml==0.17.33
-ruamel.yaml.clib==0.2.7
+ruamel.yaml.clib==0.2.8
 snowballstemmer==2.2.0
 structlog==23.1.0
 subprocess-tee==0.4.1
