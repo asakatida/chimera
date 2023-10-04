@@ -39,7 +39,7 @@ requests==2.31.0
 resolvelib==1.0.1
 rich==13.6.0
 rpds-py==0.10.3
-ruamel.yaml==0.17.33
+ruamel.yaml==0.17.34
 ruamel.yaml.clib==0.2.8
 snowballstemmer==2.2.0
 structlog==23.1.0
