@@ -20,8 +20,7 @@ jobs:
         uses: ./
         with:
           run: |
-            python tools/corpus_merge.py
-            BASE_REF=HEAD python tools/corpus_freeze.py unit_tests/fuzz/cases.json
+            BASE_REF=HEAD python tools/corpus_merge.py
       - uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
           branch: corpus-${{ github.run_id }}
@@ -32,4 +31,7 @@ jobs:
 name: Corpus Merge
 # yamllint disable-line rule:truthy
 on:
+  push:
+    paths:
+      - .github/workflows/corpus-merge.yml
   workflow_dispatch: ~

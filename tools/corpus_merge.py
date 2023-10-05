@@ -24,7 +24,9 @@ from asyncio import run
 from pathlib import Path
 
 from asyncio_cmd import main
-from chimera_utils import IN_CI, rmdir
+from chimera_utils import rmdir
+from corpus_freeze import corpus_freeze
+from corpus_gather import corpus_gather
 from corpus_utils import corpus_merge, corpus_trim
 from structlog import get_logger
 
@@ -35,8 +37,9 @@ CORPUS_ORIGINAL = FUZZ / "corpus_original"
 
 
 async def corpus_merge_main() -> None:
-    if IN_CI:
-        rmdir(CORPUS_ORIGINAL)
+    await corpus_gather("unit_tests/fuzz/corpus", disable_bars=None)
+    corpus_trim(disable_bars=None)
+    rmdir(CORPUS_ORIGINAL)
     CORPUS.rename(CORPUS_ORIGINAL)
     CORPUS.mkdir()
     errors = await corpus_merge(CORPUS_ORIGINAL)
@@ -47,6 +50,7 @@ async def corpus_merge_main() -> None:
                 get_logger().error(f"Extra Error: {error}")
         raise error
     corpus_trim(disable_bars=None)
+    await corpus_freeze("unit_tests/fuzz/cases.json", disable_bars=None)
 
 
 if __name__ == "__main__":
