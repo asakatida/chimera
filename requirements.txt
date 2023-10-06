@@ -38,7 +38,7 @@ referencing==0.30.2
 requests==2.31.0
 resolvelib==1.0.1
 rich==13.6.0
-rpds-py==0.10.3
+rpds-py==0.10.4
 ruamel.yaml==0.17.35
 ruamel.yaml.clib==0.2.8
 snowballstemmer==2.2.0
@@ -47,7 +47,7 @@ subprocess-tee==0.4.1
 tomli==2.0.1
 tqdm==4.66.1
 types-PyYAML==6.0.12.12
-types-requests==2.31.0.7
+types-requests==2.31.0.8
 types-tqdm==4.66.0.2
 types-urllib3==1.26.25.14
 typing_extensions==4.8.0

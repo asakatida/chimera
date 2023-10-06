@@ -50,7 +50,7 @@ RUN <<SHELL sh
     apk update
     apk add --no-cache \
         gcc=12.2.1_git20220924-r10 \
-        musl-dev=1.2.4-r1 \
+        musl-dev=1.2.4-r2 \
         python3-dev=3.11.6-r0
     python3 -m venv /tmp/env
     /tmp/env/bin/pip install -r /tmp/tools/requirements.txt
