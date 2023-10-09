@@ -21,7 +21,7 @@ jobs:
         with:
           run: |
             BASE_REF=HEAD python tools/corpus_merge.py
-      - uses: stefanzweifel/git-auto-commit-action@v4.16.0
+      - uses: stefanzweifel/git-auto-commit-action@v5.0.0
         with:
           branch: corpus-${{ github.run_id }}
           commit_message: Update fuzzing corpus.
