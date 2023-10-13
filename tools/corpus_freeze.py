@@ -96,12 +96,7 @@ async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
     with file.open() as istream:
         cases_orig = dict(load(istream))
     cases = dict(zip(cases_orig.keys(), map(b64decode, cases_orig.values())))
-    cases.update(
-        map(
-            lambda case: (sha256(case).hexdigest(), case),
-            cases.values(),
-        )
-    )
+    cases.update(map(lambda case: (sha256(case).hexdigest(), case), cases.values()))
     if not IN_CI:
         cases.update(
             map(
