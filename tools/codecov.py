@@ -36,7 +36,7 @@ async def codecov(llvm_profile_lcov: str) -> None:
         environ.get(
             "LLVM_PROFILE_FILE",
             Path(environ.get("LLVM_PROFILE_DIR", "/tmp/coverage"))
-            / "llvm-profile.%3m.profraw",
+            / "llvm-profile.%c.profraw",
         )
     ).resolve()
     environ["LLVM_PROFILE_FILE"] = str(llvm_profile_file)
