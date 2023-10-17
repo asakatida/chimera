@@ -1,5 +1,5 @@
-"""builtins.py."""
 # pylama:ignore=W0621,W0622
+"""builtins.py."""
 
 
 def __build_class__(
