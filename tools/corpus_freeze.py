@@ -28,7 +28,6 @@ from itertools import chain
 from json import dump, load
 from pathlib import Path
 from sys import argv
-from typing import Iterable
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import chunks, cmd, main, splitlines
@@ -37,17 +36,7 @@ from corpus_ascii import is_ascii
 from corpus_utils import c_tqdm, corpus_creations, gather_paths, sha
 
 
-async def corpus_changes(disable_bars: bool | None) -> Iterable[bytes]:
-    return filter(
-        is_ascii, await corpus_objects("unit_tests/fuzz/corpus", disable_bars)
-    )
-
-
-async def crash_contents(disable_bars: bool | None) -> list[bytes]:
-    return await corpus_objects("unit_tests/fuzz/crashes", disable_bars)
-
-
-async def corpus_objects(path: str, disable_bars: bool | None) -> list[bytes]:
+async def corpus_objects(*paths: str, disable_bars: bool | None) -> list[bytes]:
     return await as_completed(
         map(
             lambda sha: cmd("git", "cat-file", "-p", sha, log=False, out=PIPE),
@@ -76,7 +65,7 @@ async def corpus_objects(path: str, disable_bars: bool | None) -> list[bytes]:
                                             )
                                         ),
                                         await corpus_creations(
-                                            path, disable_bars=disable_bars
+                                            *paths, disable_bars=disable_bars
                                         ),
                                     )
                                 )
@@ -101,13 +90,14 @@ async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
         cases.update(
             map(
                 lambda case: (sha256(case).hexdigest(), case),
-                await corpus_changes(disable_bars),
-            )
-        )
-        cases.update(
-            map(
-                lambda case: (sha256(case).hexdigest(), case),
-                await crash_contents(disable_bars),
+                filter(
+                    is_ascii,
+                    await corpus_objects(
+                        "unit_tests/fuzz/corpus",
+                        "unit_tests/fuzz/crashes",
+                        disable_bars=disable_bars,
+                    ),
+                ),
             )
         )
     for key in set(map(sha, gather_paths())).intersection(cases.keys()):
