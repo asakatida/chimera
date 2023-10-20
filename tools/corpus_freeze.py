@@ -21,63 +21,16 @@
 """corpus_freeze.py"""
 
 from asyncio import run
-from asyncio.subprocess import PIPE
 from base64 import b64decode, b64encode
 from hashlib import sha256
-from itertools import chain
 from json import dump, load
 from pathlib import Path
 from sys import argv
 
-from asyncio_as_completed import as_completed
-from asyncio_cmd import chunks, cmd, main, splitlines
+from asyncio_cmd import main
 from chimera_utils import IN_CI
 from corpus_ascii import is_ascii
-from corpus_utils import c_tqdm, corpus_creations, gather_paths, sha
-
-
-async def corpus_objects(*paths: str, disable_bars: bool | None) -> list[bytes]:
-    return await as_completed(
-        map(
-            lambda sha: cmd("git", "cat-file", "-p", sha, log=False, out=PIPE),
-            c_tqdm(
-                set(
-                    chain.from_iterable(
-                        map(
-                            splitlines,
-                            chain.from_iterable(
-                                await as_completed(
-                                    map(
-                                        lambda item: as_completed(
-                                            map(
-                                                lambda chunk: cmd(
-                                                    "git",
-                                                    "ls-tree",
-                                                    "--full-tree",
-                                                    "--object-only",
-                                                    "-r",
-                                                    item[0].decode(),
-                                                    *chunk,
-                                                    log=False,
-                                                    out=PIPE,
-                                                ),
-                                                chunks(item[1], 4096),
-                                            )
-                                        ),
-                                        await corpus_creations(
-                                            *paths, disable_bars=disable_bars
-                                        ),
-                                    )
-                                )
-                            ),
-                        )
-                    )
-                ),
-                "Files",
-                disable_bars,
-            ),
-        )
-    )
+from corpus_utils import corpus_objects, gather_paths, sha
 
 
 async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
