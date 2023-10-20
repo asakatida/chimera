@@ -1,7 +1,7 @@
 ansible==8.5.0
 ansible-compat==4.1.10
 ansible-core==2.15.5
-ansible-lint==6.20.3
+ansible-lint==6.21.1
 attrs==23.1.0
 black==23.10.0
 bracex==2.4
@@ -22,7 +22,7 @@ markdown-it-py==3.0.0
 MarkupSafe==2.1.3
 mccabe==0.7.0
 mdurl==0.1.2
-mypy==1.6.0
+mypy==1.6.1
 mypy-extensions==1.0.0
 packaging==23.2
 pathspec==0.11.2
@@ -39,7 +39,7 @@ requests==2.31.0
 resolvelib==1.0.1
 rich==13.6.0
 rpds-py==0.10.6
-ruamel.yaml==0.17.35
+ruamel.yaml==0.17.40
 ruamel.yaml.clib==0.2.8
 snowballstemmer==2.2.0
 structlog==23.2.0
@@ -47,11 +47,11 @@ subprocess-tee==0.4.1
 tomli==2.0.1
 tqdm==4.66.1
 types-PyYAML==6.0.12.12
-types-requests==2.31.0.9
+types-requests==2.31.0.10
 types-tqdm==4.66.0.2
 types-urllib3==1.26.25.14
 typing_extensions==4.8.0
-urllib3==2.0.6
+urllib3==2.0.7
 wcmatch==8.5
 websocket-client==1.6.4
 yamllint==1.32.0
