@@ -1,7 +1,7 @@
 ---
 # yamllint disable rule:key-ordering
-- hosts: localhost
-  name: Boot localhost for building
+- name: Boot localhost for building
+  hosts: localhost
   tasks:
     - name: Install core packages
       ansible.builtin.pip:
