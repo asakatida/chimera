@@ -329,6 +329,7 @@
               - less
               - libgcc
               - libstdc++-dev
+              - linux-headers
               - make
               - mawk
               - moreutils

@@ -1,6 +1,7 @@
 #pragma once
 
-#define FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+#undef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+#define FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION 1
 
 #include "grammar/grammar.hpp"
 #include "grammar/input.hpp"

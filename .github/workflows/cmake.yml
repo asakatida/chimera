@@ -17,8 +17,8 @@ jobs:
         with:
           run: |
             rustup default stable
-            cmake -GNinja -B build -S .
-            python tools/ninja.py build fuzzers
+            cmake -DFUZZTEST_FUZZING_MODE=on -GNinja -B build -S .
+            python tools/ninja.py build fuzz-chimera fuzzers
       - env:
           GITHUB_REF: ${{ github.ref }}
         name: Corpus recheck
@@ -29,12 +29,15 @@ jobs:
             python tools/corpus_gather.py "${GITHUB_REF}"
             python tools/corpus_retest.py build
             BASE_REF=HEAD python tools/corpus_freeze.py unit_tests/fuzz/cases.json
-      - if: github.ref == 'refs/heads/stable'
+      - env:
+          CORPUS_DIR: unit_tests/fuzz/corpus/00
+        if: github.ref == 'refs/heads/stable'
         name: Run corpus
         uses: ./
         with:
           run: |
             python tools/ninja.py build corpus
+            build/fuzz-chimera --fuzz_for=60s
             python tools/corpus_retest.py build
       - name: Corpus baseline
         uses: ./
@@ -70,6 +73,27 @@ jobs:
             cmake -GNinja -B build -S .
             python tools/ninja.py build unit-test
             python tools/ninja.py build test
+  fuzztest:
+    concurrency:
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      group: fuzztest-${{ github.workflow }}-${{ github.ref }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.5.3
+        with:
+          submodules: true
+      - env:
+          CMAKE_BUILD_TYPE: RelWithDebInfo
+          CPPFLAGS: -stdlib=libc++
+          CXXFLAGS: -stdlib=libc++
+          LDFLAGS: -stdlib=libc++
+        name: Basic unit tests
+        uses: ./
+        with:
+          run: |
+            rustup default stable
+            cmake -GNinja -B build -S .
+            ninja -C build -j2 check-rand
   libcpp:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
@@ -88,9 +112,10 @@ jobs:
         with:
           run: |
             rustup default stable
-            cmake -GNinja -B build -S .
-            python tools/ninja.py build unit-test
+            cmake -GNinja -DFUZZTEST_FUZZING_MODE=on -B build -S .
+            python tools/ninja.py build fuzz-chimera unit-test
             python tools/ninja.py build test
+            build/fuzz-chimera --fuzz_for=10s
   release:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}

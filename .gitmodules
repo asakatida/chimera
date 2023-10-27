@@ -5,6 +5,9 @@
   branch = devel
   path = external/Catch
   url = https://github.com/catchorg/Catch2.git
+[submodule "external/fuzztest"]
+  path = external/fuzztest
+  url = https://github.com/google/fuzztest.git
 [submodule "external/GSL"]
   branch = main
   path = external/GSL
