@@ -1,5 +1,7 @@
-from itertools import chain, count, cycle, groupby
+from base64 import b64decode, b64encode
+from itertools import chain, cycle, groupby
 from json import load
+from lzma import decompress
 from operator import itemgetter
 from pathlib import Path
 from string import printable, whitespace
@@ -13,6 +15,13 @@ PREFIX = """
 """
 
 
+def extract_case(case: bytes) -> bytes:
+    try:
+        return decompress(case)
+    except Exception:
+        return case
+
+
 def sanitize(data: bytes) -> str:
     return (
         "".join(map(lambda c: (chr(c) if c in PRINTABLE else f'""\\{hex(c)}""'), data))
@@ -21,7 +30,7 @@ def sanitize(data: bytes) -> str:
     )
 
 
-def make_tests(test_cpps: list[Path], tests: dict[str, dict[bytes, str]]) -> None:
+def make_tests(*test_cpps: Path, tests: dict[str, dict[bytes, str]]) -> None:
     for test_cpp, test_cases in groupby(
         sorted(
             zip(
@@ -31,7 +40,7 @@ def make_tests(test_cpps: list[Path], tests: dict[str, dict[bytes, str]]) -> Non
                         lambda prefix, cases: map(
                             lambda test_name, test_data: (
                                 f'TEST_CASE("fuzz {prefix} `{test_name}`") {{'
-                                f" CHECK_NOTHROW(TestOne({test_data})); }}"
+                                f"CHECK_NOTHROW(TestOne({test_data}));}}"
                             ),
                             map(
                                 lambda name: name.replace("\\", r"\\"),
@@ -55,41 +64,36 @@ def make_tests(test_cpps: list[Path], tests: dict[str, dict[bytes, str]]) -> Non
 
 
 def main(*outputs: str) -> None:
-    blns_base64_file = Path(
+    with Path(
         "external/big-list-of-naughty-strings/blns.base64.json"
-    ).resolve()
-    cases_file = Path("unit_tests/fuzz/cases.json").resolve()
-    with blns_base64_file.open() as istream:
+    ).open() as istream:
         blns_base64 = load(istream)
-    with cases_file.open() as istream:
+    with Path("unit_tests/fuzz/cases.json").open() as istream:
         cases = load(istream)
     make_tests(
-        list(map(Path, outputs)),
-        {
+        *map(Path, outputs),
+        tests={
             "big list of nasty strings base64": dict(
-                zip(
-                    map(str.encode, blns_base64),
-                    map(
-                        lambda idx: f'json_from_file("{blns_base64_file}")[{idx}].as<std::string>()',
-                        count(),
-                    ),
-                )
+                zip(map(str.encode, blns_base64), blns_base64)
             ),
             "big list of nasty strings": dict(
                 zip(
                     map(str.encode, blns_base64),
-                    map(
-                        lambda idx: f'base64_decode(json_from_file("{blns_base64_file}")[{idx}].as<std::string>())',
-                        count(),
-                    ),
+                    map(lambda case: f'base64_decode("{case}")', blns_base64),
                 )
             ),
             "discovered cases": dict(
                 zip(
                     map(str.encode, cases.keys()),
                     map(
-                        lambda key: f'base64_decode(json_from_file("{cases_file}")["{key}"].as<std::string>())',
-                        cases.keys(),
+                        lambda case: f'base64_decode("{case}")',
+                        map(
+                            bytes.decode,
+                            map(
+                                b64encode,
+                                map(extract_case, map(b64decode, cases.values())),
+                            ),
+                        ),
                     ),
                 )
             ),

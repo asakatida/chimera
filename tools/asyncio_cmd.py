@@ -5,7 +5,7 @@ from itertools import chain, islice, repeat, takewhile
 from os import environ
 from pathlib import Path
 from sys import exc_info
-from typing import Iterable, Iterator, Sequence, TypeVar
+from typing import Iterable, Iterator, TypeVar
 
 from chimera_utils import IN_CI
 from structlog import get_logger
@@ -16,7 +16,7 @@ ProcessInput = int | None
 
 class ProcessError(Exception):
     def __init__(
-        self, cmd: Sequence[object], stdout: bytes, stderr: bytes, returncode: int
+        self, *cmd: object, stdout: bytes, stderr: bytes, returncode: int
     ) -> None:
         super().__init__(f"{cmd} failed with {returncode}")
         self.cmd = cmd
@@ -55,7 +55,7 @@ async def cmd(
     if log:
         get_logger().info(f"+ {' '.join(map(str, args))}")
     proc = await create_subprocess_exec(*map(str, args), stderr=err, stdout=out)
-    return await communicate(args, b"", proc)
+    return await communicate(*args, err=b"", proc=proc)
 
 
 async def cmd_check(*args: object) -> Exception | None:
@@ -63,7 +63,7 @@ async def cmd_check(*args: object) -> Exception | None:
         proc = await create_subprocess_exec(
             *map(str, args), stderr=DEVNULL, stdout=DEVNULL
         )
-        await communicate(args, b"", proc)
+        await communicate(*args, err=b"", proc=proc)
     except ProcessError as error:
         return error
     return None
@@ -89,7 +89,7 @@ async def cmd_env(
         stderr=err,
         stdout=out,
     )
-    return await communicate(args, b"", proc)
+    return await communicate(*args, err=b"", proc=proc)
 
 
 async def cmd_flog(*args: object, out: str | None = None) -> bytes:
@@ -97,16 +97,16 @@ async def cmd_flog(*args: object, out: str | None = None) -> bytes:
         proc = await create_subprocess_exec(
             *map(str, args), stderr=DEVNULL, stdout=DEVNULL
         )
-        return await communicate(args, b"logs in /dev/null\n", proc)
+        return await communicate(*args, err=b"logs in /dev/null\n", proc=proc)
     Path(out).parent.mkdir(parents=True, exist_ok=True)
     with Path(out).open("ab") as ostream:
         proc = await create_subprocess_exec(
             *map(str, args), stderr=ostream, stdout=ostream
         )
-        return await communicate(args, f"logs in {out}\n".encode(), proc)
+        return await communicate(*args, err=f"logs in {out}\n".encode(), proc=proc)
 
 
-async def communicate(args: Sequence[object], err: bytes, proc: Process) -> bytes:
+async def communicate(*args: object, err: bytes, proc: Process) -> bytes:
     cmd_stderr = cmd_stdout = None
     try:
         cmd_stdout, cmd_stderr = await proc.communicate()
@@ -123,7 +123,12 @@ async def communicate(args: Sequence[object], err: bytes, proc: Process) -> byte
                 cmd_stdout += await proc.stdout.read()
         if returncode != 0:
             if not isinstance(exc_info()[1], CancelledError):
-                raise ProcessError(args, cmd_stdout, err + cmd_stderr, returncode or 1)
+                raise ProcessError(
+                    *args,
+                    stdout=cmd_stdout,
+                    stderr=err + cmd_stderr,
+                    returncode=returncode or 1,
+                )
     return cmd_stdout or b""
 
 

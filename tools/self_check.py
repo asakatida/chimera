@@ -3,7 +3,6 @@ from asyncio.subprocess import PIPE
 from itertools import chain
 from re import compile
 from sys import version_info
-from typing import Sequence
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import ci_args, cmd, main, splitlines
@@ -15,7 +14,7 @@ async def lint(*args: object) -> bytes:
     return await cmd(*args, out=PIPE, log=False)
 
 
-async def black(files: Sequence[object]) -> bytes:
+async def black(*files: object) -> bytes:
     if files:
         return await lint(
             "black",
@@ -28,7 +27,7 @@ async def black(files: Sequence[object]) -> bytes:
     return b""
 
 
-async def isort(files: Sequence[object]) -> bytes:
+async def isort(*files: object) -> bytes:
     if files:
         return await lint(
             "isort",
@@ -40,19 +39,13 @@ async def isort(files: Sequence[object]) -> bytes:
     return b""
 
 
-async def pylama(files: Sequence[object]) -> bytes:
+async def pylama(*files: object) -> bytes:
     if files:
-        return await lint(
-            "pylama",
-            "--linters",
-            # "mccabe,mypy,pycodestyle,pydocstyle,pyflakes,isort",
-            "mccabe,pycodestyle,pyflakes,isort",
-            *files,
-        )
+        return await lint("pylama", "--linters", "mccabe,pycodestyle,pyflakes", *files)
     return b""
 
 
-async def mypy(files: Sequence[object]) -> bytes:
+async def mypy(*files: object) -> bytes:
     if files:
         return await lint(
             "mypy",
@@ -75,10 +68,10 @@ async def self_check() -> None:
                     await as_completed(
                         iter(
                             (
-                                black(files),
-                                isort(files),
-                                pylama(files),
-                                mypy(files_mypy),
+                                black(*files),
+                                isort(*files),
+                                pylama(*files),
+                                mypy(*files_mypy),
                             )
                         )
                     ),

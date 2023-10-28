@@ -46,6 +46,10 @@ LENGTH = 14
 T = TypeVar("T")
 
 
+class Increment(Exception):
+    pass
+
+
 def bucket(path: Path) -> Path:
     return FUZZ / path.relative_to(FUZZ).parts[0]
 
@@ -269,19 +273,11 @@ def gather_paths() -> Iterable[Path]:
     )
 
 
-class Increment(Exception):
-    pass
-
-
-async def regression_one(fuzzer: Path, chunk: list[Path]) -> None:
-    await cmd_flog(fuzzer, *chunk)
-
-
 async def regression(build: str, fuzzer: str = "", corpus: str = "") -> None:
     fuzzers = (Path(build) / f"fuzz-{fuzzer}",) if fuzzer else fuzz_star(Path(build))
     await as_completed(
         map(
-            lambda args: regression_one(*args),
+            lambda args: cmd_flog(args[0], *args[1]),
             product(
                 fuzzers,
                 chunks(
