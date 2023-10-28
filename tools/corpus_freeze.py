@@ -24,12 +24,20 @@ from asyncio import run
 from base64 import b64decode, b64encode
 from hashlib import sha1, sha256
 from json import dump, load
+from lzma import compress, decompress
 from pathlib import Path
 from sys import argv
 
 from asyncio_cmd import main
 from corpus_ascii import is_ascii
 from corpus_utils import corpus_objects, gather_paths, sha
+
+
+def extract_case(case: bytes) -> bytes:
+    try:
+        return decompress(case)
+    except Exception:
+        return case
 
 
 async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
@@ -39,7 +47,7 @@ async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
     cases = dict(
         map(
             lambda case: (sha256(case).hexdigest(), case),
-            map(b64decode, cases_orig.values()),
+            map(extract_case, map(b64decode, cases_orig.values())),
         )
     )
     cases.update(
@@ -64,7 +72,10 @@ async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
     for key in set(map(sha, gather_paths())).intersection(cases.keys()):
         del cases[key]
     cases_orig = dict(
-        zip(cases.keys(), map(bytes.decode, map(b64encode, cases.values())))
+        zip(
+            cases.keys(),
+            map(bytes.decode, map(b64encode, map(compress, cases.values()))),
+        )
     )
     with file.open("w") as ostream:
         dump(cases_orig, ostream, indent=4, sort_keys=True)

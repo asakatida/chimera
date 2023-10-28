@@ -81,14 +81,6 @@ auto base64_decode(const std::string &data) -> std::string {
   return ret;
 }
 
-auto json_from_file(const std::string &path) -> tao::json::value {
-  static std::map<std::string, tao::json::value> cache;
-  if (cache.find(path) == cache.end()) {
-    cache[path] = tao::json::from_file(path);
-  }
-  return cache[path];
-}
-
 void TestOne(const std::string &data) {
   chimera::library::FuzzerTestOneInput(
       // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)

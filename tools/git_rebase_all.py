@@ -25,6 +25,7 @@ from asyncio.subprocess import PIPE
 from itertools import combinations
 from math import factorial
 from sys import argv
+from typing import Sequence
 
 from asyncio_cmd import ProcessError, cmd, cmd_env, main, splitlines
 from corpus_utils import c_tqdm
@@ -35,7 +36,7 @@ async def git_cmd(*args: object, out: int | None = None) -> bytes:
     return await cmd("git", *args, out=out, log=False)
 
 
-async def set_upstream(remote_branches: list[str]) -> None:
+async def set_upstream(*remote_branches: str) -> None:
     for remote_branch in remote_branches:
         if remote_branch.startswith("origin/dependabot/"):
             continue
@@ -55,7 +56,9 @@ async def git_diff(*args: str) -> bool:
 
 
 async def report_branch_graph(
-    remote_branches: list[str], local_branches: list[str], disable_bars: bool | None
+    remote_branches: Sequence[str],
+    local_branches: Sequence[str],
+    disable_bars: bool | None,
 ) -> None:
     branch_graph: dict[str, set[str]] = dict()
     for left, right in c_tqdm(
@@ -93,7 +96,7 @@ async def git_rebase_all(*args: str, disable_bars: bool | None) -> None:
             splitlines(await git_cmd("branch", "-r", out=PIPE)),
         )
     )
-    await set_upstream(remote_branches)
+    await set_upstream(*remote_branches)
     local_branches = list(
         map(
             lambda local_branch: (

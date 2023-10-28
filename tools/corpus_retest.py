@@ -48,7 +48,7 @@ def fuzz_output_paths(prefix: bytes, output: bytes) -> set[bytes]:
     )
 
 
-async def regression_log_one(fuzzer: Path, chunk: list[Path]) -> Exception | None:
+async def regression_log_one(fuzzer: Path, *chunk: Path) -> Exception | None:
     log_file = f"/tmp/{fuzzer.name}-{uuid4().hex}.log"
     Path(log_file).write_bytes(b"")
     try:
@@ -79,7 +79,7 @@ async def regression_log() -> list[Exception]:
             None,
             await as_completed(
                 map(
-                    lambda args: regression_log_one(*args),
+                    lambda args: regression_log_one(args[0], *args[1]),
                     product(
                         fuzz_star(), chunks(filter(Path.is_file, CORPUS.rglob("*")), 64)
                     ),
