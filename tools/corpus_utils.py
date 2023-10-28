@@ -82,16 +82,16 @@ async def corpus_creations(
     *paths: str,
     base_commit: str = environ.get("BASE_REF", "^origin/stable"),
     disable_bars: bool | None,
-) -> Iterable[tuple[bytes, list[str]]]:
+) -> Iterable[tuple[str, list[str]]]:
     return filter(
         lambda pair: pair[1],
         map(
             lambda match: (
-                match["sha"],
+                match["sha"].decode(),
                 list(
                     filter(
                         lambda line: any(
-                            map(lambda path: path in line, paths)  # type: ignore
+                            map(lambda path: line.startswith(path), paths)  # type: ignore
                         )
                         and not Path(line).exists(),  # type: ignore
                         splitlines(match["paths"]),
@@ -139,7 +139,9 @@ async def corpus_merge(path: Path) -> list[Exception]:
     return []
 
 
-async def corpus_objects(*paths: str, disable_bars: bool | None) -> list[bytes]:
+async def corpus_objects(
+    *paths: str, disable_bars: bool | None, exclude: set[str] = set()
+) -> list[bytes]:
     return await as_completed(
         map(
             lambda sha: cmd("git", "cat-file", "-p", sha, log=False, out=PIPE),
@@ -159,7 +161,7 @@ async def corpus_objects(*paths: str, disable_bars: bool | None) -> list[bytes]:
                                                     "--full-tree",
                                                     "--object-only",
                                                     "-r",
-                                                    item[0].decode(),
+                                                    item[0],
                                                     *chunk,
                                                     log=False,
                                                     out=PIPE,
@@ -175,7 +177,8 @@ async def corpus_objects(*paths: str, disable_bars: bool | None) -> list[bytes]:
                             ),
                         )
                     )
-                ),
+                )
+                - exclude,
                 "Files",
                 disable_bars,
             ),

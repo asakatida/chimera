@@ -22,13 +22,12 @@
 
 from asyncio import run
 from base64 import b64decode, b64encode
-from hashlib import sha256
+from hashlib import sha1, sha256
 from json import dump, load
 from pathlib import Path
 from sys import argv
 
 from asyncio_cmd import main
-from chimera_utils import IN_CI
 from corpus_ascii import is_ascii
 from corpus_utils import corpus_objects, gather_paths, sha
 
@@ -37,22 +36,31 @@ async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
     file = Path(output)
     with file.open() as istream:
         cases_orig = dict(load(istream))
-    cases = dict(zip(cases_orig.keys(), map(b64decode, cases_orig.values())))
-    cases.update(map(lambda case: (sha256(case).hexdigest(), case), cases.values()))
-    if not IN_CI:
-        cases.update(
-            map(
-                lambda case: (sha256(case).hexdigest(), case),
-                filter(
-                    is_ascii,
-                    await corpus_objects(
-                        "unit_tests/fuzz/corpus",
-                        "unit_tests/fuzz/crashes",
-                        disable_bars=disable_bars,
+    cases = dict(
+        map(
+            lambda case: (sha256(case).hexdigest(), case),
+            map(b64decode, cases_orig.values()),
+        )
+    )
+    cases.update(
+        map(
+            lambda case: (sha256(case).hexdigest(), case),
+            filter(
+                is_ascii,
+                await corpus_objects(
+                    "unit_tests/fuzz/corpus",
+                    "unit_tests/fuzz/crashes",
+                    disable_bars=disable_bars,
+                    exclude=set(
+                        map(
+                            lambda case: sha1(case).hexdigest(),
+                            map(b64decode, cases_orig.values()),
+                        )
                     ),
                 ),
-            )
+            ),
         )
+    )
     for key in set(map(sha, gather_paths())).intersection(cases.keys()):
         del cases[key]
     cases_orig = dict(

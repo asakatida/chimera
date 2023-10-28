@@ -21,16 +21,25 @@
 """corpus_gather.py"""
 
 from asyncio import run
-from hashlib import sha256
+from hashlib import sha1, sha256
 from pathlib import Path
 from sys import argv
 
 from asyncio_cmd import main
-from corpus_utils import corpus_objects, corpus_trim
+from corpus_utils import corpus_objects, corpus_trim, gather_paths
 
 
 async def corpus_gather(*paths: str, disable_bars: bool | None) -> None:
-    for case in await corpus_objects(*paths, disable_bars=disable_bars):
+    for case in await corpus_objects(
+        *paths,
+        disable_bars=disable_bars,
+        exclude=set(
+            map(
+                lambda case: sha1(case).hexdigest(),
+                map(Path.read_bytes, gather_paths()),
+            )
+        ),
+    ):
         new_file = Path("unit_tests/fuzz/corpus") / sha256(case).hexdigest()
         new_file.write_bytes(case)
     corpus_trim(disable_bars=disable_bars)
