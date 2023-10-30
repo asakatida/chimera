@@ -16,8 +16,4 @@ updates:
     package-ecosystem: pip
     schedule:
       interval: daily
-  - directory: tools
-    package-ecosystem: pip
-    schedule:
-      interval: daily
 version: 2
