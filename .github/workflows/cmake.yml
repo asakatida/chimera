@@ -128,8 +128,8 @@ on:
       - CMakeLists.txt
       - external/**
       - oxidation/**
-      - tools/requirements.txt
       - requirements.txt
+      - tools/requirements.txt
       - unit_tests/fuzz/cases.json
   push:
     branches:
@@ -145,7 +145,7 @@ on:
       - CMakeLists.txt
       - external/**
       - oxidation/**
-      - tools/requirements.txt
       - requirements.txt
+      - tools/requirements.txt
       - unit_tests/fuzz/cases.json
   workflow_dispatch: ~

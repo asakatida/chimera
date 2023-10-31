@@ -36,26 +36,26 @@ on:
     paths:
       - .github/workflows/utf8-generate.yml
       - action.yml
-      - tools/requirements.txt
       - requirements.txt
       - tools/action.py
       - tools/asyncio_as_completed.py
       - tools/asyncio_cmd.py
       - tools/g_ls_tree.py
       - tools/generate_utf8_*.py
+      - tools/requirements.txt
   push:
     branches:
       - stable
     paths:
       - .github/workflows/utf8-generate.yml
       - action.yml
-      - tools/requirements.txt
       - requirements.txt
       - tools/action.py
       - tools/asyncio_as_completed.py
       - tools/asyncio_cmd.py
       - tools/g_ls_tree.py
       - tools/generate_utf8_*.py
+      - tools/requirements.txt
   schedule:
     - cron: 20 14 * * *
   workflow_dispatch: ~

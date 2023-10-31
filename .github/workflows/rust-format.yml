@@ -27,12 +27,12 @@ on:
       - "**/Cargo.lock"
       - "**/Cargo.toml"
       - action.yml
-      - tools/requirements.txt
       - requirements.txt
       - tools/action.py
       - tools/asyncio_as_completed.py
       - tools/asyncio_cmd.py
       - tools/g_ls_tree.py
+      - tools/requirements.txt
   push:
     branches:
       - stable
@@ -42,10 +42,10 @@ on:
       - "**/Cargo.lock"
       - "**/Cargo.toml"
       - action.yml
-      - tools/requirements.txt
       - requirements.txt
       - tools/action.py
       - tools/asyncio_as_completed.py
       - tools/asyncio_cmd.py
       - tools/g_ls_tree.py
+      - tools/requirements.txt
   workflow_dispatch: ~

@@ -80,9 +80,9 @@ on:
       - .dockerignore
       - .github/workflows/release.yml
       - Dockerfile*
-      - tools/requirements.txt
       - requirements.txt
       - tools/boot.yml
+      - tools/requirements.txt
   push:
     branches:
       - stable
@@ -90,9 +90,9 @@ on:
       - .dockerignore
       - .github/workflows/release.yml
       - Dockerfile*
-      - tools/requirements.txt
       - requirements.txt
       - tools/boot.yml
+      - tools/requirements.txt
   schedule:
     - cron: 37 1 * * 2
   workflow_dispatch: ~

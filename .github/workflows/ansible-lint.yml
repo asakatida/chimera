@@ -25,24 +25,24 @@ on:
     paths:
       - .github/workflows/ansible-lint.yml
       - action.yml
-      - tools/requirements.txt
       - requirements.txt
       - tools/action.py
       - tools/asyncio_cmd.py
       - tools/boot.yml
       - tools/devcontainer.yml
       - tools/docker.yml
+      - tools/requirements.txt
   push:
     branches:
       - stable
     paths:
       - .github/workflows/ansible-lint.yml
       - action.yml
-      - tools/requirements.txt
       - requirements.txt
       - tools/action.py
       - tools/asyncio_cmd.py
       - tools/boot.yml
       - tools/devcontainer.yml
       - tools/docker.yml
+      - tools/requirements.txt
   workflow_dispatch: ~
