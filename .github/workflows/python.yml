@@ -29,9 +29,9 @@ on:
       - .github/workflows/python.yml
       - "**.py"
       - action.yml
-      - tools/requirements.txt
       - requirements.txt
       - setup.cfg
+      - tools/requirements.txt
   push:
     branches:
       - stable
@@ -39,7 +39,7 @@ on:
       - .github/workflows/python.yml
       - "**.py"
       - action.yml
-      - tools/requirements.txt
       - requirements.txt
       - setup.cfg
+      - tools/requirements.txt
   workflow_dispatch: ~

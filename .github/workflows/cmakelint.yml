@@ -25,10 +25,10 @@ on:
       - action.yml
       - cmake/**
       - CMakeLists.txt
-      - tools/requirements.txt
       - requirements.txt
       - tools/action.py
       - tools/asyncio_cmd.py
+      - tools/requirements.txt
   push:
     branches:
       - stable
@@ -38,8 +38,8 @@ on:
       - action.yml
       - cmake/**
       - CMakeLists.txt
-      - tools/requirements.txt
       - requirements.txt
       - tools/action.py
       - tools/asyncio_cmd.py
+      - tools/requirements.txt
   workflow_dispatch: ~
