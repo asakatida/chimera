@@ -26,28 +26,33 @@ from pathlib import Path
 from sys import argv
 
 from asyncio_cmd import main
-from corpus_utils import corpus_objects, corpus_trim, gather_paths
+from corpus_utils import corpus_objects, corpus_trim
 
 
 async def corpus_gather(*paths: str, disable_bars: bool | None) -> None:
-    for case in await corpus_objects(
-        *paths,
-        disable_bars=disable_bars,
-        exclude=set(
-            map(
-                lambda case: sha1(case).hexdigest(),
-                map(Path.read_bytes, gather_paths()),
-            )
-        ),
-    ):
-        new_file = Path("unit_tests/fuzz/corpus") / sha256(case).hexdigest()
-        new_file.write_bytes(case)
+    for path in paths:
+        for case in await corpus_objects(
+            path,
+            disable_bars=disable_bars,
+            exclude=set(
+                map(
+                    lambda case: sha1(case).hexdigest(),
+                    map(Path.read_bytes, filter(Path.is_file, Path(path).rglob("*"))),
+                )
+            ),
+        ):
+            new_file = Path(path) / sha256(case).hexdigest()
+            new_file.write_bytes(case)
     corpus_trim(disable_bars=disable_bars)
 
 
 def corpus_gather_main(ref: str) -> None:
     if ref == "refs/heads/stable":
-        run(corpus_gather("unit_tests/fuzz/corpus", disable_bars=False))
+        run(
+            corpus_gather(
+                "unit_tests/fuzz/crashes", "unit_tests/fuzz/corpus", disable_bars=False
+            )
+        )
 
 
 if __name__ == "__main__":
