@@ -74,7 +74,10 @@ def main(*outputs: str) -> None:
         *map(Path, outputs),
         tests={
             "big list of nasty strings base64": dict(
-                zip(map(str.encode, blns_base64), blns_base64)
+                zip(
+                    map(str.encode, blns_base64),
+                    map(lambda case: f'"{case}"', blns_base64),
+                )
             ),
             "big list of nasty strings": dict(
                 zip(
