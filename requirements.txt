@@ -1,9 +1,9 @@
-ansible==8.6.0
+ansible==8.6.1
 ansible-compat==4.1.10
 ansible-core==2.15.6
 ansible-lint==6.22.0
 attrs==23.1.0
-black==23.10.1
+black==23.11.0
 bracex==2.4
 certifi==2023.7.22
 cffi==1.16.0
@@ -22,11 +22,11 @@ markdown-it-py==3.0.0
 MarkupSafe==2.1.3
 mccabe==0.7.0
 mdurl==0.1.2
-mypy==1.6.1
+mypy==1.7.0
 mypy-extensions==1.0.0
 packaging==23.2
 pathspec==0.11.2
-platformdirs==3.11.0
+platformdirs==4.0.0
 pycodestyle==2.11.1
 pycparser==2.21
 pydocstyle==6.3.0
@@ -54,4 +54,4 @@ typing_extensions==4.8.0
 urllib3==2.0.7
 wcmatch==8.5
 websocket-client==1.6.4
-yamllint==1.32.0
+yamllint==1.33.0
