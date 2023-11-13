@@ -94,10 +94,8 @@ async def corpus_creations(
                 match["sha"].decode(),
                 list(
                     filter(
-                        lambda line: any(
-                            map(lambda path: line.startswith(path), paths)  # type: ignore
-                        )
-                        and not Path(line).exists(),  # type: ignore
+                        lambda line: any(map(lambda path: line.startswith(path), paths))
+                        and not Path(line).exists(),
                         splitlines(match["paths"]),
                     )
                 ),
@@ -268,7 +266,7 @@ def gather_paths() -> Iterable[Path]:
     return filter(
         Path.is_file,
         chain.from_iterable(
-            map(Path.rglob, map(FUZZ.joinpath, DIRECTORIES), repeat("*"))  # type: ignore
+            map(Path.rglob, map(FUZZ.joinpath, DIRECTORIES), repeat("*"))
         ),
     )
 

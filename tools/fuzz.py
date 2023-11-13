@@ -17,8 +17,8 @@ async def fuzz(fuzzer: str, dictionary: str, *dirs: str) -> None:
         "-shrink=1",
         "-use_value_profile=1",
         *filter(
-            Path.is_dir,  # type: ignore
-            chain.from_iterable(map(Path.rglob, map(Path, dirs), repeat("*"))),  # type: ignore
+            Path.is_dir,
+            chain.from_iterable(map(Path.rglob, map(Path, dirs), repeat("*"))),
         ),
         log=False,
     )

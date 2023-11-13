@@ -44,7 +44,7 @@ async def _next(background_tasks: set[Task[T]], coroutine: Task[T]) -> T:
 
 def _schedule_tasks(coroutines: Iterator[Task[T]], limit: int) -> Iterator[Task[T]]:
     background_tasks = {coroutine for coroutine, _ in zip(coroutines, range(limit - 1))}
-    yield from map(_next, repeat(background_tasks), coroutines)
+    yield from map(_next, repeat(background_tasks), coroutines)  # type: ignore
     yield from background_tasks
 
 
