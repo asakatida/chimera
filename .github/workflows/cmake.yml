@@ -12,19 +12,13 @@ jobs:
         with:
           filter: tree:0
           submodules: true
-      - name: Build project
-        uses: ./
-        with:
-          run: |
-            rustup default stable
-            cmake -GNinja -B build -S .
-            python tools/ninja.py build fuzzers
       - env:
           GITHUB_REF: ${{ github.ref }}
         name: Corpus recheck
         uses: ./
         with:
           run: |
+            rustup default stable
             python tools/crash_reset.py
             python tools/corpus_gather.py "${GITHUB_REF}"
             python tools/corpus_retest.py build

@@ -31,7 +31,8 @@ from typing import Iterable, TypeVar
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import chunks, cmd, cmd_check, cmd_flog, splitlines
-from chimera_utils import IN_CI
+from chimera_utils import IN_CI, rmdir
+from structlog import get_logger
 from tqdm import tqdm
 
 CONFLICT = compile(rb"^(?:(?:<{7,8}|>{7,8})(?:\s.+)?|={7,8})$\s?", MULTILINE)
@@ -39,6 +40,7 @@ DIRECTORIES = ("corpus", "crashes")
 SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
+CORPUS_ORIGINAL = FUZZ / "corpus_original"
 CRASHES = FUZZ / "crashes"
 CORPUS.mkdir(parents=True, exist_ok=True)
 LENGTH = 14
@@ -125,7 +127,10 @@ async def corpus_creations(
     )
 
 
-async def corpus_merge(path: Path) -> list[Exception]:
+async def corpus_merge(disable_bars: bool | None) -> None:
+    rmdir(CORPUS_ORIGINAL)
+    CORPUS.rename(CORPUS_ORIGINAL)
+    CORPUS.mkdir(parents=True, exist_ok=True)
     if errors := await fuzz_test(
         "-merge=1",
         "-reduce_inputs=1",
@@ -133,12 +138,16 @@ async def corpus_merge(path: Path) -> list[Exception]:
         CORPUS,
         *filter(
             Path.is_dir,
-            chain.from_iterable(map(lambda path: path.rglob("*"), (CORPUS, path))),
+            CORPUS_ORIGINAL.rglob("*"),
         ),
     ):
-        return errors
-    corpus_trim(disable_bars=True)
-    return []
+        error = errors.pop()
+        if errors:
+            for error in errors:
+                get_logger().error(f"Extra Error: {error}")
+        raise error
+    rmdir(CORPUS_ORIGINAL)
+    corpus_trim(disable_bars=disable_bars)
 
 
 async def corpus_objects(

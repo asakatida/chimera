@@ -25,8 +25,9 @@ from os import chdir, environ
 from pathlib import Path
 from sys import argv
 
-from asyncio_cmd import cmd, cmd_env, cmd_flog, main
+from asyncio_cmd import cmd, cmd_flog, main
 from chimera_utils import rmdir
+from cmake_codecov import cmake_codecov
 from corpus_utils import regression
 from ninja import ninja
 
@@ -43,32 +44,9 @@ async def codecov(llvm_profile_lcov: str) -> None:
     llvm_profile_dir = llvm_profile_file.parent
     instr_profile = llvm_profile_dir / "llvm-profile.profdata"
     chdir(Path(__file__).parent.parent)
-    await cmd_env(
-        "cmake",
-        "-G",
-        "Ninja",
-        "-B",
-        "build",
-        "-S",
-        ".",
-        env=dict(
-            environ,
-            CXXFLAGS=" ".join(
-                (
-                    "-fcoverage-mapping",
-                    "-fprofile-instr-generate",
-                    "-mllvm",
-                    "-runtime-counter-relocation",
-                )
-            ),
-            LDFLAGS=" ".join(
-                ("-Wno-unused-command-line-argument", environ.get("LDFLAGS", ""))
-            ),
-        ),
-    )
+    await cmake_codecov("fuzzers", "unit-test")
     rmdir(llvm_profile_dir)
     llvm_profile_dir.mkdir()
-    await ninja("build", "fuzzers", "unit-test")
     await gather(ninja("build", "test"), regression("build"))
     await cmd(
         "llvm-profdata",
