@@ -29,14 +29,13 @@ from uuid import uuid4
 
 from asyncio_as_completed import as_completed
 from asyncio_cmd import ProcessError, chunks, cmd_flog, main
-from chimera_utils import IN_CI, rmdir
+from cmake_codecov import cmake_codecov
 from corpus_utils import corpus_merge, corpus_trim, fuzz_star, regression
 from structlog import get_logger
 
 SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
-CORPUS_ORIGINAL = FUZZ / "corpus_original"
 CRASHES = FUZZ / "crashes"
 
 
@@ -96,20 +95,11 @@ async def corpus_retest() -> None:
             "Regression failed, retrying with"
             f" {len(list(filter(Path.is_file, CORPUS.rglob('*'))))}"
         )
-    if IN_CI:
-        rmdir(CORPUS_ORIGINAL)
-    CORPUS.rename(CORPUS_ORIGINAL)
-    CORPUS.mkdir(parents=True, exist_ok=True)
-    errors = await corpus_merge(CORPUS_ORIGINAL)
-    if errors:
-        error = errors.pop()
-        if errors:
-            for error in errors:
-                get_logger().error(f"Extra Error: {error}")
-        raise error
+    await corpus_merge(disable_bars=None)
 
 
 async def corpus_retest_main(build: str) -> None:
+    await cmake_codecov("fuzzers")
     corpus_trim(disable_bars=None)
     await corpus_retest()
     corpus_trim(disable_bars=None)
