@@ -9,17 +9,11 @@ jobs:
         with:
           filter: tree:0
           submodules: true
-      - name: Build project
-        uses: ./
-        with:
-          run: |
-            rustup default stable
-            cmake -GNinja -B build -S .
-            python tools/ninja.py build fuzzers
       - name: Corpus merge
         uses: ./
         with:
           run: |
+            rustup default stable
             BASE_REF=HEAD python tools/corpus_merge.py
       - uses: stefanzweifel/git-auto-commit-action@v5.0.0
         with:

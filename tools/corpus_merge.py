@@ -24,6 +24,7 @@ from asyncio import run
 from pathlib import Path
 
 from asyncio_cmd import main
+from cmake_codecov import cmake_codecov
 from corpus_freeze import corpus_freeze
 from corpus_gather import corpus_gather
 from corpus_utils import corpus_merge, corpus_trim
@@ -31,10 +32,10 @@ from corpus_utils import corpus_merge, corpus_trim
 SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
-CORPUS_ORIGINAL = FUZZ / "corpus_original"
 
 
 async def corpus_merge_main() -> None:
+    await cmake_codecov("fuzzers")
     await corpus_gather("unit_tests/fuzz/corpus", disable_bars=None)
     corpus_trim(disable_bars=None)
     await corpus_merge(disable_bars=None)
