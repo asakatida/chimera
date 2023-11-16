@@ -17,7 +17,7 @@ idna==3.4
 isort==5.12.0
 Jinja2==3.1.2
 jsonschema==4.19.2
-jsonschema-specifications==2023.7.1
+jsonschema-specifications==2023.11.1
 markdown-it-py==3.0.0
 MarkupSafe==2.1.3
 mccabe==0.7.0
@@ -34,7 +34,7 @@ pyflakes==3.1.0
 Pygments==2.16.1
 pylama==8.4.1
 PyYAML==6.0.1
-referencing==0.30.2
+referencing==0.31.0
 requests==2.31.0
 resolvelib==1.0.1
 rich==13.6.0
