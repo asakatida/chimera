@@ -50,12 +50,18 @@ def splitlines(lines: bytes) -> Iterable[str]:
 
 
 async def cmd(
-    *args: object, err: ProcessInput = PIPE, log: bool = True, out: ProcessInput = None
+    *args: object,
+    err: ProcessInput = PIPE,
+    input: bytes | None = None,
+    log: bool = True,
+    out: ProcessInput = None,
 ) -> bytes:
     if log:
         get_logger().info(f"+ {' '.join(map(str, args))}")
-    proc = await create_subprocess_exec(*map(str, args), stderr=err, stdout=out)
-    return await communicate(*args, err=b"", proc=proc)
+    proc = await create_subprocess_exec(
+        *map(str, args), stderr=err, stdin=(PIPE if input else None), stdout=out
+    )
+    return await communicate(*args, err=b"", proc=proc, input=input)
 
 
 async def cmd_check(*args: object) -> Exception | None:
@@ -106,10 +112,14 @@ async def cmd_flog(*args: object, out: str | None = None) -> bytes:
         return await communicate(*args, err=f"logs in {out}\n".encode(), proc=proc)
 
 
-async def communicate(*args: object, err: bytes, proc: Process) -> bytes:
+async def communicate(
+    *args: object, err: bytes, proc: Process, input: bytes | None = None
+) -> bytes:
     cmd_stderr = cmd_stdout = None
     try:
-        cmd_stdout, cmd_stderr = await proc.communicate()
+        cmd_stdout, cmd_stderr = await (
+            proc.communicate(input=input) if input else proc.communicate()
+        )
     finally:
         cmd_stdout = cmd_stdout or b""
         cmd_stderr = cmd_stderr or b""

@@ -22,15 +22,17 @@
 
 from asyncio import run
 from base64 import b64decode, b64encode
-from hashlib import sha1, sha256
+from hashlib import sha256
 from json import dump, load
 from lzma import compress, decompress
 from pathlib import Path
+from subprocess import PIPE
 from sys import argv
 
-from asyncio_cmd import main
+from asyncio_as_completed import as_completed
+from asyncio_cmd import cmd, main
 from corpus_ascii import is_ascii
-from corpus_utils import corpus_objects, gather_paths, sha
+from corpus_utils import c_tqdm, corpus_objects, gather_paths, sha
 
 
 def extract_case(case: bytes) -> bytes:
@@ -61,8 +63,28 @@ async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
                     disable_bars=disable_bars,
                     exclude=set(
                         map(
-                            lambda case: sha1(case).hexdigest(),
-                            map(b64decode, cases_orig.values()),
+                            str.strip,
+                            map(
+                                bytes.decode,
+                                await as_completed(
+                                    c_tqdm(
+                                        map(
+                                            lambda case: cmd(
+                                                "git",
+                                                "hash-object",
+                                                "--stdin",
+                                                input=case,
+                                                log=False,
+                                                out=PIPE,
+                                            ),
+                                            map(b64decode, cases_orig.values()),
+                                        ),
+                                        "Gather existing corpus objects",
+                                        disable_bars,
+                                        total=len(cases_orig),
+                                    )
+                                ),
+                            ),
                         )
                     ),
                 ),
