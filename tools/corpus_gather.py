@@ -21,12 +21,14 @@
 """corpus_gather.py"""
 
 from asyncio import run
-from hashlib import sha1, sha256
+from hashlib import sha256
 from pathlib import Path
+from subprocess import PIPE
 from sys import argv
 
-from asyncio_cmd import main
-from corpus_utils import corpus_objects, corpus_trim
+from asyncio_as_completed import as_completed
+from asyncio_cmd import cmd, main
+from corpus_utils import c_tqdm, corpus_objects, corpus_trim, gather_paths
 
 
 async def corpus_gather(*paths: str, disable_bars: bool | None) -> None:
@@ -36,8 +38,22 @@ async def corpus_gather(*paths: str, disable_bars: bool | None) -> None:
             disable_bars=disable_bars,
             exclude=set(
                 map(
-                    lambda case: sha1(case).hexdigest(),
-                    map(Path.read_bytes, filter(Path.is_file, Path(path).rglob("*"))),
+                    str.strip,
+                    map(
+                        bytes.decode,
+                        await as_completed(
+                            c_tqdm(
+                                map(
+                                    lambda case: cmd(
+                                        "git", "hash-object", case, out=PIPE, log=False
+                                    ),
+                                    gather_paths(),
+                                ),
+                                "Gather existing corpus objects",
+                                disable_bars,
+                            )
+                        ),
+                    ),
                 )
             ),
         ):
