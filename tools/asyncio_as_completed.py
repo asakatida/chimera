@@ -14,6 +14,8 @@ async def _list(iter: Iterator[Task[T]], cancel: bool) -> list[T]:
     try:
         return [await task for task in iter]
     finally:
+        if isinstance(exc_info()[1], KeyboardInterrupt):
+            raise
         for task in iter:
             if cancel:
                 try:
@@ -23,10 +25,12 @@ async def _list(iter: Iterator[Task[T]], cancel: bool) -> list[T]:
                     pass
             try:
                 await task
-            except Exception:
-                pass
+            except KeyboardInterrupt:
+                raise
             except CancelledError as error:
                 canceled = error
+            except Exception:
+                pass
         if exc_info()[1] is None and canceled:
             raise canceled
 
