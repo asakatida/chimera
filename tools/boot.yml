@@ -448,8 +448,8 @@
               ansible.builtin.pip:
                 chdir: /tmp
                 name:
-                  - structlog==23.1.0
-                  - tqdm==4.65.0
+                  - structlog==23.2.0
+                  - tqdm==4.66.1
                 virtualenv: /opt/edge-virtualenv
             - name: Get fish shell  # noqa: command-instead-of-shell
               ansible.builtin.shell: command -v fish
