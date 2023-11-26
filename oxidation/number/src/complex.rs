@@ -3,9 +3,8 @@
 #![allow(clippy::arithmetic_side_effects)]
 #![allow(clippy::blanket_clippy_restriction_lints)]
 #![allow(clippy::implicit_return)]
+#![allow(clippy::min_ident_chars)]
 #![allow(clippy::missing_docs_in_private_items)]
-
-use core::{cmp, fmt, ops};
 
 use crate::base::Base;
 use crate::imag::Imag;
@@ -15,8 +14,10 @@ use crate::number::Number;
 use crate::rational::Rational;
 use crate::traits::NumberBase;
 use crate::utils::fmt_ptr;
+use core::{cmp, fmt, ops};
+use num_traits::Pow;
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Complex {
     real: Imag,
     imag: Imag,
@@ -161,57 +162,57 @@ impl num_traits::ToPrimitive for Complex {
 
 impl fmt::Binary for Complex {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} + {}i", self.real, self.imag)
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(formatter, "{} + {}i", self.real, self.imag)
     }
 }
 
 impl fmt::Display for Complex {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} + {}i", self.real, self.imag)
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(formatter, "{} + {}i", self.real, self.imag)
     }
 }
 
 impl fmt::LowerExp for Complex {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.real)
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(formatter, "{}", self.real)
     }
 }
 
 impl fmt::LowerHex for Complex {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:x} + {:x}i", self.real, self.imag)
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(formatter, "{:x} + {:x}i", self.real, self.imag)
     }
 }
 
 impl fmt::Octal for Complex {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:o} + {:o}i", self.real, self.imag)
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(formatter, "{:o} + {:o}i", self.real, self.imag)
     }
 }
 
 impl fmt::Pointer for Complex {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt_ptr(self, f)
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt_ptr(self, formatter)
     }
 }
 
 impl fmt::UpperExp for Complex {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.real)
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(formatter, "{}", self.real)
     }
 }
 
 impl fmt::UpperHex for Complex {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:X} + {:X}i", self.real, self.imag)
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(formatter, "{:X} + {:X}i", self.real, self.imag)
     }
 }
 
@@ -279,7 +280,7 @@ impl ops::Not for Complex {
     }
 }
 
-impl num_traits::pow::Pow<Complex> for Complex {
+impl Pow<Complex> for Complex {
     type Output = Number;
     #[inline]
     fn pow(self, _other: Self) -> Number {

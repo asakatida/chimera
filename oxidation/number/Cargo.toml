@@ -5,13 +5,12 @@ edition = "2021"
 rust-version = "1.71"
 
 [build-dependencies]
-cbindgen = "~0.24.3"
+cbindgen = "~0.26.0"
 
 [dependencies]
-lazy_static = "~1.4.0"
-num-bigint = "~0.4.3"
-num-integer = "~0.1.45"
-num-traits = "~0.2.15"
+num-bigint = "~0.4.0"
+num-integer = "~0.1.0"
+num-traits = "~0.2.0"
 
 [lib]
 crate-type = ["staticlib"]

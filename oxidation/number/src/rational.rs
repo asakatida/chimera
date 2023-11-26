@@ -5,9 +5,8 @@
 #![allow(clippy::exhaustive_enums)]
 #![allow(clippy::float_arithmetic)]
 #![allow(clippy::implicit_return)]
+#![allow(clippy::min_ident_chars)]
 #![allow(clippy::missing_docs_in_private_items)]
-
-use core::{cmp, fmt, ops};
 
 use crate::base::Base;
 use crate::natural::{Maybe, Natural};
@@ -15,8 +14,10 @@ use crate::negative::Negative;
 use crate::number::Number;
 use crate::traits::NumberBase;
 use crate::utils::{fmt_ptr, rem};
+use core::{cmp, fmt, ops};
+use num_traits::Pow;
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub enum Part {
     Base(Base),
     Natural(Natural),
@@ -144,15 +145,15 @@ impl Part {
 
 impl fmt::Display for Part {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         match self.clone() {
-            Self::Base(n) => write!(f, "{n}"),
-            Self::Natural(n) => write!(f, "{n}"),
+            Self::Base(n) => write!(formatter, "{n}"),
+            Self::Natural(n) => write!(formatter, "{n}"),
         }
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Rational {
     numerator: Part,
     denominator: Part,
@@ -263,57 +264,57 @@ impl num_traits::ToPrimitive for Rational {
 
 impl fmt::Binary for Rational {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}/{}", self.numerator, self.denominator)
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(formatter, "{}/{}", self.numerator, self.denominator)
     }
 }
 
 impl fmt::Display for Rational {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}/{}", self.numerator, self.denominator)
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(formatter, "{}/{}", self.numerator, self.denominator)
     }
 }
 
 impl fmt::LowerExp for Rational {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}/{}", self.numerator, self.denominator)
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(formatter, "{}/{}", self.numerator, self.denominator)
     }
 }
 
 impl fmt::LowerHex for Rational {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}/{}", self.numerator, self.denominator)
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(formatter, "{}/{}", self.numerator, self.denominator)
     }
 }
 
 impl fmt::Octal for Rational {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}/{}", self.numerator, self.denominator)
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(formatter, "{}/{}", self.numerator, self.denominator)
     }
 }
 
 impl fmt::Pointer for Rational {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt_ptr(self, f)
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt_ptr(self, formatter)
     }
 }
 
 impl fmt::UpperExp for Rational {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}/{}", self.numerator, self.denominator)
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(formatter, "{}/{}", self.numerator, self.denominator)
     }
 }
 
 impl fmt::UpperHex for Rational {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}/{}", self.numerator, self.denominator)
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(formatter, "{}/{}", self.numerator, self.denominator)
     }
 }
 
@@ -383,7 +384,7 @@ impl ops::Not for Rational {
     }
 }
 
-impl num_traits::pow::Pow<Rational> for Rational {
+impl Pow<Rational> for Rational {
     type Output = Number;
     #[inline]
     fn pow(self, _other: Self) -> Number {

@@ -3,11 +3,10 @@
 #![allow(clippy::arithmetic_side_effects)]
 #![allow(clippy::blanket_clippy_restriction_lints)]
 #![allow(clippy::exhaustive_enums)]
-#![allow(clippy::separated_literal_suffix)]
 #![allow(clippy::implicit_return)]
+#![allow(clippy::min_ident_chars)]
 #![allow(clippy::missing_docs_in_private_items)]
-
-use core::{cmp, fmt, ops};
+#![allow(clippy::separated_literal_suffix)]
 
 use crate::base::Base;
 use crate::complex::Complex;
@@ -17,8 +16,10 @@ use crate::negative::Negative;
 use crate::rational::Rational;
 use crate::traits::NumberBase;
 use crate::utils::{fmt_ptr, gcd};
+use core::{cmp, fmt, ops};
+use num_traits::Pow;
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub enum Number {
     Base(Base),
     Natural(Natural),
@@ -68,6 +69,7 @@ impl PartialOrd<u64> for Number {
     }
 }
 #[allow(clippy::missing_trait_methods)]
+#[allow(clippy::non_canonical_partial_ord_impl)]
 impl PartialOrd<Number> for Number {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
@@ -254,112 +256,112 @@ impl num_traits::ToPrimitive for Number {
 
 impl fmt::Binary for Number {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.clone() {
-            Self::Base(a) => fmt::Binary::fmt(&a, f),
-            Self::Natural(a) => fmt::Binary::fmt(&a, f),
-            Self::Rational(a) => fmt::Binary::fmt(&a, f),
-            Self::Negative(a) => fmt::Binary::fmt(&a, f),
-            Self::Imag(a) => fmt::Binary::fmt(&a, f),
-            Self::Complex(a) => fmt::Binary::fmt(&a, f),
-            Self::NaN => fmt::Display::fmt(&"NaN", f),
+            Self::Base(a) => fmt::Binary::fmt(&a, formatter),
+            Self::Natural(a) => fmt::Binary::fmt(&a, formatter),
+            Self::Rational(a) => fmt::Binary::fmt(&a, formatter),
+            Self::Negative(a) => fmt::Binary::fmt(&a, formatter),
+            Self::Imag(a) => fmt::Binary::fmt(&a, formatter),
+            Self::Complex(a) => fmt::Binary::fmt(&a, formatter),
+            Self::NaN => fmt::Display::fmt(&"NaN", formatter),
         }
     }
 }
 
 impl fmt::Display for Number {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.clone() {
-            Self::Base(a) => a.fmt(f),
-            Self::Natural(a) => fmt::Display::fmt(&a, f),
-            Self::Rational(a) => a.fmt(f),
-            Self::Negative(a) => a.fmt(f),
-            Self::Imag(a) => a.fmt(f),
-            Self::Complex(a) => a.fmt(f),
-            Self::NaN => fmt::Display::fmt(&"NaN", f),
+            Self::Base(a) => a.fmt(formatter),
+            Self::Natural(a) => fmt::Display::fmt(&a, formatter),
+            Self::Rational(a) => a.fmt(formatter),
+            Self::Negative(a) => a.fmt(formatter),
+            Self::Imag(a) => a.fmt(formatter),
+            Self::Complex(a) => a.fmt(formatter),
+            Self::NaN => fmt::Display::fmt(&"NaN", formatter),
         }
     }
 }
 
 impl fmt::LowerExp for Number {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.clone() {
-            Self::Base(a) => fmt::LowerExp::fmt(&a, f),
-            Self::Natural(a) => fmt::Display::fmt(&a, f),
-            Self::Rational(a) => fmt::LowerExp::fmt(&a, f),
-            Self::Negative(a) => fmt::LowerExp::fmt(&a, f),
-            Self::Imag(a) => fmt::LowerExp::fmt(&a, f),
-            Self::Complex(a) => fmt::LowerExp::fmt(&a, f),
-            Self::NaN => fmt::Display::fmt(&"NaN", f),
+            Self::Base(a) => fmt::LowerExp::fmt(&a, formatter),
+            Self::Natural(a) => fmt::Display::fmt(&a, formatter),
+            Self::Rational(a) => fmt::LowerExp::fmt(&a, formatter),
+            Self::Negative(a) => fmt::LowerExp::fmt(&a, formatter),
+            Self::Imag(a) => fmt::LowerExp::fmt(&a, formatter),
+            Self::Complex(a) => fmt::LowerExp::fmt(&a, formatter),
+            Self::NaN => fmt::Display::fmt(&"NaN", formatter),
         }
     }
 }
 
 impl fmt::LowerHex for Number {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.clone() {
-            Self::Base(a) => fmt::LowerHex::fmt(&a, f),
-            Self::Natural(a) => fmt::LowerHex::fmt(&a, f),
-            Self::Rational(a) => fmt::LowerHex::fmt(&a, f),
-            Self::Negative(a) => fmt::LowerHex::fmt(&a, f),
-            Self::Imag(a) => fmt::LowerHex::fmt(&a, f),
-            Self::Complex(a) => fmt::LowerHex::fmt(&a, f),
-            Self::NaN => fmt::Display::fmt(&"NaN", f),
+            Self::Base(a) => fmt::LowerHex::fmt(&a, formatter),
+            Self::Natural(a) => fmt::LowerHex::fmt(&a, formatter),
+            Self::Rational(a) => fmt::LowerHex::fmt(&a, formatter),
+            Self::Negative(a) => fmt::LowerHex::fmt(&a, formatter),
+            Self::Imag(a) => fmt::LowerHex::fmt(&a, formatter),
+            Self::Complex(a) => fmt::LowerHex::fmt(&a, formatter),
+            Self::NaN => fmt::Display::fmt(&"NaN", formatter),
         }
     }
 }
 
 impl fmt::Octal for Number {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.clone() {
-            Self::Base(a) => fmt::Octal::fmt(&a, f),
-            Self::Natural(a) => fmt::Octal::fmt(&a, f),
-            Self::Rational(a) => fmt::Octal::fmt(&a, f),
-            Self::Negative(a) => fmt::Octal::fmt(&a, f),
-            Self::Imag(a) => fmt::Octal::fmt(&a, f),
-            Self::Complex(a) => fmt::Octal::fmt(&a, f),
-            Self::NaN => fmt::Display::fmt(&"NaN", f),
+            Self::Base(a) => fmt::Octal::fmt(&a, formatter),
+            Self::Natural(a) => fmt::Octal::fmt(&a, formatter),
+            Self::Rational(a) => fmt::Octal::fmt(&a, formatter),
+            Self::Negative(a) => fmt::Octal::fmt(&a, formatter),
+            Self::Imag(a) => fmt::Octal::fmt(&a, formatter),
+            Self::Complex(a) => fmt::Octal::fmt(&a, formatter),
+            Self::NaN => fmt::Display::fmt(&"NaN", formatter),
         }
     }
 }
 
 impl fmt::Pointer for Number {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt_ptr(self, f)
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt_ptr(self, formatter)
     }
 }
 
 impl fmt::UpperExp for Number {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.clone() {
-            Self::Base(a) => fmt::UpperExp::fmt(&a, f),
-            Self::Natural(a) => fmt::Display::fmt(&a, f),
-            Self::Rational(a) => fmt::UpperExp::fmt(&a, f),
-            Self::Negative(a) => fmt::UpperExp::fmt(&a, f),
-            Self::Imag(a) => fmt::UpperExp::fmt(&a, f),
-            Self::Complex(a) => fmt::UpperExp::fmt(&a, f),
-            Self::NaN => fmt::Display::fmt(&"NaN", f),
+            Self::Base(a) => fmt::UpperExp::fmt(&a, formatter),
+            Self::Natural(a) => fmt::Display::fmt(&a, formatter),
+            Self::Rational(a) => fmt::UpperExp::fmt(&a, formatter),
+            Self::Negative(a) => fmt::UpperExp::fmt(&a, formatter),
+            Self::Imag(a) => fmt::UpperExp::fmt(&a, formatter),
+            Self::Complex(a) => fmt::UpperExp::fmt(&a, formatter),
+            Self::NaN => fmt::Display::fmt(&"NaN", formatter),
         }
     }
 }
 
 impl fmt::UpperHex for Number {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.clone() {
-            Self::Base(a) => fmt::UpperHex::fmt(&a, f),
-            Self::Natural(a) => fmt::UpperHex::fmt(&a, f),
-            Self::Rational(a) => fmt::UpperHex::fmt(&a, f),
-            Self::Negative(a) => fmt::UpperHex::fmt(&a, f),
-            Self::Imag(a) => fmt::UpperHex::fmt(&a, f),
-            Self::Complex(a) => fmt::UpperHex::fmt(&a, f),
-            Self::NaN => fmt::Display::fmt(&"NaN", f),
+            Self::Base(a) => fmt::UpperHex::fmt(&a, formatter),
+            Self::Natural(a) => fmt::UpperHex::fmt(&a, formatter),
+            Self::Rational(a) => fmt::UpperHex::fmt(&a, formatter),
+            Self::Negative(a) => fmt::UpperHex::fmt(&a, formatter),
+            Self::Imag(a) => fmt::UpperHex::fmt(&a, formatter),
+            Self::Complex(a) => fmt::UpperHex::fmt(&a, formatter),
+            Self::NaN => fmt::Display::fmt(&"NaN", formatter),
         }
     }
 }
@@ -683,7 +685,7 @@ impl ops::Not for Number {
     }
 }
 
-impl num_traits::pow::Pow<Number> for Number {
+impl Pow<Number> for Number {
     type Output = Self;
     #[inline]
     fn pow(self, other: Self) -> Self {

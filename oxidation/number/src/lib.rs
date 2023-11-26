@@ -8,6 +8,7 @@
 #![allow(clippy::missing_docs_in_private_items)]
 #![allow(clippy::mutex_atomic)]
 #![allow(clippy::separated_literal_suffix)]
+#![allow(clippy::single_call_fn)]
 
 pub mod base;
 pub mod complex;
@@ -21,9 +22,10 @@ pub mod utils;
 
 use core::fmt;
 use core::fmt::Write;
-use std::{collections, sync, thread};
 
 use num_traits::{Pow, ToPrimitive};
+use std::sync::OnceLock;
+use std::{collections, sync, thread};
 
 use crate::number::Number;
 use crate::traits::NumberBase;
@@ -75,12 +77,14 @@ fn gc_loop(receiver: &sync::mpsc::Receiver<Event>) {
     }
 }
 
-lazy_static::lazy_static! {
-    static ref EVENTS: sync::mpsc::SyncSender<Event> = {
+static EVENTS: OnceLock<sync::mpsc::SyncSender<Event>> = OnceLock::new();
+
+fn events() -> &'static sync::mpsc::SyncSender<Event> {
+    EVENTS.get_or_init(|| {
         let (sender, receiver) = sync::mpsc::sync_channel(12);
         thread::spawn(move || gc_loop(&receiver));
         sender
-    };
+    })
 }
 
 /// # Panics
@@ -89,7 +93,7 @@ lazy_static::lazy_static! {
 #[must_use]
 fn export_number(value: Number) -> u64 {
     let wait = sync::Arc::new((sync::Condvar::new(), sync::Mutex::new((false, 0_u64))));
-    EVENTS
+    events()
         .send(Event::New(value, sync::Arc::clone(&wait)))
         .unwrap();
     let mut started = wait.1.lock().unwrap();
@@ -114,7 +118,7 @@ fn get(key: u64) -> Number {
         sync::Condvar::new(),
         sync::Mutex::new((false, Number::new(0))),
     ));
-    EVENTS
+    events()
         .send(Event::Get(key, sync::Arc::clone(&wait)))
         .unwrap();
     let mut started = wait.1.lock().unwrap();
@@ -134,11 +138,11 @@ struct Writer {
 #[allow(clippy::question_mark_used)]
 impl fmt::Write for Writer {
     #[inline]
-    fn write_str(&mut self, s: &str) -> fmt::Result {
-        if s.is_empty() {
+    fn write_str(&mut self, string: &str) -> fmt::Result {
+        if string.is_empty() {
             return Ok(());
         }
-        let bytes = s.as_bytes();
+        let bytes = string.as_bytes();
         let length = bytes.len();
         if self.capacity.checked_sub(self.len).ok_or(fmt::Error)? < length {
             return Err(fmt::Error);
@@ -334,7 +338,7 @@ pub extern "C" fn r_copy_number(number: u64) -> u64 {
 #[inline]
 #[no_mangle]
 pub extern "C" fn r_delete_number(number: u64) {
-    EVENTS.send(Event::Del(number)).unwrap();
+    events().send(Event::Del(number)).unwrap();
 }
 
 /// # Panics
@@ -343,7 +347,7 @@ pub extern "C" fn r_delete_number(number: u64) {
 #[no_mangle]
 pub extern "C" fn r_vm_clear() {
     let wait = sync::Arc::new((sync::Condvar::new(), sync::Mutex::new(false)));
-    EVENTS.send(Event::Syn(sync::Arc::clone(&wait))).unwrap();
+    events().send(Event::Syn(sync::Arc::clone(&wait))).unwrap();
     let mut started = wait.1.lock().unwrap();
     while !*started {
         started = wait.0.wait(started).unwrap();
