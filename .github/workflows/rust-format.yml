@@ -20,22 +20,7 @@ name: RustFormat
 
 # yamllint disable-line rule:truthy
 on:
-  pull_request:
-    paths:
-      - .github/workflows/rust-format.yml
-      - "**/*.rs"
-      - "**/Cargo.lock"
-      - "**/Cargo.toml"
-      - action.yml
-      - requirements.txt
-      - tools/action.py
-      - tools/asyncio_as_completed.py
-      - tools/asyncio_cmd.py
-      - tools/g_ls_tree.py
-      - tools/requirements.txt
   push:
-    branches:
-      - stable
     paths:
       - .github/workflows/rust-format.yml
       - "**/*.rs"

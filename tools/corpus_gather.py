@@ -58,6 +58,7 @@ async def corpus_gather(*paths: str, disable_bars: bool | None) -> None:
             ),
         ):
             new_file = Path(path) / sha256(case).hexdigest()
+            new_file.parent.mkdir(parents=True, exist_ok=True)
             new_file.write_bytes(case)
     corpus_trim(disable_bars=disable_bars)
 

@@ -24,17 +24,7 @@ name: Python
 
 # yamllint disable-line rule:truthy
 on:
-  pull_request:
-    paths:
-      - .github/workflows/python.yml
-      - "**.py"
-      - action.yml
-      - requirements.txt
-      - setup.cfg
-      - tools/requirements.txt
   push:
-    branches:
-      - stable
     paths:
       - .github/workflows/python.yml
       - "**.py"

@@ -18,20 +18,7 @@ name: Cmake Lint
 
 # yamllint disable-line rule:truthy
 on:
-  pull_request:
-    paths:
-      - .cmakelintrc
-      - .github/workflows/cmakelint.yml
-      - action.yml
-      - cmake/**
-      - CMakeLists.txt
-      - requirements.txt
-      - tools/action.py
-      - tools/asyncio_cmd.py
-      - tools/requirements.txt
   push:
-    branches:
-      - stable
     paths:
       - .cmakelintrc
       - .github/workflows/cmakelint.yml
