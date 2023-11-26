@@ -75,17 +75,7 @@ jobs:
 name: Release
 # yamllint disable-line rule:truthy
 on:
-  pull_request:
-    paths:
-      - .dockerignore
-      - .github/workflows/release.yml
-      - Dockerfile*
-      - requirements.txt
-      - tools/boot.yml
-      - tools/requirements.txt
   push:
-    branches:
-      - stable
     paths:
       - .dockerignore
       - .github/workflows/release.yml
