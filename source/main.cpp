@@ -5,6 +5,8 @@
 #include "version.hpp"                        // for CHIMERA_GIT_HEAD, CHIM...
 #include "virtual_machine/global_context.hpp" // for GlobalContext
 
+#include "number-rust.hpp" // for r_vm_end
+
 #include <gsl/narrow>   // for narrow
 #include <gsl/span>     // for span_iterator, span
 #include <gsl/span_ext> // for make_span
@@ -48,6 +50,7 @@ namespace chimera::library {
   using Argv = gsl::span<const char>;
   // NOLINTNEXTLINE(readability-function-cognitive-complexity)
   static auto main(Span &&args) noexcept -> int {
+    auto finally = gsl::finally([] { r_vm_end(); });
     std::cerr.exceptions(std::ios_base::failbit | std::ios_base::badbit);
     std::cin.exceptions(std::ios_base::failbit | std::ios_base::badbit);
     std::cout.exceptions(std::ios_base::failbit | std::ios_base::badbit);
