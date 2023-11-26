@@ -98,7 +98,7 @@ TEST_CASE("number Number division huge") {
   massive = massive / other;
   REQUIRE(massive.is_int());
   REQUIRE(huge.is_int());
-  REQUIRE(massive != huge);
+  REQUIRE(massive == huge);
 }
 
 TEST_CASE("number Number modulus huge") {
@@ -159,11 +159,13 @@ TEST_CASE("number Number naturals") {
   REQUIRE((massive & number) > one);
 }
 
-TEST_CASE("number Number naturals costly", "[.number]") {
+TEST_CASE("number Number naturals costly") {
   const Number huge(NumericLimits::max());
   const auto number = huge * huge;
   const auto massive = number * number;
   REQUIRE((massive / number) == number);
+  const auto extra = massive * massive;
+  REQUIRE((extra / number) == (massive * number));
 }
 
 TEST_CASE("number Number subtraction huge") {
@@ -181,4 +183,17 @@ TEST_CASE("number Number subtraction huge") {
   REQUIRE(massive == number);
   REQUIRE(std::uint64_t(massive) == NumericLimits::max());
   REQUIRE(std::uint64_t(number) == NumericLimits::max());
+}
+
+TEST_CASE("number Number rational costly") {
+  const Number huge(NumericLimits::max());
+  const Number one(1);
+  const Number three(3);
+  const auto third = one / three;
+  const auto number = huge * three;
+  REQUIRE(third == (huge / number));
+  const auto massive = number * three;
+  REQUIRE(third == (number / massive));
+  const auto extra = massive * three;
+  REQUIRE(third == (massive / extra));
 }

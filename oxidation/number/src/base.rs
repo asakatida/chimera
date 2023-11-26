@@ -5,16 +5,16 @@
 #![allow(clippy::implicit_return)]
 #![allow(clippy::missing_docs_in_private_items)]
 
-use core::{cmp, fmt, ops};
-
 use crate::natural::Natural;
 use crate::negative::Negative;
 use crate::number::Number;
 use crate::rational::Rational;
 use crate::traits::NumberBase;
 use crate::utils::fmt_ptr;
+use core::{cmp, fmt, ops};
+use num_traits::Pow;
 
-#[derive(Clone, Copy, Debug, Default, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct Base {
     value: u64,
 }
@@ -61,57 +61,57 @@ impl num_traits::ToPrimitive for Base {
 
 impl fmt::Binary for Base {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Binary::fmt(&self.value, f)
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Binary::fmt(&self.value, formatter)
     }
 }
 
 impl fmt::Display for Base {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Display::fmt(&self.value, f)
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Display::fmt(&self.value, formatter)
     }
 }
 
 impl fmt::LowerExp for Base {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::LowerExp::fmt(&self.value, f)
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        fmt::LowerExp::fmt(&self.value, formatter)
     }
 }
 
 impl fmt::LowerHex for Base {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::LowerHex::fmt(&self.value, f)
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        fmt::LowerHex::fmt(&self.value, formatter)
     }
 }
 
 impl fmt::Octal for Base {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Octal::fmt(&self.value, f)
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Octal::fmt(&self.value, formatter)
     }
 }
 
 impl fmt::Pointer for Base {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt_ptr(self, f)
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        fmt_ptr(self, formatter)
     }
 }
 
 impl fmt::UpperExp for Base {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::UpperExp::fmt(&self.value, f)
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        fmt::UpperExp::fmt(&self.value, formatter)
     }
 }
 
 impl fmt::UpperHex for Base {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::UpperHex::fmt(&self.value, f)
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        fmt::UpperHex::fmt(&self.value, formatter)
     }
 }
 
@@ -157,8 +157,8 @@ impl ops::Div for Base {
         if other.value == 0 {
             None
         } else {
-            self.value.checked_rem(other.value).and_then(|r| {
-                if r == 0 {
+            self.value.checked_rem(other.value).and_then(|remain| {
+                if remain == 0 {
                     self.value.checked_div(other.value)
                 } else {
                     None
@@ -196,7 +196,7 @@ impl ops::Not for Base {
     }
 }
 
-impl num_traits::pow::Pow<Base> for Base {
+impl Pow<Base> for Base {
     type Output = Number;
     #[inline]
     fn pow(self, other: Self) -> Number {

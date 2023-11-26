@@ -4,9 +4,8 @@
 #![allow(clippy::blanket_clippy_restriction_lints)]
 #![allow(clippy::exhaustive_enums)]
 #![allow(clippy::implicit_return)]
+#![allow(clippy::min_ident_chars)]
 #![allow(clippy::missing_docs_in_private_items)]
-
-use core::{cmp, fmt, ops};
 
 use crate::base::Base;
 use crate::natural::Natural;
@@ -15,8 +14,10 @@ use crate::number::Number;
 use crate::rational::Rational;
 use crate::traits::NumberBase;
 use crate::utils::fmt_ptr;
+use core::{cmp, fmt, ops};
+use num_traits::Pow;
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub enum Imag {
     Base(Base),
     Natural(Natural),
@@ -113,91 +114,91 @@ impl num_traits::ToPrimitive for Imag {
 
 impl fmt::Binary for Imag {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.clone() {
-            Self::Base(a) => write!(f, "{a}"),
-            Self::Natural(a) => write!(f, "{a}"),
-            Self::Rational(a) => write!(f, "{a}"),
-            Self::Negative(a) => write!(f, "{a}"),
+            Self::Base(a) => write!(formatter, "{a}"),
+            Self::Natural(a) => write!(formatter, "{a}"),
+            Self::Rational(a) => write!(formatter, "{a}"),
+            Self::Negative(a) => write!(formatter, "{a}"),
         }
     }
 }
 
 impl fmt::Display for Imag {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.clone() {
-            Self::Base(a) => write!(f, "{a}"),
-            Self::Natural(a) => write!(f, "{a}"),
-            Self::Rational(a) => write!(f, "{a}"),
-            Self::Negative(a) => write!(f, "{a}"),
+            Self::Base(a) => write!(formatter, "{a}"),
+            Self::Natural(a) => write!(formatter, "{a}"),
+            Self::Rational(a) => write!(formatter, "{a}"),
+            Self::Negative(a) => write!(formatter, "{a}"),
         }
     }
 }
 
 impl fmt::LowerExp for Imag {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.clone() {
-            Self::Base(a) => write!(f, "{a}"),
-            Self::Natural(a) => write!(f, "{a}"),
-            Self::Rational(a) => write!(f, "{a}"),
-            Self::Negative(a) => write!(f, "{a}"),
+            Self::Base(a) => write!(formatter, "{a}"),
+            Self::Natural(a) => write!(formatter, "{a}"),
+            Self::Rational(a) => write!(formatter, "{a}"),
+            Self::Negative(a) => write!(formatter, "{a}"),
         }
     }
 }
 
 impl fmt::LowerHex for Imag {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.clone() {
-            Self::Base(a) => write!(f, "{a}"),
-            Self::Natural(a) => write!(f, "{a}"),
-            Self::Rational(a) => write!(f, "{a}"),
-            Self::Negative(a) => write!(f, "{a}"),
+            Self::Base(a) => write!(formatter, "{a}"),
+            Self::Natural(a) => write!(formatter, "{a}"),
+            Self::Rational(a) => write!(formatter, "{a}"),
+            Self::Negative(a) => write!(formatter, "{a}"),
         }
     }
 }
 
 impl fmt::Octal for Imag {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.clone() {
-            Self::Base(a) => write!(f, "{a}"),
-            Self::Natural(a) => write!(f, "{a}"),
-            Self::Rational(a) => write!(f, "{a}"),
-            Self::Negative(a) => write!(f, "{a}"),
+            Self::Base(a) => write!(formatter, "{a}"),
+            Self::Natural(a) => write!(formatter, "{a}"),
+            Self::Rational(a) => write!(formatter, "{a}"),
+            Self::Negative(a) => write!(formatter, "{a}"),
         }
     }
 }
 
 impl fmt::Pointer for Imag {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt_ptr(self, f)
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt_ptr(self, formatter)
     }
 }
 
 impl fmt::UpperExp for Imag {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.clone() {
-            Self::Base(a) => write!(f, "{a}"),
-            Self::Natural(a) => write!(f, "{a}"),
-            Self::Rational(a) => write!(f, "{a}"),
-            Self::Negative(a) => write!(f, "{a}"),
+            Self::Base(a) => write!(formatter, "{a}"),
+            Self::Natural(a) => write!(formatter, "{a}"),
+            Self::Rational(a) => write!(formatter, "{a}"),
+            Self::Negative(a) => write!(formatter, "{a}"),
         }
     }
 }
 
 impl fmt::UpperHex for Imag {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.clone() {
-            Self::Base(a) => write!(f, "{a}"),
-            Self::Natural(a) => write!(f, "{a}"),
-            Self::Rational(a) => write!(f, "{a}"),
-            Self::Negative(a) => write!(f, "{a}"),
+            Self::Base(a) => write!(formatter, "{a}"),
+            Self::Natural(a) => write!(formatter, "{a}"),
+            Self::Rational(a) => write!(formatter, "{a}"),
+            Self::Negative(a) => write!(formatter, "{a}"),
         }
     }
 }
@@ -266,7 +267,7 @@ impl ops::Not for Imag {
     }
 }
 
-impl num_traits::pow::Pow<Imag> for Imag {
+impl Pow<Imag> for Imag {
     type Output = Number;
     #[inline]
     fn pow(self, _other: Self) -> Number {

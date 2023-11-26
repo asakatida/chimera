@@ -6,24 +6,23 @@
 #![allow(clippy::implicit_return)]
 #![allow(clippy::missing_docs_in_private_items)]
 
-use core::{cmp, fmt, ops};
-
-use num_integer::Integer;
-use num_traits::{CheckedSub, ToPrimitive, Zero};
-
 use crate::base::Base;
 use crate::negative::Negative;
 use crate::number::Number;
 use crate::rational::Rational;
 use crate::traits::NumberBase;
 use crate::utils::fmt_ptr;
+use core::{cmp, fmt, ops};
+use num_integer::Integer;
+use num_traits::Pow;
+use num_traits::{CheckedSub, ToPrimitive, Zero};
 
 pub enum Maybe {
     Base(Base),
     Natural(Natural),
 }
 
-#[derive(Clone, Debug, Default, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct Natural {
     value: num_bigint::BigUint,
 }
@@ -69,17 +68,11 @@ impl Natural {
     #[inline]
     #[must_use]
     pub fn reduce(&self) -> Maybe {
-        let mut value = self.value.to_u32_digits();
+        let mut value = self.value.to_u64_digits();
         if value.len() < 2 {
-            Maybe::Base(Base::new(
-                value
-                    .pop()
-                    .unwrap_or_default()
-                    .try_into()
-                    .unwrap_or_default(),
-            ))
+            Maybe::Base(Base::new(value.pop().unwrap_or_default()))
         } else {
-            Maybe::Natural(Self::new(num_bigint::BigUint::new(value)))
+            Maybe::Natural(self.clone())
         }
     }
 }
@@ -102,57 +95,57 @@ impl num_traits::ToPrimitive for Natural {
 
 impl fmt::Binary for Natural {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Binary::fmt(&self.value, f)
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Binary::fmt(&self.value, formatter)
     }
 }
 
 impl fmt::Display for Natural {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Display::fmt(&self.value, f)
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Display::fmt(&self.value, formatter)
     }
 }
 
 impl fmt::LowerExp for Natural {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Display::fmt(&self.value, f)
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Display::fmt(&self.value, formatter)
     }
 }
 
 impl fmt::LowerHex for Natural {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::LowerHex::fmt(&self.value, f)
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        fmt::LowerHex::fmt(&self.value, formatter)
     }
 }
 
 impl fmt::Octal for Natural {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Octal::fmt(&self.value, f)
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Octal::fmt(&self.value, formatter)
     }
 }
 
 impl fmt::Pointer for Natural {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt_ptr(self, f)
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        fmt_ptr(self, formatter)
     }
 }
 
 impl fmt::UpperExp for Natural {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Display::fmt(&self.value, f)
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Display::fmt(&self.value, formatter)
     }
 }
 
 impl fmt::UpperHex for Natural {
     #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::UpperHex::fmt(&self.value, f)
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        fmt::UpperHex::fmt(&self.value, formatter)
     }
 }
 
@@ -201,7 +194,7 @@ impl ops::Div for Natural {
         }
         .map_or_else(
             || Rational::from((self, other)).into(),
-            |v| Self::new(v).into(),
+            |value| Self::new(value).into(),
         )
     }
 }
@@ -233,7 +226,7 @@ impl ops::Not for Natural {
     }
 }
 
-impl num_traits::pow::Pow<Natural> for Natural {
+impl Pow<Natural> for Natural {
     type Output = Number;
     #[inline]
     fn pow(self, _other: Self) -> Number {

@@ -12,8 +12,8 @@ use crate::number::Number;
 /// # Errors
 #[allow(clippy::as_conversions)]
 #[inline]
-pub fn fmt_ptr<T>(t: &T, f: &mut fmt::Formatter) -> fmt::Result {
-    fmt::Pointer::fmt(&(t as *const _), f)
+pub fn fmt_ptr<T>(pointer: &T, formatter: &mut fmt::Formatter) -> fmt::Result {
+    fmt::Pointer::fmt(&(pointer as *const _), formatter)
 }
 
 #[inline]

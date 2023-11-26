@@ -5,16 +5,16 @@
 #![allow(clippy::implicit_return)]
 #![allow(clippy::missing_docs_in_private_items)]
 
-use core::{fmt, ops};
-
 use crate::number::Number;
 use crate::utils::gcd;
+use core::{fmt, ops};
+use num_traits::Pow;
 
 pub trait NumberBase:
     Sized
     + Into<Number>
     + num_traits::ToPrimitive
-    + num_traits::pow::Pow<Self, Output = Number>
+    + Pow<Self, Output = Number>
     // + num_integer::Integer<Output = Number>
     + ops::Add<Output = Number>
     + ops::BitAnd<Output = Number>
