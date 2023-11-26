@@ -22,7 +22,7 @@ pub mod utils;
 
 use core::fmt;
 use core::fmt::Write;
-
+use core::hash::BuildHasher;
 use num_traits::{Pow, ToPrimitive};
 use std::sync::OnceLock;
 use std::{collections, sync, thread};
@@ -32,33 +32,54 @@ use crate::traits::NumberBase;
 
 #[derive(Debug)]
 enum Event {
+    End,
     Del(u64),
     Get(u64, sync::Arc<(sync::Condvar, sync::Mutex<(bool, Number)>)>),
     New(Number, sync::Arc<(sync::Condvar, sync::Mutex<(bool, u64)>)>),
     Syn(sync::Arc<(sync::Condvar, sync::Mutex<bool>)>),
 }
 
+#[allow(clippy::expect_used)]
 fn gc_loop(receiver: &sync::mpsc::Receiver<Event>) {
-    let mut heap = collections::BTreeMap::<u64, Number>::new();
+    let mut heap = collections::HashSet::<Number>::new();
+    let mut refs = collections::BTreeMap::<u64, usize>::new();
     while let Ok(event) = receiver.recv() {
         match event {
             Event::Del(key) => {
-                heap.remove(&key);
+                refs.entry(key).and_modify(|reference| *reference -= 1);
+                if Some(0) == refs.get(&key).copied() {
+                    heap.remove(
+                        &heap
+                            .iter()
+                            .find(|num| heap.hasher().hash_one(num) == key)
+                            .cloned()
+                            .expect("Event::Del(key)"),
+                    );
+                    refs.remove(&key);
+                }
             }
             Event::Get(key, wait) => {
                 if let Ok(mut started) = wait.1.lock() {
-                    if let Some(value) = heap.get(&key) {
-                        *started = (true, value.clone());
-                        wait.0.notify_one();
-                    }
+                    *started = (
+                        true,
+                        heap.iter()
+                            .find(|num| heap.hasher().hash_one(num) == key)
+                            .cloned()
+                            .expect("Event::Get(key, wait)"),
+                    );
+                    wait.0.notify_one();
                 } else {
                     return;
                 }
             }
             Event::New(value, wait) => {
                 if let Ok(mut started) = wait.1.lock() {
-                    let key = heap.keys().next_back().copied().unwrap_or_default() + 1;
-                    heap.insert(key, value);
+                    let key = heap.hasher().hash_one(value.clone());
+                    if heap.insert(value) {
+                        refs.insert(key, 1);
+                    } else {
+                        refs.entry(key).and_modify(|reference| *reference += 1);
+                    };
                     *started = (true, key);
                     wait.0.notify_one();
                 } else {
@@ -72,6 +93,9 @@ fn gc_loop(receiver: &sync::mpsc::Receiver<Event>) {
                 } else {
                     return;
                 }
+            }
+            Event::End => {
+                return;
             }
         }
     }
@@ -352,4 +376,12 @@ pub extern "C" fn r_vm_clear() {
     while !*started {
         started = wait.0.wait(started).unwrap();
     }
+}
+
+/// # Panics
+#[allow(clippy::unwrap_used)]
+#[inline]
+#[no_mangle]
+pub extern "C" fn r_vm_end() {
+    events().send(Event::End).unwrap();
 }
