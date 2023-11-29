@@ -20,7 +20,7 @@
                 "-isystem",
                 "/github/workspace/external/PEGTL/include",
                 "-DCHIMERA_PATH=/github/workspace/stdlib",
-                "-std=c++20",
+                "-std=c++23",
                 "-Wall",
                 "-Wpedantic",
                 "-Werror",

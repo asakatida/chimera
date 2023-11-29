@@ -1,3 +1,4 @@
+#include <exception> // for throw_with_nested
 #include <tao/json.hpp>
 
 #include <string>

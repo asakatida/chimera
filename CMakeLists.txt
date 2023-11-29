@@ -14,7 +14,7 @@ set(
   CACHE STRING
   "Flags used by the C++ compiler during coverage builds.")
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 if(MSVC)
   add_compile_options(/W4 /WX)
