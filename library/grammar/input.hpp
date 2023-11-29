@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <exception>                   // for throw_with_nested
 #include <tao/pegtl/istream_input.hpp> // for istream_input
 
 #include <cstdint>
