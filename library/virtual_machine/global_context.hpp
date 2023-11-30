@@ -8,8 +8,8 @@
 #include <atomic>
 
 namespace chimera::library::virtual_machine {
-  struct GlobalContext {
-    explicit GlobalContext(Options options);
+  struct GlobalContextImpl : std::enable_shared_from_this<GlobalContextImpl> {
+    explicit GlobalContextImpl(Options options);
     [[nodiscard]] auto debug() const -> bool;
     [[nodiscard]] auto interactive() -> int;
     [[nodiscard]] auto execute_script() -> int;
@@ -27,4 +27,6 @@ namespace chimera::library::virtual_machine {
     Options options;
     std::atomic_flag *sig_int;
   };
+  using GlobalContext = std::shared_ptr<GlobalContextImpl>;
+  auto make_global(Options options) -> GlobalContext;
 } // namespace chimera::library::virtual_machine

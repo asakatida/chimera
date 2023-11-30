@@ -66,12 +66,12 @@ namespace chimera::library {
           if (*argChar != '-') {
             options.exec = options::Script{*arg};
             options.argv = forward_args(std::next(arg), args.end());
-            return virtual_machine::GlobalContext(options).execute_script();
+            return virtual_machine::make_global(options)->execute_script();
           }
           if (argLen == 1) {
             options.argv = forward_args(std::next(arg), args.end());
-            return virtual_machine::GlobalContext(options)
-                .execute_script_input();
+            return virtual_machine::make_global(options)
+                ->execute_script_input();
           }
           ++argChar;
           if (*argChar == '-') {
@@ -112,8 +112,8 @@ namespace chimera::library {
                   options.exec = options::Command{*arg};
                 }
                 options.argv = forward_args(std::next(arg), args.end());
-                return virtual_machine::GlobalContext(options)
-                    .execute_script_string();
+                return virtual_machine::make_global(options)
+                    ->execute_script_string();
               case 'd':
                 options.debug = true;
                 break;
@@ -121,7 +121,7 @@ namespace chimera::library {
                 options.ignore_environment = true;
                 break;
               case 'i':
-                return virtual_machine::GlobalContext(options).interactive();
+                return virtual_machine::make_global(options)->interactive();
               case 'I':
                 options.isolated_mode = true;
                 break;
@@ -137,7 +137,7 @@ namespace chimera::library {
                   options.exec = options::Module{*arg};
                 }
                 options.argv = forward_args(std::next(arg), args.end());
-                return virtual_machine::GlobalContext(options).execute_module();
+                return virtual_machine::make_global(options)->execute_module();
               case 'O':
                 options.optimize = options.optimize == options::Optimize::NONE
                                        ? options::Optimize::BASIC

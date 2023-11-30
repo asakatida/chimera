@@ -1,3 +1,4 @@
+#include "virtual_machine/evaluator.hpp"
 #include "virtual_machine/global_context.hpp"
 #include "virtual_machine/thread_context.hpp"
 
@@ -11,13 +12,13 @@ namespace chimera::library::virtual_machine {
   void parse_file(std::string_view &&data) {
     const Options options{.chimera = "chimera",
                           .exec = options::Script{"test.py"}};
-    GlobalContext globalContext(options);
-    ProcessContext processContext{globalContext};
+    auto globalContext = make_global(options);
+    auto processContext = make_process(globalContext);
     std::istringstream input{std::string{data}};
-    auto module = processContext.parse_file(input, "<test>");
-    ThreadContext threadContext{processContext,
-                                processContext.make_module("__main__")};
-    threadContext.evaluate(module);
+    auto module = processContext->parse_file(input, "<test>");
+    auto threadContext =
+        make_thread(processContext, processContext->make_module("__main__"));
+    Evaluator(threadContext).evaluate(module);
   }
 } // namespace chimera::library::virtual_machine
 

@@ -5,6 +5,7 @@
 #include "modules.hpp"
 #include "object/object.hpp"
 #include "options.hpp"
+#include "virtual_machine/evaluator.hpp"
 #include "virtual_machine/global_context.hpp"
 #include "virtual_machine/process_context.hpp"
 #include "virtual_machine/thread_context.hpp"
@@ -23,13 +24,13 @@
 namespace chimera::library {
   // NOLINTNEXTLINE(misc-use-anonymous-namespace)
   static void execute() {
-    virtual_machine::GlobalContext globalContext({});
-    virtual_machine::ProcessContext processContext{globalContext};
-    auto module = processContext.parse_file(std::cin, "<input>");
-    auto main = processContext.make_module("importlib");
-    virtual_machine::ThreadContext threadContext{processContext, main};
-    threadContext.evaluate(module);
-    const Printer printer{threadContext.body(), "importlib"};
+    auto globalContext = virtual_machine::make_global({});
+    auto processContext = virtual_machine::make_process(globalContext);
+    auto module = processContext->parse_file(std::cin, "<input>");
+    auto main = processContext->make_module("importlib");
+    auto threadContext = virtual_machine::make_thread(processContext, main);
+    virtual_machine::Evaluator(threadContext).evaluate(module);
+    const Printer printer{threadContext->body(), "importlib"};
     std::cout << printer;
   }
 } // namespace chimera::library

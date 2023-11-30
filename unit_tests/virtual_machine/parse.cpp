@@ -18,10 +18,10 @@ namespace chimera::library {
   void test_parse(std::string_view &&data, std::size_t size) {
     const Options options{.chimera = "chimera",
                           .exec = options::Script{"unit_test.py"}};
-    virtual_machine::GlobalContext globalContext(options);
-    const virtual_machine::ProcessContext processContext{globalContext};
+    auto globalContext = virtual_machine::make_global(options);
+    const auto processContext = virtual_machine::make_process(globalContext);
     std::istringstream istream{std::string{data}};
-    auto module = processContext.parse_file(
+    auto module = processContext->parse_file(
         istream, "<unit_tests/virtual_machine/parse.cpp>");
     REQUIRE(module.iter().size() == size);
   }

@@ -9,13 +9,10 @@
 #include <optional>
 
 namespace chimera::library::virtual_machine {
-  struct ThreadContext {
-    ThreadContext(ProcessContext &process_context, object::Object main);
+  struct ThreadContextImpl {
+    ThreadContextImpl(ProcessContext &process_context, object::Object main);
     [[nodiscard]] auto body() const -> object::Object;
     [[nodiscard]] auto builtins() const -> const object::Object &;
-    void evaluate(const asdl::Expression &expression);
-    void evaluate(const asdl::Interactive &interactive);
-    void evaluate(const asdl::Module &module);
     template <typename... Args>
     [[nodiscard]] auto import_object(Args &&...args) -> const object::Object & {
       return process_context->import_object(std::forward<Args>(args)...);
@@ -25,8 +22,11 @@ namespace chimera::library::virtual_machine {
     void return_value(object::Object &&value);
 
   private:
-    gsl::not_null<ProcessContext *> process_context;
+    ProcessContext process_context;
     object::Object main;
     std::optional<object::Object> ret;
   };
+  using ThreadContext = std::shared_ptr<ThreadContextImpl>;
+  auto make_thread(ProcessContext &process_context, object::Object main)
+      -> ThreadContext;
 } // namespace chimera::library::virtual_machine
