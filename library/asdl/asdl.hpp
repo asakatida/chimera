@@ -39,7 +39,7 @@ namespace chimera::library::asdl {
     struct Impl {
       using List = metal::list<Types...>;
       using ValueT = metal::apply<metal::lambda<std::variant>, List>;
-      Impl() = default;
+      Impl() : value(std::make_shared<ValueT>()) {}
       template <typename Type,
                 typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
       Impl(Type &&type)
@@ -78,15 +78,14 @@ namespace chimera::library::asdl {
       std::shared_ptr<ValueT> value;
     };
   } // namespace detail
-  using ExprImpl =
-      detail::Impl<struct Attribute, struct Await, struct Bin, struct Bool,
-                   struct Call, struct Compare, struct Dict, struct DictComp,
-                   struct Ellipsis, struct FormattedValue, struct GeneratorExp,
-                   struct IfExp, struct JoinedStr, struct Lambda, struct List,
-                   struct ListComp, struct Name, struct NameConstant,
-                   object::Object, struct Set, struct SetComp, struct Starred,
-                   struct Subscript, struct Tuple, struct Unary,
-                   struct UnpackDict, struct Yield, struct YieldFrom>;
+  using ExprImpl = detail::Impl<
+      struct Name, struct Attribute, struct Await, struct Bin, struct Bool,
+      struct Call, struct Compare, struct Dict, struct DictComp,
+      struct Ellipsis, struct FormattedValue, struct GeneratorExp, struct IfExp,
+      struct JoinedStr, struct Lambda, struct List, struct ListComp,
+      struct NameConstant, object::Object, struct Set, struct SetComp,
+      struct Starred, struct Subscript, struct Tuple, struct Unary,
+      struct UnpackDict, struct Yield, struct YieldFrom>;
   struct Name {
     std::string value;
   };
@@ -281,13 +280,13 @@ namespace chimera::library::asdl {
     std::vector<ExprImpl> elts{};
   };
   using StmtImpl =
-      detail::Impl<struct AnnAssign, struct Assert, struct Assign,
+      detail::Impl<struct Break, struct AnnAssign, struct Assert, struct Assign,
                    struct AsyncFor, struct AsyncFunctionDef, struct AsyncWith,
-                   struct AugAssign, struct Break, struct ClassDef,
-                   struct Continue, struct Delete, struct Expr, struct For,
-                   struct FunctionDef, struct Global, struct If, struct Import,
-                   struct ImportFrom, struct Nonlocal, struct Raise,
-                   struct Return, struct Try, struct While, struct With>;
+                   struct AugAssign, struct ClassDef, struct Continue,
+                   struct Delete, struct Expr, struct For, struct FunctionDef,
+                   struct Global, struct If, struct Import, struct ImportFrom,
+                   struct Nonlocal, struct Raise, struct Return, struct Try,
+                   struct While, struct With>;
   struct Break {};
   struct Continue {};
   struct Expr {

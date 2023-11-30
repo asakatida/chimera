@@ -70,7 +70,7 @@ namespace chimera::library::virtual_machine {
     }
   }
   Evaluator::Evaluator(ThreadContext &thread_context) noexcept
-      : thread_context(gsl::make_not_null(&thread_context)) {}
+      : thread_context(thread_context) {}
   Evaluator::~Evaluator() noexcept {
     for (; !stack.empty(); stack.pop()) {
       destroy_object(stack.top());
@@ -255,7 +255,7 @@ namespace chimera::library::virtual_machine {
   void Evaluator::evaluate(const asdl::For &asdlFor) {
     push([&asdlFor](Evaluator *evaluatorA) {
       try {
-        Evaluator evaluatorB{*evaluatorA->thread_context};
+        Evaluator evaluatorB{evaluatorA->thread_context};
         evaluatorB.enter_scope(evaluatorA->self());
         evaluatorB.push([](Evaluator *evaluatorC) {
           evaluatorC->push(CallEvaluator{evaluatorC->stack_remove()});
@@ -476,7 +476,7 @@ namespace chimera::library::virtual_machine {
                     const std::optional<object::BaseException> &context)
       -> std::optional<object::BaseException> {
     try {
-      Evaluator evaluator{*thread_context};
+      Evaluator evaluator{thread_context};
       evaluator.enter_scope(self());
       evaluator.extend(body);
       evaluator.evaluate();

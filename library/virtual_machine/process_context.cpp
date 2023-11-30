@@ -8,6 +8,7 @@
 #include "marshal/marshal.hpp"
 #include "object/object.hpp"
 #include "sys/sys.hpp"
+#include "virtual_machine/evaluator.hpp"
 #include "virtual_machine/thread_context.hpp"
 
 #include "number-rust.hpp"
@@ -23,8 +24,8 @@
 
 using namespace std::literals;
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define STRINGIFY(ARG) #ARG##sv
-static const std::string_view CHIMERA_IMPORT_PATH_VIEW(STRINGIFY(CHIMERA_PATH));
+#define STRINGIFY(ARG) #ARG##s
+static const std::string CHIMERA_IMPORT_PATH_VIEW(STRINGIFY(CHIMERA_PATH));
 #undef STRINGIFY
 
 namespace chimera::library::virtual_machine {
@@ -44,14 +45,14 @@ namespace chimera::library::virtual_machine {
       todo = attributes;
     }
   }
-  ProcessContext::ProcessContext(GlobalContext &global_context)
+  ProcessContextImpl::ProcessContextImpl(GlobalContext &global_context)
       : builtins_(std::map<std::string, object::Object>{}),
-        global_context(gsl::make_not_null(&global_context)),
+        global_context(global_context),
         modules(
             std::map<std::string, object::Object>({{"builtins", builtins_}})) {
     modules::builtins(builtins_);
   }
-  ProcessContext::~ProcessContext() noexcept {
+  ProcessContextImpl::~ProcessContextImpl() noexcept {
     auto builtins = builtins_;
     destroy_module(builtins);
     for (auto &module : modules.write().value) {
@@ -59,11 +60,11 @@ namespace chimera::library::virtual_machine {
     }
     r_vm_clear();
   }
-  [[nodiscard]] auto ProcessContext::builtins() const
+  [[nodiscard]] auto ProcessContextImpl::builtins() const
       -> const object::Object & {
     return builtins_;
   }
-  [[nodiscard]] auto ProcessContext::make_module(std::string_view &&name)
+  [[nodiscard]] auto ProcessContextImpl::make_module(std::string_view &&name)
       -> object::Object {
     auto result = modules.try_emplace(std::string(name));
     if (result.second) {
@@ -76,9 +77,9 @@ namespace chimera::library::virtual_machine {
     }
     return result.first->second;
   }
-  [[nodiscard]] auto ProcessContext::import_module(std::string &&module)
-      -> asdl::Module {
-    std::replace(module.begin(), module.end(), '.', '/');
+  [[nodiscard]] auto
+  ProcessContextImpl::find_module(const std::string_view &module)
+      -> std::optional<std::ifstream> {
     for (std::string_view::size_type
              pos = CHIMERA_IMPORT_PATH_VIEW.find_first_of(':'),
              prev = 0;
@@ -86,20 +87,43 @@ namespace chimera::library::virtual_machine {
              pos = CHIMERA_IMPORT_PATH_VIEW.find_first_of(':', prev)) {
       auto path = CHIMERA_IMPORT_PATH_VIEW.substr(prev, pos - 1);
       try {
-        return import_module(path,
-                             std::string(module).append("/__init__.py"sv));
-      } catch (const std::exception &) {
+        std::string pathString = path.append(module).append("/__init__.py"sv);
+        if (global_context->verbose_init() == options::VerboseInit::SEARCH) {
+          std::cout << pathString << '\n';
+        }
+        std::ifstream ifstream(pathString,
+                               std::iostream::in | std::iostream::binary);
+        if (ifstream.is_open() && ifstream.good()) {
+          return {std::move(ifstream)};
+        }
+      } catch (const object::BaseException &) {
       }
       try {
-        return import_module(path, std::string(module).append(".py"sv));
-      } catch (const std::exception &) {
+        std::string pathString = path.append(module).append(".py"sv);
+        if (global_context->verbose_init() == options::VerboseInit::SEARCH) {
+          std::cout << pathString << '\n';
+        }
+        std::ifstream ifstream(pathString,
+                               std::iostream::in | std::iostream::binary);
+        if (ifstream.is_open() && ifstream.good()) {
+          return {std::move(ifstream)};
+        }
+      } catch (const object::BaseException &) {
       }
     }
-    Ensures(false);
+    return {};
+  }
+  [[nodiscard]] auto ProcessContextImpl::import_module(std::string &&module)
+      -> std::optional<asdl::Module> {
+    std::replace(module.begin(), module.end(), '.', '/');
+    if (auto istream = find_module(module)) {
+      return asdl::Module(global_context->optimize(), *istream, module.c_str());
+    }
+    return {};
   }
   [[nodiscard]] auto
-  ProcessContext::import_object(std::string_view &&name,
-                                std::string_view &&relativeModule)
+  ProcessContextImpl::import_object(std::string_view &&name,
+                                    std::string_view &&relativeModule)
       -> const object::Object & {
     if (relativeModule.empty() || relativeModule.at(0) != '.') {
       return import_object(std::string_view{relativeModule});
@@ -118,7 +142,7 @@ namespace chimera::library::virtual_machine {
         relativeModule.substr(index)));
   }
   [[nodiscard]] auto
-  ProcessContext::import_object(std::string_view &&request_module)
+  ProcessContextImpl::import_object(std::string_view &&request_module)
       -> const object::Object & {
     if (!modules.contains(std::string(request_module))) {
       std::vector<std::string_view> path{request_module};
@@ -137,32 +161,30 @@ namespace chimera::library::virtual_machine {
           object::Object(modules.at(std::string(module.substr(0, index))))
               .set_attribute(std::string(module.substr(index + 1)), result);
         }
-        try {
-          auto importModule = import_module(std::string(module));
-          ThreadContext{*this, result}.evaluate(importModule);
-        } catch (const std::exception &) {
-          if (module == "importlib"sv) {
-            modules::importlib(result);
-          } else if (module == "marshal"sv) {
-            modules::marshal(result);
-          } else if (module == "sys"sv) {
-            modules::sys(result);
-            global_context->sys_argv(result);
-          } else {
-            throw std::runtime_error(
-                "no module "s.append(module).append(" found"sv));
-          }
+        if (module == "builtin"sv) {
+          modules::builtins(result);
+        } else if (module == "importlib"sv) {
+          modules::importlib(result);
+        } else if (module == "marshal"sv) {
+          modules::marshal(result);
+        } else if (module == "sys"sv) {
+          modules::sys(result);
+          global_context->sys_argv(result);
+        } else if (auto istream = find_module(module)) {
+          auto process = make_process(global_context);
+          auto thread = make_thread(process, result);
+          Evaluator(thread).evaluate(parse_file(*istream, module.data()));
+        } else {
+          throw std::runtime_error(
+              "no module "s.append(module).append(" found"sv));
         }
       }
     }
     return modules.at(std::string(request_module));
   }
-  [[nodiscard]] auto ProcessContext::import_module(const std::string_view &path,
-                                                   const std::string &module)
-      -> asdl::Module {
-    if (global_context->verbose_init() == options::VerboseInit::SEARCH) {
-      std::cout << path << module << '\n';
-    }
+  [[nodiscard]] auto
+  ProcessContextImpl::import_module(const std::string_view &path,
+                                    const std::string &module) -> asdl::Module {
     auto source = std::string(path).append(module);
     std::ifstream istream(source, std::iostream::in | std::iostream::binary);
     Ensures(istream.is_open() && istream.good());
@@ -172,22 +194,24 @@ namespace chimera::library::virtual_machine {
     std::cerr << path << module << '\n';
     return parse_file(istream, source.c_str());
   }
-  [[nodiscard]] auto ProcessContext::parse_expression(std::istream &input,
-                                                      const char *source) const
-      -> asdl::Expression {
+  [[nodiscard]] auto ProcessContextImpl::parse_expression(
+      std::istream &input, const char *source) const -> asdl::Expression {
     return {global_context->optimize(), input, source};
   }
-  [[nodiscard]] auto ProcessContext::parse_file(std::istream &input,
-                                                const char *source) const
+  [[nodiscard]] auto ProcessContextImpl::parse_file(std::istream &input,
+                                                    const char *source) const
       -> asdl::Module {
     return {global_context->optimize(), input, source};
   }
-  [[nodiscard]] auto ProcessContext::parse_input(std::istream &input,
-                                                 const char *source) const
+  [[nodiscard]] auto ProcessContextImpl::parse_input(std::istream &input,
+                                                     const char *source) const
       -> asdl::Interactive {
     return {global_context->optimize(), input, source};
   }
-  void ProcessContext::process_interrupts() const {
+  void ProcessContextImpl::process_interrupts() const {
     global_context->process_interrupts();
+  }
+  auto make_process(GlobalContext &global_context) -> ProcessContext {
+    return std::make_shared<ProcessContextImpl>(global_context);
   }
 } // namespace chimera::library::virtual_machine

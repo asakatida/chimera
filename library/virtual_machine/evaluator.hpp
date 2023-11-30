@@ -137,7 +137,7 @@ namespace chimera::library::virtual_machine {
     void get_attribute(const object::Object &object,
                        const object::Object &getAttribute,
                        const std::string &name);
-    gsl::not_null<ThreadContext *> thread_context;
+    ThreadContext thread_context;
     Scopes scope{};
     std::stack<object::Object> stack{};
   };

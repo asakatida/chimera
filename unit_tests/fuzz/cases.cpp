@@ -5,6 +5,7 @@
 #include "grammar/rules.hpp"
 #include "object/object.hpp"
 #include "options.hpp"
+#include "virtual_machine/evaluator.hpp"
 #include "virtual_machine/global_context.hpp"
 #include "virtual_machine/process_context.hpp"
 #include "virtual_machine/thread_context.hpp"
@@ -34,11 +35,11 @@ namespace chimera::library {
   }
   [[nodiscard]] auto fuzz_expression_eval(std::istream &input) -> int {
     const auto options = fuzz_options();
-    virtual_machine::GlobalContext globalContext(options);
-    virtual_machine::ProcessContext processContext{globalContext};
+    auto globalContext = virtual_machine::make_global(options);
+    auto processContext = virtual_machine::make_process(globalContext);
     std::optional<asdl::Expression> expression;
     try {
-      expression = processContext.parse_expression(input, "<fuzz>");
+      expression = processContext->parse_expression(input, "<fuzz>");
     } catch (const tao::pegtl::parse_error &) {
       return -1;
     } catch (const chimera::library::grammar::SyntaxError &) {
@@ -46,9 +47,9 @@ namespace chimera::library {
     }
     Ensures(expression.has_value());
     try {
-      auto main = processContext.make_module("__main__");
-      virtual_machine::ThreadContext threadContext{processContext, main};
-      threadContext.evaluate(*expression);
+      auto main = processContext->make_module("__main__");
+      auto threadContext = virtual_machine::make_thread(processContext, main);
+      virtual_machine::Evaluator(threadContext).evaluate(*expression);
     } catch (const object::BaseException &) {
       return -1;
     }
@@ -61,11 +62,11 @@ namespace chimera::library {
   }
   [[nodiscard]] auto fuzz_file_eval(std::istream &input) -> int {
     const auto options = fuzz_options();
-    virtual_machine::GlobalContext globalContext(options);
-    virtual_machine::ProcessContext processContext{globalContext};
+    auto globalContext = virtual_machine::make_global(options);
+    auto processContext = virtual_machine::make_process(globalContext);
     std::optional<asdl::Module> module;
     try {
-      module = processContext.parse_file(input, "<fuzz>");
+      module = processContext->parse_file(input, "<fuzz>");
     } catch (const tao::pegtl::parse_error &) {
       return -1;
     } catch (const chimera::library::grammar::SyntaxError &) {
@@ -73,9 +74,9 @@ namespace chimera::library {
     }
     Ensures(module.has_value());
     try {
-      auto main = processContext.make_module("__main__");
-      virtual_machine::ThreadContext threadContext{processContext, main};
-      threadContext.evaluate(*module);
+      auto main = processContext->make_module("__main__");
+      auto threadContext = virtual_machine::make_thread(processContext, main);
+      virtual_machine::Evaluator(threadContext).evaluate(*module);
     } catch (const object::BaseException &) {
       return -1;
     }
@@ -88,11 +89,11 @@ namespace chimera::library {
   }
   [[nodiscard]] auto fuzz_interactive_eval(std::istream &input) -> int {
     const auto options = fuzz_options();
-    virtual_machine::GlobalContext globalContext(options);
-    virtual_machine::ProcessContext processContext{globalContext};
+    auto globalContext = virtual_machine::make_global(options);
+    auto processContext = virtual_machine::make_process(globalContext);
     std::optional<asdl::Interactive> interactive;
     try {
-      interactive = processContext.parse_input(input, "<fuzz>");
+      interactive = processContext->parse_input(input, "<fuzz>");
     } catch (const tao::pegtl::parse_error &) {
       return -1;
     } catch (const chimera::library::grammar::SyntaxError &) {
@@ -100,9 +101,9 @@ namespace chimera::library {
     }
     Ensures(interactive.has_value());
     try {
-      auto main = processContext.make_module("__main__");
-      virtual_machine::ThreadContext threadContext{processContext, main};
-      threadContext.evaluate(*interactive);
+      auto main = processContext->make_module("__main__");
+      auto threadContext = virtual_machine::make_thread(processContext, main);
+      virtual_machine::Evaluator(threadContext).evaluate(*interactive);
     } catch (const object::BaseException &) {
       return -1;
     }
