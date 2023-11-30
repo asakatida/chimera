@@ -80,7 +80,7 @@ async def corpus_retest() -> None:
 
 
 async def corpus_retest_main(build: str) -> None:
-    await cmake_codecov("fuzzers")
+    await cmake_codecov("fuzzers", "fuzz-chimera")
     await corpus_retest()
     await regression(build)
     corpus_trim(disable_bars=None)

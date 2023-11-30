@@ -20,12 +20,15 @@ jobs:
             python tools/crash_reset.py
             python tools/corpus_gather.py "${GITHUB_REF}"
             python tools/corpus_retest.py build
-      - if: github.ref == 'refs/heads/stable'
+      - env:
+          CORPUS_DIR: unit_tests/fuzz/corpus/00
+        if: github.ref == 'refs/heads/stable'
         name: Run corpus
         uses: ./
         with:
           run: |
             python tools/ninja.py build corpus
+            build/fuzz-chimera --fuzz_for=60s
             python tools/corpus_retest.py build
       - name: Corpus baseline
         uses: ./
@@ -61,6 +64,27 @@ jobs:
           run: |
             rustup default stable
             python tools/cmake_ninja.py
+  fuzztest:
+    concurrency:
+      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
+      group: fuzztest-${{ github.workflow }}-${{ github.ref }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.5.3
+        with:
+          submodules: true
+      - env:
+          CMAKE_BUILD_TYPE: RelWithDebInfo
+          CPPFLAGS: -stdlib=libc++
+          CXXFLAGS: -stdlib=libc++
+          LDFLAGS: -stdlib=libc++
+        name: Basic unit tests
+        uses: ./
+        with:
+          run: |
+            rustup default stable
+            python tools/cmake_ninja.py build
+            ninja -C build -j2 check-rand
   libcpp:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
@@ -79,7 +103,10 @@ jobs:
         with:
           run: |
             rustup default stable
-            python tools/cmake_ninja.py
+            python tools/cmake_ninja.py build
+            cmake -GNinja -DFUZZTEST_FUZZING_MODE=on -B build -S .
+            python tools/ninja.py build fuzz-chimera
+            build/fuzz-chimera --fuzz_for=10s
   release:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}

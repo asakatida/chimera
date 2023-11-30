@@ -29,7 +29,17 @@ async def cmake_codecov(*args: object) -> None:
         ("-Wno-unused-command-line-argument", environ.get("LDFLAGS", ""))
     )
     await apply_patches()
-    await cmd("cmake", "-G", "Ninja", "-B", "build", "-S", ".")
+    await cmd(
+        "cmake",
+        "-D",
+        "FUZZTEST_FUZZING_MODE=on",
+        "-G",
+        "Ninja",
+        "-B",
+        "build",
+        "-S",
+        ".",
+    )
     await ninja("build", *args)
 
 

@@ -15,7 +15,7 @@ CORPUS = FUZZ / "corpus"
 
 
 async def corpus_merge_main(base_reference: str = "HEAD") -> None:
-    await cmake_codecov("fuzzers")
+    await cmake_codecov("fuzzers", "fuzz-chimera")
     await corpus_gather(
         "unit_tests/fuzz/corpus", base_reference=base_reference, disable_bars=None
     )

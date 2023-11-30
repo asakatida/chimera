@@ -23,16 +23,27 @@ else()
     add_compile_options(
       -Wno-c++11-extensions
       -Wno-c++17-extensions
-      -Wno-c++98-compat-pedantic)
+      -Wno-c++98-compat-pedantic
+      -Wno-c99-extensions
+      -Wno-dtor-name
+      -Wno-gcc-compat
+      -Wno-gnu-anonymous-struct
+      -Wno-nested-anon-types)
   endif()
   add_compile_options(
     -Wno-date-time
     -Wno-padded)
 endif()
 
-enable_testing()
-
 include(CTest)
+
+add_subdirectory(external/Catch EXCLUDE_FROM_ALL)
+add_subdirectory(external/fuzztest EXCLUDE_FROM_ALL)
+
+include(CatchShardTests)
+include(GoogleTest)
+
+enable_testing()
 
 add_library(
   chimera-grammar
@@ -137,15 +148,11 @@ target_include_directories(
 set_target_properties(libchimera PROPERTIES OUTPUT_NAME "chimera")
 
 add_executable(chimera source/main.cpp)
-
 target_link_libraries(
   chimera
   chimera-core
   chimera-grammar
   number)
-
-add_subdirectory(external/Catch EXCLUDE_FROM_ALL)
-include(CatchShardTests)
 
 set(
   BLNS_BASE64_JSON_FILE
@@ -210,6 +217,7 @@ target_link_libraries(
   number
   pthread)
 
+include(CatchShardTests)
 catch_add_sharded_tests(unit-test SHARD_COUNT 1021)
 
 add_custom_target(
@@ -217,98 +225,6 @@ add_custom_target(
   perf stat ./unit-test
   DEPENDS unit-test
   VERBATIM)
-
-add_custom_target(corpus)
-add_custom_target(fuzzers)
-add_custom_target(regression)
-
-if(
-  CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND
-  NOT CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
-  set(
-    FUZZ_CXXFLAGS
-    -fsanitize-coverage=no-prune
-    -fsanitize-coverage=trace-cmp
-    -fsanitize-coverage=trace-div
-    -fsanitize-coverage=trace-gep
-    -fsanitize-coverage=trace-loads
-    -fsanitize-coverage=trace-stores
-    -fsanitize=fuzzer)
-  add_library(chimera-fuzz OBJECT unit_tests/fuzz/cases.cpp)
-  target_compile_options(
-    chimera-fuzz
-    PUBLIC
-    ${FUZZ_CXXFLAGS})
-  target_include_directories(
-    chimera-fuzz
-    PUBLIC
-    library
-    stdlib
-    unit_tests)
-  target_include_directories(
-    chimera-fuzz
-    SYSTEM PUBLIC
-    external/GSL/include
-    external/metal/include
-    external/operators/include
-    external/PEGTL/include
-    oxidation)
-  set(
-    FUZZERS
-    ellipsis
-    expression
-    false
-    interactive
-    keywords
-    module
-    name
-    none
-    number
-    statement
-    string
-    true
-    vm
-    vm-expression
-    vm-interact)
-  foreach(fuzzer IN LISTS FUZZERS)
-    add_executable(fuzz-${fuzzer} unit_tests/fuzz/target-${fuzzer}.cpp)
-    target_compile_options(
-      fuzz-${fuzzer}
-      PUBLIC
-      ${FUZZ_CXXFLAGS})
-    target_include_directories(fuzz-${fuzzer} PUBLIC unit_tests)
-    target_include_directories(
-      fuzz-${fuzzer}
-      SYSTEM PUBLIC
-      external/PEGTL/include)
-    target_link_libraries(
-      fuzz-${fuzzer}
-      chimera-core
-      chimera-fuzz
-      chimera-grammar
-      number
-      pthread
-      ${FUZZ_CXXFLAGS}
-      -rtlib=compiler-rt)
-    add_custom_target(
-      corpus-${fuzzer}
-      python ${CMAKE_SOURCE_DIR}/tools/fuzz.py ${fuzzer}
-      ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/dictionaries/${fuzzer}.dict
-      ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/corpus
-      DEPENDS fuzz-${fuzzer}
-      VERBATIM)
-    add_custom_target(
-      regression-${fuzzer}
-      python ${CMAKE_SOURCE_DIR}/tools/regression.py
-      ${CMAKE_BINARY_DIR}
-      ${fuzzer}
-      DEPENDS fuzz-${fuzzer}
-      VERBATIM)
-    add_dependencies(corpus corpus-${fuzzer})
-    add_dependencies(fuzzers fuzz-${fuzzer})
-    add_dependencies(regression regression-${fuzzer})
-  endforeach()
-endif()
 
 add_executable(bnf2abnf tools/bnf2abnf.cpp)
 
@@ -370,3 +286,130 @@ install(
   PUBLIC_HEADER DESTINATION include
   RUNTIME DESTINATION bin)
 install(SCRIPT cmake/bootstrap_pip.cmake)
+
+fuzztest_setup_fuzzing_flags()
+
+set(
+  FUZZ_CXXFLAGS
+  -fsanitize-coverage=no-prune
+  -fsanitize-coverage=trace-cmp
+  -fsanitize-coverage=trace-div
+  -fsanitize-coverage=trace-gep
+  -fsanitize-coverage=trace-loads
+  -fsanitize-coverage=trace-stores)
+
+add_library(chimera-fuzz OBJECT unit_tests/fuzz/cases.cpp)
+
+target_compile_options(
+  chimera-fuzz
+  PUBLIC
+  ${FUZZ_CXXFLAGS})
+
+target_include_directories(
+  chimera-fuzz
+  PUBLIC
+  library
+  stdlib
+  unit_tests)
+
+target_include_directories(
+  chimera-fuzz
+  SYSTEM PUBLIC
+  external/GSL/include
+  external/metal/include
+  external/operators/include
+  external/PEGTL/include
+  oxidation)
+
+add_executable(fuzz-chimera unit_tests/fuzz/fuzztest.cpp)
+
+link_fuzztest(fuzz-chimera)
+
+gtest_discover_tests(fuzz-chimera)
+
+target_compile_options(
+  fuzz-chimera
+  PUBLIC
+  ${FUZZ_CXXFLAGS})
+
+target_include_directories(
+  fuzz-chimera
+  PUBLIC
+  unit_tests)
+
+target_link_libraries(
+  fuzz-chimera
+  PRIVATE
+  gcc_s
+  chimera-core
+  chimera-fuzz
+  chimera-grammar
+  number
+  pthread
+  -rtlib=compiler-rt
+  ${FUZZ_CXXFLAGS})
+
+add_custom_target(corpus)
+add_custom_target(fuzzers)
+add_custom_target(regression)
+
+if(
+  CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND
+  NOT CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
+  set(
+    FUZZERS
+    ellipsis
+    expression
+    false
+    interactive
+    keywords
+    module
+    name
+    none
+    number
+    statement
+    string
+    true
+    vm
+    vm-expression
+    vm-interact)
+  foreach(fuzzer IN LISTS FUZZERS)
+    add_executable(fuzz-${fuzzer} unit_tests/fuzz/target-${fuzzer}.cpp)
+    target_compile_options(
+      fuzz-${fuzzer}
+      PUBLIC
+      ${FUZZ_CXXFLAGS})
+    target_include_directories(fuzz-${fuzzer} PUBLIC unit_tests)
+    target_include_directories(
+      fuzz-${fuzzer}
+      SYSTEM PUBLIC
+      external/PEGTL/include)
+    target_link_libraries(
+      fuzz-${fuzzer}
+      chimera-core
+      chimera-fuzz
+      chimera-grammar
+      number
+      pthread
+      ${FUZZ_CXXFLAGS}
+      -rtlib=compiler-rt)
+    add_custom_target(
+      corpus-${fuzzer}
+      python ${CMAKE_SOURCE_DIR}/tools/fuzz.py ${fuzzer}
+      ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/dictionaries/${fuzzer}.dict
+      ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/corpus
+      DEPENDS fuzz-${fuzzer}
+      VERBATIM)
+    add_custom_target(
+      regression-${fuzzer}
+      python ${CMAKE_SOURCE_DIR}/tools/regression.py
+      ${CMAKE_BINARY_DIR}
+      ${fuzzer}
+      ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/corpus
+      DEPENDS fuzz-${fuzzer}
+      VERBATIM)
+    add_dependencies(corpus corpus-${fuzzer})
+    add_dependencies(fuzzers fuzz-${fuzzer})
+    add_dependencies(regression regression-${fuzzer})
+  endforeach()
+endif()

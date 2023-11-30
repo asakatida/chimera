@@ -24,7 +24,7 @@ async def codecov(llvm_profile_lcov: str) -> None:
     llvm_profile_dir = llvm_profile_file.parent
     instr_profile = llvm_profile_dir / "llvm-profile.profdata"
     chdir(Path(__file__).parent.parent)
-    await cmake_codecov("fuzzers", "unit-test")
+    await cmake_codecov("fuzzers", "fuzz-chimera", "unit-test")
     rmdir(llvm_profile_dir)
     llvm_profile_dir.mkdir(exist_ok=True, parents=True)
     Path(llvm_profile_lcov).parent.mkdir(exist_ok=True, parents=True)
