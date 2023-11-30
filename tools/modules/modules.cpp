@@ -3,33 +3,25 @@
 
 #include "modules.hpp"
 
-#include "asdl/asdl.hpp"
 #include "object/object.hpp"
-#include "options.hpp"
-#include "virtual_machine/global_context.hpp"
 
-#include <gsl/gsl>
-
-#include <algorithm>
-#include <iomanip>
-#include <iostream>
 #include <map>
 #include <optional>
-#include <queue>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
 namespace chimera::library {
-  [[nodiscard]] auto PrintState::printed(const object::Object &object)
-      -> std::string {
+  [[nodiscard]] auto
+  PrintState::printed(const object::Object &object) -> std::string {
     if (!m_printed.contains(id(object))) {
       return "";
     }
     return m_printed.at(id(object));
   }
-  [[nodiscard]] auto PrintState::id(const object::Object &object)
-      -> object::Id {
+  [[nodiscard]] auto
+  PrintState::id(const object::Object &object) -> object::Id {
     return m_remap.try_emplace(object.id(), object.id()).first->second;
   }
   void PrintState::remap(const object::Object &module,
@@ -57,13 +49,13 @@ namespace chimera::library {
       modules = next_modules;
     }
   }
-  [[nodiscard]] auto PrintState::is_printed(const object::Object &object)
-      -> bool {
+  [[nodiscard]] auto
+  PrintState::is_printed(const object::Object &object) -> bool {
     return m_printed.contains(id(object));
   }
-  [[nodiscard]] auto Compare::operator()(const SetAttribute &left,
-                                         const SetAttribute &right) const
-      -> bool {
+  [[nodiscard]] auto
+  Compare::operator()(const SetAttribute &left,
+                      const SetAttribute &right) const -> bool {
     if (left.base_name == right.base_name) {
       return left.name < right.name;
     }

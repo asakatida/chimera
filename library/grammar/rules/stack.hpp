@@ -45,8 +45,8 @@ namespace chimera::library::grammar::rules {
     template <typename Type, typename... Args>
     struct Reshape {
       template <typename Iter, std::size_t... I>
-      static auto reshape(Iter &&iter, std::index_sequence<I...> /*unused*/)
-          -> Type {
+      static auto reshape(Iter &&iter,
+                          std::index_sequence<I...> /*unused*/) -> Type {
         Ensures(std::holds_alternative<Args>(*(iter + I)) && ...);
         return Type{std::move(std::get<Args>(*(iter + I)))...};
       }

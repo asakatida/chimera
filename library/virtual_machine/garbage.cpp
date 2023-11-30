@@ -2,9 +2,13 @@
 
 #include "virtual_machine/garbage.hpp"
 
+#include "object/object.hpp"
+#include "virtual_machine/fibonacci_heap.hpp"
+
 #include <atomic>
 #include <mutex>
 #include <thread>
+#include <utility>
 
 namespace chimera::library::virtual_machine {
   GarbageCollector::GarbageCollector() : thread([this] { this->collect(); }) {}

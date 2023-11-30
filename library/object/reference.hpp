@@ -18,9 +18,8 @@ namespace chimera::library::object {
     };
     template <typename Type>
     struct CopyReference<std::weak_ptr, Type> {
-      [[nodiscard]] auto
-      operator()(const std::weak_ptr<Type> &pointer) const noexcept
-          -> std::shared_ptr<Type> {
+      [[nodiscard]] auto operator()(const std::weak_ptr<Type> &pointer)
+          const noexcept -> std::shared_ptr<Type> {
         return pointer.lock();
       }
     };
@@ -43,6 +42,7 @@ namespace chimera::library::object {
           template <typename...> class InterPointer, typename InterType,
           typename = EnableIfMismatch<Pointer<Type>, InterPointer<InterType>>>
       explicit BaseReference(
+          // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
           BaseReference<InterPointer, InterType> &&other) noexcept
           : pointer(std::move(other.pointer)) {}
       template <template <typename...> class InterPointer, typename InterType>
@@ -54,6 +54,7 @@ namespace chimera::library::object {
       template <
           template <typename...> class InterPointer, typename InterType,
           typename = EnableIfMismatch<Pointer<Type>, InterPointer<InterType>>>
+      // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
       auto operator=(BaseReference<InterPointer, InterType> &&other) noexcept
           -> BaseReference & {
         pointer = std::move(other.pointer);
@@ -62,13 +63,13 @@ namespace chimera::library::object {
       template <
           template <typename...> class InterPointer, typename InterType,
           typename = EnableIfMismatch<Pointer<Type>, InterPointer<InterType>>>
-      void swap(BaseReference<InterPointer, InterType> &other) {
+      void swap(BaseReference<InterPointer, InterType> &other) noexcept {
         using std::swap;
         swap(pointer, other.pointer);
       }
       [[nodiscard]] auto operator*() const
           noexcept(noexcept(*std::declval<Pointer<Type>>())) ->
-          typename std::add_lvalue_reference<Type>::type {
+          typename std::add_lvalue_reference_t<Type> {
         return *pointer;
       }
       [[nodiscard]] auto operator->() const noexcept -> RawPointer {

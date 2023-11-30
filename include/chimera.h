@@ -6,8 +6,10 @@
 extern "C" {
 #endif
 
+#include <stdarg.h> // for va_list
 #include <stdint.h> // for int64_t, uint16_t, uint32_t, uint8_t
-#include <stdio.h>  // for FILE, size_t, NULL, va_list
+#include <stdio.h>  // for FILE, size_t, NULL
+
 struct PyCompilerFlags;
 struct PyDateTime_Date;
 struct PyDateTime_DateTime;

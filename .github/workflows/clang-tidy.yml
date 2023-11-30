@@ -1,0 +1,20 @@
+---
+jobs:
+  clangtidy:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Lint c++ code
+        uses: ./
+        with:
+          run: |
+            rustup default stable
+            cargo build --manifest-path oxidation/number/Cargo.toml
+            cmake -B build -S .
+            python tools/clang_tidy.py build
+name: ClangTidy
+# yamllint disable-line rule:truthy
+on:
+  push: ~

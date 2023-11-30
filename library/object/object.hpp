@@ -46,6 +46,7 @@ namespace chimera::library::object::internal {
     ObjectPointer(const ObjectPointer<Pointer> &other) = default;
     template <template <typename...> class Other,
               typename = EnableIfMismatch<Pointer<void>, Other<void>>>
+    // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
     explicit ObjectPointer(ObjectPointer<Other> &&other) noexcept
         : object(std::move(other.object)){};
     ObjectPointer(ObjectPointer<Pointer> &&other) noexcept = default;
@@ -56,16 +57,18 @@ namespace chimera::library::object::internal {
       object = other.object;
       return *this;
     };
-    auto operator=(const ObjectPointer<Pointer> &other)
-        -> ObjectPointer & = default;
+    auto
+    operator=(const ObjectPointer<Pointer> &other) -> ObjectPointer & = default;
     template <template <typename...> class Other,
               typename = EnableIfMismatch<Pointer<void>, Other<void>>>
+    // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
     auto operator=(ObjectPointer<Other> &&other) noexcept -> ObjectPointer & {
       object = std::move(other.object);
       return *this;
     };
-    auto operator=(ObjectPointer<Pointer> &&other) noexcept
-        -> ObjectPointer & = default;
+    auto operator=(ObjectPointer<Pointer> &&other) noexcept -> ObjectPointer & =
+                                                                   default;
+    // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
     void delete_attribute(std::string &&key) noexcept { object->erase(key); }
     void delete_attribute(const std::string &key) noexcept {
       object->erase(key);
@@ -80,16 +83,18 @@ namespace chimera::library::object::internal {
     [[nodiscard]] auto get() const noexcept -> std::optional<const Type> {
       return object->template get<Type>();
     }
-    [[nodiscard]] auto get_attribute(std::string &&key) const
-        -> const ObjectPointer<Reference> &;
+    [[nodiscard]] auto
+    // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
+    get_attribute(std::string &&key) const -> const ObjectPointer<Reference> &;
     [[nodiscard]] auto get_attribute(const std::string &key) const
         -> const ObjectPointer<Reference> &;
     [[nodiscard]] auto get_bool() const noexcept -> bool;
+    // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
     [[nodiscard]] auto has_attribute(std::string &&key) const noexcept -> bool {
       return object->contains(key);
     }
-    [[nodiscard]] auto has_attribute(const std::string &key) const noexcept
-        -> bool {
+    [[nodiscard]] auto
+    has_attribute(const std::string &key) const noexcept -> bool {
       return object->contains(key);
     }
     [[nodiscard]] auto id() const noexcept -> Id {
@@ -215,8 +220,8 @@ namespace chimera::library::object::internal {
     BaseException(const BaseException &other) noexcept = default;
     BaseException(BaseException &&other) noexcept = default;
     ~BaseException() noexcept override = default;
-    auto operator=(const BaseException &other) noexcept
-        -> BaseException & = default;
+    auto
+    operator=(const BaseException &other) noexcept -> BaseException & = default;
     auto operator=(BaseException &&other) noexcept -> BaseException & = default;
     [[nodiscard]] auto class_id() const noexcept -> Id;
     [[nodiscard]] auto id() const noexcept -> Id;
@@ -252,14 +257,14 @@ namespace chimera::library::object::internal {
   };
   template <template <typename...> class Pointer>
   [[nodiscard]] auto
+  // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
   ObjectPointer<Pointer>::get_attribute(std::string &&key) const
       -> const ObjectRef & {
     return get_attribute(key);
   }
   template <template <typename...> class Pointer>
-  [[nodiscard]] auto
-  ObjectPointer<Pointer>::get_attribute(const std::string &key) const
-      -> const ObjectRef & {
+  [[nodiscard]] auto ObjectPointer<Pointer>::get_attribute(
+      const std::string &key) const -> const ObjectRef & {
     if (!object->contains(key)) {
       throw AttributeError("object", key);
     }

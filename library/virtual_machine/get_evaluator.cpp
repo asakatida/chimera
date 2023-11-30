@@ -3,7 +3,14 @@
 #include "virtual_machine/get_evaluator.hpp"
 
 #include "asdl/asdl.hpp"
+#include "object/object.hpp"
+#include "virtual_machine/bin_evaluator.hpp"
+#include "virtual_machine/bool_evaluator.hpp"
 #include "virtual_machine/evaluator.hpp"
+#include "virtual_machine/push_stack.hpp"
+#include "virtual_machine/to_bool_evaluator.hpp"
+#include "virtual_machine/tuple_evaluator.hpp"
+#include "virtual_machine/unary_evaluator.hpp"
 
 namespace chimera::library::virtual_machine {
   GetEvaluator::GetEvaluator(Evaluator *evaluator) noexcept

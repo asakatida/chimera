@@ -6,6 +6,9 @@
 
 #include "asdl/asdl.hpp"
 #include "virtual_machine/evaluator.hpp"
+#include "virtual_machine/push_stack.hpp"
+
+#include <utility>
 
 namespace chimera::library::virtual_machine {
   SetEvaluator::SetEvaluator(Evaluator *evaluator) noexcept

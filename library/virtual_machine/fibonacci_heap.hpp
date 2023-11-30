@@ -31,11 +31,12 @@ namespace chimera::library::virtual_machine {
         min->reset_left();
       }
     }
-    auto operator=(const FibonacciHeap &fibonacciHeap)
-        -> FibonacciHeap & = delete;
-    auto operator=(FibonacciHeap &&fibonacciHeap) noexcept
-        -> FibonacciHeap & = default;
+    auto
+    operator=(const FibonacciHeap &fibonacciHeap) -> FibonacciHeap & = delete;
+    auto operator=(FibonacciHeap &&fibonacciHeap) noexcept -> FibonacciHeap & =
+                                                                  default;
     template <typename Compare2>
+    // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
     void merge(FibonacciHeap<Key, Compare2, Allocator> &&source) {
       if (min == nullptr) {
         using std::swap;
@@ -72,6 +73,7 @@ namespace chimera::library::virtual_machine {
       return min->key;
     }
     template <typename Predicate>
+    // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
     void remove_if(Predicate && /*predicate*/) {}
 
   private:

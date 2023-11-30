@@ -3,20 +3,23 @@
 
 #include "grammar/input.hpp"
 
-#include <tao/pegtl/istream_input.hpp> // for istream_input
+#include <tao/pegtl/parse_error.hpp> // for parse_error
 
-#include <cstdint>
-#include <fstream>
-#include <iterator>
-#include <limits>
-#include <sstream>
-#include <stack>
+#include <algorithm>   // for all_of
+#include <cstdint>     // for uint16_t
+#include <iostream>    // for istream
+#include <iterator>    // for advance
+#include <limits>      // for numeric_limits
+#include <stack>       // for stack
+                       // NOLINTNEXTLINE(misc-include-cleaner)
+#include <string>      // for operator""s
+#include <string_view> // for string_view
 
 using namespace std::literals;
 
 namespace chimera::library::grammar {
-  [[nodiscard]] auto validateBasic(const std::string_view &line, char type)
-      -> bool {
+  [[nodiscard]] auto validateBasic(const std::string_view &line,
+                                   char type) -> bool {
     return std::all_of(line.begin(), line.end(), [type](auto &&whitespace) {
       return whitespace == type;
     });
@@ -39,6 +42,7 @@ namespace chimera::library::grammar {
     }
     if ((indentStack.empty() && column() > 1) ||
         (!indentStack.empty() && column() > indentStack.top())) {
+      // NOLINTNEXTLINE(misc-include-cleaner)
       throw tao::pegtl::parse_error("bad dedent"s, *this);
     }
     return true;

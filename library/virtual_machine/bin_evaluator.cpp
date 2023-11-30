@@ -3,7 +3,11 @@
 
 #include "virtual_machine/bin_evaluator.hpp"
 
+#include "asdl/asdl.hpp" // for ExprImpl
+#include "virtual_machine/call_evaluator.hpp"
 #include "virtual_machine/evaluator.hpp"
+
+#include <vector> // for vector
 
 namespace chimera::library::virtual_machine {
   BinAddEvaluator::BinAddEvaluator(

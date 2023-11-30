@@ -3,15 +3,22 @@
 #include "virtual_machine/global_context.hpp"
 
 #include "object/object.hpp"
+#include "options.hpp"
 #include "version.hpp"
 #include "virtual_machine/evaluator.hpp"
 #include "virtual_machine/process_context.hpp"
 #include "virtual_machine/thread_context.hpp"
 
+#include <gsl/narrow>
+
+#include <atomic>
 #include <csignal>
 #include <fstream>
 #include <iostream>
+#include <iterator>
+#include <memory>
 #include <sstream>
+#include <tuple>
 #include <utility>
 
 using namespace std::literals;
@@ -37,7 +44,7 @@ namespace chimera::library::virtual_machine {
                    "[" __VERSION__ "] on darwin\n"
                    R"(Type "help", "copyright", "credits" or "license" )"
                    "for more information."
-                << std::endl;
+                << '\n';
     }
     auto global = shared_from_this();
     auto processContext = make_process(global);
@@ -74,10 +81,10 @@ namespace chimera::library::virtual_machine {
   [[nodiscard]] auto GlobalContextImpl::execute_module() -> int {
     auto global = shared_from_this();
     auto processContext = make_process(global);
-    auto name = std::get<options::Module>(options.exec).name;
+    const auto *name = std::get<options::Module>(options.exec).name;
     auto module = processContext->import_module(name);
     if (!module) {
-      std::cout << options.chimera << "No module named " << name << std::endl;
+      std::cout << options.chimera << "No module named " << name << '\n';
       return 1;
     }
     auto main = processContext->make_module("__main__");
@@ -85,8 +92,8 @@ namespace chimera::library::virtual_machine {
     Evaluator(thread).evaluate(*module);
     return 0;
   }
-  [[nodiscard]] auto GlobalContextImpl::optimize() const
-      -> const options::Optimize & {
+  [[nodiscard]] auto
+  GlobalContextImpl::optimize() const -> const options::Optimize & {
     return options.optimize;
   }
   void GlobalContextImpl::process_interrupts() const {
@@ -104,11 +111,12 @@ namespace chimera::library::virtual_machine {
           object::String(arg), {{"__class__", module.get_attribute("str")}}));
     }
     sys.set_attribute(
+        // NOLINTNEXTLINE(misc-include-cleaner)
         "argv"s,
         object::Object(argv, {{"__class__", sys.get_attribute("tuple")}}));
   }
-  [[nodiscard]] auto GlobalContextImpl::verbose_init() const
-      -> const options::VerboseInit & {
+  [[nodiscard]] auto
+  GlobalContextImpl::verbose_init() const -> const options::VerboseInit & {
     return options.verbose_init;
   }
   auto make_global(Options options) -> GlobalContext {

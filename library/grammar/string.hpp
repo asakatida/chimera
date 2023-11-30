@@ -26,6 +26,7 @@ namespace chimera::library::grammar {
     struct StringHolder : rules::VariantCapture<object::Object> {
       std::string string;
       template <typename Input, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       void apply(const Input &input, Args &&.../*args*/) {
         string.append(input);
       }
@@ -34,6 +35,7 @@ namespace chimera::library::grammar {
     template <>
     struct Action<LiteralChar> {
       template <typename Input, typename Top, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       static void apply(const Input &input, Top &&top, Args &&.../*args*/) {
         top.apply(input.string());
       }
@@ -47,6 +49,7 @@ namespace chimera::library::grammar {
     template <>
     struct Action<Conversion> {
       template <typename Input, typename Top, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       static void apply(const Input &input, Top &&top, Args &&.../*args*/) {
         asdl::FormattedValue formattedValue{
             top.template pop<asdl::ExprImpl>(), asdl::FormattedValue::STR, {}};
@@ -78,6 +81,7 @@ namespace chimera::library::grammar {
     template <flags::Flag Option>
     struct Action<FormatSpec<Option>> {
       template <typename Top, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       static void apply0(Top &&top, Args &&.../*args*/) {
         auto formatSpec = top.template pop<asdl::ExprImpl>();
         auto expr = top.template pop<asdl::ExprImpl>();
@@ -99,6 +103,7 @@ namespace chimera::library::grammar {
     template <>
     struct Action<LeftFLiteral> {
       template <typename Top, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       static void apply0(Top &&top, Args &&.../*args*/) {
         top.apply("{"sv);
       }
@@ -107,6 +112,7 @@ namespace chimera::library::grammar {
     template <>
     struct Action<RightFLiteral> {
       template <typename Top, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       static void apply0(Top &&top, Args &&.../*args*/) {
         top.apply("}"sv);
       }
@@ -117,6 +123,7 @@ namespace chimera::library::grammar {
     template <>
     struct Action<FLiteral> {
       template <typename Top, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       static void apply0(Top &&top, Args &&.../*args*/) {
         top.push(object::Object(object::String(top.string), {}));
       }
@@ -128,6 +135,7 @@ namespace chimera::library::grammar {
     template <typename Chars>
     struct Action<SingleChars<Chars>> {
       template <typename Input, typename Top, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       static void apply(const Input &input, Top &&top, Args &&.../*args*/) {
         top.apply(input.string());
       }
@@ -137,8 +145,10 @@ namespace chimera::library::grammar {
     template <unsigned Len>
     struct Action<Hexseq<Len>> {
       template <typename Input, typename Top, typename... Args>
-      static auto apply(const Input &input, Top &&top, Args &&.../*args*/)
-          -> bool {
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
+      static auto apply(const Input &input, Top &&top,
+                        // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
+                        Args &&.../*args*/) -> bool {
         std::string string;
         if (tao::pegtl::unescape::utf8_append_utf32(
                 string, tao::pegtl::unescape::unhex_string<std::uint32_t>(
@@ -155,8 +165,10 @@ namespace chimera::library::grammar {
     template <>
     struct Action<Octseq> {
       template <typename Input, typename Top, typename... Args>
-      static auto apply(const Input &input, Top &&top, Args &&.../*args*/)
-          -> bool {
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
+      static auto apply(const Input &input, Top &&top,
+                        // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
+                        Args &&.../*args*/) -> bool {
         std::string string;
         if (tao::pegtl::unescape::utf8_append_utf32(
                 string,
@@ -175,6 +187,7 @@ namespace chimera::library::grammar {
     template <>
     struct Action<EscapeControl> {
       template <typename Input, typename Top, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       static void apply(const Input &input, Top &&top, Args &&.../*args*/) {
         static const std::map<char, std::string_view> escapes{
             {'a', "\a"sv}, {'b', "\b"sv}, {'f', "\f"sv}, {'n', "\n"sv},
@@ -188,6 +201,7 @@ namespace chimera::library::grammar {
     template <typename Chars>
     struct Action<EscapeIgnore<Chars>> {
       template <typename Input, typename Top, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       static void apply(const Input &input, Top &&top, Args &&.../*args*/) {
         top.apply(R"(\)"sv);
         top.apply(input.string());
@@ -240,6 +254,7 @@ namespace chimera::library::grammar {
     template <>
     struct Action<UName> {
       template <typename Input, typename Top, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       static void apply(const Input &input, Top &&top, Args &&.../*args*/) {
         top.apply(input.string());
       }
@@ -258,6 +273,7 @@ namespace chimera::library::grammar {
       struct Transform : rules::VariantCapture<object::Object> {
         object::Bytes bytes;
         template <typename Input, typename... Args>
+        // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
         void apply(const Input &input, Args &&.../*args*/) {
           for (const auto &byte : input) {
             if (byte > 0xFF) {
@@ -271,6 +287,7 @@ namespace chimera::library::grammar {
     template <flags::Flag Option>
     struct Action<Bytes<Option>> {
       template <typename Top, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       static void apply0(Top &&top, Args &&.../*args*/) {
         top.push(object::Object(std::move(top.bytes), {}));
       }
@@ -287,6 +304,7 @@ namespace chimera::library::grammar {
     template <flags::Flag Option>
     struct Action<DocString<Option>> {
       template <typename Top, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       static void apply0(Top &&top, Args &&.../*args*/) {
         top.push(object::Object(object::String(top.string), {}));
       }
@@ -300,10 +318,12 @@ namespace chimera::library::grammar {
       struct Transform {
         std::string string;
         template <typename Outer>
+        // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
         void finalize(Transform & /*unused*/, Outer &&outer) {
           outer.push(std::move(string));
         }
         template <typename Input, typename... Args>
+        // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
         void apply(const Input &input, Args &&.../*args*/) {
           string.append(input);
         }
@@ -316,6 +336,7 @@ namespace chimera::library::grammar {
       struct Transform : rules::Stack<asdl::ExprImpl> {
         std::string string;
         template <typename Outer>
+        // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
         void success(Outer &&outer) {
           asdl::JoinedStr joinedStr;
           joinedStr.values.reserve(size());
@@ -323,6 +344,7 @@ namespace chimera::library::grammar {
           outer.push(std::move(joinedStr));
         }
         template <typename Input, typename... Args>
+        // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
         void apply(const Input &input, Args &&.../*args*/) {
           string.append(input);
         }
@@ -331,8 +353,10 @@ namespace chimera::library::grammar {
     template <flags::Flag Option>
     struct Action<FormattedString<Option>> {
       template <typename Input, typename Top, typename... Args>
-      [[nodiscard]] static auto apply(const Input &input, Top &&top,
-                                      Args &&.../*args*/) -> bool {
+      [[nodiscard]] static auto
+      apply(const Input &input, Top &&top,
+            // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
+            Args &&.../*args*/) -> bool {
         return tao::pegtl::parse_nested<
             FString<flags::list<flags::DISCARD, flags::IMPLICIT>>, Action,
             Normal>(input,
@@ -354,9 +378,9 @@ namespace chimera::library::grammar {
                                       const std::string &element) -> State {
           return {value + element};
         }
-        [[nodiscard]] auto operator()(const std::string &value,
-                                      const asdl::JoinedStr &joinedStr)
-            -> State {
+        [[nodiscard]] auto
+        operator()(const std::string &value,
+                   const asdl::JoinedStr &joinedStr) -> State {
           auto values = joinedStr.values;
           values.emplace(values.begin(),
                          object::Object(object::String(value), {}));
@@ -368,9 +392,9 @@ namespace chimera::library::grammar {
           values.emplace_back(object::Object(object::String(element), {}));
           return {asdl::JoinedStr{std::move(values)}};
         }
-        [[nodiscard]] auto operator()(const asdl::JoinedStr &value,
-                                      const asdl::JoinedStr &joinedStr)
-            -> State {
+        [[nodiscard]] auto
+        operator()(const asdl::JoinedStr &value,
+                   const asdl::JoinedStr &joinedStr) -> State {
           auto values = value.values;
           std::move(joinedStr.values.begin(), joinedStr.values.end(),
                     std::back_inserter(values));
@@ -378,6 +402,7 @@ namespace chimera::library::grammar {
         }
       };
       template <typename Top, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       static void apply0(Top &&top, Args &&.../*args*/) {
         std::visit(
             top, top.reduce(State{}, [](const State &left, const State &right) {
@@ -391,6 +416,7 @@ namespace chimera::library::grammar {
           : rules::Stack<std::string, asdl::JoinedStr, object::Object> {
         struct Push {
           using State = std::variant<asdl::JoinedStr, object::Object>;
+          // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
           [[nodiscard]] auto operator()(std::string && /*value*/) -> State {
             Expects(false);
           }
@@ -402,6 +428,7 @@ namespace chimera::library::grammar {
           }
         };
         template <typename Outer>
+        // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
         void success(Outer &&outer) {
           std::visit(outer, std::visit(Push{}, pop()));
         }
@@ -411,6 +438,7 @@ namespace chimera::library::grammar {
     struct Action<JoinedStr<Option>> {
       struct Push {
         using State = std::variant<asdl::JoinedStr, object::Object>;
+        // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
         [[nodiscard]] auto operator()(std::string &&value) {
           return State{object::Object(object::String(value), {})};
         }
@@ -422,6 +450,7 @@ namespace chimera::library::grammar {
         }
       };
       template <typename Top, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       static void apply0(Top &&top, Args &&.../*args*/) {
         std::visit(top, std::visit(Push{}, top.pop()));
       }

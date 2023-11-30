@@ -18,6 +18,7 @@ using namespace std::literals;
 namespace chimera::library {
   struct EmptyNode : asdl::BaseASDL {
     template <typename Stack>
+    // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
     void finalize(const EmptyNode & /*unused*/, Stack && /*unused*/) const {}
   };
   template <typename Data>

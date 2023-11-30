@@ -2,7 +2,12 @@
 
 #include "virtual_machine/to_bool_evaluator.hpp"
 
+#include "object/object.hpp"
+#include "virtual_machine/call_evaluator.hpp"
 #include "virtual_machine/evaluator.hpp"
+#include "virtual_machine/push_stack.hpp"
+
+#include <utility>
 
 namespace chimera::library::virtual_machine {
   ToBoolEvaluator::ToBoolEvaluator(object::Object object)

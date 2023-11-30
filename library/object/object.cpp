@@ -2,7 +2,6 @@
 
 #include "object.hpp"
 
-#include <limits>
 #include <string>
 #include <utility>
 
@@ -17,9 +16,11 @@ namespace chimera::library::object::internal {
                                const BaseException &context)
       : exception(anException.exception) {
     ObjectRef object(anException.exception);
+    // NOLINTNEXTLINE(misc-include-cleaner)
     object.set_attribute("__context__"s, context.exception);
   }
   auto BaseException::class_id() const noexcept -> Id {
+    // NOLINTNEXTLINE(misc-include-cleaner)
     return exception.get_attribute("__class__"s).id();
   }
   auto BaseException::id() const noexcept -> Id { return exception.id(); }
@@ -29,9 +30,11 @@ namespace chimera::library::object::internal {
   // NOLINTBEGIN(bugprone-throw-keyword-missing)
   AttributeError::AttributeError(const std::string &type,
                                  const std::string &key)
+      // NOLINTNEXTLINE(misc-include-cleaner)
       : BaseException("AttributeError: '"s + type + "' has no attribute '" +
                       key + "'") {}
   KeyboardInterrupt::KeyboardInterrupt()
+      // NOLINTNEXTLINE(misc-include-cleaner)
       : BaseException("KeyboardInterrupt"s) {}
   // NOLINTEND(bugprone-throw-keyword-missing)
 } // namespace chimera::library::object::internal

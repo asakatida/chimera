@@ -54,8 +54,8 @@ namespace chimera::library::object::number {
     [[nodiscard]] auto floor_div(const Number &right) const -> Number;
     [[nodiscard]] auto gcd(const Number &right) const -> Number;
     [[nodiscard]] auto pow(const Number &right) const -> Number;
-    [[nodiscard]] auto pow(const Number &exp, const Number &mod) const
-        -> Number;
+    [[nodiscard]] auto pow(const Number &exp,
+                           const Number &mod) const -> Number;
     [[nodiscard]] auto is_complex() const -> bool;
     [[nodiscard]] auto is_int() const -> bool;
     [[nodiscard]] auto is_nan() const -> bool;

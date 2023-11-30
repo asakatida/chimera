@@ -17,8 +17,8 @@ namespace chimera::library::virtual_machine {
     GarbageCollector(const GarbageCollector &collector) = delete;
     GarbageCollector(GarbageCollector &&collector) = delete;
     ~GarbageCollector() noexcept;
-    auto operator=(const GarbageCollector &collector)
-        -> GarbageCollector & = delete;
+    auto
+    operator=(const GarbageCollector &collector) -> GarbageCollector & = delete;
     auto operator=(GarbageCollector &&collector) -> GarbageCollector & = delete;
     template <typename... Args>
     [[nodiscard]] auto emplace(Args &&...args) {

@@ -1,6 +1,9 @@
 #include "object/number/number.hpp"
 
-#include "number-rust.hpp"
+#include "number-rust.hpp" // for r_delete_number, r_copy_number, r_create...
+
+#include <cstdint> // for uint64_t, int64_t
+#include <utility> // for move, swap
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
 
@@ -26,6 +29,7 @@ namespace chimera::library::object::number {
     return *this;
   }
   Number::~Number() { r_delete_number(ref); }
+  // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
   void Number::swap(Number &&other) noexcept {
     using std::swap;
     swap(ref, other.ref);
@@ -34,9 +38,9 @@ namespace chimera::library::object::number {
   Number::operator uint64_t() const noexcept { return r_cast_unsigned(ref); }
   Number::operator double() const noexcept { return r_cast_float(ref); }
 #define NUM_OP_MONO(op, name)                                                  \
-  auto Number::operator op() const -> Number { return {name(ref), false}; }
+  auto Number::operator op() const->Number { return {name(ref), false}; }
 #define NUM_OP(op, name)                                                       \
-  auto Number::operator op(const Number & right) -> Number & {                 \
+  auto Number::operator op(const Number & right)->Number & {                   \
     auto ptr = name(ref, right.ref);                                           \
     using std::swap;                                                           \
     swap(ptr, ref);                                                            \
@@ -71,8 +75,8 @@ namespace chimera::library::object::number {
   }
   NUM_OP_NAMED(gcd, r_gcd)
   NUM_OP_NAMED(pow, r_pow)
-  [[nodiscard]] auto Number::pow(const Number &exp, const Number &mod) const
-      -> Number {
+  [[nodiscard]] auto Number::pow(const Number &exp,
+                                 const Number &mod) const -> Number {
     return {r_mod_pow(ref, exp.ref, mod.ref), false};
   }
   [[nodiscard]] auto Number::is_complex() const -> bool {

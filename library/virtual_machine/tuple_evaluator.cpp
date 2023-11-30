@@ -4,6 +4,9 @@
 
 #include "object/object.hpp"
 #include "virtual_machine/evaluator.hpp"
+#include "virtual_machine/push_stack.hpp"
+
+#include <cstddef>
 
 namespace chimera::library::virtual_machine {
   TupleEvaluator::TupleEvaluator(std::size_t size) noexcept : size(size) {}

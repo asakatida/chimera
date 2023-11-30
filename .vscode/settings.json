@@ -50,6 +50,7 @@
         "cwctype": "cpp",
         "deque": "cpp",
         "exception": "cpp",
+        "execution": "cpp",
         "filesystem": "cpp",
         "forward_list": "cpp",
         "fstream": "cpp",

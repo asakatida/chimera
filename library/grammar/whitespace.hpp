@@ -29,6 +29,7 @@ namespace chimera::library::grammar {
   using BlankLines = seq<plus<Space<0>, Eol>, star<Utf8NonLineBreak>>;
   struct Indent : not_at<Utf8NonLineBreak> {
     template <typename Input, typename... Args>
+    // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
     static auto match(Input &&input, Args &&.../*args*/) -> bool {
       return input.indent();
     }
@@ -36,6 +37,7 @@ namespace chimera::library::grammar {
   struct INDENT : seq<BlankLines, Indent, discard> {};
   struct Dedent : not_at<Utf8NonLineBreak> {
     template <typename Input, typename... Args>
+    // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
     static auto match(Input &&input, Args &&.../*args*/) -> bool {
       return input.dedent();
     }
@@ -43,6 +45,7 @@ namespace chimera::library::grammar {
   struct DEDENT : seq<sor<eof, BlankLines>, Dedent, discard> {};
   struct NextIndentCheck : not_at<Utf8NonLineBreak> {
     template <typename Input, typename... Args>
+    // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
     static auto match(Input &&input, Args &&.../*args*/) -> bool {
       return input.is_newline();
     }
@@ -52,6 +55,7 @@ namespace chimera::library::grammar {
     template <auto Asdl>
     struct ConstantToken {
       template <typename Top, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       static void apply0(Top &&top, Args &&.../*args*/) {
         top.push(Asdl);
       }

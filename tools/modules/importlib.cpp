@@ -1,25 +1,15 @@
 //! evaluates importlib to construct the importlib module.
 //! Then prints the module construction.
 
-#include "asdl/asdl.hpp"
 #include "modules.hpp"
 #include "object/object.hpp"
-#include "options.hpp"
 #include "virtual_machine/evaluator.hpp"
 #include "virtual_machine/global_context.hpp"
 #include "virtual_machine/process_context.hpp"
 #include "virtual_machine/thread_context.hpp"
 
-#include <gsl/gsl>
-
-#include <algorithm>
-#include <iomanip>
+#include <exception>
 #include <iostream>
-#include <map>
-#include <optional>
-#include <queue>
-#include <string>
-#include <vector>
 
 namespace chimera::library {
   // NOLINTNEXTLINE(misc-use-anonymous-namespace)
@@ -35,8 +25,17 @@ namespace chimera::library {
   }
 } // namespace chimera::library
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
 auto main() -> int {
-  chimera::library::execute();
-  return 0;
+  try {
+    try {
+      chimera::library::execute();
+      return 0;
+    } catch (const std::exception &error) {
+      std::cerr << error.what() << '\n';
+      return 1;
+    }
+  } catch (...) {
+    return 254;
+  }
+  return 1;
 }

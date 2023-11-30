@@ -209,6 +209,7 @@ namespace chimera::library::grammar {
         outer.push(std::move(assign));
       }
       template <typename Target>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       void operator()(Target && /*target*/) const {}
       void operator()(const asdl::Bin & /*bin*/) const {
         throw ExprAssignError();
@@ -692,6 +693,7 @@ namespace chimera::library::grammar {
                     AsyncFuncDef<Option>>> {
     struct Transform : rules::Stack<asdl::StmtImpl, asdl::ExprImpl> {
       template <typename Outer>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       void success(Outer &&outer) {
         // NOLLINTNEXTLINE(readability-identifier-length)
         auto action = [this](auto &&def) {
@@ -717,8 +719,9 @@ namespace chimera::library::grammar {
                     FuncDef<flags::set<Option, flags::ASYNC_FLOW>>>> {
     struct Transform : rules::Stack<asdl::FunctionDef, asdl::With, asdl::For> {
       struct Push {
-        [[nodiscard]] auto operator()(asdl::FunctionDef &&functionDef)
-            -> asdl::AsyncFunctionDef {
+        [[nodiscard]] auto
+        // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
+        operator()(asdl::FunctionDef && functionDef) -> asdl::AsyncFunctionDef {
           return {std::move(functionDef.name),
                   functionDef.doc_string,
                   std::move(functionDef.args),
@@ -726,15 +729,18 @@ namespace chimera::library::grammar {
                   std::move(functionDef.decorator_list),
                   std::move(functionDef.returns)};
         }
+        // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
         [[nodiscard]] auto operator()(asdl::With &&with) -> asdl::AsyncWith {
           return {std::move(with.items), std::move(with.body)};
         }
+        // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
         [[nodiscard]] auto operator()(asdl::For &&asdlFor) -> asdl::AsyncFor {
           return {std::move(asdlFor.target), std::move(asdlFor.iter),
                   std::move(asdlFor.body), std::move(asdlFor.orelse)};
         }
       };
       template <typename Outer>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       void success(Outer &&outer) {
         std::visit(
             [&outer](auto &&value) {

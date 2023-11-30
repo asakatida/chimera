@@ -6,7 +6,10 @@
 #include "object/object.hpp"
 #include "virtual_machine/evaluator.hpp"
 
-#include <gsl/gsl>
+#include <gsl/assert> // for Expects
+
+#include <tuple>
+#include <utility>
 
 namespace chimera::library::virtual_machine {
   struct UnpackCallObject {

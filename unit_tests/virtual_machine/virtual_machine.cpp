@@ -9,7 +9,7 @@
 using namespace std::literals;
 
 namespace chimera::library::virtual_machine {
-  void parse_file(std::string_view &&data) {
+  void parse_file(std::string_view data) {
     const Options options{.chimera = "chimera",
                           .exec = options::Script{"test.py"}};
     auto globalContext = make_global(options);

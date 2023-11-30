@@ -2,7 +2,9 @@
 
 #include <gsl/narrow> // for narrow
 
-#include <cstdlib> // for calloc, free
+#include <cstdarg> // for va_list
+#include <cstdio>  // for FILE
+#include <cstdlib> // for calloc, free, malloc, realloc
 
 #undef Py_TYPE
 
@@ -91,8 +93,8 @@ extern "C" auto PyType_IsSubtype(PyTypeObject *a, PyTypeObject *b) -> int {
   return 0;
 }
 
-extern "C" auto PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)
-    -> PyObject * {
+extern "C" auto PyType_GenericAlloc(PyTypeObject *type,
+                                    Py_ssize_t nitems) -> PyObject * {
   if (type->tp_itemsize != 0) {
     auto *object = reinterpret_cast<PyVarObject *>(std::calloc(
         (gsl::narrow<size_t>(type->tp_basicsize) +
@@ -139,8 +141,8 @@ extern "C" auto PyType_FromSpecWithBases(PyType_Spec * /*spec*/,
   return nullptr;
 }
 
-extern "C" auto PyType_GetSlot(PyTypeObject * /*type*/, int /*slot*/)
-    -> void * {
+extern "C" auto PyType_GetSlot(PyTypeObject * /*type*/,
+                               int /*slot*/) -> void * {
   return nullptr;
 }
 
@@ -200,8 +202,8 @@ extern "C" auto _PyObject_New(PyTypeObject * /*type*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto _PyObject_NewVar(PyTypeObject * /*type*/, Py_ssize_t /*size*/)
-    -> PyVarObject * {
+extern "C" auto _PyObject_NewVar(PyTypeObject * /*type*/,
+                                 Py_ssize_t /*size*/) -> PyVarObject * {
   return nullptr;
 }
 
@@ -249,14 +251,14 @@ extern "C" auto PyArg_ValidateKeywordArguments(PyObject * /*unused*/) -> int {
   return 0;
 }
 
-extern "C" auto PyArg_Parse(PyObject * /*args*/, const char * /*format*/, ...)
-    -> int {
+extern "C" auto PyArg_Parse(PyObject * /*args*/, const char * /*format*/,
+                            ...) -> int {
   return 0;
 }
 
 extern "C" auto PyArg_UnpackTuple(PyObject * /*args*/, const char * /*name*/,
-                                  Py_ssize_t /*min*/, Py_ssize_t /*max*/, ...)
-    -> int {
+                                  Py_ssize_t /*min*/, Py_ssize_t /*max*/,
+                                  ...) -> int {
   return 0;
 }
 
@@ -264,8 +266,8 @@ extern "C" auto Py_BuildValue(const char * /*format*/, ...) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto Py_VaBuildValue(const char * /*format*/, va_list /*vargs*/)
-    -> PyObject * {
+extern "C" auto Py_VaBuildValue(const char * /*format*/,
+                                va_list /*vargs*/) -> PyObject * {
   return nullptr;
 }
 
@@ -286,8 +288,8 @@ extern "C" auto PyBuffer_SizeFromFormat(const char * /*unused*/) -> Py_ssize_t {
   return 0;
 }
 
-extern "C" auto PyBuffer_IsContiguous(Py_buffer * /*view*/, char /*order*/)
-    -> int {
+extern "C" auto PyBuffer_IsContiguous(Py_buffer * /*view*/,
+                                      char /*order*/) -> int {
   return 0;
 }
 
@@ -311,14 +313,14 @@ extern "C" auto PyByteArray_FromObject(PyObject * /*o*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyByteArray_FromStringAndSize(const char * /*string*/,
-                                              Py_ssize_t /*len*/)
-    -> PyObject * {
+extern "C" auto
+PyByteArray_FromStringAndSize(const char * /*string*/,
+                              Py_ssize_t /*len*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyByteArray_Concat(PyObject * /*a*/, PyObject * /*b*/)
-    -> PyObject * {
+extern "C" auto PyByteArray_Concat(PyObject * /*a*/,
+                                   PyObject * /*b*/) -> PyObject * {
   return nullptr;
 }
 
@@ -330,8 +332,8 @@ extern "C" auto PyByteArray_AsString(PyObject * /*bytearray*/) -> char * {
   return nullptr;
 }
 
-extern "C" auto PyByteArray_Resize(PyObject * /*bytearray*/, Py_ssize_t /*len*/)
-    -> int {
+extern "C" auto PyByteArray_Resize(PyObject * /*bytearray*/,
+                                   Py_ssize_t /*len*/) -> int {
   return 0;
 }
 
@@ -360,8 +362,8 @@ extern "C" auto PyBytes_FromFormat(const char * /*format*/, ...) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyBytes_FromFormatV(const char * /*format*/, va_list /*vargs*/)
-    -> PyObject * {
+extern "C" auto PyBytes_FromFormatV(const char * /*format*/,
+                                    va_list /*vargs*/) -> PyObject * {
   return nullptr;
 }
 
@@ -389,16 +391,16 @@ extern "C" void PyBytes_Concat(PyObject ** /*bytes*/, PyObject * /*newpart*/) {}
 extern "C" void PyBytes_ConcatAndDel(PyObject ** /*bytes*/,
                                      PyObject * /*newpart*/) {}
 
-extern "C" auto _PyBytes_Resize(PyObject ** /*bytes*/, Py_ssize_t /*newsize*/)
-    -> int {
+extern "C" auto _PyBytes_Resize(PyObject ** /*bytes*/,
+                                Py_ssize_t /*newsize*/) -> int {
   return 0;
 }
 
 extern "C" auto PyCapsule_CheckExact(PyObject * /*p*/) -> int { return 0; }
 
-extern "C" auto PyCapsule_New(void * /*pointer*/, const char * /*name*/,
-                              PyCapsule_Destructor /*destructor*/)
-    -> PyObject * {
+extern "C" auto
+PyCapsule_New(void * /*pointer*/, const char * /*name*/,
+              PyCapsule_Destructor /*destructor*/) -> PyObject * {
   return nullptr;
 }
 
@@ -407,8 +409,8 @@ extern "C" auto PyCapsule_GetPointer(PyObject * /*capsule*/,
   return nullptr;
 }
 
-extern "C" auto PyCapsule_GetDestructor(PyObject * /*capsule*/)
-    -> PyCapsule_Destructor {
+extern "C" auto
+PyCapsule_GetDestructor(PyObject * /*capsule*/) -> PyCapsule_Destructor {
   return nullptr;
 }
 
@@ -420,34 +422,34 @@ extern "C" auto PyCapsule_GetName(PyObject * /*capsule*/) -> const char * {
   return nullptr;
 }
 
-extern "C" auto PyCapsule_Import(const char * /*name*/, int /*no_block*/)
-    -> void * {
+extern "C" auto PyCapsule_Import(const char * /*name*/,
+                                 int /*no_block*/) -> void * {
   return nullptr;
 }
 
-extern "C" auto PyCapsule_IsValid(PyObject * /*capsule*/, const char * /*name*/)
-    -> int {
+extern "C" auto PyCapsule_IsValid(PyObject * /*capsule*/,
+                                  const char * /*name*/) -> int {
   return 0;
 }
 
-extern "C" auto PyCapsule_SetContext(PyObject * /*capsule*/, void * /*context*/)
-    -> int {
+extern "C" auto PyCapsule_SetContext(PyObject * /*capsule*/,
+                                     void * /*context*/) -> int {
   return 0;
 }
 
-extern "C" auto PyCapsule_SetDestructor(PyObject * /*capsule*/,
-                                        PyCapsule_Destructor /*destructor*/)
-    -> int {
+extern "C" auto
+PyCapsule_SetDestructor(PyObject * /*capsule*/,
+                        PyCapsule_Destructor /*destructor*/) -> int {
   return 0;
 }
 
-extern "C" auto PyCapsule_SetName(PyObject * /*capsule*/, const char * /*name*/)
-    -> int {
+extern "C" auto PyCapsule_SetName(PyObject * /*capsule*/,
+                                  const char * /*name*/) -> int {
   return 0;
 }
 
-extern "C" auto PyCapsule_SetPointer(PyObject * /*capsule*/, void * /*pointer*/)
-    -> int {
+extern "C" auto PyCapsule_SetPointer(PyObject * /*capsule*/,
+                                     void * /*pointer*/) -> int {
   return 0;
 }
 
@@ -485,8 +487,8 @@ PyCode_New(int /*argcount*/, int /*kwonlyargcount*/, int /*nlocals*/,
 }
 
 extern "C" auto PyCode_NewEmpty(const char * /*filename*/,
-                                const char * /*funcname*/, int /*firstlineno*/)
-    -> PyCodeObject * {
+                                const char * /*funcname*/,
+                                int /*firstlineno*/) -> PyCodeObject * {
   return nullptr;
 }
 
@@ -516,15 +518,15 @@ extern "C" auto PyCodec_Decoder(const char * /*encoding*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyCodec_IncrementalEncoder(const char * /*encoding*/,
-                                           const char * /*errors*/)
-    -> PyObject * {
+extern "C" auto
+PyCodec_IncrementalEncoder(const char * /*encoding*/,
+                           const char * /*errors*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyCodec_IncrementalDecoder(const char * /*encoding*/,
-                                           const char * /*errors*/)
-    -> PyObject * {
+extern "C" auto
+PyCodec_IncrementalDecoder(const char * /*encoding*/,
+                           const char * /*errors*/) -> PyObject * {
   return nullptr;
 }
 
@@ -561,13 +563,13 @@ extern "C" auto PyCodec_ReplaceErrors(PyObject * /*exc*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyCodec_XMLCharRefReplaceErrors(PyObject * /*exc*/)
-    -> PyObject * {
+extern "C" auto
+PyCodec_XMLCharRefReplaceErrors(PyObject * /*exc*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyCodec_BackslashReplaceErrors(PyObject * /*exc*/)
-    -> PyObject * {
+extern "C" auto
+PyCodec_BackslashReplaceErrors(PyObject * /*exc*/) -> PyObject * {
   return nullptr;
 }
 
@@ -575,30 +577,30 @@ extern "C" auto PyCodec_NameReplaceErrors(PyObject * /*exc*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto _Py_c_sum(Py_complex /*left*/, Py_complex /*right*/)
-    -> Py_complex {
+extern "C" auto _Py_c_sum(Py_complex /*left*/,
+                          Py_complex /*right*/) -> Py_complex {
   return {};
 }
 
-extern "C" auto _Py_c_diff(Py_complex /*left*/, Py_complex /*right*/)
-    -> Py_complex {
+extern "C" auto _Py_c_diff(Py_complex /*left*/,
+                           Py_complex /*right*/) -> Py_complex {
   return {};
 }
 
 extern "C" auto _Py_c_neg(Py_complex /*complex*/) -> Py_complex { return {}; }
 
-extern "C" auto _Py_c_prod(Py_complex /*left*/, Py_complex /*right*/)
-    -> Py_complex {
+extern "C" auto _Py_c_prod(Py_complex /*left*/,
+                           Py_complex /*right*/) -> Py_complex {
   return {};
 }
 
-extern "C" auto _Py_c_quot(Py_complex /*dividend*/, Py_complex /*divisor*/)
-    -> Py_complex {
+extern "C" auto _Py_c_quot(Py_complex /*dividend*/,
+                           Py_complex /*divisor*/) -> Py_complex {
   return {};
 }
 
-extern "C" auto _Py_c_pow(Py_complex /*num*/, Py_complex /*exp*/)
-    -> Py_complex {
+extern "C" auto _Py_c_pow(Py_complex /*num*/,
+                          Py_complex /*exp*/) -> Py_complex {
   return {};
 }
 
@@ -610,8 +612,8 @@ extern "C" auto PyComplex_FromCComplex(Py_complex /*v*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyComplex_FromDoubles(double /*real*/, double /*imag*/)
-    -> PyObject * {
+extern "C" auto PyComplex_FromDoubles(double /*real*/,
+                                      double /*imag*/) -> PyObject * {
   return nullptr;
 }
 
@@ -637,9 +639,9 @@ extern "C" auto PyOS_vsnprintf(char * /*str*/, size_t /*size*/,
   return 0;
 }
 
-extern "C" auto PyOS_string_to_double(const char * /*s*/, char ** /*endptr*/,
-                                      PyObject * /*overflow_exception*/)
-    -> double {
+extern "C" auto
+PyOS_string_to_double(const char * /*s*/, char ** /*endptr*/,
+                      PyObject * /*overflow_exception*/) -> double {
   return 0.0;
 }
 
@@ -685,8 +687,8 @@ extern "C" auto PyTZInfo_Check(PyObject * /*ob*/) -> int { return 0; }
 
 extern "C" auto PyTZInfo_CheckExact(PyObject * /*ob*/) -> int { return 0; }
 
-extern "C" auto PyDate_FromDate(int /*year*/, int /*month*/, int /*day*/)
-    -> PyObject * {
+extern "C" auto PyDate_FromDate(int /*year*/, int /*month*/,
+                                int /*day*/) -> PyObject * {
   return nullptr;
 }
 
@@ -702,8 +704,8 @@ extern "C" auto PyTime_FromTime(int /*hour*/, int /*minute*/, int /*second*/,
   return nullptr;
 }
 
-extern "C" auto PyDelta_FromDSU(int /*days*/, int /*seconds*/, int /*useconds*/)
-    -> PyObject * {
+extern "C" auto PyDelta_FromDSU(int /*days*/, int /*seconds*/,
+                                int /*useconds*/) -> PyObject * {
   return nullptr;
 }
 
@@ -729,8 +731,8 @@ extern "C" auto PyDateTime_DATE_GET_SECOND(PyDateTime_DateTime * /*o*/) -> int {
   return 0;
 }
 
-extern "C" auto PyDateTime_DATE_GET_MICROSECOND(PyDateTime_DateTime * /*o*/)
-    -> int {
+extern "C" auto
+PyDateTime_DATE_GET_MICROSECOND(PyDateTime_DateTime * /*o*/) -> int {
   return 0;
 }
 
@@ -746,8 +748,8 @@ extern "C" auto PyDateTime_TIME_GET_SECOND(PyDateTime_Time * /*o*/) -> int {
   return 0;
 }
 
-extern "C" auto PyDateTime_TIME_GET_MICROSECOND(PyDateTime_Time * /*o*/)
-    -> int {
+extern "C" auto
+PyDateTime_TIME_GET_MICROSECOND(PyDateTime_Time * /*o*/) -> int {
   return 0;
 }
 
@@ -759,8 +761,8 @@ extern "C" auto PyDateTime_DELTA_GET_SECONDS(PyDateTime_Delta * /*o*/) -> int {
   return 0;
 }
 
-extern "C" auto PyDateTime_DELTA_GET_MICROSECOND(PyDateTime_Delta * /*o*/)
-    -> int {
+extern "C" auto
+PyDateTime_DELTA_GET_MICROSECOND(PyDateTime_Delta * /*o*/) -> int {
   return 0;
 }
 
@@ -772,9 +774,9 @@ extern "C" auto PyDate_FromTimestamp(PyObject * /*args*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyDescr_NewGetSet(PyTypeObject * /*type*/,
-                                  struct PyGetSetDef * /*getset*/)
-    -> PyObject * {
+extern "C" auto
+PyDescr_NewGetSet(PyTypeObject * /*type*/,
+                  struct PyGetSetDef * /*getset*/) -> PyObject * {
   return nullptr;
 }
 
@@ -801,8 +803,8 @@ extern "C" auto PyDescr_NewClassMethod(PyTypeObject * /*type*/,
 
 extern "C" auto PyDescr_IsData(PyObject * /*descr*/) -> int { return 0; }
 
-extern "C" auto PyWrapper_New(PyObject * /*unused*/, PyObject * /*unused*/)
-    -> PyObject * {
+extern "C" auto PyWrapper_New(PyObject * /*unused*/,
+                              PyObject * /*unused*/) -> PyObject * {
   return nullptr;
 }
 
@@ -838,23 +840,23 @@ extern "C" auto PyDict_DelItem(PyObject * /*p*/, PyObject * /*key*/) -> int {
   return 0;
 }
 
-extern "C" auto PyDict_DelItemString(PyObject * /*p*/, const char * /*key*/)
-    -> int {
+extern "C" auto PyDict_DelItemString(PyObject * /*p*/,
+                                     const char * /*key*/) -> int {
   return 0;
 }
 
-extern "C" auto PyDict_GetItem(PyObject * /*p*/, PyObject * /*key*/)
-    -> PyObject * {
+extern "C" auto PyDict_GetItem(PyObject * /*p*/,
+                               PyObject * /*key*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyDict_GetItemWithError(PyObject * /*p*/, PyObject * /*key*/)
-    -> PyObject * {
+extern "C" auto PyDict_GetItemWithError(PyObject * /*p*/,
+                                        PyObject * /*key*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyDict_GetItemString(PyObject * /*p*/, const char * /*key*/)
-    -> PyObject * {
+extern "C" auto PyDict_GetItemString(PyObject * /*p*/,
+                                     const char * /*key*/) -> PyObject * {
   return nullptr;
 }
 
@@ -874,8 +876,8 @@ extern "C" auto PyDict_Values(PyObject * /*p*/) -> PyObject * {
 extern "C" auto PyDict_Size(PyObject * /*p*/) -> Py_ssize_t { return 0; }
 
 extern "C" auto PyDict_Next(PyObject * /*p*/, Py_ssize_t * /*ppos*/,
-                            PyObject ** /*pkey*/, PyObject ** /*pvalue*/)
-    -> int {
+                            PyObject ** /*pkey*/,
+                            PyObject ** /*pvalue*/) -> int {
   return 0;
 }
 
@@ -930,24 +932,22 @@ extern "C" auto PyErr_SetFromErrno(PyObject * /*type*/) -> PyObject * {
 
 extern "C" auto
 
-PyErr_SetFromErrnoWithFilenameObject(PyObject * /*type*/,
-                                     PyObject * /*filenameObject*/)
-    -> PyObject * {
+PyErr_SetFromErrnoWithFilenameObject(
+    PyObject * /*type*/, PyObject * /*filenameObject*/) -> PyObject * {
   return nullptr;
 }
 
 extern "C" auto
 
-PyErr_SetFromErrnoWithFilenameObjects(PyObject * /*type*/,
-                                      PyObject * /*filenameObject*/,
-                                      PyObject * /*filenameObject2*/)
-    -> PyObject * {
+PyErr_SetFromErrnoWithFilenameObjects(
+    PyObject * /*type*/, PyObject * /*filenameObject*/,
+    PyObject * /*filenameObject2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyErr_SetFromErrnoWithFilename(PyObject * /*type*/,
-                                               const char * /*filename*/)
-    -> PyObject * {
+extern "C" auto
+PyErr_SetFromErrnoWithFilename(PyObject * /*type*/,
+                               const char * /*filename*/) -> PyObject * {
   return nullptr;
 }
 
@@ -955,32 +955,30 @@ extern "C" auto PyErr_SetFromWindowsErr(int /*ierr*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyErr_SetExcFromWindowsErr(PyObject * /*type*/, int /*ierr*/)
-    -> PyObject * {
+extern "C" auto PyErr_SetExcFromWindowsErr(PyObject * /*type*/,
+                                           int /*ierr*/) -> PyObject * {
   return nullptr;
 }
 
 extern "C" auto
 
-PyErr_SetFromWindowsErrWithFilename(int /*ierr*/, const char * /*filename*/)
-    -> PyObject * {
+PyErr_SetFromWindowsErrWithFilename(int /*ierr*/,
+                                    const char * /*filename*/) -> PyObject * {
   return nullptr;
 }
 
 extern "C" auto
 
-PyErr_SetExcFromWindowsErrWithFilenameObject(PyObject * /*type*/, int /*ierr*/,
-                                             PyObject * /*filename*/)
-    -> PyObject * {
+PyErr_SetExcFromWindowsErrWithFilenameObject(
+    PyObject * /*type*/, int /*ierr*/, PyObject * /*filename*/) -> PyObject * {
   return nullptr;
 }
 
 extern "C" auto
 
-PyErr_SetExcFromWindowsErrWithFilenameObjects(PyObject * /*type*/, int /*ierr*/,
-                                              PyObject * /*filename*/,
-                                              PyObject * /*filename2*/)
-    -> PyObject * {
+PyErr_SetExcFromWindowsErrWithFilenameObjects(
+    PyObject * /*type*/, int /*ierr*/, PyObject * /*filename*/,
+    PyObject * /*filename2*/) -> PyObject * {
   return nullptr;
 }
 
@@ -1014,10 +1012,9 @@ extern "C" auto PyErr_WarnEx(PyObject * /*category*/, const char * /*message*/,
   return 0;
 }
 
-extern "C" auto PyErr_SetImportErrorSubclass(PyObject * /*msg*/,
-                                             PyObject * /*name*/,
-                                             PyObject * /*path*/)
-    -> PyObject * {
+extern "C" auto
+PyErr_SetImportErrorSubclass(PyObject * /*msg*/, PyObject * /*name*/,
+                             PyObject * /*path*/) -> PyObject * {
   return nullptr;
 }
 
@@ -1096,8 +1093,8 @@ extern "C" auto PyException_GetTraceback(PyObject * /*ex*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyException_SetTraceback(PyObject * /*ex*/, PyObject * /*tb*/)
-    -> int {
+extern "C" auto PyException_SetTraceback(PyObject * /*ex*/,
+                                         PyObject * /*tb*/) -> int {
   return 0;
 }
 
@@ -1117,8 +1114,8 @@ extern "C" auto
 
 PyUnicodeDecodeError_Create(const char * /*encoding*/, const char * /*object*/,
                             Py_ssize_t /*length*/, Py_ssize_t /*start*/,
-                            Py_ssize_t /*end*/, const char * /*reason*/)
-    -> PyObject * {
+                            Py_ssize_t /*end*/,
+                            const char * /*reason*/) -> PyObject * {
   return nullptr;
 }
 
@@ -1135,13 +1132,13 @@ extern "C" auto PyUnicodeTranslateError_Create(
   return nullptr;
 }
 
-extern "C" auto PyUnicodeDecodeError_GetEncoding(PyObject * /*exc*/)
-    -> PyObject * {
+extern "C" auto
+PyUnicodeDecodeError_GetEncoding(PyObject * /*exc*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyUnicodeDecodeError_GetObject(PyObject * /*exc*/)
-    -> PyObject * {
+extern "C" auto
+PyUnicodeDecodeError_GetObject(PyObject * /*exc*/) -> PyObject * {
   return nullptr;
 }
 
@@ -1165,8 +1162,8 @@ extern "C" auto PyUnicodeDecodeError_SetEnd(PyObject * /*exc*/,
   return 0;
 }
 
-extern "C" auto PyUnicodeDecodeError_GetReason(PyObject * /*exc*/)
-    -> PyObject * {
+extern "C" auto
+PyUnicodeDecodeError_GetReason(PyObject * /*exc*/) -> PyObject * {
   return nullptr;
 }
 
@@ -1204,8 +1201,8 @@ extern "C" auto PyFile_WriteObject(PyObject * /*obj*/, PyObject * /*p*/,
   return 0;
 }
 
-extern "C" auto PyFile_WriteString(const char * /*s*/, PyObject * /*p*/)
-    -> int {
+extern "C" auto PyFile_WriteString(const char * /*s*/,
+                                   PyObject * /*p*/) -> int {
   return 0;
 }
 
@@ -1239,15 +1236,14 @@ extern "C" auto PyFloat_ClearFreeList() -> int { return 0; }
 
 extern "C" auto PyFunction_Check(PyObject * /*o*/) -> int { return 0; }
 
-extern "C" auto PyFunction_New(PyObject * /*code*/, PyObject * /*globals*/)
-    -> PyObject * {
+extern "C" auto PyFunction_New(PyObject * /*code*/,
+                               PyObject * /*globals*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyFunction_NewWithQualName(PyObject * /*code*/,
-                                           PyObject * /*globals*/,
-                                           PyObject * /*qualname*/)
-    -> PyObject * {
+extern "C" auto
+PyFunction_NewWithQualName(PyObject * /*code*/, PyObject * /*globals*/,
+                           PyObject * /*qualname*/) -> PyObject * {
   return nullptr;
 }
 
@@ -1276,8 +1272,8 @@ extern "C" auto PyFunction_GetClosure(PyObject * /*op*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyFunction_SetClosure(PyObject * /*op*/, PyObject * /*closure*/)
-    -> int {
+extern "C" auto PyFunction_SetClosure(PyObject * /*op*/,
+                                      PyObject * /*closure*/) -> int {
   return 0;
 }
 
@@ -1320,8 +1316,8 @@ extern "C" auto PyImport_ImportModule(const char * /*name*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyImport_ImportModuleNoBlock(const char * /*name*/)
-    -> PyObject * {
+extern "C" auto
+PyImport_ImportModuleNoBlock(const char * /*name*/) -> PyObject * {
   return nullptr;
 }
 
@@ -1369,17 +1365,16 @@ extern "C" auto PyImport_ExecCodeModule(const char * /*name*/,
   return nullptr;
 }
 
-extern "C" auto PyImport_ExecCodeModuleEx(const char * /*name*/,
-                                          PyObject * /*co*/,
-                                          const char * /*pathname*/)
-    -> PyObject * {
+extern "C" auto
+PyImport_ExecCodeModuleEx(const char * /*name*/, PyObject * /*co*/,
+                          const char * /*pathname*/) -> PyObject * {
   return nullptr;
 }
 
 extern "C" auto
 PyImport_ExecCodeModuleObject(PyObject * /*name*/, PyObject * /*co*/,
-                              PyObject * /*pathname*/, PyObject * /*cpathname*/)
-    -> PyObject * {
+                              PyObject * /*pathname*/,
+                              PyObject * /*cpathname*/) -> PyObject * {
   return nullptr;
 }
 
@@ -1482,8 +1477,8 @@ extern "C" void PyEval_RestoreThread(PyThreadState * /*tstate*/) {}
 
 extern "C" auto PyThreadState_Get() -> PyThreadState * { return nullptr; }
 
-extern "C" auto PyThreadState_Swap(PyThreadState * /*tstate*/)
-    -> PyThreadState * {
+extern "C" auto
+PyThreadState_Swap(PyThreadState * /*tstate*/) -> PyThreadState * {
   return nullptr;
 }
 
@@ -1507,8 +1502,8 @@ extern "C" void PyInterpreterState_Clear(PyInterpreterState * /*interp*/) {}
 
 extern "C" void PyInterpreterState_Delete(PyInterpreterState * /*interp*/) {}
 
-extern "C" auto PyThreadState_New(PyInterpreterState * /*interp*/)
-    -> PyThreadState * {
+extern "C" auto
+PyThreadState_New(PyInterpreterState * /*interp*/) -> PyThreadState * {
   return nullptr;
 }
 
@@ -1516,8 +1511,8 @@ extern "C" void PyThreadState_Clear(PyThreadState * /*tstate*/) {}
 
 extern "C" void PyThreadState_Delete(PyThreadState * /*tstate*/) {}
 
-extern "C" auto PyInterpreterState_GetID(PyInterpreterState * /*interp*/)
-    -> PY_INT64_T {
+extern "C" auto
+PyInterpreterState_GetID(PyInterpreterState * /*interp*/) -> PY_INT64_T {
   return 0;
 }
 
@@ -1540,8 +1535,8 @@ extern "C" auto Py_NewInterpreter() -> PyThreadState * { return nullptr; }
 
 extern "C" void Py_EndInterpreter(PyThreadState * /*tstate*/) {}
 
-extern "C" auto Py_AddPendingCall(int (* /*func*/)(void *), void * /*arg*/)
-    -> int {
+extern "C" auto Py_AddPendingCall(int (* /*func*/)(void *),
+                                  void * /*arg*/) -> int {
   return 0;
 }
 
@@ -1567,8 +1562,8 @@ PyInterpreterState_ThreadHead(PyInterpreterState * /*interp*/)
   return nullptr;
 }
 
-extern "C" auto PyThreadState_Next(PyThreadState * /*tstate*/)
-    -> PyThreadState * {
+extern "C" auto
+PyThreadState_Next(PyThreadState * /*tstate*/) -> PyThreadState * {
   return nullptr;
 }
 
@@ -1584,8 +1579,8 @@ extern "C" auto PySeqIter_New(PyObject * /*seq*/) -> PyObject * {
 
 extern "C" auto PyCallIter_Check(PyObject * /*op*/) -> int { return 0; }
 
-extern "C" auto PyCallIter_New(PyObject * /*callable*/, PyObject * /*sentinel*/)
-    -> PyObject * {
+extern "C" auto PyCallIter_New(PyObject * /*callable*/,
+                               PyObject * /*sentinel*/) -> PyObject * {
   return nullptr;
 }
 
@@ -1599,13 +1594,13 @@ extern "C" auto PyList_Size(PyObject * /*list*/) -> Py_ssize_t { return 0; }
 
 extern "C" auto PyList_GET_SIZE(PyObject * /*list*/) -> Py_ssize_t { return 0; }
 
-extern "C" auto PyList_GetItem(PyObject * /*list*/, Py_ssize_t /*index*/)
-    -> PyObject * {
+extern "C" auto PyList_GetItem(PyObject * /*list*/,
+                               Py_ssize_t /*index*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyList_GET_ITEM(PyObject * /*list*/, Py_ssize_t /*i*/)
-    -> PyObject * {
+extern "C" auto PyList_GET_ITEM(PyObject * /*list*/,
+                                Py_ssize_t /*i*/) -> PyObject * {
   return nullptr;
 }
 
@@ -1632,8 +1627,8 @@ extern "C" auto PyList_GetSlice(PyObject * /*list*/, Py_ssize_t /*low*/,
 }
 
 extern "C" auto PyList_SetSlice(PyObject * /*list*/, Py_ssize_t /*low*/,
-                                Py_ssize_t /*high*/, PyObject * /*itemlist*/)
-    -> int {
+                                Py_ssize_t /*high*/,
+                                PyObject * /*itemlist*/) -> int {
   return 0;
 }
 
@@ -1669,8 +1664,8 @@ extern "C" auto PyLong_FromLongLong(long long /*v*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyLong_FromUnsignedLongLong(unsigned long long /*v*/)
-    -> PyObject * {
+extern "C" auto
+PyLong_FromUnsignedLongLong(unsigned long long /*v*/) -> PyObject * {
   return nullptr;
 }
 
@@ -1688,8 +1683,8 @@ extern "C" auto PyLong_FromUnicode(Py_UNICODE * /*u*/, Py_ssize_t /*length*/,
   return nullptr;
 }
 
-extern "C" auto PyLong_FromUnicodeObject(PyObject * /*u*/, int /*base*/)
-    -> PyObject * {
+extern "C" auto PyLong_FromUnicodeObject(PyObject * /*u*/,
+                                         int /*base*/) -> PyObject * {
   return nullptr;
 }
 
@@ -1699,8 +1694,8 @@ extern "C" auto PyLong_FromVoidPtr(void * /*p*/) -> PyObject * {
 
 extern "C" auto PyLong_AsLong(PyObject * /*obj*/) -> long { return 0; }
 
-extern "C" auto PyLong_AsLongAndOverflow(PyObject * /*obj*/, int * /*overflow*/)
-    -> long {
+extern "C" auto PyLong_AsLongAndOverflow(PyObject * /*obj*/,
+                                         int * /*overflow*/) -> long {
   return 0;
 }
 
@@ -1721,8 +1716,8 @@ extern "C" auto PyLong_AsUnsignedLong(PyObject * /*pylong*/) -> unsigned long {
 
 extern "C" auto PyLong_AsSize_t(PyObject * /*pylong*/) -> size_t { return 0; }
 
-extern "C" auto PyLong_AsUnsignedLongLong(PyObject * /*pylong*/)
-    -> unsigned long long {
+extern "C" auto
+PyLong_AsUnsignedLongLong(PyObject * /*pylong*/) -> unsigned long long {
   return 0;
 }
 
@@ -1730,8 +1725,8 @@ extern "C" auto PyLong_AsUnsignedLongMask(PyObject * /*obj*/) -> unsigned long {
   return 0;
 }
 
-extern "C" auto PyLong_AsUnsignedLongLongMask(PyObject * /*obj*/)
-    -> unsigned long long {
+extern "C" auto
+PyLong_AsUnsignedLongLongMask(PyObject * /*obj*/) -> unsigned long long {
   return 0;
 }
 
@@ -1745,8 +1740,8 @@ extern "C" auto PyMapping_Check(PyObject * /*o*/) -> int { return 0; }
 
 extern "C" auto PyMapping_Size(PyObject * /*o*/) -> Py_ssize_t { return 0; }
 
-extern "C" auto PyMapping_DelItemString(PyObject * /*o*/, const char * /*key*/)
-    -> int {
+extern "C" auto PyMapping_DelItemString(PyObject * /*o*/,
+                                        const char * /*key*/) -> int {
   return 0;
 }
 
@@ -1754,8 +1749,8 @@ extern "C" auto PyMapping_DelItem(PyObject * /*o*/, PyObject * /*key*/) -> int {
   return 0;
 }
 
-extern "C" auto PyMapping_HasKeyString(PyObject * /*o*/, const char * /*key*/)
-    -> int {
+extern "C" auto PyMapping_HasKeyString(PyObject * /*o*/,
+                                       const char * /*key*/) -> int {
   return 0;
 }
 
@@ -1775,8 +1770,8 @@ extern "C" auto PyMapping_Items(PyObject * /*o*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyMapping_GetItemString(PyObject * /*o*/, const char * /*key*/)
-    -> PyObject * {
+extern "C" auto PyMapping_GetItemString(PyObject * /*o*/,
+                                        const char * /*key*/) -> PyObject * {
   return nullptr;
 }
 
@@ -1808,14 +1803,14 @@ extern "C" auto PyMarshal_ReadObjectFromFile(FILE * /*file*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyMarshal_ReadLastObjectFromFile(FILE * /*file*/)
-    -> PyObject * {
+extern "C" auto
+PyMarshal_ReadLastObjectFromFile(FILE * /*file*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyMarshal_ReadObjectFromString(const char * /*value*/,
-                                               Py_ssize_t /*len*/)
-    -> PyObject * {
+extern "C" auto
+PyMarshal_ReadObjectFromString(const char * /*value*/,
+                               Py_ssize_t /*len*/) -> PyObject * {
   return nullptr;
 }
 
@@ -1879,8 +1874,8 @@ extern "C" auto PyMemoryView_FromBuffer(Py_buffer * /*view*/) -> PyObject * {
 }
 
 extern "C" auto PyMemoryView_GetContiguous(PyObject * /*obj*/,
-                                           int /*buffertype*/, char /*order*/)
-    -> PyObject * {
+                                           int /*buffertype*/,
+                                           char /*order*/) -> PyObject * {
   return nullptr;
 }
 
@@ -1910,8 +1905,8 @@ extern "C" auto PyInstanceMethod_GET_FUNCTION(PyObject * /*im*/) -> PyObject * {
 
 extern "C" auto PyMethod_Check(PyObject * /*o*/) -> int { return 0; }
 
-extern "C" auto PyMethod_New(PyObject * /*func*/, PyObject * /*self*/)
-    -> PyObject * {
+extern "C" auto PyMethod_New(PyObject * /*func*/,
+                             PyObject * /*self*/) -> PyObject * {
   return nullptr;
 }
 
@@ -1965,8 +1960,8 @@ extern "C" auto PyModule_GetDef(PyObject * /*module*/) -> PyModuleDef * {
   return nullptr;
 }
 
-extern "C" auto PyModule_GetFilenameObject(PyObject * /*module*/)
-    -> PyObject * {
+extern "C" auto
+PyModule_GetFilenameObject(PyObject * /*module*/) -> PyObject * {
   return nullptr;
 }
 
@@ -1992,15 +1987,14 @@ extern "C" auto PyModule_FromDefAndSpec(PyModuleDef * /*def*/,
   return nullptr;
 }
 
-extern "C" auto PyModule_FromDefAndSpec2(PyModuleDef * /*def*/,
-                                         PyObject * /*spec*/,
-                                         int /*module_api_version*/)
-    -> PyObject * {
+extern "C" auto
+PyModule_FromDefAndSpec2(PyModuleDef * /*def*/, PyObject * /*spec*/,
+                         int /*module_api_version*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyModule_ExecDef(PyObject * /*module*/, PyModuleDef * /*def*/)
-    -> int {
+extern "C" auto PyModule_ExecDef(PyObject * /*module*/,
+                                 PyModuleDef * /*def*/) -> int {
   return 0;
 }
 
@@ -2020,8 +2014,8 @@ extern "C" auto PyModule_AddObject(PyObject * /*module*/, const char * /*name*/,
 }
 
 extern "C" auto PyModule_AddIntConstant(PyObject * /*module*/,
-                                        const char * /*name*/, long /*value*/)
-    -> int {
+                                        const char * /*name*/,
+                                        long /*value*/) -> int {
   return 0;
 }
 
@@ -2035,8 +2029,8 @@ extern "C" auto PyState_FindModule(PyModuleDef * /*def*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyState_AddModule(PyObject * /*module*/, PyModuleDef * /*def*/)
-    -> int {
+extern "C" auto PyState_AddModule(PyObject * /*module*/,
+                                  PyModuleDef * /*def*/) -> int {
   return 0;
 }
 
@@ -2044,43 +2038,43 @@ extern "C" auto PyState_RemoveModule(PyModuleDef * /*def*/) -> int { return 0; }
 
 extern "C" auto PyNumber_Check(PyObject * /*o*/) -> int { return 0; }
 
-extern "C" auto PyNumber_Add(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_Add(PyObject * /*o1*/,
+                             PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_Subtract(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_Subtract(PyObject * /*o1*/,
+                                  PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_Multiply(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_Multiply(PyObject * /*o1*/,
+                                  PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_MatrixMultiply(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_MatrixMultiply(PyObject * /*o1*/,
+                                        PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_FloorDivide(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_FloorDivide(PyObject * /*o1*/,
+                                     PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_TrueDivide(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_TrueDivide(PyObject * /*o1*/,
+                                    PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_Remainder(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_Remainder(PyObject * /*o1*/,
+                                   PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_Divmod(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_Divmod(PyObject * /*o1*/,
+                                PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
@@ -2105,49 +2099,49 @@ extern "C" auto PyNumber_Invert(PyObject * /*o*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_Lshift(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_Lshift(PyObject * /*o1*/,
+                                PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_Rshift(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_Rshift(PyObject * /*o1*/,
+                                PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_And(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_And(PyObject * /*o1*/,
+                             PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_Xor(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_Xor(PyObject * /*o1*/,
+                             PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_Or(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_Or(PyObject * /*o1*/,
+                            PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_InPlaceAdd(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_InPlaceAdd(PyObject * /*o1*/,
+                                    PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_InPlaceSubtract(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_InPlaceSubtract(PyObject * /*o1*/,
+                                         PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_InPlaceMultiply(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_InPlaceMultiply(PyObject * /*o1*/,
+                                         PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_InPlaceMatrixMultiply(PyObject * /*o1*/,
-                                               PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto
+PyNumber_InPlaceMatrixMultiply(PyObject * /*o1*/,
+                               PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
@@ -2156,13 +2150,13 @@ extern "C" auto PyNumber_InPlaceFloorDivide(PyObject * /*o1*/,
   return nullptr;
 }
 
-extern "C" auto PyNumber_InPlaceTrueDivide(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_InPlaceTrueDivide(PyObject * /*o1*/,
+                                           PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_InPlaceRemainder(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_InPlaceRemainder(PyObject * /*o1*/,
+                                          PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
@@ -2171,28 +2165,28 @@ extern "C" auto PyNumber_InPlacePower(PyObject * /*o1*/, PyObject * /*o2*/,
   return nullptr;
 }
 
-extern "C" auto PyNumber_InPlaceLshift(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_InPlaceLshift(PyObject * /*o1*/,
+                                       PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_InPlaceRshift(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_InPlaceRshift(PyObject * /*o1*/,
+                                       PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_InPlaceAnd(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_InPlaceAnd(PyObject * /*o1*/,
+                                    PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_InPlaceXor(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_InPlaceXor(PyObject * /*o1*/,
+                                    PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_InPlaceOr(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PyNumber_InPlaceOr(PyObject * /*o1*/,
+                                   PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
@@ -2212,8 +2206,8 @@ extern "C" auto PyNumber_ToBase(PyObject * /*n*/, int /*base*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyNumber_AsSsize_t(PyObject * /*o*/, PyObject * /*exc*/)
-    -> Py_ssize_t {
+extern "C" auto PyNumber_AsSsize_t(PyObject * /*o*/,
+                                   PyObject * /*exc*/) -> Py_ssize_t {
   return 0;
 }
 
@@ -2238,13 +2232,13 @@ extern "C" auto PyObject_AsWriteBuffer(PyObject * /*obj*/, void ** /*buffer*/,
   return 0;
 }
 
-extern "C" auto PyObject_Print(PyObject * /*o*/, FILE * /*fp*/, int /*flags*/)
-    -> int {
+extern "C" auto PyObject_Print(PyObject * /*o*/, FILE * /*fp*/,
+                               int /*flags*/) -> int {
   return 0;
 }
 
-extern "C" auto PyObject_HasAttr(PyObject * /*o*/, PyObject * /*attr_name*/)
-    -> int {
+extern "C" auto PyObject_HasAttr(PyObject * /*o*/,
+                                 PyObject * /*attr_name*/) -> int {
   return 0;
 }
 
@@ -2253,19 +2247,19 @@ extern "C" auto PyObject_HasAttrString(PyObject * /*o*/,
   return 0;
 }
 
-extern "C" auto PyObject_GetAttr(PyObject * /*o*/, PyObject * /*attr_name*/)
-    -> PyObject * {
+extern "C" auto PyObject_GetAttr(PyObject * /*o*/,
+                                 PyObject * /*attr_name*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyObject_GetAttrString(PyObject * /*o*/,
-                                       const char * /*attr_name*/)
-    -> PyObject * {
+extern "C" auto
+PyObject_GetAttrString(PyObject * /*o*/,
+                       const char * /*attr_name*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyObject_GenericGetAttr(PyObject * /*o*/, PyObject * /*name*/)
-    -> PyObject * {
+extern "C" auto PyObject_GenericGetAttr(PyObject * /*o*/,
+                                        PyObject * /*name*/) -> PyObject * {
   return nullptr;
 }
 
@@ -2285,8 +2279,8 @@ extern "C" auto PyObject_GenericSetAttr(PyObject * /*o*/, PyObject * /*name*/,
   return 0;
 }
 
-extern "C" auto PyObject_DelAttr(PyObject * /*o*/, PyObject * /*attr_name*/)
-    -> int {
+extern "C" auto PyObject_DelAttr(PyObject * /*o*/,
+                                 PyObject * /*attr_name*/) -> int {
   return 0;
 }
 
@@ -2295,13 +2289,13 @@ extern "C" auto PyObject_DelAttrString(PyObject * /*o*/,
   return 0;
 }
 
-extern "C" auto PyObject_GenericGetDict(PyObject * /*o*/, void * /*context*/)
-    -> PyObject * {
+extern "C" auto PyObject_GenericGetDict(PyObject * /*o*/,
+                                        void * /*context*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyObject_GenericSetDict(PyObject * /*o*/, void * /*context*/)
-    -> int {
+extern "C" auto PyObject_GenericSetDict(PyObject * /*o*/,
+                                        void * /*context*/) -> int {
   return 0;
 }
 
@@ -2329,13 +2323,13 @@ extern "C" auto PyObject_Bytes(PyObject * /*o*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyObject_IsSubclass(PyObject * /*derived*/, PyObject * /*cls*/)
-    -> int {
+extern "C" auto PyObject_IsSubclass(PyObject * /*derived*/,
+                                    PyObject * /*cls*/) -> int {
   return 0;
 }
 
-extern "C" auto PyObject_IsInstance(PyObject * /*inst*/, PyObject * /*cls*/)
-    -> int {
+extern "C" auto PyObject_IsInstance(PyObject * /*inst*/,
+                                    PyObject * /*cls*/) -> int {
   return 0;
 }
 
@@ -2352,25 +2346,25 @@ extern "C" auto PyObject_CallObject(PyObject * /*callable*/,
 }
 
 extern "C" auto PyObject_CallFunction(PyObject * /*callable*/,
-                                      const char * /*format*/, ...)
-    -> PyObject * {
+                                      const char * /*format*/,
+                                      ...) -> PyObject * {
   return nullptr;
 }
 
 extern "C" auto PyObject_CallMethod(PyObject * /*obj*/, const char * /*name*/,
-                                    const char * /*format*/, ...)
-    -> PyObject * {
+                                    const char * /*format*/,
+                                    ...) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyObject_CallFunctionObjArgs(PyObject * /*callable*/, ...)
-    -> PyObject * {
+extern "C" auto PyObject_CallFunctionObjArgs(PyObject * /*callable*/,
+                                             ...) -> PyObject * {
   return nullptr;
 }
 
 extern "C" auto PyObject_CallMethodObjArgs(PyObject * /*obj*/,
-                                           PyObject * /*name*/, ...)
-    -> PyObject * {
+                                           PyObject * /*name*/,
+                                           ...) -> PyObject * {
   return nullptr;
 }
 
@@ -2388,20 +2382,20 @@ extern "C" auto PyObject_Type(PyObject * /*o*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyObject_TypeCheck(PyObject * /*o*/, PyTypeObject * /*type*/)
-    -> int {
+extern "C" auto PyObject_TypeCheck(PyObject * /*o*/,
+                                   PyTypeObject * /*type*/) -> int {
   return 0;
 }
 
 extern "C" auto PyObject_Length(PyObject * /*o*/) -> Py_ssize_t { return 0; }
 
-extern "C" auto PyObject_LengthHint(PyObject * /*o*/, Py_ssize_t /*d*/)
-    -> Py_ssize_t {
+extern "C" auto PyObject_LengthHint(PyObject * /*o*/,
+                                    Py_ssize_t /*d*/) -> Py_ssize_t {
   return 0;
 }
 
-extern "C" auto PyObject_GetItem(PyObject * /*o*/, PyObject * /*key*/)
-    -> PyObject * {
+extern "C" auto PyObject_GetItem(PyObject * /*o*/,
+                                 PyObject * /*key*/) -> PyObject * {
   return nullptr;
 }
 
@@ -2454,28 +2448,28 @@ extern "C" auto PySequence_Check(PyObject * /*o*/) -> int { return 0; }
 
 extern "C" auto PySequence_Size(PyObject * /*o*/) -> Py_ssize_t { return 0; }
 
-extern "C" auto PySequence_Concat(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PySequence_Concat(PyObject * /*o1*/,
+                                  PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PySequence_Repeat(PyObject * /*o*/, Py_ssize_t /*count*/)
-    -> PyObject * {
+extern "C" auto PySequence_Repeat(PyObject * /*o*/,
+                                  Py_ssize_t /*count*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PySequence_InPlaceConcat(PyObject * /*o1*/, PyObject * /*o2*/)
-    -> PyObject * {
+extern "C" auto PySequence_InPlaceConcat(PyObject * /*o1*/,
+                                         PyObject * /*o2*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PySequence_InPlaceRepeat(PyObject * /*o*/, Py_ssize_t /*count*/)
-    -> PyObject * {
+extern "C" auto PySequence_InPlaceRepeat(PyObject * /*o*/,
+                                         Py_ssize_t /*count*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PySequence_GetItem(PyObject * /*o*/, Py_ssize_t /*i*/)
-    -> PyObject * {
+extern "C" auto PySequence_GetItem(PyObject * /*o*/,
+                                   Py_ssize_t /*i*/) -> PyObject * {
   return nullptr;
 }
 
@@ -2494,8 +2488,8 @@ extern "C" auto PySequence_DelItem(PyObject * /*o*/, Py_ssize_t /*i*/) -> int {
 }
 
 extern "C" auto PySequence_SetSlice(PyObject * /*o*/, Py_ssize_t /*i1*/,
-                                    Py_ssize_t /*i2*/, PyObject * /*v*/)
-    -> int {
+                                    Py_ssize_t /*i2*/,
+                                    PyObject * /*v*/) -> int {
   return 0;
 }
 
@@ -2504,18 +2498,18 @@ extern "C" auto PySequence_DelSlice(PyObject * /*o*/, Py_ssize_t /*i1*/,
   return 0;
 }
 
-extern "C" auto PySequence_Count(PyObject * /*o*/, PyObject * /*value*/)
-    -> Py_ssize_t {
+extern "C" auto PySequence_Count(PyObject * /*o*/,
+                                 PyObject * /*value*/) -> Py_ssize_t {
   return 0;
 }
 
-extern "C" auto PySequence_Contains(PyObject * /*o*/, PyObject * /*value*/)
-    -> int {
+extern "C" auto PySequence_Contains(PyObject * /*o*/,
+                                    PyObject * /*value*/) -> int {
   return 0;
 }
 
-extern "C" auto PySequence_Index(PyObject * /*o*/, PyObject * /*value*/)
-    -> Py_ssize_t {
+extern "C" auto PySequence_Index(PyObject * /*o*/,
+                                 PyObject * /*value*/) -> Py_ssize_t {
   return 0;
 }
 
@@ -2527,13 +2521,13 @@ extern "C" auto PySequence_Tuple(PyObject * /*o*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PySequence_Fast(PyObject * /*o*/, const char * /*m*/)
-    -> PyObject * {
+extern "C" auto PySequence_Fast(PyObject * /*o*/,
+                                const char * /*m*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PySequence_Fast_GET_ITEM(PyObject * /*o*/, Py_ssize_t /*i*/)
-    -> PyObject * {
+extern "C" auto PySequence_Fast_GET_ITEM(PyObject * /*o*/,
+                                         Py_ssize_t /*i*/) -> PyObject * {
   return nullptr;
 }
 
@@ -2541,8 +2535,8 @@ extern "C" auto PySequence_Fast_ITEMS(PyObject * /*o*/) -> PyObject ** {
   return nullptr;
 }
 
-extern "C" auto PySequence_ITEM(PyObject * /*o*/, Py_ssize_t /*i*/)
-    -> PyObject * {
+extern "C" auto PySequence_ITEM(PyObject * /*o*/,
+                                Py_ssize_t /*i*/) -> PyObject * {
   return nullptr;
 }
 
@@ -2574,8 +2568,8 @@ extern "C" auto PySet_GET_SIZE(PyObject * /*anyset*/) -> Py_ssize_t {
   return 0;
 }
 
-extern "C" auto PySet_Contains(PyObject * /*anyset*/, PyObject * /*key*/)
-    -> int {
+extern "C" auto PySet_Contains(PyObject * /*anyset*/,
+                               PyObject * /*key*/) -> int {
   return 0;
 }
 
@@ -2602,22 +2596,23 @@ extern "C" auto PySlice_New(PyObject * /*start*/, PyObject * /*stop*/,
 
 extern "C" auto PySlice_GetIndices(PyObject * /*slice*/, Py_ssize_t /*length*/,
                                    Py_ssize_t * /*start*/,
-                                   Py_ssize_t * /*stop*/, Py_ssize_t * /*step*/)
-    -> int {
+                                   Py_ssize_t * /*stop*/,
+                                   Py_ssize_t * /*step*/) -> int {
   return 0;
 }
 
-extern "C" auto
-PySlice_GetIndicesEx(PyObject * /*slice*/, Py_ssize_t /*length*/,
-                     Py_ssize_t * /*start*/, Py_ssize_t * /*stop*/,
-                     Py_ssize_t * /*step*/, Py_ssize_t * /*slicelength*/)
-    -> int {
+extern "C" auto PySlice_GetIndicesEx(PyObject * /*slice*/,
+                                     Py_ssize_t /*length*/,
+                                     Py_ssize_t * /*start*/,
+                                     Py_ssize_t * /*stop*/,
+                                     Py_ssize_t * /*step*/,
+                                     Py_ssize_t * /*slicelength*/) -> int {
   return 0;
 }
 
 extern "C" auto PySlice_Unpack(PyObject * /*slice*/, Py_ssize_t * /*start*/,
-                               Py_ssize_t * /*stop*/, Py_ssize_t * /*step*/)
-    -> int {
+                               Py_ssize_t * /*stop*/,
+                               Py_ssize_t * /*step*/) -> int {
   return 0;
 }
 
@@ -2632,8 +2627,8 @@ extern "C" auto PyOS_FSPath(PyObject * /*path*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto Py_FdIsInteractive(FILE * /*fp*/, const char * /*filename*/)
-    -> int {
+extern "C" auto Py_FdIsInteractive(FILE * /*fp*/,
+                                   const char * /*filename*/) -> int {
   return 0;
 }
 
@@ -2649,13 +2644,13 @@ extern "C" auto PyOS_CheckStack() -> int { return 0; }
 
 extern "C" auto PyOS_getsig(int /*i*/) -> PyOS_sighandler_t { return nullptr; }
 
-extern "C" auto PyOS_setsig(int /*i*/, PyOS_sighandler_t /*h*/)
-    -> PyOS_sighandler_t {
+extern "C" auto PyOS_setsig(int /*i*/,
+                            PyOS_sighandler_t /*h*/) -> PyOS_sighandler_t {
   return nullptr;
 }
 
-extern "C" auto Py_DecodeLocale(const char * /*arg*/, size_t * /*size*/)
-    -> wchar_t * {
+extern "C" auto Py_DecodeLocale(const char * /*arg*/,
+                                size_t * /*size*/) -> wchar_t * {
   return nullptr;
 }
 
@@ -2668,8 +2663,8 @@ extern "C" auto PySys_GetObject(const char * /*name*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PySys_SetObject(const char * /*name*/, PyObject * /*v*/)
-    -> int {
+extern "C" auto PySys_SetObject(const char * /*name*/,
+                                PyObject * /*v*/) -> int {
   return 0;
 }
 
@@ -2715,13 +2710,13 @@ extern "C" auto PyTuple_Size(PyObject * /*p*/) -> Py_ssize_t { return 0; }
 
 extern "C" auto PyTuple_GET_SIZE(PyObject * /*p*/) -> Py_ssize_t { return 0; }
 
-extern "C" auto PyTuple_GetItem(PyObject * /*p*/, Py_ssize_t /*pos*/)
-    -> PyObject * {
+extern "C" auto PyTuple_GetItem(PyObject * /*p*/,
+                                Py_ssize_t /*pos*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyTuple_GET_ITEM(PyObject * /*p*/, Py_ssize_t /*pos*/)
-    -> PyObject * {
+extern "C" auto PyTuple_GET_ITEM(PyObject * /*p*/,
+                                 Py_ssize_t /*pos*/) -> PyObject * {
   return nullptr;
 }
 
@@ -2738,8 +2733,8 @@ extern "C" auto PyTuple_SetItem(PyObject * /*p*/, Py_ssize_t /*pos*/,
 extern "C" void PyTuple_SET_ITEM(PyObject * /*p*/, Py_ssize_t /*pos*/,
                                  PyObject * /*o*/) {}
 
-extern "C" auto _PyTuple_Resize(PyObject ** /*p*/, Py_ssize_t /*newsize*/)
-    -> int {
+extern "C" auto _PyTuple_Resize(PyObject ** /*p*/,
+                                Py_ssize_t /*newsize*/) -> int {
   return 0;
 }
 
@@ -2754,9 +2749,9 @@ PyStructSequence_NewType(PyStructSequence_Desc * /*desc*/) -> PyTypeObject * {
 extern "C" void PyStructSequence_InitType(PyTypeObject * /*type*/,
                                           PyStructSequence_Desc * /*desc*/) {}
 
-extern "C" auto PyStructSequence_InitType2(PyTypeObject * /*type*/,
-                                           PyStructSequence_Desc * /*desc*/)
-    -> int {
+extern "C" auto
+PyStructSequence_InitType2(PyTypeObject * /*type*/,
+                           PyStructSequence_Desc * /*desc*/) -> int {
   return 0;
 }
 
@@ -2764,13 +2759,13 @@ extern "C" auto PyStructSequence_New(PyTypeObject * /*type*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyStructSequence_GetItem(PyObject * /*p*/, Py_ssize_t /*pos*/)
-    -> PyObject * {
+extern "C" auto PyStructSequence_GetItem(PyObject * /*p*/,
+                                         Py_ssize_t /*pos*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyStructSequence_GET_ITEM(PyObject * /*p*/, Py_ssize_t /*pos*/)
-    -> PyObject * {
+extern "C" auto PyStructSequence_GET_ITEM(PyObject * /*p*/,
+                                          Py_ssize_t /*pos*/) -> PyObject * {
   return nullptr;
 }
 
@@ -2809,8 +2804,8 @@ extern "C" auto PyUnicode_READ(int /*kind*/, void * /*value*/,
   return 0;
 }
 
-extern "C" auto PyUnicode_READ_CHAR(PyObject * /*o*/, Py_ssize_t /*index*/)
-    -> Py_UCS4 {
+extern "C" auto PyUnicode_READ_CHAR(PyObject * /*o*/,
+                                    Py_ssize_t /*index*/) -> Py_UCS4 {
   return 0;
 }
 
@@ -2868,8 +2863,8 @@ extern "C" auto Py_UNICODE_TONUMERIC(Py_UNICODE /*ch*/) -> double {
   return 0.0;
 }
 
-extern "C" auto PyUnicode_New(Py_ssize_t /*size*/, Py_UCS4 /*maxchar*/)
-    -> PyObject * {
+extern "C" auto PyUnicode_New(Py_ssize_t /*size*/,
+                              Py_UCS4 /*maxchar*/) -> PyObject * {
   return nullptr;
 }
 
@@ -2887,8 +2882,8 @@ extern "C" auto PyUnicode_FromString(const char * /*u*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyUnicode_FromFormat(const char * /*format*/, ...)
-    -> PyObject * {
+extern "C" auto PyUnicode_FromFormat(const char * /*format*/,
+                                     ...) -> PyObject * {
   return nullptr;
 }
 
@@ -2897,10 +2892,9 @@ extern "C" auto PyUnicode_FromFormatV(const char * /*format*/,
   return nullptr;
 }
 
-extern "C" auto PyUnicode_FromEncodedObject(PyObject * /*obj*/,
-                                            const char * /*encoding*/,
-                                            const char * /*errors*/)
-    -> PyObject * {
+extern "C" auto
+PyUnicode_FromEncodedObject(PyObject * /*obj*/, const char * /*encoding*/,
+                            const char * /*errors*/) -> PyObject * {
   return nullptr;
 }
 
@@ -2916,19 +2910,19 @@ PyUnicode_CopyCharacters(PyObject * /*to*/, Py_ssize_t /*to_start*/,
 }
 
 extern "C" auto PyUnicode_Fill(PyObject * /*unicode*/, Py_ssize_t /*start*/,
-                               Py_ssize_t /*length*/, Py_UCS4 /*fill_char*/)
-    -> Py_ssize_t {
+                               Py_ssize_t /*length*/,
+                               Py_UCS4 /*fill_char*/) -> Py_ssize_t {
   return 0;
 }
 
 extern "C" auto PyUnicode_WriteChar(PyObject * /*unicode*/,
-                                    Py_ssize_t /*index*/, Py_UCS4 /*character*/)
-    -> int {
+                                    Py_ssize_t /*index*/,
+                                    Py_UCS4 /*character*/) -> int {
   return 0;
 }
 
-extern "C" auto PyUnicode_ReadChar(PyObject * /*unicode*/, Py_ssize_t /*index*/)
-    -> Py_UCS4 {
+extern "C" auto PyUnicode_ReadChar(PyObject * /*unicode*/,
+                                   Py_ssize_t /*index*/) -> Py_UCS4 {
   return 0;
 }
 
@@ -2938,8 +2932,8 @@ extern "C" auto PyUnicode_Substring(PyObject * /*str*/, Py_ssize_t /*start*/,
 }
 
 extern "C" auto PyUnicode_AsUCS4(PyObject * /*u*/, Py_UCS4 * /*buffer*/,
-                                 Py_ssize_t /*buflen*/, int /*copy_null*/)
-    -> Py_UCS4 * {
+                                 Py_ssize_t /*buflen*/,
+                                 int /*copy_null*/) -> Py_UCS4 * {
   return nullptr;
 }
 
@@ -2956,20 +2950,20 @@ extern "C" auto PyUnicode_AsUnicode(PyObject * /*unicode*/) -> Py_UNICODE * {
   return nullptr;
 }
 
-extern "C" auto PyUnicode_TransformDecimalToASCII(Py_UNICODE * /*s*/,
-                                                  Py_ssize_t /*size*/)
-    -> PyObject * {
+extern "C" auto
+PyUnicode_TransformDecimalToASCII(Py_UNICODE * /*s*/,
+                                  Py_ssize_t /*size*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyUnicode_AsUnicodeAndSize(PyObject * /*unicode*/,
-                                           Py_ssize_t * /*size*/)
-    -> Py_UNICODE * {
+extern "C" auto
+PyUnicode_AsUnicodeAndSize(PyObject * /*unicode*/,
+                           Py_ssize_t * /*size*/) -> Py_UNICODE * {
   return nullptr;
 }
 
-extern "C" auto PyUnicode_AsUnicodeCopy(PyObject * /*unicode*/)
-    -> Py_UNICODE * {
+extern "C" auto
+PyUnicode_AsUnicodeCopy(PyObject * /*unicode*/) -> Py_UNICODE * {
   return nullptr;
 }
 
@@ -2981,10 +2975,9 @@ extern "C" auto PyUnicode_FromObject(PyObject * /*obj*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyUnicode_DecodeLocaleAndSize(const char * /*str*/,
-                                              Py_ssize_t /*len*/,
-                                              const char * /*errors*/)
-    -> PyObject * {
+extern "C" auto
+PyUnicode_DecodeLocaleAndSize(const char * /*str*/, Py_ssize_t /*len*/,
+                              const char * /*errors*/) -> PyObject * {
   return nullptr;
 }
 
@@ -2998,19 +2991,19 @@ extern "C" auto PyUnicode_EncodeLocale(PyObject * /*unicode*/,
   return nullptr;
 }
 
-extern "C" auto PyUnicode_FSConverter(PyObject * /*obj*/, void * /*result*/)
-    -> int {
+extern "C" auto PyUnicode_FSConverter(PyObject * /*obj*/,
+                                      void * /*result*/) -> int {
   return 0;
 }
 
-extern "C" auto PyUnicode_FSDecoder(PyObject * /*obj*/, void * /*result*/)
-    -> int {
+extern "C" auto PyUnicode_FSDecoder(PyObject * /*obj*/,
+                                    void * /*result*/) -> int {
   return 0;
 }
 
-extern "C" auto PyUnicode_DecodeFSDefaultAndSize(const char * /*s*/,
-                                                 Py_ssize_t /*size*/)
-    -> PyObject * {
+extern "C" auto
+PyUnicode_DecodeFSDefaultAndSize(const char * /*s*/,
+                                 Py_ssize_t /*size*/) -> PyObject * {
   return nullptr;
 }
 
@@ -3018,8 +3011,8 @@ extern "C" auto PyUnicode_DecodeFSDefault(const char * /*s*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyUnicode_EncodeFSDefault(PyObject * /*unicode*/)
-    -> PyObject * {
+extern "C" auto
+PyUnicode_EncodeFSDefault(PyObject * /*unicode*/) -> PyObject * {
   return nullptr;
 }
 
@@ -3029,8 +3022,8 @@ extern "C" auto PyUnicode_FromWideChar(const wchar_t * /*w*/,
 }
 
 extern "C" auto PyUnicode_AsWideChar(PyUnicodeObject * /*unicode*/,
-                                     wchar_t * /*w*/, Py_ssize_t /*size*/)
-    -> Py_ssize_t {
+                                     wchar_t * /*w*/,
+                                     Py_ssize_t /*size*/) -> Py_ssize_t {
   return 0;
 }
 
@@ -3045,10 +3038,9 @@ extern "C" auto PyUnicode_Decode(const char * /*s*/, Py_ssize_t /*size*/,
   return nullptr;
 }
 
-extern "C" auto PyUnicode_AsEncodedString(PyObject * /*unicode*/,
-                                          const char * /*encoding*/,
-                                          const char * /*errors*/)
-    -> PyObject * {
+extern "C" auto
+PyUnicode_AsEncodedString(PyObject * /*unicode*/, const char * /*encoding*/,
+                          const char * /*errors*/) -> PyObject * {
   return nullptr;
 }
 
@@ -3065,8 +3057,8 @@ extern "C" auto PyUnicode_DecodeUTF8(const char * /*s*/, Py_ssize_t /*size*/,
 
 extern "C" auto
 PyUnicode_DecodeUTF8Stateful(const char * /*s*/, Py_ssize_t /*size*/,
-                             const char * /*errors*/, Py_ssize_t * /*consumed*/)
-    -> PyObject * {
+                             const char * /*errors*/,
+                             Py_ssize_t * /*consumed*/) -> PyObject * {
   return nullptr;
 }
 
@@ -3144,8 +3136,8 @@ extern "C" auto PyUnicode_DecodeUTF7(const char * /*s*/, Py_ssize_t /*size*/,
 
 extern "C" auto
 PyUnicode_DecodeUTF7Stateful(const char * /*s*/, Py_ssize_t /*size*/,
-                             const char * /*errors*/, Py_ssize_t * /*consumed*/)
-    -> PyObject * {
+                             const char * /*errors*/,
+                             Py_ssize_t * /*consumed*/) -> PyObject * {
   return nullptr;
 }
 
@@ -3156,40 +3148,37 @@ extern "C" auto PyUnicode_EncodeUTF7(const Py_UNICODE * /*s*/,
   return nullptr;
 }
 
-extern "C" auto PyUnicode_DecodeUnicodeEscape(const char * /*s*/,
-                                              Py_ssize_t /*size*/,
-                                              const char * /*errors*/)
-    -> PyObject * {
+extern "C" auto
+PyUnicode_DecodeUnicodeEscape(const char * /*s*/, Py_ssize_t /*size*/,
+                              const char * /*errors*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyUnicode_AsUnicodeEscapeString(PyObject * /*unicode*/)
-    -> PyObject * {
+extern "C" auto
+PyUnicode_AsUnicodeEscapeString(PyObject * /*unicode*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyUnicode_EncodeUnicodeEscape(const Py_UNICODE * /*s*/,
-                                              Py_ssize_t /*size*/)
-    -> PyObject * {
+extern "C" auto
+PyUnicode_EncodeUnicodeEscape(const Py_UNICODE * /*s*/,
+                              Py_ssize_t /*size*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyUnicode_DecodeRawUnicodeEscape(const char * /*s*/,
-                                                 Py_ssize_t /*size*/,
-                                                 const char * /*errors*/)
-    -> PyObject * {
+extern "C" auto
+PyUnicode_DecodeRawUnicodeEscape(const char * /*s*/, Py_ssize_t /*size*/,
+                                 const char * /*errors*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyUnicode_AsRawUnicodeEscapeString(PyObject * /*unicode*/)
-    -> PyObject * {
+extern "C" auto
+PyUnicode_AsRawUnicodeEscapeString(PyObject * /*unicode*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyUnicode_EncodeRawUnicodeEscape(const Py_UNICODE * /*s*/,
-                                                 Py_ssize_t /*size*/,
-                                                 const char * /*errors*/)
-    -> PyObject * {
+extern "C" auto
+PyUnicode_EncodeRawUnicodeEscape(const Py_UNICODE * /*s*/, Py_ssize_t /*size*/,
+                                 const char * /*errors*/) -> PyObject * {
   return nullptr;
 }
 
@@ -3230,9 +3219,9 @@ extern "C" auto PyUnicode_DecodeCharmap(const char * /*value*/,
   return nullptr;
 }
 
-extern "C" auto PyUnicode_AsCharmapString(PyObject * /*unicode*/,
-                                          PyObject * /*mapping*/)
-    -> PyObject * {
+extern "C" auto
+PyUnicode_AsCharmapString(PyObject * /*unicode*/,
+                          PyObject * /*mapping*/) -> PyObject * {
   return nullptr;
 }
 
@@ -3251,8 +3240,8 @@ extern "C" auto PyUnicode_Translate(PyObject * /*unicode*/,
 
 extern "C" auto
 PyUnicode_TranslateCharmap(const Py_UNICODE * /*s*/, Py_ssize_t /*size*/,
-                           PyObject * /*mapping*/, const char * /*errors*/)
-    -> PyObject * {
+                           PyObject * /*mapping*/,
+                           const char * /*errors*/) -> PyObject * {
   return nullptr;
 }
 
@@ -3271,10 +3260,9 @@ extern "C" auto PyUnicode_AsMBCSString(PyObject * /*unicode*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyUnicode_EncodeCodePage(int /*code_page*/,
-                                         PyObject * /*unicode*/,
-                                         const char * /*errors*/)
-    -> PyObject * {
+extern "C" auto
+PyUnicode_EncodeCodePage(int /*code_page*/, PyObject * /*unicode*/,
+                         const char * /*errors*/) -> PyObject * {
   return nullptr;
 }
 
@@ -3284,8 +3272,8 @@ extern "C" auto PyUnicode_EncodeMBCS(const Py_UNICODE * /*s*/,
   return nullptr;
 }
 
-extern "C" auto PyUnicode_Concat(PyObject * /*left*/, PyObject * /*right*/)
-    -> PyObject * {
+extern "C" auto PyUnicode_Concat(PyObject * /*left*/,
+                                 PyObject * /*right*/) -> PyObject * {
   return nullptr;
 }
 
@@ -3294,13 +3282,13 @@ extern "C" auto PyUnicode_Split(PyObject * /*s*/, PyObject * /*sep*/,
   return nullptr;
 }
 
-extern "C" auto PyUnicode_Splitlines(PyObject * /*s*/, int /*keepend*/)
-    -> PyObject * {
+extern "C" auto PyUnicode_Splitlines(PyObject * /*s*/,
+                                     int /*keepend*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyUnicode_Join(PyObject * /*separator*/, PyObject * /*seq*/)
-    -> PyObject * {
+extern "C" auto PyUnicode_Join(PyObject * /*separator*/,
+                               PyObject * /*seq*/) -> PyObject * {
   return nullptr;
 }
 
@@ -3323,8 +3311,8 @@ extern "C" auto PyUnicode_FindChar(PyObject * /*str*/, Py_UCS4 /*ch*/,
 }
 
 extern "C" auto PyUnicode_Count(PyObject * /*str*/, PyObject * /*substr*/,
-                                Py_ssize_t /*start*/, Py_ssize_t /*end*/)
-    -> Py_ssize_t {
+                                Py_ssize_t /*start*/,
+                                Py_ssize_t /*end*/) -> Py_ssize_t {
   return 0;
 }
 
@@ -3334,14 +3322,14 @@ extern "C" auto PyUnicode_Replace(PyObject * /*str*/, PyObject * /*substr*/,
   return nullptr;
 }
 
-extern "C" auto PyUnicode_Compare(PyObject * /*left*/, PyObject * /*right*/)
-    -> int {
+extern "C" auto PyUnicode_Compare(PyObject * /*left*/,
+                                  PyObject * /*right*/) -> int {
   return 0;
 }
 
-extern "C" auto PyUnicode_CompareWithASCIIString(PyObject * /*uni*/,
-                                                 const char * /*string*/)
-    -> int {
+extern "C" auto
+PyUnicode_CompareWithASCIIString(PyObject * /*uni*/,
+                                 const char * /*string*/) -> int {
   return 0;
 }
 
@@ -3350,8 +3338,8 @@ extern "C" auto PyUnicode_RichCompare(PyObject * /*left*/, PyObject * /*right*/,
   return nullptr;
 }
 
-extern "C" auto PyUnicode_Format(PyObject * /*format*/, PyObject * /*args*/)
-    -> PyObject * {
+extern "C" auto PyUnicode_Format(PyObject * /*format*/,
+                                 PyObject * /*args*/) -> PyObject * {
   return nullptr;
 }
 
@@ -3397,8 +3385,8 @@ extern "C" auto PyRun_SimpleStringFlags(const char * /*command*/,
   return 0;
 }
 
-extern "C" auto PyRun_SimpleFile(FILE * /*fp*/, const char * /*filename*/)
-    -> int {
+extern "C" auto PyRun_SimpleFile(FILE * /*fp*/,
+                                 const char * /*filename*/) -> int {
   return 0;
 }
 
@@ -3414,8 +3402,8 @@ extern "C" auto PyRun_SimpleFileExFlags(FILE * /*fp*/,
   return 0;
 }
 
-extern "C" auto PyRun_InteractiveOne(FILE * /*fp*/, const char * /*filename*/)
-    -> int {
+extern "C" auto PyRun_InteractiveOne(FILE * /*fp*/,
+                                     const char * /*filename*/) -> int {
   return 0;
 }
 
@@ -3425,8 +3413,8 @@ extern "C" auto PyRun_InteractiveOneFlags(FILE * /*fp*/,
   return 0;
 }
 
-extern "C" auto PyRun_InteractiveLoop(FILE * /*fp*/, const char * /*filename*/)
-    -> int {
+extern "C" auto PyRun_InteractiveLoop(FILE * /*fp*/,
+                                      const char * /*filename*/) -> int {
   return 0;
 }
 
@@ -3436,14 +3424,14 @@ extern "C" auto PyRun_InteractiveLoopFlags(FILE * /*fp*/,
   return 0;
 }
 
-extern "C" auto PyParser_SimpleParseString(const char * /*str*/, int /*start*/)
-    -> struct _node * {
+extern "C" auto PyParser_SimpleParseString(const char * /*str*/,
+                                           int /*start*/) -> struct _node * {
   return nullptr;
 }
 
-extern "C" auto PyParser_SimpleParseStringFlags(const char * /*str*/,
-                                                int /*start*/, int /*flags*/)
-    -> struct _node * {
+extern "C" auto
+PyParser_SimpleParseStringFlags(const char * /*str*/, int /*start*/,
+                                int /*flags*/) -> struct _node * {
   return nullptr;
 }
 
@@ -3461,14 +3449,14 @@ extern "C" auto PyParser_SimpleParseFile(FILE * /*fp*/,
 
 extern "C" auto PyParser_SimpleParseFileFlags(FILE * /*fp*/,
                                               const char * /*filename*/,
-                                              int /*start*/, int /*flags*/)
-    -> struct _node * {
+                                              int /*start*/,
+                                              int /*flags*/) -> struct _node * {
   return nullptr;
 }
 
 extern "C" auto PyRun_String(const char * /*str*/, int /*start*/,
-                             PyObject * /*globals*/, PyObject * /*locals*/)
-    -> PyObject * {
+                             PyObject * /*globals*/,
+                             PyObject * /*locals*/) -> PyObject * {
   return nullptr;
 }
 
@@ -3486,8 +3474,8 @@ extern "C" auto PyRun_File(FILE * /*fp*/, const char * /*filename*/,
 
 extern "C" auto PyRun_FileEx(FILE * /*fp*/, const char * /*filename*/,
                              int /*start*/, PyObject * /*globals*/,
-                             PyObject * /*locals*/, int /*closeit*/)
-    -> PyObject * {
+                             PyObject * /*locals*/,
+                             int /*closeit*/) -> PyObject * {
   return nullptr;
 }
 
@@ -3506,15 +3494,15 @@ extern "C" auto PyRun_FileExFlags(FILE * /*fp*/, const char * /*filename*/,
 }
 
 extern "C" auto Py_CompileString(const char * /*str*/,
-                                 const char * /*filename*/, int /*start*/)
-    -> PyObject * {
+                                 const char * /*filename*/,
+                                 int /*start*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto Py_CompileStringFlags(const char * /*str*/,
-                                      const char * /*filename*/, int /*start*/,
-                                      PyCompilerFlags * /*flags*/)
-    -> PyObject * {
+extern "C" auto
+Py_CompileStringFlags(const char * /*str*/, const char * /*filename*/,
+                      int /*start*/,
+                      PyCompilerFlags * /*flags*/) -> PyObject * {
   return nullptr;
 }
 
@@ -3551,8 +3539,8 @@ extern "C" auto PyEval_EvalFrame(PyFrameObject * /*f*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyEval_EvalFrameEx(PyFrameObject * /*f*/, int /*throwflag*/)
-    -> PyObject * {
+extern "C" auto PyEval_EvalFrameEx(PyFrameObject * /*f*/,
+                                   int /*throwflag*/) -> PyObject * {
   return nullptr;
 }
 
@@ -3560,13 +3548,13 @@ extern "C" auto PyEval_MergeCompilerFlags(PyCompilerFlags * /*cf*/) -> int {
   return 0;
 }
 
-extern "C" auto PyWeakref_NewRef(PyObject * /*ob*/, PyObject * /*callback*/)
-    -> PyObject * {
+extern "C" auto PyWeakref_NewRef(PyObject * /*ob*/,
+                                 PyObject * /*callback*/) -> PyObject * {
   return nullptr;
 }
 
-extern "C" auto PyWeakref_NewProxy(PyObject * /*ob*/, PyObject * /*callback*/)
-    -> PyObject * {
+extern "C" auto PyWeakref_NewProxy(PyObject * /*ob*/,
+                                   PyObject * /*callback*/) -> PyObject * {
   return nullptr;
 }
 

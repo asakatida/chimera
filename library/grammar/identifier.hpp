@@ -16,6 +16,7 @@ namespace chimera::library::grammar {
     template <>
     struct Action<Name> {
       template <typename Input, typename Stack, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       static void apply(const Input &input, Stack &&stack, Args &&.../*args*/) {
         stack.push(asdl::Name{input.string()});
       }

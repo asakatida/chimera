@@ -2,7 +2,9 @@
 
 #include "virtual_machine/slice_evaluator.hpp"
 
+#include "asdl/asdl.hpp"
 #include "virtual_machine/evaluator.hpp"
+#include "virtual_machine/push_stack.hpp"
 
 namespace chimera::library::virtual_machine {
   SliceEvaluator::SliceEvaluator(Evaluator *evaluator) noexcept

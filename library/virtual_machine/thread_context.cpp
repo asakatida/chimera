@@ -2,7 +2,11 @@
 
 #include "virtual_machine/thread_context.hpp"
 
-#include "virtual_machine/evaluator.hpp"
+#include "object/object.hpp"
+#include "virtual_machine/process_context.hpp"
+
+#include <memory>
+#include <utility>
 
 namespace chimera::library::virtual_machine {
   ThreadContextImpl::ThreadContextImpl(ProcessContext &process_context,
@@ -11,8 +15,8 @@ namespace chimera::library::virtual_machine {
   [[nodiscard]] auto ThreadContextImpl::body() const -> object::Object {
     return main;
   }
-  [[nodiscard]] auto ThreadContextImpl::builtins() const
-      -> const object::Object & {
+  [[nodiscard]] auto
+  ThreadContextImpl::builtins() const -> const object::Object & {
     return process_context->builtins();
   }
   void ThreadContextImpl::process_interrupts() const {
@@ -24,8 +28,8 @@ namespace chimera::library::virtual_machine {
   void ThreadContextImpl::return_value(object::Object &&value) {
     ret = std::move(value);
   }
-  auto make_thread(ProcessContext &process_context, object::Object main)
-      -> ThreadContext {
+  auto make_thread(ProcessContext &process_context,
+                   object::Object main) -> ThreadContext {
     return std::make_shared<ThreadContextImpl>(process_context,
                                                std::move(main));
   }

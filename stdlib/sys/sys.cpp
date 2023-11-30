@@ -2,14 +2,13 @@
 
 #include "sys/sys.hpp"
 
-#include "options.hpp"
+#include "object/object.hpp"
 
-#include <gsl/gsl>
-
-#include <algorithm>
 #include <vector>
 
 using namespace std::literals;
+
+// NOLINTBEGIN(misc-include-cleaner)
 
 namespace chimera::library::virtual_machine::modules {
   using Argv = std::vector<object::Object>;
@@ -101,3 +100,5 @@ namespace chimera::library::virtual_machine::modules {
     sys.set_attribute("warnoptions"s, module);
   }
 } // namespace chimera::library::virtual_machine::modules
+
+// NOLINTEND(misc-include-cleaner)

@@ -18,8 +18,8 @@ namespace chimera::library::asdl {
     grammar::parse<grammar::SingleInput>(optimize,
                                          grammar::Input(input, source), *this);
   }
-  [[nodiscard]] auto Interactive::iter() const
-      -> const std::vector<StmtImpl> & {
+  [[nodiscard]] auto
+  Interactive::iter() const -> const std::vector<StmtImpl> & {
     return body;
   }
 } // namespace chimera::library::asdl

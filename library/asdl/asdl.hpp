@@ -42,7 +42,7 @@ namespace chimera::library::asdl {
       Impl() : value(std::make_shared<ValueT>()) {}
       template <typename Type,
                 typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
-      Impl(Type &&type)
+      explicit Impl(Type &&type)
           : value(std::make_shared<ValueT>(std::forward<Type>(type))) {}
       template <typename Type,
                 typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
@@ -60,6 +60,7 @@ namespace chimera::library::asdl {
       }
       template <typename Type, typename Visitor,
                 typename = std::enable_if_t<metal::contains<List, Type>() != 0>>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       [[nodiscard]] auto update_if(Visitor &&visitor) -> bool {
         if (auto *asdl = std::get_if<Type>(value.get()); asdl != nullptr) {
           *value = visitor(*asdl);
@@ -418,6 +419,7 @@ namespace chimera::library::asdl {
     [[nodiscard]] auto doc() const -> const std::optional<DocString> &;
     [[nodiscard]] auto iter() const -> const std::vector<StmtImpl> &;
     template <typename Stack>
+    // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
     void finalize(const Module & /*unused*/, Stack &&stack) {
       body.reserve(stack.size());
       while (stack.template top_is<StmtImpl>()) {
@@ -440,6 +442,7 @@ namespace chimera::library::asdl {
                 const char *source);
     [[nodiscard]] auto iter() const -> const std::vector<StmtImpl> &;
     template <typename Stack>
+    // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
     void finalize(const Interactive & /*unused*/, Stack &&stack) {
       body.reserve(stack.size());
       stack.template transform<StmtImpl>(std::back_inserter(body));
@@ -454,6 +457,7 @@ namespace chimera::library::asdl {
                const char *source);
     [[nodiscard]] auto expr() const -> const ExprImpl &;
     template <typename Stack>
+    // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
     void finalize(const Expression & /*unused*/, Stack &&stack) {
       if (auto size = stack.size(); size > 1) {
         Tuple tuple;

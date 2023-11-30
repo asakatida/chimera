@@ -35,8 +35,8 @@ namespace chimera::library {
   struct Compare {
     [[nodiscard]] auto operator()(const SetAttribute &left,
                                   const SetAttribute &right) const -> bool;
-    [[nodiscard]] auto operator()(const Work &left, const Work &right) const
-        -> bool;
+    [[nodiscard]] auto operator()(const Work &left,
+                                  const Work &right) const -> bool;
   };
   struct IncompleteTuple {
     explicit IncompleteTuple(PrintState *printer) : printer(printer) {}
@@ -57,8 +57,8 @@ namespace chimera::library {
     void remap(const object::Object &module, const object::Object &previous);
     [[nodiscard]] auto is_printed(const object::Object &object) -> bool;
     template <typename OStream>
-    auto print(OStream &ostream, const object::Instance & /*instance*/)
-        -> OStream & {
+    auto print(OStream &ostream,
+               const object::Instance & /*instance*/) -> OStream & {
       return ostream;
     }
     template <typename OStream>
@@ -76,8 +76,8 @@ namespace chimera::library {
       return ostream << "},";
     }
     template <typename OStream>
-    auto print(OStream &ostream, const object::BytesMethod &bytesMethod)
-        -> OStream & {
+    auto print(OStream &ostream,
+               const object::BytesMethod &bytesMethod) -> OStream & {
       ostream << "object::BytesMethod::";
       // NOLINTNEXTLINE(hicpp-multiway-paths-covered)
       switch (bytesMethod) {}
@@ -92,8 +92,8 @@ namespace chimera::library {
       return ostream << "object::False{},";
     }
     template <typename OStream>
-    auto print(OStream &ostream, const object::Future & /*future*/)
-        -> OStream & {
+    auto print(OStream &ostream,
+               const object::Future & /*future*/) -> OStream & {
       Expects(false);
       return ostream;
     }
@@ -102,8 +102,8 @@ namespace chimera::library {
       return ostream << "object::None{},";
     }
     template <typename OStream>
-    auto print(OStream &ostream, const object::NullFunction & /*nullFunction*/)
-        -> OStream & {
+    auto print(OStream &ostream,
+               const object::NullFunction & /*nullFunction*/) -> OStream & {
       return ostream << "object::NullFunction{},";
     }
     template <typename OStream>
@@ -111,16 +111,16 @@ namespace chimera::library {
       return number.repr(ostream) << ",";
     }
     template <typename OStream>
-    auto print(OStream &ostream, const object::NumberMethod &numberMethod)
-        -> OStream & {
+    auto print(OStream &ostream,
+               const object::NumberMethod &numberMethod) -> OStream & {
       ostream << "object::NumberMethod::";
       // NOLINTNEXTLINE(hicpp-multiway-paths-covered)
       switch (numberMethod) {}
       return ostream << ",";
     }
     template <typename OStream>
-    auto print(OStream &ostream, const object::ObjectMethod &objectMethod)
-        -> OStream & {
+    auto print(OStream &ostream,
+               const object::ObjectMethod &objectMethod) -> OStream & {
       ostream << "object::ObjectMethod::";
       switch (objectMethod) {
         case object::ObjectMethod::DELATTR:
@@ -143,8 +143,8 @@ namespace chimera::library {
       return ostream << "object::String(" << std::quoted(string) << "s),";
     }
     template <typename OStream>
-    auto print(OStream &ostream, const object::StringMethod &stringMethod)
-        -> OStream & {
+    auto print(OStream &ostream,
+               const object::StringMethod &stringMethod) -> OStream & {
       ostream << "object::StringMethod::";
       // NOLINTNEXTLINE(hicpp-multiway-paths-covered)
       switch (stringMethod) {}
@@ -169,8 +169,8 @@ namespace chimera::library {
       return ostream << "},";
     }
     template <typename OStream>
-    auto print(OStream &ostream, const object::TupleMethod &tupleMethod)
-        -> OStream & {
+    auto print(OStream &ostream,
+               const object::TupleMethod &tupleMethod) -> OStream & {
       ostream << "object::TupleMethod::";
       // NOLINTNEXTLINE(hicpp-multiway-paths-covered)
       switch (tupleMethod) {}
@@ -308,6 +308,6 @@ namespace chimera::library {
     return ostream
            << "// NOLINTEND(misc-const-correctness)\n"
            << "} // namespace chimera::library::virtual_machine::modules"
-           << std::endl;
+           << '\n';
   }
 } // namespace chimera::library

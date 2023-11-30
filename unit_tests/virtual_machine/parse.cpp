@@ -15,7 +15,7 @@
 using namespace std::literals;
 
 namespace chimera::library {
-  void test_parse(std::string_view &&data, std::size_t size) {
+  void test_parse(std::string_view data, std::size_t size) {
     const Options options{.chimera = "chimera",
                           .exec = options::Script{"unit_test.py"}};
     auto globalContext = virtual_machine::make_global(options);

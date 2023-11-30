@@ -18,8 +18,8 @@
 #include <string>
 
 namespace chimera::library {
-  [[nodiscard]] auto fuzz_istream(const std::uint8_t *data, std::size_t size)
-      -> std::istringstream {
+  [[nodiscard]] auto fuzz_istream(const std::uint8_t *data,
+                                  std::size_t size) -> std::istringstream {
     std::istringstream input(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         std::string(reinterpret_cast<const char *>(data), size));
@@ -55,8 +55,8 @@ namespace chimera::library {
     }
     return 0;
   }
-  [[nodiscard]] auto fuzz_file_eval(const std::uint8_t *data, std::size_t size)
-      -> int {
+  [[nodiscard]] auto fuzz_file_eval(const std::uint8_t *data,
+                                    std::size_t size) -> int {
     auto istream = fuzz_istream(data, size);
     return fuzz_file_eval(istream);
   }

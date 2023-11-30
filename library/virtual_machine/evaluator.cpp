@@ -4,16 +4,26 @@
 #include "virtual_machine/evaluator.hpp"
 
 #include "asdl/asdl.hpp"
+#include "object/object.hpp"
+#include "virtual_machine/call_evaluator.hpp"
 #include "virtual_machine/del_evaluator.hpp"
 #include "virtual_machine/get_evaluator.hpp"
+#include "virtual_machine/push_stack.hpp"
 #include "virtual_machine/set_evaluator.hpp"
+#include "virtual_machine/thread_context.hpp"
+#include "virtual_machine/to_bool_evaluator.hpp"
 
-#include <gsl/gsl>
+#include <gsl/util>
 
 #include <algorithm>
+#include <cstddef>
 #include <exception>
-#include <istream>
+#include <optional>
 #include <ranges>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
 
 using namespace std::literals;
 
@@ -166,8 +176,10 @@ namespace chimera::library::virtual_machine {
   void Evaluator::evaluate(const asdl::Module &module) {
     enter_scope(thread_context->body());
     if (const auto &doc_string = module.doc(); doc_string) {
+      // NOLINTNEXTLINE(misc-include-cleaner)
       self().set_attribute("__doc__"s, doc_string->string);
     } else {
+      // NOLINTNEXTLINE(misc-include-cleaner)
       self().set_attribute("__doc__"s, builtins().get_attribute("None"));
     }
     extend(module.iter());
@@ -221,6 +233,7 @@ namespace chimera::library::virtual_machine {
     if (functionDef.doc_string) {
       push([&functionDef](Evaluator *evaluator) {
         auto top = evaluator->stack_top();
+        // NOLINTNEXTLINE(misc-include-cleaner)
         top.set_attribute("__doc__"s, functionDef.doc_string->string);
       });
     }

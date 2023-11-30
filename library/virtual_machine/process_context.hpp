@@ -20,32 +20,32 @@ namespace chimera::library::virtual_machine {
     ProcessContextImpl(ProcessContextImpl &&) noexcept = delete;
     ~ProcessContextImpl() noexcept;
     auto operator=(const ProcessContextImpl &) -> ProcessContextImpl & = delete;
-    auto operator=(ProcessContextImpl &&) noexcept
-        -> ProcessContextImpl & = delete;
+    auto
+    operator=(ProcessContextImpl &&) noexcept -> ProcessContextImpl & = delete;
     [[nodiscard]] auto builtins() const -> const object::Object &;
-    [[nodiscard]] auto import_object(std::string_view &&name,
-                                     std::string_view &&relativeModule)
-        -> const object::Object &;
-    [[nodiscard]] auto import_module(std::string &&module)
-        -> std::optional<asdl::Module>;
-    [[nodiscard]] auto make_module(std::string_view &&name) -> object::Object;
-    [[nodiscard]] auto parse_expression(std::istream &input,
-                                        const char *source) const
-        -> asdl::Expression;
-    [[nodiscard]] auto parse_file(std::istream &input, const char *source) const
-        -> asdl::Module;
-    [[nodiscard]] auto parse_input(std::istream &input,
-                                   const char *source) const
-        -> asdl::Interactive;
+    [[nodiscard]] auto
+    import_object(std::string_view name,
+                  std::string_view relative_module) -> const object::Object &;
+    [[nodiscard]] auto
+    import_module(std::string &&module) -> std::optional<asdl::Module>;
+    [[nodiscard]] auto make_module(std::string_view name) -> object::Object;
+    [[nodiscard]] auto
+    parse_expression(std::istream &input,
+                     const char *source) const -> asdl::Expression;
+    [[nodiscard]] auto parse_file(std::istream &input,
+                                  const char *source) const -> asdl::Module;
+    [[nodiscard]] auto
+    parse_input(std::istream &input,
+                const char *source) const -> asdl::Interactive;
     void process_interrupts() const;
 
   private:
-    [[nodiscard]] auto find_module(const std::string_view &path)
-        -> std::optional<std::ifstream>;
+    [[nodiscard]] auto
+    find_module(const std::string_view &module) -> std::optional<std::ifstream>;
     [[nodiscard]] auto import_module(const std::string_view &path,
                                      const std::string &module) -> asdl::Module;
-    [[nodiscard]] auto import_object(std::string_view &&request_module)
-        -> const object::Object &;
+    [[nodiscard]] auto
+    import_object(std::string_view request_module) -> const object::Object &;
     object::Object builtins_;
     GlobalContext global_context;
     // TODO(asakatida)

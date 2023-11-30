@@ -27,6 +27,6 @@ namespace chimera::library::virtual_machine {
     std::optional<object::Object> ret;
   };
   using ThreadContext = std::shared_ptr<ThreadContextImpl>;
-  auto make_thread(ProcessContext &process_context, object::Object main)
-      -> ThreadContext;
+  auto make_thread(ProcessContext &process_context,
+                   object::Object main) -> ThreadContext;
 } // namespace chimera::library::virtual_machine

@@ -3,7 +3,11 @@
 
 #include "virtual_machine/bool_evaluator.hpp"
 
+#include "asdl/asdl.hpp"
 #include "virtual_machine/evaluator.hpp"
+#include "virtual_machine/to_bool_evaluator.hpp"
+
+#include <vector>
 
 namespace chimera::library::virtual_machine {
   BoolAndEvaluator::BoolAndEvaluator(

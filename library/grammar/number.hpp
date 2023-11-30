@@ -18,6 +18,7 @@ namespace chimera::library::grammar {
     };
     struct NumberHolder {
       template <std::uint8_t Base, typename Input, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       void apply(const Input &input, Args &&.../*args*/) {
         std::uint8_t mantisa = 0;
         switch (Base) {
@@ -52,6 +53,7 @@ namespace chimera::library::grammar {
     template <>
     struct Action<Nonzerodigit> {
       template <typename Input, typename Top, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       static void apply(const Input &input, Top &&top, Args &&.../*args*/) {
         top.template apply<10>(input);
       }
@@ -60,6 +62,7 @@ namespace chimera::library::grammar {
     template <>
     struct Action<Digit> {
       template <typename Input, typename Top, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       static void apply(const Input &input, Top &&top, Args &&.../*args*/) {
         top.template apply<10>(input);
       }
@@ -68,6 +71,7 @@ namespace chimera::library::grammar {
     template <>
     struct Action<Bindigit> {
       template <typename Input, typename Top, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       static void apply(const Input &input, Top &&top, Args &&.../*args*/) {
         top.template apply<2>(input);
       }
@@ -76,6 +80,7 @@ namespace chimera::library::grammar {
     template <>
     struct Action<Octdigit> {
       template <typename Input, typename Top, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       static void apply(const Input &input, Top &&top, Args &&.../*args*/) {
         top.template apply<8>(input);
       }
@@ -164,6 +169,7 @@ namespace chimera::library::grammar {
     template <>
     struct Action<Numberliteral> {
       template <typename Top, typename... Args>
+      // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
       static void apply0(Top &&top, Args &&.../*args*/) {
         top.push(object::Object(std::move(top.number), {}));
       }
