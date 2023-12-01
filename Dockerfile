@@ -32,14 +32,14 @@ RUN <<SHELL sh
     set -ex
     ./configure
     make -j3
-    ./python -c 'import sys; assert "3.13" < sys.version < "3.14", sys.version'
+    ./python -c 'import sys; assert "3.14" < sys.version < "3.15", sys.version'
     make install
 SHELL
 
 FROM alpine:3.19
 
-COPY --from=builder /usr/local/bin/python3.13 /usr/local/bin/python3.13
-COPY --from=builder /usr/local/lib/python3.13 /usr/local/lib/python3.13
+COPY --from=builder /usr/local/bin/python3.14 /usr/local/bin/python3.14
+COPY --from=builder /usr/local/lib/python3.14 /usr/local/lib/python3.14
 
 ENV TZ Etc/UTC
 

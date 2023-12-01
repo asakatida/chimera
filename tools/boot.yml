@@ -5,7 +5,7 @@
   vars:
     install_recommends: "{{ false if ansible_facts.os_family == 'Ubuntu' else omit }}"
     llvm_version: 17
-    py_version: 3.13
+    py_version: 3.14
     pythons:
       - python: python3
         venv: /opt/virtualenv
