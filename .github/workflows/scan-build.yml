@@ -1,0 +1,34 @@
+---
+env:
+  CPPFLAGS: -DCHIMERA_PATH="/github/workspace/stdlib"
+jobs:
+  scan-build:
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.5.3
+        with:
+          submodules: true
+      - env:
+          LDFLAGS: -lc++ -lc++abi
+        name: Scan Build
+        uses: ./
+        with:
+          run: >
+            scan-build
+            --use-cc "${CC}"
+            --use-c++ "${CXX}"
+            /bin/sh -c '
+              set -e
+              rustup default stable
+              cmake -GNinja -B build -S .
+              python tools/ninja.py build
+            '
+            ! find /tmp -type d -name 'scan-build-*'
+
+name: Scan Build
+
+# yamllint disable-line rule:truthy
+on:
+  push: ~
