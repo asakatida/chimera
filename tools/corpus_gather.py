@@ -38,9 +38,9 @@ async def corpus_gather(*paths: str, disable_bars: bool | None) -> None:
             disable_bars=disable_bars,
             exclude=set(
                 map(
-                    str.strip,
+                    bytes.decode,
                     map(
-                        bytes.decode,
+                        bytes.strip,
                         await as_completed(
                             c_tqdm(
                                 map(
