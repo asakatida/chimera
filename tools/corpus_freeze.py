@@ -21,10 +21,9 @@
 """corpus_freeze.py"""
 
 from asyncio import run
-from base64 import b64decode, b64encode
-from hashlib import sha256
+from base64 import b64encode
 from json import dump, load
-from lzma import compress, decompress
+from lzma import compress
 from pathlib import Path
 from subprocess import PIPE
 from sys import argv
@@ -32,14 +31,25 @@ from sys import argv
 from asyncio_as_completed import as_completed
 from asyncio_cmd import cmd, main
 from corpus_ascii import is_ascii
-from corpus_utils import c_tqdm, corpus_objects, gather_paths, sha
+from corpus_utils import c_tqdm, corpus_objects, gather_paths
 
 
-def extract_case(case: bytes) -> bytes:
-    try:
-        return decompress(case)
-    except Exception:
-        return case
+async def corpus_hash(case: bytes) -> tuple[str, str]:
+    return (
+        (
+            await cmd(
+                "git",
+                "hash-object",
+                "--stdin",
+                input=case,
+                log=False,
+                out=PIPE,
+            )
+        )
+        .strip()
+        .decode(),
+        b64encode(compress(case)).decode(),
+    )
 
 
 async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
@@ -47,58 +57,38 @@ async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
     with file.open() as istream:
         cases_orig = dict(load(istream))
     cases = dict(
-        map(
-            lambda case: (sha256(case).hexdigest(), case),
-            map(extract_case, map(b64decode, cases_orig.values())),
-        )
-    )
-    cases.update(
-        map(
-            lambda case: (sha256(case).hexdigest(), case),
-            filter(
-                is_ascii,
-                await corpus_objects(
-                    "unit_tests/fuzz/corpus",
-                    "unit_tests/fuzz/crashes",
-                    disable_bars=disable_bars,
-                    exclude=set(
-                        map(
-                            str.strip,
-                            map(
-                                bytes.decode,
-                                await as_completed(
-                                    c_tqdm(
-                                        map(
-                                            lambda case: cmd(
-                                                "git",
-                                                "hash-object",
-                                                "--stdin",
-                                                input=case,
-                                                log=False,
-                                                out=PIPE,
-                                            ),
-                                            map(b64decode, cases_orig.values()),
-                                        ),
-                                        "Gather existing corpus objects",
-                                        disable_bars,
-                                        total=len(cases_orig),
-                                    )
-                                ),
-                            ),
-                        )
+        await as_completed(
+            c_tqdm(
+                map(
+                    corpus_hash,
+                    filter(
+                        is_ascii,
+                        await corpus_objects(
+                            "unit_tests/fuzz/corpus",
+                            "unit_tests/fuzz/crashes",
+                            disable_bars=disable_bars,
+                            exclude=set(cases_orig.keys()),
+                        ),
                     ),
                 ),
-            ),
+                "Hash corpus",
+                disable_bars,
+            )
         )
     )
-    for key in set(map(sha, gather_paths())).intersection(cases.keys()):
-        del cases[key]
-    cases_orig = dict(
-        zip(
-            cases.keys(),
-            map(bytes.decode, map(b64encode, map(compress, cases.values()))),
+    existing = dict(
+        await as_completed(
+            c_tqdm(
+                map(corpus_hash, map(Path.read_bytes, gather_paths())),
+                "Hash corpus",
+                disable_bars,
+            )
         )
     )
+    cases = dict(filter(lambda case: case[0] not in existing, cases.items()))
+    cases_orig.update(cases)
+    for key in set(existing).intersection(cases_orig.keys()):
+        del cases_orig[key]
     with file.open("w") as ostream:
         dump(cases_orig, ostream, indent=4, sort_keys=True)
 

@@ -15,13 +15,6 @@ PREFIX = """
 """
 
 
-def extract_case(case: bytes) -> bytes:
-    try:
-        return decompress(case)
-    except Exception:
-        return case
-
-
 def sanitize(data: bytes) -> str:
     return (
         "".join(map(lambda c: (chr(c) if c in PRINTABLE else f'""\\{hex(c)}""'), data))
@@ -94,7 +87,7 @@ def main(*outputs: str) -> None:
                             bytes.decode,
                             map(
                                 b64encode,
-                                map(extract_case, map(b64decode, cases.values())),
+                                map(decompress, map(b64decode, cases.values())),
                             ),
                         ),
                     ),
