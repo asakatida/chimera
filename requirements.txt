@@ -1,6 +1,6 @@
 ansible==9.0.1
 ansible-compat==4.1.10
-ansible-core==2.16.0
+ansible-core==2.16.1
 ansible-lint==6.22.1
 attrs==23.1.0
 black==23.11.0
@@ -26,7 +26,7 @@ mypy==1.7.1
 mypy-extensions==1.0.0
 packaging==23.2
 pathspec==0.11.2
-platformdirs==4.0.0
+platformdirs==4.1.0
 pycodestyle==2.11.1
 pycparser==2.21
 pydocstyle==6.3.0
