@@ -149,4 +149,4 @@ def main() -> Iterator[None]:
     except ProcessError as error:
         error.exit()
     except KeyboardInterrupt:
-        get_logger().info("KeyboardInterrupt")
+        get_logger().info("Exiting...")
