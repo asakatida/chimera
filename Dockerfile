@@ -1,4 +1,4 @@
-FROM alpine:3.18 AS builder
+FROM alpine:3.19 AS builder
 
 ENV TZ Etc/UTC
 
@@ -36,7 +36,7 @@ RUN <<SHELL sh
     make install
 SHELL
 
-FROM alpine:3.18
+FROM alpine:3.19
 
 COPY --from=builder /usr/local/bin/python3.13 /usr/local/bin/python3.13
 COPY --from=builder /usr/local/lib/python3.13 /usr/local/lib/python3.13
