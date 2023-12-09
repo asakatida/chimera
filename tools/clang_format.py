@@ -8,10 +8,8 @@ from g_ls_tree import g_ls_tree
 
 async def clang_format() -> None:
     await as_completed(
-        map(
-            lambda file: cmd("clang-format", "-style=file", "-i", file),
-            await g_ls_tree("cpp", "h", "hpp"),
-        )
+        cmd("clang-format", "-style=file", "-i", file)
+        for file in await g_ls_tree("cpp", "h", "hpp")
     )
 
 

@@ -60,13 +60,16 @@ class Extract(HTMLParser):
                 print("};")
                 self.unclosed_type = False
             self.dl += 1
-            self.c_type = dict(attrs).get("class", "")
+            self.c_type = next((value for key, value in attrs if key == "class"), "")
         if not self.c_type:
             return
         if self.dl and tag == "code":
             self.code += 1
         elif self.code and tag == "div":
-            if dict(attrs).get("class", None) == "highlight-c":
+            if (
+                next((value for key, value in attrs if key == "class"), None)
+                == "highlight-c"
+            ):
                 self.c_code = True
             if self.c_code:
                 self.div += 1
@@ -173,14 +176,13 @@ typedef void (*PyOS_sighandler_t)(int);
 """
     print(header)
     root = Path(argv[1])
-    files = sorted(root.iterdir())
-    start = [root / "structures.html", root / "typeobj.html", root / "type.html"]
-    set(map(files.remove, start))
-    set(map(mapper, start))
-    set(map(mapper, files))
+    start = {root / "structures.html", root / "typeobj.html", root / "type.html"}
+    for s in start:
+        mapper(s)
+    for s in sorted({file for file in root.iterdir()} - start):
+        mapper(s)
     footer = """
-#ifdef __cplusplus
-}
+#ifdef __cplusplus}
 #endif"""
     print(footer)
 

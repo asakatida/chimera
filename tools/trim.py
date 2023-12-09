@@ -1,7 +1,6 @@
 from functools import reduce
-from itertools import repeat
 from pathlib import Path
-from re import MULTILINE, Pattern, compile
+from re import MULTILINE, compile
 from sys import argv
 
 SOURCE = Path(__file__).parent.parent.resolve()
@@ -23,15 +22,17 @@ SEARCHES = (
 
 def test(f: Path) -> bool:
     return (
-        (not any(map(f.resolve().is_relative_to, IGNORE)))
+        (not any(f.resolve().is_relative_to(ignore) for ignore in IGNORE))
         # markdown is ignored
         # python linting is covered by black
         and f.suffix not in (".md", ".py")
-        and any(map(Pattern.search, SEARCHES, repeat(f.read_bytes())))
+        and any(search.search(f.read_bytes()) for search in SEARCHES)
     )
 
 
-files = list(filter(test, filter(Path.is_file, map(Path, argv[1:]))))
+files = [
+    path for path in (Path(arg) for arg in argv[1:]) if path.is_file() and test(path)
+]
 while files:
     for file in files:
         file.write_bytes(
@@ -41,4 +42,4 @@ while files:
                 file.read_bytes(),
             )
         )
-    files = list(filter(test, files))
+    files = [file for file in files if test(file)]

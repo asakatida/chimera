@@ -36,16 +36,7 @@ from corpus_utils import c_tqdm, corpus_objects, gather_paths
 
 async def corpus_hash(case: bytes) -> tuple[str, str]:
     return (
-        (
-            await cmd(
-                "git",
-                "hash-object",
-                "--stdin",
-                input=case,
-                log=False,
-                out=PIPE,
-            )
-        )
+        (await cmd("git", "hash-object", "--stdin", input=case, log=False, out=PIPE))
         .strip()
         .decode(),
         b64encode(compress(case)).decode(),
@@ -55,39 +46,39 @@ async def corpus_hash(case: bytes) -> tuple[str, str]:
 async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
     file = Path(output)
     with file.open() as istream:
-        cases_orig = dict(load(istream))
-    cases = dict(
-        await as_completed(
+        cases_orig = {key: value for key, value in load(istream).items()}
+    cases = {
+        key: value
+        for key, value in await as_completed(
             c_tqdm(
-                map(
-                    corpus_hash,
-                    filter(
-                        is_ascii,
-                        await corpus_objects(
-                            "unit_tests/fuzz/corpus",
-                            "unit_tests/fuzz/crashes",
-                            disable_bars=disable_bars,
-                            exclude=set(cases_orig.keys()),
-                        ),
-                    ),
+                (
+                    corpus_hash(obj)
+                    for obj in await corpus_objects(
+                        "unit_tests/fuzz/corpus",
+                        "unit_tests/fuzz/crashes",
+                        disable_bars=disable_bars,
+                        exclude={key for key in cases_orig.keys()},
+                    )
+                    if is_ascii(obj)
                 ),
                 "Hash corpus",
                 disable_bars,
             )
         )
-    )
-    existing = dict(
-        await as_completed(
+    }
+    existing = {
+        key: value
+        for key, value in await as_completed(
             c_tqdm(
-                map(corpus_hash, map(Path.read_bytes, gather_paths())),
+                (corpus_hash(path.read_bytes()) for path in gather_paths()),
                 "Hash corpus",
                 disable_bars,
             )
         )
-    )
-    cases = dict(filter(lambda case: case[0] not in existing, cases.items()))
+    }
+    cases = {key: value for key, value in cases.items() if key not in existing}
     cases_orig.update(cases)
-    for key in set(existing).intersection(cases_orig.keys()):
+    for key in {key for key in existing.keys()}.intersection(cases_orig.keys()):
         del cases_orig[key]
     with file.open("w") as ostream:
         dump(cases_orig, ostream, indent=4, sort_keys=True)

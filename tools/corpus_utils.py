@@ -23,7 +23,6 @@
 from asyncio.subprocess import PIPE
 from functools import cache
 from hashlib import sha256
-from itertools import chain, product, repeat
 from os import environ
 from pathlib import Path
 from re import MULTILINE, compile
@@ -65,23 +64,17 @@ def c_tqdm(
 
 
 def conflicts_one(file: Path) -> None:
-    set(
-        map(
-            lambda section: (file.parent / sha256(section).hexdigest()).write_bytes(
-                section
-            ),
-            filter(None, CONFLICT.split(file.read_bytes())),
-        )
-    )
+    {
+        (file.parent / sha256(section).hexdigest()).write_bytes(section)
+        for section in CONFLICT.split(file.read_bytes())
+        if section
+    }
     file.unlink()
 
 
 def conflicts(fuzz: Iterable[Path]) -> None:
-    set(
-        map(
-            conflicts_one, filter(lambda file: CONFLICT.search(file.read_bytes()), fuzz)
-        )
-    )
+    for file in (file for file in fuzz if CONFLICT.search(file.read_bytes())):
+        conflicts_one(file)
 
 
 async def corpus_creations(
@@ -89,20 +82,19 @@ async def corpus_creations(
     base_commit: str = environ.get("BASE_REF", "^origin/stable"),
     disable_bars: bool | None,
 ) -> Iterable[tuple[str, list[str]]]:
-    return filter(
-        lambda pair: pair[1],
-        map(
-            lambda match: (
+    return (
+        pair
+        for pair in (
+            (
                 match["sha"].decode(),
-                list(
-                    filter(
-                        lambda line: any(map(lambda path: line.startswith(path), paths))
-                        and not Path(line).exists(),
-                        splitlines(match["paths"]),
-                    )
-                ),
-            ),
-            c_tqdm(
+                [
+                    line
+                    for line in splitlines(match["paths"])
+                    if any(line.startswith(path) for path in paths)
+                    and not Path(line).exists()
+                ],
+            )
+            for match in c_tqdm(
                 compile(
                     rb"commit:.+:(?P<sha>.+)(?P<paths>(?:\s+(?!commit:).+)+)"
                 ).finditer(
@@ -122,8 +114,9 @@ async def corpus_creations(
                 ),
                 "Commits",
                 disable_bars,
-            ),
-        ),
+            )
+        )
+        if pair[1]
     )
 
 
@@ -136,10 +129,7 @@ async def corpus_merge(disable_bars: bool | None) -> None:
         "-reduce_inputs=1",
         "-shrink=1",
         CORPUS,
-        *filter(
-            Path.is_dir,
-            CORPUS_ORIGINAL.rglob("*"),
-        ),
+        *(path for path in CORPUS_ORIGINAL.rglob("*") if path.is_dir()),
     ):
         error = errors.pop()
         if errors:
@@ -154,45 +144,38 @@ async def corpus_objects(
     *paths: str, disable_bars: bool | None, exclude: set[str] = set()
 ) -> list[bytes]:
     return await as_completed(
-        map(
-            lambda sha: cmd("git", "cat-file", "-p", sha, log=False, out=PIPE),
-            c_tqdm(
-                set(
-                    chain.from_iterable(
-                        map(
-                            splitlines,
-                            chain.from_iterable(
-                                await as_completed(
-                                    map(
-                                        lambda item: as_completed(
-                                            map(
-                                                lambda chunk: cmd(
-                                                    "git",
-                                                    "ls-tree",
-                                                    "--full-tree",
-                                                    "--object-only",
-                                                    "-r",
-                                                    item[0],
-                                                    *chunk,
-                                                    log=False,
-                                                    out=PIPE,
-                                                ),
-                                                chunks(item[1], 4096),
-                                            )
-                                        ),
-                                        await corpus_creations(
-                                            *paths, disable_bars=disable_bars
-                                        ),
-                                    )
-                                )
-                            ),
+        cmd("git", "cat-file", "-p", sha, log=False, out=PIPE)
+        for sha in c_tqdm(
+            {
+                line
+                for lines in (
+                    lines
+                    for completed in await as_completed(
+                        as_completed(
+                            cmd(
+                                "git",
+                                "ls-tree",
+                                "--full-tree",
+                                "--object-only",
+                                "-r",
+                                item[0],
+                                *chunk,
+                                log=False,
+                                out=PIPE,
+                            )
+                            for chunk in chunks(item[1], 4096)
+                        )
+                        for item in await corpus_creations(
+                            *paths, disable_bars=disable_bars
                         )
                     )
+                    for lines in completed
                 )
-                - exclude,
-                "Files",
-                disable_bars,
-            ),
+                for line in splitlines(lines)
+            }
+            - exclude,
+            "Files",
+            disable_bars,
         )
     )
 
@@ -205,15 +188,13 @@ def corpus_trim_one(fuzz: Iterable[Path], disable_bars: bool | None) -> None:
         if name == (file.parent.name + file.name):
             continue
         sha_bucket, name = name[:2], name[2:]
-        if set(
-            map(
-                sha,
-                filter(
-                    Path.exists,
-                    map(FUZZ.joinpath, DIRECTORIES, repeat(sha_bucket), repeat(name)),
-                ),
+        if {
+            sha(path)
+            for path in (
+                FUZZ / directory / sha_bucket / name for directory in DIRECTORIES
             )
-        ).difference({src_sha}):
+            if path.exists()
+        }.difference({src_sha}):
             LENGTH += 1
             raise Increment(
                 f"Collision found, update corpus_trim.py `LENGTH`: {LENGTH}"
@@ -221,12 +202,10 @@ def corpus_trim_one(fuzz: Iterable[Path], disable_bars: bool | None) -> None:
         new_file = bucket(file) / sha_bucket / name
         new_file.parent.mkdir(parents=True, exist_ok=True)
         file.rename(new_file)
-    for file in map(
-        CORPUS.joinpath,
-        map(
-            lambda path: path.relative_to(bucket(path)),
-            filter(Path.is_file, CRASHES.rglob("*")),
-        ),
+    for file in (
+        CORPUS / path.relative_to(bucket(path))
+        for path in CRASHES.rglob("*")
+        if path.is_file()
     ):
         file.unlink(missing_ok=True)
 
@@ -234,8 +213,10 @@ def corpus_trim_one(fuzz: Iterable[Path], disable_bars: bool | None) -> None:
 def corpus_trim(disable_bars: bool | None) -> None:
     conflicts(gather_paths())
     CRASHES.mkdir(parents=True, exist_ok=True)
-    for file in chain.from_iterable(
-        map(SOURCE.rglob, ("crash-*", "leak-*", "timeout-*"))
+    for file in (
+        file
+        for glob in ("crash-*", "leak-*", "timeout-*")
+        for file in SOURCE.rglob(glob)
     ):
         file.rename(CRASHES / sha(file))
     while True:
@@ -249,51 +230,47 @@ def corpus_trim(disable_bars: bool | None) -> None:
 
 
 @cache
-def fuzz_star(build: Path = SOURCE) -> tuple[Path, ...]:
-    return tuple(
-        filter(
-            lambda path: path.stat().st_mode & 0o110,
-            filter(Path.is_file, build.rglob("fuzz-*")),
-        )
-    )
+def fuzz_star(build: Path = SOURCE) -> list[Path]:
+    return [
+        path
+        for path in build.rglob("fuzz-*")
+        if path.is_file() and path.stat().st_mode & 0o110
+    ]
 
 
 async def fuzz_test(*args: object) -> list[Exception]:
     if not fuzz_star():
         raise FileNotFoundError("No fuzz targets built")
-    return list(
-        filter(
-            None,
-            await as_completed(
-                map(lambda cmd, args: cmd_check(cmd, *args), fuzz_star(), repeat(args))
-            ),
-        )
-    )
+    return [
+        exc
+        for exc in await as_completed(cmd_check(fuzz, *args) for fuzz in fuzz_star())
+        if exc is not None
+    ]
 
 
 def gather_paths() -> Iterable[Path]:
-    return filter(
-        Path.is_file,
-        chain.from_iterable(
-            map(Path.rglob, map(FUZZ.joinpath, DIRECTORIES), repeat("*"))
-        ),
+    return (
+        path
+        for directory in DIRECTORIES
+        for path in (FUZZ / directory).rglob("*")
+        if path.is_file()
     )
 
 
 async def regression(build: str, fuzzer: str = "", corpus: str = "") -> None:
     fuzzers = (Path(build) / f"fuzz-{fuzzer}",) if fuzzer else fuzz_star(Path(build))
     await as_completed(
-        map(
-            lambda args: cmd_flog(args[0], *args[1]),
-            product(
-                fuzzers,
-                chunks(
-                    filter(
-                        Path.is_file, (Path(corpus) if corpus else CORPUS).rglob("*")
-                    ),
-                    64,
+        (
+            cmd_flog(fuzz, *args)
+            for args in chunks(
+                (
+                    path
+                    for path in (Path(corpus) if corpus else CORPUS).rglob("*")
+                    if path.is_file()
                 ),
-            ),
+                64,
+            )
+            for fuzz in fuzzers
         ),
         cancel=True,
     )

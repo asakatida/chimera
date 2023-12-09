@@ -20,8 +20,6 @@
 
 //! helper to generate abnf from bnf
 
-#include "grammar/utf8_space.hpp" // for Utf8NonLineBreak
-
 #include <tao/pegtl/ascii.hpp>         // for one, identifier
 #include <tao/pegtl/istream_input.hpp> // for istream_input
 #include <tao/pegtl/nothing.hpp>       // for nothing
@@ -55,8 +53,7 @@ struct BnfAction<CommentBody> {
 };
 
 struct Comment : tao::pegtl::seq<tao::pegtl::one<'#'>, CommentBody> {};
-struct Spaces : tao::pegtl::plus<chimera::library::grammar::Utf8NonLineBreak> {
-};
+struct Spaces : tao::pegtl::plus<tao::pegtl::one<'\t', ' '>> {};
 
 template <>
 struct BnfAction<Spaces> : BnfPrint<' '> {};

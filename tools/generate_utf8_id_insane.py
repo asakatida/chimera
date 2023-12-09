@@ -20,9 +20,8 @@
 
 """generate_utf8_id_insane.py."""
 
-from itertools import product, repeat
 from pathlib import Path
-from re import MULTILINE, subn
+from re import MULTILINE, sub
 from typing import Iterable
 
 from asyncio_cmd import chunks
@@ -30,11 +29,13 @@ from tqdm import tqdm
 
 
 def _slices(total: int, it: Iterable[int]) -> Iterable[Iterable[str]]:
-    return chunks(tqdm(map(hex, it), total=total), 64)
+    return chunks(tqdm((hex(i) for i in it), total=total), 64)
 
 
 def _ranges(total: int, it: Iterable[int]) -> str:
-    ranges = ">,tao::pegtl::utf8::ranges<".join(map(",".join, _slices(total, it)))
+    ranges = ">,tao::pegtl::utf8::ranges<".join(
+        ",".join(slc) for slc in _slices(total, it)
+    )
     return f"sor<tao::pegtl::utf8::ranges<{ranges}>>"
 
 
@@ -42,34 +43,33 @@ utf8_id_continue = (
     Path(__file__).parent.parent / "library" / "grammar" / "utf8_id_continue.hpp"
 ).resolve()
 
-id_start = set(filter(str.isidentifier, map(chr, range(0x10FFFF))))
-id_continue = set(
-    tqdm(
-        filter(
-            lambda i: all(  # type: ignore
-                map(str.isidentifier, map("".join, repeat(i), map(chr, id_start)))  # type: ignore
-            ),
-            set(map(chr, range(0x10FFFF))) - id_start,
+id_start = {i for i in range(0x10FFFF) if chr(i).isidentifier()}
+id_continue = {
+    i
+    for i in tqdm(
+        (
+            i
+            for i in {i for i in range(0x10FFFF)} - id_start
+            if all("".join((chr(s), chr(i))).isidentifier() for s in id_start)
         ),
         total=2908,
     )
-)
+}
 
 ranges = _ranges(
     1234,
     next(  # type: ignore
         tqdm(
-            filter(
-                str.isidentifier,
-                map(
-                    "".join,
-                    product(
-                        id_start,
-                        set(map(chr, range(0x10FFFF))).difference(
-                            id_start, id_continue
-                        ),
-                    ),
-                ),
+            (
+                s
+                for s in (
+                    "".join((chr(s), c))
+                    for s in id_start
+                    for c in {chr(i) for i in range(0x10FFFF)}.difference(
+                        id_start, id_continue
+                    )
+                )
+                if s.isidentifier()
             ),
             total=1,
         )
@@ -77,11 +77,10 @@ ranges = _ranges(
 )
 
 utf8_id_continue.write_text(
-    subn(
+    sub(
         r"\bUtf8IdContinue\b[^;]+",
         f"Utf8IdContinue = {ranges}",
         utf8_id_continue.read_text(),
-        count=1,
         flags=MULTILINE,
     )[0]
 )

@@ -20,9 +20,9 @@
 
 """generate_utf8_space.py."""
 
-from itertools import chain, count, groupby
+from itertools import groupby
 from pathlib import Path
-from re import MULTILINE, subn
+from re import MULTILINE, sub
 from typing import Iterable
 
 from asyncio_cmd import chunks
@@ -34,16 +34,18 @@ utf8_space = (
 
 
 def _slices(total: int, it: Iterable[int]) -> Iterable[Iterable[str]]:
-    return chunks(tqdm(map(hex, it), total=total), 64)
+    return chunks(tqdm((hex(i) for i in it), total=total), 64)
 
 
 def _ranges(total: int, it: Iterable[int]) -> str:
-    ranges = ">,tao::pegtl::utf8::ranges<".join(map(",".join, _slices(total, it)))
+    ranges = ">,tao::pegtl::utf8::ranges<".join(
+        ",".join(slc) for slc in _slices(total, it)
+    )
     return f"sor<tao::pegtl::utf8::ranges<{ranges}>>"
 
 
 def _a(t: tuple[int, Iterable[tuple[int, int]]]) -> tuple[int, int]:
-    groups = tuple(e[0] for e in t[1])
+    groups = {e[0] for e in t[1]}
     return (min(groups), max(groups))
 
 
@@ -51,43 +53,37 @@ ranges = iter(
     (
         _ranges(
             8,
-            chain.from_iterable(
-                map(
-                    _a,
-                    groupby(
-                        zip(
-                            map(ord, filter(str.isspace, map(chr, range(0x100)))),
-                            count(),
-                        ),
-                        lambda t: t[0] - t[1],
-                    ),
+            (
+                i
+                for t in groupby(
+                    zip((i for i in range(0x100) if chr(i).isspace()), range(0x100)),
+                    lambda t: t[0] - t[1],
                 )
+                for i in _a(t)
             ),
         ),
         _ranges(
             20,
-            chain.from_iterable(
-                map(
-                    _a,
-                    groupby(
-                        zip(
-                            map(ord, filter(str.isspace, map(chr, range(0x10FFFF)))),
-                            count(),
-                        ),
-                        lambda t: t[0] - t[1],
+            (
+                i
+                for t in groupby(
+                    zip(
+                        (i for i in range(0x10FFFF) if chr(i).isspace()),
+                        range(0x10FFFF),
                     ),
+                    lambda t: t[0] - t[1],
                 )
+                for i in _a(t)
             ),
         ),
     )
 )
 
 utf8_space.write_text(
-    subn(
+    sub(
         r"\bUtf8Space\b[^;]+",
         lambda _: f"Utf8Space = {next(ranges)}",
         utf8_space.read_text(),
-        count=1,
         flags=MULTILINE,
     )[0]
 )

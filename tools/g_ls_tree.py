@@ -4,7 +4,6 @@
 
 from asyncio import run
 from asyncio.subprocess import PIPE
-from itertools import chain, filterfalse
 from os import environ
 from pathlib import Path
 from typing import Pattern
@@ -30,57 +29,42 @@ async def g_ls_tree(
     if cache_key in CACHE:
         return CACHE[cache_key]
     if exclude:
-        CACHE[cache_key] = list(
-            map(Path, filterfalse(exclude.match, map(str, await g_ls_tree(*args))))
-        )
+        CACHE[cache_key] = [
+            Path(path)
+            for path in await g_ls_tree(*args)
+            if exclude.match(str(path)) is None
+        ]
         return CACHE[cache_key]
-    rglob = chain.from_iterable(map(SOURCE.rglob, map("*.{}".format, args)))
+    rglob = (path for arg in args for path in SOURCE.rglob(f"*.{arg}"))
     CACHE[cache_key] = sorted(
-        map(
-            Path,
-            set(
-                chain.from_iterable(
-                    map(
-                        splitlines,
-                        await as_completed(
-                            map(
-                                lambda args: git_cmd("ls-files", "--", *args, out=PIPE),
-                                chunks(rglob, 4096),
-                            ),
-                            cancel=True,
-                        ),
-                    )
-                )
-            ),
-        )
+        Path(path)
+        for path in {
+            line
+            for lines in await as_completed(
+                (
+                    git_cmd("ls-files", "--", *args, out=PIPE)
+                    for args in chunks(rglob, 4096)
+                ),
+                cancel=True,
+            )
+            for line in splitlines(lines)
+        }
     )
     if IN_CI:
         return CACHE[cache_key]
     CACHE[cache_key] = sorted(
-        map(
-            Path,
-            set(
-                chain.from_iterable(
-                    map(
-                        splitlines,
-                        await as_completed(
-                            map(
-                                lambda args: git_cmd(
-                                    "diff",
-                                    "--name-only",
-                                    base_commit,
-                                    "--",
-                                    *args,
-                                    out=PIPE,
-                                ),
-                                chunks(CACHE[cache_key], 4096),
-                            ),
-                            cancel=True,
-                        ),
-                    )
-                )
-            ),
-        )
+        Path(path)
+        for path in {
+            line
+            for lines in await as_completed(
+                (
+                    git_cmd("diff", "--name-only", base_commit, "--", *args, out=PIPE)
+                    for args in chunks(CACHE[cache_key], 4096)
+                ),
+                cancel=True,
+            )
+            for line in splitlines(lines)
+        }
     )
     return CACHE[cache_key]
 

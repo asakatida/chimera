@@ -1,5 +1,4 @@
 from asyncio import FIRST_COMPLETED, CancelledError, Task, create_task, wait
-from itertools import repeat
 from os import cpu_count
 from sys import exc_info
 from typing import Coroutine, Iterable, Iterator, TypeVar
@@ -48,7 +47,9 @@ async def _next(background_tasks: set[Task[T]], coroutine: Task[T]) -> T:
 
 def _schedule_tasks(coroutines: Iterator[Task[T]], limit: int) -> Iterator[Task[T]]:
     background_tasks = {coroutine for coroutine, _ in zip(coroutines, range(limit - 1))}
-    yield from map(_next, repeat(background_tasks), coroutines)  # type: ignore
+    yield from (
+        create_task(_next(background_tasks, coroutine)) for coroutine in coroutines
+    )
     yield from background_tasks
 
 
@@ -57,4 +58,7 @@ async def as_completed(
     limit: int = DEFAULT_LIMIT,
     cancel: bool = False,
 ) -> list[T]:
-    return await _list(_schedule_tasks(map(create_task, coroutines), limit), cancel)
+    return await _list(
+        _schedule_tasks((create_task(coroutine) for coroutine in coroutines), limit),
+        cancel,
+    )

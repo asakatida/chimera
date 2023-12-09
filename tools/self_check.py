@@ -1,6 +1,5 @@
 from asyncio import run
 from asyncio.subprocess import PIPE
-from itertools import chain
 from re import compile
 from sys import version_info
 
@@ -59,26 +58,13 @@ async def mypy(*files: object) -> bytes:
 async def self_check() -> None:
     files = await g_ls_tree("py")
     files_mypy = await g_ls_tree("py", exclude=compile(r"stdlib/|.*/stdlib/"))
-    set(
-        map(
-            get_logger().info,
-            chain.from_iterable(
-                map(
-                    splitlines,
-                    await as_completed(
-                        iter(
-                            (
-                                black(*files),
-                                isort(*files),
-                                pylama(*files),
-                                mypy(*files_mypy),
-                            )
-                        )
-                    ),
-                )
-            ),
+    {
+        get_logger().info(line)
+        for lines in await as_completed(
+            iter((black(*files), isort(*files), pylama(*files), mypy(*files_mypy)))
         )
-    )
+        for line in splitlines(lines)
+    }
 
 
 if __name__ == "__main__":
