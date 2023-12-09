@@ -11,7 +11,7 @@ charset-normalizer==3.3.2
 click==8.1.7
 cmakelint==1.4.2
 cryptography==41.0.7
-docker==6.1.3
+docker==7.0.0
 filelock==3.13.1
 idna==3.6
 isort==5.12.0
@@ -53,5 +53,4 @@ types-urllib3==1.26.25.14
 typing_extensions==4.8.0
 urllib3==2.1.0
 wcmatch==8.5
-websocket-client==1.7.0
 yamllint==1.33.0
