@@ -5,37 +5,28 @@ from os import chdir, environ
 from pathlib import Path
 from sys import argv
 
-from asyncio_cmd import cmd_env, main
+from asyncio_cmd import cmd, main
 from ninja import ninja
 
 
 async def cmake_codecov(*args: object) -> None:
     chdir(Path(__file__).parent.parent)
-    await cmd_env(
-        "cmake",
-        "-G",
-        "Ninja",
-        "-B",
-        "build",
-        "-S",
-        ".",
-        env=dict(
-            environ,
-            CPPFLAGS='-DCHIMERA_PATH="/github/workspace/stdlib"',
-            CXXFLAGS=" ".join(
-                (
-                    "-fcoverage-mapping",
-                    "-fprofile-instr-generate",
-                    "-mllvm",
-                    "-runtime-counter-relocation",
-                    environ.get("CXXFLAGS", ""),
-                )
-            ),
-            LDFLAGS=" ".join(
-                ("-Wno-unused-command-line-argument", environ.get("LDFLAGS", ""))
-            ),
-        ),
+    environ["CPPFLAGS"] = " ".join(
+        ('-DCHIMERA_PATH="/github/workspace/stdlib"', environ.get("CPPFLAGS", ""))
     )
+    environ["CXXFLAGS"] = " ".join(
+        (
+            "-fcoverage-mapping",
+            "-fprofile-instr-generate",
+            "-mllvm",
+            "-runtime-counter-relocation",
+            environ.get("CXXFLAGS", ""),
+        )
+    )
+    environ["LDFLAGS"] = " ".join(
+        ("-Wno-unused-command-line-argument", environ.get("LDFLAGS", ""))
+    )
+    await cmd("cmake", "-G", "Ninja", "-B", "build", "-S", ".")
     await ninja("build", *args)
 
 

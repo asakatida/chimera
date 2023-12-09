@@ -52,7 +52,7 @@ async def codecov(llvm_profile_lcov: str) -> None:
         "llvm-profdata",
         "merge",
         "-sparse=true",
-        *filter(Path.is_file, llvm_profile_dir.iterdir()),
+        *(path for path in llvm_profile_dir.iterdir() if path.is_file()),
         f"--output={instr_profile}",
     )
     await cmd_flog(

@@ -1,5 +1,4 @@
 from asyncio import run
-from itertools import chain, repeat
 from pathlib import Path
 from sys import argv
 
@@ -16,9 +15,11 @@ async def fuzz(fuzzer: str, dictionary: str, *dirs: str) -> None:
         "-reduce_inputs=1",
         "-shrink=1",
         "-use_value_profile=1",
-        *filter(
-            Path.is_dir,
-            chain.from_iterable(map(Path.rglob, map(Path, dirs), repeat("*"))),
+        *(
+            path
+            for directory in dirs
+            for path in Path(directory).rglob("*")
+            if path.is_dir()
         ),
         log=False,
     )

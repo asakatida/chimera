@@ -34,7 +34,7 @@ CRASHES = FUZZ / "crashes"
 
 def crash_reset() -> None:
     CRASHES.mkdir(parents=True, exist_ok=True)
-    for crash in filter(Path.is_file, CRASHES.rglob("*")):
+    for crash in (path for path in CRASHES.rglob("*") if path.is_file()):
         crash.rename(CORPUS / sha(crash))
 
 

@@ -20,10 +20,10 @@
 
 """generate_utf8_id_continue.py."""
 
-from itertools import chain, count, groupby
+from itertools import groupby
 from pathlib import Path
-from re import MULTILINE, subn
-from typing import Iterable, Set
+from re import MULTILINE, sub
+from typing import Iterable
 
 from asyncio_cmd import chunks
 from tqdm import tqdm
@@ -34,34 +34,39 @@ utf8_id_continue = (
 
 
 def _slices(total: int, it: Iterable[int]) -> Iterable[Iterable[str]]:
-    return chunks(tqdm(map(hex, it), total=total), 64)
+    return chunks(tqdm((hex(i) for i in it), total=total), 64)
 
 
 def _ranges(total: int, it: Iterable[int]) -> str:
-    ranges = ">,tao::pegtl::utf8::ranges<".join(map(",".join, _slices(total, it)))
+    ranges = ">,tao::pegtl::utf8::ranges<".join(
+        ",".join(slc) for slc in _slices(total, it)
+    )
     return f"sor<tao::pegtl::utf8::ranges<{ranges}>>"
 
 
-def _a(id_start: Set[int], end: int) -> Iterable[int]:
+def _a(id_start: set[int], end: int) -> Iterable[int]:
     def b(i: int) -> bool:
         def c() -> Iterable[bool]:
             def d(j: int) -> bool:
                 return "".join((chr(j), chr(i))).isidentifier()
 
-            return map(d, id_start)
+            return (d(j) for j in id_start)
 
         return all(c())
 
-    id_continue_pos: Set[int] = set(range(end)) - id_start
-    return chain.from_iterable(
-        map(
-            _b, groupby(zip(filter(b, id_continue_pos), count()), lambda t: t[0] - t[1])
+    id_continue_pos = {i for i in range(end)} - id_start
+    return (
+        i
+        for t in groupby(
+            zip((b(i) for i in id_continue_pos), range(len(id_continue_pos))),
+            lambda t: t[0] - t[1],
         )
+        for i in _b(t)
     )
 
 
 def _b(t: tuple[int, Iterable[tuple[int, int]]]) -> tuple[int, int]:
-    groups = tuple(e[0] for e in t[1])
+    groups = {e[0] for e in t[1]}
     return (min(groups), max(groups))
 
 
@@ -71,17 +76,16 @@ def _d(i: int) -> bool:
 
 ranges = iter(
     (
-        _ranges(16, _a(set(filter(_d, range(127))), 0x100)),
-        _ranges(724, _a(set(filter(_d, range(0x10FFFF))), 0x10FFFF)),
+        _ranges(16, _a({i for i in range(127) if _d(i)}, 0x100)),
+        _ranges(724, _a({i for i in range(0x10FFFF) if _d(i)}, 0x10FFFF)),
     )
 )
 
 utf8_id_continue.write_text(
-    subn(
+    sub(
         r"\bUtf8IdContinue\b[^;]+",
         lambda _: f"Utf8IdContinue = {next(ranges)}",
         utf8_id_continue.read_text(),
-        count=1,
         flags=MULTILINE,
     )[0]
 )

@@ -21,7 +21,6 @@
 """corpus_retest.py."""
 
 from asyncio import run
-from itertools import product
 from pathlib import Path
 from re import escape, finditer
 from sys import argv
@@ -40,11 +39,7 @@ CRASHES = FUZZ / "crashes"
 
 
 def fuzz_output_paths(prefix: bytes, output: bytes) -> set[bytes]:
-    return set(
-        map(
-            lambda m: m["path"], finditer(escape(prefix) + rb"\s+(?P<path>\S+)", output)
-        )
-    )
+    return {m["path"] for m in finditer(escape(prefix) + rb"\s+(?P<path>\S+)", output)}
 
 
 async def regression_log_one(fuzzer: Path, *chunk: Path) -> Exception | None:
@@ -56,13 +51,10 @@ async def regression_log_one(fuzzer: Path, *chunk: Path) -> Exception | None:
         return err
     finally:
         log_output = Path(log_file).read_bytes()
-        for file in map(
-            Path,
-            map(
-                bytes.decode,
-                fuzz_output_paths(b"Running:", log_output)
-                - fuzz_output_paths(b"Executed", log_output),
-            ),
+        for file in (
+            Path(path.decode())
+            for path in fuzz_output_paths(b"Running:", log_output)
+            - fuzz_output_paths(b"Executed", log_output)
         ):
             try:
                 file.rename(CRASHES / file.name)
@@ -73,19 +65,17 @@ async def regression_log_one(fuzzer: Path, *chunk: Path) -> Exception | None:
 
 
 async def regression_log() -> list[Exception]:
-    return list(
-        filter(
-            None,
-            await as_completed(
-                map(
-                    lambda args: regression_log_one(args[0], *args[1]),
-                    product(
-                        fuzz_star(), chunks(filter(Path.is_file, CORPUS.rglob("*")), 64)
-                    ),
-                )
-            ),
+    return [
+        exc
+        for exc in await as_completed(
+            regression_log_one(fuzz, *args)
+            for args in chunks(
+                (path for path in CORPUS.rglob("*") if path.is_file()), 64
+            )
+            for fuzz in fuzz_star()
         )
-    )
+        if exc is not None
+    ]
 
 
 async def corpus_retest() -> None:
@@ -93,7 +83,7 @@ async def corpus_retest() -> None:
     while await regression_log():
         get_logger().info(
             "Regression failed, retrying with"
-            f" {len(list(filter(Path.is_file, CORPUS.rglob('*'))))}"
+            f" {len([path for path in CORPUS.rglob('*') if path.is_file()])} cases"
         )
     await corpus_merge(disable_bars=None)
 

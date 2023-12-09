@@ -37,6 +37,7 @@ namespace chimera::library::grammar {
   template <char... Chars>
   using String = tao::pegtl::utf8::string<Chars...>;
 #endif
+  using Utf8NonLineBreak = minus<Utf8Space, one<'\n', '\r'>>;
   using Eol = sor<String<'\r', '\n'>, one<'\r', '\n'>>;
   using Eolf = sor<eof, Eol>;
   template <flags::Flag Option>

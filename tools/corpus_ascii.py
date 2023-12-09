@@ -29,12 +29,10 @@ from asyncio_cmd import main
 from corpus_utils import bucket, gather_paths
 from structlog import get_logger
 
-PRINTABLE = set(printable)
-
 
 def is_ascii(data: bytes) -> bool:
     try:
-        return all(c in PRINTABLE for c in data.decode())
+        return all(c in printable for c in data.decode())
     except UnicodeDecodeError:
         return False
 
@@ -44,7 +42,7 @@ def _is_ascii(path: Path) -> bool:
 
 
 def corpus_ascii() -> Iterable[Path]:
-    return filter(_is_ascii, gather_paths())
+    return (path for path in gather_paths() if _is_ascii(path))
 
 
 if __name__ == "__main__":
@@ -53,5 +51,5 @@ if __name__ == "__main__":
         for file in paths:
             get_logger().info(file)
         for name, contents in groupby(paths, lambda file: bucket(file).name):
-            total = len(tuple(contents))
+            total = len([elem for elem in contents])
             get_logger().info(f"{name}: {total} / {total * 100 // len(paths) / 100}")

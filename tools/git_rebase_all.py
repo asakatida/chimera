@@ -24,10 +24,11 @@ from asyncio import run
 from asyncio.subprocess import PIPE
 from itertools import combinations
 from math import factorial
+from os import environ
 from sys import argv
 from typing import Sequence
 
-from asyncio_cmd import ProcessError, cmd, cmd_env, main, splitlines
+from asyncio_cmd import ProcessError, cmd, main, splitlines
 from corpus_utils import c_tqdm
 from structlog import get_logger
 
@@ -60,7 +61,7 @@ async def report_branch_graph(
     local_branches: Sequence[str],
     disable_bars: bool | None,
 ) -> None:
-    branch_graph: dict[str, set[str]] = dict()
+    branch_graph: dict[str, set[str]] = {}
     for left, right in c_tqdm(
         combinations(local_branches, 2),
         "Gather common branches",
@@ -73,9 +74,13 @@ async def report_branch_graph(
         branch_graph.setdefault(right, set())
         branch_graph[left].add(right)
         branch_graph[right].add(left)
-    for remote in sorted(set(branch_graph.keys()).intersection(remote_branches)):
+    for remote in sorted(
+        {branch for branch in branch_graph.keys()}.intersection(remote_branches)
+    ):
         for local in sorted(
-            set(branch_graph.get(remote, [])).difference(remote_branches)
+            {branch for branch in branch_graph.get(remote, [])}.difference(
+                remote_branches
+            )
         ):
             if local in branch_graph:
                 branch_graph[remote] |= branch_graph[local]
@@ -90,23 +95,16 @@ async def report_branch_graph(
 
 
 async def git_rebase_all(*args: str, disable_bars: bool | None) -> None:
-    remote_branches = list(
-        filter(
-            lambda branch: not branch.startswith("origin/HEAD -> "),
-            splitlines(await git_cmd("branch", "-r", out=PIPE)),
-        )
-    )
+    remote_branches = [
+        branch
+        for branch in splitlines(await git_cmd("branch", "-r", out=PIPE))
+        if not branch.startswith("origin/HEAD -> ")
+    ]
     await set_upstream(*remote_branches)
-    local_branches = list(
-        map(
-            lambda local_branch: (
-                local_branch[1:].lstrip()
-                if local_branch.startswith("* ")
-                else local_branch
-            ),
-            splitlines(await git_cmd("branch", out=PIPE)),
-        )
-    )
+    local_branches = [
+        (local_branch[1:].lstrip() if local_branch.startswith("* ") else local_branch)
+        for local_branch in splitlines(await git_cmd("branch", out=PIPE))
+    ]
     for local_branch in c_tqdm(local_branches, "Rebase branches", disable_bars):
         if (
             await git_cmd(
@@ -127,14 +125,9 @@ async def git_rebase_all(*args: str, disable_bars: bool | None) -> None:
         await git_cmd("submodule", "update", "--init", "--recursive")
         await cmd("sh", "-c", *args, log=False)
         await git_cmd("add", "--update")
-        await cmd_env("git", "rebase", "--continue", env={"EDITOR": "true"}, log=False)
+        await cmd("git", "rebase", "--continue", log=False)
     await report_branch_graph(
-        list(
-            map(
-                lambda remote_branch: remote_branch.split("/", maxsplit=1)[1],
-                remote_branches,
-            )
-        ),
+        [remote_branch.split("/", maxsplit=1)[1] for remote_branch in remote_branches],
         local_branches,
         disable_bars,
     )
@@ -142,4 +135,5 @@ async def git_rebase_all(*args: str, disable_bars: bool | None) -> None:
 
 if __name__ == "__main__":
     with main():
+        environ["EDITOR"] = "true"
         run(git_rebase_all(*argv[1:], disable_bars=None))

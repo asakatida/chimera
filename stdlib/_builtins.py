@@ -5,7 +5,7 @@
 def __build_class__(
     func: object, name: str, *bases: type, metaclass: type = type, **kwds: object
 ) -> type:
-    locals = dict()
+    locals = {}
     func(locals)
     return type(name, bases, locals)
 
@@ -342,7 +342,7 @@ class dict(object):
 
     def __init__(self, *args, **kwargs) -> None:
         """__init__."""
-        self.buckets = ()
+        self.buckets = ([],)
         if args:
             self.init_args(*args)
         else:
@@ -354,9 +354,9 @@ class dict(object):
 
     def __delitem__(self, key) -> None:
         """__delitem__."""
-        self.buckets[hash(key) % len(self.buckets)] = filter(
-            lambda pair: pair[0] != key, self.buckets[hash(key) % len(self.buckets)]
-        )
+        self.buckets[hash(key) % len(self.buckets)] = [
+            (k, v) for k, v in self.buckets[hash(key) % len(self.buckets)] if k != key
+        ]
 
     def __eq__(self, value) -> bool:
         """__eq__."""
@@ -371,10 +371,8 @@ class dict(object):
     def __getitem__(self, key):
         """__getitem__."""
         return next(
-            filter(
-                lambda pair: pair[0] == key, self.buckets[hash(key) % len(self.buckets)]
-            )
-        )[1]
+            v for k, v in self.buckets[hash(key) % len(self.buckets)] if k == key
+        )
 
     def __gt__(self, value) -> bool:
         """__gt__."""
@@ -390,7 +388,7 @@ class dict(object):
 
     def __len__(self):
         """__len__."""
-        return sum(map(len, self.buckets))
+        return sum(len(bucket) for bucket in self.buckets)
 
     def __lt__(self, value) -> bool:
         """__lt__."""
@@ -404,9 +402,7 @@ class dict(object):
 
     def __repr__(self) -> str:
         """__repr__."""
-        return (
-            "{" + ", ".join((f"{key}: {value}" for key, value in self.values())) + "}"
-        )
+        return "{" + ", ".join(f"{key}: {value}" for key, value in self.values()) + "}"
 
     def __setitem__(self, key, value) -> None:
         """__setitem__."""
@@ -414,11 +410,11 @@ class dict(object):
 
     def clear(self) -> None:
         """clear."""
-        self.buckets = ()
+        self.buckets = ([],)
 
     def copy(self) -> dict:
         """copy."""
-        return dict(self.items())
+        return {key: value for key, value in self.items()}
 
     @classmethod
     def fromkeys(cls, iterable, value=None):
@@ -524,7 +520,7 @@ class frozenset(object):
 
 def globals() -> "dict":
     """globals."""
-    return dict()
+    return {}
 
 
 def hasattr(object: object, attr: str) -> bool:
@@ -605,16 +601,16 @@ class property(object):
 class range(object):
     """range."""
 
-    def __init__(self, start: int, stop: int = None, step: int = None) -> None:
+    def __init__(self, start: int, stop: int = None, step: int = 1) -> None:
         """__init__."""
         if stop is None:
             self._start = 0
             self._stop = start
-            self._step = 1
+            self._step = step
         else:
-            self._start = start or 0
+            self._start = start
             self._stop = stop
-            self._step = step or 1
+            self._step = step
 
     def __len__(self) -> int:
         """__len__."""
@@ -657,12 +653,12 @@ def setattr(object: object, name: str, value) -> None:
 class slice(object):
     """slice."""
 
-    def __init__(self, start: int, stop: int = None, step: int = None) -> None:
+    def __init__(self, start: int, stop: int = None, step: int = 1) -> None:
         """__init__."""
         if stop is None:
-            self._start = None
+            self._start = 0
             self._stop = start
-            self._step = None
+            self._step = step
         else:
             self._start = start
             self._stop = stop
@@ -686,7 +682,7 @@ class slice(object):
 
 def sorted(iterable, *, key=None, reverse=False) -> list:
     """sorted."""
-    return list()
+    return []
 
 
 staticmethod = None
@@ -711,6 +707,6 @@ def zip(*iterables):
     iterators = [iter(it) for it in iterables]
     while True:
         try:
-            yield tuple(map(next, iterators))
+            yield tuple(next(it) for it in iterators)
         except StopIteration:
             return

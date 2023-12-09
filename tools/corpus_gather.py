@@ -36,26 +36,19 @@ async def corpus_gather(*paths: str, disable_bars: bool | None) -> None:
         for case in await corpus_objects(
             path,
             disable_bars=disable_bars,
-            exclude=set(
-                map(
-                    bytes.decode,
-                    map(
-                        bytes.strip,
-                        await as_completed(
-                            c_tqdm(
-                                map(
-                                    lambda case: cmd(
-                                        "git", "hash-object", case, out=PIPE, log=False
-                                    ),
-                                    gather_paths(),
-                                ),
-                                "Gather existing corpus objects",
-                                disable_bars,
-                            )
+            exclude={
+                line.strip().decode()
+                for line in await as_completed(
+                    c_tqdm(
+                        (
+                            cmd("git", "hash-object", case, out=PIPE, log=False)
+                            for case in gather_paths()
                         ),
-                    ),
+                        "Gather existing corpus objects",
+                        disable_bars,
+                    )
                 )
-            ),
+            },
         ):
             new_file = Path(path) / sha256(case).hexdigest()
             new_file.parent.mkdir(parents=True, exist_ok=True)

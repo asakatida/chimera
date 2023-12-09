@@ -1,7 +1,7 @@
 from asyncio import CancelledError, create_subprocess_exec
 from asyncio.subprocess import DEVNULL, PIPE, Process
 from contextlib import contextmanager
-from itertools import chain, islice, repeat, takewhile
+from itertools import islice
 from os import environ
 from pathlib import Path
 from sys import exc_info
@@ -25,7 +25,7 @@ class ProcessError(Exception):
         self.returncode = returncode
 
     def exit(self) -> None:
-        get_logger().error(" ".join(map(str, self.cmd)))
+        get_logger().error(" ".join(str(arg) for arg in self.cmd))
         if self.stdout:
             for line in self.stdout.splitlines():
                 get_logger().info(line)
@@ -36,9 +36,9 @@ class ProcessError(Exception):
 
 
 def chunks(iterable: Iterable[T], size: int) -> Iterable[list[T]]:
-    return takewhile(
-        lambda i: i, map(list, map(islice, repeat(iter(iterable)), repeat(size)))
-    )
+    it = iter(iterable)
+    while slc := [elem for elem in islice(it, size)]:
+        yield slc
 
 
 def ci_args(*args: object, invert: bool = False) -> tuple[object, ...]:
@@ -46,7 +46,9 @@ def ci_args(*args: object, invert: bool = False) -> tuple[object, ...]:
 
 
 def splitlines(lines: bytes) -> Iterable[str]:
-    return map(bytes.decode, filter(None, map(bytes.strip, lines.splitlines())))
+    return (
+        line.decode() for line in (line.strip() for line in lines.splitlines()) if line
+    )
 
 
 async def cmd(
@@ -57,9 +59,12 @@ async def cmd(
     out: ProcessInput = None,
 ) -> bytes:
     if log:
-        get_logger().info(f"+ {' '.join(map(str, args))}")
+        get_logger().info(f"+ {' '.join(str(arg) for arg in args)}")
     proc = await create_subprocess_exec(
-        *map(str, args), stderr=err, stdin=(PIPE if input else None), stdout=out
+        *(str(arg) for arg in args),
+        stderr=err,
+        stdin=(PIPE if input else None),
+        stdout=out,
     )
     return await communicate(*args, err=b"", proc=proc, input=input)
 
@@ -67,7 +72,7 @@ async def cmd(
 async def cmd_check(*args: object) -> Exception | None:
     try:
         proc = await create_subprocess_exec(
-            *map(str, args), stderr=DEVNULL, stdout=DEVNULL
+            *(str(arg) for arg in args), stderr=DEVNULL, stdout=DEVNULL
         )
         await communicate(*args, err=b"", proc=proc)
     except ProcessError as error:
@@ -83,14 +88,14 @@ async def cmd_env(
     out: ProcessInput = None,
 ) -> bytes:
     if log:
-        get_logger().info(f"+ {' '.join(map(str, args))}")
+        get_logger().info(f"+ {' '.join(str(arg) for arg in args)}")
     proc = await create_subprocess_exec(
-        *map(str, args),
+        *(str(arg) for arg in args),
         env=dict(
-            chain(
-                filter(lambda item: item[0] in ("PATH", "PWD"), environ.items()),
-                zip(env.keys(), map(str, env.values())),
-            )
+            {"PATH": environ.get("PATH", ""), "PWD": str(Path.cwd())},
+            **{
+                key: value for key, value in zip(env.keys(), (str(arg) for arg in args))
+            },
         ),
         stderr=err,
         stdout=out,
@@ -101,13 +106,13 @@ async def cmd_env(
 async def cmd_flog(*args: object, out: str | None = None) -> bytes:
     if out is None:
         proc = await create_subprocess_exec(
-            *map(str, args), stderr=DEVNULL, stdout=DEVNULL
+            *(str(arg) for arg in args), stderr=DEVNULL, stdout=DEVNULL
         )
         return await communicate(*args, err=b"logs in /dev/null\n", proc=proc)
     Path(out).parent.mkdir(parents=True, exist_ok=True)
     with Path(out).open("ab") as ostream:
         proc = await create_subprocess_exec(
-            *map(str, args), stderr=ostream, stdout=ostream
+            *(str(arg) for arg in args), stderr=ostream, stdout=ostream
         )
         return await communicate(*args, err=f"logs in {out}\n".encode(), proc=proc)
 
