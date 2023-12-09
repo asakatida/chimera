@@ -54,9 +54,9 @@ namespace chimera::library::object::number {
   Number::operator uint64_t() const noexcept { return r_cast_unsigned(ref); }
   Number::operator double() const noexcept { return r_cast_float(ref); }
 #define NUM_OP_MONO(op, name)                                                  \
-  auto Number::operator op() const->Number { return {name(ref), false}; }
+  auto Number::operator op() const -> Number { return {name(ref), false}; }
 #define NUM_OP(op, name)                                                       \
-  auto Number::operator op(const Number &right)->Number & {                    \
+  auto Number::operator op(const Number & right) -> Number & {                 \
     auto ptr = name(ref, right.ref);                                           \
     using std::swap;                                                           \
     swap(ptr, ref);                                                            \
@@ -64,7 +64,7 @@ namespace chimera::library::object::number {
     return *this;                                                              \
   }
 #define NUM_OP_NAMED(op, name)                                                 \
-  [[nodiscard]] auto Number::op(const Number &right) const->Number {           \
+  [[nodiscard]] auto Number::op(const Number &right) const -> Number {         \
     return {name(ref, right.ref), false};                                      \
   }
   NUM_OP_MONO(-, r_neg)
