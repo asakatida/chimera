@@ -50,7 +50,7 @@ def _a(t: tuple[int, Iterable[tuple[int, int]]]) -> tuple[int, ...]:
 ranges = iter(
     (
         _ranges(
-            6,
+            18,
             chain.from_iterable(
                 map(
                     _a,
@@ -65,7 +65,7 @@ ranges = iter(
             ),
         ),
         _ranges(
-            1334,
+            1312,
             chain.from_iterable(
                 map(
                     _a,
@@ -89,7 +89,7 @@ utf8_id_start.write_text(
         r"\bUtf8IdStart\b[^;]+",
         lambda _: f"Utf8IdStart = {next(ranges)}",
         utf8_id_start.read_text(),
-        1,
-        MULTILINE,
+        count=1,
+        flags=MULTILINE,
     )[0]
 )

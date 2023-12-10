@@ -71,8 +71,8 @@ def _d(i: int) -> bool:
 
 ranges = iter(
     (
-        _ranges(2, _a(set(filter(_d, range(127))), 0x100)),
-        _ranges(748, _a(set(filter(_d, range(0x10FFFF))), 0x10FFFF)),
+        _ranges(16, _a(set(filter(_d, range(127))), 0x100)),
+        _ranges(724, _a(set(filter(_d, range(0x10FFFF))), 0x10FFFF)),
     )
 )
 
@@ -81,7 +81,7 @@ utf8_id_continue.write_text(
         r"\bUtf8IdContinue\b[^;]+",
         lambda _: f"Utf8IdContinue = {next(ranges)}",
         utf8_id_continue.read_text(),
-        1,
-        MULTILINE,
+        count=1,
+        flags=MULTILINE,
     )[0]
 )

@@ -81,7 +81,7 @@ utf8_id_continue.write_text(
         r"\bUtf8IdContinue\b[^;]+",
         f"Utf8IdContinue = {ranges}",
         utf8_id_continue.read_text(),
-        1,
-        MULTILINE,
+        count=1,
+        flags=MULTILINE,
     )[0]
 )
