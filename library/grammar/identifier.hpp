@@ -31,7 +31,7 @@
 namespace chimera::library::grammar {
   namespace token {
     using XidStart = seq<Utf8IdStart>;
-    using XidContinue = sor<Utf8IdStart, Utf8IdContinue>;
+    using XidContinue = seq<Utf8IdContinue>;
     struct Name : seq<XidStart, star<XidContinue>> {};
     template <>
     struct Action<Name> {
