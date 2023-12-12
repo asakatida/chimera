@@ -14,15 +14,13 @@ async def cmake_codecov(*args: object) -> None:
     environ["CPPFLAGS"] = " ".join(
         ('-DCHIMERA_PATH="/github/workspace/stdlib"', environ.get("CPPFLAGS", ""))
     )
-    environ["CXXFLAGS"] = " ".join(
-        (
-            "-fcoverage-mapping",
-            "-fprofile-instr-generate",
-            "-mllvm",
-            "-runtime-counter-relocation",
-            environ.get("CXXFLAGS", ""),
-        )
-    )
+    environ["CXXFLAGS"] = " ".join((
+        "-fcoverage-mapping",
+        "-fprofile-instr-generate",
+        "-mllvm",
+        "-runtime-counter-relocation",
+        environ.get("CXXFLAGS", ""),
+    ))
     environ["LDFLAGS"] = " ".join(
         ("-Wno-unused-command-line-argument", environ.get("LDFLAGS", ""))
     )

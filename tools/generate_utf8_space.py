@@ -49,35 +49,30 @@ def _a(t: tuple[int, Iterable[tuple[int, int]]]) -> tuple[int, int]:
     return (min(groups), max(groups))
 
 
-ranges = iter(
-    (
-        _ranges(
-            8,
-            (
-                i
-                for t in groupby(
-                    zip((i for i in range(0x100) if chr(i).isspace()), range(0x100)),
-                    lambda t: t[0] - t[1],
-                )
-                for i in _a(t)
-            ),
+ranges = iter((
+    _ranges(
+        8,
+        (
+            i
+            for t in groupby(
+                zip((i for i in range(0x100) if chr(i).isspace()), range(0x100)),
+                lambda t: t[0] - t[1],
+            )
+            for i in _a(t)
         ),
-        _ranges(
-            20,
-            (
-                i
-                for t in groupby(
-                    zip(
-                        (i for i in range(0x10FFFF) if chr(i).isspace()),
-                        range(0x10FFFF),
-                    ),
-                    lambda t: t[0] - t[1],
-                )
-                for i in _a(t)
-            ),
+    ),
+    _ranges(
+        20,
+        (
+            i
+            for t in groupby(
+                zip((i for i in range(0x10FFFF) if chr(i).isspace()), range(0x10FFFF)),
+                lambda t: t[0] - t[1],
+            )
+            for i in _a(t)
         ),
-    )
-)
+    ),
+))
 
 utf8_space.write_text(
     sub(
