@@ -21,20 +21,15 @@
 """generate_utf8_id_insane.py."""
 
 from pathlib import Path
-from re import MULTILINE, sub
+from re import sub
 from typing import Iterable
 
 from asyncio_cmd import chunks
-from tqdm import tqdm
 
 
-def _slices(total: int, it: Iterable[int]) -> Iterable[Iterable[str]]:
-    return chunks(tqdm((hex(i) for i in it), total=total), 64)
-
-
-def _ranges(total: int, it: Iterable[int]) -> str:
+def _ranges(it: Iterable[int]) -> str:
     ranges = ">,tao::pegtl::utf8::ranges<".join(
-        ",".join(slc) for slc in _slices(total, it)
+        ",".join(slc) for slc in chunks((hex(i) for i in it), 64)
     )
     return f"sor<tao::pegtl::utf8::ranges<{ranges}>>"
 
@@ -43,37 +38,14 @@ utf8_id_continue = (
     Path(__file__).parent.parent / "library" / "grammar" / "utf8_id_continue.hpp"
 ).resolve()
 
-id_start = {i for i in range(0x10FFFF) if chr(i).isidentifier()}
-id_continue = {
-    i
-    for i in tqdm(
-        (
-            i
-            for i in {i for i in range(0x10FFFF)} - id_start
-            if all("".join((chr(s), chr(i))).isidentifier() for s in id_start)
-        ),
-        total=2908,
-    )
-}
+id_start = {i for i in range(0x110000) if chr(i).isidentifier()}
 
 ranges = _ranges(
-    1234,
-    next(  # type: ignore
-        tqdm(
-            (
-                s
-                for s in (
-                    "".join((chr(s), c))
-                    for s in id_start
-                    for c in {chr(i) for i in range(0x10FFFF)}.difference(
-                        id_start, id_continue
-                    )
-                )
-                if s.isidentifier()
-            ),
-            total=1,
-        )
-    ).encode(),
+    next(
+        s
+        for s in ("".join((chr(s), chr(i))) for s in id_start for i in range(0x110000))
+        if s.isidentifier()
+    ).encode()
 )
 
 utf8_id_continue.write_text(
@@ -81,6 +53,5 @@ utf8_id_continue.write_text(
         r"\bUtf8IdContinue\b[^;]+",
         f"Utf8IdContinue = {ranges}",
         utf8_id_continue.read_text(),
-        flags=MULTILINE,
-    )[0]
+    )
 )

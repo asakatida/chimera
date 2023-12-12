@@ -20,53 +20,50 @@
 
 """generate_utf8_id_continue.py."""
 
-from itertools import groupby
+from itertools import chain, groupby
 from pathlib import Path
-from re import MULTILINE, sub
+from re import sub
 from typing import Iterable
 
 from asyncio_cmd import chunks
-from tqdm import tqdm
 
 utf8_id_continue = (
     Path(__file__).parent.parent / "library" / "grammar" / "utf8_id_continue.hpp"
 ).resolve()
 
 
-def _slices(total: int, it: Iterable[int]) -> Iterable[Iterable[str]]:
-    return chunks(tqdm((hex(i) for i in it), total=total), 64)
-
-
-def _ranges(total: int, it: Iterable[int]) -> str:
+def _ranges(it: Iterable[int]) -> str:
     ranges = ">,tao::pegtl::utf8::ranges<".join(
-        ",".join(slc) for slc in _slices(total, it)
+        ",".join(slc) for slc in chunks((hex(i) for i in it), 64)
     )
     return f"sor<tao::pegtl::utf8::ranges<{ranges}>>"
 
 
 def _a(id_start: set[int], end: int) -> Iterable[int]:
-    def b(i: int) -> bool:
-        def c() -> Iterable[bool]:
-            def d(j: int) -> bool:
-                return "".join((chr(j), chr(i))).isidentifier()
-
-            return (d(j) for j in id_start)
-
-        return all(c())
-
-    id_continue_pos = {i for i in range(end)} - id_start
     return (
         i
         for t in groupby(
-            zip((b(i) for i in id_continue_pos), range(len(id_continue_pos))),
+            zip(
+                chain(
+                    sorted(id_start),
+                    (
+                        i
+                        for i in range(max(id_start) + 1, end)
+                        if all(
+                            "".join((chr(j), chr(i))).isidentifier() for j in id_start
+                        )
+                    ),
+                ),
+                range(end),
+            ),
             lambda t: t[0] - t[1],
         )
-        for i in _b(t)
+        for i in _b(*t)
     )
 
 
-def _b(t: tuple[int, Iterable[tuple[int, int]]]) -> tuple[int, int]:
-    groups = {e[0] for e in t[1]}
+def _b(_: int, t: Iterable[tuple[int, int]]) -> tuple[int, int]:
+    groups = {e for e, _ in t}
     return (min(groups), max(groups))
 
 
@@ -75,8 +72,8 @@ def _d(i: int) -> bool:
 
 
 ranges = iter((
-    _ranges(16, _a({i for i in range(127) if _d(i)}, 0x100)),
-    _ranges(724, _a({i for i in range(0x10FFFF) if _d(i)}, 0x10FFFF)),
+    _ranges(_a({i for i in range(0x100) if _d(i)}, 0x100)),
+    _ranges(_a({i for i in range(0x110000) if _d(i)}, 0x110000)),
 ))
 
 utf8_id_continue.write_text(
@@ -84,6 +81,5 @@ utf8_id_continue.write_text(
         r"\bUtf8IdContinue\b[^;]+",
         lambda _: f"Utf8IdContinue = {next(ranges)}",
         utf8_id_continue.read_text(),
-        flags=MULTILINE,
-    )[0]
+    )
 )
