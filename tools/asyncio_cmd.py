@@ -16,7 +16,7 @@ ProcessInput = int | None
 
 class ProcessError(Exception):
     def __init__(
-        self, *cmd: object, stdout: bytes, stderr: bytes, returncode: int
+        self, *cmd: str, stdout: bytes, stderr: bytes, returncode: int
     ) -> None:
         super().__init__(f"{cmd} failed with {returncode}")
         self.cmd = cmd
@@ -25,7 +25,7 @@ class ProcessError(Exception):
         self.returncode = returncode
 
     def exit(self) -> None:
-        get_logger().error(" ".join(str(arg) for arg in self.cmd))
+        get_logger().error(" ".join(self.cmd))
         if self.stdout:
             for line in self.stdout.splitlines():
                 get_logger().info(line)
@@ -51,17 +51,17 @@ def splitlines(lines: bytes) -> Iterable[str]:
     )
 
 
-async def cmd(
-    *args: object,
+async def _cmd(
+    *args: str,
     err: ProcessInput = PIPE,
     input: bytes | None = None,
     log: bool = True,
     out: ProcessInput = None,
 ) -> bytes:
     if log:
-        get_logger().info(f"+ {' '.join(str(arg) for arg in args)}")
+        get_logger().info(f"+ {' '.join(args)}")
     proc = await create_subprocess_exec(
-        *(str(arg) for arg in args),
+        *args,
         stderr=err,
         stdin=(PIPE if input else None),
         stdout=out,
@@ -69,19 +69,33 @@ async def cmd(
     return await communicate(*args, err=b"", proc=proc, input=input)
 
 
-async def cmd_check(*args: object) -> Exception | None:
+async def cmd(
+    *args: object,
+    err: ProcessInput = PIPE,
+    input: bytes | None = None,
+    log: bool = True,
+    out: ProcessInput = None,
+) -> bytes:
+    return await _cmd(
+        *(str(arg) for arg in args), err=err, input=input, log=log, out=out
+    )
+
+
+async def _cmd_check(*args: str) -> Exception | None:
     try:
-        proc = await create_subprocess_exec(
-            *(str(arg) for arg in args), stderr=DEVNULL, stdout=DEVNULL
-        )
+        proc = await create_subprocess_exec(*args, stderr=DEVNULL, stdout=DEVNULL)
         await communicate(*args, err=b"", proc=proc)
     except ProcessError as error:
         return error
     return None
 
 
-async def cmd_env(
-    *args: object,
+async def cmd_check(*args: object) -> Exception | None:
+    return await _cmd_check(*(str(arg) for arg in args))
+
+
+async def _cmd_env(
+    *args: str,
     env: dict[str, object] = {},
     err: ProcessInput = PIPE,
     log: bool = True,
@@ -103,22 +117,34 @@ async def cmd_env(
     return await communicate(*args, err=b"", proc=proc)
 
 
-async def cmd_flog(*args: object, out: str | None = None) -> bytes:
+async def cmd_env(
+    *args: object,
+    env: dict[str, object] = {},
+    err: ProcessInput = PIPE,
+    log: bool = True,
+    out: ProcessInput = None,
+) -> bytes:
+    return await _cmd_env(
+        *(str(arg) for arg in args), env=env, err=err, log=log, out=out
+    )
+
+
+async def _cmd_flog(*args: str, out: str | None = None) -> bytes:
     if out is None:
-        proc = await create_subprocess_exec(
-            *(str(arg) for arg in args), stderr=DEVNULL, stdout=DEVNULL
-        )
+        proc = await create_subprocess_exec(*args, stderr=DEVNULL, stdout=DEVNULL)
         return await communicate(*args, err=b"logs in /dev/null\n", proc=proc)
     Path(out).parent.mkdir(parents=True, exist_ok=True)
     with Path(out).open("ab") as ostream:
-        proc = await create_subprocess_exec(
-            *(str(arg) for arg in args), stderr=ostream, stdout=ostream
-        )
+        proc = await create_subprocess_exec(*args, stderr=ostream, stdout=ostream)
         return await communicate(*args, err=f"logs in {out}\n".encode(), proc=proc)
 
 
+async def cmd_flog(*args: object, out: str | None = None) -> bytes:
+    return await _cmd_flog(*(str(arg) for arg in args), out=out)
+
+
 async def communicate(
-    *args: object, err: bytes, proc: Process, input: bytes | None = None
+    *args: str, err: bytes, proc: Process, input: bytes | None = None
 ) -> bytes:
     cmd_stderr = cmd_stdout = None
     try:
