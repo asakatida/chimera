@@ -74,12 +74,10 @@ def _d(i: int) -> bool:
     return chr(i).isidentifier()
 
 
-ranges = iter(
-    (
-        _ranges(16, _a({i for i in range(127) if _d(i)}, 0x100)),
-        _ranges(724, _a({i for i in range(0x10FFFF) if _d(i)}, 0x10FFFF)),
-    )
-)
+ranges = iter((
+    _ranges(16, _a({i for i in range(127) if _d(i)}, 0x100)),
+    _ranges(724, _a({i for i in range(0x10FFFF) if _d(i)}, 0x10FFFF)),
+))
 
 utf8_id_continue.write_text(
     sub(

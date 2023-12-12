@@ -13,14 +13,12 @@ async def pip_install(file: object) -> None:
 
 
 async def action(script: str, *args: str) -> None:
-    environ["PATH"] = ":".join(
-        (
-            "/opt/virtualenv/bin",
-            "/home/github/.cargo/bin",
-            "/usr/lib/ninja-build/bin",
-            environ["PATH"],
-        )
-    )
+    environ["PATH"] = ":".join((
+        "/opt/virtualenv/bin",
+        "/home/github/.cargo/bin",
+        "/usr/lib/ninja-build/bin",
+        environ["PATH"],
+    ))
     await pip_install("tools/requirements.txt")
     await pip_install("requirements.txt")
     await cmd("/bin/sh", "-e", "-c", script, *args, err=None, out=None)
