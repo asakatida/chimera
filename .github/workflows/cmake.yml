@@ -1,6 +1,4 @@
 ---
-env:
-  CPPFLAGS: -DCHIMERA_PATH="/github/workspace/stdlib"
 jobs:
   corpus-retest:
     concurrency:
@@ -55,9 +53,7 @@ jobs:
         with:
           run: |
             rustup default stable
-            cmake -GNinja -B build -S .
-            python tools/ninja.py build unit-test
-            python tools/ninja.py build test
+            python tools/cmake_ninja.py
   libcpp:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
@@ -76,9 +72,7 @@ jobs:
         with:
           run: |
             rustup default stable
-            cmake -GNinja -B build -S .
-            python tools/ninja.py build unit-test
-            python tools/ninja.py build test
+            python tools/cmake_ninja.py
   release:
     concurrency:
       cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
@@ -96,9 +90,7 @@ jobs:
         with:
           run: |
             rustup default stable
-            cmake -GNinja -B build -S .
-            python tools/ninja.py build unit-test
-            python tools/ninja.py build test
+            python tools/cmake_ninja.py
 
 name: CMake
 
