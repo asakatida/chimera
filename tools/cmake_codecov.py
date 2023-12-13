@@ -6,15 +6,18 @@ from pathlib import Path
 from sys import argv
 
 from asyncio_cmd import cmd, main
+from chimera_path import cppflags
 from ninja import ninja
 
 
 async def cmake_codecov(*args: object) -> None:
     chdir(Path(__file__).parent.parent)
-    environ["CPPFLAGS"] = " ".join(
-        ('-DCHIMERA_PATH="/github/workspace/stdlib"', environ.get("CPPFLAGS", ""))
-    )
+    environ["CPPFLAGS"] = " ".join((cppflags, environ.get("CPPFLAGS", "")))
     environ["CXXFLAGS"] = " ".join((
+        "-Wall",
+        "-Wpedantic",
+        "-Werror",
+        cppflags,
         "-fcoverage-mapping",
         "-fprofile-instr-generate",
         "-mllvm",

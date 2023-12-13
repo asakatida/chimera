@@ -53,7 +53,7 @@ def make_tests(*test_cpps: Path, tests: dict[str, dict[bytes, str]]) -> None:
         test_cpp.write_text(content)
 
 
-def main(*outputs: str) -> None:
+def generate_fuzz(*outputs: str) -> None:
     with Path(
         "external/big-list-of-naughty-strings/blns.base64.json"
     ).open() as istream:
@@ -92,4 +92,4 @@ def main(*outputs: str) -> None:
 
 
 if __name__ == "__main__":
-    main(*argv[1:])
+    generate_fuzz(*argv[1:])

@@ -1,6 +1,4 @@
 ---
-env:
-  CPPFLAGS: -DCHIMERA_PATH="/github/workspace/stdlib"
 jobs:
   corpus-merge:
     runs-on: ubuntu-22.04
