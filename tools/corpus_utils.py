@@ -34,7 +34,7 @@ from chimera_utils import IN_CI, rmdir
 from structlog import get_logger
 from tqdm import tqdm
 
-CONFLICT = compile(rb"^(?:(?:<{7,8}|>{7,8})(?:\s.+)?|={7,8})$\s?", MULTILINE)
+CONFLICT = compile(rb"^(?:(?:<{7}|>{7})\s.+|={7})$\s", MULTILINE)
 DIRECTORIES = ("corpus", "crashes")
 SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
@@ -64,11 +64,9 @@ def c_tqdm(
 
 
 def conflicts_one(file: Path) -> None:
-    {
-        (file.parent / sha256(section).hexdigest()).write_bytes(section)
-        for section in CONFLICT.split(file.read_bytes())
-        if section
-    }
+    for section in CONFLICT.split(file.read_bytes()):
+        if section:
+            (file.parent / sha256(section).hexdigest()).write_bytes(section)
     file.unlink()
 
 
