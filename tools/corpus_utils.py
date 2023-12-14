@@ -41,7 +41,7 @@ FUZZ = SOURCE / "unit_tests" / "fuzz"
 CORPUS = FUZZ / "corpus"
 CORPUS_ORIGINAL = FUZZ / "corpus_original"
 CRASHES = FUZZ / "crashes"
-CORPUS.mkdir(parents=True, exist_ok=True)
+CORPUS.mkdir(exist_ok=True, parents=True)
 LENGTH = 14
 
 T = TypeVar("T")
@@ -121,7 +121,7 @@ async def corpus_creations(
 async def corpus_merge(disable_bars: bool | None) -> None:
     rmdir(CORPUS_ORIGINAL)
     CORPUS.rename(CORPUS_ORIGINAL)
-    CORPUS.mkdir(parents=True, exist_ok=True)
+    CORPUS.mkdir(exist_ok=True, parents=True)
     if errors := await fuzz_test(
         "-merge=1",
         "-reduce_inputs=1",
@@ -193,12 +193,11 @@ def corpus_trim_one(fuzz: Iterable[Path], disable_bars: bool | None) -> None:
             )
             if path.exists()
         }.difference({src_sha}):
-            LENGTH += 1
             raise Increment(
                 f"Collision found, update corpus_trim.py `LENGTH`: {LENGTH}"
             )
         new_file = bucket(file) / sha_bucket / name
-        new_file.parent.mkdir(parents=True, exist_ok=True)
+        new_file.parent.mkdir(exist_ok=True, parents=True)
         file.rename(new_file)
     for file in (
         CORPUS / path.relative_to(bucket(path))
@@ -209,8 +208,9 @@ def corpus_trim_one(fuzz: Iterable[Path], disable_bars: bool | None) -> None:
 
 
 def corpus_trim(disable_bars: bool | None) -> None:
+    global LENGTH
     conflicts(gather_paths())
-    CRASHES.mkdir(parents=True, exist_ok=True)
+    CRASHES.mkdir(exist_ok=True, parents=True)
     for file in (
         file
         for glob in ("crash-*", "leak-*", "timeout-*")
@@ -223,6 +223,7 @@ def corpus_trim(disable_bars: bool | None) -> None:
         except Increment:
             if LENGTH > 32:
                 raise
+            LENGTH += 1
             continue
         break
 

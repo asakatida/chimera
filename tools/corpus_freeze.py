@@ -46,10 +46,22 @@ async def corpus_hash(case: bytes) -> tuple[str, str]:
 async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
     file = Path(output)
     with file.open() as istream:
-        cases_orig = {key: value for key, value in load(istream).items()}
-    cases = {
-        key: value
-        for key, value in await as_completed(
+        cases = {key: value for key, value in load(istream).items()}
+    existing = {
+        key
+        for key, _ in await as_completed(
+            c_tqdm(
+                (corpus_hash(path.read_bytes()) for path in gather_paths()),
+                "Hash corpus",
+                disable_bars,
+                total=len(list(gather_paths())),
+            )
+        )
+    }
+    for key in existing.intersection(cases.keys()):
+        del cases[key]
+    cases.update(
+        await as_completed(
             c_tqdm(
                 (
                     corpus_hash(obj)
@@ -57,7 +69,7 @@ async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
                         "unit_tests/fuzz/corpus",
                         "unit_tests/fuzz/crashes",
                         disable_bars=disable_bars,
-                        exclude={key for key in cases_orig.keys()},
+                        exclude=existing.union(cases.keys()),
                     )
                     if is_ascii(obj)
                 ),
@@ -65,23 +77,9 @@ async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
                 disable_bars,
             )
         )
-    }
-    existing = {
-        key: value
-        for key, value in await as_completed(
-            c_tqdm(
-                (corpus_hash(path.read_bytes()) for path in gather_paths()),
-                "Hash corpus",
-                disable_bars,
-            )
-        )
-    }
-    cases = {key: value for key, value in cases.items() if key not in existing}
-    cases_orig.update(cases)
-    for key in {key for key in existing.keys()}.intersection(cases_orig.keys()):
-        del cases_orig[key]
+    )
     with file.open("w") as ostream:
-        dump(cases_orig, ostream, indent=4, sort_keys=True)
+        dump(cases, ostream, indent=4, sort_keys=True)
 
 
 def corpus_freeze_main(output: str) -> None:

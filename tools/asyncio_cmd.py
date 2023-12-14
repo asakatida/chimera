@@ -133,7 +133,7 @@ async def _cmd_flog(*args: str, out: str | None = None) -> bytes:
     if out is None:
         proc = await create_subprocess_exec(*args, stderr=DEVNULL, stdout=DEVNULL)
         return await communicate(*args, err=b"logs in /dev/null\n", proc=proc)
-    Path(out).parent.mkdir(parents=True, exist_ok=True)
+    Path(out).parent.mkdir(exist_ok=True, parents=True)
     with Path(out).open("ab") as ostream:
         proc = await create_subprocess_exec(*args, stderr=ostream, stdout=ostream)
         return await communicate(*args, err=f"logs in {out}\n".encode(), proc=proc)

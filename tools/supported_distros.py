@@ -39,7 +39,7 @@ min_supported_distros = [
 ]
 
 group_vars = tools / "group_vars" / "all"
-group_vars.mkdir(parents=True, exist_ok=True)
+group_vars.mkdir(exist_ok=True, parents=True)
 
 with (group_vars / "supported_distros.yml").open("w") as ostream:
     dump(

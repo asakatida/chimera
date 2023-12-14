@@ -79,7 +79,7 @@ async def regression_log() -> list[Exception]:
 
 
 async def corpus_retest() -> None:
-    CRASHES.mkdir(parents=True, exist_ok=True)
+    CRASHES.mkdir(exist_ok=True, parents=True)
     while await regression_log():
         get_logger().info(
             "Regression failed, retrying with"

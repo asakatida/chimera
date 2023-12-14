@@ -30,10 +30,8 @@ def test(f: Path) -> bool:
     )
 
 
-files = [
-    path for path in (Path(arg) for arg in argv[1:]) if path.is_file() and test(path)
-]
-while files:
+files = [path for path in (Path(arg) for arg in argv[1:]) if path.is_file()]
+while files := [file for file in files if test(file)]:
     for file in files:
         file.write_bytes(
             reduce(
@@ -42,4 +40,3 @@ while files:
                 file.read_bytes(),
             )
         )
-    files = [file for file in files if test(file)]
