@@ -33,7 +33,7 @@ from corpus_utils import c_tqdm, corpus_objects, corpus_trim, gather_paths
 
 async def corpus_gather(*paths: str, disable_bars: bool | None) -> None:
     for path in paths:
-        for case in await corpus_objects(
+        for _, case in await corpus_objects(
             path,
             disable_bars=disable_bars,
             exclude={
