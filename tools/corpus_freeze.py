@@ -34,24 +34,18 @@ from corpus_ascii import is_ascii
 from corpus_utils import c_tqdm, corpus_objects, gather_paths
 
 
-async def corpus_hash(case: bytes) -> tuple[str, str]:
-    return (
-        (await cmd("git", "hash-object", "--stdin", input=case, log=False, out=PIPE))
-        .strip()
-        .decode(),
-        b64encode(compress(case)).decode(),
-    )
-
-
 async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
     file = Path(output)
     with file.open() as istream:
         cases = {key: value for key, value in load(istream).items()}
     existing = {
-        key
-        for key, _ in await as_completed(
+        key.strip().decode()
+        for key in await as_completed(
             c_tqdm(
-                (corpus_hash(path.read_bytes()) for path in gather_paths()),
+                (
+                    cmd("git", "hash-object", path, log=False, out=PIPE)
+                    for path in gather_paths()
+                ),
                 "Hash corpus",
                 disable_bars,
                 total=len(list(gather_paths())),
@@ -61,22 +55,14 @@ async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
     for key in existing.intersection(cases.keys()):
         del cases[key]
     cases.update(
-        await as_completed(
-            c_tqdm(
-                (
-                    corpus_hash(obj)
-                    for obj in await corpus_objects(
-                        "unit_tests/fuzz/corpus",
-                        "unit_tests/fuzz/crashes",
-                        disable_bars=disable_bars,
-                        exclude=existing.union(cases.keys()),
-                    )
-                    if is_ascii(obj)
-                ),
-                "Hash corpus",
-                disable_bars,
-            )
+        (sha, b64encode(compress(obj)).decode())
+        for sha, obj in await corpus_objects(
+            "unit_tests/fuzz/corpus",
+            "unit_tests/fuzz/crashes",
+            disable_bars=disable_bars,
+            exclude=existing.union(cases.keys()),
         )
+        if is_ascii(obj)
     )
     with file.open("w") as ostream:
         dump(cases, ostream, indent=4, sort_keys=True)

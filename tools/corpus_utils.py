@@ -75,6 +75,10 @@ def conflicts(fuzz: Iterable[Path]) -> None:
         conflicts_one(file)
 
 
+async def corpus_cat(sha: str) -> tuple[str, bytes]:
+    return (sha, await cmd("git", "cat-file", "-p", sha, log=False, out=PIPE))
+
+
 async def corpus_creations(
     *paths: str,
     base_commit: str = environ.get("BASE_REF", "^origin/stable"),
@@ -140,9 +144,9 @@ async def corpus_merge(disable_bars: bool | None) -> None:
 
 async def corpus_objects(
     *paths: str, disable_bars: bool | None, exclude: set[str] = set()
-) -> list[bytes]:
+) -> list[tuple[str, bytes]]:
     return await as_completed(
-        cmd("git", "cat-file", "-p", sha, log=False, out=PIPE)
+        corpus_cat(sha)
         for sha in c_tqdm(
             {
                 line
