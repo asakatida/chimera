@@ -61,10 +61,7 @@ async def _cmd(
     if log:
         get_logger().info(f"+ {' '.join(args)}")
     proc = await create_subprocess_exec(
-        *args,
-        stderr=err,
-        stdin=(PIPE if input else None),
-        stdout=out,
+        *args, stderr=err, stdin=(PIPE if input else None), stdout=out
     )
     return await communicate(*args, err=b"", proc=proc, input=input)
 
