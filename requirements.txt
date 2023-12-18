@@ -43,7 +43,7 @@ referencing==0.32.0
 requests==2.31.0
 resolvelib==1.0.1
 rich==13.7.0
-rpds-py==0.13.2
+rpds-py==0.15.2
 ruamel.yaml==0.18.5
 ruamel.yaml.clib==0.2.8
 snowballstemmer==2.2.0
