@@ -17,10 +17,10 @@ jobs:
             map(select(.conclusion == null and .head_branch != "stable"))[]
           ' |
           jq --arg head_branch "${BRANCH}"
-          'select(.head_branch == $head_branch) | .id' |
+          'select(.head_branch == $head_branch) | .cancel_url' |
           jq --join-output --slurp 'join("\u0000")' |
           xargs --max-args=1 --max-procs=2 --no-run-if-empty --null --verbose --
-          gh run cancel;
+          gh api -X POST;
           gh api "repos/${REPO}/actions/runs" --paginate -q '
             .workflow_runs |
             map(
