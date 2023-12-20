@@ -14,7 +14,14 @@ jobs:
           set -o pipefail;
           gh api "repos/${REPO}/actions/runs" --paginate -q '
             .workflow_runs |
-            map(select(.conclusion == null and .head_branch != "stable"))[]
+            map(
+              select(
+                .conclusion == null and
+                .path != ".github/workflows/actions-pr-close.yml" and
+                .path != ".github/workflows/actions-branch-delete.yml" and
+                .head_branch != "stable"
+              )
+            )[]
           ' |
           jq --arg head_branch "${BRANCH}"
           'select(.head_branch == $head_branch) | .cancel_url' |
