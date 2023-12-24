@@ -2,13 +2,16 @@
 
 set -ex
 
+git clean -dfx
+rm -rf "$HOME/.cargo"
+
 curl https://sh.rustup.rs -sSf | sh -s -- -y --no-modify-path
-export PATH="/home/github/.cargo/bin:${PATH}"
+. "$HOME/.cargo/env"
 rustup default stable
 cargo --version
 
 python3 tools/venv.py venv
-source venv/bin/activate
+. venv/bin/activate
 python3 --version
 
 cmake \
