@@ -2,33 +2,22 @@
 
 set -ex
 
-env | cut -f1 -d= | sort -u
+curl https://sh.rustup.rs -sSf | sh -s -- -y --no-modify-path
+export PATH="/home/github/.cargo/bin:${PATH}"
+rustup default stable
+cargo --version
 
-cd "$(git rev-parse --show-toplevel || true)"
-debug_root=build/debug
-release_root=build/release
+python3 tools/venv.py venv
+source venv/bin/activate
+python3 --version
 
-export PATH="${PWD}/env/bin:${PATH}"
-
-tools/lint.sh
-
-export LLVM_PROFILE_FILE="${PWD}/build/coverage/llvm-profile.%c%p.profraw"
-
-python tools/ninja.py "${debug_root}"
-python tools/ninja.py "${debug_root}"
-python tools/ninja.py "${release_root}"
-python tools/ninja.py "${debug_root}" test
-python tools/ninja.py "${debug_root}" regression
-python tools/ninja.py "${debug_root}" corpus
-python tools/ninja.py "${debug_root}" spec
-python tools/ninja.py "${release_root}" spec
-
-docker build -t chimera/base "tools/docker/base/"
-docker build -t chimera/clang "tools/docker/clang/"
-docker build -t chimera/gcc "tools/docker/gcc/"
-
-docker-exec chimera/clang "tools/clang-fix.sh"
-docker-exec chimera/gcc "tools/gcc-sanity.sh"
-
-docker-exec chimera/clang "tools/ninja-intense.sh build/clang"
-docker-exec chimera/gcc "tools/ninja-intense.sh build/gcc"
+cmake \
+    -DBUILD_DOCS=OFF \
+    -DBUILD_DOCUMENTATION=OFF \
+    -DCATKIN_ENABLE_TESTING=OFF \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_C_FLAGS= \
+    -DCMAKE_CXX_FLAGS= \
+    -DCMAKE_VERBOSE_MAKEFILE=ON \
+    -DCTEST_PARALLEL_LEVEL=3
+    -B .
