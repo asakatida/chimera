@@ -15,7 +15,7 @@ jobs:
         uses: trufflesecurity/trufflehog@v3.63.7
         with:
           base: ""
-          extra_args: --debug --only-verified
+          extra_args: --only-verified
           head: HEAD
           path: ./
 name: TruffleHog
