@@ -5,6 +5,8 @@ set -ex
 git clean -dfx
 rm -rf "$HOME/.cargo"
 
+git submodule update --init
+
 curl https://sh.rustup.rs -sSf | sh -s -- -y --no-modify-path
 . "$HOME/.cargo/env"
 rustup default stable
@@ -22,5 +24,8 @@ cmake \
     -DCMAKE_C_FLAGS= \
     -DCMAKE_CXX_FLAGS= \
     -DCMAKE_VERBOSE_MAKEFILE=ON \
-    -DCTEST_PARALLEL_LEVEL=3
-    -B .
+    -DCTEST_PARALLEL_LEVEL=3 \
+    -B . \
+    -S .
+
+make generated/fuzz-0.cpp oxidation/number-rust.hpp
