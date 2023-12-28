@@ -26,7 +26,7 @@ namespace chimera::library {
     tao::pegtl::standard_trace<
         tao::pegtl::must<chimera::library::grammar::FileInput>,
         chimera::library::grammar::token::Action,
-        typename chimera::library::grammar::MakeControl<>::Normal>(
+        chimera::library::grammar::Normal>(
         chimera::library::grammar::Input(
             std::forward<Data>(data), "<unit_tests/virtual_machine/parse.cpp>"),
         emptyNode);

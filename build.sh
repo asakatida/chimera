@@ -20,16 +20,5 @@ set +ex
 set -ex
 python3 --version
 
-cmake \
-    -DBUILD_DOCS=OFF \
-    -DBUILD_DOCUMENTATION=OFF \
-    -DCATKIN_ENABLE_TESTING=OFF \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_C_FLAGS= \
-    -DCMAKE_CXX_FLAGS= \
-    -DCMAKE_VERBOSE_MAKEFILE=ON \
-    -DCTEST_PARALLEL_LEVEL=3 \
-    -B . \
-    -S .
-
-make generated/fuzz-1.cpp.o chimera-number-header
+cmake -DCMAKE_BUILD_TYPE=Release -B . -S .
+make -j8

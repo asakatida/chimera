@@ -217,9 +217,7 @@ namespace chimera::library::object::internal {
       attributes.insert_or_assign(std::forward<Args>(args)...);
     }
     template <typename Visitor>
-    auto visit(Visitor &&visitor) const
-        noexcept(noexcept(std::visit(std::forward<Visitor>(visitor), value)))
-            -> decltype(auto) {
+    auto visit(Visitor &&visitor) const {
       return std::visit(std::forward<Visitor>(visitor), value);
     }
 
