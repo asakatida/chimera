@@ -8,12 +8,16 @@ rm -rf "$HOME/.cargo"
 git submodule update --init
 
 curl https://sh.rustup.rs -sSf | sh -s -- -y --no-modify-path
+set +ex
 . "$HOME/.cargo/env"
+set -ex
 rustup default stable
 cargo --version
 
 python3 tools/venv.py venv
+set +ex
 . venv/bin/activate
+set -ex
 python3 --version
 
 cmake \
@@ -28,4 +32,4 @@ cmake \
     -B . \
     -S .
 
-make generated/fuzz-0.cpp oxidation/number-rust.hpp
+make generated/fuzz-1.cpp oxidation/number-rust.hpp
