@@ -32,4 +32,4 @@ cmake \
     -B . \
     -S .
 
-make generated/fuzz-1.cpp.o oxidation/number-rust.hpp
+make generated/fuzz-1.cpp.o chimera-number-header
