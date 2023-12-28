@@ -32,8 +32,7 @@
 namespace chimera::library::grammar {
   template <typename Grammar, typename... Args>
   void parse(const options::Optimize &optimize, Args &&...args) {
-    Ensures((tao::pegtl::parse<tao::pegtl::must<Grammar>, token::Action,
-                               typename MakeControl<>::Normal,
+    Ensures((tao::pegtl::parse<tao::pegtl::must<Grammar>, token::Action, Normal,
                                tao::pegtl::apply_mode::action,
                                tao::pegtl::rewind_mode::required>(args...)));
     switch (optimize) {
