@@ -9,7 +9,7 @@ from structlog import get_logger
 async def pip_install(file: object) -> None:
     for line in splitlines(await cmd_env("pip", "install", "-r", file)):
         if not line.startswith("Requirement already satisfied: "):
-            get_logger().info(line)
+            await get_logger().ainfo(line)
 
 
 async def action(script: str, *args: str) -> None:

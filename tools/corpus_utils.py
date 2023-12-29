@@ -136,7 +136,7 @@ async def corpus_merge(disable_bars: bool | None) -> None:
         error = errors.pop()
         if errors:
             for error in errors:
-                get_logger().error(f"Extra Error: {error}")
+                await get_logger().aerror(f"Extra Error: {error}")
         raise error
     rmdir(CORPUS_ORIGINAL)
     corpus_trim(disable_bars=disable_bars)

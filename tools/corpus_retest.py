@@ -81,7 +81,7 @@ async def regression_log() -> list[Exception]:
 async def corpus_retest() -> None:
     CRASHES.mkdir(exist_ok=True, parents=True)
     while await regression_log():
-        get_logger().info(
+        await get_logger().ainfo(
             "Regression failed, retrying with"
             f" {len([path for path in CORPUS.rglob('*') if path.is_file()])} cases"
         )

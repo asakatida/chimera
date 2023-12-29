@@ -91,7 +91,7 @@ async def report_branch_graph(
                 if remote in branches:
                     branches.remove(remote)
     for remote, branches in branch_graph.items():
-        get_logger().info(f"{remote} -> {' '.join(sorted(branches))}")
+        await get_logger().ainfo(f"{remote} -> {' '.join(sorted(branches))}")
 
 
 async def git_rebase_all(*args: str, disable_bars: bool | None) -> None:
