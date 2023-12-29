@@ -59,7 +59,7 @@ async def _cmd(
     out: ProcessInput = None,
 ) -> bytes:
     if log:
-        get_logger().info(f"+ {' '.join(args)}")
+        await get_logger().ainfo(f"+ {' '.join(args)}")
     proc = await create_subprocess_exec(
         *args, stderr=err, stdin=(PIPE if input else None), stdout=out
     )
@@ -99,7 +99,7 @@ async def _cmd_env(
     out: ProcessInput = None,
 ) -> bytes:
     if log:
-        get_logger().info(f"+ {' '.join(str(arg) for arg in args)}")
+        await get_logger().ainfo(f"+ {' '.join(str(arg) for arg in args)}")
     proc = await create_subprocess_exec(
         *(str(arg) for arg in args),
         env=dict(

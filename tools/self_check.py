@@ -59,7 +59,7 @@ async def self_check() -> None:
     files = await g_ls_tree("py")
     files_mypy = await g_ls_tree("py", exclude=compile(r"stdlib/|.*/stdlib/"))
     {
-        get_logger().info(line)
+        await get_logger().ainfo(line)
         for lines in await as_completed(
             iter((black(*files), isort(*files), pylama(*files), mypy(*files_mypy)))
         )
