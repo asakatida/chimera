@@ -27,7 +27,7 @@ jobs:
           'select(.head_branch == $head_branch) | .cancel_url' |
           jq --join-output --slurp 'join("\u0000")' |
           xargs --max-args=1 --max-procs=2 --no-run-if-empty --null --verbose --
-          gh api -X POST;
+          gh api -X POST || true;
           gh api "repos/${REPO}/actions/runs" --paginate -q '
             .workflow_runs |
             map(
