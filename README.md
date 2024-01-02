@@ -1,11 +1,11 @@
 # chimera
 
-[![Meta Actions](https://github.com/asakatida/chimera/actions/workflows/actions.yml/badge.svg)](https://github.com/asakatida/chimera/actions/workflows/actions.yml)
 [![Ansible Lint](https://github.com/asakatida/chimera/actions/workflows/ansible-lint.yml/badge.svg)](https://github.com/asakatida/chimera/actions/workflows/ansible-lint.yml)
 [![ClangFormat](https://github.com/asakatida/chimera/actions/workflows/clang-format.yml/badge.svg)](https://github.com/asakatida/chimera/actions/workflows/clang-format.yml)
 [![CMake](https://github.com/asakatida/chimera/actions/workflows/cmake.yml/badge.svg)](https://github.com/asakatida/chimera/actions/workflows/cmake.yml)
 [![Cmake Lint](https://github.com/asakatida/chimera/actions/workflows/cmakelint.yml/badge.svg)](https://github.com/asakatida/chimera/actions/workflows/cmakelint.yml)
 [![CodeCov](https://github.com/asakatida/chimera/actions/workflows/codecov.yml/badge.svg)](https://github.com/asakatida/chimera/actions/workflows/codecov.yml)
+[![CodeQL](https://github.com/asakatida/chimera/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/asakatida/chimera/actions/workflows/github-code-scanning/codeql)
 [![Python](https://github.com/asakatida/chimera/actions/workflows/python.yml/badge.svg)](https://github.com/asakatida/chimera/actions/workflows/python.yml)
 [![Requirements.txt](https://github.com/asakatida/chimera/actions/workflows/requirements-txt.yml/badge.svg)](https://github.com/asakatida/chimera/actions/workflows/requirements-txt.yml)
 [![TruffleHog](https://github.com/asakatida/chimera/actions/workflows/trufflehog.yml/badge.svg)](https://github.com/asakatida/chimera/actions/workflows/trufflehog.yml)
