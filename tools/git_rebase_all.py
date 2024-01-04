@@ -5,10 +5,11 @@ from asyncio.subprocess import PIPE
 from itertools import combinations
 from math import factorial
 from os import environ
+from re import match
 from sys import argv
 from typing import Sequence
 
-from asyncio_cmd import ProcessError, cmd, main, splitlines
+from asyncio_cmd import ProcessError, cmd, cmd_env, main, splitlines
 from corpus_utils import c_tqdm
 from structlog import get_logger
 
@@ -17,23 +18,31 @@ async def git_cmd(*args: object, out: int | None = None) -> bytes:
     return await cmd("git", *args, out=out, log=False)
 
 
-async def set_upstream(*remote_branches: str) -> None:
-    for remote_branch in remote_branches:
-        if remote_branch.startswith("origin/dependabot/"):
-            continue
-        local_name = remote_branch.split("/", maxsplit=1)[1]
-        try:
-            await git_cmd("branch", "--set-upstream-to", remote_branch, local_name)
-        except ProcessError:
-            await git_cmd("branch", local_name, remote_branch)
-
-
 async def git_diff(*args: str) -> bool:
     try:
         await git_cmd("diff", "--exit-code", "--quiet", *args)
     except ProcessError:
         return False
     return True
+
+
+async def git_gather_branches() -> tuple[list[str], list[str]]:
+    remote_branches = [
+        branch
+        for branch in splitlines(await git_cmd("branch", "-r", out=PIPE))
+        if not branch.startswith("origin/HEAD -> ")
+    ]
+    await set_upstream(*remote_branches)
+    return [
+        (local_branch[1:].lstrip() if local_branch.startswith("* ") else local_branch)
+        for local_branch in splitlines(await git_cmd("branch", out=PIPE))
+    ], remote_branches
+
+
+async def git_rev_list(*args: str) -> bytes:
+    return (
+        await git_cmd("rev-list", "--cherry-pick", "--count", *args, out=PIPE)
+    ).strip()
 
 
 async def report_branch_graph(
@@ -74,40 +83,63 @@ async def report_branch_graph(
         await get_logger().ainfo(f"{remote} -> {' '.join(sorted(branches))}")
 
 
-async def git_rebase_all(*args: str, disable_bars: bool | None) -> None:
-    remote_branches = [
-        branch
-        for branch in splitlines(await git_cmd("branch", "-r", out=PIPE))
-        if not branch.startswith("origin/HEAD -> ")
-    ]
-    await set_upstream(*remote_branches)
-    local_branches = [
-        (local_branch[1:].lstrip() if local_branch.startswith("* ") else local_branch)
-        for local_branch in splitlines(await git_cmd("branch", out=PIPE))
-    ]
-    for local_branch in c_tqdm(local_branches, "Rebase branches", disable_bars):
-        if (
-            await git_cmd(
-                "rev-list",
-                "--cherry-pick",
-                "--count",
-                "--right-only",
-                f"{local_branch}...origin/stable",
-                out=PIPE,
-            )
-        ).strip() == b"0":
+async def set_upstream(*remote_branches: str) -> None:
+    for remote_branch in remote_branches:
+        if remote_branch.startswith("origin/dependabot/"):
             continue
+        local_name = remote_branch.split("/", maxsplit=1)[1]
         try:
-            await cmd("git", "rebase", "origin/stable", local_branch, log=False)
-            continue
+            await git_cmd("branch", "--set-upstream-to", remote_branch, local_name)
+        except ProcessError:
+            await git_cmd("branch", local_name, remote_branch)
+
+
+async def git_rebase_one(local_branch: str, execute: str, *args: str) -> None:
+    if match(r"corpus-\d+-", local_branch) and 1 < int(
+        await git_rev_list("--left-only", f"{local_branch}...origin/stable")
+    ):
+        await git_cmd("switch", "--detach", "origin/HEAD")
+        try:
+            await git_cmd("cherry-pick", local_branch)
+            await git_cmd("switch", "-C", local_branch)
+        except ProcessError:
+            await git_cmd("cherry-pick", "--abort")
+        return
+    if await git_rev_list("--right-only", f"{local_branch}...origin/stable") == b"0":
+        return
+    try:
+        await cmd(
+            "git",
+            "rebase",
+            "--exec",
+            execute,
+            "origin/stable",
+            local_branch,
+            log=False,
+        )
+        return
+    except ProcessError:
+        pass
+    await git_cmd("submodule", "update", "--init", "--recursive")
+    while True:
+        await cmd("sh", "-c", *args, log=False)
+        try:
+            await git_cmd("add", "--update")
+            await cmd_env(
+                "git", "rebase", "--continue", env={"EDITOR": "true"}, log=False
+            )
+            break
         except ProcessError:
             pass
-        await git_cmd("submodule", "update", "--init", "--recursive")
-        await cmd("sh", "-c", *args, log=False)
-        await git_cmd("add", "--update")
-        await cmd("git", "rebase", "--continue", log=False)
+
+
+async def git_rebase_all(execute: str, *args: str, disable_bars: bool | None) -> None:
+    local_branches, remote_branches = await git_gather_branches()
+    for local_branch in c_tqdm(local_branches, "Rebase branches", disable_bars):
+        await git_rebase_one(local_branch, execute, *args)
     await report_branch_graph(
-        [remote_branch.split("/", maxsplit=1)[1] for remote_branch in remote_branches],
+        [remote_branch.split("/", maxsplit=1)[1] for remote_branch in remote_branches]
+        + ["origin/HEAD"],
         local_branches,
         disable_bars,
     )
