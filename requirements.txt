@@ -2,7 +2,7 @@ ansible==9.1.0
 ansible-compat==4.1.10
 ansible-core==2.16.2
 ansible-lint==6.22.1
-attrs==23.1.0
+attrs==23.2.0
 black==23.12.1
 bracex==2.4
 certifi==2023.11.17
@@ -47,7 +47,7 @@ subprocess-tee==0.4.1
 tomli==2.0.1
 tqdm==4.66.1
 types-PyYAML==6.0.12.12
-types-requests==2.31.0.10
+types-requests==2.31.0.20231231
 types-tqdm==4.66.0.5
 types-urllib3==1.26.25.14
 typing_extensions==4.9.0
