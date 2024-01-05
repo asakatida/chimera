@@ -68,10 +68,10 @@ async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
         dump(cases, ostream, indent=4, sort_keys=True)
 
 
-def corpus_freeze_main(output: str) -> None:
-    run(corpus_freeze(output, disable_bars=None))
+async def corpus_freeze_main(output: str) -> None:
+    await corpus_freeze(output, disable_bars=None)
 
 
 if __name__ == "__main__":
     with main():
-        corpus_freeze_main(*argv[1:])
+        run(corpus_freeze_main(*argv[1:]))
