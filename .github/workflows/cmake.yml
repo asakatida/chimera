@@ -20,7 +20,6 @@ jobs:
             python tools/crash_reset.py
             python tools/corpus_gather.py "${GITHUB_REF}"
             python tools/corpus_retest.py build
-            BASE_REF=HEAD python tools/corpus_freeze.py unit_tests/fuzz/cases.json
       - if: github.ref == 'refs/heads/stable'
         name: Run corpus
         uses: ./

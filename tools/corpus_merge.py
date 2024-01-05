@@ -38,6 +38,7 @@ async def corpus_merge_main() -> None:
     await cmake_codecov("fuzzers")
     await corpus_gather("unit_tests/fuzz/corpus", disable_bars=None)
     await corpus_merge(disable_bars=None)
+    Path("unit_tests/fuzz/cases.json").write_text("{}")
     await corpus_freeze("unit_tests/fuzz/cases.json", disable_bars=None)
     corpus_trim(disable_bars=None)
 
