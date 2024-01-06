@@ -30,11 +30,11 @@ platformdirs==4.1.0
 pycodestyle==2.11.1
 pycparser==2.21
 pydocstyle==6.3.0
-pyflakes==3.1.0
+pyflakes==3.2.0
 Pygments==2.17.2
 pylama==8.4.1
 PyYAML==6.0.1
-referencing==0.32.0
+referencing==0.32.1
 requests==2.31.0
 resolvelib==1.0.1
 rich==13.7.0
@@ -47,8 +47,8 @@ subprocess-tee==0.4.1
 tomli==2.0.1
 tqdm==4.66.1
 types-PyYAML==6.0.12.12
-types-requests==2.31.0.20231231
-types-tqdm==4.66.0.5
+types-requests==2.31.0.20240106
+types-tqdm==4.66.0.20240106
 types-urllib3==1.26.25.14
 typing_extensions==4.9.0
 urllib3==2.1.0
