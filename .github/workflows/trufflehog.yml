@@ -14,7 +14,11 @@ jobs:
       - name: TruffleHog OSS
         uses: trufflesecurity/trufflehog@v3.63.7
         with:
-          base: ""
+          base: |
+            ${{
+              github.ref != 'refs/heads/stable'
+              && github.event.repository.default_branch || ''
+            }}
           extra_args: --only-verified
           head: HEAD
           path: ./
