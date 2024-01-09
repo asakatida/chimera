@@ -19,6 +19,7 @@ jobs:
             map(
               select(
                 .conclusion != null and
+                .head_branch != null and
                 .status != "in_progress"
               ) |
               select(
@@ -42,8 +43,7 @@ jobs:
               )
             )[]
           ' |
-          jq '.url' |
-          jq --join-output --slurp 'join("\u0000")' |
+          jq --join-output --slurp 'map(.url) | join("\u0000")' |
           xargs --max-args=1 --max-procs=2 --no-run-if-empty --null --verbose --
           gh api -X DELETE
   cleanup-packages:
@@ -69,8 +69,7 @@ jobs:
               )
             )[]
           ' |
-          jq '.url' |
-          jq --join-output --slurp 'join("\u0000")' |
+          jq --join-output --slurp 'map(.url) | join("\u0000")' |
           xargs --max-args=1 --max-procs=2 --no-run-if-empty --null --verbose --
           gh api -X DELETE
 

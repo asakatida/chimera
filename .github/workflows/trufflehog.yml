@@ -14,11 +14,8 @@ jobs:
       - name: TruffleHog OSS
         uses: trufflesecurity/trufflehog@v3.63.7
         with:
-          base: |
-            ${{
-              github.ref != 'refs/heads/stable'
-              && github.event.repository.default_branch || ''
-            }}
+          # yamllint disable-line rule:line-length
+          base: ${{ github.ref != 'refs/heads/stable' && github.event.repository.default_branch || '' }}
           extra_args: --only-verified
           head: HEAD
           path: ./

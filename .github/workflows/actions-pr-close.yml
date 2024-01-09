@@ -17,9 +17,10 @@ jobs:
             map(
               select(
                 .conclusion == null and
-                .path != ".github/workflows/actions-pr-close.yml" and
+                .head_branch != null and
+                .head_branch != "stable" and
                 .path != ".github/workflows/actions-branch-delete.yml" and
-                .head_branch != "stable"
+                .path != ".github/workflows/actions-pr-close.yml"
               )
             )[]
           ' |
@@ -33,8 +34,9 @@ jobs:
             map(
               select(
                 .conclusion != null and
-                .status != "in_progress" and
-                .head_branch != "stable"
+                .head_branch != null and
+                .head_branch != "stable" and
+                .status != "in_progress"
               )
             )[]
           ' |
