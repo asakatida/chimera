@@ -13,7 +13,8 @@ jobs:
           run: |
             rustup default stable
             BASE_REF=HEAD python tools/corpus_merge.py
-      - uses: stefanzweifel/git-auto-commit-action@v5.0.0
+      - continue-on-error: true
+        uses: stefanzweifel/git-auto-commit-action@v5.0.0
         with:
           branch: corpus-${{ github.run_id }}-merge
           commit_message: Update fuzzing corpus.

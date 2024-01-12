@@ -59,7 +59,8 @@ jobs:
           sed -E -i
           -e 's#'"${IMAGE}"':[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+#'"${IMAGE}"':0.${{ github.run_number }}.0#g'
         # yamllint enable rule:line-length
-      - uses: stefanzweifel/git-auto-commit-action@v5.0.0
+      - continue-on-error: true
+        uses: stefanzweifel/git-auto-commit-action@v5.0.0
         with:
           branch: pin-0.${{ github.run_number }}.0
           commit_message: Update docker tag pins to 0.${{ github.run_number }}.0
