@@ -81,7 +81,7 @@ async def corpus_cat(sha: str) -> tuple[str, bytes]:
 
 async def corpus_creations(
     *paths: str,
-    base_commit: str = environ.get("BASE_REF", "^origin/stable"),
+    base_reference: str = environ.get("BASE_REF", "^origin/stable"),
     disable_bars: bool | None,
 ) -> Iterable[tuple[str, list[str]]]:
     return (
@@ -103,12 +103,12 @@ async def corpus_creations(
                     await cmd(
                         "git",
                         "log",
-                        *("--all",) if base_commit.startswith("^") else (),
+                        *("--all",) if base_reference.startswith("^") else (),
                         "--date=iso",
                         "--diff-filter=A",
                         "--name-only",
                         "--pretty=format:commit:%cd:%h",
-                        base_commit,
+                        base_reference,
                         "--",
                         *paths,
                         out=PIPE,
