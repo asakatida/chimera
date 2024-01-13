@@ -22,7 +22,7 @@ async def git_cmd(*args: object, out: int | None = None) -> bytes:
 
 async def g_ls_tree(
     *args: str,
-    base_commit: str = environ.get("BASE_REF", "HEAD^"),
+    base_reference: str = environ.get("BASE_REF", "HEAD^"),
     exclude: Pattern[str] | None = None,
 ) -> list[Path]:
     cache_key = f"{args}, {exclude}"
@@ -58,7 +58,9 @@ async def g_ls_tree(
             line
             for lines in await as_completed(
                 (
-                    git_cmd("diff", "--name-only", base_commit, "--", *args, out=PIPE)
+                    git_cmd(
+                        "diff", "--name-only", base_reference, "--", *args, out=PIPE
+                    )
                     for args in chunks(CACHE[cache_key], 4096)
                 ),
                 cancel=True,
