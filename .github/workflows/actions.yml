@@ -1,9 +1,6 @@
 ---
 jobs:
   cleanup-actions:
-    concurrency:
-      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: ${{ github.workflow }}-actions-${{ github.ref }}
     permissions:
       actions: write
     runs-on: ubuntu-22.04
@@ -47,9 +44,6 @@ jobs:
           xargs --max-args=1 --max-procs=2 --no-run-if-empty --null --verbose --
           gh api -X DELETE
   cleanup-packages:
-    concurrency:
-      cancel-in-progress: ${{ github.ref != 'refs/heads/stable' }}
-      group: ${{ github.workflow }}-packages-${{ github.ref }}
     permissions:
       packages: write
     runs-on: ubuntu-22.04
