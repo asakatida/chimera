@@ -66,23 +66,22 @@ async def corpus_deletions(
 
 
 async def corpus_gather(*paths: str, disable_bars: bool | None) -> None:
+    exclude = {
+        line.strip().decode()
+        for line in await as_completed(
+            c_tqdm(
+                (
+                    cmd("git", "hash-object", case, out=PIPE, log=False)
+                    for case in gather_paths()
+                ),
+                "Gather existing corpus objects",
+                disable_bars,
+            )
+        )
+    }
     for path in paths:
         for _, case in await corpus_objects(
-            path,
-            disable_bars=disable_bars,
-            exclude={
-                line.strip().decode()
-                for line in await as_completed(
-                    c_tqdm(
-                        (
-                            cmd("git", "hash-object", case, out=PIPE, log=False)
-                            for case in gather_paths()
-                        ),
-                        "Gather existing corpus objects",
-                        disable_bars,
-                    )
-                )
-            },
+            path, disable_bars=disable_bars, exclude=exclude
         ):
             new_file = Path(path) / sha256(case).hexdigest()
             new_file.parent.mkdir(exist_ok=True, parents=True)
@@ -92,15 +91,13 @@ async def corpus_gather(*paths: str, disable_bars: bool | None) -> None:
     corpus_trim(disable_bars=disable_bars)
 
 
-def corpus_gather_main(ref: str) -> None:
+async def corpus_gather_main(ref: str) -> None:
     if ref == "refs/heads/stable":
-        run(
-            corpus_gather(
-                "unit_tests/fuzz/crashes", "unit_tests/fuzz/corpus", disable_bars=False
-            )
+        await corpus_gather(
+            "unit_tests/fuzz/crashes", "unit_tests/fuzz/corpus", disable_bars=False
         )
 
 
 if __name__ == "__main__":
     with main():
-        corpus_gather_main(*argv[1:])
+        run(corpus_gather_main(*argv[1:]))
