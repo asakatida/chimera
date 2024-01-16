@@ -24,6 +24,7 @@ from asyncio import run
 from base64 import b64encode
 from json import dump, load
 from lzma import compress
+from os import environ
 from pathlib import Path
 from subprocess import PIPE
 from sys import argv
@@ -40,7 +41,12 @@ BAD_KEYS = {
 }
 
 
-async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
+async def corpus_freeze(
+    output: str,
+    *,
+    base_reference: str = environ.get("BASE_REF", "^origin/stable"),
+    disable_bars: bool | None,
+) -> None:
     file = Path(output)
     with file.open() as istream:
         cases = {key: value for key, value in load(istream).items()}
@@ -68,6 +74,7 @@ async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
         for sha, obj in await corpus_objects(
             "unit_tests/fuzz/corpus",
             "unit_tests/fuzz/crashes",
+            base_reference=base_reference,
             disable_bars=disable_bars,
             exclude=BAD_KEYS.union(existing).union(cases.keys()),
         )
