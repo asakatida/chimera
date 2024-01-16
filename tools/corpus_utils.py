@@ -142,7 +142,10 @@ async def corpus_merge(disable_bars: bool | None) -> None:
 
 
 async def corpus_objects(
-    *paths: str, disable_bars: bool | None, exclude: set[str] = set()
+    *paths: str,
+    base_reference: str = environ.get("BASE_REF", "^origin/stable"),
+    disable_bars: bool | None,
+    exclude: set[str] = set(),
 ) -> list[tuple[str, bytes]]:
     return await as_completed(
         corpus_cat(sha)
@@ -167,7 +170,9 @@ async def corpus_objects(
                             for chunk in chunks(item[1], 4096)
                         )
                         for item in await corpus_creations(
-                            *paths, disable_bars=disable_bars
+                            *paths,
+                            base_reference=base_reference,
+                            disable_bars=disable_bars,
                         )
                     )
                     for lines in completed
