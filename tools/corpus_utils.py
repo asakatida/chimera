@@ -93,7 +93,6 @@ async def corpus_creations(
                     line
                     for line in splitlines(match["paths"])
                     if any(line.startswith(path) for path in paths)
-                    and not Path(line).exists()
                 ],
             )
             for match in c_tqdm(

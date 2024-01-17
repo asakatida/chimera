@@ -29,9 +29,8 @@ from subprocess import PIPE
 from sys import argv
 from typing import Iterable
 
-from asyncio_as_completed import as_completed
 from asyncio_cmd import cmd, main, splitlines
-from corpus_utils import c_tqdm, corpus_objects, corpus_trim, gather_paths
+from corpus_utils import c_tqdm, corpus_objects, corpus_trim
 
 
 async def corpus_deletions(
@@ -66,23 +65,8 @@ async def corpus_deletions(
 
 
 async def corpus_gather(*paths: str, disable_bars: bool | None) -> None:
-    exclude = {
-        line.strip().decode()
-        for line in await as_completed(
-            c_tqdm(
-                (
-                    cmd("git", "hash-object", case, out=PIPE, log=False)
-                    for case in gather_paths()
-                ),
-                "Gather existing corpus objects",
-                disable_bars,
-            )
-        )
-    }
     for path in paths:
-        for _, case in await corpus_objects(
-            path, disable_bars=disable_bars, exclude=exclude
-        ):
+        for _, case in await corpus_objects(path, disable_bars=disable_bars):
             new_file = Path(path) / sha256(case).hexdigest()
             new_file.parent.mkdir(exist_ok=True, parents=True)
             new_file.write_bytes(case)

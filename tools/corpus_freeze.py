@@ -25,42 +25,24 @@ from base64 import b64encode
 from json import dump, load
 from lzma import compress
 from pathlib import Path
-from subprocess import PIPE
 from sys import argv
 
-from asyncio_as_completed import as_completed
-from asyncio_cmd import cmd, main
+from asyncio_cmd import main
 from corpus_ascii import is_ascii
-from corpus_utils import c_tqdm, corpus_objects, gather_paths
+from corpus_utils import corpus_objects
 
 
 async def corpus_freeze(output: str, disable_bars: bool | None) -> None:
     file = Path(output)
     with file.open() as istream:
         cases = {key: value for key, value in load(istream).items()}
-    existing = {
-        key.strip().decode()
-        for key in await as_completed(
-            c_tqdm(
-                (
-                    cmd("git", "hash-object", path, log=False, out=PIPE)
-                    for path in gather_paths()
-                ),
-                "Hash corpus",
-                disable_bars,
-                total=len(list(gather_paths())),
-            )
-        )
-    }
-    for key in existing.intersection(cases.keys()):
-        del cases[key]
     cases.update(
         (sha, b64encode(compress(obj)).decode())
         for sha, obj in await corpus_objects(
             "unit_tests/fuzz/corpus",
             "unit_tests/fuzz/crashes",
             disable_bars=disable_bars,
-            exclude=existing.union(cases.keys()),
+            exclude=set(cases.keys()),
         )
         if is_ascii(obj)
     )
