@@ -110,18 +110,22 @@ namespace chimera::library::grammar {
       }
     };
     using DecIntegerNonZeroDigit =
-        seq<Nonzerodigit, star<opt<one<'_'>>, Digit>>;
-    using DecIntegerZeroDigit = seq<one<'0'>, star<opt<one<'_'>>, one<'0'>>>;
+        seq<Nonzerodigit, star<opt<one<'_'>>, Digit, discard>>;
+    using DecIntegerZeroDigit =
+        seq<one<'0'>, star<opt<one<'_'>>, one<'0'>, discard>>;
     using Decinteger = sor<DecIntegerNonZeroDigit, DecIntegerZeroDigit>;
     using BinStart = seq<one<'0'>, one<'b', 'B'>>;
-    using Bininteger = if_must<BinStart, plus<opt<one<'_'>>, Bindigit>>;
+    using Bininteger =
+        if_must<BinStart, plus<opt<one<'_'>>, Bindigit, discard>>;
     using OctStart = seq<one<'0'>, one<'o', 'O'>>;
-    using Octinteger = if_must<OctStart, plus<opt<one<'_'>>, Octdigit>>;
+    using Octinteger =
+        if_must<OctStart, plus<opt<one<'_'>>, Octdigit, discard>>;
     using HexStart = seq<one<'0'>, one<'x', 'X'>>;
-    using Hexinteger = if_must<HexStart, plus<opt<one<'_'>>, Hexdigit>>;
+    using Hexinteger =
+        if_must<HexStart, plus<opt<one<'_'>>, Hexdigit, discard>>;
     using Integer = sor<Bininteger, Octinteger, Hexinteger, Decinteger>;
-    using Digitpart = plus<opt<one<'_'>>, Digit>;
-    using Fraction = seq<one<'.'>, Digitpart>;
+    using Digitpart = plus<opt<one<'_'>>, Digit, discard>;
+    using Fraction = seq<one<'.'>, Digitpart, discard>;
     struct ExponentNegative : seq<one<'-'>, Digitpart> {
       struct Transform : NumberHolder {
         template <typename Top>

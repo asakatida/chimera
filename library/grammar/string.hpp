@@ -230,18 +230,8 @@ namespace chimera::library::grammar {
                 until<Triple, Item<seq<not_at<Triple>, Chars>, Escapes...>>>;
     template <typename Triple, typename Chars>
     struct LongRaw
-        : if_must<Triple, until<Triple, RawItem<seq<not_at<Triple>, Chars>>>> {
-    };
-    template <typename Triple, typename Chars>
-    struct Action<LongRaw<Triple, Chars>> {
-      template <typename Input, typename Top, typename... Args>
-      static void apply(const Input &input, Top &&top, Args &&.../*args*/) {
-        std::string_view view(input.begin(), input.size());
-        view.remove_prefix(3);
-        view.remove_suffix(3);
-        top.apply(view);
-      }
-    };
+        : if_must<Triple, until<Triple, seq<RawItem<seq<not_at<Triple>, Chars>>,
+                                            discard>>> {};
     template <typename Quote, typename Chars, typename... Escapes>
     using Short = if_must<
         Quote,
@@ -250,17 +240,8 @@ namespace chimera::library::grammar {
     struct ShortRaw
         : if_must<
               Quote,
-              until<Quote, RawItem<minus<seq<not_at<Quote>, Chars>, Eol>>>> {};
-    template <typename Quote, typename Chars>
-    struct Action<ShortRaw<Quote, Chars>> {
-      template <typename Input, typename Top, typename... Args>
-      static void apply(const Input &input, Top &&top, Args &&.../*args*/) {
-        std::string_view view(input.begin(), input.size());
-        view.remove_prefix(1);
-        view.remove_suffix(1);
-        top.apply(view);
-      }
-    };
+              until<Quote, seq<RawItem<minus<seq<not_at<Quote>, Chars>, Eol>>,
+                               discard>>> {};
     using TripleSingle = rep<3, one<'\''>>;
     using TripleDouble = rep<3, one<'"'>>;
     using Single = one<'\''>;
