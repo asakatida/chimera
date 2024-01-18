@@ -24,7 +24,6 @@ from pathlib import Path
 from sys import argv
 
 from asyncio_cmd import main
-from corpus_utils import sha
 
 SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
@@ -35,7 +34,7 @@ CRASHES = FUZZ / "crashes"
 def crash_reset() -> None:
     CRASHES.mkdir(exist_ok=True, parents=True)
     for crash in (path for path in CRASHES.rglob("*") if path.is_file()):
-        crash.rename(CORPUS / sha(crash))
+        crash.rename(CORPUS / crash.relative_to(CRASHES))
 
 
 if __name__ == "__main__":

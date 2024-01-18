@@ -24,10 +24,9 @@ from asyncio import run
 from pathlib import Path
 from re import escape, finditer
 from sys import argv
-from uuid import uuid4
 
 from asyncio_as_completed import as_completed
-from asyncio_cmd import ProcessError, chunks, cmd_flog, main
+from asyncio_cmd import ProcessError, cmd_flog, main
 from cmake_codecov import cmake_codecov
 from corpus_utils import corpus_merge, corpus_trim, fuzz_star, regression
 from structlog import get_logger
@@ -43,14 +42,14 @@ def fuzz_output_paths(prefix: bytes, output: bytes) -> set[bytes]:
 
 
 async def regression_log_one(fuzzer: Path, *chunk: Path) -> Exception | None:
-    log_file = f"/tmp/{fuzzer.name}-{uuid4().hex}.log"
-    Path(log_file).write_bytes(b"")
+    log_file = Path("/tmp") / f"{fuzzer.name}-{chunk[0].parent.name}.log"
+    log_file.write_bytes(b"")
     try:
-        await cmd_flog(fuzzer, *chunk, out=log_file)
+        await cmd_flog(fuzzer, *chunk, out=str(log_file))
     except ProcessError as err:
         return err
     finally:
-        log_output = Path(log_file).read_bytes()
+        log_output = log_file.read_bytes()
         for file in (
             Path(path.decode())
             for path in fuzz_output_paths(b"Running:", log_output)
@@ -60,7 +59,8 @@ async def regression_log_one(fuzzer: Path, *chunk: Path) -> Exception | None:
                 file.rename(CRASHES / file.name)
             except FileNotFoundError:
                 pass
-        Path(log_file).unlink(missing_ok=True)
+        log_file.unlink(missing_ok=True)
+    (chunk[0].parent / ".done").touch()
     return None
 
 
@@ -69,10 +69,17 @@ async def regression_log() -> list[Exception]:
         exc
         for exc in await as_completed(
             regression_log_one(fuzz, *args)
-            for args in chunks(
-                (path for path in CORPUS.rglob("*") if path.is_file()), 64
+            for args in (
+                {
+                    path
+                    for path in corpus.glob("*")
+                    if path.is_file() and path.name != ".done"
+                }
+                for corpus in CORPUS.glob("*")
+                if not (corpus / ".done").exists()
             )
             for fuzz in fuzz_star()
+            if args
         )
         if exc is not None
     ]
@@ -85,6 +92,8 @@ async def corpus_retest() -> None:
             "Regression failed, retrying with"
             f" {len([path for path in CORPUS.rglob('*') if path.is_file()])} cases"
         )
+    for done in CRASHES.rglob(".done"):
+        done.unlink()
     await corpus_merge(disable_bars=None)
 
 
