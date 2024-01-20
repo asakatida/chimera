@@ -303,7 +303,6 @@ if(
       python ${CMAKE_SOURCE_DIR}/tools/regression.py
       ${CMAKE_BINARY_DIR}
       ${fuzzer}
-      ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/corpus
       DEPENDS fuzz-${fuzzer}
       VERBATIM)
     add_dependencies(corpus corpus-${fuzzer})

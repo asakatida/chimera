@@ -41,11 +41,8 @@ async def g_ls_tree(
         for path in {
             line
             for lines in await as_completed(
-                (
-                    git_cmd("ls-files", "--", *args, out=PIPE)
-                    for args in chunks(rglob, 4096)
-                ),
-                cancel=True,
+                git_cmd("ls-files", "--", *args, out=PIPE)
+                for args in chunks(rglob, 4096)
             )
             for line in splitlines(lines)
         }
@@ -57,13 +54,8 @@ async def g_ls_tree(
         for path in {
             line
             for lines in await as_completed(
-                (
-                    git_cmd(
-                        "diff", "--name-only", base_reference, "--", *args, out=PIPE
-                    )
-                    for args in chunks(CACHE[cache_key], 4096)
-                ),
-                cancel=True,
+                git_cmd("diff", "--name-only", base_reference, "--", *args, out=PIPE)
+                for args in chunks(CACHE[cache_key], 4096)
             )
             for line in splitlines(lines)
         }

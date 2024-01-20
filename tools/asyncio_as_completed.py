@@ -8,7 +8,7 @@ T = TypeVar("T")
 DEFAULT_LIMIT = max(cpu_count() or 0, 1) * 3
 
 
-async def _list(iter: Iterator[Task[T]], cancel: bool) -> list[T]:
+async def _list(iter: Iterator[Task[T]]) -> list[T]:
     canceled: CancelledError | None = None
     try:
         return [await task for task in iter]
@@ -16,12 +16,11 @@ async def _list(iter: Iterator[Task[T]], cancel: bool) -> list[T]:
         if isinstance(exc_info()[1], KeyboardInterrupt):
             raise
         for task in iter:
-            if cancel:
-                try:
-                    if not task.done():
-                        task.cancel()
-                except AttributeError:
-                    pass
+            try:
+                if not task.done():
+                    task.cancel()
+            except AttributeError:
+                pass
             try:
                 await task
             except KeyboardInterrupt:
@@ -56,9 +55,7 @@ def _schedule_tasks(coroutines: Iterator[Task[T]], limit: int) -> Iterator[Task[
 async def as_completed(
     coroutines: Iterable[Coroutine[object, object, T]],
     limit: int = DEFAULT_LIMIT,
-    cancel: bool = False,
 ) -> list[T]:
     return await _list(
-        _schedule_tasks((create_task(coroutine) for coroutine in coroutines), limit),
-        cancel,
+        _schedule_tasks((create_task(coroutine) for coroutine in coroutines), limit)
     )
