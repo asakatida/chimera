@@ -34,7 +34,9 @@ from chimera_utils import IN_CI, rmdir
 from structlog import get_logger
 from tqdm import tqdm
 
-CONFLICT = compile(rb"^(?:(?:<{7}|>{7})\s.+|={7})$\s", MULTILINE)
+CONFLICT = compile(
+    rb"^(?:<{8}(?:\s+HEAD:\S+)?|>{8}(?:\s+\w+\s+\([^\)]+\):\S+)?|={8})$\s?", MULTILINE
+)
 DIRECTORIES = ("corpus", "crashes")
 SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"
