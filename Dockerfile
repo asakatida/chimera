@@ -21,7 +21,7 @@ RUN <<SHELL sh
         readline-dev=8.2.1-r2 \
         sqlite-dev=3.44.2-r0 \
         xz-dev=5.4.5-r0 \
-        zlib-dev=1.3-r2
+        zlib-dev=1.3.1-r0
     apk cache clean
     rm -rf /var/cache/apk/*
 SHELL
