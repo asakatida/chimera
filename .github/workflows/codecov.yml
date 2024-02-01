@@ -25,6 +25,9 @@ name: CodeCov
 
 # yamllint disable-line rule:truthy
 on:
+  pull_request:
+    paths:
+      - .github/workflows/codecov.yml
   push:
     branches:
       - stable
