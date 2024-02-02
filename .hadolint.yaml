@@ -1,2 +1,4 @@
 ---
-{}
+disable-ignore-pragma: true
+failure-threshold: ignore
+strict-labels: true
