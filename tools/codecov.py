@@ -28,7 +28,9 @@ async def codecov(llvm_profile_lcov: str) -> None:
     rmdir(llvm_profile_dir)
     llvm_profile_dir.mkdir(exist_ok=True, parents=True)
     try:
-        await gather(ninja("build", "test"), regression("build"))
+        await gather(
+            ninja("build", "-k0", "test"), regression("build", return_exceptions=True)
+        )
     except Exception:
         pass
     await cmd(
