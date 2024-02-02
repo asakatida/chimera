@@ -246,21 +246,26 @@ def gather_paths() -> Iterable[Path]:
     )
 
 
-async def regression(build: str, fuzzer: str = "") -> None:
+async def regression(
+    build: str, fuzzer: str = "", return_exceptions: bool = False
+) -> None:
     fuzzers = (Path(build) / f"fuzz-{fuzzer}",) if fuzzer else fuzz_star(Path(build))
     await as_completed(
-        cmd_flog(fuzz, *args)
-        for args in (
-            {
-                path
-                for path in corpus.glob("*")
-                if path.is_file() and path.name != ".done"
-            }
-            for corpus in CORPUS.glob("*")
-            if not (corpus / ".done").exists()
-        )
-        for fuzz in fuzzers
-        if args
+        (
+            cmd_flog(fuzz, *args)
+            for args in (
+                {
+                    path
+                    for path in corpus.glob("*")
+                    if path.is_file() and path.name != ".done"
+                }
+                for corpus in CORPUS.glob("*")
+                if not (corpus / ".done").exists()
+            )
+            for fuzz in fuzzers
+            if args
+        ),
+        return_exceptions=return_exceptions,
     )
 
 
