@@ -80,7 +80,8 @@ on:
     paths:
       - .dockerignore
       - .github/workflows/release.yml
-      - Dockerfile*
+      - .hadolint.yaml
+      - Dockerfile
       - requirements.txt
       - tools/boot.yml
       - tools/requirements.txt
