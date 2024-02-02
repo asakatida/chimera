@@ -31,6 +31,11 @@ on:
   pull_request:
     paths:
       - .github/workflows/codecov.yml
+      - "**.cpp"
+      - "**.h"
+      - "**.hpp"
+      - tools/codecov.py
+      - unit_tests/**
   push:
     branches:
       - stable
