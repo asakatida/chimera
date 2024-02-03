@@ -27,12 +27,11 @@ async def codecov(llvm_profile_lcov: str) -> None:
     await cmake_codecov("fuzzers", "unit-test")
     rmdir(llvm_profile_dir)
     llvm_profile_dir.mkdir(exist_ok=True, parents=True)
-    try:
-        await gather(
-            ninja("build", "-k0", "test"), regression("build", return_exceptions=True)
-        )
-    except Exception:
-        pass
+    await gather(
+        ninja("build", "-k0", "test"),
+        regression("build", return_exceptions=True),
+        return_exceptions=True,
+    )
     await cmd(
         "llvm-profdata",
         "merge",
