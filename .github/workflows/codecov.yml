@@ -16,9 +16,12 @@ jobs:
           run: |
             rustup default stable
             python tools/codecov.py llvm-profile.lcov
-      - uses: codecov/codecov-action@v3.1.6
+      - env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        uses: codecov/codecov-action@v3.1.6
         with:
           directory: ${{ github.workspace }}
+          fail_ci_if_error: true
           files: llvm-profile.lcov
 
 name: CodeCov
