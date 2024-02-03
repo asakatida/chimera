@@ -147,11 +147,6 @@ target_link_libraries(
 add_subdirectory(external/Catch EXCLUDE_FROM_ALL)
 include(CatchShardTests)
 
-set(
-  BLNS_BASE64_JSON_FILE
-  ${CMAKE_SOURCE_DIR}/external/big-list-of-naughty-strings/blns.base64.json)
-set(CASES_JSON_FILE ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/cases.json)
-
 foreach(FUZZ_TESTS_IDX RANGE 1020)
   list(
     APPEND
@@ -168,8 +163,8 @@ add_custom_command(
   ${CMAKE_SOURCE_DIR}
   DEPENDS
   tools/generate_fuzz.py
-  ${BLNS_BASE64_JSON_FILE}
-  ${CASES_JSON_FILE})
+  external/big-list-of-naughty-strings/blns.base64.json
+  unit_tests/fuzz/cases.json)
 
 add_executable(
   unit-test
