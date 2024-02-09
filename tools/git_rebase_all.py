@@ -67,9 +67,9 @@ async def report_branch_graph(
         {branch for branch in branch_graph.keys()}.intersection(remote_branches)
     ):
         for local in sorted(
-            {branch for branch in branch_graph.get(remote, [])}.difference(
-                remote_branches
-            )
+            {branch for branch in branch_graph.get(remote, [])}
+            .difference(remote_branches)
+            .difference(["origin/HEAD"])
         ):
             if local in branch_graph:
                 branch_graph[remote] |= branch_graph[local]
