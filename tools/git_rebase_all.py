@@ -101,9 +101,11 @@ async def git_rebase_one(local_branch: str, execute: str, *args: str) -> None:
         await git_cmd("switch", "--detach", "origin/HEAD")
         try:
             await git_cmd("cherry-pick", local_branch)
-            await git_cmd("switch", "-C", local_branch)
         except ProcessError:
-            await git_cmd("cherry-pick", "--abort")
+            await cmd("sh", "-c", *args, log=False)
+            await git_cmd("add", "--update")
+            await git_cmd("cherry-pick", "--continue")
+        await git_cmd("switch", "-C", local_branch)
         return
     if await git_rev_list("--right-only", f"{local_branch}...origin/stable") == b"0":
         return
