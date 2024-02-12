@@ -94,18 +94,31 @@ async def set_upstream(*remote_branches: str) -> None:
             await git_cmd("branch", local_name, remote_branch)
 
 
+async def git_cherry_pick_one(local_branch: str, *args: str) -> None:
+    await git_cmd("switch", "--detach", "origin/HEAD")
+    try:
+        await git_cmd("cherry-pick", local_branch)
+    except ProcessError:
+        await cmd("sh", "-c", *args, log=False)
+        await git_cmd("add", "--update")
+        try:
+            await cmd_env(
+                "git",
+                "cherry-pick",
+                "--continue",
+                env={"EDITOR": "true"},
+                log=False,
+            )
+        except ProcessError:
+            await git_cmd("cherry-pick", "--skip")
+    await git_cmd("switch", "-C", local_branch)
+
+
 async def git_rebase_one(local_branch: str, execute: str, *args: str) -> None:
     if match(r"corpus-\d+-", local_branch) and 1 < int(
         await git_rev_list("--left-only", f"{local_branch}...origin/stable")
     ):
-        await git_cmd("switch", "--detach", "origin/HEAD")
-        try:
-            await git_cmd("cherry-pick", local_branch)
-        except ProcessError:
-            await cmd("sh", "-c", *args, log=False)
-            await git_cmd("add", "--update")
-            await git_cmd("cherry-pick", "--continue")
-        await git_cmd("switch", "-C", local_branch)
+        await git_cherry_pick_one(local_branch, *args)
         return
     if await git_rev_list("--right-only", f"{local_branch}...origin/stable") == b"0":
         return
@@ -125,14 +138,14 @@ async def git_rebase_one(local_branch: str, execute: str, *args: str) -> None:
     await git_cmd("submodule", "update", "--init", "--recursive")
     while True:
         await cmd("sh", "-c", *args, log=False)
+        await git_cmd("add", "--update")
         try:
-            await git_cmd("add", "--update")
             await cmd_env(
                 "git", "rebase", "--continue", env={"EDITOR": "true"}, log=False
             )
-            break
         except ProcessError:
-            pass
+            continue
+        break
 
 
 async def git_rebase_all(execute: str, *args: str, disable_bars: bool | None) -> None:
