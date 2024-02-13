@@ -103,11 +103,7 @@ async def git_cherry_pick_one(local_branch: str, *args: str) -> None:
         await git_cmd("add", "--update")
         try:
             await cmd_env(
-                "git",
-                "cherry-pick",
-                "--continue",
-                env={"EDITOR": "true"},
-                log=False,
+                "git", "cherry-pick", "--continue", env={"EDITOR": "true"}, log=False
             )
         except ProcessError:
             await git_cmd("cherry-pick", "--skip")
