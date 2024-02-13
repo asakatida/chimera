@@ -1,6 +1,5 @@
-from functools import reduce
 from pathlib import Path
-from re import MULTILINE, compile
+from re import MULTILINE, VERBOSE, compile
 from sys import argv
 
 SOURCE = Path(__file__).parent.parent.resolve()
@@ -11,12 +10,15 @@ IGNORE = (
     (SOURCE / "unit_tests" / "fuzz" / "corpus"),
     (SOURCE / "unit_tests" / "fuzz" / "crashes"),
 )
-SEARCHES = (
-    compile(
-        rb"$\s^$(?P<keep>\s{2,})(?=\S)(?!(?:private|protected):)", MULTILINE
-    ),  # no runs of blank lines
-    compile(rb"((?=[^\n])\s)+(?P<keep>$)", MULTILINE),  # no line ending space
-    compile(rb"(?P<keep>\s)\s+\Z"),  # no trailing space
+SEARCH = compile(
+    rb"""
+        $\s^$(?P<keep1>\s{2,})(?=\S)(?!(?:private|protected):)  # no runs of blank lines
+        |
+        ((?=[^\n])\s)+$  # no line ending space
+        |
+        (?P<keep2>\s)\s+\Z  # no trailing space
+    """,
+    MULTILINE | VERBOSE,
 )
 
 
@@ -26,17 +28,11 @@ def test(f: Path) -> bool:
         # markdown is ignored
         # python linting is covered by black
         and f.suffix not in (".md", ".py")
-        and any(search.search(f.read_bytes()) for search in SEARCHES)
+        and SEARCH.search(f.read_bytes()) is not None
     )
 
 
 files = [path for path in (Path(arg) for arg in argv[1:]) if path.is_file()]
 while files := [file for file in files if test(file)]:
     for file in files:
-        file.write_bytes(
-            reduce(
-                lambda content, search: search.sub(rb"\g<keep>", content),
-                SEARCHES,
-                file.read_bytes(),
-            )
-        )
+        file.write_bytes(SEARCH.sub(rb"\g<keep1>\g<keep2>", file.read_bytes()))
