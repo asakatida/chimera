@@ -26,18 +26,7 @@ esac
 
 cmakelint
 
-python tools/g_ls_tree.py py | \
-  tools/xargs.sh -- \
-  isort --python-version auto
-python tools/g_ls_tree.py py | \
-  tools/xargs.sh -- \
-  black --preview --target-version py311
-python tools/g_ls_tree.py py | \
-  tools/xargs.sh -- \
-  pylama
-python tools/g_ls_tree.py py --exclude 'stdlib/|.*/stdlib/' | \
-  tools/xargs.sh -- \
-  mypy
+python3 tools/self_check.py
 
 python3 tools/generate_utf8_id_continue.py
 python3 tools/generate_utf8_id_start.py

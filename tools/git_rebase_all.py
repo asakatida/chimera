@@ -124,13 +124,7 @@ async def git_rebase_one(local_branch: str, execute: str, *args: str) -> None:
         return
     try:
         await cmd(
-            "git",
-            "rebase",
-            "--exec",
-            execute,
-            "origin/stable",
-            local_branch,
-            log=False,
+            "git", "rebase", "--exec", execute, "origin/stable", local_branch, log=False
         )
         return
     except ProcessError:

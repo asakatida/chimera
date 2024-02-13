@@ -18,6 +18,8 @@ async def black(*files: object) -> bytes:
         return await lint(
             "black",
             *ci_args("--check", "--diff"),
+            "--enable-unstable-feature",
+            "hug_parens_with_braces_and_square_brackets",
             "--preview",
             "--target-version",
             f"py{version_info.major}{version_info.minor}",
