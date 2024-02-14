@@ -26,6 +26,8 @@ def sanitize(data: bytes) -> str:
 
 
 def make_tests(*test_cpps: Path, tests: dict[str, dict[bytes, str]]) -> None:
+    for test_cpp in {test_cpp.parent for test_cpp in test_cpps}:
+        test_cpp.mkdir(exist_ok=True, parents=True)
     for test_cpp, test_cases in groupby(
         sorted(
             zip(
@@ -49,7 +51,6 @@ def make_tests(*test_cpps: Path, tests: dict[str, dict[bytes, str]]) -> None:
         content = PREFIX + "\n".join(test_case[1] for test_case in test_cases)
         if test_cpp.exists() and test_cpp.read_text() == content:
             continue
-        test_cpp.parent.mkdir(exist_ok=True, parents=True)
         test_cpp.write_text(content)
 
 

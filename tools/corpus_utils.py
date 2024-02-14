@@ -15,7 +15,8 @@ from structlog import get_logger
 from tqdm import tqdm
 
 CONFLICT = compile(
-    rb"^(?:<{8}(?:\s+HEAD:\S+)?|>{8}(?:\s+\w+\s+\([^\)]+\):\S+)?|={8}).*$\s?", MULTILINE
+    rb"^(?:<{7,8}(?:\s+HEAD:\S+)?|>{7,8}(?:\s+\w+\s+\([^\)]+\):\S+)?|={7,8}).*$\s?",
+    MULTILINE,
 )
 DIRECTORIES = ("corpus", "crashes")
 SOURCE = Path(__file__).parent.parent.resolve()

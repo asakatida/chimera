@@ -64,6 +64,7 @@ async def corpus_gather(
         )
     }
     for path in paths:
+        Path(path).mkdir(exist_ok=True, parents=True)
         for _, case in await corpus_objects(
             path,
             base_reference=base_reference,
@@ -71,7 +72,6 @@ async def corpus_gather(
             exclude=exclude,
         ):
             new_file = Path(path) / sha256(case).hexdigest()
-            new_file.parent.mkdir(exist_ok=True, parents=True)
             new_file.write_bytes(case)
     for path in await corpus_deletions(
         *paths, base_reference=base_reference, disable_bars=disable_bars
