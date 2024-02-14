@@ -3,7 +3,6 @@ extends: default
 
 ignore-from-file:
   - .gitignore
-  - unit_tests/fuzz/.gitignore
 rules:
   braces:
     forbid: non-empty
