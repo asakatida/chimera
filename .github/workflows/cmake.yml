@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4.1.1
         with:
-          filter: tree:0
+          fetch-depth: 0
           submodules: true
       - env:
           GITHUB_REF: ${{ github.ref }}
@@ -27,6 +27,13 @@ jobs:
           run: |
             python tools/ninja.py build corpus
             python tools/corpus_retest.py build
+      - name: Corpus baseline
+        uses: ./
+        with:
+          run: |
+            git restore --source origin/stable --staged unit_tests/fuzz/corpus
+            git restore --worktree unit_tests/fuzz/corpus
+            python tools/corpus_trim.py
       - continue-on-error: true
         uses: stefanzweifel/git-auto-commit-action@v5.0.0
         with:
