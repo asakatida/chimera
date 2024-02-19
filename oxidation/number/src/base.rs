@@ -5,14 +5,20 @@
 #![allow(clippy::implicit_return)]
 #![allow(clippy::missing_docs_in_private_items)]
 
+use core::cmp;
+use core::fmt::{
+    Binary, Debug, Display, Formatter, LowerExp, LowerHex, Octal, Pointer, Result, UpperExp,
+    UpperHex,
+};
+use core::ops::{Add, BitAnd, BitOr, BitXor, Div, Mul, Neg, Not, Rem, Shl, Shr, Sub};
+use num_traits::Pow;
+
 use crate::natural::Natural;
 use crate::negative::Negative;
 use crate::number::Number;
 use crate::rational::Rational;
 use crate::traits::NumberBase;
 use crate::utils::fmt_ptr;
-use core::{cmp, fmt, ops};
-use num_traits::Pow;
 
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct Base {
@@ -59,63 +65,63 @@ impl num_traits::ToPrimitive for Base {
     }
 }
 
-impl fmt::Binary for Base {
+impl Binary for Base {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Binary::fmt(&self.value, formatter)
+    fn fmt(&self, formatter: &mut Formatter) -> Result {
+        Binary::fmt(&self.value, formatter)
     }
 }
 
-impl fmt::Display for Base {
+impl Display for Base {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Display::fmt(&self.value, formatter)
+    fn fmt(&self, formatter: &mut Formatter) -> Result {
+        Display::fmt(&self.value, formatter)
     }
 }
 
-impl fmt::LowerExp for Base {
+impl LowerExp for Base {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        fmt::LowerExp::fmt(&self.value, formatter)
+    fn fmt(&self, formatter: &mut Formatter) -> Result {
+        LowerExp::fmt(&self.value, formatter)
     }
 }
 
-impl fmt::LowerHex for Base {
+impl LowerHex for Base {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        fmt::LowerHex::fmt(&self.value, formatter)
+    fn fmt(&self, formatter: &mut Formatter) -> Result {
+        LowerHex::fmt(&self.value, formatter)
     }
 }
 
-impl fmt::Octal for Base {
+impl Octal for Base {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Octal::fmt(&self.value, formatter)
+    fn fmt(&self, formatter: &mut Formatter) -> Result {
+        Octal::fmt(&self.value, formatter)
     }
 }
 
-impl fmt::Pointer for Base {
+impl Pointer for Base {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter) -> Result {
         fmt_ptr(self, formatter)
     }
 }
 
-impl fmt::UpperExp for Base {
+impl UpperExp for Base {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        fmt::UpperExp::fmt(&self.value, formatter)
+    fn fmt(&self, formatter: &mut Formatter) -> Result {
+        UpperExp::fmt(&self.value, formatter)
     }
 }
 
-impl fmt::UpperHex for Base {
+impl UpperHex for Base {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        fmt::UpperHex::fmt(&self.value, formatter)
+    fn fmt(&self, formatter: &mut Formatter) -> Result {
+        UpperHex::fmt(&self.value, formatter)
     }
 }
 
-impl ops::Add for Base {
+impl Add for Base {
     type Output = Number;
     #[inline]
     fn add(self, other: Self) -> Self::Output {
@@ -126,7 +132,7 @@ impl ops::Add for Base {
     }
 }
 
-impl ops::BitAnd for Base {
+impl BitAnd for Base {
     type Output = Number;
     #[inline]
     fn bitand(self, other: Self) -> Self::Output {
@@ -134,7 +140,7 @@ impl ops::BitAnd for Base {
     }
 }
 
-impl ops::BitOr for Base {
+impl BitOr for Base {
     type Output = Number;
     #[inline]
     fn bitor(self, other: Self) -> Self::Output {
@@ -142,7 +148,7 @@ impl ops::BitOr for Base {
     }
 }
 
-impl ops::BitXor for Base {
+impl BitXor for Base {
     type Output = Number;
     #[inline]
     fn bitxor(self, other: Self) -> Self::Output {
@@ -150,7 +156,7 @@ impl ops::BitXor for Base {
     }
 }
 
-impl ops::Div for Base {
+impl Div for Base {
     type Output = Number;
     #[inline]
     fn div(self, other: Self) -> Self::Output {
@@ -169,7 +175,7 @@ impl ops::Div for Base {
     }
 }
 
-impl ops::Mul for Base {
+impl Mul for Base {
     type Output = Number;
     #[inline]
     fn mul(self, other: Self) -> Self::Output {
@@ -180,7 +186,7 @@ impl ops::Mul for Base {
     }
 }
 
-impl ops::Neg for Base {
+impl Neg for Base {
     type Output = Number;
     #[inline]
     fn neg(self) -> Self::Output {
@@ -188,7 +194,7 @@ impl ops::Neg for Base {
     }
 }
 
-impl ops::Not for Base {
+impl Not for Base {
     type Output = Number;
     #[inline]
     fn not(self) -> Self::Output {
@@ -211,7 +217,7 @@ impl Pow<Base> for Base {
     }
 }
 
-impl ops::Rem for Base {
+impl Rem for Base {
     type Output = Number;
     #[inline]
     fn rem(self, other: Self) -> Self::Output {
@@ -221,7 +227,7 @@ impl ops::Rem for Base {
     }
 }
 
-impl ops::Shl for Base {
+impl Shl for Base {
     type Output = Number;
     #[inline]
     fn shl(self, other: Self) -> Self::Output {
@@ -229,7 +235,7 @@ impl ops::Shl for Base {
     }
 }
 
-impl ops::Shr for Base {
+impl Shr for Base {
     type Output = Number;
     #[inline]
     fn shr(self, other: Self) -> Self::Output {
@@ -237,7 +243,7 @@ impl ops::Shr for Base {
     }
 }
 
-impl ops::Sub for Base {
+impl Sub for Base {
     type Output = Number;
     #[inline]
     fn sub(self, other: Self) -> Self::Output {

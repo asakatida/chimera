@@ -1075,9 +1075,7 @@ impl NumberBase for Number {
         match (self, other) {
             (Self::NaN, _) | (_, Self::NaN) => Self::NaN,
             (Self::Base(a), Self::Base(b)) => a.gcd(b),
-            (Self::Base(a), Self::Natural(b)) | (Self::Natural(b), Self::Base(a)) => {
-                gcd(a.into(), b)
-            }
+            (Self::Base(a), Self::Natural(b)) | (Self::Natural(b), Self::Base(a)) => gcd(a, b),
             (Self::Base(a), Self::Rational(b)) | (Self::Rational(b), Self::Base(a)) => {
                 Rational::from(a).gcd(b)
             }
@@ -1092,7 +1090,7 @@ impl NumberBase for Number {
                     (_, Self::Negative(_) | Self::NaN) => Self::NaN,
                     (Negative::Base(a), Self::Base(b)) => a.gcd(b),
                     (Negative::Base(a), Self::Natural(b))
-                    | (Negative::Natural(b), Self::Base(a)) => gcd(a.into(), b),
+                    | (Negative::Natural(b), Self::Base(a)) => gcd(a, b),
                     (Negative::Base(a), Self::Rational(b))
                     | (Negative::Rational(b), Self::Base(a)) => b.gcd(a.into()),
                     (Negative::Base(a), Self::Imag(b)) => Complex::from(a).gcd(b.into()),

@@ -5,10 +5,12 @@
 #![allow(clippy::implicit_return)]
 #![allow(clippy::missing_docs_in_private_items)]
 
+use core::fmt::{Binary, Debug, Display, LowerExp, LowerHex, Octal, Pointer, UpperExp, UpperHex};
+use core::ops::{Add, BitAnd, BitOr, BitXor, Div, Mul, Neg, Not, Rem, Shl, Shr, Sub};
+use num_traits::Pow;
+
 use crate::number::Number;
 use crate::utils::gcd;
-use core::{fmt, ops};
-use num_traits::Pow;
 
 pub trait NumberBase:
     Sized
@@ -16,27 +18,27 @@ pub trait NumberBase:
     + num_traits::ToPrimitive
     + Pow<Self, Output = Number>
     // + num_integer::Integer<Output = Number>
-    + ops::Add<Output = Number>
-    + ops::BitAnd<Output = Number>
-    + ops::BitOr<Output = Number>
-    + ops::BitXor<Output = Number>
-    + ops::Div<Output = Number>
-    + ops::Mul<Output = Number>
-    + ops::Neg<Output = Number>
-    + ops::Not<Output = Number>
-    + ops::Rem<Output = Number>
-    + ops::Shl<Output = Number>
-    + ops::Shr<Output = Number>
-    + ops::Sub<Output = Number>
-    + fmt::Binary
-    + fmt::Debug
-    + fmt::Display
-    + fmt::LowerExp
-    + fmt::LowerHex
-    + fmt::Octal
-    + fmt::Pointer
-    + fmt::UpperExp
-    + fmt::UpperHex
+    + Add<Output = Number>
+    + BitAnd<Output = Number>
+    + BitOr<Output = Number>
+    + BitXor<Output = Number>
+    + Div<Output = Number>
+    + Mul<Output = Number>
+    + Neg<Output = Number>
+    + Not<Output = Number>
+    + Rem<Output = Number>
+    + Shl<Output = Number>
+    + Shr<Output = Number>
+    + Sub<Output = Number>
+    + Binary
+    + Debug
+    + Display
+    + LowerExp
+    + LowerHex
+    + Octal
+    + Pointer
+    + UpperExp
+    + UpperHex
 {
     #[inline]
     #[must_use]
