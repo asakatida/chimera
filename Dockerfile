@@ -9,7 +9,7 @@ RUN <<SHELL sh
         ca-certificates=20230506-r0 \
         git=2.43.0-r0
     apk add --no-cache \
-        python3-dev=3.11.6-r1
+        python3-dev=3.11.8-r0
     apk add --no-cache \
         build-base=0.5-r3 \
         gdb=14.1-r0 \
@@ -51,7 +51,7 @@ RUN <<SHELL sh
     apk add --no-cache \
         gcc=13.2.1_git20231014-r0 \
         musl-dev=1.2.4_git20230717-r4 \
-        python3-dev=3.11.6-r1
+        python3-dev=3.11.8-r0
     python3 -m venv /tmp/env
     /tmp/env/bin/pip install -r /tmp/tools/requirements.txt
     /tmp/env/bin/pip install -r /tmp/requirements.txt
