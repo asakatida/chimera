@@ -6,16 +6,22 @@
 #![allow(clippy::implicit_return)]
 #![allow(clippy::missing_docs_in_private_items)]
 
+use core::cmp;
+use core::fmt::{
+    Binary, Debug, Display, Formatter, LowerExp, LowerHex, Octal, Pointer, Result, UpperExp,
+    UpperHex,
+};
+use core::ops::{Add, BitAnd, BitOr, BitXor, Div, Mul, Neg, Not, Rem, Shl, Shr, Sub};
+use num_integer::Integer;
+use num_traits::Pow;
+use num_traits::{CheckedSub, ToPrimitive, Zero};
+
 use crate::base::Base;
 use crate::negative::Negative;
 use crate::number::Number;
 use crate::rational::Rational;
 use crate::traits::NumberBase;
 use crate::utils::fmt_ptr;
-use core::{cmp, fmt, ops};
-use num_integer::Integer;
-use num_traits::Pow;
-use num_traits::{CheckedSub, ToPrimitive, Zero};
 
 pub enum Maybe {
     Base(Base),
@@ -93,63 +99,63 @@ impl num_traits::ToPrimitive for Natural {
     }
 }
 
-impl fmt::Binary for Natural {
+impl Binary for Natural {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Binary::fmt(&self.value, formatter)
+    fn fmt(&self, formatter: &mut Formatter) -> Result {
+        Binary::fmt(&self.value, formatter)
     }
 }
 
-impl fmt::Display for Natural {
+impl Display for Natural {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Display::fmt(&self.value, formatter)
+    fn fmt(&self, formatter: &mut Formatter) -> Result {
+        Display::fmt(&self.value, formatter)
     }
 }
 
-impl fmt::LowerExp for Natural {
+impl LowerExp for Natural {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Display::fmt(&self.value, formatter)
+    fn fmt(&self, formatter: &mut Formatter) -> Result {
+        Display::fmt(&self.value, formatter)
     }
 }
 
-impl fmt::LowerHex for Natural {
+impl LowerHex for Natural {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        fmt::LowerHex::fmt(&self.value, formatter)
+    fn fmt(&self, formatter: &mut Formatter) -> Result {
+        LowerHex::fmt(&self.value, formatter)
     }
 }
 
-impl fmt::Octal for Natural {
+impl Octal for Natural {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Octal::fmt(&self.value, formatter)
+    fn fmt(&self, formatter: &mut Formatter) -> Result {
+        Octal::fmt(&self.value, formatter)
     }
 }
 
-impl fmt::Pointer for Natural {
+impl Pointer for Natural {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter) -> Result {
         fmt_ptr(self, formatter)
     }
 }
 
-impl fmt::UpperExp for Natural {
+impl UpperExp for Natural {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Display::fmt(&self.value, formatter)
+    fn fmt(&self, formatter: &mut Formatter) -> Result {
+        Display::fmt(&self.value, formatter)
     }
 }
 
-impl fmt::UpperHex for Natural {
+impl UpperHex for Natural {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        fmt::UpperHex::fmt(&self.value, formatter)
+    fn fmt(&self, formatter: &mut Formatter) -> Result {
+        UpperHex::fmt(&self.value, formatter)
     }
 }
 
-impl ops::Add for Natural {
+impl Add for Natural {
     type Output = Number;
     #[inline]
     fn add(self, other: Self) -> Self::Output {
@@ -157,7 +163,7 @@ impl ops::Add for Natural {
     }
 }
 
-impl ops::BitAnd for Natural {
+impl BitAnd for Natural {
     type Output = Number;
     #[inline]
     fn bitand(self, other: Self) -> Self::Output {
@@ -165,7 +171,7 @@ impl ops::BitAnd for Natural {
     }
 }
 
-impl ops::BitOr for Natural {
+impl BitOr for Natural {
     type Output = Number;
     #[inline]
     fn bitor(self, other: Self) -> Self::Output {
@@ -173,7 +179,7 @@ impl ops::BitOr for Natural {
     }
 }
 
-impl ops::BitXor for Natural {
+impl BitXor for Natural {
     type Output = Number;
     #[inline]
     fn bitxor(self, other: Self) -> Self::Output {
@@ -181,7 +187,7 @@ impl ops::BitXor for Natural {
     }
 }
 
-impl ops::Div for Natural {
+impl Div for Natural {
     type Output = Number;
     #[inline]
     fn div(self, other: Self) -> Self::Output {
@@ -199,7 +205,7 @@ impl ops::Div for Natural {
     }
 }
 
-impl ops::Mul for Natural {
+impl Mul for Natural {
     type Output = Number;
     #[inline]
     fn mul(self, other: Self) -> Self::Output {
@@ -207,7 +213,7 @@ impl ops::Mul for Natural {
     }
 }
 
-impl ops::Neg for Natural {
+impl Neg for Natural {
     type Output = Number;
     #[inline]
     fn neg(self) -> Self::Output {
@@ -215,7 +221,7 @@ impl ops::Neg for Natural {
     }
 }
 
-impl ops::Not for Natural {
+impl Not for Natural {
     type Output = Number;
     #[inline]
     fn not(self) -> Self::Output {
@@ -229,16 +235,16 @@ impl ops::Not for Natural {
 impl Pow<Natural> for Natural {
     type Output = Number;
     #[inline]
-    fn pow(self, _other: Self) -> Number {
-        // if self.value.bits() < 32 && other.value.bits() < 5 {
-        //     Self::new(self.value.pow(other.value)).into()
-        // } else {
-        Number::NaN
-        // }
+    fn pow(self, other: Self) -> Number {
+        if self.value.bits() < 32 && other.value.bits() < 5 {
+            Self::new(self.value.pow(other.value)).into()
+        } else {
+            Number::NaN
+        }
     }
 }
 
-impl ops::Rem for Natural {
+impl Rem for Natural {
     type Output = Number;
     #[inline]
     fn rem(self, other: Self) -> Self::Output {
@@ -246,7 +252,7 @@ impl ops::Rem for Natural {
     }
 }
 
-impl ops::Shl for Natural {
+impl Shl for Natural {
     type Output = Number;
     #[inline]
     fn shl(self, other: Self) -> Self::Output {
@@ -258,7 +264,7 @@ impl ops::Shl for Natural {
     }
 }
 
-impl ops::Shr for Natural {
+impl Shr for Natural {
     type Output = Number;
     #[inline]
     fn shr(self, other: Self) -> Self::Output {
@@ -270,7 +276,7 @@ impl ops::Shr for Natural {
     }
 }
 
-impl ops::Sub for Natural {
+impl Sub for Natural {
     type Output = Number;
     #[inline]
     fn sub(self, other: Self) -> Self::Output {

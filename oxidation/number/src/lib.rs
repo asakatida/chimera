@@ -9,6 +9,7 @@
 #![allow(clippy::mutex_atomic)]
 #![allow(clippy::separated_literal_suffix)]
 #![allow(clippy::single_call_fn)]
+#![allow(clippy::std_instead_of_alloc)]
 
 pub mod base;
 pub mod complex;
@@ -20,12 +21,13 @@ pub mod rational;
 pub mod traits;
 pub mod utils;
 
-use core::fmt;
-use core::fmt::Write;
+use core::fmt::{Error, Result, Write};
 use core::hash::BuildHasher;
 use num_traits::{Pow, ToPrimitive};
-use std::sync::OnceLock;
-use std::{collections, sync, thread};
+use std::collections::{BTreeMap, HashSet};
+use std::sync::mpsc::{sync_channel, Receiver, SyncSender};
+use std::sync::{Arc, Condvar, Mutex, OnceLock};
+use std::thread::spawn;
 
 use crate::number::Number;
 use crate::traits::NumberBase;
@@ -34,15 +36,15 @@ use crate::traits::NumberBase;
 enum Event {
     End,
     Del(u64),
-    Get(u64, sync::Arc<(sync::Condvar, sync::Mutex<(bool, Number)>)>),
-    New(Number, sync::Arc<(sync::Condvar, sync::Mutex<(bool, u64)>)>),
-    Syn(sync::Arc<(sync::Condvar, sync::Mutex<bool>)>),
+    Get(u64, Arc<(Condvar, Mutex<(bool, Number)>)>),
+    New(Number, Arc<(Condvar, Mutex<(bool, u64)>)>),
+    Syn(Arc<(Condvar, Mutex<bool>)>),
 }
 
 #[allow(clippy::expect_used)]
-fn gc_loop(receiver: &sync::mpsc::Receiver<Event>) {
-    let mut heap = collections::HashSet::<Number>::new();
-    let mut refs = collections::BTreeMap::<u64, usize>::new();
+fn gc_loop(receiver: &Receiver<Event>) {
+    let mut heap = HashSet::<Number>::new();
+    let mut refs = BTreeMap::<u64, usize>::new();
     while let Ok(event) = receiver.recv() {
         match event {
             Event::Del(key) => {
@@ -101,12 +103,12 @@ fn gc_loop(receiver: &sync::mpsc::Receiver<Event>) {
     }
 }
 
-static EVENTS: OnceLock<sync::mpsc::SyncSender<Event>> = OnceLock::new();
+static EVENTS: OnceLock<SyncSender<Event>> = OnceLock::new();
 
-fn events() -> &'static sync::mpsc::SyncSender<Event> {
+fn events() -> &'static SyncSender<Event> {
     EVENTS.get_or_init(|| {
-        let (sender, receiver) = sync::mpsc::sync_channel(12);
-        thread::spawn(move || gc_loop(&receiver));
+        let (sender, receiver) = sync_channel(12);
+        spawn(move || gc_loop(&receiver));
         sender
     })
 }
@@ -116,10 +118,8 @@ fn events() -> &'static sync::mpsc::SyncSender<Event> {
 #[inline]
 #[must_use]
 fn export_number(value: Number) -> u64 {
-    let wait = sync::Arc::new((sync::Condvar::new(), sync::Mutex::new((false, 0_u64))));
-    events()
-        .send(Event::New(value, sync::Arc::clone(&wait)))
-        .unwrap();
+    let wait = Arc::new((Condvar::new(), Mutex::new((false, 0_u64))));
+    events().send(Event::New(value, Arc::clone(&wait))).unwrap();
     let mut started = wait.1.lock().unwrap();
     while !started.0 {
         started = wait.0.wait(started).unwrap();
@@ -129,7 +129,7 @@ fn export_number(value: Number) -> u64 {
 
 #[inline]
 #[must_use]
-fn fmt_code(_err: fmt::Error) -> i32 {
+fn fmt_code(_err: Error) -> i32 {
     1_i32
 }
 
@@ -138,13 +138,8 @@ fn fmt_code(_err: fmt::Error) -> i32 {
 #[inline]
 #[must_use]
 fn get(key: u64) -> Number {
-    let wait = sync::Arc::new((
-        sync::Condvar::new(),
-        sync::Mutex::new((false, Number::new(0))),
-    ));
-    events()
-        .send(Event::Get(key, sync::Arc::clone(&wait)))
-        .unwrap();
+    let wait = Arc::new((Condvar::new(), Mutex::new((false, Number::new(0)))));
+    events().send(Event::Get(key, Arc::clone(&wait))).unwrap();
     let mut started = wait.1.lock().unwrap();
     while !started.0 {
         started = wait.0.wait(started).unwrap();
@@ -160,18 +155,18 @@ struct Writer {
 
 #[allow(clippy::missing_trait_methods)]
 #[allow(clippy::question_mark_used)]
-impl fmt::Write for Writer {
+impl Write for Writer {
     #[inline]
-    fn write_str(&mut self, string: &str) -> fmt::Result {
+    fn write_str(&mut self, string: &str) -> Result {
         if string.is_empty() {
             return Ok(());
         }
         let bytes = string.as_bytes();
         let length = bytes.len();
-        if self.capacity.checked_sub(self.len).ok_or(fmt::Error)? < length {
-            return Err(fmt::Error);
+        if self.capacity.checked_sub(self.len).ok_or(Error)? < length {
+            return Err(Error);
         }
-        let buffer = self.len.try_into().ok().ok_or(fmt::Error).map(|len| {
+        let buffer = self.len.try_into().ok().ok_or(Error).map(|len| {
             // SAFETY: depends on capacity being honest
             unsafe { self.buffer.offset(len) }
         })?;
@@ -179,7 +174,7 @@ impl fmt::Write for Writer {
         unsafe {
             buffer.copy_from_nonoverlapping(bytes.as_ptr(), length);
         };
-        self.len = self.len.checked_add(length).ok_or(fmt::Error)?;
+        self.len = self.len.checked_add(length).ok_or(Error)?;
         Ok(())
     }
 }
@@ -370,8 +365,8 @@ pub extern "C" fn r_delete_number(number: u64) {
 #[inline]
 #[no_mangle]
 pub extern "C" fn r_vm_clear() {
-    let wait = sync::Arc::new((sync::Condvar::new(), sync::Mutex::new(false)));
-    events().send(Event::Syn(sync::Arc::clone(&wait))).unwrap();
+    let wait = Arc::new((Condvar::new(), Mutex::new(false)));
+    events().send(Event::Syn(Arc::clone(&wait))).unwrap();
     let mut started = wait.1.lock().unwrap();
     while !*started {
         started = wait.0.wait(started).unwrap();

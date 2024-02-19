@@ -6,6 +6,14 @@
 #![allow(clippy::min_ident_chars)]
 #![allow(clippy::missing_docs_in_private_items)]
 
+use core::cmp;
+use core::fmt::{
+    Binary, Debug, Display, Formatter, LowerExp, LowerHex, Octal, Pointer, Result, UpperExp,
+    UpperHex,
+};
+use core::ops::{Add, BitAnd, BitOr, BitXor, Div, Mul, Neg, Not, Rem, Shl, Shr, Sub};
+use num_traits::Pow;
+
 use crate::base::Base;
 use crate::imag::Imag;
 use crate::natural::{Maybe, Natural};
@@ -14,8 +22,6 @@ use crate::number::Number;
 use crate::rational::Rational;
 use crate::traits::NumberBase;
 use crate::utils::fmt_ptr;
-use core::{cmp, fmt, ops};
-use num_traits::Pow;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Complex {
@@ -160,63 +166,63 @@ impl num_traits::ToPrimitive for Complex {
     }
 }
 
-impl fmt::Binary for Complex {
+impl Binary for Complex {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         write!(formatter, "{} + {}i", self.real, self.imag)
     }
 }
 
-impl fmt::Display for Complex {
+impl Display for Complex {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         write!(formatter, "{} + {}i", self.real, self.imag)
     }
 }
 
-impl fmt::LowerExp for Complex {
+impl LowerExp for Complex {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         write!(formatter, "{}", self.real)
     }
 }
 
-impl fmt::LowerHex for Complex {
+impl LowerHex for Complex {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         write!(formatter, "{:x} + {:x}i", self.real, self.imag)
     }
 }
 
-impl fmt::Octal for Complex {
+impl Octal for Complex {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         write!(formatter, "{:o} + {:o}i", self.real, self.imag)
     }
 }
 
-impl fmt::Pointer for Complex {
+impl Pointer for Complex {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         fmt_ptr(self, formatter)
     }
 }
 
-impl fmt::UpperExp for Complex {
+impl UpperExp for Complex {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         write!(formatter, "{}", self.real)
     }
 }
 
-impl fmt::UpperHex for Complex {
+impl UpperHex for Complex {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         write!(formatter, "{:X} + {:X}i", self.real, self.imag)
     }
 }
 
-impl ops::Add for Complex {
+impl Add for Complex {
     type Output = Number;
     #[inline]
     fn add(self, other: Self) -> Self::Output {
@@ -224,7 +230,7 @@ impl ops::Add for Complex {
     }
 }
 
-impl ops::BitAnd for Complex {
+impl BitAnd for Complex {
     type Output = Number;
     #[inline]
     fn bitand(self, _other: Self) -> Self::Output {
@@ -232,7 +238,7 @@ impl ops::BitAnd for Complex {
     }
 }
 
-impl ops::BitOr for Complex {
+impl BitOr for Complex {
     type Output = Number;
     #[inline]
     fn bitor(self, _other: Self) -> Self::Output {
@@ -240,7 +246,7 @@ impl ops::BitOr for Complex {
     }
 }
 
-impl ops::BitXor for Complex {
+impl BitXor for Complex {
     type Output = Number;
     #[inline]
     fn bitxor(self, _other: Self) -> Self::Output {
@@ -248,7 +254,7 @@ impl ops::BitXor for Complex {
     }
 }
 
-impl ops::Div for Complex {
+impl Div for Complex {
     type Output = Number;
     #[inline]
     fn div(self, _other: Self) -> Self::Output {
@@ -256,7 +262,7 @@ impl ops::Div for Complex {
     }
 }
 
-impl ops::Mul for Complex {
+impl Mul for Complex {
     type Output = Number;
     #[inline]
     fn mul(self, _other: Self) -> Self::Output {
@@ -264,7 +270,7 @@ impl ops::Mul for Complex {
     }
 }
 
-impl ops::Neg for Complex {
+impl Neg for Complex {
     type Output = Number;
     #[inline]
     fn neg(self) -> Self::Output {
@@ -272,7 +278,7 @@ impl ops::Neg for Complex {
     }
 }
 
-impl ops::Not for Complex {
+impl Not for Complex {
     type Output = Number;
     #[inline]
     fn not(self) -> Self::Output {
@@ -288,7 +294,7 @@ impl Pow<Complex> for Complex {
     }
 }
 
-impl ops::Rem for Complex {
+impl Rem for Complex {
     type Output = Number;
     #[inline]
     fn rem(self, _other: Self) -> Self::Output {
@@ -296,7 +302,7 @@ impl ops::Rem for Complex {
     }
 }
 
-impl ops::Shl for Complex {
+impl Shl for Complex {
     type Output = Number;
     #[inline]
     fn shl(self, _other: Self) -> Self::Output {
@@ -304,7 +310,7 @@ impl ops::Shl for Complex {
     }
 }
 
-impl ops::Shr for Complex {
+impl Shr for Complex {
     type Output = Number;
     #[inline]
     fn shr(self, _other: Self) -> Self::Output {
@@ -312,7 +318,7 @@ impl ops::Shr for Complex {
     }
 }
 
-impl ops::Sub for Complex {
+impl Sub for Complex {
     type Output = Number;
     #[inline]
     fn sub(self, _other: Self) -> Self::Output {

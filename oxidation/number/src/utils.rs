@@ -5,20 +5,21 @@
 #![allow(clippy::implicit_return)]
 #![allow(clippy::missing_docs_in_private_items)]
 
-use core::fmt;
+use core::fmt::{Formatter, Pointer, Result};
+use core::ptr::from_ref;
 
 use crate::number::Number;
 
 /// # Errors
 #[allow(clippy::as_conversions)]
 #[inline]
-pub fn fmt_ptr<T>(pointer: &T, formatter: &mut fmt::Formatter) -> fmt::Result {
-    fmt::Pointer::fmt(&(pointer as *const _), formatter)
+pub fn fmt_ptr<T>(pointer: &T, formatter: &mut Formatter) -> Result {
+    Pointer::fmt(&from_ref(pointer), formatter)
 }
 
 #[inline]
 #[must_use]
-pub fn gcd<T: Into<Number>>(left: T, right: T) -> Number {
+pub fn gcd<T: Into<Number>, U: Into<Number>>(left: T, right: U) -> Number {
     let mut a_prime: Number = left.into();
     let mut b_prime: Number = right.into();
     while b_prime > 0 {
@@ -27,15 +28,4 @@ pub fn gcd<T: Into<Number>>(left: T, right: T) -> Number {
         a_prime = temp;
     }
     a_prime
-}
-
-#[inline]
-#[must_use]
-pub fn rem<T: Into<Number>>(left: T, right: T) -> Number {
-    let mut remainder: Number = left.into();
-    let divisor: Number = right.into();
-    while divisor < remainder {
-        remainder = remainder - divisor.clone();
-    }
-    remainder
 }

@@ -8,14 +8,20 @@
 #![allow(clippy::min_ident_chars)]
 #![allow(clippy::missing_docs_in_private_items)]
 
+use core::cmp;
+use core::fmt::{
+    Binary, Debug, Display, Formatter, LowerExp, LowerHex, Octal, Pointer, Result as FmtResult,
+    UpperExp, UpperHex,
+};
+use core::ops::{Add, BitAnd, BitOr, BitXor, Div, Mul, Neg, Not, Rem, Shl, Shr, Sub};
+use num_traits::Pow;
+
 use crate::base::Base;
 use crate::natural::{Maybe, Natural};
 use crate::negative::Negative;
 use crate::number::Number;
 use crate::traits::NumberBase;
-use crate::utils::{fmt_ptr, rem};
-use core::{cmp, fmt, ops};
-use num_traits::Pow;
+use crate::utils::fmt_ptr;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub enum Part {
@@ -107,7 +113,7 @@ impl num_traits::ToPrimitive for Part {
     }
 }
 
-impl ops::Mul for Part {
+impl Mul for Part {
     type Output = Number;
     #[inline]
     fn mul(self, other: Self) -> Self::Output {
@@ -143,9 +149,9 @@ impl Part {
     }
 }
 
-impl fmt::Display for Part {
+impl Display for Part {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter) -> FmtResult {
         match self.clone() {
             Self::Base(n) => write!(formatter, "{n}"),
             Self::Natural(n) => write!(formatter, "{n}"),
@@ -262,63 +268,63 @@ impl num_traits::ToPrimitive for Rational {
     }
 }
 
-impl fmt::Binary for Rational {
+impl Binary for Rational {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
         write!(formatter, "{}/{}", self.numerator, self.denominator)
     }
 }
 
-impl fmt::Display for Rational {
+impl Display for Rational {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
         write!(formatter, "{}/{}", self.numerator, self.denominator)
     }
 }
 
-impl fmt::LowerExp for Rational {
+impl LowerExp for Rational {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
         write!(formatter, "{}/{}", self.numerator, self.denominator)
     }
 }
 
-impl fmt::LowerHex for Rational {
+impl LowerHex for Rational {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
         write!(formatter, "{}/{}", self.numerator, self.denominator)
     }
 }
 
-impl fmt::Octal for Rational {
+impl Octal for Rational {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
         write!(formatter, "{}/{}", self.numerator, self.denominator)
     }
 }
 
-impl fmt::Pointer for Rational {
+impl Pointer for Rational {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
         fmt_ptr(self, formatter)
     }
 }
 
-impl fmt::UpperExp for Rational {
+impl UpperExp for Rational {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
         write!(formatter, "{}/{}", self.numerator, self.denominator)
     }
 }
 
-impl fmt::UpperHex for Rational {
+impl UpperHex for Rational {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
         write!(formatter, "{}/{}", self.numerator, self.denominator)
     }
 }
 
-impl ops::Add for Rational {
+impl Add for Rational {
     type Output = Number;
     #[inline]
     fn add(self, other: Self) -> Self::Output {
@@ -328,7 +334,7 @@ impl ops::Add for Rational {
     }
 }
 
-impl ops::BitAnd for Rational {
+impl BitAnd for Rational {
     type Output = Number;
     #[inline]
     fn bitand(self, _other: Self) -> Self::Output {
@@ -336,7 +342,7 @@ impl ops::BitAnd for Rational {
     }
 }
 
-impl ops::BitOr for Rational {
+impl BitOr for Rational {
     type Output = Number;
     #[inline]
     fn bitor(self, _other: Self) -> Self::Output {
@@ -344,7 +350,7 @@ impl ops::BitOr for Rational {
     }
 }
 
-impl ops::BitXor for Rational {
+impl BitXor for Rational {
     type Output = Number;
     #[inline]
     fn bitxor(self, _other: Self) -> Self::Output {
@@ -352,7 +358,7 @@ impl ops::BitXor for Rational {
     }
 }
 
-impl ops::Div for Rational {
+impl Div for Rational {
     type Output = Number;
     #[inline]
     fn div(self, other: Self) -> Self::Output {
@@ -360,7 +366,7 @@ impl ops::Div for Rational {
     }
 }
 
-impl ops::Mul for Rational {
+impl Mul for Rational {
     type Output = Number;
     #[inline]
     fn mul(self, other: Self) -> Self::Output {
@@ -368,7 +374,7 @@ impl ops::Mul for Rational {
     }
 }
 
-impl ops::Neg for Rational {
+impl Neg for Rational {
     type Output = Number;
     #[inline]
     fn neg(self) -> Self::Output {
@@ -376,7 +382,7 @@ impl ops::Neg for Rational {
     }
 }
 
-impl ops::Not for Rational {
+impl Not for Rational {
     type Output = Number;
     #[inline]
     fn not(self) -> Self::Output {
@@ -392,15 +398,17 @@ impl Pow<Rational> for Rational {
     }
 }
 
-impl ops::Rem for Rational {
+impl Rem for Rational {
     type Output = Number;
     #[inline]
     fn rem(self, other: Self) -> Self::Output {
-        rem(self, other)
+        let left: Number = self.into();
+        let right: Number = other.into();
+        left.clone() - (left.div_floor(right.clone()) * right)
     }
 }
 
-impl ops::Shl for Rational {
+impl Shl for Rational {
     type Output = Number;
     #[inline]
     fn shl(self, _other: Self) -> Self::Output {
@@ -408,7 +416,7 @@ impl ops::Shl for Rational {
     }
 }
 
-impl ops::Shr for Rational {
+impl Shr for Rational {
     type Output = Number;
     #[inline]
     fn shr(self, _other: Self) -> Self::Output {
@@ -416,7 +424,7 @@ impl ops::Shr for Rational {
     }
 }
 
-impl ops::Sub for Rational {
+impl Sub for Rational {
     type Output = Number;
     #[inline]
     fn sub(self, other: Self) -> Self::Output {

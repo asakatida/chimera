@@ -7,14 +7,20 @@
 #![allow(clippy::min_ident_chars)]
 #![allow(clippy::missing_docs_in_private_items)]
 
+use core::cmp;
+use core::fmt::{
+    Binary, Debug, Display, Formatter, LowerExp, LowerHex, Octal, Pointer, Result, UpperExp,
+    UpperHex,
+};
+use core::ops::{Add, BitAnd, BitOr, BitXor, Div, Mul, Neg, Not, Rem, Shl, Shr, Sub};
+use num_traits::Pow;
+
 use crate::base::Base;
 use crate::natural::Natural;
 use crate::number::Number;
 use crate::rational::Rational;
 use crate::traits::NumberBase;
 use crate::utils::fmt_ptr;
-use core::{cmp, fmt, ops};
-use num_traits::Pow;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub enum Negative {
@@ -92,9 +98,9 @@ impl num_traits::ToPrimitive for Negative {
     }
 }
 
-impl fmt::Binary for Negative {
+impl Binary for Negative {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         match self.clone() {
             Self::Base(a) => write!(formatter, "-{a}"),
             Self::Natural(a) => write!(formatter, "-{a}"),
@@ -103,9 +109,9 @@ impl fmt::Binary for Negative {
     }
 }
 
-impl fmt::Display for Negative {
+impl Display for Negative {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         match self.clone() {
             Self::Base(a) => write!(formatter, "-{a}"),
             Self::Natural(a) => write!(formatter, "-{a}"),
@@ -114,9 +120,9 @@ impl fmt::Display for Negative {
     }
 }
 
-impl fmt::LowerExp for Negative {
+impl LowerExp for Negative {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         match self.clone() {
             Self::Base(a) => write!(formatter, "-{a}"),
             Self::Natural(a) => write!(formatter, "-{a}"),
@@ -125,9 +131,9 @@ impl fmt::LowerExp for Negative {
     }
 }
 
-impl fmt::LowerHex for Negative {
+impl LowerHex for Negative {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         match self.clone() {
             Self::Base(a) => write!(formatter, "-{a}"),
             Self::Natural(a) => write!(formatter, "-{a}"),
@@ -136,9 +142,9 @@ impl fmt::LowerHex for Negative {
     }
 }
 
-impl fmt::Octal for Negative {
+impl Octal for Negative {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         match self.clone() {
             Self::Base(a) => write!(formatter, "-{a}"),
             Self::Natural(a) => write!(formatter, "-{a}"),
@@ -147,16 +153,16 @@ impl fmt::Octal for Negative {
     }
 }
 
-impl fmt::Pointer for Negative {
+impl Pointer for Negative {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         fmt_ptr(self, formatter)
     }
 }
 
-impl fmt::UpperExp for Negative {
+impl UpperExp for Negative {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         match self.clone() {
             Self::Base(a) => write!(formatter, "-{a}"),
             Self::Natural(a) => write!(formatter, "-{a}"),
@@ -165,9 +171,9 @@ impl fmt::UpperExp for Negative {
     }
 }
 
-impl fmt::UpperHex for Negative {
+impl UpperHex for Negative {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         match self.clone() {
             Self::Base(a) => write!(formatter, "-{a}"),
             Self::Natural(a) => write!(formatter, "-{a}"),
@@ -176,7 +182,7 @@ impl fmt::UpperHex for Negative {
     }
 }
 
-impl ops::Add for Negative {
+impl Add for Negative {
     type Output = Number;
     #[inline]
     fn add(self, other: Self) -> Self::Output {
@@ -193,7 +199,7 @@ impl ops::Add for Negative {
     }
 }
 
-impl ops::BitAnd for Negative {
+impl BitAnd for Negative {
     type Output = Number;
     #[inline]
     fn bitand(self, other: Self) -> Self::Output {
@@ -210,7 +216,7 @@ impl ops::BitAnd for Negative {
     }
 }
 
-impl ops::BitOr for Negative {
+impl BitOr for Negative {
     type Output = Number;
     #[inline]
     fn bitor(self, other: Self) -> Self::Output {
@@ -227,7 +233,7 @@ impl ops::BitOr for Negative {
     }
 }
 
-impl ops::BitXor for Negative {
+impl BitXor for Negative {
     type Output = Number;
     #[inline]
     fn bitxor(self, other: Self) -> Self::Output {
@@ -244,7 +250,7 @@ impl ops::BitXor for Negative {
     }
 }
 
-impl ops::Div for Negative {
+impl Div for Negative {
     type Output = Number;
     #[inline]
     fn div(self, other: Self) -> Self::Output {
@@ -262,7 +268,7 @@ impl ops::Div for Negative {
     }
 }
 
-impl ops::Mul for Negative {
+impl Mul for Negative {
     type Output = Number;
     #[inline]
     fn mul(self, other: Self) -> Self::Output {
@@ -279,7 +285,7 @@ impl ops::Mul for Negative {
     }
 }
 
-impl ops::Neg for Negative {
+impl Neg for Negative {
     type Output = Number;
     #[inline]
     fn neg(self) -> Self::Output {
@@ -291,7 +297,7 @@ impl ops::Neg for Negative {
     }
 }
 
-impl ops::Not for Negative {
+impl Not for Negative {
     type Output = Number;
     #[inline]
     fn not(self) -> Self::Output {
@@ -311,7 +317,7 @@ impl Pow<Negative> for Negative {
     }
 }
 
-impl ops::Rem for Negative {
+impl Rem for Negative {
     type Output = Number;
     #[inline]
     fn rem(self, other: Self) -> Self::Output {
@@ -329,7 +335,7 @@ impl ops::Rem for Negative {
     }
 }
 
-impl ops::Shl for Negative {
+impl Shl for Negative {
     type Output = Number;
     #[inline]
     fn shl(self, other: Self) -> Self::Output {
@@ -347,7 +353,7 @@ impl ops::Shl for Negative {
     }
 }
 
-impl ops::Shr for Negative {
+impl Shr for Negative {
     type Output = Number;
     #[inline]
     fn shr(self, other: Self) -> Self::Output {
@@ -365,7 +371,7 @@ impl ops::Shr for Negative {
     }
 }
 
-impl ops::Sub for Negative {
+impl Sub for Negative {
     type Output = Number;
     #[inline]
     fn sub(self, other: Self) -> Self::Output {

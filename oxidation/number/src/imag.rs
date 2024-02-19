@@ -7,6 +7,14 @@
 #![allow(clippy::min_ident_chars)]
 #![allow(clippy::missing_docs_in_private_items)]
 
+use core::cmp;
+use core::fmt::{
+    Binary, Debug, Display, Formatter, LowerExp, LowerHex, Octal, Pointer, Result, UpperExp,
+    UpperHex,
+};
+use core::ops::{Add, BitAnd, BitOr, BitXor, Div, Mul, Neg, Not, Rem, Shl, Shr, Sub};
+use num_traits::Pow;
+
 use crate::base::Base;
 use crate::natural::Natural;
 use crate::negative::Negative;
@@ -14,8 +22,6 @@ use crate::number::Number;
 use crate::rational::Rational;
 use crate::traits::NumberBase;
 use crate::utils::fmt_ptr;
-use core::{cmp, fmt, ops};
-use num_traits::Pow;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub enum Imag {
@@ -112,9 +118,9 @@ impl num_traits::ToPrimitive for Imag {
     }
 }
 
-impl fmt::Binary for Imag {
+impl Binary for Imag {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         match self.clone() {
             Self::Base(a) => write!(formatter, "{a}"),
             Self::Natural(a) => write!(formatter, "{a}"),
@@ -124,9 +130,9 @@ impl fmt::Binary for Imag {
     }
 }
 
-impl fmt::Display for Imag {
+impl Display for Imag {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         match self.clone() {
             Self::Base(a) => write!(formatter, "{a}"),
             Self::Natural(a) => write!(formatter, "{a}"),
@@ -136,9 +142,9 @@ impl fmt::Display for Imag {
     }
 }
 
-impl fmt::LowerExp for Imag {
+impl LowerExp for Imag {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         match self.clone() {
             Self::Base(a) => write!(formatter, "{a}"),
             Self::Natural(a) => write!(formatter, "{a}"),
@@ -148,9 +154,9 @@ impl fmt::LowerExp for Imag {
     }
 }
 
-impl fmt::LowerHex for Imag {
+impl LowerHex for Imag {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         match self.clone() {
             Self::Base(a) => write!(formatter, "{a}"),
             Self::Natural(a) => write!(formatter, "{a}"),
@@ -160,9 +166,9 @@ impl fmt::LowerHex for Imag {
     }
 }
 
-impl fmt::Octal for Imag {
+impl Octal for Imag {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         match self.clone() {
             Self::Base(a) => write!(formatter, "{a}"),
             Self::Natural(a) => write!(formatter, "{a}"),
@@ -172,16 +178,16 @@ impl fmt::Octal for Imag {
     }
 }
 
-impl fmt::Pointer for Imag {
+impl Pointer for Imag {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         fmt_ptr(self, formatter)
     }
 }
 
-impl fmt::UpperExp for Imag {
+impl UpperExp for Imag {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         match self.clone() {
             Self::Base(a) => write!(formatter, "{a}"),
             Self::Natural(a) => write!(formatter, "{a}"),
@@ -191,9 +197,9 @@ impl fmt::UpperExp for Imag {
     }
 }
 
-impl fmt::UpperHex for Imag {
+impl UpperHex for Imag {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         match self.clone() {
             Self::Base(a) => write!(formatter, "{a}"),
             Self::Natural(a) => write!(formatter, "{a}"),
@@ -203,7 +209,7 @@ impl fmt::UpperHex for Imag {
     }
 }
 
-impl ops::Add for Imag {
+impl Add for Imag {
     type Output = Number;
     #[inline]
     fn add(self, _other: Self) -> Self::Output {
@@ -211,7 +217,7 @@ impl ops::Add for Imag {
     }
 }
 
-impl ops::BitAnd for Imag {
+impl BitAnd for Imag {
     type Output = Number;
     #[inline]
     fn bitand(self, _other: Self) -> Self::Output {
@@ -219,7 +225,7 @@ impl ops::BitAnd for Imag {
     }
 }
 
-impl ops::BitOr for Imag {
+impl BitOr for Imag {
     type Output = Number;
     #[inline]
     fn bitor(self, _other: Self) -> Self::Output {
@@ -227,7 +233,7 @@ impl ops::BitOr for Imag {
     }
 }
 
-impl ops::BitXor for Imag {
+impl BitXor for Imag {
     type Output = Number;
     #[inline]
     fn bitxor(self, _other: Self) -> Self::Output {
@@ -235,7 +241,7 @@ impl ops::BitXor for Imag {
     }
 }
 
-impl ops::Div for Imag {
+impl Div for Imag {
     type Output = Number;
     #[inline]
     fn div(self, _other: Self) -> Self::Output {
@@ -243,7 +249,7 @@ impl ops::Div for Imag {
     }
 }
 
-impl ops::Mul for Imag {
+impl Mul for Imag {
     type Output = Number;
     #[inline]
     fn mul(self, _other: Self) -> Self::Output {
@@ -251,7 +257,7 @@ impl ops::Mul for Imag {
     }
 }
 
-impl ops::Neg for Imag {
+impl Neg for Imag {
     type Output = Number;
     #[inline]
     fn neg(self) -> Self::Output {
@@ -259,7 +265,7 @@ impl ops::Neg for Imag {
     }
 }
 
-impl ops::Not for Imag {
+impl Not for Imag {
     type Output = Number;
     #[inline]
     fn not(self) -> Self::Output {
@@ -275,7 +281,7 @@ impl Pow<Imag> for Imag {
     }
 }
 
-impl ops::Rem for Imag {
+impl Rem for Imag {
     type Output = Number;
     #[inline]
     fn rem(self, _other: Self) -> Self::Output {
@@ -283,7 +289,7 @@ impl ops::Rem for Imag {
     }
 }
 
-impl ops::Shl for Imag {
+impl Shl for Imag {
     type Output = Number;
     #[inline]
     fn shl(self, _other: Self) -> Self::Output {
@@ -291,7 +297,7 @@ impl ops::Shl for Imag {
     }
 }
 
-impl ops::Shr for Imag {
+impl Shr for Imag {
     type Output = Number;
     #[inline]
     fn shr(self, _other: Self) -> Self::Output {
@@ -299,7 +305,7 @@ impl ops::Shr for Imag {
     }
 }
 
-impl ops::Sub for Imag {
+impl Sub for Imag {
     type Output = Number;
     #[inline]
     fn sub(self, _other: Self) -> Self::Output {
