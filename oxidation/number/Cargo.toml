@@ -2,12 +2,13 @@
 name = "number"
 version = "0.1.0"
 edition = "2021"
-rust-version = "1.71"
+rust-version = "1.76"
 
 [build-dependencies]
 cbindgen = "~0.26.0"
 
 [dependencies]
+criterion = { version = "~0.3.0", features = ["html_reports"] }
 num-bigint = "~0.4.0"
 num-integer = "~0.1.0"
 num-traits = "~0.2.0"
@@ -17,3 +18,7 @@ crate-type = ["staticlib"]
 
 [profile.release]
 panic = 'abort'
+
+[[bench]]
+name = "chimera"
+harness = false

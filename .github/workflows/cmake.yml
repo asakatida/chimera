@@ -60,6 +60,7 @@ jobs:
         with:
           run: |
             rustup default stable
+            cargo bench --manifest-path oxidation/number/Cargo.toml
             python tools/cmake_ninja.py
   libcpp:
     concurrency:

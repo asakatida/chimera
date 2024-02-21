@@ -236,7 +236,15 @@ impl Pow<Natural> for Natural {
     type Output = Number;
     #[inline]
     fn pow(self, other: Self) -> Number {
-        if self.value.bits() < 32 && other.value.bits() < 5 {
+        if other
+            .value
+            .bits()
+            .try_into()
+            .ok()
+            .and_then(|bits| self.value.bits().checked_shl(bits))
+            .map(|bits| bits < 128)
+            .unwrap_or_default()
+        {
             Self::new(self.value.pow(other.value)).into()
         } else {
             Number::NaN
