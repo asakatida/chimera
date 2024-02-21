@@ -52,5 +52,5 @@ types-tqdm==4.66.0.20240106
 types-urllib3==1.26.25.14
 typing_extensions==4.9.0
 urllib3==2.2.1
-wcmatch==8.5
+wcmatch==8.5.1
 yamllint==1.35.1
