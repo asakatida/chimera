@@ -133,7 +133,7 @@ BAD_KEYS = {
 async def corpus_freeze(
     output: str,
     *,
-    base_reference: str = environ.get("BASE_REF", "^origin/stable"),
+    base_reference: str = environ.get("BASE_REF", "HEAD"),
     disable_bars: bool | None,
 ) -> None:
     file = Path(output)

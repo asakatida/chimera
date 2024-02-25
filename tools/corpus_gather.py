@@ -15,9 +15,7 @@ from corpus_utils import c_tqdm, corpus_objects, corpus_trim, gather_paths
 
 
 async def corpus_deletions(
-    *paths: str,
-    base_reference: str = environ.get("BASE_REF", "^origin/stable"),
-    disable_bars: bool | None,
+    *paths: str, base_reference: str, disable_bars: bool | None
 ) -> Iterable[str]:
     return (
         line
@@ -47,7 +45,7 @@ async def corpus_deletions(
 
 async def corpus_gather(
     *paths: str,
-    base_reference: str = environ.get("BASE_REF", "^origin/stable"),
+    base_reference: str = environ.get("BASE_REF", "HEAD"),
     disable_bars: bool | None,
 ) -> None:
     exclude = {
