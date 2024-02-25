@@ -3,7 +3,6 @@
 from asyncio.subprocess import PIPE
 from functools import cache
 from hashlib import sha256
-from os import environ
 from pathlib import Path
 from re import MULTILINE, compile
 from typing import Iterable, TypeVar
@@ -63,9 +62,7 @@ async def corpus_cat(sha: str) -> tuple[str, bytes]:
 
 
 async def corpus_creations(
-    *paths: str,
-    base_reference: str = environ.get("BASE_REF", "^origin/stable"),
-    disable_bars: bool | None,
+    *paths: str, base_reference: str, disable_bars: bool | None
 ) -> Iterable[tuple[str, list[str]]]:
     return (
         pair
@@ -126,7 +123,7 @@ async def corpus_merge(disable_bars: bool | None) -> None:
 
 async def corpus_objects(
     *paths: str,
-    base_reference: str = environ.get("BASE_REF", "^origin/stable"),
+    base_reference: str,
     disable_bars: bool | None,
     exclude: set[str] = set(),
 ) -> list[tuple[str, bytes]]:
