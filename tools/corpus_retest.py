@@ -36,7 +36,7 @@ async def regression_log_one(fuzzer: Path, *chunk: Path) -> Exception | None:
             - fuzz_output_paths(b"Executed", log_output)
         ):
             try:
-                file.rename(CRASHES / file.name)
+                file.rename(CRASHES / (file.parent.name + file.name))
             except FileNotFoundError:
                 pass
         log_file.unlink(missing_ok=True)
@@ -72,7 +72,7 @@ async def corpus_retest() -> None:
             "Regression failed, retrying with"
             f" {len([path for path in CORPUS.rglob('*') if path.is_file()])} cases"
         )
-    for done in CRASHES.rglob(".done"):
+    for done in CORPUS.rglob(".done"):
         done.unlink()
     await corpus_merge(disable_bars=None)
 

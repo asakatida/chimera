@@ -80,9 +80,7 @@ async def corpus_gather(
 
 async def corpus_gather_main(ref: str) -> None:
     if ref == "refs/heads/stable":
-        await corpus_gather(
-            "unit_tests/fuzz/crashes", "unit_tests/fuzz/corpus", disable_bars=False
-        )
+        await corpus_gather("unit_tests/fuzz/corpus", disable_bars=False)
 
 
 if __name__ == "__main__":
