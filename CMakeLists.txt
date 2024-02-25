@@ -295,7 +295,6 @@ if(
       python ${CMAKE_SOURCE_DIR}/tools/fuzz.py ${fuzzer}
       ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/dictionaries/${fuzzer}.dict
       ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/corpus
-      ${CMAKE_SOURCE_DIR}/unit_tests/fuzz/crashes
       DEPENDS fuzz-${fuzzer}
       VERBATIM)
     add_custom_target(
