@@ -18,7 +18,7 @@ jobs:
             python tools/codecov.py llvm-profile.lcov
       - env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        uses: codecov/codecov-action@v4.0.1
+        uses: codecov/codecov-action@v4.0.2
         with:
           directory: ${{ github.workspace }}
           fail_ci_if_error: true
