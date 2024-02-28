@@ -21,6 +21,7 @@ jobs:
               ) |
               select(
                 (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 60) or
+                (.head_branch != "stable" and .conclusion == "cancelled") or
                 (
                   (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 7) and
                   .head_branch != "stable"
