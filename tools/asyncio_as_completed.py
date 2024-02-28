@@ -9,7 +9,7 @@ DEFAULT_LIMIT = max(cpu_count() or 0, 1) * 3
 
 
 async def _list(iter: Iterator[Task[T]], return_exceptions: bool) -> list[T]:
-    canceled: CancelledError | None = None
+    cancelled: CancelledError | None = None
     try:
         return [await task for task in iter]
     except Exception:
@@ -30,11 +30,11 @@ async def _list(iter: Iterator[Task[T]], return_exceptions: bool) -> list[T]:
             except KeyboardInterrupt:
                 raise
             except CancelledError as error:
-                canceled = error
+                cancelled = error
             except Exception:
                 pass
-        if exc_info()[1] is None and canceled:
-            raise canceled
+        if exc_info()[1] is None and cancelled:
+            raise cancelled
 
 
 async def _next(background_tasks: set[Task[T]], coroutine: Task[T]) -> T:
