@@ -1,20 +1,20 @@
 """corpus_freeze.py"""
 
 from asyncio import run
+from asyncio.subprocess import PIPE
 from base64 import b64encode
 from json import dump, load
 from lzma import compress
 from os import environ
 from pathlib import Path
-from subprocess import PIPE
 from sys import argv
 
 from asyncio_as_completed import as_completed
-from asyncio_cmd import cmd, main
+from asyncio_cmd import git_cmd, main
 from corpus_ascii import is_ascii
 from corpus_utils import c_tqdm, corpus_objects
 
-BAD_KEYS = {
+BAD_KEYS = frozenset((
     "00139b023f0791bc6273e11fec8e2b46848fde2f",
     "04df8bdbf14b8ea62f24fa13e70d2f8ca716ef26",
     "088c5a685f1ee48dc52ac629e48b9975b84f588c",
@@ -127,7 +127,7 @@ BAD_KEYS = {
     "fb664b3a5373c56f5e48515e8b78dab061bfc93e",
     "fd37ab180df504531539224c029858aedac66d5a",
     "feeb32cc51d9a47522d9b0fecea2c43cd1098b37",
-}
+))
 
 
 async def corpus_freeze(
@@ -142,20 +142,17 @@ async def corpus_freeze(
     crashes = [
         path for path in Path("unit_tests/fuzz/crashes").rglob("*") if path.is_file()
     ]
-    existing = {
+    existing = frozenset(
         key.strip().decode()
         for key in await as_completed(
             c_tqdm(
-                (
-                    cmd("git", "hash-object", path, log=False, out=PIPE)
-                    for path in crashes
-                ),
+                (git_cmd("hash-object", path, out=PIPE) for path in crashes),
                 "Hash corpus",
                 disable_bars,
                 total=len(crashes),
             )
         )
-    }
+    )
     for key in BAD_KEYS.union(existing).intersection(cases.keys()):
         del cases[key]
     cases.update(

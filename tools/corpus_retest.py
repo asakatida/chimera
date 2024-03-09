@@ -17,8 +17,10 @@ CORPUS = FUZZ / "corpus"
 CRASHES = FUZZ / "crashes"
 
 
-def fuzz_output_paths(prefix: bytes, output: bytes) -> set[bytes]:
-    return {m["path"] for m in finditer(escape(prefix) + rb"\s+(?P<path>\S+)", output)}
+def fuzz_output_paths(prefix: bytes, output: bytes) -> frozenset[bytes]:
+    return frozenset(
+        m["path"] for m in finditer(escape(prefix) + rb"\s+(?P<path>\S+)", output)
+    )
 
 
 async def regression_log_one(fuzzer: Path, *chunk: Path) -> Exception | None:
@@ -50,11 +52,11 @@ async def regression_log() -> list[Exception]:
         for exc in await as_completed(
             regression_log_one(fuzz, *args)
             for args in (
-                {
+                frozenset(
                     path
                     for path in corpus.glob("*")
                     if path.is_file() and path.name != ".done"
-                }
+                )
                 for corpus in CORPUS.glob("*")
                 if not (corpus / ".done").exists()
             )

@@ -19,7 +19,7 @@ def _ranges(it: Iterable[int]) -> str:
     return f"sor<tao::pegtl::utf8::ranges<{ranges}>>"
 
 
-def _a(id_start: set[int], end: int) -> Iterable[int]:
+def _a(id_start: frozenset[int], end: int) -> Iterable[int]:
     return (
         i
         for t in groupby(
@@ -43,7 +43,7 @@ def _a(id_start: set[int], end: int) -> Iterable[int]:
 
 
 def _b(_: int, t: Iterable[tuple[int, int]]) -> tuple[int, int]:
-    groups = {e for e, _ in t}
+    groups = frozenset(e for e, _ in t)
     return (min(groups), max(groups))
 
 
@@ -52,8 +52,8 @@ def _d(i: int) -> bool:
 
 
 ranges = iter((
-    _ranges(_a({i for i in range(0x100) if _d(i)}, 0x100)),
-    _ranges(_a({i for i in range(0x110000) if _d(i)}, 0x110000)),
+    _ranges(_a(frozenset(i for i in range(0x100) if _d(i)), 0x100)),
+    _ranges(_a(frozenset(i for i in range(0x110000) if _d(i)), 0x110000)),
 ))
 
 utf8_id_continue.write_text(

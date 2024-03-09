@@ -6,12 +6,12 @@ from g_ls_tree import g_ls_tree
 
 
 async def re_black() -> None:
-    {
+    frozenset(
         path.write_text(
             sub(r"\s+(?=[\]})])", "", sub(r",\s+(?=[\]})])", "", path.read_text()))
         )
         for path in await g_ls_tree("py")
-    }
+    )
 
 
 if __name__ == "__main__":
