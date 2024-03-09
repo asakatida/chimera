@@ -3,12 +3,13 @@
 from asyncio.subprocess import PIPE
 from functools import cache
 from hashlib import sha256
+from os import environ
 from pathlib import Path
-from re import MULTILINE, compile
-from typing import Iterable, TypeVar
+from re import MULTILINE, compile, finditer
+from typing import Iterable, Match, TypeVar
 
 from asyncio_as_completed import as_completed
-from asyncio_cmd import chunks, cmd, cmd_check, cmd_flog, splitlines
+from asyncio_cmd import chunks, cmd_check, cmd_flog, git_cmd, splitlines
 from chimera_utils import IN_CI, rmdir
 from structlog import get_logger
 from tqdm import tqdm
@@ -45,6 +46,45 @@ def c_tqdm(
     return tqdm(iterable, desc=desc, disable=disable, total=total, unit_scale=True)
 
 
+async def commit_count(*paths: str, base_reference: str, diff_filter: str) -> int:
+    return len(
+        list(
+            splitlines(
+                await git_cmd(
+                    "log",
+                    *("--all",) if base_reference.startswith("^") else (),
+                    diff_filter,
+                    "--oneline",
+                    base_reference,
+                    "--",
+                    *paths,
+                    out=PIPE,
+                ),
+            )
+        )
+    )
+
+
+async def commit_paths(
+    *paths: str, base_reference: str, diff_filter: str
+) -> Iterable[Match[bytes]]:
+    return finditer(
+        rb"commit:.+:(?P<sha>.+)(?P<paths>(?:\s+(?!commit:).+)+)",
+        await git_cmd(
+            "log",
+            *("--all",) if base_reference.startswith("^") else (),
+            "--date=iso",
+            diff_filter,
+            "--name-only",
+            "--pretty=format:commit:%cd:%h",
+            base_reference,
+            "--",
+            *paths,
+            out=PIPE,
+        ),
+    )
+
+
 def conflicts_one(file: Path) -> None:
     for section in CONFLICT.split(file.read_bytes()):
         if section:
@@ -58,47 +98,130 @@ def conflicts(fuzz: Iterable[Path]) -> None:
 
 
 async def corpus_cat(sha: str) -> tuple[str, bytes]:
-    return (sha, await cmd("git", "cat-file", "-p", sha, log=False, out=PIPE))
+    return (sha, await git_cmd("cat-file", "-p", sha, out=PIPE))
+
+
+async def _corpus_creations(
+    *paths: str, base_reference: str, disable_bars: bool | None
+) -> Iterable[tuple[str, list[str]]]:
+    return (
+        (
+            match["sha"].decode(),
+            [
+                line
+                for line in splitlines(match["paths"])
+                if any(line.startswith(path) for path in paths)
+                and not Path(line).exists()
+            ],
+        )
+        for match in c_tqdm(
+            await commit_paths(
+                *paths, base_reference=base_reference, diff_filter="--diff-filter=A"
+            ),
+            "Commits",
+            disable_bars,
+            total=await commit_count(
+                *paths, base_reference=base_reference, diff_filter="--diff-filter=A"
+            ),
+        )
+    )
 
 
 async def corpus_creations(
     *paths: str, base_reference: str, disable_bars: bool | None
 ) -> Iterable[tuple[str, list[str]]]:
     return (
-        pair
-        for pair in (
-            (
-                match["sha"].decode(),
-                [
-                    line
-                    for line in splitlines(match["paths"])
-                    if any(line.startswith(path) for path in paths)
-                ],
-            )
-            for match in c_tqdm(
-                compile(
-                    rb"commit:.+:(?P<sha>.+)(?P<paths>(?:\s+(?!commit:).+)+)"
-                ).finditer(
-                    await cmd(
-                        "git",
-                        "log",
-                        *("--all",) if base_reference.startswith("^") else (),
-                        "--date=iso",
-                        "--diff-filter=A",
-                        "--name-only",
-                        "--pretty=format:commit:%cd:%h",
-                        base_reference,
-                        "--",
-                        *paths,
-                        out=PIPE,
-                    )
-                ),
-                "Commits",
-                disable_bars,
+        (sha, files)
+        for sha, files in await _corpus_creations(
+            *paths, base_reference=base_reference, disable_bars=disable_bars
+        )
+        if files
+    )
+
+
+async def corpus_creations_new(
+    *paths: str, disable_bars: bool | None
+) -> Iterable[tuple[str, list[str]]]:
+    exclude = frozenset(
+        splitlines(
+            await git_cmd(
+                "log",
+                "--diff-filter=A",
+                "--name-only",
+                "--pretty=format:",
+                "origin/stable",
+                "--",
+                *paths,
+                out=PIPE,
             )
         )
-        if pair[1]
+    ).union(map(str, gather_paths()))
+    return (
+        (sha, files)
+        for sha, files in (
+            (sha, sorted(frozenset(files) - exclude))
+            for sha, files in await _corpus_creations(
+                *paths, base_reference="^origin/stable", disable_bars=disable_bars
+            )
+        )
+        if files
     )
+
+
+async def corpus_deletions(
+    *paths: str, base_reference: str, disable_bars: bool | None
+) -> Iterable[str]:
+    return (
+        line
+        for match in c_tqdm(
+            await commit_paths(
+                *paths, base_reference=base_reference, diff_filter="--diff-filter=D"
+            ),
+            "Commits",
+            disable_bars,
+            total=await commit_count(
+                *paths, base_reference=base_reference, diff_filter="--diff-filter=D"
+            ),
+        )
+        for line in splitlines(match["paths"])
+        if any(line.startswith(path) for path in paths) and Path(line).exists()
+    )
+
+
+async def corpus_gather(
+    *paths: str,
+    base_reference: str = environ.get("BASE_REF", "HEAD"),
+    disable_bars: bool | None,
+) -> None:
+    exclude = frozenset(
+        line.strip().decode()
+        for line in await as_completed(
+            c_tqdm(
+                (git_cmd("hash-object", case, out=PIPE) for case in gather_paths()),
+                "Gather existing corpus objects",
+                disable_bars,
+                total=len(list(gather_paths())),
+            )
+        )
+    )
+    for path in paths:
+        Path(path).mkdir(exist_ok=True, parents=True)
+        for sha, case in await corpus_objects(
+            path,
+            base_reference=base_reference,
+            disable_bars=disable_bars,
+            exclude=exclude,
+        ):
+            new_file = Path(path) / sha
+            new_file.write_bytes(case)
+        for sha, case in await corpus_objects_new(path, disable_bars=disable_bars):
+            new_file = Path(path) / sha
+            new_file.write_bytes(case)
+    for path in await corpus_deletions(
+        *paths, base_reference=base_reference, disable_bars=disable_bars
+    ):
+        Path(path).unlink()
+    corpus_trim(disable_bars=disable_bars)
 
 
 async def corpus_merge(disable_bars: bool | None) -> None:
@@ -125,26 +248,24 @@ async def corpus_objects(
     *paths: str,
     base_reference: str,
     disable_bars: bool | None,
-    exclude: set[str] = set(),
+    exclude: frozenset[str] = frozenset(),
 ) -> list[tuple[str, bytes]]:
     return await as_completed(
         corpus_cat(sha)
         for sha in c_tqdm(
-            {
+            frozenset(
                 line
                 for lines in (
                     lines
                     for completed in await as_completed(
                         as_completed(
-                            cmd(
-                                "git",
+                            git_cmd(
                                 "ls-tree",
                                 "--full-tree",
                                 "--object-only",
                                 "-r",
                                 item[0],
                                 *chunk,
-                                log=False,
                                 out=PIPE,
                             )
                             for chunk in chunks(item[1], 4096)
@@ -158,8 +279,45 @@ async def corpus_objects(
                     for lines in completed
                 )
                 for line in splitlines(lines)
-            }
+            )
             - exclude,
+            "Files",
+            disable_bars,
+        )
+    )
+
+
+async def corpus_objects_new(
+    *paths: str, disable_bars: bool | None
+) -> list[tuple[str, bytes]]:
+    return await as_completed(
+        corpus_cat(sha)
+        for sha in c_tqdm(
+            frozenset(
+                line
+                for lines in (
+                    lines
+                    for completed in await as_completed(
+                        as_completed(
+                            git_cmd(
+                                "ls-tree",
+                                "--full-tree",
+                                "--object-only",
+                                "-r",
+                                item[0],
+                                *chunk,
+                                out=PIPE,
+                            )
+                            for chunk in chunks(item[1], 4096)
+                        )
+                        for item in await corpus_creations_new(
+                            *paths, disable_bars=disable_bars
+                        )
+                    )
+                    for lines in completed
+                )
+                for line in splitlines(lines)
+            ),
             "Files",
             disable_bars,
         )
@@ -174,13 +332,13 @@ def corpus_trim_one(fuzz: Iterable[Path], disable_bars: bool | None) -> None:
         if name == (file.parent.name + file.name):
             continue
         sha_bucket, name = name[:2], name[2:]
-        if {
+        if frozenset(
             sha(path)
             for path in (
                 FUZZ / directory / sha_bucket / name for directory in DIRECTORIES
             )
             if path.exists()
-        }.difference({src_sha}):
+        ).difference((src_sha,)):
             raise Increment(
                 f"Collision found, update corpus_trim.py `LENGTH`: {LENGTH}"
             )
@@ -252,11 +410,11 @@ async def regression(
         (
             cmd_flog(fuzz, *args)
             for args in (
-                {
+                frozenset(
                     path
                     for path in corpus.glob("*")
                     if path.is_file() and path.name != ".done"
-                }
+                )
                 for corpus in CORPUS.glob("*")
                 if not (corpus / ".done").exists()
             )

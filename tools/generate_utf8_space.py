@@ -20,7 +20,7 @@ def _ranges(it: Iterable[int]) -> str:
 
 
 def _a(_: int, t: Iterable[tuple[int, int]]) -> tuple[int, int]:
-    groups = {e for e, _ in t}
+    groups = frozenset(e for e, _ in t)
     return (min(groups), max(groups))
 
 

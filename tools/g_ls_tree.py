@@ -9,15 +9,11 @@ from pathlib import Path
 from typing import Pattern
 
 from asyncio_as_completed import as_completed
-from asyncio_cmd import chunks, cmd, main, splitlines
+from asyncio_cmd import chunks, git_cmd, main, splitlines
 from chimera_utils import IN_CI
 
 CACHE: dict[str, list[Path]] = {}
 SOURCE = Path(__file__).parent.parent.resolve()
-
-
-async def git_cmd(*args: object, out: int | None = None) -> bytes:
-    return await cmd("git", *args, out=out, log=False)
 
 
 async def g_ls_tree(
@@ -38,27 +34,27 @@ async def g_ls_tree(
     rglob = (path for arg in args for path in SOURCE.rglob(f"*.{arg}"))
     CACHE[cache_key] = sorted(
         Path(path)
-        for path in {
+        for path in frozenset(
             line
             for lines in await as_completed(
                 git_cmd("ls-files", "--", *args, out=PIPE)
                 for args in chunks(rglob, 4096)
             )
             for line in splitlines(lines)
-        }
+        )
     )
     if IN_CI:
         return CACHE[cache_key]
     CACHE[cache_key] = sorted(
         Path(path)
-        for path in {
+        for path in frozenset(
             line
             for lines in await as_completed(
                 git_cmd("diff", "--name-only", base_reference, "--", *args, out=PIPE)
                 for args in chunks(CACHE[cache_key], 4096)
             )
             for line in splitlines(lines)
-        }
+        )
     )
     return CACHE[cache_key]
 

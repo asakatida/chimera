@@ -7,8 +7,7 @@ from sys import argv
 from asyncio_cmd import main
 from cmake_codecov import cmake_codecov
 from corpus_freeze import corpus_freeze
-from corpus_gather import corpus_gather
-from corpus_utils import corpus_merge, corpus_trim
+from corpus_utils import corpus_gather, corpus_merge, corpus_trim
 
 SOURCE = Path(__file__).parent.parent.resolve()
 FUZZ = SOURCE / "unit_tests" / "fuzz"

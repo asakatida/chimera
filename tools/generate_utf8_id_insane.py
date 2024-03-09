@@ -18,7 +18,7 @@ utf8_id_continue = (
     Path(__file__).parent.parent / "library" / "grammar" / "utf8_id_continue.hpp"
 ).resolve()
 
-id_start = {i for i in range(0x110000) if chr(i).isidentifier()}
+id_start = frozenset(i for i in range(0x110000) if chr(i).isidentifier())
 
 ranges = _ranges(
     next(

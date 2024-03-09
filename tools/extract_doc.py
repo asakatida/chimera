@@ -156,10 +156,12 @@ typedef void (*PyOS_sighandler_t)(int);
 """
     print(header)
     root = Path(argv[1])
-    start = {root / "structures.html", root / "typeobj.html", root / "type.html"}
+    start = frozenset(
+        (root / "structures.html", root / "typeobj.html", root / "type.html")
+    )
     for s in start:
         mapper(s)
-    for s in sorted({file for file in root.iterdir()} - start):
+    for s in sorted(frozenset(file for file in root.iterdir()) - start):
         mapper(s)
     footer = """
 #ifdef __cplusplus}

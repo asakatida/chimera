@@ -169,6 +169,10 @@ async def communicate(
     return cmd_stdout or b""
 
 
+async def git_cmd(*args: object, out: int | None = None) -> bytes:
+    return await cmd("git", *args, out=out, log=False)
+
+
 @contextmanager
 def main() -> Iterator[None]:
     try:

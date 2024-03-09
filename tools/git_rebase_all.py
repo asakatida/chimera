@@ -9,13 +9,9 @@ from re import match
 from sys import argv
 from typing import Sequence
 
-from asyncio_cmd import ProcessError, cmd, cmd_env, main, splitlines
+from asyncio_cmd import ProcessError, cmd, cmd_env, git_cmd, main, splitlines
 from corpus_utils import c_tqdm
 from structlog import get_logger
-
-
-async def git_cmd(*args: object, out: int | None = None) -> bytes:
-    return await cmd("git", *args, out=out, log=False)
 
 
 async def git_diff(*args: str) -> bool:
@@ -119,9 +115,7 @@ async def git_rebase_one(local_branch: str, execute: str, *args: str) -> None:
     if await git_rev_list("--right-only", f"{local_branch}...origin/stable") == b"0":
         return
     try:
-        await cmd(
-            "git", "rebase", "--exec", execute, "origin/stable", local_branch, log=False
-        )
+        await git_cmd("rebase", "--exec", execute, "origin/stable", local_branch)
         return
     except ProcessError:
         pass

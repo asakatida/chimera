@@ -7,9 +7,9 @@ from pathlib import Path
 from string import printable, whitespace
 from sys import argv
 
-PRINTABLE = {
-    ord(c) for c in {c for c in printable}.difference(whitespace, '?"\\').union(" \t")
-}
+PRINTABLE = frozenset(
+    ord(c) for c in frozenset(printable).difference(whitespace, '?"\\').union(" \t")
+)
 
 PREFIX = """
 #include <catch2/catch_test_macros.hpp>
@@ -26,7 +26,7 @@ def sanitize(data: bytes) -> str:
 
 
 def make_tests(*test_cpps: Path, tests: dict[str, dict[bytes, str]]) -> None:
-    for test_cpp in {test_cpp.parent for test_cpp in test_cpps}:
+    for test_cpp in frozenset(test_cpp.parent for test_cpp in test_cpps):
         test_cpp.mkdir(exist_ok=True, parents=True)
     for test_cpp, test_cases in groupby(
         sorted(
