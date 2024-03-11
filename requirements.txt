@@ -24,7 +24,7 @@ mccabe==0.7.0
 mdurl==0.1.2
 mypy==1.8.0
 mypy-extensions==1.0.0
-packaging==23.2
+packaging==24.0
 pathspec==0.12.1
 platformdirs==4.2.0
 pycodestyle==2.11.1
