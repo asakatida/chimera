@@ -46,7 +46,7 @@ structlog==24.1.0
 subprocess-tee==0.4.1
 tomli==2.0.1
 tqdm==4.66.2
-types-PyYAML==6.0.12.12
+types-PyYAML==6.0.12.20240311
 types-requests==2.31.0.20240218
 types-tqdm==4.66.0.20240106
 types-urllib3==1.26.25.14
