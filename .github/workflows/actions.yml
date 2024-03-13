@@ -102,5 +102,5 @@ on:
     paths:
       - .github/workflows/actions.yml
   schedule:
-    - cron: 20 14 * * *
+    - cron: 20 2,8,14,20 * * *
   workflow_dispatch: ~
