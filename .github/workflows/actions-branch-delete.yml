@@ -13,15 +13,14 @@ jobs:
         run: >
           set -o pipefail;
           gh api "repos/${REPO}/actions/runs" --paginate -q '
-            .workflow_runs |
-            map(
-              select(
-                .conclusion == null and
-                .path != ".github/workflows/actions-pr-close.yml" and
-                .path != ".github/workflows/actions-branch-delete.yml" and
-                .head_branch != "stable"
-              )
-            )[]
+            .workflow_runs[] |
+            select(
+              .conclusion == null and
+              .path != ".github/workflows/actions-pr-close.yml" and
+              .path != ".github/workflows/actions-branch-delete.yml" and
+              .head_branch != "stable"
+            ) |
+            {head_branch, cancel_url}
           ' |
           jq --arg head_branch "${BRANCH}"
           'select(.head_branch == $head_branch) | .cancel_url' |
@@ -29,14 +28,13 @@ jobs:
           xargs --max-args=1 --max-procs=2 --no-run-if-empty --null --verbose --
           gh api -X POST || true;
           gh api "repos/${REPO}/actions/runs" --paginate -q '
-            .workflow_runs |
-            map(
-              select(
-                .conclusion != null and
-                .status != "in_progress" and
-                .head_branch != "stable"
-              )
-            )[]
+            .workflow_runs[] |
+            select(
+              .conclusion != null and
+              .status != "in_progress" and
+              .head_branch != "stable"
+            ) |
+            {head_branch, url}
           ' |
           jq --arg head_branch "${BRANCH}"
           'select(.head_branch == $head_branch) | .url' |
