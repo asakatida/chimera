@@ -46,7 +46,7 @@ jobs:
   cleanup-cache:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.1.1
+      - uses: actions/checkout@v4.1.2
         with:
           filter: tree:0
       - env:
