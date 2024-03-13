@@ -67,6 +67,32 @@ jobs:
           jq --join-output --slurp 'map(.url) | join("\u0000")' |
           xargs --max-args=1 --max-procs=2 --no-run-if-empty --null --verbose --
           gh api -X DELETE
+  rerun-actions:
+    permissions:
+      actions: write
+    runs-on: ubuntu-22.04
+    steps:
+      - env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        name: Rerun
+        run: >
+          set -o pipefail;
+          gh api "repos/${REPO}/actions/runs" --paginate -q '
+            .workflow_runs[] |
+            select(
+              (.run_started_at | fromdate) > (now - 60 * 60 * 24 * 14) and
+              .head_branch == "stable" and
+              .conclusion == "cancelled"
+            )
+          ' |
+          jq --join-output --slurp '
+            group_by(.path) |
+            map(sort_by(.rerun_url) | first) |
+            map(.rerun_url) | join("\u0000")
+          ' |
+          xargs --max-args=1 --max-procs=2 --no-run-if-empty --null --verbose --
+          gh api -X POST
 
 name: Meta Actions
 
