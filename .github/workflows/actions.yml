@@ -12,34 +12,34 @@ jobs:
         run: >
           set -o pipefail;
           gh api "repos/${REPO}/actions/runs" --paginate -q '
-            .workflow_runs |
-            map(
-              select(
-                .conclusion != null and
-                .head_branch != null and
-                .status != "in_progress"
-              ) |
-              select(
-                (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 60) or
-                (.head_branch != "stable" and .conclusion == "cancelled") or
+            .workflow_runs[] |
+            select(
+              (.run_started_at | fromdate) < (now - 60 * 60 * 24) and
+              .conclusion != null and
+              .head_branch != null and
+              .status != "in_progress"
+            ) |
+            select(
+              (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 60) or
+              (.head_branch != "stable" and .conclusion == "cancelled") or
+              (
+                (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 7) and
+                .head_branch != "stable"
+              ) or (
+                (.path | startswith(".github/workflows/actions")) and
+                (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 2)
+              ) or (
+                (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 3) and
                 (
-                  (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 7) and
-                  .head_branch != "stable"
-                ) or (
-                  (.path | startswith(".github/workflows/actions")) and
-                  (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 2)
-                ) or (
-                  (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 3) and
-                  (
-                    (.head_branch == "requirements-txt") or
-                    (.head_branch == "utf8-generate-grammar") or
-                    (.head_branch | startswith("corpus-")) or
-                    (.head_branch | startswith("dependabot/")) or
-                    (.head_branch | startswith("pin-0."))
-                  )
+                  (.head_branch == "requirements-txt") or
+                  (.head_branch == "utf8-generate-grammar") or
+                  (.head_branch | startswith("corpus-")) or
+                  (.head_branch | startswith("dependabot/")) or
+                  (.head_branch | startswith("pin-0."))
                 )
               )
-            )[]
+            ) |
+            {url}
           ' |
           jq --join-output --slurp 'map(.url) | join("\u0000")' |
           xargs --max-args=1 --max-procs=2 --no-run-if-empty --null --verbose --
@@ -56,13 +56,13 @@ jobs:
         run: >
           set -o pipefail;
           gh api "users/${OWNER}/packages/container/chimera/versions" --paginate -q '
-            map(
-              select(
-                (.metadata.container.tags | map(test("^[A-Za-z0-9]+$")) | all) and
-                (.metadata.container.tags | length > 0) and
-                (.updated_at | fromdate) < (now - 60 * 60 * 24 * 5)
-              )
-            )[]
+            .[] |
+            select(
+              (.metadata.container.tags | map(test("^[A-Za-z0-9]+$")) | all) and
+              (.metadata.container.tags | length > 0) and
+              (.updated_at | fromdate) < (now - 60 * 60 * 24 * 5)
+            ) |
+            {url}
           ' |
           jq --join-output --slurp 'map(.url) | join("\u0000")' |
           xargs --max-args=1 --max-procs=2 --no-run-if-empty --null --verbose --
@@ -78,18 +78,30 @@ jobs:
         name: Rerun
         run: >
           set -o pipefail;
+          while gh api "repos/${REPO}/actions/runs" --paginate -q '
+            .workflow_runs[] |
+            select(
+              .head_branch == "stable" and
+              .conclusion == null
+            ) |
+            {url}
+          ' |
+          jq --exit-status --slurp 'stderr | length > 0' >/dev/null; do
+            sleep 60;
+          done;
           gh api "repos/${REPO}/actions/runs" --paginate -q '
             .workflow_runs[] |
             select(
               (.run_started_at | fromdate) > (now - 60 * 60 * 24 * 14) and
               .head_branch == "stable" and
               .conclusion == "cancelled"
-            )
+            ) |
+            {path, rerun_url}
           ' |
           jq --join-output --slurp '
             group_by(.path) |
-            map(sort_by(.rerun_url) | first) |
-            map(.rerun_url) | join("\u0000")
+            map(sort_by(.rerun_url) | first | .rerun_url) |
+            join("\u0000")
           ' |
           xargs --max-args=1 --max-procs=2 --no-run-if-empty --null --verbose --
           gh api -X POST
