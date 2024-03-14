@@ -7,6 +7,7 @@ from sys import argv
 
 from asyncio_cmd import cmd, main
 from chimera_path import cppflags
+from cmake_ninja import apply_patches
 from ninja import ninja
 
 
@@ -27,6 +28,7 @@ async def cmake_codecov(*args: object) -> None:
     environ["LDFLAGS"] = " ".join(
         ("-Wno-unused-command-line-argument", environ.get("LDFLAGS", ""))
     )
+    await apply_patches()
     await cmd("cmake", "-G", "Ninja", "-B", "build", "-S", ".")
     await ninja("build", *args)
 

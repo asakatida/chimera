@@ -20,5 +20,11 @@ set +ex
 set -ex
 python3 --version
 
+for patch in "$(pwd)/patches"/*; do
+    external="external/$(basename "${patch}")"
+    git -C "${external}" restore .
+    git -C "${external}" apply "${patch}"
+done
+
 cmake -DCMAKE_BUILD_TYPE=Release -B . -S .
 make -j8
