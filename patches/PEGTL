@@ -1,0 +1,13 @@
+diff --git a/include/tao/pegtl/normal.hpp b/include/tao/pegtl/normal.hpp
+index 25224186..e7522b53 100644
+--- a/include/tao/pegtl/normal.hpp
++++ b/include/tao/pegtl/normal.hpp
+@@ -5,6 +5,8 @@
+ #ifndef TAO_PEGTL_NORMAL_HPP
+ #define TAO_PEGTL_NORMAL_HPP
+ 
++#include <exception> // for throw_with_nested
++
+ #include <string>
+ #include <type_traits>
+ #include <utility>

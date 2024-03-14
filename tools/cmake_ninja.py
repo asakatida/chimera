@@ -10,10 +10,18 @@ from chimera_path import cppflags
 from ninja import ninja
 
 
+async def apply_patches() -> None:
+    for patch in Path("patches").glob("*"):
+        external = Path("external") / patch.name
+        await cmd("git", "-C", external, "restore", ".")
+        await cmd("git", "-C", external, "apply", patch.resolve())
+
+
 async def cmake_ninja(build: str = "build", *args: object) -> None:
     chdir(Path(__file__).parent.parent)
     environ["CPPFLAGS"] = " ".join((cppflags, environ.get("CPPFLAGS", "")))
     environ["CXXFLAGS"] = " ".join((cppflags, environ.get("CXXFLAGS", "")))
+    await apply_patches()
     await cmd("cmake", "-G", "Ninja", "-B", build, "-S", ".")
     await ninja(build, "unit-test")
     await ninja(build, "test")
