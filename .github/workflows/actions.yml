@@ -75,6 +75,7 @@ jobs:
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
         name: Rerun
         run: >
           set -o pipefail;
@@ -84,9 +85,11 @@ jobs:
               .head_branch == "stable" and
               .conclusion == null
             ) |
-            {url}
+            {id, url}
           ' |
-          jq --exit-status --slurp 'stderr | length > 0' >/dev/null; do
+          jq --argjson run_id "${RUN_ID}" --exit-status --slurp '
+            stderr | map(select(.id != $run_id)) | length > 0
+          ' >/dev/null; do
             sleep 60;
           done;
           gh api "repos/${REPO}/actions/runs" --paginate -q '
