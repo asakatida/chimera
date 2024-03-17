@@ -3,13 +3,13 @@
 set -ex
 
 git clean -dfx
-rm -rf "$HOME/.cargo"
+rm -rf "${HOME}/.cargo"
 
 git submodule update --init
 
 curl https://sh.rustup.rs -sSf | sh -s -- -y --no-modify-path
 set +ex
-. "$HOME/.cargo/env"
+. "${HOME}/.cargo/env"
 set -ex
 rustup default stable
 cargo --version
