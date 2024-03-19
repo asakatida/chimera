@@ -6,7 +6,7 @@ RUN <<SHELL sh
     set -ex
     apk update
     apk add --no-cache \
-        ca-certificates=20230506-r0 \
+        ca-certificates=20240226-r0 \
         git=2.43.0-r0
     apk add --no-cache \
         python3-dev=3.11.8-r0
