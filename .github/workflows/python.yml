@@ -10,7 +10,7 @@ jobs:
         with:
           filter: tree:0
       - name: MyPy Cache
-        uses: actions/cache@v4.0.1
+        uses: actions/cache@v4.0.2
         with:
           key: mypy-${{ github.run_id }}
           path: .mypy_cache
