@@ -6,6 +6,8 @@
 
 using namespace std::literals;
 
+// NOLINTBEGIN(misc-include-cleaner)
+
 namespace chimera::library::virtual_machine::modules {
   // NOLINTBEGIN(misc-const-correctness)
   void builtins(const object::Object &builtins) {
@@ -534,3 +536,5 @@ namespace chimera::library::virtual_machine::modules {
   }
   // NOLINTEND(misc-const-correctness)
 } // namespace chimera::library::virtual_machine::modules
+
+// NOLINTEND(misc-include-cleaner)

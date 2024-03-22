@@ -10,6 +10,7 @@
 #include <gsl/narrow>   // for narrow
 #include <gsl/span>     // for span_iterator, span
 #include <gsl/span_ext> // for make_span
+#include <gsl/util>     // for finally
 
 #include <cstring>   // for size_t, strncmp, strlen
 #include <exception> // for exception
@@ -26,7 +27,8 @@ using namespace std::literals;
 namespace chimera::library {
   using Span = gsl::span<const char *>;
   template <typename InputIt>
-  [[nodiscard]] auto forward_args(InputIt &&begin, const InputIt &end) {
+  // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
+  [[nodiscard]] auto forward_args(InputIt &&begin, const InputIt &end) -> Span {
     if (auto distance = std::distance(begin, end); distance > 0) {
       return gsl::make_span(&*begin, gsl::narrow<Span::size_type>(distance));
     }
@@ -37,18 +39,18 @@ namespace chimera::library {
               << " [-bBdEhiIOqsSuvVWx?]"
                  " [-c command | -m module-name | script | - ]"
                  " [args]"
-              << std::endl;
+              << '\n';
     return 0;
   }
   static auto print_version(const Span &args) -> int {
     std::cout << args[0] << " " << CHIMERA_VERSION << " (" << CHIMERA_GIT_HEAD
               << ")\n"
                  "[" __VERSION__ "]"
-              << std::endl;
+              << '\n';
     return 0;
   }
   using Argv = gsl::span<const char>;
-  // NOLINTNEXTLINE(readability-function-cognitive-complexity)
+  // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved,readability-function-cognitive-complexity)
   static auto main(Span &&args) noexcept -> int {
     auto finally = gsl::finally([] { r_vm_end(); });
     std::cerr.exceptions(std::ios_base::failbit | std::ios_base::badbit);
@@ -82,6 +84,7 @@ namespace chimera::library {
               return print_help(args);
             }
             throw std::runtime_error(
+                // NOLINTNEXTLINE(misc-include-cleaner)
                 "unrecognized option "s.append(*arg)
                     .append(" at position ")
                     .append(std::to_string(std::distance(args.begin(), arg))));
@@ -194,6 +197,7 @@ namespace chimera::library {
                 break;
               default:
                 throw std::runtime_error(
+                    // NOLINTNEXTLINE(misc-include-cleaner)
                     "unrecognized option -"s.append(1, *argChar)
                         .append(" at position ")
                         .append(
@@ -202,10 +206,10 @@ namespace chimera::library {
           }
         }
       } catch (const object::BaseException &error) {
-        std::cerr << error << std::endl;
+        std::cerr << error << '\n';
         return 1;
       } catch (const std::exception &error) {
-        std::cerr << error.what() << std::endl;
+        std::cerr << error.what() << '\n';
         return 1;
       }
     } catch (...) {
