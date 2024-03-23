@@ -99,11 +99,11 @@ jobs:
               .head_branch == "stable" and
               .conclusion == "cancelled"
             ) |
-            {path, rerun_url}
+            {path, rerun_url, run_started_at}
           ' |
           jq --join-output --slurp '
             group_by(.path) |
-            map(sort_by(.rerun_url) | first | .rerun_url) |
+            map(sort_by(.run_started_at) | last | .rerun_url) |
             join("\u0000")
           ' |
           xargs --max-args=1 --max-procs=2 --no-run-if-empty --null --verbose --
