@@ -90,9 +90,9 @@ namespace chimera::library::grammar {
       }
     };
     using DecIntegerNonZeroDigit =
-        seq<Nonzerodigit, star<opt<one<'_'>>, Digit, discard>>;
+        if_must<Nonzerodigit, star<opt<one<'_'>>, Digit, discard>>;
     using DecIntegerZeroDigit =
-        seq<one<'0'>, star<opt<one<'_'>>, one<'0'>, discard>>;
+        if_must<one<'0'>, star<opt<one<'_'>>, one<'0'>, discard>>;
     using Decinteger = sor<DecIntegerNonZeroDigit, DecIntegerZeroDigit>;
     using BinStart = seq<one<'0'>, one<'b', 'B'>>;
     using Bininteger =
@@ -105,8 +105,8 @@ namespace chimera::library::grammar {
         if_must<HexStart, plus<opt<one<'_'>>, Hexdigit, discard>>;
     using Integer = sor<Bininteger, Octinteger, Hexinteger, Decinteger>;
     using Digitpart = plus<opt<one<'_'>>, Digit, discard>;
-    using Fraction = seq<one<'.'>, Digitpart, discard>;
-    struct ExponentNegative : seq<one<'-'>, Digitpart> {
+    using Fraction = if_must<one<'.'>, Digitpart, discard>;
+    struct ExponentNegative : if_must<one<'-'>, Digitpart> {
       struct Transform : NumberHolder {
         template <typename Top>
         void finalize(Transform & /*unused*/, Top &&top) {
@@ -128,8 +128,8 @@ namespace chimera::library::grammar {
       };
     };
     using Pointfloat =
-        sor<seq<opt<Digitpart>, Fraction>, seq<Digitpart, one<'.'>>>;
-    using Exponentfloat = seq<sor<Digitpart, Pointfloat>, Exponent>;
+        sor<seq<opt<Digitpart>, Fraction>, if_must<Digitpart, one<'.'>>>;
+    using Exponentfloat = if_must<sor<Digitpart, Pointfloat>, Exponent>;
     struct Floatnumber : sor<Pointfloat, Exponentfloat> {
       struct Transform : NumberHolder {
         object::Number denominator = object::Number(1);
