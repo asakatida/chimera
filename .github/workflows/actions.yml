@@ -79,6 +79,21 @@ jobs:
         name: Rerun
         run: >
           set -o pipefail;
+          gh api "repos/${REPO}/actions/runs" --paginate -q '
+            .workflow_runs[] |
+            select(
+              .head_branch == "stable" and
+              .conclusion == null and
+              .path == ".github/workflows/actions.yml"
+            ) |
+            {cancel_url, id}
+          ' |
+          jq --argjson run_id "${RUN_ID}" --join-output --slurp '
+            map(select(.id < $run_id) | .cancel_url) |
+            join("\u0000")
+          ' |
+          xargs --max-args=1 --max-procs=2 --no-run-if-empty --null --verbose --
+          gh api -X POST || true;
           while gh api "repos/${REPO}/actions/runs" --paginate -q '
             .workflow_runs[] |
             select(
@@ -88,7 +103,7 @@ jobs:
             {id, url}
           ' |
           jq --argjson run_id "${RUN_ID}" --exit-status --slurp '
-            stderr | map(select(.id != $run_id)) | length > 0
+            debug | map(select(.id != $run_id)) | length > 0
           ' >/dev/null; do
             sleep 60;
           done;
