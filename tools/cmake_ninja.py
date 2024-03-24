@@ -1,6 +1,7 @@
 """cmake_ninja.py"""
 
 from asyncio import run
+from asyncio.subprocess import PIPE
 from os import chdir, environ
 from pathlib import Path
 from sys import argv
@@ -13,6 +14,10 @@ from ninja import ninja
 async def apply_patches() -> None:
     for patch in Path("patches").glob("*"):
         external = Path("external") / patch.name
+        if (
+            await cmd("git", "-C", external, "diff", out=PIPE)
+        ).strip() == patch.read_bytes().strip():
+            continue
         await cmd("git", "-C", external, "restore", ".")
         await cmd("git", "-C", external, "apply", patch.resolve())
 

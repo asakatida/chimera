@@ -20,7 +20,6 @@ async def corpus_merge_main(base_reference: str = "HEAD") -> None:
         "unit_tests/fuzz/corpus", base_reference=base_reference, disable_bars=None
     )
     await corpus_merge(disable_bars=None)
-    Path("unit_tests/fuzz/cases.json").write_text("{}")
     await corpus_freeze(
         "unit_tests/fuzz/cases.json", base_reference=base_reference, disable_bars=None
     )
