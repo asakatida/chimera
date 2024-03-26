@@ -12,7 +12,7 @@ click==8.1.7
 cmakelint==1.4.2
 cryptography==42.0.5
 docker==7.0.0
-filelock==3.13.1
+filelock==3.13.3
 idna==3.6
 isort==5.13.2
 Jinja2==3.1.3
