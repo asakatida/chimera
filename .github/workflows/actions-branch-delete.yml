@@ -16,14 +16,16 @@ jobs:
             .workflow_runs[] |
             select(
               .conclusion == null and
-              .path != ".github/workflows/actions-pr-close.yml" and
               .path != ".github/workflows/actions-branch-delete.yml" and
               .head_branch != "stable"
             ) |
             {head_branch, cancel_url}
           ' |
           jq --arg head_branch "${BRANCH}"
-          'select(.head_branch == $head_branch) | .cancel_url' |
+          'select(
+            .head_branch == $head_branch or
+            (.pull_requests[0].head.ref // "") == $head_branch
+          ) | .cancel_url' |
           jq --join-output --slurp 'join("\u0000")' |
           xargs --max-args=1 --max-procs=2 --no-run-if-empty --null --verbose --
           gh api -X POST || true;
@@ -37,7 +39,10 @@ jobs:
             {head_branch, url}
           ' |
           jq --arg head_branch "${BRANCH}"
-          'select(.head_branch == $head_branch) | .url' |
+          'select(
+            .head_branch == $head_branch or
+            (.pull_requests[0].head.ref // "") == $head_branch
+          ) | .url' |
           jq --join-output --slurp 'join("\u0000")' |
           xargs --max-args=1 --max-procs=2 --no-run-if-empty --null --verbose --
           gh api -X DELETE

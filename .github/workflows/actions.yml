@@ -16,7 +16,11 @@ jobs:
             select(
               (.run_started_at | fromdate) < (now - 60 * 60 * 24) and
               .conclusion != null and
-              .head_branch != null and
+              (
+                .head_branch != null or
+                (.name | startswith("PR #")) or
+                (.pull_requests[0].head.ref // "" | length > 0)
+              ) and
               .status != "in_progress"
             ) |
             select(
@@ -24,7 +28,11 @@ jobs:
               (.head_branch != "stable" and .conclusion == "cancelled") or
               (
                 (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 7) and
-                .head_branch != "stable"
+                (
+                  .head_branch != "stable" or
+                  (.name | startswith("PR #")) or
+                  (.pull_requests[0].head.ref // "" | length > 0)
+                )
               ) or (
                 (.path | startswith(".github/workflows/actions")) and
                 (.run_started_at | fromdate) < (now - 60 * 60 * 24 * 2)
